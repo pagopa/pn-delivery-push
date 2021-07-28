@@ -13,7 +13,7 @@ Resources:
   WebappAndSshSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: !Sub ${EnvName}-webapp-and-ssh-security-group2
+      GroupName: !Sub ${EnvName}-push-security-group
       GroupDescription: "ingres tcp 8080 and ssh, egress all"
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -45,7 +45,7 @@ Resources:
   InstancePolicy:
     Type: AWS::IAM::Policy
     Properties:
-      PolicyName: !Sub ${EnvName}-instance-policy
+      PolicyName: !Sub ${EnvName}-instance-push-policy
       PolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -63,7 +63,7 @@ Resources:
   InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
-      InstanceProfileName: simple-instance-profile
+      InstanceProfileName: simple-instance-push-profile
       Path: /
       Roles:
         - !Ref InstanceRole
