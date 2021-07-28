@@ -122,4 +122,4 @@ Resources:
               - !Sub "export ECR_ACCOUNT_ID=${AWS::AccountId}"
               - export ECR_URL=${ECR_ACCOUNT_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com
               - aws ecr get-login-password --region $ECR_REGION | sudo docker login --username AWS --password-stdin $ECR_URL
-              - sudo docker run -p 8080:8080 --rm --name pn-delivery -d $ECR_URL/pn-delivery:latest
+              - sudo docker run -p 8080:8080 --rm --name pn-delivery-push -d $ECR_URL/pn-delivery-push:latest
