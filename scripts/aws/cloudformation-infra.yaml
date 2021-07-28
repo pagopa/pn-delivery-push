@@ -13,7 +13,7 @@ Resources:
   WebappAndSshSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: !Sub ${EnvName}-webapp-and-ssh-security-group
+      GroupName: !Sub ${EnvName}-webapp-and-ssh-security-group2
       GroupDescription: "ingres tcp 8080 and ssh, egress all"
       SecurityGroupIngress:
         - IpProtocol: tcp
