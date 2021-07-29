@@ -11,7 +11,7 @@ Resources:
   Cluster:
     Type: AWS::ECS::Cluster
     Properties:
-      ClusterName: !Join ['', [!Ref ServiceName, DeliveryPushCluster]]
+      ClusterName: !Join ['', [!Ref EnvName, DeliveryPushCluster]]
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
     # Makes sure the log group is created before it is used.
@@ -42,8 +42,8 @@ Resources:
       # "The Amazon Resource Name (ARN) of an AWS Identity and Access Management (IAM) role that grants containers in the task permission to call AWS APIs on your behalf."
       TaskRoleArn: !Ref TaskRole
       ContainerDefinitions:
-        - Name: !Ref ServiceName
-          Image: !Ref Image
+        - Name: !Sub '${EnvName}-delivery-push'
+          Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/pn-delivery-push:latest'
           PortMappings:
             - ContainerPort: 8080
           # Send logs to CloudWatch Logs
@@ -112,7 +112,8 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: !Join ['', [!Ref EnvName, DeliveryPushContSecGrp]]
-      VpcId: !Ref VPC
+      VpcId: !ImportValue
+        "Fn::Sub": '${EnvName}-vpc-id'
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 8080
@@ -122,7 +123,8 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: !Join ['', [!Ref EnvName, DeliveryPushLbSecGrp]]
-      VpcId: !Ref VPC
+      VpcId: !ImportValue
+        "Fn::Sub": '${EnvName}-vpc-id'
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 80
@@ -149,8 +151,8 @@ Resources:
           # change to DISABLED if you're using private subnets that have access to a NAT gateway
           AssignPublicIp: ENABLED
           Subnets:
-            - !Ref SubnetA
-            - !Ref SubnetB
+            - !ImportValue { "Fn::Sub": '${EnvName}-subnet1' }
+            - !ImportValue { "Fn::Sub": '${EnvName}-subnet2' }
           SecurityGroups:
             - !Ref ContainerSecurityGroup
         #LoadBalancers:
@@ -217,8 +219,8 @@ Resources:
   AutoScalingTarget:
     Type: AWS::ApplicationAutoScaling::ScalableTarget
     Properties:
-      MinCapacity: !Ref MinContainers
-      MaxCapacity: !Ref MaxContainers
+      MinCapacity: 2
+      MaxCapacity: 4
       ResourceId: !Join ['/', [service, !Ref Cluster, !GetAtt DeliveryPushService.Name]]
       ScalableDimension: ecs:service:DesiredCount
       ServiceNamespace: ecs
@@ -236,7 +238,7 @@ Resources:
         ScaleInCooldown: 10
         ScaleOutCooldown: 10
         # Keep things at or lower than 50% CPU utilization, for example
-        TargetValue: !Ref AutoScalingTargetValue
+        TargetValue: 60
     #Outputs:
     #  Endpoint:
     #    Description: Endpoint

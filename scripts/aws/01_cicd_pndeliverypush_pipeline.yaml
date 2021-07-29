@@ -242,31 +242,7 @@ Resources:
               RunOrder: 1
         - Name: DeployToTest
           Actions:
-            - Name: DestroyInfra
-              ActionTypeId:
-                Category: Deploy
-                Owner: AWS
-                Version: 1
-                Provider: CloudFormation
-              Configuration:
-                ActionMode: DELETE_ONLY
-                StackName: !Sub ${ProductName}-${BranchName}-delivpush-rt
-                TemplatePath: !Sub SCCheckoutArtifact::/scripts/aws/cloudformation-infra.yaml
-                #TemplateConfiguration: !Sub SCCheckoutArtifact::${BetaEnvConfiguration}
-                RoleArn:
-                  Fn::If:
-                    - AddCodeBuildResource
-                    - !Sub arn:aws:iam::${BetaAccount}:role/${ProductName}-${BranchName}-cloudformationdeployer-role
-                    - !Ref AWS::NoValue
-              InputArtifacts:
-                - Name: SCCheckoutArtifact
-              RunOrder: 1
-              RoleArn:
-                Fn::If:
-                  - AddCodeBuildResource
-                  - !Sub arn:aws:iam::${BetaAccount}:role/${ProductName}-${BranchName}-cicd-role
-                  - !Ref AWS::NoValue
-            - Name: RecreateInfra
+            - Name: UpdateInfra
               ActionTypeId:
                 Category: Deploy
                 Owner: AWS
