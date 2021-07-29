@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.result.view.RedirectView;
 
 @Import(PnAutoConfigurationImportSelector.class)
@@ -19,5 +20,12 @@ public class PnDeliveryPushApplication {
 		SpringApplication.run(PnDeliveryPushApplication.class, args);
 	}
 
+	@RestController
+	public static class HomeController {
 
+		@GetMapping("")
+		public String home() {
+			return "Sono Vivo";
+		}
+	}
 }
