@@ -27,7 +27,7 @@ public class FakeWorkflowService {
 
     @Scheduled(fixedDelay = 1000)
     public void scheduleFixedDelayTask() {
-        logger.info("Method Scheduled" );
+        //logger.info("Method Scheduled" );
 
         try {
             notificationMom.poll( Duration.ofSeconds(1)).thenApply( (notifications) -> {
