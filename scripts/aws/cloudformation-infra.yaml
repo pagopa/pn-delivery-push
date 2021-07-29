@@ -215,7 +215,7 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Join ['', [/ecs/, !Ref EnvName, DeliveryPush]]
-      RetentionInDays: 1
+      RetentionInDays: 3
   AutoScalingTarget:
     Type: AWS::ApplicationAutoScaling::ScalableTarget
     Properties:
