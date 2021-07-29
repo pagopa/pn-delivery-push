@@ -240,6 +240,7 @@ Resources:
                 StackName: !Sub ${ProductName}-${BranchName}-delivpush-rt
                 TemplatePath: !Sub SCCheckoutArtifact::scripts/aws/cloudformation-infra.yaml
                 TemplateConfiguration: !Sub SCCheckoutArtifact::scripts/aws/beta-cfg.json
+                OutputFileName: InfrastructureOutputs.json
                 Capabilities: CAPABILITY_NAMED_IAM
                 RoleArn:
                   Fn::If:
