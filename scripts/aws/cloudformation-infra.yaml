@@ -239,8 +239,11 @@ Resources:
         ScaleOutCooldown: 10
         # Keep things at or lower than 50% CPU utilization, for example
         TargetValue: 60
-    #Outputs:
-    #  Endpoint:
-    #    Description: Endpoint
-    #Value: !Join ['', ['https://', !Ref DNSRecord]]
-#    Value: !Sub 'https://${LoadBalancer.DNSName}'
+
+Outputs:
+  CluserArn:
+    Description: ARN del cluster fargate
+    Value: !Sub '${Cluster.Arn}'
+  ServiceName:
+    Description: Nome del servizio di cui fare deploy
+    Value: !Sub '${DeliveryPushService.Name}'

@@ -186,6 +186,7 @@ Resources:
               - echo Pushing the Docker image...
               - docker push $ECR_URL/$ARTIFACT_ID:$VERSION
               - docker push $ECR_URL/$ARTIFACT_ID:latest
+              - ls $CODEBUILD_SRC_DIR_InfraOutputs/
       Artifacts:
         Type: CODEPIPELINE
       Environment:
@@ -226,20 +227,6 @@ Resources:
                   - AddCodeBuildResource
                   - !Sub arn:aws:iam::${AWS::AccountId}:role/${ProductName}-${BranchName}-from-github-to-s3-role
                   - !Ref AWS::NoValue
-        - Name: BuildDockerImage
-          Actions:
-            - Name: CodeBuildDelivery
-              ActionTypeId:
-                Category: Build
-                Owner: AWS
-                Version: 1
-                Provider: CodeBuild
-              Configuration:
-                ProjectName: !Ref CodeBuildProject
-                PrimarySource: SCCheckoutArtifact
-              InputArtifacts:
-                - Name: SCCheckoutArtifact
-              RunOrder: 1
         - Name: DeployToTest
           Actions:
             - Name: UpdateInfra
@@ -261,12 +248,29 @@ Resources:
                     - !Ref AWS::NoValue
               InputArtifacts:
                 - Name: SCCheckoutArtifact
+              OutputArtifacts:
+                - Name: InfraOutputs
               RunOrder: 2
               RoleArn:
                 Fn::If:
                   - AddCodeBuildResource
                   - !Sub arn:aws:iam::${BetaAccount}:role/${ProductName}-${BranchName}-cicd-role
                   - !Ref AWS::NoValue
+        - Name: BuildDockerImage
+          Actions:
+            - Name: CodeBuildDelivery
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Ref CodeBuildProject
+                PrimarySource: SCCheckoutArtifact
+              InputArtifacts:
+                - Name: SCCheckoutArtifact
+                - Name: InfraOutputs
+              RunOrder: 1
       ArtifactStore:
         Type: S3
         Location: { "Fn::ImportValue": {"Fn::Sub": "${ProductName}-${BranchName}-build-artifacts-buket-name"}}
