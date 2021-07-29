@@ -136,7 +136,7 @@ Resources:
     #DependsOn:
     #  - ListenerHTTP
     Properties:
-      ServiceName: !Sub '${env-name}-delivery-push'
+      ServiceName: !Sub '${EnvName}-delivery-push'
       Cluster: !Ref Cluster
       TaskDefinition: !Ref TaskDefinition
       DeploymentConfiguration:
