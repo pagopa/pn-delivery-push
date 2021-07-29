@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class FakeWorkflowService {
@@ -28,20 +29,24 @@ public class FakeWorkflowService {
     public void scheduleFixedDelayTask() {
         logger.info("Method Scheduled" );
 
-        notificationMom.poll( Duration.ofSeconds(1)).thenApply( (notifications) -> {
-            logger.info("Queue polling done" );
-            notifications.forEach( n -> {
-                logger.info("Received IUN " + n.getIun() );
-                pecMom.push(
-                        PecRequest.builder()
-                                .iun( n.getIun())
-                                .address("hello@world")
-                                .sentDate( n.getSentDate())
-                            .build()
-                    );
-            });
-            return null;
-        });
+        try {
+            notificationMom.poll( Duration.ofSeconds(1)).thenApply( (notifications) -> {
+                logger.info("Queue polling done" );
+                notifications.forEach( n -> {
+                    logger.info("Received IUN " + n.getIun() );
+                    pecMom.push(
+                            PecRequest.builder()
+                                    .iun( n.getIun())
+                                    .address("hello@world.it")
+                                    .sentDate( n.getSentDate())
+                                .build()
+                        );
+                });
+                return null;
+            }).get();
+        } catch (InterruptedException | ExecutionException exc) {
+            exc.printStackTrace( System.err );
+        }
 
     }
 }
