@@ -30,10 +30,10 @@ public class FakeWorkflowService {
         //logger.info("Method Scheduled" );
 
         try {
-            notificationMom.poll( Duration.ofSeconds(1)).thenApply( (notifications) -> {
+            notificationMom.poll( Duration.ofSeconds(5)).thenApply( (notifications) -> {
                 logger.info("Queue polling done" );
                 notifications.forEach( n -> {
-                    logger.info("Received IUN " + n.getIun() );
+                    logger.info("Received IUN " + n.getIun() + "! Ciao mondo!" );
                     pecMom.push(
                             PecRequest.builder()
                                     .iun( n.getIun())
