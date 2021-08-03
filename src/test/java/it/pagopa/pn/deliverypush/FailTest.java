@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush
+package it.pagopa.pn.deliverypush;
 
 
 import org.junit.jupiter.api.Assertions;
