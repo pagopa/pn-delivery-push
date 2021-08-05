@@ -31,7 +31,7 @@ public class FakeWorkflowService {
 
         try {
             notificationMom.poll( Duration.ofSeconds(5)).thenApply( (notifications) -> {
-                logger.info("Queue polling done" );
+                //logger.info("Queue polling done" );
                 notifications.forEach( n -> {
                     logger.info("Received IUN " + n.getIun() + "! Ciao mondo!" );
                     pecMom.push(
