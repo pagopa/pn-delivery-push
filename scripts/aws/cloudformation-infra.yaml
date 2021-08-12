@@ -43,7 +43,7 @@ Resources:
       TaskRoleArn: !Ref TaskRole
       ContainerDefinitions:
         - Name: !Sub '${EnvName}-delivery-push'
-          Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/pn-delivery-push:latest'
+          Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${EnvName}-pn-delivery-push:latest'
           Environment:
             - Name: AWS_REGIONCODE
               Value: !Ref AWS::Region
