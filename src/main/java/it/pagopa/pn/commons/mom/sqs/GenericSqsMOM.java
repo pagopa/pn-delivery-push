@@ -33,9 +33,9 @@ public class GenericSqsMOM<T> implements MomProducer<T>, MomConsumer<T> {
         this.bodyClass = bodyClass;
         this.sqs = sqs;
         this.objMapper = objMapper;
+        log.debug("Using queue {} ", queueName);
         queueUrl = getQueueUrl( sqs );
-
-        log.info("Using queue {} with url {}", queueName, queueUrl);
+        log.debug("Using queue {} wth url {}", queueName, queueUrl);
     }
 
     private String getQueueUrl(SqsAsyncClient sqs) {
