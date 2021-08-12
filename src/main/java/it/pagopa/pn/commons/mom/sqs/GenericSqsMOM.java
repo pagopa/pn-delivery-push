@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.commons.mom.MomConsumer;
 import it.pagopa.pn.commons.mom.MomProducer;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.sqs.SqsAsyncClient;
@@ -15,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class GenericSqsMOM<T> implements MomProducer<T>, MomConsumer<T> {
 
     private final String queueName;
@@ -32,6 +34,8 @@ public class GenericSqsMOM<T> implements MomProducer<T>, MomConsumer<T> {
         this.sqs = sqs;
         this.objMapper = objMapper;
         queueUrl = getQueueUrl( sqs );
+
+        log.info("Using queue {} with url {}", queueName, queueUrl);
     }
 
     private String getQueueUrl(SqsAsyncClient sqs) {
