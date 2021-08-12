@@ -48,9 +48,9 @@ Resources:
             - Name: AWS_REGIONCODE
               Value: !Ref AWS::Region
             - Name: PN_DELIVERYPUSH_TOPICS_NEWNOTIFICATIONS
-              Value: !ImportValue { "Fn::Sub": '${EnvName}-delpush-input-queue-name' }
+              Value: demo-main-delpush-input-queue-name
             - Name: PN_DELIVERYPUSH_TOPICS_TOEXTERNALCHANNEL
-              Value: !ImportValue { "Fn::Sub": '${EnvName}-extchannel-input-queue-name' }
+              Value: demo-main-extchannel-input-queue-name
           PortMappings:
             - ContainerPort: 8080
           # Send logs to CloudWatch Logs
