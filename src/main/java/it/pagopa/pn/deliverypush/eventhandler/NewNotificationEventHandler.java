@@ -1,9 +1,6 @@
 package it.pagopa.pn.deliverypush.eventhandler;
 
-import it.pagopa.pn.api.dto.events.EventType;
-import it.pagopa.pn.api.dto.events.NewNotificationEvent;
-import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
-import it.pagopa.pn.api.dto.events.StandardEventHeader;
+import it.pagopa.pn.api.dto.events.*;
 import it.pagopa.pn.commons.abstractions.MomProducer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,6 +31,15 @@ public class NewNotificationEventHandler implements EventHandler<NewNotification
                         .eventId(header.getIun() + "_pec_rec1_address1_retry1")
                         .createdAt( Instant.now() )
                     .build()
+                )
+                .payload( PnExtChnPecEventPayload.builder()
+                        .iun(header.getIun())
+                        .codiceFiscale("IlCodeceFiscaleDestinatario")
+                        .destinatario("Nome E cognome")
+                        .numeroCronologico("1")
+                        .paMittente("PAId")
+                        .pec("mittente@pec.it")
+                        .build()
                 )
                 .build();
         sendPec.push( extChRequest );
