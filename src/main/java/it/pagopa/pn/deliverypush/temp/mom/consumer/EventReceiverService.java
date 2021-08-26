@@ -1,6 +1,5 @@
-package it.pagopa.pn.deliverypush;
+package it.pagopa.pn.deliverypush.temp.mom.consumer;
 
-import it.pagopa.pn.deliverypush.middleware.EventReceiver;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
