@@ -62,7 +62,7 @@ public class ActionsPoolImpl implements ActionsPool {
         // - Separate microservice runned with a scheduled tast
 
         // FIXME: Keep track of "all scheduled until" and try to schedule from that date to now.
-        
+
         Instant now = clock.instant();
         for( int i = 0; i< 120; i++ ) {
             Instant when = now.minus( i, ChronoUnit.MINUTES );
