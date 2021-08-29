@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.actiondao.cassandra;
 
+import com.datastax.oss.driver.api.core.ConsistencyLevel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -9,6 +10,7 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.ActionDao;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.cassandra.core.CassandraOperations;
+import org.springframework.data.cassandra.core.InsertOptions;
 import org.springframework.data.cassandra.core.query.Criteria;
 import org.springframework.data.cassandra.core.query.Query;
 import org.springframework.stereotype.Component;
@@ -20,6 +22,10 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class CassandraActionPool implements ActionDao {
+
+    private static final InsertOptions INSERT_OPTIONS = InsertOptions.builder()
+            .consistencyLevel(ConsistencyLevel.LOCAL_QUORUM)
+            .build();
 
     private final CassandraOperations cassandra;
     private final ObjectWriter actionWriter;
@@ -33,8 +39,8 @@ public class CassandraActionPool implements ActionDao {
 
     @Override
     public void addAction(Action action, String timeSlot) {
-        cassandra.insert( dtoToActionEntity( action ) );
-        cassandra.insert( dtoToFutureActionEntity( action, timeSlot ) );
+        cassandra.insert( dtoToActionEntity( action ), INSERT_OPTIONS );
+        cassandra.insert( dtoToFutureActionEntity( action, timeSlot ), INSERT_OPTIONS );
     }
 
     @Override
