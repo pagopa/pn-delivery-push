@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.middleware;
+package it.pagopa.pn.deliverypush.temp.mom.consumer;
 
 import java.time.Duration;
 
