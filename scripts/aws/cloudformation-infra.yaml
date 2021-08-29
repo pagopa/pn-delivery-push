@@ -7,6 +7,10 @@ Parameters:
   EnvNumber:
     Type: String
     Description: Second byte from the left for VPC CIDR
+  KeyspaceName:
+    Type: String
+    Description: cassandra keyspace name
+
 Resources:
   Cluster:
     Type: AWS::ECS::Cluster
@@ -205,7 +209,7 @@ Resources:
     Type: AWS::Cassandra::Table
     Properties:
       TableName: actions
-      KeyspaceName: !Ref Keyspace
+      KeyspaceName: !Ref KeyspaceName
       PointInTimeRecoveryEnabled: true
       PartitionKeyColumns:
         - ColumnName: actionid
@@ -218,7 +222,7 @@ Resources:
     Type: AWS::Cassandra::Table
     Properties:
       TableName: future_actions
-      KeyspaceName: !Ref Keyspace
+      KeyspaceName: !Ref KeyspaceName
       PointInTimeRecoveryEnabled: true
       PartitionKeyColumns:
         - ColumnName: time_slot
