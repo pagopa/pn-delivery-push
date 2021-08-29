@@ -201,6 +201,43 @@ Resources:
         # Keep things at or lower than 50% CPU utilization, for example
         TargetValue: 60
 
+  ActionsTable:
+    Type: AWS::Cassandra::Table
+    Properties:
+      TableName: actions
+      KeyspaceName: !Ref Keyspace
+      PointInTimeRecoveryEnabled: true
+      PartitionKeyColumns:
+        - ColumnName: actionid
+          ColumnType: text
+      RegularColumns:
+        - ColumnName: actionjson
+          ColumnType: text
+
+  FutureActionsTable:
+    Type: AWS::Cassandra::Table
+    Properties:
+      TableName: future_actions
+      KeyspaceName: !Ref Keyspace
+      PointInTimeRecoveryEnabled: true
+      PartitionKeyColumns:
+        - ColumnName: time_slot
+          ColumnType: text
+      ClusteringKeyColumns:
+        - Column:
+            ColumnName: iun
+            ColumnType: text
+          OrderBy: ASC
+        - Column:
+            ColumnName: action_id
+            ColumnType: text
+          OrderBy: ASC
+      RegularColumns:
+        - ColumnName: notbefore
+          ColumnType: timestamp
+        - ColumnName: actionjson
+          ColumnType: text
+
 Outputs:
   CluserArn:
     Description: ARN del cluster fargate
