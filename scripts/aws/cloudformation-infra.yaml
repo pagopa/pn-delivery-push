@@ -124,6 +124,8 @@ Resources:
             Resource:
               - !ImportValue { "Fn::Sub": '${EnvName}-delpush-input-queue-arn' }
               - !ImportValue { "Fn::Sub": '${EnvName}-extchannel-input-queue-arn' }
+              - !ImportValue { "Fn::Sub": '${EnvName}-extchannel-output-queue-arn' }
+              - !ImportValue { "Fn::Sub": '${EnvName}-delpush-actions-queue-arn' }
           - Effect: Allow
             Action:
               - cassandra:Modify
