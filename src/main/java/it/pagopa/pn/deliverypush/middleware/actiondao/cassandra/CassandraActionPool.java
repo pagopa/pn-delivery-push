@@ -10,6 +10,7 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.ActionDao;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.cassandra.core.CassandraOperations;
+import org.springframework.data.cassandra.core.DeleteOptions;
 import org.springframework.data.cassandra.core.InsertOptions;
 import org.springframework.data.cassandra.core.query.Criteria;
 import org.springframework.data.cassandra.core.query.Query;
@@ -24,6 +25,10 @@ import java.util.stream.Collectors;
 public class CassandraActionPool implements ActionDao {
 
     private static final InsertOptions INSERT_OPTIONS = InsertOptions.builder()
+            .consistencyLevel(ConsistencyLevel.LOCAL_QUORUM)
+            .build();
+
+    private static final DeleteOptions DELETE_OPTIONS = DeleteOptions.builder()
             .consistencyLevel(ConsistencyLevel.LOCAL_QUORUM)
             .build();
 
@@ -61,7 +66,7 @@ public class CassandraActionPool implements ActionDao {
     @Override
     public void unSchedule( Action action, String timeSlot ) {
         FutureActionEntity entity = dtoToFutureActionEntity( action, timeSlot );
-        cassandra.deleteById( entity.getId(), FutureActionEntity.class );
+        cassandra.delete( entity, DELETE_OPTIONS );
     }
 
 
