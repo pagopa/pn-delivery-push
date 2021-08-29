@@ -1,0 +1,76 @@
+package it.pagopa.pn.deliverypush.actions;
+
+import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import it.pagopa.pn.api.dto.notification.timeline.DeliveryMode;
+import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
+import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
+import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.DigitalAddressSource;
+import org.springframework.stereotype.Component;
+
+import java.time.Instant;
+
+@Component
+public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
+
+    private final AddressBook addressBook;
+
+    public ChooseDeliveryModeActionHandler(TimelineDao timelineDao, AddressBook addressBook, ActionsPool actionsPool) {
+        super( timelineDao, actionsPool );
+        this.addressBook = addressBook;
+    }
+
+    @Override
+    public void handleAction(Action action, Notification notification) {
+        // - GET RECIPIENT
+        int index = action.getRecipientIndex();
+        NotificationRecipient recipient =notification.getRecipients().get( index );
+
+        // - LOAD ADDRESS BOOK and compute timeline
+        NotificationPathChooseDetails.NotificationPathChooseDetailsBuilder timelineDetailsBuilder =
+                NotificationPathChooseDetails.builder()
+                .taxId( recipient.getTaxId() )
+                .deliveryMode( DeliveryMode.DIGITAL )
+                .physicalAddress( null )
+                .special( recipient.getDigitalDomicile() )
+                ;
+
+        addressBook.getAddresses( recipient.getTaxId() )
+            .ifPresent( abEntry ->
+                timelineDetailsBuilder
+                        .general( abEntry.getDigitalAddresses().getGeneral() )
+                        .platform( abEntry.getDigitalAddresses().getPlatform() )
+            );
+
+        NotificationPathChooseDetails timelineDetails = timelineDetailsBuilder.build();
+
+        // - GENERATE NEXT ACTIONS (choose digital)
+        super.scheduleAction( Action.builder()
+                .iun( action.getIun() )
+                .recipientIndex( action.getRecipientIndex() )
+                .type( ActionType.SEND_PEC )
+                .digitalAddressSource( DigitalAddressSource.PLATFORM )
+                .retryNumber( 1 )
+                .notBefore( Instant.now() )
+                .build()
+            );
+
+        // - WRITE TIMELINE (choose digital)
+        super.addTimelineElement( action, TimelineElement.builder()
+                .category( TimelineElementCategory.NOTIFICATION_PATH_CHOOSE )
+                .details( timelineDetails )
+                .build()
+            );
+    }
+
+    @Override
+    public ActionType getActionType() {
+        return ActionType.CHOOSE_DELIVERY_MODE;
+    }
+}
