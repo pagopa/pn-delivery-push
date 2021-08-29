@@ -55,6 +55,10 @@ Resources:
               Value: !ImportValue { "Fn::Sub": '${EnvName}-delpush-input-queue-name' }
             - Name: PN_DELIVERYPUSH_TOPICS_TOEXTERNALCHANNEL
               Value: !ImportValue { "Fn::Sub": '${EnvName}-extchannel-input-queue-name' }
+            - Name: PN_DELIVERYPUSH_TOPICS_FROMEXTERNALCHANNEL
+              Value: !ImportValue { "Fn::Sub": '${EnvName}-extchannel-output-queue-name' }
+            - Name: PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS
+              Value: !ImportValue { "Fn::Sub": '${EnvName}-delpush-actions-queue-name' }
             - Name: SPRING_DATA_CASSANDRA_KEYSPACENAME
               Value: !Sub ${KeyspaceName}
             - Name: SPRING_DATA_CASSANDRA_SSL
