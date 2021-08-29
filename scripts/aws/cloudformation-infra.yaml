@@ -55,6 +55,12 @@ Resources:
               Value: !ImportValue { "Fn::Sub": '${EnvName}-delpush-input-queue-name' }
             - Name: PN_DELIVERYPUSH_TOPICS_TOEXTERNALCHANNEL
               Value: !ImportValue { "Fn::Sub": '${EnvName}-extchannel-input-queue-name' }
+            - Name: SPRING_DATA_CASSANDRA_KEYSPACENAME
+              Value: !Sub ${KeyspaceName}
+            - Name: SPRING_DATA_CASSANDRA_SSL
+              Value: true
+            - Name: SPRING_DATA_CASSANDRA_CONTACTPOINTS
+              Value: !Sub 'cassandra.${AWS::Region}.${AWS::URLSuffix}:9142'
           PortMappings:
             - ContainerPort: 8080
           # Send logs to CloudWatch Logs
