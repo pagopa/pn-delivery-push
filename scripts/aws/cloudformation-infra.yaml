@@ -120,6 +120,12 @@ Resources:
             Resource:
               - !ImportValue { "Fn::Sub": '${EnvName}-delpush-input-queue-arn' }
               - !ImportValue { "Fn::Sub": '${EnvName}-extchannel-input-queue-arn' }
+          - Effect: Allow
+            Action:
+              - cassandra:Modify
+              - cassandra:Select
+            Resource:
+              - !Sub "arn:aws:cassandra:*:${AWS::AccountId}:/keyspace/*/table/*"
       Roles:
         - !Ref TaskRole
   # A role needed for auto scaling
