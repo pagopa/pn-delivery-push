@@ -10,6 +10,9 @@ Parameters:
   KeyspaceName:
     Type: String
     Description: cassandra keyspace name
+  AddressBookUrl:
+    Type: String
+    Description: url del mock address book
 
 Resources:
   Cluster:
@@ -53,6 +56,8 @@ Resources:
               Value: !Ref AWS::Region
             - Name: AWS_BUCKETNAME
               Value: !ImportValue { "Fn::Sub": '${EnvName}-attachments-bucket-name' }
+            - Name: PN_CLIENTS_ADDRESSBOOKBASEURL
+              Value: !Sub '${AddressBookUrl}'
             - Name: PN_DELIVERYPUSH_TOPICS_NEWNOTIFICATIONS
               Value: !ImportValue { "Fn::Sub": '${EnvName}-delpush-input-queue-name' }
             - Name: PN_DELIVERYPUSH_TOPICS_TOEXTERNALCHANNEL
