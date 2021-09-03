@@ -68,7 +68,7 @@ public class SendPecActionHandler extends AbstractActionHandler {
             //   else go to next address (if this is not last)
             else {
                 Action nextAction = buildNextSendAction( action )
-                        .orElse( buildWaitRecipientTimeoutAction( action ));
+                        .orElse( buildSendCourtesyAction(action) );
 
                 scheduleAction( nextAction );
             }

@@ -1,17 +1,16 @@
 package it.pagopa.pn.deliverypush.actions;
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionHandler;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.DigitalAddressSource;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionHandler;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.DigitalAddressSource;
 
 public abstract class AbstractActionHandler implements ActionHandler {
 
@@ -99,7 +98,14 @@ public abstract class AbstractActionHandler implements ActionHandler {
                 .build();
     }
 
-
+    protected Action buildSendCourtesyAction(Action action ) {
+        return Action.builder()
+                .iun(action.getIun())
+                .recipientIndex(action.getRecipientIndex())
+                .notBefore(Instant.now())
+                .type(ActionType.SEND_COURTESY_MESSAGES)
+                .build();
+    }
 
     private Instant loadFirstAttemptTime(Action action) {
         String firstAttemptResultActionId = ActionType.RECEIVE_PEC.buildActionId( action.toBuilder()

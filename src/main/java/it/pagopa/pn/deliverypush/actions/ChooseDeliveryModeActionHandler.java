@@ -30,7 +30,7 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
     public void handleAction(Action action, Notification notification) {
         // - GET RECIPIENT
         int index = action.getRecipientIndex();
-        NotificationRecipient recipient =notification.getRecipients().get( index );
+        NotificationRecipient recipient = notification.getRecipients().get( index );
 
         // - LOAD ADDRESS BOOK and compute timeline
         NotificationPathChooseDetails.NotificationPathChooseDetailsBuilder timelineDetailsBuilder =
@@ -39,6 +39,7 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
                 .deliveryMode( DeliveryMode.DIGITAL )
                 .physicalAddress( null )
                 .special( recipient.getDigitalDomicile() )
+                .courtesyAddresses( recipient.getCourtesyAdresses() )
                 ;
 
         addressBook.getAddresses( recipient.getTaxId() )

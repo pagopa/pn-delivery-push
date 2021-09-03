@@ -30,11 +30,11 @@ public class ReceivePecActionHandler extends AbstractActionHandler {
         // - Se il messaggio è andato a buon fine schedula l'attesa
         PnExtChnProgressStatus status = action.getResponseStatus();
         if ( PnExtChnProgressStatus.OK.equals( status ) ) {
-            nextAction = buildWaitRecipientTimeoutAction( action );
+            nextAction = buildSendCourtesyAction(action);
         }
         // ... altrimenti continua
         else {
-            nextAction = buildNextSendAction( action ).orElse( buildWaitRecipientTimeoutAction( action ) );
+            nextAction = buildNextSendAction( action ).orElse( buildSendCourtesyAction(action) );
         }
 
         scheduleAction( nextAction );

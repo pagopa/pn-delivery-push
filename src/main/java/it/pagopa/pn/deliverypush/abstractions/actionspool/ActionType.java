@@ -8,7 +8,7 @@ public enum ActionType {
             return String.format("%s_start", action.getIun() );
         }
     },
-    CHOOSE_DELIVERY_MODE{
+    CHOOSE_DELIVERY_MODE {
         @Override
         public String buildActionId(Action action) {
             return String.format(
@@ -27,6 +27,16 @@ public enum ActionType {
                     action.getRecipientIndex(),
                     action.getDigitalAddressSource(),
                     action.getRetryNumber()
+                );
+        }
+    },
+    SEND_COURTESY_MESSAGES() {
+        @Override
+        public String buildActionId(Action action) {
+            return String.format(
+                    "%s_send_courtesy_rec%d",
+                    action.getIun(),
+                    action.getRecipientIndex()
                 );
         }
     },

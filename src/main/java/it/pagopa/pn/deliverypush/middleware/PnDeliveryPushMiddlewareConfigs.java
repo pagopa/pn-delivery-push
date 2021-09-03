@@ -1,19 +1,22 @@
 package it.pagopa.pn.deliverypush.middleware;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import it.pagopa.pn.api.dto.events.EventType;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.middleware.eventhandlers.NewNotificationEventHandler;
-import it.pagopa.pn.deliverypush.middleware.eventhandlers.ExtChannelResponseEventHandler;
-import it.pagopa.pn.deliverypush.middleware.momproducer.action.sqs.SqsActionProducer;
-import it.pagopa.pn.deliverypush.temp.mom.consumer.EventReceiver;
-import it.pagopa.pn.deliverypush.temp.mom.consumer.SqsEventReceiver;
-import it.pagopa.pn.deliverypush.middleware.momproducer.pecrequest.sqs.SqsPecRequestProducer;
+import java.util.Collections;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import software.amazon.awssdk.services.sqs.SqsClient;
 
-import java.util.Collections;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import it.pagopa.pn.api.dto.events.EventType;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.middleware.eventhandlers.ExtChannelResponseEventHandler;
+import it.pagopa.pn.deliverypush.middleware.eventhandlers.NewNotificationEventHandler;
+import it.pagopa.pn.deliverypush.middleware.momproducer.action.sqs.SqsActionProducer;
+import it.pagopa.pn.deliverypush.middleware.momproducer.emailrequest.sqs.SqsEmailRequestProducer;
+import it.pagopa.pn.deliverypush.middleware.momproducer.pecrequest.sqs.SqsPecRequestProducer;
+import it.pagopa.pn.deliverypush.temp.mom.consumer.EventReceiver;
+import it.pagopa.pn.deliverypush.temp.mom.consumer.SqsEventReceiver;
+import software.amazon.awssdk.services.sqs.SqsClient;
 
 @Configuration
 public class PnDeliveryPushMiddlewareConfigs {
@@ -50,6 +53,11 @@ public class PnDeliveryPushMiddlewareConfigs {
     @Bean
     public SqsPecRequestProducer pecRequestSender(SqsClient sqs, ObjectMapper objMapper) {
         return new SqsPecRequestProducer( sqs, cfg.getTopics().getToExternalChannel(), objMapper);
+    }
+    
+    @Bean
+    public SqsEmailRequestProducer emailRequestSender(SqsClient sqs, ObjectMapper objMapper) {
+        return new SqsEmailRequestProducer( sqs, cfg.getTopics().getToExternalChannel(), objMapper);
     }
 
     @Bean
