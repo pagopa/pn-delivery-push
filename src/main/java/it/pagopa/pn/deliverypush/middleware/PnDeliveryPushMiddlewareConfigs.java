@@ -52,12 +52,12 @@ public class PnDeliveryPushMiddlewareConfigs {
 
     @Bean
     public SqsPecRequestProducer pecRequestSender(SqsClient sqs, ObjectMapper objMapper) {
-        return new SqsPecRequestProducer( sqs, cfg.getTopics().getToExternalChannel(), objMapper);
+        return new SqsPecRequestProducer( sqs, cfg.getTopics().getToExternalChannelPec(), objMapper);
     }
     
     @Bean
     public SqsEmailRequestProducer emailRequestSender(SqsClient sqs, ObjectMapper objMapper) {
-        return new SqsEmailRequestProducer( sqs, cfg.getTopics().getToExternalChannel(), objMapper);
+        return new SqsEmailRequestProducer( sqs, cfg.getTopics().getToExternalChannelEmail(), objMapper);
     }
 
     @Bean
