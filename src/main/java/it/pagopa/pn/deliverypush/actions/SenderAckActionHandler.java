@@ -10,23 +10,25 @@ import it.pagopa.pn.api.dto.notification.timeline.ReceivedDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.stream.Collectors;
 
 @Component
 public class SenderAckActionHandler extends AbstractActionHandler {
 
     private final LegalFactUtils legalFactStore;
+    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
-    public SenderAckActionHandler(LegalFactUtils legalFactStore, TimelineDao timelineDao, ActionsPool actionsPool) {
-        super( timelineDao, actionsPool );
+    public SenderAckActionHandler(LegalFactUtils legalFactStore, TimelineDao timelineDao, ActionsPool actionsPool, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
+        super( timelineDao, actionsPool , pnDeliveryPushConfigs);
         this.legalFactStore = legalFactStore;
+        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
     }
 
     @Override
@@ -58,13 +60,12 @@ public class SenderAckActionHandler extends AbstractActionHandler {
         }
 
         // - GENERATE NEXT ACTIONS
-        Instant notBefore = action.getNotBefore().plus( 1, ChronoUnit.SECONDS );
         int numberOfRecipients = notification.getRecipients().size();
         for( int idx = 0; idx < numberOfRecipients; idx ++ ) {
             Action nextAction = Action.builder()
                     .iun( action.getIun() )
                     .type( ActionType.CHOOSE_DELIVERY_MODE )
-                    .notBefore( notBefore )
+                    .notBefore( Instant.now().plus(pnDeliveryPushConfigs.TimeParams().getWaitingForNextAction()) )
                     .recipientIndex( idx )
                     .build();
             scheduleAction( nextAction );

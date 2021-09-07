@@ -14,6 +14,7 @@ import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -24,8 +25,8 @@ public class SendPecActionHandler extends AbstractActionHandler {
 
     private final MomProducer<PnExtChnPecEvent> pecRequestProducer;
 
-    public SendPecActionHandler(TimelineDao timelineDao, ActionsPool actionsPool, MomProducer<PnExtChnPecEvent> pecRequestProducer) {
-        super( timelineDao, actionsPool );
+    public SendPecActionHandler(TimelineDao timelineDao, ActionsPool actionsPool, MomProducer<PnExtChnPecEvent> pecRequestProducer, TimeParams timeParams) {
+        super( timelineDao, actionsPool , timeParams);
         this.pecRequestProducer = pecRequestProducer;
     }
 

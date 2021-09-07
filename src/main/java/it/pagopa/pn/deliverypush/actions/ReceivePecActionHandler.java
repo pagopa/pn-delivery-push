@@ -10,6 +10,7 @@ import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -18,8 +19,8 @@ import java.util.Optional;
 @Component
 public class ReceivePecActionHandler extends AbstractActionHandler {
 
-    public ReceivePecActionHandler(TimelineDao timelineDao, ActionsPool actionsPool ) {
-        super( timelineDao, actionsPool );
+    public ReceivePecActionHandler(TimelineDao timelineDao, ActionsPool actionsPool , TimeParams timeParams ) {
+        super( timelineDao, actionsPool , timeParams);
     }
 
     @Override
