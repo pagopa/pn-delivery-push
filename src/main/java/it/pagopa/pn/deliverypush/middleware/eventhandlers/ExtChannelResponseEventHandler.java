@@ -40,7 +40,7 @@ public class ExtChannelResponseEventHandler extends AbstractEventHandler<PnExtCh
             Action extChResponseAction = sendAction.get().toBuilder()
                     .type( ActionType.RECEIVE_PEC )
                     // va parametrizzato a 1, ritardo tra ricezione messaggio da external channel e elaborazione messaggio ricevuto
-                    .notBefore( header.getCreatedAt().plus( pnDeliveryPushConfigs.TimeParams().getTimeBetweenExtChReceptionAndMessageProcessed() ) )
+                    .notBefore( header.getCreatedAt().plus( pnDeliveryPushConfigs.getTimeParams().getTimeBetweenExtChReceptionAndMessageProcessed() ) )
                     .responseStatus( evt.getPayload().getStatusCode() )
                     .build();
 

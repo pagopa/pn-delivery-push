@@ -65,7 +65,7 @@ public class SenderAckActionHandler extends AbstractActionHandler {
             Action nextAction = Action.builder()
                     .iun( action.getIun() )
                     .type( ActionType.CHOOSE_DELIVERY_MODE )
-                    .notBefore( Instant.now().plus(pnDeliveryPushConfigs.TimeParams().getWaitingForNextAction()) )
+                    .notBefore( Instant.now().plus(pnDeliveryPushConfigs.getTimeParams().getWaitingForNextAction()) )
                     .recipientIndex( idx )
                     .build();
             scheduleAction( nextAction );
