@@ -39,7 +39,6 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
                 .deliveryMode( DeliveryMode.DIGITAL )
                 .physicalAddress( null )
                 .special( recipient.getDigitalDomicile() )
-                .courtesyAddresses( recipient.getCourtesyAdresses() )
                 ;
 
         addressBook.getAddresses( recipient.getTaxId() )
@@ -47,6 +46,7 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
                 timelineDetailsBuilder
                         .general( abEntry.getDigitalAddresses().getGeneral() )
                         .platform( abEntry.getDigitalAddresses().getPlatform() )
+                        .courtesyAddresses( abEntry.getCourtesyAddresses() )
             );
 
         NotificationPathChooseDetails timelineDetails = timelineDetailsBuilder.build();

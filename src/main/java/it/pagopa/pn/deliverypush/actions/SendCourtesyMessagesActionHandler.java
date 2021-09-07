@@ -77,7 +77,7 @@ public class SendCourtesyMessagesActionHandler extends AbstractActionHandler {
 		                .category( TimelineElementCategory.SEND_COURTESY_MESSAGE )
 		                	.details( SendCourtesyDetails.builder()
 		                		.taxId( recipient.getTaxId() )
-		                		.addresses( recipient.getCourtesyAdresses() )
+		                		.addresses( addresses.get().getCourtesyAddresses() )
 		                        .build()
 		                )
 		                .build()
