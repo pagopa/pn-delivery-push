@@ -42,47 +42,45 @@ public class SendCourtesyMessagesActionHandler extends AbstractActionHandler {
         Optional<NotificationPathChooseDetails> addresses =
                 getTimelineElement( action, ActionType.CHOOSE_DELIVERY_MODE, NotificationPathChooseDetails.class );
               
-        if( addresses.isPresent() ) {
-        	if (addresses.get().getCourtesyAddresses() != null 
+        if( addresses.isPresent() && addresses.get().getCourtesyAddresses() != null 
         			&& !addresses.get().getCourtesyAddresses().isEmpty()) {
-        		int numberOfAddresses = addresses.get().getCourtesyAddresses().size();
+        	int numberOfAddresses = addresses.get().getCourtesyAddresses().size();
    
-	        	for( int idx = 0; idx < numberOfAddresses; idx ++ ) {
-	        		DigitalAddress emailAddress = addresses.get().getCourtesyAddresses().get( idx );
-	        		this.emailRequestProducer.push( PnExtChnEmailEvent.builder()
-	        				.header( StandardEventHeader.builder()
-	        						.iun( action.getIun() )
-	        						.eventId( action.getActionId() )
-	        						.eventType( EventType.SEND_COURTESY_EMAIL.name() )
-	        						.publisher( EventPublisher.DELIVERY_PUSH.name() )
-	        						.createdAt( Instant.now() )
-	        						.build()
-	        					)
-	        				.payload( PnExtChnEmailEventPayload.builder()
-	        						.iun( notification.getIun() )
-	        						.senderId( notification.getSender().getPaId() )
-	        						.emailAddress( emailAddress.getAddress() )
-	        						.build()
-	        					)
-	        				.build()
-	        		  ); 		
-	        	}
+		    for( int idx = 0; idx < numberOfAddresses; idx ++ ) {
+		    	DigitalAddress emailAddress = addresses.get().getCourtesyAddresses().get( idx );
+		    	this.emailRequestProducer.push( PnExtChnEmailEvent.builder()
+		    			.header( StandardEventHeader.builder()
+		    					.iun( action.getIun() )
+		    					.eventId( action.getActionId() )
+		    					.eventType( EventType.SEND_COURTESY_EMAIL.name() )
+		    					.publisher( EventPublisher.DELIVERY_PUSH.name() )
+		    					.createdAt( Instant.now() )
+		    					.build()
+		    				)
+		    			.payload( PnExtChnEmailEventPayload.builder()
+		    					.iun( notification.getIun() )
+		    					.senderId( notification.getSender().getPaId() )
+		    					.emailAddress( emailAddress.getAddress() )
+		    					.build()
+		    				)
+		    			.build()
+		    	  ); 		
+		    }
         
-		        // - GENERATE NEXT ACTIONS
-		        Action nextAction = buildWaitRecipientTimeoutAction(action);
-		        scheduleAction( nextAction );
-		
-		        // - WRITE TIMELINE
-		        addTimelineElement( action, TimelineElement.builder()
-		                .category( TimelineElementCategory.SEND_COURTESY_MESSAGE )
-		                	.details( SendCourtesyDetails.builder()
-		                		.taxId( recipient.getTaxId() )
-		                		.addresses( addresses.get().getCourtesyAddresses() )
-		                        .build()
-		                )
-		                .build()
-		        );
-        	}
+			// - GENERATE NEXT ACTIONS
+			Action nextAction = buildWaitRecipientTimeoutAction(action);
+			scheduleAction( nextAction );
+			
+			// - WRITE TIMELINE
+			addTimelineElement( action, TimelineElement.builder()
+			        .category( TimelineElementCategory.SEND_COURTESY_MESSAGE )
+			        	.details( SendCourtesyDetails.builder()
+			        		.taxId( recipient.getTaxId() )
+			        		.addresses( addresses.get().getCourtesyAddresses() )
+			                .build()
+			        )
+			        .build()
+			);
         }
     }
 
