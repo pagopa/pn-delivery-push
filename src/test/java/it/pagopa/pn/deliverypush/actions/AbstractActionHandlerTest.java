@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.test.context.TestPropertySource;
@@ -34,13 +35,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         "pn.delivery-push.time-params.interval-between-notification-and-message-received=1s"})
 public class AbstractActionHandlerTest {
 
-    @Mock
     private Action action;
+    private Action.ActionBuilder actionBuilder;
+
+    @Mock
+    private TimelineDao timelineDao;
+
+    @Mock
+    private ActionsPool actionsPool;
 
     @Autowired
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     private TestActionHandler testActionHandler;
+
+    private Instant now;
 
     @BeforeEach
     public void setup(){
@@ -48,31 +57,36 @@ public class AbstractActionHandlerTest {
         System.err.println(pnDeliveryPushConfigs);
         System.err.println(pnDeliveryPushConfigs.getTimeParams());
         System.err.println(pnDeliveryPushConfigs.getTimeParams().getSecondAttemptWaitingTime());
-    }
+        System.err.println(pnDeliveryPushConfigs.getTimeParams().getWaitingResponseFromFirstAddress());
 
+        now = Instant.now();
 
-    @Test
-    public void testActionFirstRound() throws Exception {
-        Action.builder()
-                .iun("IUN")
-                .recipientIndex(1)
-                .notBefore(Instant.now().plus(pnDeliveryPushConfigs.getTimeParams().getWaitingResponseFromFirstAddress()) )
-                .type(ActionType.WAIT_FOR_RECIPIENT_TIMEOUT)
-                .build();
-        assertEquals(Duration.ofSeconds(1),pnDeliveryPushConfigs.getTimeParams().getWaitingResponseFromFirstAddress());
-        //testActionHandler.ac
-    }
-
-    @Test
-    @Disabled
-    public void testActionSecondRound() throws Exception {;
-        Action.builder()
-                .notBefore( Instant.now().plus(pnDeliveryPushConfigs.getTimeParams().getSecondAttemptWaitingTime()) )
+        action = Action.builder()
+                .notBefore( now.plus(pnDeliveryPushConfigs.getTimeParams().getSecondAttemptWaitingTime()) )
                 .type( ActionType.SEND_PEC )
                 .digitalAddressSource( DigitalAddressSource.GENERAL )
                 .retryNumber( 2 )
                 .build();
-        assertEquals(Duration.ofSeconds(1),pnDeliveryPushConfigs.getTimeParams().getSecondAttemptWaitingTime());
+        actionBuilder = action.toBuilder();
+    }
+
+    @Test
+    public void testActionFirstRound() throws Exception {
+
+        testActionHandler = new TestActionHandler(timelineDao, actionsPool, pnDeliveryPushConfigs);
+        action = testActionHandler.actionInFirstRound(actionBuilder, action);
+
+        assertEquals(action.getNotBefore().minus(Duration.ofSeconds(1)), action.getNotBefore().minus(pnDeliveryPushConfigs.getTimeParams().getSecondAttemptWaitingTime())) ;
+
+    }
+
+    @Test
+    public void testActionSecondRound() throws Exception {
+
+        testActionHandler = new TestActionHandler(timelineDao, actionsPool, pnDeliveryPushConfigs);
+        action = testActionHandler.actionInSecondRound(actionBuilder, action);
+
+        assertEquals(action.getNotBefore().minus(Duration.ofSeconds(1)), action.getNotBefore().minus(pnDeliveryPushConfigs.getTimeParams().getSecondAttemptWaitingTime())) ;
     }
 
     public static class TestActionHandler extends AbstractActionHandler {
