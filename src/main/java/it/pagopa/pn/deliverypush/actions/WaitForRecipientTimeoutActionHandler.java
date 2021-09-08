@@ -4,6 +4,7 @@ import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.timeline.*;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
@@ -13,8 +14,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class WaitForRecipientTimeoutActionHandler extends AbstractActionHandler {
 
-    public WaitForRecipientTimeoutActionHandler(TimelineDao timelineDao, ActionsPool actionsPool, TimeParams timeParams) {
-        super( timelineDao, actionsPool, timeParams);
+    public WaitForRecipientTimeoutActionHandler(TimelineDao timelineDao, ActionsPool actionsPool, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
+        super( timelineDao, actionsPool, pnDeliveryPushConfigs);
     }
 
     @Override
