@@ -22,13 +22,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         "pn.delivery-push.time-params.waiting-for-next-action=1m",
         "pn.delivery-push.time-params.time-between-ext-ch-reception-and-message-processed=1h",
         "pn.delivery-push.time-params.interval-between-notification-and-message-received=1d"})
-public class TimeParamsTest {
+class TimeParamsTest {
 
     @Autowired
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     @Test
-    public void assertConfigurationIsLoaded(){
+    void assertConfigurationIsLoaded(){
         
         assertEquals( Duration.ofSeconds(1), pnDeliveryPushConfigs.getTimeParams().getSecondAttemptWaitingTime() );
         assertEquals( Duration.ofSeconds(1), pnDeliveryPushConfigs.getTimeParams().getRecipientViewMaxTime() );
@@ -37,19 +37,19 @@ public class TimeParamsTest {
     }
 
     @Test
-    public void assertConfigurationIsLoadedOfMinutes(){
+    void assertConfigurationIsLoadedOfMinutes(){
 
         assertEquals( Duration.ofMinutes(1), pnDeliveryPushConfigs.getTimeParams().getWaitingForNextAction() );
 
     }
     @Test
-    public void assertConfigurationIsLoadedOfHours(){
+    void assertConfigurationIsLoadedOfHours(){
 
         assertEquals( Duration.ofHours(1), pnDeliveryPushConfigs.getTimeParams().getTimeBetweenExtChReceptionAndMessageProcessed() );
 
     }
     @Test
-    public void assertConfigurationIsLoadedOfDays(){
+    void assertConfigurationIsLoadedOfDays(){
 
         assertEquals( Duration.ofDays(1), pnDeliveryPushConfigs.getTimeParams().getIntervalBetweenNotificationAndMessageReceived() );
 
