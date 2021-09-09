@@ -26,14 +26,13 @@ public abstract class AbstractActionHandler implements ActionHandler {
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
     }
 
-    protected void scheduleAction( Action action ) {
+    protected void scheduleAction(Action action) {
         this.actionsPool.scheduleFutureAction( action.toBuilder()
                 .actionId( action.getType().buildActionId( action ))
                 .build()
             );
     }
-
-    protected void addTimelineElement( Action action, TimelineElement row ) {
+    protected void addTimelineElement(Action action, TimelineElement row) {
         this.timelineDao.addTimelineElement( row.toBuilder()
                 .iun( action.getIun() )
                 .timestamp( Instant.now() )
@@ -41,14 +40,12 @@ public abstract class AbstractActionHandler implements ActionHandler {
                 .build()
             );
     }
-
-    protected <T> Optional<T> getTimelineElement(Action action, ActionType actionType, Class<T> timelineDetailsClass ) {
+    protected  <T> Optional<T> getTimelineElement(Action action, ActionType actionType, Class<T> timelineDetailsClass) {
         Optional<TimelineElement> row;
         row = this.timelineDao.getTimelineElement( action.getIun(), actionType.buildActionId( action ) );
 
         return row.map( el -> timelineDetailsClass.cast( el.getDetails() ) );
     }
-
     protected Optional<Action> buildNextSendAction(Action action ) {
         boolean nextIsInFirstRound = FIRST_ROUND.equals( action.getRetryNumber() )
                 && ! DigitalAddressSource.GENERAL.equals( action.getDigitalAddressSource() );
@@ -84,7 +81,6 @@ public abstract class AbstractActionHandler implements ActionHandler {
 
     protected Action buildWaitRecipientTimeoutAction(Action action ) {
         Duration recipientViewMaxTime = pnDeliveryPushConfigs.getTimeParams().getRecipientViewMaxTime();
-
         return Action.builder()
                 .iun(action.getIun())
                 .recipientIndex(action.getRecipientIndex())
@@ -102,7 +98,7 @@ public abstract class AbstractActionHandler implements ActionHandler {
                 .build();
     }
 
-    private Instant loadFirstAttemptTime(Action action) {
+    protected Instant loadFirstAttemptTime(Action action) {
         String firstAttemptResultActionId = ActionType.RECEIVE_PEC.buildActionId( action.toBuilder()
                 .retryNumber( 1 )
                 .build()
