@@ -33,8 +33,24 @@ public class TimeParamsTest {
         assertEquals( Duration.ofSeconds(1), pnDeliveryPushConfigs.getTimeParams().getSecondAttemptWaitingTime() );
         assertEquals( Duration.ofSeconds(1), pnDeliveryPushConfigs.getTimeParams().getProcessingTimeToRecipient() );
         assertEquals( Duration.ofSeconds(1), pnDeliveryPushConfigs.getTimeParams().getWaitingResponseFromFirstAddress() );
+        
+    }
+
+    @Test
+    public void assertConfigurationIsLoadedOfMinutes(){
+
         assertEquals( Duration.ofMinutes(1), pnDeliveryPushConfigs.getTimeParams().getWaitingForNextAction() );
+
+    }
+    @Test
+    public void assertConfigurationIsLoadedOfHours(){
+
         assertEquals( Duration.ofHours(1), pnDeliveryPushConfigs.getTimeParams().getTimeBetweenExtChReceptionAndMessageProcessed() );
+
+    }
+    @Test
+    public void assertConfigurationIsLoadedOfDays(){
+
         assertEquals( Duration.ofDays(1), pnDeliveryPushConfigs.getTimeParams().getIntervalBetweenNotificationAndMessageReceived() );
 
     }
