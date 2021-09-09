@@ -52,7 +52,7 @@ public class SendCourtesyMessagesActionHandler extends AbstractActionHandler {
 		    	this.emailRequestProducer.push( PnExtChnEmailEvent.builder()
 		    			.header( StandardEventHeader.builder()
 		    					.iun( action.getIun() )
-		    					.eventId( action.getActionId() )
+		    					.eventId( action.getActionId() + "_" + idx )
 		    					.eventType( EventType.SEND_COURTESY_EMAIL.name() )
 		    					.publisher( EventPublisher.DELIVERY_PUSH.name() )
 		    					.createdAt( Instant.now() )
