@@ -33,7 +33,7 @@ public class TimeParamsTest {
         assertEquals( Duration.ofSeconds(1), pnDeliveryPushConfigs.getTimeParams().getSecondAttemptWaitingTime() );
         assertEquals( Duration.ofSeconds(1), pnDeliveryPushConfigs.getTimeParams().getProcessingTimeToRecipient() );
         assertEquals( Duration.ofSeconds(1), pnDeliveryPushConfigs.getTimeParams().getWaitingResponseFromFirstAddress() );
-        
+
     }
 
     @Test
