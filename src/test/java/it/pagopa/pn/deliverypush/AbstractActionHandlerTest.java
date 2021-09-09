@@ -32,11 +32,10 @@ class AbstractActionHandlerTest {
         pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
         timelineDao = Mockito.mock(TimelineDao.class);
         actionsPool = Mockito.mock(ActionsPool.class);
-        /*abstractActionHandler = Mockito.mock(AbstractActionHandler.class, Mockito.withSettings()
-                .useConstructor(timelineDao, actionsPool)
-                .defaultAnswer(Mockito.CALLS_REAL_METHODS)
-        );*/
-        abstractActionHandler = new TestAbstractActionHandler(timelineDao, actionsPool, pnDeliveryPushConfigs);
+        abstractActionHandler = new TestAbstractActionHandler(
+                timelineDao,
+                actionsPool,
+                pnDeliveryPushConfigs);
         TimeParams times = new TimeParams();
         times.setRecipientViewMaxTime(Duration.ZERO);
         times.setSecondAttemptWaitingTime(Duration.ZERO);
@@ -68,8 +67,6 @@ class AbstractActionHandlerTest {
         ArgumentCaptor<Action> actionCapture = ArgumentCaptor.forClass(Action.class);
         Mockito.verify(actionsPool).scheduleFutureAction(actionCapture.capture());
 
-        //Assertions.assertEquals(action, actionCapture.getValue(), "Different action from expected");
-        //Assertions.assertSame(action,actionCapture.getValue(),"Not equal");
         Assertions.assertTrue(new ReflectionEquals(action, "").matches(actionCapture.getValue()));
     }
 
@@ -118,7 +115,6 @@ class AbstractActionHandlerTest {
 
         ActionType actionType = ActionType.CHOOSE_DELIVERY_MODE;
         Class<TimelineElementDetails> timelineDetailsClass = null;
-        //NotificationPathChooseDetails notificationPathChooseDetails = Mockito.any(NotificationPathChooseDetails.class);
 
         //When
         abstractActionHandler.getTimelineElement(action, actionType, timelineDetailsClass);
@@ -130,7 +126,6 @@ class AbstractActionHandlerTest {
         Mockito.verify(timelineDao).getTimelineElement(actionIun.capture(), actionId.capture());
 
         Assertions.assertEquals(action.getIun(), actionIun.getValue(), "Different action Iun");
-        //Assertions.assertEquals(action.getActionId(), actionId.getValue(), "Different action Id");
     }
 
     @Test
@@ -154,12 +149,7 @@ class AbstractActionHandlerTest {
         Optional<Action> nextAction = abstractActionHandler.buildNextSendAction(action1);
 
         //Then
-        //ArgumentCaptor<Action> actionCapture1 = ArgumentCaptor.forClass(Action.class);
-
-        //Optional<Action> nextAction = Mockito.verify(abstractActionHandler).buildNextSendAction(action1);
-
         Assertions.assertEquals(action1.getIun(), nextAction.get().getIun(), "Different Iun");
-        //Assertions.assertEquals(action1.getRecipientIndex(), actionCapture1.getValue().getRecipientIndex(), "Different recipient index");
         Assertions.assertEquals(1, nextAction.get().getRetryNumber());
 
     }
@@ -185,11 +175,7 @@ class AbstractActionHandlerTest {
         Optional<Action> nextAction = abstractActionHandler.buildNextSendAction(action2);
 
         //Then
-        //ArgumentCaptor<Action> actionCapture2 = ArgumentCaptor.forClass(Action.class);
-        //Optional<Action> nextAction = Mockito.verify(abstractActionHandler).buildNextSendAction(actionCapture2.capture());
-
         Assertions.assertEquals(action2.getIun(), nextAction.get().getIun(), "Different Iun");
-        //Assertions.assertEquals(action2.getRecipientIndex(), actionCapture2.getValue().getRecipientIndex(), "Different recipient index");
         Assertions.assertEquals(2, nextAction.get().getRetryNumber(), "Different retry number");
 
     }
@@ -215,11 +201,6 @@ class AbstractActionHandlerTest {
         Optional<Action> nextAction = abstractActionHandler.buildNextSendAction(action2);
 
         //Then
-        //ArgumentCaptor<Action> actionCapture2 = ArgumentCaptor.forClass(Action.class);
-        //Optional<Action> nextAction = Mockito.verify(abstractActionHandler).buildNextSendAction(actionCapture2.capture());
-
-        //Assertions.assertEquals(action2.getIun(), nextAction.get().getIun(), "Different Iun");
-        //Assertions.assertEquals(action2.getRecipientIndex(), actionCapture2.getValue().getRecipientIndex(), "Different recipient index");
         Assertions.assertEquals(Optional.empty(), nextAction);
 
     }
@@ -285,11 +266,6 @@ class AbstractActionHandlerTest {
         public Action buildWaitRecipientTimeoutAction(Action action) {
             return super.buildWaitRecipientTimeoutAction(action);
         }
-
-        //@Override
-        //public Instant loadFirstAttemptTime(Action action) {
-            //return super.loadFirstAttemptTime(action);
-        //}
 
         @Override
         public ActionType getActionType() {

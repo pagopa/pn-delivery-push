@@ -68,14 +68,15 @@ class ReceivePecActionHandlerTest {
         String actionId = action.getType().buildActionId(action);
         action = action.toBuilder().actionId(actionId).build();
 
-        Mockito.when(timelineDao.getTimelineElement(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.of(TimelineElement.builder()
-                .details(NotificationPathChooseDetails.builder()
-                        .general(DigitalAddress.builder()
-                                .address("account@dominio.it")
-                                .type(DigitalAddressType.PEC)
+        Mockito.when(timelineDao.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Optional.of(TimelineElement.builder()
+                        .details(NotificationPathChooseDetails.builder()
+                                .general(DigitalAddress.builder()
+                                        .address("account@dominio.it")
+                                        .type(DigitalAddressType.PEC)
+                                        .build())
                                 .build())
-                        .build())
-                .build()));
+                        .build()));
 
         Notification notification = newNotificationWithoutPayments();
 

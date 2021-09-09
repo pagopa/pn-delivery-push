@@ -74,14 +74,15 @@ class SendPecActionHandlerTest {
 
         Notification notification = newNotificationWithoutPayments();
 
-        Mockito.when(timelineDao.getTimelineElement(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.of(TimelineElement.builder()
-                .details(NotificationPathChooseDetails.builder()
-                        .general(DigitalAddress.builder()
-                                .address("account@dominio.it")
-                                .type(DigitalAddressType.PEC)
+        Mockito.when(timelineDao.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Optional.of(TimelineElement.builder()
+                        .details(NotificationPathChooseDetails.builder()
+                                .general(DigitalAddress.builder()
+                                        .address("account@dominio.it")
+                                        .type(DigitalAddressType.PEC)
+                                        .build())
                                 .build())
-                        .build())
-                .build()));
+                        .build()));
 
         //When
         handler.handleAction(action, notification);

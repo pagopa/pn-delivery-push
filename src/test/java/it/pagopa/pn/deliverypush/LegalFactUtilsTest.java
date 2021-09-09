@@ -6,11 +6,6 @@ import it.pagopa.pn.api.dto.legalfacts.NotificationReceivedLegalFact;
 import it.pagopa.pn.api.dto.legalfacts.RecipientInfoWithAddresses;
 import it.pagopa.pn.api.dto.legalfacts.SenderInfo;
 import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.deliverypush.actions.LegalFactUtils;
 import org.junit.jupiter.api.Assertions;
@@ -24,7 +19,6 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -45,7 +39,6 @@ class LegalFactUtilsTest {
         legalFactUtils = new LegalFactUtils(
                 fileStorage,
                 objMapper);
-
     }
 
     @Test
@@ -63,7 +56,6 @@ class LegalFactUtilsTest {
         String legalFactJson = "{\"data\":\" \"}";
         Long expectedBodyLength = (long) legalFactJson.length();
         Object legalFact = testObjectMapper.readValue(legalFactJson, Map.class);
-        //Mockito.when(objMapper.writeValueAsString(legalFact)).thenReturn(legalFactJson);
 
         //When
         legalFactUtils.saveLegalFact(iun, legalFactName, legalFact);
