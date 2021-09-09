@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ContextConfiguration(classes = TimeParams.class)
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
 @TestPropertySource(properties = {"pn.delivery-push.time-params.second-attempt-waiting-time=1s",
-        "pn.delivery-push.time-params.processing-time-to-recipient=1s",
+        "pn.delivery-push.time-params.recipient-view-max-time=1s",
         "pn.delivery-push.time-params.waiting-response-from-first-address=1s",
         "pn.delivery-push.time-params.waiting-for-next-action=1m",
         "pn.delivery-push.time-params.time-between-ext-ch-reception-and-message-processed=1h",
@@ -31,7 +31,7 @@ public class TimeParamsTest {
     public void assertConfigurationIsLoaded(){
         
         assertEquals( Duration.ofSeconds(1), pnDeliveryPushConfigs.getTimeParams().getSecondAttemptWaitingTime() );
-        assertEquals( Duration.ofSeconds(1), pnDeliveryPushConfigs.getTimeParams().getProcessingTimeToRecipient() );
+        assertEquals( Duration.ofSeconds(1), pnDeliveryPushConfigs.getTimeParams().getRecipientViewMaxTime() );
         assertEquals( Duration.ofSeconds(1), pnDeliveryPushConfigs.getTimeParams().getWaitingResponseFromFirstAddress() );
 
     }

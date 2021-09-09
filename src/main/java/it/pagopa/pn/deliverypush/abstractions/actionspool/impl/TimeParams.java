@@ -7,10 +7,11 @@ import java.time.Duration;
 @Data
 public class TimeParams {
 
-    private String param;
-    private Duration secondAttemptWaitingTime;
-    private Duration processingTimeToRecipient;
     private Duration waitingResponseFromFirstAddress;
+    private Duration secondAttemptWaitingTime;
+
+    private Duration recipientViewMaxTime;
+
     private Duration waitingForNextAction;
     private Duration timeBetweenExtChReceptionAndMessageProcessed;
     private Duration intervalBetweenNotificationAndMessageReceived;

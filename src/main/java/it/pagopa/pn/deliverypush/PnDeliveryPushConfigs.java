@@ -21,7 +21,9 @@ public class PnDeliveryPushConfigs {
 
         private String scheduledActions;
 
-        private String toExternalChannel;
+        private String toExternalChannelPec;
+        
+        private String toExternalChannelEmail;
 
         private String fromExternalChannel;
 

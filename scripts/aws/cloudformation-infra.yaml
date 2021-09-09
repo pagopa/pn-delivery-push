@@ -60,7 +60,9 @@ Resources:
               Value: !Sub '${AddressBookUrl}'
             - Name: PN_DELIVERYPUSH_TOPICS_NEWNOTIFICATIONS
               Value: !ImportValue { "Fn::Sub": '${EnvName}-delpush-input-queue-name' }
-            - Name: PN_DELIVERYPUSH_TOPICS_TOEXTERNALCHANNEL
+            - Name: PN_DELIVERYPUSH_TOPICS_TOEXTERNALCHANNELPEC
+              Value: !ImportValue { "Fn::Sub": '${EnvName}-extchannel-input-queue-name' }
+            - Name: PN_DELIVERYPUSH_TOPICS_TOEXTERNALCHANNELEMAIL
               Value: !ImportValue { "Fn::Sub": '${EnvName}-extchannel-input-queue-name' }
             - Name: PN_DELIVERYPUSH_TOPICS_FROMEXTERNALCHANNEL
               Value: !ImportValue { "Fn::Sub": '${EnvName}-extchannel-output-queue-name' }

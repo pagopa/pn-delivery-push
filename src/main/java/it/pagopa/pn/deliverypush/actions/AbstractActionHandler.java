@@ -1,12 +1,18 @@
 package it.pagopa.pn.deliverypush.actions;
 
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.*;
-
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
+
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionHandler;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.DigitalAddressSource;
+
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 
 public abstract class AbstractActionHandler implements ActionHandler {
 
@@ -77,11 +83,22 @@ public abstract class AbstractActionHandler implements ActionHandler {
     }
 
     protected Action buildWaitRecipientTimeoutAction(Action action ) {
+        Duration recipientViewMaxTime = pnDeliveryPushConfigs.getTimeParams().getRecipientViewMaxTime();
+
         return Action.builder()
                 .iun(action.getIun())
                 .recipientIndex(action.getRecipientIndex())
-                .notBefore(Instant.now().plus(pnDeliveryPushConfigs.getTimeParams().getProcessingTimeToRecipient()) )
+                .notBefore(Instant.now().plus(recipientViewMaxTime) )
                 .type(ActionType.WAIT_FOR_RECIPIENT_TIMEOUT)
+                .build();
+    }
+
+    protected Action buildSendCourtesyAction(Action action ) {
+        return Action.builder()
+                .iun(action.getIun())
+                .recipientIndex(action.getRecipientIndex())
+                .notBefore(Instant.now())
+                .type(ActionType.SEND_COURTESY_MESSAGES)
                 .build();
     }
 
