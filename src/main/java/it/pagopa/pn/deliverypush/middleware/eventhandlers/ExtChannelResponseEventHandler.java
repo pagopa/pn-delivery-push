@@ -2,9 +2,11 @@ package it.pagopa.pn.deliverypush.middleware.eventhandlers;
 
 import it.pagopa.pn.api.dto.events.*;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.temp.mom.consumer.AbstractEventHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,10 +19,12 @@ import java.util.Optional;
 public class ExtChannelResponseEventHandler extends AbstractEventHandler<PnExtChnProgressStatusEvent> {
 
     private final ActionsPool actionsPool;
+    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
-    public ExtChannelResponseEventHandler(ActionsPool actionsPool ) {
+    public ExtChannelResponseEventHandler(ActionsPool actionsPool , PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         super( PnExtChnProgressStatusEvent.class );
         this.actionsPool = actionsPool;
+        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
     }
 
     @Override
@@ -35,7 +39,7 @@ public class ExtChannelResponseEventHandler extends AbstractEventHandler<PnExtCh
         if( sendAction.isPresent() ) {
             Action extChResponseAction = sendAction.get().toBuilder()
                     .type( ActionType.RECEIVE_PEC )
-                    .notBefore( header.getCreatedAt().plus( 1, ChronoUnit.SECONDS ))
+                    .notBefore( header.getCreatedAt().plus( pnDeliveryPushConfigs.getTimeParams().getTimeBetweenExtChReceptionAndMessageProcessed() ) )
                     .responseStatus( evt.getPayload().getStatusCode() )
                     .build();
 
