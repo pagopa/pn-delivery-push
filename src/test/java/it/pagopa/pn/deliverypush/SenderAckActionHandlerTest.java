@@ -26,7 +26,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class SenderAckActionHandlerTest {
+class SenderAckActionHandlerTest {
     private LegalFactUtils legalFactUtils;
     private TimelineDao timelineDao;
     private ActionsPool actionsPool;

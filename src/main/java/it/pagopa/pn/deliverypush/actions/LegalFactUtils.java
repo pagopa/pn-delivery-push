@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class LegalFactUtils {
-    private final ConcurrentHashMap<Class, ObjectWriter> mapObjWriter = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Class<?>, ObjectWriter> mapObjWriter = new ConcurrentHashMap<>();
     private final FileStorage fileStorage;
     private final ObjectMapper objMapper;
 
@@ -31,7 +31,7 @@ public class LegalFactUtils {
 
     public void saveLegalFact(String iun, String name, Object legalFact) {
         try {
-            ObjectWriter writer = mapObjWriter.computeIfAbsent(legalFact.getClass(), k -> objMapper.writerFor(k));
+            ObjectWriter writer = mapObjWriter.computeIfAbsent(legalFact.getClass(), objMapper::writerFor);
             String bodyString = writer.writeValueAsString(legalFact);
             String key = iun + "/legalfacts/" + name + ".json";
             Map<String, String> metadata = Collections.singletonMap("Content-Type", "application/json; charset=utf-8");

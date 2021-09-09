@@ -28,7 +28,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
-public class SendPecActionHandlerTest {
+class SendPecActionHandlerTest {
     private MomProducer<PnExtChnPecEvent> pecRequestProducer;
     private TimelineDao timelineDao;
     private ActionsPool actionsPool;
@@ -87,7 +87,7 @@ public class SendPecActionHandlerTest {
         handler.handleAction(action, notification);
 
         //Then
-        //Mockito.verify(pecRequestProducer).push(Mockito.any(PnExtChnPecEvent.class));
+        Mockito.verify(pecRequestProducer).push(Mockito.any(PnExtChnPecEvent.class));
     }
 
     @Test

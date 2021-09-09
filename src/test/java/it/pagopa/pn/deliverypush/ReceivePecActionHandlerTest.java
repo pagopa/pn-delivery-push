@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
-public class ReceivePecActionHandlerTest {
+class ReceivePecActionHandlerTest {
     private TimelineDao timelineDao;
     private ActionsPool actionsPool;
     private ReceivePecActionHandler handler;
@@ -83,7 +83,7 @@ public class ReceivePecActionHandlerTest {
         handler.handleAction(action, notification);
 
         //Then
-
+        Mockito.verify(timelineDao).addTimelineElement(Mockito.any(TimelineElement.class));
     }
 
     @Test

@@ -98,7 +98,7 @@ public abstract class AbstractActionHandler implements ActionHandler {
                 .build();
     }
 
-    protected Instant loadFirstAttemptTime(Action action) {
+    private Instant loadFirstAttemptTime(Action action) {
         String firstAttemptResultActionId = ActionType.RECEIVE_PEC.buildActionId( action.toBuilder()
                 .retryNumber( 1 )
                 .build()

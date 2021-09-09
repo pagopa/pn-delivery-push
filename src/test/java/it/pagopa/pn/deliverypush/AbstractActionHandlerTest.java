@@ -250,30 +250,6 @@ class AbstractActionHandlerTest {
 
     }
 
-    @Test
-    void successLoadFirstAttemptTime() {
-        //Given
-        Action.ActionBuilder nextActionBuilder = Action.builder()
-                .iun("Test_iun01")
-                .recipientIndex(1);
-        Action action = nextActionBuilder
-                .actionId(ActionType.RECEIVE_PEC.buildActionId(Action.builder()
-                        .retryNumber(1)
-                        .build()))
-                .type(ActionType.RECEIVE_PEC)
-                .build();
-
-        //When
-        Instant res = abstractActionHandler.loadFirstAttemptTime(action);
-
-        //Then
-        ArgumentCaptor<String> actionIunCapture = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(timelineDao).getTimeline(actionIunCapture.capture());
-
-        Assertions.assertEquals(action.getIun(), actionIunCapture.getValue(), "Different action Iun");
-        //Assertions.assertNotEquals(Instant.now() ,timelineElement.map(TimelineElement::getTimestamp), "First attempt absent");
-    }
-
     private static class TestAbstractActionHandler extends AbstractActionHandler {
 
         public TestAbstractActionHandler(TimelineDao timelineDao, ActionsPool actionsPool, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
@@ -310,10 +286,10 @@ class AbstractActionHandlerTest {
             return super.buildWaitRecipientTimeoutAction(action);
         }
 
-        @Override
-        public Instant loadFirstAttemptTime(Action action) {
-            return super.loadFirstAttemptTime(action);
-        }
+        //@Override
+        //public Instant loadFirstAttemptTime(Action action) {
+            //return super.loadFirstAttemptTime(action);
+        //}
 
         @Override
         public ActionType getActionType() {

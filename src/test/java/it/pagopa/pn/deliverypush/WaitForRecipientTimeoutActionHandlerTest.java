@@ -6,6 +6,7 @@ import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
@@ -23,7 +24,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class WaitForRecipientTimeoutActionHandlerTest {
+class WaitForRecipientTimeoutActionHandlerTest {
     private TimelineDao timelineDao;
     private ActionsPool actionsPool;
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
@@ -69,6 +70,9 @@ public class WaitForRecipientTimeoutActionHandlerTest {
 
         //When
         handler.handleAction(action, notification);
+
+        //Then
+        Mockito.verify(timelineDao).addTimelineElement(Mockito.any(TimelineElement.class));
 
     }
 

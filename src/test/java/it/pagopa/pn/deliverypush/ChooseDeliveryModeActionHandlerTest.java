@@ -23,7 +23,7 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class ChooseDeliveryModeActionHandlerTest {
+class ChooseDeliveryModeActionHandlerTest {
     private AddressBook addressBook;
     private TimelineDao timelineDao;
     private ActionsPool actionsPool;
