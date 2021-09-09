@@ -5,11 +5,14 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -35,6 +38,7 @@ class SendCourtesyMessagesActionHandlerTest {
 	private SendCourtesyMessagesActionHandler sendCourtesyMessagesActionHandler;
 	private TimelineDao timelineDao;
 	private ActionsPool actionsPool;
+	private PnDeliveryPushConfigs pnDeliveryPushConfigs;
 	
 	@SuppressWarnings("unchecked")
 	@BeforeEach
@@ -42,7 +46,12 @@ class SendCourtesyMessagesActionHandlerTest {
 		emailRequestProducer = Mockito.mock( MomProducer.class );
 		timelineDao = Mockito.mock( TimelineDao.class );
 		actionsPool = Mockito.mock( ActionsPool.class );
-		sendCourtesyMessagesActionHandler = new SendCourtesyMessagesActionHandler( timelineDao, actionsPool, emailRequestProducer );
+
+		pnDeliveryPushConfigs = Mockito.mock( PnDeliveryPushConfigs.class );
+		TimeParams times = new TimeParams();
+		times.setRecipientViewMaxTime( Duration.ZERO );
+		Mockito.when( pnDeliveryPushConfigs.getTimeParams() ).thenReturn( times );
+		sendCourtesyMessagesActionHandler = new SendCourtesyMessagesActionHandler( timelineDao, actionsPool, pnDeliveryPushConfigs, emailRequestProducer );
 	}
 	
 	@Test

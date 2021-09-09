@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.actions;
 
+import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
@@ -12,14 +12,18 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.DigitalAddressSource;
 
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+
 public abstract class AbstractActionHandler implements ActionHandler {
 
     private final TimelineDao timelineDao;
     private final ActionsPool actionsPool;
+    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
-    protected AbstractActionHandler(TimelineDao timelineDao, ActionsPool actionsPool) {
+    protected AbstractActionHandler(TimelineDao timelineDao, ActionsPool actionsPool, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         this.timelineDao = timelineDao;
         this.actionsPool = actionsPool;
+        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
     }
 
     protected void scheduleAction( Action action ) {
@@ -65,21 +69,10 @@ public abstract class AbstractActionHandler implements ActionHandler {
 
         Action nextAction;
         if( nextIsInFirstRound ) {
-            nextAction = nextActionBuilder
-                    .notBefore( Instant.now() )
-                    .type( ActionType.SEND_PEC )
-                    .digitalAddressSource( action.getDigitalAddressSource().next() )
-                    .retryNumber( 1 )
-                    .build();
-
+            nextAction = actionInFirstRound(nextActionBuilder, action);
         }
         else if ( nextIsInSecondRound ) {
-            nextAction = nextActionBuilder
-                    .notBefore( loadFirstAttemptTime( action ).plus( 70, ChronoUnit.SECONDS ) )
-                    .type( ActionType.SEND_PEC )
-                    .digitalAddressSource( action.getDigitalAddressSource().next() )
-                    .retryNumber( 2 )
-                    .build();
+            nextAction = actionInSecondRound(nextActionBuilder, action);
         }
         // If neither first nor second round: we have done with send attempt and can wait for recipient
         else {
@@ -90,10 +83,12 @@ public abstract class AbstractActionHandler implements ActionHandler {
     }
 
     protected Action buildWaitRecipientTimeoutAction(Action action ) {
+        Duration recipientViewMaxTime = pnDeliveryPushConfigs.getTimeParams().getRecipientViewMaxTime();
+
         return Action.builder()
                 .iun(action.getIun())
                 .recipientIndex(action.getRecipientIndex())
-                .notBefore(Instant.now().plus(5, ChronoUnit.MINUTES))
+                .notBefore(Instant.now().plus(recipientViewMaxTime) )
                 .type(ActionType.WAIT_FOR_RECIPIENT_TIMEOUT)
                 .build();
     }
@@ -123,6 +118,24 @@ public abstract class AbstractActionHandler implements ActionHandler {
         return firstAttemptResult
                 .map( TimelineElement::getTimestamp )
                 .orElse( Instant.now() ); // - If first attempt is absent can retry immediately
+    }
+
+    protected Action actionInFirstRound (Action.ActionBuilder nextActionBuilder, Action action){
+        return nextActionBuilder
+                .notBefore( Instant.now().plus(pnDeliveryPushConfigs.getTimeParams().getWaitingResponseFromFirstAddress() ) )
+                .type( ActionType.SEND_PEC )
+                .digitalAddressSource( action.getDigitalAddressSource().next() )
+                .retryNumber( 1 )
+                .build();
+    }
+
+    protected Action actionInSecondRound (Action.ActionBuilder nextActionBuilder, Action action){
+        return nextActionBuilder
+                .notBefore( loadFirstAttemptTime( action ).plus(pnDeliveryPushConfigs.getTimeParams().getSecondAttemptWaitingTime()) )
+                .type( ActionType.SEND_PEC )
+                .digitalAddressSource( action.getDigitalAddressSource().next() )
+                .retryNumber( 2 )
+                .build();
     }
 
     private static final Integer FIRST_ROUND = 1;

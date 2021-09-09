@@ -8,9 +8,10 @@ import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.DigitalAddressSource;
 import org.springframework.stereotype.Component;
 
@@ -20,10 +21,12 @@ import java.time.Instant;
 public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
 
     private final AddressBook addressBook;
+    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
-    public ChooseDeliveryModeActionHandler(TimelineDao timelineDao, AddressBook addressBook, ActionsPool actionsPool) {
-        super( timelineDao, actionsPool );
+    public ChooseDeliveryModeActionHandler(TimelineDao timelineDao, AddressBook addressBook, ActionsPool actionsPool, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
+        super( timelineDao, actionsPool , pnDeliveryPushConfigs);
         this.addressBook = addressBook;
+        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
     }
 
     @Override
@@ -58,7 +61,7 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
                 .type( ActionType.SEND_PEC )
                 .digitalAddressSource( DigitalAddressSource.PLATFORM )
                 .retryNumber( 1 )
-                .notBefore( Instant.now() )
+                .notBefore( Instant.now().plus(pnDeliveryPushConfigs.getTimeParams().getWaitingForNextAction()) )
                 .build()
             );
 

@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.actions;
 import java.time.Instant;
 import java.util.Optional;
 
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import org.springframework.stereotype.Component;
 
 import it.pagopa.pn.api.dto.events.EventPublisher;
@@ -28,8 +29,8 @@ public class SendCourtesyMessagesActionHandler extends AbstractActionHandler {
     
     private final MomProducer<PnExtChnEmailEvent> emailRequestProducer;
 
-    public SendCourtesyMessagesActionHandler(TimelineDao timelineDao, ActionsPool actionsPool, MomProducer<PnExtChnEmailEvent> emailRequestProducer) {
-        super( timelineDao, actionsPool );
+    public SendCourtesyMessagesActionHandler(TimelineDao timelineDao, ActionsPool actionsPool, PnDeliveryPushConfigs pnDeliveryPushConfigs, MomProducer<PnExtChnEmailEvent> emailRequestProducer) {
+        super( timelineDao, actionsPool, pnDeliveryPushConfigs );
         this.emailRequestProducer = emailRequestProducer;
     }
     
@@ -66,22 +67,23 @@ public class SendCourtesyMessagesActionHandler extends AbstractActionHandler {
 		    			.build()
 		    	  ); 		
 		    }
-        
-			// - GENERATE NEXT ACTIONS
-			Action nextAction = buildWaitRecipientTimeoutAction(action);
-			scheduleAction( nextAction );
-			
-			// - WRITE TIMELINE
-			addTimelineElement( action, TimelineElement.builder()
-			        .category( TimelineElementCategory.SEND_COURTESY_MESSAGE )
-			        	.details( SendCourtesyDetails.builder()
-			        		.taxId( recipient.getTaxId() )
-			        		.addresses( addresses.get().getCourtesyAddresses() )
-			                .build()
-			        )
-			        .build()
-			);
+
         }
+
+		// - GENERATE NEXT ACTIONS
+		Action nextAction = buildWaitRecipientTimeoutAction(action);
+		scheduleAction( nextAction );
+
+		// - WRITE TIMELINE
+		addTimelineElement( action, TimelineElement.builder()
+				.category( TimelineElementCategory.SEND_COURTESY_MESSAGE )
+				.details( SendCourtesyDetails.builder()
+						.taxId( recipient.getTaxId() )
+						.addresses( addresses.get().getCourtesyAddresses() )
+						.build()
+				)
+				.build()
+		);
     }
 
     @Override

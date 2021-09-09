@@ -1,24 +1,26 @@
 package it.pagopa.pn.deliverypush.middleware.eventhandlers;
 
-import it.pagopa.pn.api.dto.events.*;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
+import it.pagopa.pn.api.dto.events.PnDeliveryNewNotificationEvent;
+import it.pagopa.pn.api.dto.events.StandardEventHeader;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.temp.mom.consumer.AbstractEventHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.time.temporal.ChronoUnit;
 
 @Service
 @Slf4j
 public class NewNotificationEventHandler extends AbstractEventHandler<PnDeliveryNewNotificationEvent> {
 
     private final ActionsPool actionsPool;
+    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
-    public NewNotificationEventHandler( ActionsPool actionsPool ) {
+    public NewNotificationEventHandler( ActionsPool actionsPool , PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         super( PnDeliveryNewNotificationEvent.class );
         this.actionsPool = actionsPool;
+        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
     }
 
     @Override
@@ -30,7 +32,8 @@ public class NewNotificationEventHandler extends AbstractEventHandler<PnDelivery
                 .iun(header.getIun() )
                 .actionId( header.getEventId() )
                 .type( ActionType.SENDER_ACK )
-                .notBefore( header.getCreatedAt().plus( 5, ChronoUnit.SECONDS ))
+                //ritardo tra ricezione messaggio new notifica e sua ricezione
+                .notBefore( header.getCreatedAt().plus( pnDeliveryPushConfigs.getTimeParams().getIntervalBetweenNotificationAndMessageReceived() ))
                 .build();
         actionsPool.scheduleFutureAction( senderAck );
     }

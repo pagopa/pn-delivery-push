@@ -406,3 +406,17 @@ Resources:
         EncryptionKey:
           Id:  { "Fn::ImportValue": {"Fn::Sub": "${ProductName}-${BranchName}-CMK-arn"}}
           Type: KMS
+
+  CodePipelineNotifications:
+    Type: AWS::CodeStarNotifications::NotificationRule
+    Properties:
+      DetailType: FULL
+      Name: !Sub '${ProductName}-${BranchName}-delpush-msg'
+      EventTypeIds:
+        - codepipeline-pipeline-pipeline-execution-failed
+        - codepipeline-pipeline-pipeline-execution-succeeded
+      Resource: !Sub 'arn:aws:codepipeline:${AWS::Region}:${AWS::AccountId}:${PnDeliveryPushAppPipeline}'
+      Targets:
+        - TargetAddress: 
+            !ImportValue 'build-msg-topic'
+          TargetType: SNS
