@@ -8,7 +8,6 @@ import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import org.springframework.stereotype.Component;
 
 @Component

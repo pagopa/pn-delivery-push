@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         "pn.delivery-push.time-params.waiting-for-next-action=1s",
         "pn.delivery-push.time-params.time-between-ext-ch-reception-and-message-processed=1s",
         "pn.delivery-push.time-params.interval-between-notification-and-message-received=1s"})
-public class AbstractActionHandlerTest {
+class AbstractActionHandlerTest {
 
     private Action action;
     private Action.ActionBuilder actionBuilder;
@@ -62,7 +62,7 @@ public class AbstractActionHandlerTest {
     }
 
     @Test
-    public void testActionFirstRound() throws Exception {
+    void testActionFirstRound() throws Exception {
 
         testActionHandler = new TestActionHandler(timelineDao, actionsPool, pnDeliveryPushConfigs);
         action = testActionHandler.actionInFirstRound(actionBuilder, action);
@@ -72,7 +72,7 @@ public class AbstractActionHandlerTest {
     }
 
     @Test
-    public void testActionSecondRound() throws Exception {
+    void testActionSecondRound() throws Exception {
 
         testActionHandler = new TestActionHandler(timelineDao, actionsPool, pnDeliveryPushConfigs);
         action = testActionHandler.actionInSecondRound(actionBuilder, action);

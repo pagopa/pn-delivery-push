@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.actions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import org.springframework.stereotype.Component;
@@ -15,10 +16,11 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoField;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class LegalFactUtils {
-
+    private final ConcurrentHashMap<Class<?>, ObjectWriter> mapObjWriter = new ConcurrentHashMap<>();
     private final FileStorage fileStorage;
     private final ObjectMapper objMapper;
 
@@ -27,26 +29,27 @@ public class LegalFactUtils {
         this.objMapper = objMapper;
     }
 
-    public  void saveLegalFact(String iun, String name, Object legalFact ) {
+    public void saveLegalFact(String iun, String name, Object legalFact) {
         try {
+            ObjectWriter writer = mapObjWriter.computeIfAbsent(legalFact.getClass(), objMapper::writerFor);
+            String bodyString = writer.writeValueAsString(legalFact);
             String key = iun + "/legalfacts/" + name + ".json";
-            String bodyString = objMapper.writeValueAsString( legalFact );
-            Map<String, String> metadata = Collections.singletonMap( "Content-Type", "application/json; charset=utf-8");
+            Map<String, String> metadata = Collections.singletonMap("Content-Type", "application/json; charset=utf-8");
 
             byte[] body = bodyString.getBytes(StandardCharsets.UTF_8);
-            try( InputStream bodyStream = new ByteArrayInputStream( body )) {
+            try (InputStream bodyStream = new ByteArrayInputStream(body)) {
                 fileStorage.putFileVersion(key, bodyStream, body.length, metadata);
             }
-        } catch ( IOException exc) {
+        } catch (IOException exc) {
             throw new PnInternalException("Generating legal fact", exc);
         }
     }
 
     public String instantToDate(Instant instant) {
-        OffsetDateTime odt = instant.atOffset( ZoneOffset.UTC );
-        int year = odt.get( ChronoField.YEAR_OF_ERA );
-        int month = odt.get( ChronoField.MONTH_OF_YEAR );
-        int day = odt.get( ChronoField.DAY_OF_MONTH );
+        OffsetDateTime odt = instant.atOffset(ZoneOffset.UTC);
+        int year = odt.get(ChronoField.YEAR_OF_ERA);
+        int month = odt.get(ChronoField.MONTH_OF_YEAR);
+        int day = odt.get(ChronoField.DAY_OF_MONTH);
         return String.format("%04d-%02d-%02d", year, month, day);
     }
 }
