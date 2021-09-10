@@ -1,11 +1,18 @@
 package it.pagopa.pn.deliverypush.actions;
 
+import java.time.Instant;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Component;
+
 import it.pagopa.pn.api.dto.legalfacts.NotificationReceivedLegalFact;
 import it.pagopa.pn.api.dto.legalfacts.RecipientInfoWithAddresses;
 import it.pagopa.pn.api.dto.legalfacts.SenderInfo;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.api.dto.notification.timeline.ReceivedDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
@@ -14,10 +21,6 @@ import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
-import org.springframework.stereotype.Component;
-
-import java.time.Instant;
-import java.util.stream.Collectors;
 
 @Component
 public class SenderAckActionHandler extends AbstractActionHandler {
@@ -47,8 +50,9 @@ public class SenderAckActionHandler extends AbstractActionHandler {
                             .recipient( RecipientInfoWithAddresses.builder()
                                     .taxId( recipient.getTaxId() )
                                     .denomination( recipient.getDenomination() )
-                                    .digitalDomicile( recipient.getDigitalDomicile().getAddress() )
-                                    .physicalDomicile( String.valueOf( recipient.getDigitalDomicile().toString() ) )
+                                    .digitalDomicile( recipient.getDigitalDomicile().getAddress() ) //FIXME : il domicilio digitale diventera facoltativo
+                                    .digitalAddressType( recipient.getDigitalDomicile().getType() ) //FIXME : il domicilio digitale diventera facoltativo
+                                    .physicalDomicile( nullSafePhysicalAddressToString( recipient ) )
                                     .build()
                             )
                             .digests( notification.getDocuments()
@@ -86,6 +90,22 @@ public class SenderAckActionHandler extends AbstractActionHandler {
                 .build()
         );
     }
+
+	private String nullSafePhysicalAddressToString( NotificationRecipient recipient ) {
+		String result = null;
+		
+		if ( recipient != null ) {
+			PhysicalAddress physicalAddress = recipient.getPhysicalAddress();
+			if ( physicalAddress != null ) {
+				List<String> standardAddressString = physicalAddress.toStandardAddressString( recipient.getDenomination() );
+				if ( standardAddressString != null ) {
+					result = String.join("\n", standardAddressString );
+				}
+			}
+		}
+		
+		return result;
+	}
 
     @Override
     public ActionType getActionType() {
