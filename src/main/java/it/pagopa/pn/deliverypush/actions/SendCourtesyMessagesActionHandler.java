@@ -1,9 +1,10 @@
 package it.pagopa.pn.deliverypush.actions;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import org.springframework.stereotype.Component;
 
 import it.pagopa.pn.api.dto.events.EventPublisher;
@@ -20,28 +21,59 @@ import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.DigitalAddressSource;
 
 @Component
 public class SendCourtesyMessagesActionHandler extends AbstractActionHandler {
 
     private final MomProducer<PnExtChnEmailEvent> emailRequestProducer;
+    private final ActionsPool actionsPool;
+    private final LegalFactUtils legalFactStore;
 
-    public SendCourtesyMessagesActionHandler(TimelineDao timelineDao, ActionsPool actionsPool, PnDeliveryPushConfigs pnDeliveryPushConfigs, MomProducer<PnExtChnEmailEvent> emailRequestProducer) {
+    public SendCourtesyMessagesActionHandler(TimelineDao timelineDao, ActionsPool actionsPool, 
+    		PnDeliveryPushConfigs pnDeliveryPushConfigs, MomProducer<PnExtChnEmailEvent> emailRequestProducer, LegalFactUtils legalFactStore) {
         super(timelineDao, actionsPool, pnDeliveryPushConfigs);
         this.emailRequestProducer = emailRequestProducer;
+        this.actionsPool = actionsPool;
+        this.legalFactStore = legalFactStore;
     }
 
     @Override
     public void handleAction(Action action, Notification notification) {
-
+    	// - Retrieve addresses
+    	Optional<NotificationPathChooseDetails> addresses =
+                getTimelineElement( action, ActionType.CHOOSE_DELIVERY_MODE, NotificationPathChooseDetails.class );
+    	
+    	List<Action> actionsToLegalAct = new ArrayList<>();
+    	
+    	for ( DigitalAddressSource addressSource : DigitalAddressSource.values() ) {
+    		for (int rn = 1; rn <= 2; rn ++) {
+    			Action possibleReceiveAction = Action.builder()
+    											.type( ActionType.RECEIVE_PEC )
+    											.iun( action.getIun() )
+    											.recipientIndex( action.getRecipientIndex() )
+    											.digitalAddressSource( addressSource )
+    											.retryNumber( rn )
+    											.build();
+    			
+    			String actionId = ActionType.RECEIVE_PEC.buildActionId( possibleReceiveAction );
+    			
+    			Optional<Action> sentAction = actionsPool.loadActionById( actionId );
+        	    
+        	    if ( sentAction.isPresent() ) {
+        	    	actionsToLegalAct.add( sentAction.get() );
+        	    }
+        	    
+    		}
+    	}
+    	
+    	legalFactStore.groupLegalFacts( actionsToLegalAct, notification, addresses );
+    	
         NotificationRecipient recipient = notification.getRecipients().get(action.getRecipientIndex());
-
-        // - Retrieve addresses
-        Optional<NotificationPathChooseDetails> addresses =
-                getTimelineElement(action, ActionType.CHOOSE_DELIVERY_MODE, NotificationPathChooseDetails.class);
 
         if (addresses.isPresent()) {
             NotificationPathChooseDetails addressesValue = addresses.get();

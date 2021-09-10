@@ -11,8 +11,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -28,9 +26,11 @@ import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 
 class SendCourtesyMessagesActionHandlerTest {
 
@@ -39,6 +39,7 @@ class SendCourtesyMessagesActionHandlerTest {
 	private TimelineDao timelineDao;
 	private ActionsPool actionsPool;
 	private PnDeliveryPushConfigs pnDeliveryPushConfigs;
+	private LegalFactUtils legalFactStore;
 	
 	@SuppressWarnings("unchecked")
 	@BeforeEach
@@ -46,12 +47,12 @@ class SendCourtesyMessagesActionHandlerTest {
 		emailRequestProducer = Mockito.mock( MomProducer.class );
 		timelineDao = Mockito.mock( TimelineDao.class );
 		actionsPool = Mockito.mock( ActionsPool.class );
-
+		legalFactStore = Mockito.mock( LegalFactUtils.class );
 		pnDeliveryPushConfigs = Mockito.mock( PnDeliveryPushConfigs.class );
 		TimeParams times = new TimeParams();
 		times.setRecipientViewMaxTime( Duration.ZERO );
 		Mockito.when( pnDeliveryPushConfigs.getTimeParams() ).thenReturn( times );
-		sendCourtesyMessagesActionHandler = new SendCourtesyMessagesActionHandler( timelineDao, actionsPool, pnDeliveryPushConfigs, emailRequestProducer );
+		sendCourtesyMessagesActionHandler = new SendCourtesyMessagesActionHandler( timelineDao, actionsPool, pnDeliveryPushConfigs, emailRequestProducer, legalFactStore );
 	}
 	
 	@Test
