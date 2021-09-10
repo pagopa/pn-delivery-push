@@ -1,6 +1,18 @@
 package it.pagopa.pn.deliverypush;
 
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Optional;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
+import it.pagopa.pn.api.dto.legalfacts.DigitalAdviceReceiptLegalFact;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
@@ -15,18 +27,11 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
+import it.pagopa.pn.deliverypush.actions.LegalFactUtils;
 import it.pagopa.pn.deliverypush.actions.ReceivePecActionHandler;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
-import java.time.Duration;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Optional;
 
 class ReceivePecActionHandlerTest {
+	private LegalFactUtils legalFactUtils;
     private TimelineDao timelineDao;
     private ActionsPool actionsPool;
     private ReceivePecActionHandler handler;
@@ -34,10 +39,12 @@ class ReceivePecActionHandlerTest {
 
     @BeforeEach
     public void setup() {
+    	legalFactUtils = Mockito.mock(LegalFactUtils.class);
         timelineDao = Mockito.mock(TimelineDao.class);
         actionsPool = Mockito.mock(ActionsPool.class);
         pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
         handler = new ReceivePecActionHandler(
+        		legalFactUtils,
                 timelineDao,
                 actionsPool,
                 pnDeliveryPushConfigs
@@ -85,6 +92,14 @@ class ReceivePecActionHandlerTest {
 
         //Then
         Mockito.verify(timelineDao).addTimelineElement(Mockito.any(TimelineElement.class));
+        
+        ArgumentCaptor<String> iunCapture = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> nameCapture = ArgumentCaptor.forClass(String.class);
+
+        Mockito.verify(legalFactUtils).saveLegalFact(iunCapture.capture(), nameCapture.capture(), Mockito.any(DigitalAdviceReceiptLegalFact.class));
+
+        Assertions.assertEquals(action.getIun(), iunCapture.getValue(), "Different iun");
+        Assertions.assertEquals("sent_pec_" + notification.getRecipients().get(0).getTaxId(), nameCapture.getValue());
     }
 
     @Test
