@@ -2,9 +2,12 @@ package it.pagopa.pn.deliverypush.actions;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionHandler;
@@ -60,16 +63,12 @@ public abstract class AbstractActionHandler implements ActionHandler {
                         ! DigitalAddressSource.GENERAL.equals( action.getDigitalAddressSource() )
                 );
 
-        Action.ActionBuilder nextActionBuilder = Action.builder()
-                .iun( action.getIun() )
-                .recipientIndex( action.getRecipientIndex() );
-
         Action nextAction;
         if( nextIsInFirstRound ) {
-            nextAction = actionInFirstRound(nextActionBuilder, action);
+            nextAction = buildNextSendPecActionWithRound( action, FIRST_ROUND);
         }
         else if ( nextIsInSecondRound ) {
-            nextAction = actionInSecondRound(nextActionBuilder, action);
+            nextAction = buildNextSendPecActionWithRound( action, SECOND_ROUND);
         }
         // If neither first nor second round: we have done with send attempt and can wait for recipient
         else {
@@ -94,7 +93,7 @@ public abstract class AbstractActionHandler implements ActionHandler {
                 .iun(action.getIun())
                 .recipientIndex(action.getRecipientIndex())
                 .notBefore(Instant.now())
-                .type(ActionType.SEND_COURTESY_MESSAGES)
+                .type(ActionType.END_OF_DIGITAL_DELIVERY_WORKFLOW)
                 .build();
     }
 
@@ -116,26 +115,49 @@ public abstract class AbstractActionHandler implements ActionHandler {
                 .orElse( Instant.now() ); // - If first attempt is absent can retry immediately
     }
 
-    protected Action actionInFirstRound (Action.ActionBuilder nextActionBuilder, Action action){
-        return nextActionBuilder
-                .notBefore( Instant.now().plus(pnDeliveryPushConfigs.getTimeParams().getWaitingResponseFromFirstAddress() ) )
+    protected Action buildNextSendPecActionWithRound(Action action, Integer roundNumber){
+        Duration actionDelay;
+        if ( FIRST_ROUND.equals( roundNumber )) {
+            actionDelay = pnDeliveryPushConfigs.getTimeParams().getWaitingResponseFromFirstAddress();
+        } else if( SECOND_ROUND.equals( roundNumber )) {
+            actionDelay = pnDeliveryPushConfigs.getTimeParams().getSecondAttemptWaitingTime();
+        }
+        else {
+            throw new PnInternalException("Pec workflow: not supported round " + roundNumber);
+        }
+
+        return Action.builder()
+                .iun( action.getIun() )
+                .recipientIndex( action.getRecipientIndex() )
+                .notBefore( Instant.now().plus(actionDelay) )
                 .type( ActionType.SEND_PEC )
                 .digitalAddressSource( action.getDigitalAddressSource().next() )
-                .retryNumber( 1 )
+                .retryNumber( roundNumber )
                 .build();
     }
 
-    protected Action actionInSecondRound (Action.ActionBuilder nextActionBuilder, Action action){
-        return nextActionBuilder
-                .notBefore( loadFirstAttemptTime( action ).plus(pnDeliveryPushConfigs.getTimeParams().getSecondAttemptWaitingTime()) )
-                .type( ActionType.SEND_PEC )
-                .digitalAddressSource( action.getDigitalAddressSource().next() )
-                .retryNumber( 2 )
-                .build();
+    protected static final Integer FIRST_ROUND = 1;
+    protected static final Integer SECOND_ROUND = 2;
+    protected static final Integer LAST_ROUND = SECOND_ROUND;
+
+
+    protected List<Action> replicateForEachDigitalWorkflowAction(Action templateAction) {
+        List<Action> result = new ArrayList<>();
+
+        Action.ActionBuilder builder =  templateAction.toBuilder();
+
+        for( DigitalAddressSource das: DigitalAddressSource.values() ) {
+            for( int retryNum = FIRST_ROUND; retryNum <= LAST_ROUND; retryNum++ ) {
+                Action actionWithoutId = builder
+                        .digitalAddressSource( das )
+                        .retryNumber( retryNum )
+                        .build();
+                Action actionWithId = actionWithoutId.toBuilder()
+                        .actionId( actionWithoutId.getType().buildActionId( actionWithoutId ))
+                        .build();
+                result.add( actionWithId );
+            }
+        }
+        return result;
     }
-
-    private static final Integer FIRST_ROUND = 1;
-    private static final Integer SECOND_ROUND = 2;
-
-
 }

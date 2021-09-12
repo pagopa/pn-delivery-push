@@ -37,13 +37,7 @@ public class ReceivePecActionHandler extends AbstractActionHandler {
         Action nextAction;
         PnExtChnProgressStatus status = action.getResponseStatus();
         NotificationRecipient recipient = notification.getRecipients().get( action.getRecipientIndex() );
-        
-        Optional<NotificationPathChooseDetails> addresses =
-                getTimelineElement( action, ActionType.CHOOSE_DELIVERY_MODE, NotificationPathChooseDetails.class );
-        
-        // - WRITE LEGAL FACTS TODO RIMUOVERE
-        legalFactStore.digitalAdviceReceiptLegalFact( action, notification, addresses );
-        
+
         // - Se il messaggio è andato a buon fine schedula l'attesa
         if ( PnExtChnProgressStatus.OK.equals( status ) ) {
             nextAction = buildSendCourtesyAction(action);
@@ -55,6 +49,9 @@ public class ReceivePecActionHandler extends AbstractActionHandler {
 
         scheduleAction( nextAction );
 
+
+        Optional<NotificationPathChooseDetails> addresses =
+                getTimelineElement( action, ActionType.CHOOSE_DELIVERY_MODE, NotificationPathChooseDetails.class );
         if( addresses.isPresent() ) {
             // - send pec if specific address present
             DigitalAddress address = action.getDigitalAddressSource().getAddressFrom(addresses.get());

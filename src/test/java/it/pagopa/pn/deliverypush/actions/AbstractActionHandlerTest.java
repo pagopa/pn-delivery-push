@@ -1,89 +1,261 @@
 package it.pagopa.pn.deliverypush.actions;
 
 import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElementDetails;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.DigitalAddressSource;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
+import it.pagopa.pn.deliverypush.actions.AbstractActionHandler;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith(SpringExtension.class)
-@EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
-@TestPropertySource(properties = {"pn.delivery-push.time-params.second-attempt-waiting-time=1s",
-        "pn.delivery-push.time-params.processing-time-to-recipient=1s",
-        "pn.delivery-push.time-params.waiting-response-from-first-address=1s",
-        "pn.delivery-push.time-params.waiting-for-next-action=1s",
-        "pn.delivery-push.time-params.time-between-ext-ch-reception-and-message-processed=1s",
-        "pn.delivery-push.time-params.interval-between-notification-and-message-received=1s"})
 class AbstractActionHandlerTest {
-
-    private Action action;
-    private Action.ActionBuilder actionBuilder;
-
-    @Mock
     private TimelineDao timelineDao;
-
-    @Mock
     private ActionsPool actionsPool;
-
-    @Autowired
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
-
-    private TestActionHandler testActionHandler;
-
-    private Instant now;
+    private TestAbstractActionHandler abstractActionHandler;
 
     @BeforeEach
-    public void setup(){
-        now = Instant.now();
+    void setup() {
+        pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
+        timelineDao = Mockito.mock(TimelineDao.class);
+        actionsPool = Mockito.mock(ActionsPool.class);
+        abstractActionHandler = new TestAbstractActionHandler(
+                timelineDao,
+                actionsPool,
+                pnDeliveryPushConfigs);
+        TimeParams times = new TimeParams();
+        times.setRecipientViewMaxTime(Duration.ZERO);
+        times.setSecondAttemptWaitingTime(Duration.ofSeconds(2));
+        times.setIntervalBetweenNotificationAndMessageReceived(Duration.ZERO);
+        times.setWaitingForNextAction(Duration.ZERO);
+        times.setTimeBetweenExtChReceptionAndMessageProcessed(Duration.ZERO);
+        times.setWaitingResponseFromFirstAddress(Duration.ofSeconds(1));
+        Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
+    }
 
-        action = Action.builder()
-                .notBefore( now.plus(pnDeliveryPushConfigs.getTimeParams().getSecondAttemptWaitingTime()) )
+    @Test
+    void successScheduleAction() {
+        //Given
+        Action.ActionBuilder nextActionBuilder = Action.builder()
+                .iun("Test_iun01")
+                .recipientIndex(1);
+        Action action = nextActionBuilder
+                .actionId(ActionType.SEND_PEC.buildActionId(Action.builder()
+                        .iun("Test_iun01")
+                        .recipientIndex(1)
+                        .build()))
+                .type(ActionType.SEND_PEC)
+                .build();
+
+        //When
+        abstractActionHandler.scheduleAction(action);
+
+        //Then
+        ArgumentCaptor<Action> actionCapture = ArgumentCaptor.forClass(Action.class);
+        Mockito.verify(actionsPool).scheduleFutureAction(actionCapture.capture());
+
+        assertTrue(new ReflectionEquals(action, "").matches(actionCapture.getValue()));
+    }
+
+    @Test
+    void successAddTimelineElementTest() {
+        //Given
+        Action.ActionBuilder nextActionBuilder = Action.builder()
+                .iun("Test_iun01")
+                .recipientIndex(1);
+        Action action = nextActionBuilder
+                .actionId(ActionType.SEND_PEC.buildActionId(Action.builder()
+                        .iun("Test_iun01")
+                        .recipientIndex(1)
+                        .build()))
+                .type(ActionType.SEND_PEC)
+                .build();
+
+        TimelineElement row = TimelineElement.builder()
+                .iun("Test_iun01")
+                .timestamp(Instant.now())
+                .elementId(action.getActionId())
+                .build();
+        //When
+        abstractActionHandler.addTimelineElement(action, row);
+
+        //Then
+        ArgumentCaptor<TimelineElement> timelineElementCapture = ArgumentCaptor.forClass(TimelineElement.class);
+        Mockito.verify(timelineDao).addTimelineElement(timelineElementCapture.capture());
+
+        assertTrue(new ReflectionEquals(row, "timestamp").matches(timelineElementCapture.getValue()));
+    }
+
+    @Test
+    void successGetTimelineElement() {
+        //Given
+        Action.ActionBuilder nextActionBuilder = Action.builder()
+                .iun("Test_iun01")
+                .recipientIndex(1);
+        Action action = nextActionBuilder
+                .actionId(ActionType.SEND_PEC.buildActionId(Action.builder()
+                        .iun("Test_iun01")
+                        .recipientIndex(1)
+                        .build()))
+                .type(ActionType.SEND_PEC)
+                .build();
+
+        ActionType actionType = ActionType.CHOOSE_DELIVERY_MODE;
+        Class<TimelineElementDetails> timelineDetailsClass = null;
+
+        //When
+        abstractActionHandler.getTimelineElement(action, actionType, timelineDetailsClass);
+
+        //Then
+        ArgumentCaptor<String> actionIun = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> actionId = ArgumentCaptor.forClass(String.class);
+
+        Mockito.verify(timelineDao).getTimelineElement(actionIun.capture(), actionId.capture());
+
+        Assertions.assertEquals(action.getIun(), actionIun.getValue(), "Different action Iun");
+    }
+
+    @Test
+    void successBuildNextSendActionFirstTest() {
+        //Given
+        Action.ActionBuilder nextActionBuilder = Action.builder()
+                .iun("Test_iun01")
+                .retryNumber(1)
+                .digitalAddressSource(DigitalAddressSource.PLATFORM)
+                .recipientIndex(1);
+        Action action1 = nextActionBuilder
+                .actionId(ActionType.SEND_PEC.buildActionId(Action.builder()
+                        .iun("Test_iun01")
+                        .recipientIndex(1)
+                        .retryNumber(1)
+                        .build()))
+                .type(ActionType.SEND_PEC)
+                .build();
+
+        //When
+        Optional<Action> nextAction = abstractActionHandler.buildNextSendAction(action1);
+
+        //Then
+        Assertions.assertEquals(action1.getIun(), nextAction.get().getIun(), "Different Iun");
+        Assertions.assertEquals(1, nextAction.get().getRetryNumber());
+
+    }
+
+    @Test
+    void successBuildNextSendActionSecondTest() {
+        //Given
+        Action.ActionBuilder nextActionBuilder2 = Action.builder()
+                .iun("Test_iun01")
+                .retryNumber(2)
+                .digitalAddressSource(DigitalAddressSource.PLATFORM)
+                .recipientIndex(1);
+        Action action2 = nextActionBuilder2
+                .actionId(ActionType.SEND_PEC.buildActionId(Action.builder()
+                        .iun("Test_iun01")
+                        .recipientIndex(1)
+                        .retryNumber(2)
+                        .build()))
+                .type(ActionType.SEND_PEC)
+                .build();
+
+        //When
+        Optional<Action> nextAction = abstractActionHandler.buildNextSendAction(action2);
+
+        //Then
+        Assertions.assertEquals(action2.getIun(), nextAction.get().getIun(), "Different Iun");
+        Assertions.assertEquals(2, nextAction.get().getRetryNumber(), "Different retry number");
+
+    }
+
+    @Test
+    void successBuildNextSendActionNullTest() {
+        //Given
+        Action.ActionBuilder nextActionBuilder2 = Action.builder()
+                .iun("Test_iun01")
+                .retryNumber(3)
+                .digitalAddressSource(DigitalAddressSource.GENERAL)
+                .recipientIndex(1);
+        Action action2 = nextActionBuilder2
+                .actionId(ActionType.SEND_PEC.buildActionId(Action.builder()
+                        .iun("Test_iun01")
+                        .recipientIndex(1)
+                        .retryNumber(2)
+                        .build()))
+                .type(ActionType.SEND_PEC)
+                .build();
+
+        //When
+        Optional<Action> nextAction = abstractActionHandler.buildNextSendAction(action2);
+
+        //Then
+        Assertions.assertEquals(Optional.empty(), nextAction);
+
+    }
+
+    @Test
+    void successBuildWRTActionTest() {
+        //Given
+        Action.ActionBuilder nextActionBuilder = Action.builder()
+                .iun("Test_iun01")
+                .recipientIndex(1);
+        Action action = nextActionBuilder
+                .actionId(ActionType.SEND_PEC.buildActionId(Action.builder()
+                        .iun("Test_iun01")
+                        .recipientIndex(1)
+                        .build()))
+                .type(ActionType.SEND_PEC)
+                .build();
+
+        //When
+        Action returnAction = abstractActionHandler.buildWaitRecipientTimeoutAction(action);
+
+        //Then
+        ArgumentCaptor<Action> actionCapture = ArgumentCaptor.forClass(Action.class);
+
+        Assertions.assertEquals(action.getIun(), returnAction.getIun(), "Different Iun");
+        Assertions.assertEquals(action.getRecipientIndex(), returnAction.getRecipientIndex(), "Different action recipient index");
+        Assertions.assertEquals(ActionType.WAIT_FOR_RECIPIENT_TIMEOUT, returnAction.getType());
+
+    }
+
+    @Test
+    void testPecFirstRoundDelay() throws Exception {
+        Action action = Action.builder()
                 .type( ActionType.SEND_PEC )
                 .digitalAddressSource( DigitalAddressSource.GENERAL )
-                .retryNumber( 2 )
+                .retryNumber( 1 )
                 .build();
-        actionBuilder = action.toBuilder();
-    }
+        action = abstractActionHandler.buildNextSendPecActionWithRound( action, 1);
 
-    @Test
-    void testActionFirstRound() throws Exception {
+        Duration expectedDelay = pnDeliveryPushConfigs.getTimeParams().getWaitingResponseFromFirstAddress();
+        Instant expectedNotBefore = Instant.now().plus( expectedDelay );
 
-        testActionHandler = new TestActionHandler(timelineDao, actionsPool, pnDeliveryPushConfigs);
-        action = testActionHandler.actionInFirstRound(actionBuilder, action);
-
-        assertEquals(action.getNotBefore().minus(Duration.ofSeconds(1)), action.getNotBefore().minus(pnDeliveryPushConfigs.getTimeParams().getSecondAttemptWaitingTime())) ;
+        // FIXME aggiungere clock nel abstractActionHandler per testabilità
+        assertTrue( action.getNotBefore().isBefore( expectedNotBefore ) || action.getNotBefore().equals( expectedNotBefore));
 
     }
 
-    @Test
-    void testActionSecondRound() throws Exception {
 
-        testActionHandler = new TestActionHandler(timelineDao, actionsPool, pnDeliveryPushConfigs);
-        action = testActionHandler.actionInSecondRound(actionBuilder, action);
+    private static class TestAbstractActionHandler extends AbstractActionHandler {
 
-        assertEquals(action.getNotBefore().minus(Duration.ofSeconds(1)), action.getNotBefore().minus(pnDeliveryPushConfigs.getTimeParams().getSecondAttemptWaitingTime())) ;
-    }
-
-
-    public static class TestActionHandler extends AbstractActionHandler {
-
-        protected TestActionHandler(TimelineDao timelineDao, ActionsPool actionsPool, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
+        public TestAbstractActionHandler(TimelineDao timelineDao, ActionsPool actionsPool, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
             super(timelineDao, actionsPool, pnDeliveryPushConfigs);
         }
 
@@ -93,9 +265,33 @@ class AbstractActionHandlerTest {
         }
 
         @Override
+        public void scheduleAction(Action action) {
+            super.scheduleAction(action);
+        }
+
+        @Override
+        public void addTimelineElement(Action action, TimelineElement row) {
+            super.addTimelineElement(action, row);
+        }
+
+        @Override
+        public <T> Optional<T> getTimelineElement(Action action, ActionType actionType, Class<T> timelineDetailsClass) {
+            return super.getTimelineElement(action, actionType, timelineDetailsClass);
+        }
+
+        @Override
+        public Optional<Action> buildNextSendAction(Action action) {
+            return super.buildNextSendAction(action);
+        }
+
+        @Override
+        public Action buildWaitRecipientTimeoutAction(Action action) {
+            return super.buildWaitRecipientTimeoutAction(action);
+        }
+
+        @Override
         public ActionType getActionType() {
             return null;
         }
     }
-
 }

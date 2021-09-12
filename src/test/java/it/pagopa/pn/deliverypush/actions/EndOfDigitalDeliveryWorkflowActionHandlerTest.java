@@ -32,10 +32,9 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 
-class SendCourtesyMessagesActionHandlerTest {
+class EndOfDigitalDeliveryWorkflowActionHandlerTest {
 
-	private MomProducer<PnExtChnEmailEvent> emailRequestProducer;
-	private SendCourtesyMessagesActionHandler sendCourtesyMessagesActionHandler;
+	private EndOfDigitalDeliveryWorkflowActionHandler endOfDigitalDeliveryWorkflowActionHandler;
 	private TimelineDao timelineDao;
 	private ActionsPool actionsPool;
 	private PnDeliveryPushConfigs pnDeliveryPushConfigs;
@@ -44,7 +43,6 @@ class SendCourtesyMessagesActionHandlerTest {
 	@SuppressWarnings("unchecked")
 	@BeforeEach
 	public void setup() {
-		emailRequestProducer = Mockito.mock( MomProducer.class );
 		timelineDao = Mockito.mock( TimelineDao.class );
 		actionsPool = Mockito.mock( ActionsPool.class );
 		legalFactStore = Mockito.mock( LegalFactUtils.class );
@@ -52,7 +50,7 @@ class SendCourtesyMessagesActionHandlerTest {
 		TimeParams times = new TimeParams();
 		times.setRecipientViewMaxTime( Duration.ZERO );
 		Mockito.when( pnDeliveryPushConfigs.getTimeParams() ).thenReturn( times );
-		sendCourtesyMessagesActionHandler = new SendCourtesyMessagesActionHandler( timelineDao, actionsPool, pnDeliveryPushConfigs, emailRequestProducer, legalFactStore );
+		endOfDigitalDeliveryWorkflowActionHandler = new EndOfDigitalDeliveryWorkflowActionHandler( timelineDao, actionsPool, legalFactStore, pnDeliveryPushConfigs );
 	}
 	
 	@Test
@@ -60,31 +58,31 @@ class SendCourtesyMessagesActionHandlerTest {
 		ArgumentCaptor<PnExtChnEmailEvent> emailEventCaptor = ArgumentCaptor.forClass( PnExtChnEmailEvent.class );
 		
 		//Given
+		Action action = newAction();
+	    Notification notification = newNotification();
+
 		NotificationPathChooseDetails details = newNotificationPathChooseDetails();
 		List<DigitalAddress> addresses = details.getCourtesyAddresses();
 		TimelineElement timelineElement = newTimelineElement( addresses );
-		int numberOfAddresses = addresses.size();
-		
-	    Action action = newAction();
-	    Notification notification = newNotification();
-	    	
-	    doNothing().when( emailRequestProducer ).push( Mockito.any( PnExtChnEmailEvent.class ) );
-	    Mockito.when( timelineDao.getTimelineElement( Mockito.anyString(), Mockito.anyString()) ).thenReturn( Optional.of( timelineElement ) );
+	    Mockito.when( timelineDao.getTimelineElement( Mockito.anyString(), Mockito.anyString()) )
+				.thenReturn( Optional.of( timelineElement ) );
 	    
 	    //When
-	    sendCourtesyMessagesActionHandler.handleAction( action, notification );
+	    endOfDigitalDeliveryWorkflowActionHandler.handleAction( action, notification );
 	    
 		//Then
-		verify( emailRequestProducer, times( numberOfAddresses ) ).push( emailEventCaptor.capture() );
-		
-		List<PnExtChnEmailEvent> events = emailEventCaptor.getAllValues();
-		for (int idx = 0; idx < numberOfAddresses; idx ++) {
-			assertEquals( addresses.get( idx).getAddress(), events.get( idx ).getPayload().getEmailAddress() );
-		}
-		
 		verify( actionsPool ).scheduleFutureAction( Mockito.any(Action.class) );
 		
 		verify( timelineDao ).addTimelineElement( Mockito.any(TimelineElement.class) );
+	}
+
+	private TimelineElement newTimelineElement(List<DigitalAddress> addresses) {
+		return TimelineElement.builder()
+				.details( NotificationPathChooseDetails.builder()
+						.courtesyAddresses(addresses)
+						.build()
+				)
+				.build();
 	}
 
 	private NotificationPathChooseDetails newNotificationPathChooseDetails() {
@@ -105,20 +103,11 @@ class SendCourtesyMessagesActionHandlerTest {
 				.build();
 	}
 	
-	private TimelineElement newTimelineElement(List<DigitalAddress> addresses) {
-		return TimelineElement.builder()
-				.details( NotificationPathChooseDetails.builder()
-							.courtesyAddresses(addresses)
-							.build() 
-				)
-				.build();
-	}
-
 	private Action newAction() {
 		return Action.builder()
 				.iun( "IUN_01" )
 				.actionId( "IUN_01_send_courtesy_rec0" )
-				.type( ActionType.SEND_COURTESY_MESSAGES )
+				.type( ActionType.END_OF_DIGITAL_DELIVERY_WORKFLOW)
 				.recipientIndex( 0 )
 				.build();
 	}

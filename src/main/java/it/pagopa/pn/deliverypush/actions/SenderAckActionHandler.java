@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.actions;
 import java.time.Instant;
 import java.util.stream.Collectors;
 
+import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import org.springframework.stereotype.Component;
 
 import it.pagopa.pn.api.dto.notification.Notification;
@@ -30,8 +31,10 @@ public class SenderAckActionHandler extends AbstractActionHandler {
 
     @Override
     public void handleAction(Action action, Notification notification) {
-        // - WRITE LEGAL FACTS TODO RIMUOVERE
-    	legalFactStore.notificationReceivedLegalFact(action, notification);
+
+        for( NotificationRecipient recipient: notification.getRecipients() ) {
+            legalFactStore.saveNotificationReceivedLegalFact(action, notification, recipient);
+        }
 
         // - GENERATE NEXT ACTIONS
         int numberOfRecipients = notification.getRecipients().size();
@@ -60,50 +63,6 @@ public class SenderAckActionHandler extends AbstractActionHandler {
                 .build()
         );
     }
-
-//	private void notificationReceivedLegalFact(Action action, Notification notification) {
-//		for( NotificationRecipient recipient: notification.getRecipients() ) {
-//            legalFactStore.saveLegalFact( action.getIun(), "sender_ack_" + recipient.getTaxId(),
-//                    NotificationReceivedLegalFact.builder()
-//                            .iun( notification.getIun() )
-//                            .sender( SenderInfo.builder()
-//                                    .paTaxId( notification.getSender().getPaId() )
-//                                    .paDenomination( notification.getSender().getPaDenomination() )
-//                                    .build()
-//                            )
-//                            .date( legalFactStore.instantToDate( notification.getSentAt() ))
-//                            .recipient( RecipientInfoWithAddresses.builder()
-//                                    .taxId( recipient.getTaxId() )
-//                                    .denomination( recipient.getDenomination() )
-//                                    .digitalDomicile( recipient.getDigitalDomicile().getAddress() ) //FIXME : il domicilio digitale diventera facoltativo
-//                                    .digitalAddressType( recipient.getDigitalDomicile().getType() ) //FIXME : il domicilio digitale diventera facoltativo
-//                                    .physicalDomicile( nullSafePhysicalAddressToString( recipient ) )
-//                                    .build()
-//                            )
-//                            .digests( notification.getDocuments()
-//                                    .stream()
-//                                    .map( d -> d.getDigests().getSha256() )
-//                                    .collect(Collectors.toList()) )
-//                            .build()
-//            );
-//        }
-//	}
-
-//	private String nullSafePhysicalAddressToString( NotificationRecipient recipient ) {
-//		String result = null;
-//		
-//		if ( recipient != null ) {
-//			PhysicalAddress physicalAddress = recipient.getPhysicalAddress();
-//			if ( physicalAddress != null ) {
-//				List<String> standardAddressString = physicalAddress.toStandardAddressString( recipient.getDenomination() );
-//				if ( standardAddressString != null ) {
-//					result = String.join("\n", standardAddressString );
-//				}
-//			}
-//		}
-//		
-//		return result;
-//	}
 
     @Override
     public ActionType getActionType() {

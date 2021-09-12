@@ -1,12 +1,27 @@
-package it.pagopa.pn.deliverypush;
+package it.pagopa.pn.deliverypush.actions;
 
-import it.pagopa.pn.api.dto.legalfacts.NotificationReceivedLegalFact;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Optional;
+
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+
+import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
+import it.pagopa.pn.api.dto.legalfacts.DigitalAdviceReceiptLegalFact;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
+import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
@@ -14,33 +29,23 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.actions.LegalFactUtils;
-import it.pagopa.pn.deliverypush.actions.SenderAckActionHandler;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
+import it.pagopa.pn.deliverypush.actions.ReceivePecActionHandler;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-
-class SenderAckActionHandlerTest {
-    private LegalFactUtils legalFactUtils;
+class ReceivePecActionHandlerTest {
+	private LegalFactUtils legalFactUtils;
     private TimelineDao timelineDao;
     private ActionsPool actionsPool;
+    private ReceivePecActionHandler handler;
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
-    private SenderAckActionHandler handler;
 
     @BeforeEach
     public void setup() {
-        pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
-        legalFactUtils = Mockito.mock(LegalFactUtils.class);
+    	legalFactUtils = Mockito.mock(LegalFactUtils.class);
         timelineDao = Mockito.mock(TimelineDao.class);
         actionsPool = Mockito.mock(ActionsPool.class);
-        handler = new SenderAckActionHandler(
-                legalFactUtils,
+        pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
+        handler = new ReceivePecActionHandler(
+        		legalFactUtils,
                 timelineDao,
                 actionsPool,
                 pnDeliveryPushConfigs
@@ -56,20 +61,30 @@ class SenderAckActionHandlerTest {
     }
 
     @Test
-    void successHandleAction() {
+    void successHandleActionTest() {
         //Given
         Action action = Action.builder()
                 .iun("Test_iun01")
                 .recipientIndex(0)
-                .type(ActionType.SENDER_ACK)
+                .type(ActionType.CHOOSE_DELIVERY_MODE)
                 .retryNumber(1)
-                .notBefore(Instant.now())
                 .digitalAddressSource(DigitalAddressSource.GENERAL)
+                .responseStatus(PnExtChnProgressStatus.PERMANENT_FAIL)
                 .actionId("Test_iun01_send_pec_rec0_null_nnull")
                 .build();
 
         String actionId = action.getType().buildActionId(action);
         action = action.toBuilder().actionId(actionId).build();
+
+        Mockito.when(timelineDao.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Optional.of(TimelineElement.builder()
+                        .details(NotificationPathChooseDetails.builder()
+                                .general(DigitalAddress.builder()
+                                        .address("account@dominio.it")
+                                        .type(DigitalAddressType.PEC)
+                                        .build())
+                                .build())
+                        .build()));
 
         Notification notification = newNotificationWithoutPayments();
 
@@ -77,22 +92,16 @@ class SenderAckActionHandlerTest {
         handler.handleAction(action, notification);
 
         //Then
-        ArgumentCaptor<String> iunCapture = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> nameCapture = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(timelineDao).addTimelineElement(Mockito.any(TimelineElement.class));
 
-        Mockito.verify(legalFactUtils).saveLegalFact(iunCapture.capture(), nameCapture.capture(), Mockito.any(NotificationReceivedLegalFact.class));
-
-        Assertions.assertEquals(action.getIun(), iunCapture.getValue(), "Different iun");
-        Assertions.assertEquals("sender_ack_" + notification.getRecipients().get(0).getTaxId(), nameCapture.getValue());
     }
-
 
     @Test
     void getActionTypeTest() {
         //When
         ActionType actionType = handler.getActionType();
         //Then
-        Assertions.assertEquals(ActionType.SENDER_ACK, actionType, "Different Action Type");
+        Assertions.assertEquals(ActionType.RECEIVE_PEC, actionType, "Different Action Type");
     }
 
     private Notification newNotificationWithoutPayments() {
