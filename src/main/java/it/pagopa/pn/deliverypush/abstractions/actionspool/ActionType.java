@@ -30,7 +30,7 @@ public enum ActionType {
                 );
         }
     },
-    SEND_COURTESY_MESSAGES() {
+    END_OF_DIGITAL_DELIVERY_WORKFLOW() {
         @Override
         public String buildActionId(Action action) {
             return String.format(

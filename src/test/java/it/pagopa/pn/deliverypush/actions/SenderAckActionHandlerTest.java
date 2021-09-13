@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush;
+package it.pagopa.pn.deliverypush.actions;
 
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
@@ -6,13 +6,15 @@ import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
-import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
-import it.pagopa.pn.deliverypush.actions.ChooseDeliveryModeActionHandler;
+import it.pagopa.pn.deliverypush.actions.LegalFactUtils;
+import it.pagopa.pn.deliverypush.actions.SenderAckActionHandler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,25 +22,26 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 
-class ChooseDeliveryModeActionHandlerTest {
-    private AddressBook addressBook;
+class SenderAckActionHandlerTest {
+    private LegalFactUtils legalFactUtils;
     private TimelineDao timelineDao;
     private ActionsPool actionsPool;
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
-    private ChooseDeliveryModeActionHandler handler;
+    private SenderAckActionHandler handler;
 
     @BeforeEach
-    void setup() {
+    public void setup() {
         pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
-        addressBook = Mockito.mock(AddressBook.class);
+        legalFactUtils = Mockito.mock(LegalFactUtils.class);
         timelineDao = Mockito.mock(TimelineDao.class);
         actionsPool = Mockito.mock(ActionsPool.class);
-        handler = new ChooseDeliveryModeActionHandler(
+        handler = new SenderAckActionHandler(
+                legalFactUtils,
                 timelineDao,
-                addressBook,
                 actionsPool,
                 pnDeliveryPushConfigs
         );
@@ -53,37 +56,47 @@ class ChooseDeliveryModeActionHandlerTest {
     }
 
     @Test
-    void successHandleActionTest() {
+    void successHandleAction() {
         //Given
-        Action nextAction = Action.builder()
-                .iun("Test_iun01")
+        Notification notification = newNotificationWithoutPayments();
+
+        Action action = Action.builder()
+                .iun( notification.getIun() )
                 .recipientIndex(0)
-                .type(ActionType.SEND_PEC)
+                .type(ActionType.SENDER_ACK)
+                .retryNumber(1)
+                .notBefore(Instant.now())
+                .digitalAddressSource(DigitalAddressSource.GENERAL)
                 .actionId("Test_iun01_send_pec_rec0_null_nnull")
                 .build();
 
-        String actionId = nextAction.getType().buildActionId(nextAction);
-        nextAction = nextAction.toBuilder().actionId(actionId).build();
+        String actionId = action.getType().buildActionId(action);
+        action = action.toBuilder().actionId(actionId).build();
 
-        Notification notification = newNotificationWithoutPayments();
 
         //When
-        handler.handleAction(nextAction, notification);
+        handler.handleAction(action, notification);
 
         //Then
-        ArgumentCaptor<String> taxIdCapture = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(addressBook).getAddresses(taxIdCapture.capture());
+        ArgumentCaptor<Action> actionCapture = ArgumentCaptor.forClass(Action.class);
+        ArgumentCaptor<Notification> notificationCapture = ArgumentCaptor.forClass(Notification.class);
+        ArgumentCaptor<NotificationRecipient> notificationRecipientCapture = ArgumentCaptor.forClass(NotificationRecipient.class);
 
-        Assertions.assertEquals(notification.getRecipients().get(0).getTaxId(), taxIdCapture.getValue());
+        Mockito.verify(legalFactUtils).saveNotificationReceivedLegalFact( actionCapture.capture(),
+                            notificationCapture.capture(), notificationRecipientCapture.capture() );
 
+        Assertions.assertEquals(action.getIun(), actionCapture.getValue().getIun(), "Different iun");
+        Assertions.assertEquals( action.getIun(), notificationCapture.getValue().getIun(), "Different iun");
+        Assertions.assertEquals( notification.getRecipients().get(0).getTaxId(), notificationRecipientCapture.getValue().getTaxId() );
     }
 
+
     @Test
-    void successGetActionType() {
+    void getActionTypeTest() {
         //When
         ActionType actionType = handler.getActionType();
         //Then
-        Assertions.assertEquals(ActionType.CHOOSE_DELIVERY_MODE, actionType, "Different Action Type");
+        Assertions.assertEquals(ActionType.SENDER_ACK, actionType, "Different Action Type");
     }
 
     private Notification newNotificationWithoutPayments() {

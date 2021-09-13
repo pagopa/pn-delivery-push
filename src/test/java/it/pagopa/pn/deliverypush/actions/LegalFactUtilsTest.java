@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush;
+package it.pagopa.pn.deliverypush.actions;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,6 +6,8 @@ import it.pagopa.pn.api.dto.legalfacts.NotificationReceivedLegalFact;
 import it.pagopa.pn.api.dto.legalfacts.RecipientInfoWithAddresses;
 import it.pagopa.pn.api.dto.legalfacts.SenderInfo;
 import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
+import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.deliverypush.actions.LegalFactUtils;
 import org.junit.jupiter.api.Assertions;
@@ -114,7 +116,11 @@ class LegalFactUtilsTest {
                 .recipient(RecipientInfoWithAddresses.builder()
                         .denomination("Nome Cognome/Ragione Sociale")
                         .taxId("Codice Fiscale 01")
-                        .digitalDomicile("account@dominio.it")
+                        .digitalDomicile( DigitalAddress.builder()
+                                .type( DigitalAddressType.PEC )
+                                .address("account@dominio.it")
+                                .build()
+                        )
                         .physicalDomicile("Via Roma 23")
                         .build())
                 .build();

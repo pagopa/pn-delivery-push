@@ -1,11 +1,13 @@
 package it.pagopa.pn.deliverypush.actions;
 
-import it.pagopa.pn.api.dto.legalfacts.NotificationReceivedLegalFact;
-import it.pagopa.pn.api.dto.legalfacts.RecipientInfoWithAddresses;
-import it.pagopa.pn.api.dto.legalfacts.SenderInfo;
+import java.time.Instant;
+import java.util.stream.Collectors;
+
+import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import org.springframework.stereotype.Component;
+
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.timeline.ReceivedDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
@@ -14,10 +16,6 @@ import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
-import org.springframework.stereotype.Component;
-
-import java.time.Instant;
-import java.util.stream.Collectors;
 
 @Component
 public class SenderAckActionHandler extends AbstractActionHandler {
@@ -33,30 +31,9 @@ public class SenderAckActionHandler extends AbstractActionHandler {
 
     @Override
     public void handleAction(Action action, Notification notification) {
-        // - WRITE LEGAL FACTS
+
         for( NotificationRecipient recipient: notification.getRecipients() ) {
-            legalFactStore.saveLegalFact( action.getIun(), "sender_ack_" + recipient.getTaxId(),
-                    NotificationReceivedLegalFact.builder()
-                            .iun( notification.getIun() )
-                            .sender( SenderInfo.builder()
-                                    .paTaxId( notification.getSender().getPaId() )
-                                    .paDenomination( notification.getSender().getPaDenomination() )
-                                    .build()
-                            )
-                            .date( legalFactStore.instantToDate( notification.getSentAt() ))
-                            .recipient( RecipientInfoWithAddresses.builder()
-                                    .taxId( recipient.getTaxId() )
-                                    .denomination( recipient.getDenomination() )
-                                    .digitalDomicile( recipient.getDigitalDomicile().getAddress() )
-                                    .physicalDomicile( String.valueOf( recipient.getDigitalDomicile().toString() ) )
-                                    .build()
-                            )
-                            .digests( notification.getDocuments()
-                                    .stream()
-                                    .map( d -> d.getDigests().getSha256() )
-                                    .collect(Collectors.toList()) )
-                            .build()
-            );
+            legalFactStore.saveNotificationReceivedLegalFact(action, notification, recipient);
         }
 
         // - GENERATE NEXT ACTIONS
