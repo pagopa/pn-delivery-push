@@ -3,6 +3,8 @@
     "EnvName" : "pn-develop",
     "EnvNumber" : "8",
     "KeyspaceName": "devel_delivery",
-    "AddressBookUrl": "https://zkkwwk0v41.execute-api.eu-central-1.amazonaws.com/mock/develop/addresses/"
+    "AddressBookUrl": "https://zkkwwk0v41.execute-api.eu-central-1.amazonaws.com/mock/develop/addresses/",
+    "PecSecondAttemptWaitTime": "70s",
+    "RecipientTimeoutDelay": "5m"
   }
 }

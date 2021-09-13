@@ -13,6 +13,12 @@ Parameters:
   AddressBookUrl:
     Type: String
     Description: url del mock address book
+  PecSecondAttemptWaitTime:
+    Type: String
+    Description: tempo di attesa tra un tentativo di invio pec e il successivo tentativo allo stesso indirizzo
+  RecipientTimeoutDelay:
+    Type: String
+    Description: tempo di perfezionamento della notifica per il destinatario
 
 Resources:
   Cluster:
@@ -68,6 +74,10 @@ Resources:
               Value: !ImportValue { "Fn::Sub": '${EnvName}-extchannel-output-queue-name' }
             - Name: PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS
               Value: !ImportValue { "Fn::Sub": '${EnvName}-delpush-actions-queue-name' }
+            - Name: PN_DELIVERYPUSH_TIMEPARAMS_SECONDATTEMPTWAITINGTIME
+              Value: !Ref PecSecondAttemptWaitTime
+            - Name: PN_DELIVERYPUSH_TIMEPARAMS_RECIPIENTVIEWMAXTIME
+              Value: !Ref RecipientTimeoutDelay
             - Name: SPRING_DATA_CASSANDRA_KEYSPACENAME
               Value: !Sub ${KeyspaceName}
             - Name: SPRING_DATA_CASSANDRA_SSL
