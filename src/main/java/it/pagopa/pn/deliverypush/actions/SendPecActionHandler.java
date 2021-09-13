@@ -56,7 +56,6 @@ public class SendPecActionHandler extends AbstractActionHandler {
                         .payload( PnExtChnPecEventPayload.builder()
                                 .iun( notification.getIun() )
                                 .requestCorrelationId( action.getActionId() )
-                                .codiceAtto( notification.getPaNotificationId() )
                                 .recipientTaxId( recipient.getTaxId() )
                                 .recipientDenomination( recipient.getDenomination() )
                                 .senderId( notification.getSender().getPaId() )
