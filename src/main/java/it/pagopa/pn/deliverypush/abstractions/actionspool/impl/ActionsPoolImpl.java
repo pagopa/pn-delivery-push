@@ -4,6 +4,7 @@ import it.pagopa.pn.api.dto.events.StandardEventHeader;
 import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.LastPollForFutureActions;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -64,14 +65,26 @@ public class ActionsPoolImpl implements ActionsPool {
         // FIXME: Keep track of "all scheduled until" and try to schedule from that date to now.
 
         Instant now = clock.instant();
-        for( int i = 0; i< 120; i++ ) {
-            Instant when = now.minus( i, ChronoUnit.MINUTES );
+        LastPollForFutureActions lastPollForFutureActions = LastPollDao.getLastPoll(1);
+        if(lastPollForFutureActions!=null) {
+            lastPollForFutureActions.builder()
+                    .lastPollExecuted(lastPollForFutureActions.getLastPollExecuted)
+                    .lastPollKey(1L).build();
+        }else{
+            lastPollForFutureActions.builder()
+                    .lastPollExecuted(now)
+                    .lastPollKey(1L).build();
+        }
+        for( int i = 0; i< lastPollForFutureActions.getLastPollExecuted().getLong(ChronoField.INSTANT_SECONDS); i++ ) {
+            Instant when = now.minus( i, ChronoUnit.SECONDS );
             String timeSlot = computeTimeSlot( when );
             log.debug("Check time slot {}", timeSlot);
             actionDao.findActionsByTimeSlot( timeSlot ).stream()
                     .filter( action -> now.isAfter( action.getNotBefore() ))
                     .forEach( action -> this.scheduleOne( action, timeSlot) );
         }
+
+        LastPollDao.save(lastPollForFutureActions);
 
     }
 
