@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush;
 
+import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -8,6 +9,8 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties( prefix = "pn.delivery-push")
 @Data
 public class PnDeliveryPushConfigs {
+
+    private TimeParams timeParams;
 
     private Topics topics;
 
@@ -18,7 +21,9 @@ public class PnDeliveryPushConfigs {
 
         private String scheduledActions;
 
-        private String toExternalChannel;
+        private String toExternalChannelPec;
+        
+        private String toExternalChannelEmail;
 
         private String fromExternalChannel;
 

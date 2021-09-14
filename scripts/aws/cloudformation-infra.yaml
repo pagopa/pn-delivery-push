@@ -7,6 +7,19 @@ Parameters:
   EnvNumber:
     Type: String
     Description: Second byte from the left for VPC CIDR
+  KeyspaceName:
+    Type: String
+    Description: cassandra keyspace name
+  AddressBookUrl:
+    Type: String
+    Description: url del mock address book
+  PecSecondAttemptWaitTime:
+    Type: String
+    Description: tempo di attesa tra un tentativo di invio pec e il successivo tentativo allo stesso indirizzo
+  RecipientTimeoutDelay:
+    Type: String
+    Description: tempo di perfezionamento della notifica per il destinatario
+
 Resources:
   Cluster:
     Type: AWS::ECS::Cluster
@@ -47,10 +60,30 @@ Resources:
           Environment:
             - Name: AWS_REGIONCODE
               Value: !Ref AWS::Region
+            - Name: AWS_BUCKETNAME
+              Value: !ImportValue { "Fn::Sub": '${EnvName}-attachments-bucket-name' }
+            - Name: PN_CLIENTS_ADDRESSBOOKBASEURL
+              Value: !Sub '${AddressBookUrl}'
             - Name: PN_DELIVERYPUSH_TOPICS_NEWNOTIFICATIONS
               Value: !ImportValue { "Fn::Sub": '${EnvName}-delpush-input-queue-name' }
-            - Name: PN_DELIVERYPUSH_TOPICS_TOEXTERNALCHANNEL
+            - Name: PN_DELIVERYPUSH_TOPICS_TOEXTERNALCHANNELPEC
               Value: !ImportValue { "Fn::Sub": '${EnvName}-extchannel-input-queue-name' }
+            - Name: PN_DELIVERYPUSH_TOPICS_TOEXTERNALCHANNELEMAIL
+              Value: !ImportValue { "Fn::Sub": '${EnvName}-extchannel-input-queue-name' }
+            - Name: PN_DELIVERYPUSH_TOPICS_FROMEXTERNALCHANNEL
+              Value: !ImportValue { "Fn::Sub": '${EnvName}-extchannel-output-queue-name' }
+            - Name: PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS
+              Value: !ImportValue { "Fn::Sub": '${EnvName}-delpush-actions-queue-name' }
+            - Name: PN_DELIVERYPUSH_TIMEPARAMS_SECONDATTEMPTWAITINGTIME
+              Value: !Ref PecSecondAttemptWaitTime
+            - Name: PN_DELIVERYPUSH_TIMEPARAMS_RECIPIENTVIEWMAXTIME
+              Value: !Ref RecipientTimeoutDelay
+            - Name: SPRING_DATA_CASSANDRA_KEYSPACENAME
+              Value: !Sub ${KeyspaceName}
+            - Name: SPRING_DATA_CASSANDRA_SSL
+              Value: true
+            - Name: SPRING_DATA_CASSANDRA_CONTACTPOINTS
+              Value: !Sub 'cassandra.${AWS::Region}.${AWS::URLSuffix}:9142'
           PortMappings:
             - ContainerPort: 8080
           # Send logs to CloudWatch Logs
@@ -110,6 +143,34 @@ Resources:
             Resource:
               - !ImportValue { "Fn::Sub": '${EnvName}-delpush-input-queue-arn' }
               - !ImportValue { "Fn::Sub": '${EnvName}-extchannel-input-queue-arn' }
+              - !ImportValue { "Fn::Sub": '${EnvName}-extchannel-output-queue-arn' }
+              - !ImportValue { "Fn::Sub": '${EnvName}-delpush-actions-queue-arn' }
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:GetObjectAcl
+              - s3:GetObjectLegalHold
+              - s3:GetObjectRetention
+              - s3:GetObjectTagging
+              - s3:GetObjectVersion
+              - s3:GetObjectVersionAcl
+              - s3:GetObjectVersionTagging
+              - s3:PutObject
+              - s3:PutObjectLegalHold
+              - s3:PutObjectRetention
+              - s3:PutObjectTagging
+              - s3:PutObjectVersionTagging
+            Resource:
+              - !Join
+                - '/'
+                - - !ImportValue { "Fn::Sub": '${EnvName}-attachments-bucket-arn' }
+                  - '*'
+          - Effect: Allow
+            Action:
+              - cassandra:Modify
+              - cassandra:Select
+            Resource:
+              - !Sub "arn:aws:cassandra:*:${AWS::AccountId}:/keyspace/*/table/*"
       Roles:
         - !Ref TaskRole
   # A role needed for auto scaling
@@ -200,6 +261,43 @@ Resources:
         ScaleOutCooldown: 10
         # Keep things at or lower than 50% CPU utilization, for example
         TargetValue: 60
+
+  ActionsTable:
+    Type: AWS::Cassandra::Table
+    Properties:
+      TableName: actions
+      KeyspaceName: !Ref KeyspaceName
+      PointInTimeRecoveryEnabled: true
+      PartitionKeyColumns:
+        - ColumnName: actionid
+          ColumnType: text
+      RegularColumns:
+        - ColumnName: actionjson
+          ColumnType: text
+
+  FutureActionsTable:
+    Type: AWS::Cassandra::Table
+    Properties:
+      TableName: future_actions
+      KeyspaceName: !Ref KeyspaceName
+      PointInTimeRecoveryEnabled: true
+      PartitionKeyColumns:
+        - ColumnName: time_slot
+          ColumnType: text
+      ClusteringKeyColumns:
+        - Column:
+            ColumnName: iun
+            ColumnType: text
+          OrderBy: ASC
+        - Column:
+            ColumnName: action_id
+            ColumnType: text
+          OrderBy: ASC
+      RegularColumns:
+        - ColumnName: notbefore
+          ColumnType: timestamp
+        - ColumnName: actionjson
+          ColumnType: text
 
 Outputs:
   CluserArn:

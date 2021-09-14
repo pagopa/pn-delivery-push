@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.middleware;
+package it.pagopa.pn.deliverypush.middleware.momproducer.pecrequest.sqs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
@@ -8,7 +8,7 @@ import software.amazon.awssdk.services.sqs.SqsClient;
 
 public class SqsPecRequestProducer extends AbstractSqsMomProducer<PnExtChnPecEvent> implements MomProducer<PnExtChnPecEvent> {
 
-    protected SqsPecRequestProducer(SqsClient sqsClient, String topic, ObjectMapper objectMapper ) {
+    public SqsPecRequestProducer(SqsClient sqsClient, String topic, ObjectMapper objectMapper ) {
         super(sqsClient, topic, objectMapper, PnExtChnPecEvent.class);
     }
 }
