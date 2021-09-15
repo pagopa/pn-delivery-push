@@ -24,11 +24,13 @@ public class ActionsPoolImpl implements ActionsPool {
     private final MomProducer<ActionEvent> actionsQueue;
     private final ActionDao actionDao;
     private final Clock clock;
+    private final LastPollForFutureActionsDao lastPollForFutureActionsDao;
 
-    public ActionsPoolImpl(MomProducer<ActionEvent> actionsQueue, ActionDao actionDao, Clock clock) {
+    public ActionsPoolImpl(MomProducer<ActionEvent> actionsQueue, ActionDao actionDao, Clock clock, LastPollForFutureActionsDao lastPollForFutureActionsDao) {
         this.actionsQueue = actionsQueue;
         this.actionDao = actionDao;
         this.clock = clock;
+        this.lastPollForFutureActionsDao = lastPollForFutureActionsDao;
     }
 
     @Override
@@ -65,15 +67,13 @@ public class ActionsPoolImpl implements ActionsPool {
         // FIXME: Keep track of "all scheduled until" and try to schedule from that date to now.
 
         Instant now = clock.instant();
-        LastPollForFutureActions lastPollForFutureActions = LastPollDao.getLastPoll(1);
-        if(lastPollForFutureActions!=null) {
-            lastPollForFutureActions.builder()
-                    .lastPollExecuted(lastPollForFutureActions.getLastPollExecuted)
-                    .lastPollKey(1L).build();
-        }else{
-            lastPollForFutureActions.builder()
-                    .lastPollExecuted(now)
-                    .lastPollKey(1L).build();
+        Optional<LastPollForFutureActions> lastPollForFutureActionsOptional = lastPollForFutureActionsDao.getLastPollForFutureActionsById(1L);
+        LastPollForFutureActions lastPollForFutureActions = lastPollForFutureActionsOptional.get();
+        if(lastPollForFutureActions == null) {
+             lastPollForFutureActions =  LastPollForFutureActions.builder()
+                    .lastPollExecuted(Instant.EPOCH)
+                    .lastPollKey(1L)
+                     .build();
         }
         for( int i = 0; i< lastPollForFutureActions.getLastPollExecuted().getLong(ChronoField.INSTANT_SECONDS); i++ ) {
             Instant when = now.minus( i, ChronoUnit.SECONDS );
@@ -84,7 +84,11 @@ public class ActionsPoolImpl implements ActionsPool {
                     .forEach( action -> this.scheduleOne( action, timeSlot) );
         }
 
-        LastPollDao.save(lastPollForFutureActions);
+        lastPollForFutureActions = LastPollForFutureActions.builder()
+                .lastPollExecuted(now)
+                .lastPollKey(1L)
+                .build();
+        lastPollForFutureActionsDao.addLastPollForFutureActions(lastPollForFutureActions);
 
     }
 
