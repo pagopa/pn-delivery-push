@@ -45,9 +45,9 @@ class LegalFactUtilsTest {
 
     @Test
     void successConversionInstantToDate() {
-        Instant testDate = Instant.parse("2021-09-03T10:03:00.000Z");
+        Instant testDate = Instant.parse("2021-09-03T13:03:00.000Z");
         String date = legalFactUtils.instantToDate(testDate);
-        assertEquals("2021-09-03", date);
+        assertEquals("2021-09-03 13:03", date);
     }
 
     @Test
