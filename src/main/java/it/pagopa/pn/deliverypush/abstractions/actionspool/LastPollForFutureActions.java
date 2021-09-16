@@ -12,8 +12,6 @@ import java.time.Instant;
 @ToString
 public class LastPollForFutureActions {
 
-    private Long lastPollKey;
-
     private Instant lastPollExecuted;
 
 }

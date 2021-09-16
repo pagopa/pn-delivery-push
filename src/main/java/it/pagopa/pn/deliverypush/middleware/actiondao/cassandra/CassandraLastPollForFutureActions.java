@@ -32,13 +32,13 @@ public class CassandraLastPollForFutureActions implements LastPollForFutureActio
     }
 
     @Override
-    public void addLastPollForFutureActions(LastPollForFutureActions lastPollForFutureActions) {
+    public void updateLastPollForFutureActions(LastPollForFutureActions lastPollForFutureActions) {
         cassandra.insert(dto2Entity(lastPollForFutureActions));
     }
 
     @Override
-    public Optional<LastPollForFutureActions> getLastPollForFutureActionsById(Long lastPollForFutureActionsId) {
-        LastPollForFutureActionsEntity entity = cassandra.selectOneById(lastPollForFutureActionsId, LastPollForFutureActionsEntity.class);
+    public Optional<LastPollForFutureActions> getLastPollForFutureActionsById() {
+        LastPollForFutureActionsEntity entity = cassandra.selectOneById(1L, LastPollForFutureActionsEntity.class);
         return Optional.ofNullable(entity)
                 .map(en -> entity2dto(en));
     }
@@ -46,15 +46,14 @@ public class CassandraLastPollForFutureActions implements LastPollForFutureActio
     public LastPollForFutureActionsEntity dto2Entity (LastPollForFutureActions dto){
         LastPollForFutureActionsEntity.LastPollForFutureActionsEntityBuilder builder = LastPollForFutureActionsEntity.builder()
                 .lastPollExecuted(dto.getLastPollExecuted())
-                .lastPollKey(dto.getLastPollKey());
+                .lastPollKey(1L);
 
         return builder.build();
     }
 
     public LastPollForFutureActions entity2dto(LastPollForFutureActionsEntity entity){
         LastPollForFutureActions.LastPollForFutureActionsBuilder builder = LastPollForFutureActions.builder()
-                .lastPollExecuted(entity.getLastPollExecuted())
-                .lastPollKey(entity.getLastPollKey());
+                .lastPollExecuted(entity.getLastPollExecuted());
 
         return builder.build();
     }

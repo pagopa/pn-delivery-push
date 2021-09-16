@@ -10,10 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
@@ -59,7 +56,7 @@ public class ActionsPoolImpl implements ActionsPool {
 
 
     @Scheduled( fixedDelay = 2 * 1000 )
-    private void pollForFutureActions() {
+    protected void pollForFutureActions() {
         // FIXME re-implement scheduling polling in a cluster-aware way.
         // Evaluate:
         // - TTLs + C.D.D.
@@ -67,30 +64,31 @@ public class ActionsPoolImpl implements ActionsPool {
 
         // FIXME: Keep track of "all scheduled until" and try to schedule from that date to now.
 
-        Instant now = Instant.now();
-        Optional<LastPollForFutureActions> lastPollForFutureActionsOptional = lastPollForFutureActionsDao.getLastPollForFutureActionsById(1L);
-        LastPollForFutureActions lastPollForFutureActions = lastPollForFutureActionsOptional.get();
-        if(lastPollForFutureActions == null) {
-             lastPollForFutureActions =  LastPollForFutureActions.builder()
-                    .lastPollExecuted(Instant.EPOCH)
-                    .lastPollKey(1L)
-                     .build();
-        }
-        for( int i = 0; i< lastPollForFutureActions.getLastPollExecuted().getLong(ChronoField.INSTANT_SECONDS); i++ ) {
-            System.out.println(i);
-            Instant when = now.minus(i, ChronoUnit.SECONDS );
-            String timeSlot = computeTimeSlot( when );
-            log.debug("Check time slot {}", timeSlot);
-            actionDao.findActionsByTimeSlot( timeSlot ).stream()
-                    .filter( action -> now.isAfter( action.getNotBefore() ))
-                    .forEach( action -> this.scheduleOne( action, timeSlot) );
+        Instant now = clock.instant();
+        Optional<LastPollForFutureActions> lastPollForFutureActionsOptional = lastPollForFutureActionsDao.getLastPollForFutureActionsById();
+
+        Instant lastPollExecuted;
+        if(lastPollForFutureActionsOptional.isPresent()) {
+            lastPollExecuted = lastPollForFutureActionsOptional.get().getLastPollExecuted();
+        }else{
+            //to add instant parameter from configuration, if parameter is null use code below
+            lastPollExecuted = now.minus(2, ChronoUnit.HOURS);
         }
 
-        lastPollForFutureActions = LastPollForFutureActions.builder()
+        Duration timeFromLastExcecution = Duration.between(lastPollExecuted,now);
+        for (long i = timeFromLastExcecution.toMinutes()+1; i >= 0; i--) {
+            Instant when = now.minus(i, ChronoUnit.MINUTES);
+            String timeSlot = computeTimeSlot(when);
+            log.debug("Check time slot {}", timeSlot);
+            actionDao.findActionsByTimeSlot(timeSlot).stream()
+                    .filter(action -> now.isAfter(action.getNotBefore()))
+                    .forEach(action -> this.scheduleOne(action, timeSlot));
+        }
+
+        LastPollForFutureActions  lastPollForFutureActions =  LastPollForFutureActions.builder()
                 .lastPollExecuted(now)
-                .lastPollKey(1L)
                 .build();
-        lastPollForFutureActionsDao.addLastPollForFutureActions(lastPollForFutureActions);
+        lastPollForFutureActionsDao.updateLastPollForFutureActions(lastPollForFutureActions);
 
     }
 

@@ -8,9 +8,9 @@ import java.util.Optional;
 
 public interface LastPollForFutureActionsDao {
 
-    void addLastPollForFutureActions(LastPollForFutureActions lastPollForFutureActions);
+    void updateLastPollForFutureActions(LastPollForFutureActions lastPollForFutureActions);
 
-    Optional<LastPollForFutureActions> getLastPollForFutureActionsById(Long lastPollForFutureActionsId );
+    Optional<LastPollForFutureActions> getLastPollForFutureActionsById();
 
 
 
