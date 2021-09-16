@@ -76,7 +76,7 @@ public class ActionsPoolImpl implements ActionsPool {
         }
 
         Duration timeFromLastExcecution = Duration.between(lastPollExecuted,now);
-        for (long i = timeFromLastExcecution.toMinutes()+1; i >= 0; i--) {
+        for (long i = timeFromLastExcecution.toMinutes(); i >= 0; i--) {
             Instant when = now.minus(i, ChronoUnit.MINUTES);
             String timeSlot = computeTimeSlot(when);
             log.debug("Check time slot {}", timeSlot);

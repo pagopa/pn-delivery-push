@@ -8,11 +8,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+
+import static org.mockito.ArgumentMatchers.anyString;
 
 public class ActionPoolImplTest {
 
@@ -33,7 +34,7 @@ public class ActionPoolImplTest {
     @Test
     void pollForFutureActionsTestWithPrecedentExcecution() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
-//GIVEN
+        //GIVEN
         actionsQueue = Mockito.mock(MomProducer.class);
         actionDao = Mockito.mock(ActionDao.class);
         clock = Mockito.mock(Clock.class);
@@ -41,8 +42,8 @@ public class ActionPoolImplTest {
 
         service = new TestActionsPoolImpl(actionsQueue, actionDao, clock, lastPollForFutureActionsDao);
 
-        Mockito.when(clock.instant()).thenReturn(Instant.now().minus(2, ChronoUnit.HOURS));
-        Instant registeredTime = clock.instant();
+        Mockito.when(clock.instant()).thenReturn(Instant.now());
+        Instant registeredTime = Instant.now().minus(2, ChronoUnit.HOURS);
         LastPollForFutureActions lastPoll = LastPollForFutureActions.builder()
                 .lastPollExecuted(registeredTime)
                 .build();
@@ -53,7 +54,7 @@ public class ActionPoolImplTest {
         service.pollForFutureActions();
 
         //THEN
-        Mockito.verify(actionDao, Mockito.times(121));
+        Mockito.verify(actionDao, Mockito.times(121)).findActionsByTimeSlot(anyString());
     }
 
     @Test
@@ -74,7 +75,7 @@ public class ActionPoolImplTest {
         service.pollForFutureActions();
 
         //THEN
-        Mockito.verify(actionDao, Mockito.times(121));
+        Mockito.verify(actionDao, Mockito.times(121)).findActionsByTimeSlot(anyString());
 
 
     }
