@@ -5,6 +5,7 @@ import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.LastPollForFutureActions;
+import jnr.ffi.annotations.In;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -66,7 +67,7 @@ public class ActionsPoolImpl implements ActionsPool {
 
         // FIXME: Keep track of "all scheduled until" and try to schedule from that date to now.
 
-        Instant now = clock.instant();
+        Instant now = Instant.now();
         Optional<LastPollForFutureActions> lastPollForFutureActionsOptional = lastPollForFutureActionsDao.getLastPollForFutureActionsById(1L);
         LastPollForFutureActions lastPollForFutureActions = lastPollForFutureActionsOptional.get();
         if(lastPollForFutureActions == null) {
@@ -76,7 +77,8 @@ public class ActionsPoolImpl implements ActionsPool {
                      .build();
         }
         for( int i = 0; i< lastPollForFutureActions.getLastPollExecuted().getLong(ChronoField.INSTANT_SECONDS); i++ ) {
-            Instant when = now.minus( i, ChronoUnit.SECONDS );
+            System.out.println(i);
+            Instant when = now.minus(i, ChronoUnit.SECONDS );
             String timeSlot = computeTimeSlot( when );
             log.debug("Check time slot {}", timeSlot);
             actionDao.findActionsByTimeSlot( timeSlot ).stream()
