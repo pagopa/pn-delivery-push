@@ -28,7 +28,7 @@ public class NotificationViewedActionHandler extends AbstractActionHandler {
 
     @Override
     public void handleAction(Action action, Notification notification) {
-    	NotificationRecipient recipient = notification.getRecipients().get( action.getRecipientIndex() ); // TODO recipientIndex
+    	NotificationRecipient recipient = notification.getRecipients().get( action.getRecipientIndex() );
     	
     	legalFactStore.saveNotificationViewedLegalFact( action, notification );
     	
