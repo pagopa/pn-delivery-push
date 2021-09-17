@@ -61,6 +61,12 @@ public enum ActionType {
                     action.getRecipientIndex()
             );
         }
+    },
+    NOTIFICATION_VIEWED() {
+        @Override
+        public String buildActionId(Action action) {
+            return String.format("%s_notification_viewed", action.getIun() );
+        }
     };
 
     public String buildActionId(Action action) {

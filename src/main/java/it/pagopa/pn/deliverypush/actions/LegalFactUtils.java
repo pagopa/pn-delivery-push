@@ -8,7 +8,10 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoField;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -21,6 +24,7 @@ import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
 import it.pagopa.pn.api.dto.legalfacts.DigitalAdviceReceiptLegalFact;
 import it.pagopa.pn.api.dto.legalfacts.DigitalAdviceReceiptLegalFact.OkOrFail;
 import it.pagopa.pn.api.dto.legalfacts.NotificationReceivedLegalFact;
+import it.pagopa.pn.api.dto.legalfacts.NotificationViewedLegalFact;
 import it.pagopa.pn.api.dto.legalfacts.RecipientInfo;
 import it.pagopa.pn.api.dto.legalfacts.RecipientInfoWithAddresses;
 import it.pagopa.pn.api.dto.legalfacts.SenderInfo;
@@ -87,8 +91,6 @@ public class LegalFactUtils {
 		);
 	}
 
-
-
     public String instantToDate(Instant instant) {
         OffsetDateTime odt = instant.atOffset(ZoneOffset.UTC);
         int year = odt.get(ChronoField.YEAR_OF_ERA);
@@ -120,7 +122,6 @@ public class LegalFactUtils {
 				legalFacts.toArray( new DigitalAdviceReceiptLegalFact[0] )
 			);
     }
-
 
 	private DigitalAdviceReceiptLegalFact buildDigitalAdviceReceiptLegalFact(Action action, Notification notification, DigitalAddress address) {
 		PnExtChnProgressStatus status = action.getResponseStatus();
@@ -154,4 +155,22 @@ public class LegalFactUtils {
 		
 		return result;
 	}
+	
+    public void saveNotificationViewedLegalFact(Action action, Notification notification) {
+    	NotificationRecipient recipient = notification.getRecipients().get( action.getRecipientIndex() );
+        
+        NotificationViewedLegalFact notificationViewedLegalFact =  NotificationViewedLegalFact.builder()
+		.iun( notification.getIun() )
+		.date( this.instantToDate( Instant.now() ) )
+		.recipient( RecipientInfo.builder()
+        				.taxId( recipient.getTaxId() )
+        				.denomination( recipient.getDenomination() )
+        				.build() 
+        )
+		.build();
+        
+    	this.saveLegalFact( notification.getIun(), "notification_viewed_" + notification.getRecipients().get(0).getTaxId(), 
+    							notificationViewedLegalFact);
+    }
+    	
 }
