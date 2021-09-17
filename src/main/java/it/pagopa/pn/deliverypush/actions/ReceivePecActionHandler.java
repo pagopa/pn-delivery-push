@@ -24,11 +24,8 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 @Component
 public class ReceivePecActionHandler extends AbstractActionHandler {
 
-	private final LegalFactUtils legalFactStore;
-	
-    public ReceivePecActionHandler(LegalFactUtils legalFactStore, TimelineDao timelineDao, ActionsPool actionsPool , PnDeliveryPushConfigs pnDeliveryPushConfigs ) {
+	public ReceivePecActionHandler(TimelineDao timelineDao, ActionsPool actionsPool , PnDeliveryPushConfigs pnDeliveryPushConfigs ) {
         super( timelineDao, actionsPool , pnDeliveryPushConfigs);
-        this.legalFactStore = legalFactStore;
     }
 
     @Override

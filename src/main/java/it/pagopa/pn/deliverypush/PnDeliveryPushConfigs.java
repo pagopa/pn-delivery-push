@@ -5,6 +5,8 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.Instant;
+
 @Configuration
 @ConfigurationProperties( prefix = "pn.delivery-push")
 @Data
@@ -13,6 +15,8 @@ public class PnDeliveryPushConfigs {
     private TimeParams timeParams;
 
     private Topics topics;
+
+    private Instant actionPoolEpoch;
 
     @Data
     public static class Topics {

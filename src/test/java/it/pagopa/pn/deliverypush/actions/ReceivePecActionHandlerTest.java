@@ -32,7 +32,7 @@ import it.pagopa.pn.deliverypush.actions.LegalFactUtils;
 import it.pagopa.pn.deliverypush.actions.ReceivePecActionHandler;
 
 class ReceivePecActionHandlerTest {
-	private LegalFactUtils legalFactUtils;
+
     private TimelineDao timelineDao;
     private ActionsPool actionsPool;
     private ReceivePecActionHandler handler;
@@ -40,12 +40,10 @@ class ReceivePecActionHandlerTest {
 
     @BeforeEach
     public void setup() {
-    	legalFactUtils = Mockito.mock(LegalFactUtils.class);
         timelineDao = Mockito.mock(TimelineDao.class);
         actionsPool = Mockito.mock(ActionsPool.class);
         pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
         handler = new ReceivePecActionHandler(
-        		legalFactUtils,
                 timelineDao,
                 actionsPool,
                 pnDeliveryPushConfigs

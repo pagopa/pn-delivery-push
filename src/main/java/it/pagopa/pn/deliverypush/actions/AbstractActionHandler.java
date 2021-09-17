@@ -116,11 +116,13 @@ public abstract class AbstractActionHandler implements ActionHandler {
     }
 
     protected Action buildNextSendPecActionWithRound(Action action, Integer roundNumber){
-        Duration actionDelay;
+        Instant actionTime;
         if ( FIRST_ROUND.equals( roundNumber )) {
-            actionDelay = pnDeliveryPushConfigs.getTimeParams().getWaitingResponseFromFirstAddress();
+            Duration actionDelay = pnDeliveryPushConfigs.getTimeParams().getWaitingResponseFromFirstAddress();
+            actionTime = Instant.now().plus( actionDelay );
         } else if( SECOND_ROUND.equals( roundNumber )) {
-            actionDelay = pnDeliveryPushConfigs.getTimeParams().getSecondAttemptWaitingTime();
+            Duration actionDelay = pnDeliveryPushConfigs.getTimeParams().getSecondAttemptWaitingTime();
+            actionTime = loadFirstAttemptTime( action ).plus( actionDelay );
         }
         else {
             throw new PnInternalException("Pec workflow: not supported round " + roundNumber);
@@ -129,7 +131,7 @@ public abstract class AbstractActionHandler implements ActionHandler {
         return Action.builder()
                 .iun( action.getIun() )
                 .recipientIndex( action.getRecipientIndex() )
-                .notBefore( Instant.now().plus(actionDelay) )
+                .notBefore(actionTime )
                 .type( ActionType.SEND_PEC )
                 .digitalAddressSource( action.getDigitalAddressSource().next() )
                 .retryNumber( roundNumber )

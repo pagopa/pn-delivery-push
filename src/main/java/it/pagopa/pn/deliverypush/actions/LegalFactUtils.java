@@ -104,7 +104,7 @@ public class LegalFactUtils {
     public void savePecDeliveryWorkflowLegalFact(List<Action> actions, Notification notification, NotificationPathChooseDetails addresses ) {
 
     	Set<Integer> recipientIdx = actions.stream()
-				.map(a -> a.getRecipientIndex() )
+				.map( Action::getRecipientIndex )
 				.collect(Collectors.toSet());
     	if( recipientIdx.size() > 1 ) {
     		throw new PnInternalException("Impossible generate distinct act for distinct recipients");
