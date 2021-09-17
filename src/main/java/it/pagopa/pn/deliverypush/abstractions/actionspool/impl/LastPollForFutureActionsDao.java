@@ -2,15 +2,14 @@ package it.pagopa.pn.deliverypush.abstractions.actionspool.impl;
 
 
 
-import it.pagopa.pn.deliverypush.abstractions.actionspool.LastPollForFutureActions;
-
+import java.time.Instant;
 import java.util.Optional;
 
 public interface LastPollForFutureActionsDao {
 
-    void updateLastPollForFutureActions(LastPollForFutureActions lastPollForFutureActions);
+    void updateLastPollTime(Instant lastPollExecuted);
 
-    Optional<LastPollForFutureActions> getLastPollForFutureActionsById();
+    Optional<Instant> getLastPollTime();
 
 
 

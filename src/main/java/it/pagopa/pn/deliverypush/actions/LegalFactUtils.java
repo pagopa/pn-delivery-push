@@ -94,13 +94,15 @@ public class LegalFactUtils {
         int year = odt.get(ChronoField.YEAR_OF_ERA);
         int month = odt.get(ChronoField.MONTH_OF_YEAR);
         int day = odt.get(ChronoField.DAY_OF_MONTH);
-        return String.format("%04d-%02d-%02d", year, month, day);
+		int hour = odt.get(ChronoField.HOUR_OF_DAY);
+		int min = odt.get(ChronoField.MINUTE_OF_HOUR);
+        return String.format("%04d-%02d-%02d %02d:%02d", year, month, day, hour, min);
     }
     
     public void savePecDeliveryWorkflowLegalFact(List<Action> actions, Notification notification, NotificationPathChooseDetails addresses ) {
 
     	Set<Integer> recipientIdx = actions.stream()
-				.map(a -> a.getRecipientIndex() )
+				.map( Action::getRecipientIndex )
 				.collect(Collectors.toSet());
     	if( recipientIdx.size() > 1 ) {
     		throw new PnInternalException("Impossible generate distinct act for distinct recipients");

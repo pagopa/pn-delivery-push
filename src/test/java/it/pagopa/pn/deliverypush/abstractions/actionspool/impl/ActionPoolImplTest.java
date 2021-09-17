@@ -1,13 +1,12 @@
 package it.pagopa.pn.deliverypush.abstractions.actionspool.impl;
 
 import it.pagopa.pn.commons.abstractions.MomProducer;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.LastPollForFutureActions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import java.lang.reflect.InvocationTargetException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -15,75 +14,88 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.anyString;
 
-public class ActionPoolImplTest {
+class ActionPoolImplTest {
 
-    TestActionsPoolImpl service;
+    private TestActionsPoolImpl service;
+    private ActionDao actionDao;
+    private LastPollForFutureActionsDao lastPollForFutureActionsDao;
+    private Clock clock;
+    private PnDeliveryPushConfigs configs;
 
-    @Mock
-    ActionDao actionDao;
-
-    @Mock
-    LastPollForFutureActionsDao lastPollForFutureActionsDao;
-
-    @Mock
-    MomProducer<ActionEvent> actionsQueue;
-
-    @Mock
-    Clock clock;
-
-    @Test
-    void pollForFutureActionsTestWithPrecedentExcecution() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-
-        //GIVEN
-        actionsQueue = Mockito.mock(MomProducer.class);
+    @BeforeEach
+    void setup() {
+        MomProducer<ActionEvent> actionsQueue = Mockito.mock(MomProducer.class);
         actionDao = Mockito.mock(ActionDao.class);
         clock = Mockito.mock(Clock.class);
         lastPollForFutureActionsDao = Mockito.mock(LastPollForFutureActionsDao.class);
+        configs = Mockito.mock( PnDeliveryPushConfigs.class );
 
-        service = new TestActionsPoolImpl(actionsQueue, actionDao, clock, lastPollForFutureActionsDao);
-
-        Mockito.when(clock.instant()).thenReturn(Instant.now());
-        Instant registeredTime = Instant.now().minus(2, ChronoUnit.HOURS);
-        LastPollForFutureActions lastPoll = LastPollForFutureActions.builder()
-                .lastPollExecuted(registeredTime)
-                .build();
-        Mockito.when(lastPollForFutureActionsDao.getLastPollForFutureActionsById()).thenReturn(java.util.Optional.ofNullable(lastPoll));
-        Mockito.doNothing().when(lastPollForFutureActionsDao).updateLastPollForFutureActions(Mockito.any(LastPollForFutureActions.class));
-
-        //WHEN
-        service.pollForFutureActions();
-
-        //THEN
-        Mockito.verify(actionDao, Mockito.times(121)).findActionsByTimeSlot(anyString());
+        service = new TestActionsPoolImpl(actionsQueue, actionDao, clock, lastPollForFutureActionsDao, configs);
     }
 
     @Test
-    void pollForFutureActionsTestNoPrecedentExecutions() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    void loadLastExecutionTimeFromStorage() {
 
         //GIVEN
-        actionsQueue = Mockito.mock(MomProducer.class);
-        actionDao = Mockito.mock(ActionDao.class);
-        clock = Mockito.mock(Clock.class);
-        lastPollForFutureActionsDao = Mockito.mock(LastPollForFutureActionsDao.class);
+        Instant now = Instant.now();
+        Instant registeredTime = Instant.now().minus(1, ChronoUnit.HOURS);
 
-        service = new TestActionsPoolImpl(actionsQueue, actionDao, clock, lastPollForFutureActionsDao);
+        Mockito.when(clock.instant()).thenReturn( now );
+        Mockito.when( lastPollForFutureActionsDao.getLastPollTime() )
+                .thenReturn(Optional.ofNullable(registeredTime));
+        Mockito.doNothing().when(lastPollForFutureActionsDao).updateLastPollTime(Mockito.any(Instant.class));
 
-        Mockito.when(clock.instant()).thenReturn(Instant.now().minus(2, ChronoUnit.HOURS));
-        Mockito.doNothing().when(lastPollForFutureActionsDao).updateLastPollForFutureActions(Mockito.any(LastPollForFutureActions.class));
+        //WHEN
+        service.pollForFutureActions();
+
+        //THEN
+        Mockito.verify(actionDao, Mockito.times(61)).findActionsByTimeSlot(anyString());
+    }
+
+    @Test
+    void noStorageDefaultLastExecutionTime() {
+
+        //GIVEN
+        Instant lastFromConfig = Instant.ofEpochSecond( 65 );
+        Instant now = Instant.ofEpochSecond( 65 + 60 * 45);
+
+        Mockito.when(clock.instant()).thenReturn( now );
+        Mockito.when( configs.getActionPoolEpoch() ).thenReturn( lastFromConfig );
+        Mockito.doNothing().when(lastPollForFutureActionsDao).updateLastPollTime(Mockito.any(Instant.class));
+
+        //WHEN
+        service.pollForFutureActions();
+
+        //THEN
+        Mockito.verify(actionDao, Mockito.times(46)).findActionsByTimeSlot(anyString());
+    }
+
+    @Test
+    void noStorageLastExecutionTimeFromConfig() {
+
+        //GIVEN
+        Instant now = Instant.now();
+
+        Mockito.when(clock.instant()).thenReturn( now );
+        Mockito.doNothing().when(lastPollForFutureActionsDao).updateLastPollTime(Mockito.any(Instant.class));
 
         //WHEN
         service.pollForFutureActions();
 
         //THEN
         Mockito.verify(actionDao, Mockito.times(121)).findActionsByTimeSlot(anyString());
-
-
     }
 
     private static class TestActionsPoolImpl extends ActionsPoolImpl {
 
-        public TestActionsPoolImpl(MomProducer<ActionEvent> actionsQueue, ActionDao actionDao, Clock clock, LastPollForFutureActionsDao lastPollForFutureActionsDao) {
-            super(actionsQueue, actionDao, clock, lastPollForFutureActionsDao);
+        public TestActionsPoolImpl(
+                MomProducer<ActionEvent> actionsQueue,
+                ActionDao actionDao,
+                Clock clock,
+                LastPollForFutureActionsDao lastPollForFutureActionsDao,
+                PnDeliveryPushConfigs configs
+        ) {
+            super(actionsQueue, actionDao, clock, lastPollForFutureActionsDao, configs);
         }
 
         @Override
