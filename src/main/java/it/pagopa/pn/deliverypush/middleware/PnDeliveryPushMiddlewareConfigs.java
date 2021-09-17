@@ -1,16 +1,19 @@
 package it.pagopa.pn.deliverypush.middleware;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.source.tree.ArrayAccessTree;
 
 import it.pagopa.pn.api.dto.events.EventType;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.middleware.eventhandlers.ExtChannelResponseEventHandler;
 import it.pagopa.pn.deliverypush.middleware.eventhandlers.NewNotificationEventHandler;
+import it.pagopa.pn.deliverypush.middleware.eventhandlers.NotificationViewedEventHandler;
 import it.pagopa.pn.deliverypush.middleware.momproducer.action.sqs.SqsActionProducer;
 import it.pagopa.pn.deliverypush.middleware.momproducer.emailrequest.sqs.SqsEmailRequestProducer;
 import it.pagopa.pn.deliverypush.middleware.momproducer.pecrequest.sqs.SqsPecRequestProducer;
@@ -28,16 +31,15 @@ public class PnDeliveryPushMiddlewareConfigs {
     }
 
     @Bean
-    public EventReceiver newNotificationEventReceiver(SqsClient sqs, ObjectMapper objMapper, NewNotificationEventHandler handler) {
+    public EventReceiver newNotificationEventReceiver(SqsClient sqs, ObjectMapper objMapper, NewNotificationEventHandler handler1, NotificationViewedEventHandler handler2) {
         return new SqsEventReceiver(
                 sqs,
                 cfg.getTopics().getNewNotifications(),
                 objMapper,
-                Collections.singletonList( handler),
-                Collections.singletonList( EventType.NEW_NOTIFICATION )
+                Arrays.asList( handler1, handler2 ),
+                Arrays.asList( EventType.NEW_NOTIFICATION, EventType.NOTIFICATION_VIEWED  )
             );
     }
-
 
     @Bean
     public EventReceiver externalChannelEventReceiver(SqsClient sqs, ObjectMapper objMapper, ExtChannelResponseEventHandler handler) {
