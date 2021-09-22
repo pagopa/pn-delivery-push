@@ -299,6 +299,21 @@ Resources:
         - ColumnName: actionjson
           ColumnType: text
 
+  LastActionPollTable:
+    Type: AWS::Cassandra::Table
+    Properties:
+      TableName: last_poll_for_future_actions
+      KeyspaceName: !Ref KeyspaceName
+      PointInTimeRecoveryEnabled: true
+      PartitionKeyColumns:
+        - ColumnName: lastpollkey
+          ColumnType: bigint
+      RegularColumns:
+        - ColumnName: lastpollexecuted
+          ColumnType: timestamp
+
+
+
 Outputs:
   CluserArn:
     Description: ARN del cluster fargate
