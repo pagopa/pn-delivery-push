@@ -3,6 +3,9 @@ package it.pagopa.pn.deliverypush.middleware;
 import java.util.Arrays;
 import java.util.Collections;
 
+import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.ActionEventType;
+import it.pagopa.pn.deliverypush.webhook.WebhookBufferWriter;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -19,6 +22,7 @@ import it.pagopa.pn.deliverypush.middleware.momproducer.emailrequest.sqs.SqsEmai
 import it.pagopa.pn.deliverypush.middleware.momproducer.pecrequest.sqs.SqsPecRequestProducer;
 import it.pagopa.pn.deliverypush.temp.mom.consumer.EventReceiver;
 import it.pagopa.pn.deliverypush.temp.mom.consumer.SqsEventReceiver;
+import org.springframework.context.annotation.Primary;
 import software.amazon.awssdk.services.sqs.SqsClient;
 
 @Configuration
@@ -53,6 +57,17 @@ public class PnDeliveryPushMiddlewareConfigs {
     }
 
     @Bean
+    public EventReceiver webhookActionDoneEventReceiver(SqsClient sqs, ObjectMapper objMapper, WebhookBufferWriter handler) {
+        return new SqsEventReceiver(
+                sqs,
+                cfg.getTopics().getExecutedActions(),
+                objMapper,
+                Collections.singletonList( handler ),
+                Collections.singletonList( ActionEventType.ACTION_GENERIC )
+        );
+    }
+
+    @Bean
     public SqsPecRequestProducer pecRequestSender(SqsClient sqs, ObjectMapper objMapper) {
         return new SqsPecRequestProducer( sqs, cfg.getTopics().getToExternalChannelPec(), objMapper);
     }
@@ -62,8 +77,13 @@ public class PnDeliveryPushMiddlewareConfigs {
         return new SqsEmailRequestProducer( sqs, cfg.getTopics().getToExternalChannelEmail(), objMapper);
     }
 
-    @Bean
+    @Bean @Primary
     public SqsActionProducer actionsEventProducer(SqsClient sqs, ObjectMapper objMapper) {
         return new SqsActionProducer( sqs, cfg.getTopics().getScheduledActions(), objMapper);
+    }
+
+    @Bean @Qualifier("action-done")
+    public SqsActionProducer actionsDoneEventProducer(SqsClient sqs, ObjectMapper objMapper) {
+        return new SqsActionProducer( sqs, cfg.getTopics().getExecutedActions(), objMapper);
     }
 }
