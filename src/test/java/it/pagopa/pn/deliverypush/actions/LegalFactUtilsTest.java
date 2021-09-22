@@ -2,7 +2,6 @@ package it.pagopa.pn.deliverypush.actions;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.Instant;
 import java.util.Collections;
 import java.util.Map;
 
@@ -29,13 +28,6 @@ class LegalFactUtilsTest {
         legalFactUtils = new LegalFactUtils(
                 fileStorage,
                 pdfUtils);
-    }
-
-    @Test
-    void successConversionInstantToDate() {
-        Instant testDate = Instant.parse("2021-09-03T13:03:00.000Z");
-        String date = legalFactUtils.instantToDate(testDate);
-        Assertions.assertEquals("2021-09-03 13:03", date);
     }
     
     @Test

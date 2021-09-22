@@ -1,7 +1,9 @@
 package it.pagopa.pn.deliverypush.actions;
 
+import java.time.Instant;
 import java.util.List;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -20,6 +22,14 @@ class LegalFactPdfGeneratorUtilsTest {
     public void setup() {
 		pdfUtils = Mockito.mock(LegalFactPdfGeneratorUtils.class);
     }
+	
+	@Test
+	void successConversionInstantToDate() {
+		LegalFactPdfGeneratorUtils utils = new LegalFactPdfGeneratorUtils();
+		Instant testDate = Instant.parse("2021-09-03T13:03:00.000Z");
+		String date = utils.instantToDate(testDate);
+		Assertions.assertEquals("2021-09-03 13:03", date);
+	}
 	
 	@Test
 	void successGenerateNotificationReceivedLegalFact() throws DocumentException {
