@@ -312,7 +312,7 @@ Resources:
         - ColumnName: lastpollexecuted
           ColumnType: timestamp
 
-
+  
 
 Outputs:
   CluserArn:
