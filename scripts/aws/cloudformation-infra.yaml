@@ -312,8 +312,6 @@ Resources:
         - ColumnName: lastpollexecuted
           ColumnType: timestamp
 
-
-
 Outputs:
   CluserArn:
     Description: ARN del cluster fargate
