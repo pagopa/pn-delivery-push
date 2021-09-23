@@ -4,13 +4,12 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.ActionEventType;
-import it.pagopa.pn.deliverypush.webhook.WebhookBufferWriter;
+import it.pagopa.pn.deliverypush.webhook.WebhookBufferWriterService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.source.tree.ArrayAccessTree;
 
 import it.pagopa.pn.api.dto.events.EventType;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
@@ -57,7 +56,7 @@ public class PnDeliveryPushMiddlewareConfigs {
     }
 
     @Bean
-    public EventReceiver webhookActionDoneEventReceiver(SqsClient sqs, ObjectMapper objMapper, WebhookBufferWriter handler) {
+    public EventReceiver webhookActionDoneEventReceiver(SqsClient sqs, ObjectMapper objMapper, WebhookBufferWriterService handler) {
         return new SqsEventReceiver(
                 sqs,
                 cfg.getTopics().getExecutedActions(),

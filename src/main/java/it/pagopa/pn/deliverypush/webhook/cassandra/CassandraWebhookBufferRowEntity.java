@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.webhook;
+package it.pagopa.pn.deliverypush.webhook.cassandra;
 
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
 import lombok.Builder;
@@ -9,10 +9,10 @@ import org.springframework.data.cassandra.core.mapping.Table;
 @Table("webhook_buffer")
 @Getter
 @Builder( toBuilder = true )
-public class WebhookBufferRowEntity {
+public class CassandraWebhookBufferRowEntity {
 
     @PrimaryKey
-    private WebhookBufferRowEntityId id;
+    private CassandraWebhookBufferRowEntityId id;
     private NotificationStatus status;
     
 }

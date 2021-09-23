@@ -3,7 +3,6 @@ package it.pagopa.pn.deliverypush.webhook;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.commons.abstractions.KeyValueStore;
 import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.commons_delivery.utils.StatusUtils;
@@ -18,14 +17,14 @@ import java.util.Set;
 
 @Service
 @Slf4j
-public class WebhookBufferWriter extends AbstractEventHandler<ActionEvent> {
+public class WebhookBufferWriterService extends AbstractEventHandler<ActionEvent> {
 
     private final NotificationDao notificationDao;
     private final TimelineDao timelineDao;
     private final StatusUtils statusUtils;
-    private final KeyValueStore<WebhookBufferRowEntityId, WebhookBufferRowEntity> webhookBufferDao;
+    private final WebhookBufferDao webhookBufferDao;
 
-    public WebhookBufferWriter(NotificationDao notificationDao, TimelineDao timelineDao, StatusUtils statusUtils, KeyValueStore<WebhookBufferRowEntityId, WebhookBufferRowEntity> webhookBufferDao) {
+    public WebhookBufferWriterService(NotificationDao notificationDao, TimelineDao timelineDao, StatusUtils statusUtils, WebhookBufferDao webhookBufferDao) {
         super( ActionEvent.class );
         this.notificationDao = notificationDao;
         this.timelineDao = timelineDao;
@@ -50,33 +49,16 @@ public class WebhookBufferWriter extends AbstractEventHandler<ActionEvent> {
             if(  statusHistoryLength >= 1 ) {
                 writeNewStatus( notification, statusHistory.get( statusHistoryLength - 1 ));
             }
-            if(  statusHistoryLength >= 2 ) {
-                deleteOldStatus( notification, statusHistory.get( statusHistoryLength - 2 ));
-            }
         });
     }
 
     private void writeNewStatus( Notification notification, NotificationStatusHistoryElement statusChange) {
-        this.webhookBufferDao.put( WebhookBufferRowEntity.builder()
-                .id( WebhookBufferRowEntityId.builder()
-                        .senderId( notification.getSender().getPaId() )
-                        .statusChangeTime( statusChange.getActiveFrom() )
-                        .iun( notification.getIun() )
-                        .build()
-                )
-                .status( statusChange.getStatus() )
-                .build()
+        this.webhookBufferDao.put(
+                notification.getSender().getPaId(),
+                notification.getIun(),
+                statusChange.getActiveFrom(),
+                statusChange.getStatus()
             );
     }
-
-    private void deleteOldStatus( Notification notification, NotificationStatusHistoryElement statusChange) {
-        this.webhookBufferDao.delete( WebhookBufferRowEntityId.builder()
-                .senderId( notification.getSender().getPaId() )
-                .statusChangeTime( statusChange.getActiveFrom() )
-                .iun( notification.getIun() )
-                .build()
-            );
-    }
-
 
 }

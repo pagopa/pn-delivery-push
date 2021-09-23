@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.webhook;
+package it.pagopa.pn.deliverypush.webhook.cassandra;
 
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -14,7 +14,7 @@ import java.time.Instant;
 @Getter
 @PrimaryKeyClass
 @EqualsAndHashCode
-public class WebhookBufferRowEntityId implements Serializable {
+public class CassandraWebhookBufferRowEntityId implements Serializable {
 
     @PrimaryKeyColumn(name = "senderId", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     private String senderId;
