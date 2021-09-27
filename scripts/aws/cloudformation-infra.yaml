@@ -74,6 +74,8 @@ Resources:
               Value: !ImportValue { "Fn::Sub": '${EnvName}-extchannel-output-queue-name' }
             - Name: PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS
               Value: !ImportValue { "Fn::Sub": '${EnvName}-delpush-actions-queue-name' }
+            - Name: PN_DELIVERYPUSH_TOPICS_EXECUTEDACTIONS
+              Value: !ImportValue { "Fn::Sub": '${EnvName}-delpush-actions-done-queue-name' }
             - Name: PN_DELIVERYPUSH_TIMEPARAMS_SECONDATTEMPTWAITINGTIME
               Value: !Ref PecSecondAttemptWaitTime
             - Name: PN_DELIVERYPUSH_TIMEPARAMS_RECIPIENTVIEWMAXTIME
@@ -145,6 +147,7 @@ Resources:
               - !ImportValue { "Fn::Sub": '${EnvName}-extchannel-input-queue-arn' }
               - !ImportValue { "Fn::Sub": '${EnvName}-extchannel-output-queue-arn' }
               - !ImportValue { "Fn::Sub": '${EnvName}-delpush-actions-queue-arn' }
+              - !ImportValue { "Fn::Sub": '${EnvName}-delpush-actions-done-queue-arn' }
           - Effect: Allow
             Action:
               - s3:GetObject
