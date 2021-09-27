@@ -18,6 +18,8 @@ public class PnDeliveryPushConfigs {
 
     private Instant actionPoolEpoch;
 
+    private Webhook webhook;
+
     @Data
     public static class Topics {
 
@@ -25,11 +27,19 @@ public class PnDeliveryPushConfigs {
 
         private String scheduledActions;
 
+        private String executedActions;
+
         private String toExternalChannelPec;
         
         private String toExternalChannelEmail;
 
         private String fromExternalChannel;
 
+    }
+
+    @Data
+    public static class Webhook {
+        private Long scheduleInterval;
+        private Integer maxLength;
     }
 }

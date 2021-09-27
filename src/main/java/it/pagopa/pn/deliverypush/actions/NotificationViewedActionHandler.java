@@ -16,13 +16,11 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 @Component
 public class NotificationViewedActionHandler extends AbstractActionHandler {
 
-    private final ActionsPool actionsPool;
     private final LegalFactUtils legalFactStore;
 
     public NotificationViewedActionHandler(TimelineDao timelineDao, ActionsPool actionsPool,
                       LegalFactUtils legalFactStore, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         super(timelineDao, actionsPool, pnDeliveryPushConfigs);
-        this.actionsPool = actionsPool;
         this.legalFactStore = legalFactStore;
     }
 
