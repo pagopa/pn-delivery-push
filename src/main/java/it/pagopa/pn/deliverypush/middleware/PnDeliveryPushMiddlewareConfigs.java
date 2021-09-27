@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.source.tree.ArrayAccessTree;
 
 import it.pagopa.pn.api.dto.events.EventType;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;

@@ -59,6 +59,8 @@ public class SendPecActionHandler extends AbstractActionHandler {
                                 .recipientTaxId( recipient.getTaxId() )
                                 .recipientDenomination( recipient.getDenomination() )
                                 .senderId( notification.getSender().getPaId() )
+                                .senderDenomination( "NOT HANDLED FROM in PoC: Id=" + notification.getSender().getPaId() )
+                                .senderPecAddress("Not required")
                                 .pecAddress( address.getAddress() )
                                 .build()
                             )

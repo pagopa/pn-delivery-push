@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -155,7 +156,7 @@ public class LegalFactUtils {
 		
 		return result;
 	}
-	
+
     public void saveNotificationViewedLegalFact(Action action, Notification notification) {
     	NotificationRecipient recipient = notification.getRecipients().get( action.getRecipientIndex() );
         
