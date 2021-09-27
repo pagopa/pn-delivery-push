@@ -1,10 +1,10 @@
 package it.pagopa.pn.deliverypush.webhook;
 
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -13,19 +13,21 @@ import java.util.concurrent.atomic.AtomicReference;
 @Slf4j
 public class WebhookBufferReaderService {
 
-    private final WebhookConfigsDao configs;
+    private final WebhookConfigsDao webhookConfigsDao;
     private final WebhookBufferDao webhookBufferDao;
     private final WebhookClient client;
+    private final int chunkSize;
 
-    public WebhookBufferReaderService(WebhookConfigsDao configs, WebhookBufferDao webhookBufferDao, WebhookClient client) {
-        this.configs = configs;
+    public WebhookBufferReaderService(WebhookConfigsDao webhookConfigsDao, WebhookBufferDao webhookBufferDao, WebhookClient client, PnDeliveryPushConfigs cfg) {
+        this.webhookConfigsDao = webhookConfigsDao;
         this.webhookBufferDao = webhookBufferDao;
         this.client = client;
+        this.chunkSize = cfg.getWebhook().getMaxLength();
     }
 
-    @Scheduled(fixedDelay = 60 * 1000)
+    @Scheduled(fixedDelayString = "${pn.delivery-push.webhook.schedule-interval}")
     public void readWebhookBufferAndSend() {
-        configs.activeWebhooks().forEach( this::readWebhookBufferAndSend );
+        webhookConfigsDao.activeWebhooks().forEach( this::readWebhookBufferAndSend );
     }
 
     protected void readWebhookBufferAndSend(WebhookInfoDto webhook ) {
@@ -42,7 +44,7 @@ public class WebhookBufferReaderService {
             .map( bufferRow -> {
                     List<WebhookBufferRowDto> bufferChunk = bufferChunkRef.updateAndGet( b -> b != null ? b : new ArrayList<>());
                     bufferChunk.add( bufferRow );
-                    if( bufferChunk.size() >= CHUNK_SIZE ) {
+                    if( bufferChunk.size() >= chunkSize) {
                         return bufferChunkRef.getAndSet( null );
                     }
                     else {
@@ -64,14 +66,12 @@ public class WebhookBufferReaderService {
             chunk.stream().map( WebhookBufferRowDto::getStatusChangeTime )
                     .max( Comparator.naturalOrder() )
                     .ifPresent( newLastUpdate ->
-                        configs.setWebhookStartFrom(webhook.getPaId(), newLastUpdate )
+                        webhookConfigsDao.setWebhookStartFrom(webhook.getPaId(), newLastUpdate )
                     );
         }
         catch (RuntimeException exc) {
             log.error("Calling webhook " + webhook.getUrl(), exc);
         }
     }
-
-    private static final int CHUNK_SIZE = 10;
 
 }
