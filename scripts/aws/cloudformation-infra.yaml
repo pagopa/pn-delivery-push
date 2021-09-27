@@ -299,6 +299,58 @@ Resources:
         - ColumnName: actionjson
           ColumnType: text
 
+  LastActionPollTable:
+    Type: AWS::Cassandra::Table
+    Properties:
+      TableName: last_poll_for_future_actions
+      KeyspaceName: !Ref KeyspaceName
+      PointInTimeRecoveryEnabled: true
+      PartitionKeyColumns:
+        - ColumnName: lastpollkey
+          ColumnType: bigint
+      RegularColumns:
+        - ColumnName: lastpollexecuted
+          ColumnType: timestamp
+
+  WebhookBufferTable:
+    Type: AWS::Cassandra::Table
+    Properties:
+      TableName: webhook_buffer
+      KeyspaceName: !Ref KeyspaceName
+      PointInTimeRecoveryEnabled: true
+      PartitionKeyColumns:
+        - ColumnName: senderid
+          ColumnType: text
+      ClusteringKeyColumns:
+        - Column:
+            ColumnName: statuschangetime
+            ColumnType: timestamp
+          OrderBy: ASC
+        - Column:
+            ColumnName: iun
+            ColumnType: text
+          OrderBy: ASC
+      RegularColumns:
+        - ColumnName: status
+          ColumnType: text
+
+  WebhookConfigsTable:
+    Type: AWS::Cassandra::Table
+    Properties:
+      TableName: webhook_configs
+      KeyspaceName: !Ref KeyspaceName
+      PointInTimeRecoveryEnabled: true
+      PartitionKeyColumns:
+        - ColumnName: paid
+          ColumnType: text
+      RegularColumns:
+        - ColumnName: url
+          ColumnType: text
+        - ColumnName: since
+          ColumnType: timestamp
+        - ColumnName: active
+          ColumnType: boolean
+
 Outputs:
   CluserArn:
     Description: ARN del cluster fargate
