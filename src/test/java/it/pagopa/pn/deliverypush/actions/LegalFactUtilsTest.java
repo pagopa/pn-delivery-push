@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.actions;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Assertions;
@@ -21,6 +22,8 @@ class LegalFactUtilsTest {
     private FileStorage fileStorage;
     private LegalFactPdfGeneratorUtils pdfUtils;
     
+    private Map<String, String> metadata = new HashMap<>();
+    
     @BeforeEach
     public void setup() {
         fileStorage = Mockito.mock(FileStorage.class);
@@ -28,6 +31,7 @@ class LegalFactUtilsTest {
         legalFactUtils = new LegalFactUtils(
                 fileStorage,
                 pdfUtils);
+        metadata.put("Content-Type", "application/pdf; charset=utf-8");
     }
     
     @Test
@@ -37,9 +41,9 @@ class LegalFactUtilsTest {
         String legalFactName = "TestLegalFact";
         byte[] legalFact = new byte[] { 77, 97, 114, 121 };
         Long expectedBodyLength = (long) legalFact.length;
-        
+		
         //When
-        legalFactUtils.saveLegalFact(iun, legalFactName, legalFact);
+        legalFactUtils.saveLegalFact(iun, legalFactName, legalFact, metadata);
 
         //Then
         ArgumentCaptor<String> keyCapture = ArgumentCaptor.forClass(String.class);
@@ -74,8 +78,8 @@ class LegalFactUtilsTest {
         byte[] legalFact2 = new byte[] { 77, 97, 114, 122 };
 
         //When
-        legalFactUtils.saveLegalFact(iun1, legalFactName, legalFact1);
-        legalFactUtils.saveLegalFact(iun2, legalFactName, legalFact2);
+        legalFactUtils.saveLegalFact(iun1, legalFactName, legalFact1, metadata);
+        legalFactUtils.saveLegalFact(iun2, legalFactName, legalFact2, metadata);
 
         //Then
         Mockito.verify(fileStorage, Mockito.times(2)).putFileVersion(Mockito.anyString(), Mockito.any(InputStream.class), Mockito.anyLong(), Mockito.anyMap());
