@@ -32,24 +32,26 @@ public class LegalFactUtils {
     }
     
     public void saveLegalFact(String iun, String name, byte[] legalFact) {
+    	String key = iun + "/legalfacts/" + name + ".pdf";
         try {
-            String key = iun + "/legalfacts/" + name + ".pdf";
             Map<String, String> metadata = Collections.singletonMap("Content-Type", "application/pdf; charset=utf-8");
 
             try (InputStream bodyStream = new ByteArrayInputStream(legalFact)) {
                 fileStorage.putFileVersion(key, bodyStream, legalFact.length, metadata);
             }
         } catch (IOException exc) {
-            throw new PnInternalException("Generating legal fact", exc);
+        	String errMsg = "Error while saving file on storage: " + key + ".";
+            throw new PnInternalException(errMsg, exc);
         }
     }
 
-	public void saveNotificationReceivedLegalFact(Action action, Notification notification, NotificationRecipient recipient) {		
+	public void saveNotificationReceivedLegalFact(Action action, Notification notification) {
 		try {
-    		byte[] pdfBytes = pdfUtils.generateNotificationReceivedLegalFact( action, notification, recipient );
-    		this.saveLegalFact(action.getIun(), "sender_ack_" + recipient.getTaxId(), pdfBytes);
+    		byte[] pdfBytes = pdfUtils.generateNotificationReceivedLegalFact( action, notification);
+    		this.saveLegalFact(action.getIun(), "sender_ack", pdfBytes);
 		} catch (DocumentException exc) {
-			throw new PnInternalException("Generating legal fact", exc);
+			String errMsg = "Error while generating legal fact \"Attestazione (lett. a, b)\" for Notification with Iun: " + notification.getIun() + ".";
+			throw new PnInternalException(errMsg, exc);
 		}
 	}
     
@@ -68,7 +70,8 @@ public class LegalFactUtils {
     		byte[] pdfBytes = pdfUtils.generatePecDeliveryWorkflowLegalFact( actions, notification, addresses );
     		this.saveLegalFact(notification.getIun(), "digital_delivery_info_" + taxId, pdfBytes);
 		} catch (DocumentException exc) {
-			throw new PnInternalException("Generating legal fact...", exc);
+			String errMsg = "Error while generating legal fact \"Attestazione (lett. c)\" for Notification with Iun: " + notification.getIun() + ".";
+			throw new PnInternalException(errMsg, exc);
 		}
     }
     
@@ -77,7 +80,8 @@ public class LegalFactUtils {
     		byte[] pdfBytes = pdfUtils.generateNotificationViewedLegalFact( action, notification );
     		this.saveLegalFact(notification.getIun(), "notification_viewed_" + notification.getRecipients().get(0).getTaxId(), pdfBytes);
 		} catch (DocumentException exc) {
-			throw new PnInternalException("Generating legal fact...", exc);
+			String errMsg = "Error while generating legal fact \"Attestazione (lett. e)\" for Notification with Iun: " + notification.getIun() + ".";
+			throw new PnInternalException(errMsg, exc);
 		}
     }
         	

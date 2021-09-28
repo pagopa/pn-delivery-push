@@ -80,14 +80,12 @@ class SenderAckActionHandlerTest {
         //Then
         ArgumentCaptor<Action> actionCapture = ArgumentCaptor.forClass(Action.class);
         ArgumentCaptor<Notification> notificationCapture = ArgumentCaptor.forClass(Notification.class);
-        ArgumentCaptor<NotificationRecipient> notificationRecipientCapture = ArgumentCaptor.forClass(NotificationRecipient.class);
 
         Mockito.verify(legalFactUtils).saveNotificationReceivedLegalFact( actionCapture.capture(),
-                            notificationCapture.capture(), notificationRecipientCapture.capture() );
+                            notificationCapture.capture() );
 
         Assertions.assertEquals(action.getIun(), actionCapture.getValue().getIun(), "Different iun");
         Assertions.assertEquals( action.getIun(), notificationCapture.getValue().getIun(), "Different iun");
-        Assertions.assertEquals( notification.getRecipients().get(0).getTaxId(), notificationRecipientCapture.getValue().getTaxId() );
     }
 
 
