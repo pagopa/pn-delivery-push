@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.abstractions.actionspool.impl;
 import it.pagopa.pn.api.dto.events.StandardEventHeader;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
@@ -11,6 +12,7 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.temp.mom.consumer.AbstractEventHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -22,12 +24,14 @@ public class ActionsEventHandler extends AbstractEventHandler<ActionEvent> {
     private final NotificationDao notificationDao;
     private final TimelineDao timelineDao;
     private final Map<ActionType, ActionHandler> actionHandlers;
+    private final MomProducer<ActionEvent> actionsDoneQueue;
 
-    public ActionsEventHandler(NotificationDao notificationDao, TimelineDao timelineDao, List<ActionHandler> actionHandlers) {
+    public ActionsEventHandler(NotificationDao notificationDao, TimelineDao timelineDao, List<ActionHandler> actionHandlers, @Qualifier("action-done") MomProducer<ActionEvent> actionsDoneQueue) {
         super( ActionEvent.class );
         this.notificationDao = notificationDao;
         this.timelineDao = timelineDao;
         this.actionHandlers = toMap( actionHandlers);
+        this.actionsDoneQueue = actionsDoneQueue;
     }
 
     private Map<ActionType, ActionHandler> toMap(List<ActionHandler> actionHandlers) {
@@ -49,14 +53,19 @@ public class ActionsEventHandler extends AbstractEventHandler<ActionEvent> {
             if( ! checkAlreadyDone( header )) {
                 log.info("NOTIFICATION: {}", notification.get() );
                 doHandle( action, notification.get() );
+                notifyActionDone( evt );
             }
             else {
                 log.warn("Duplicated action event: {}", evt );
             }
         }
         else {
-            log.info("Notification metadata not found for iun {}", header.getIun() );
+            log.warn("Notification metadata not found for iun {}", header.getIun() );
         }
+    }
+
+    private void notifyActionDone(ActionEvent evt) {
+        actionsDoneQueue.push( evt );
     }
 
     private void doHandle(Action action, Notification notification) {

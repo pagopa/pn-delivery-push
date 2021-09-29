@@ -16,12 +16,10 @@ import lombok.extern.slf4j.Slf4j;
 public class NotificationViewedEventHandler extends AbstractEventHandler<PnDeliveryNotificationViewedEvent> {
 
     private final ActionsPool actionsPool;
-    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
-    public NotificationViewedEventHandler( ActionsPool actionsPool , PnDeliveryPushConfigs pnDeliveryPushConfigs) {
+    public NotificationViewedEventHandler( ActionsPool actionsPool ) {
         super( PnDeliveryNotificationViewedEvent.class );
         this.actionsPool = actionsPool;
-        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
     }
 
     @Override

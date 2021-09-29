@@ -8,7 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -105,5 +106,22 @@ public class LegalFactUtils {
 
 		return metadata;
 	}
-        	
+
+    public void saveNotificationViewedLegalFact(Action action, Notification notification) {
+    	NotificationRecipient recipient = notification.getRecipients().get( action.getRecipientIndex() );
+        
+        NotificationViewedLegalFact notificationViewedLegalFact =  NotificationViewedLegalFact.builder()
+		.iun( notification.getIun() )
+		.date( this.instantToDate( Instant.now() ) )
+		.recipient( RecipientInfo.builder()
+        				.taxId( recipient.getTaxId() )
+        				.denomination( recipient.getDenomination() )
+        				.build() 
+        )
+		.build();
+        
+    	this.saveLegalFact( notification.getIun(), "notification_viewed_" + notification.getRecipients().get(0).getTaxId(), 
+    							notificationViewedLegalFact);
+    }
+    	
 }
