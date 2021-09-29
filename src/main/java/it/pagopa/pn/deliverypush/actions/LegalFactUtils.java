@@ -3,13 +3,11 @@ package it.pagopa.pn.deliverypush.actions;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -18,7 +16,6 @@ import com.itextpdf.text.DocumentException;
 
 import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
@@ -38,8 +35,7 @@ public class LegalFactUtils {
     public void saveLegalFact(String iun, String name, byte[] legalFact, Map<String, String> metadata) {
     	String key = iun + "/legalfacts/" + name + ".pdf";
         try {
-        	//Map<String, String> metadata = Collections.singletonMap("Content-Type", "application/pdf; charset=utf-8");
-            try (InputStream bodyStream = new ByteArrayInputStream(legalFact)) {
+        	try (InputStream bodyStream = new ByteArrayInputStream(legalFact)) {
                 fileStorage.putFileVersion(key, bodyStream, legalFact.length, metadata);
             }
         } catch (IOException exc) {
@@ -95,7 +91,7 @@ public class LegalFactUtils {
     
 	private Map<String, String> metadata(String type, String taxId) {
 		Map<String, String> metadata = new HashMap<>();
-		metadata.put("Content-Type", "application/pdf; charset=utf-8");
+		metadata.put("Content-Type", "application/pdf");
 		
 		if ( StringUtils.isNotBlank( type ) ) {
 			metadata.put("type", type);
@@ -107,21 +103,4 @@ public class LegalFactUtils {
 		return metadata;
 	}
 
-    public void saveNotificationViewedLegalFact(Action action, Notification notification) {
-    	NotificationRecipient recipient = notification.getRecipients().get( action.getRecipientIndex() );
-        
-        NotificationViewedLegalFact notificationViewedLegalFact =  NotificationViewedLegalFact.builder()
-		.iun( notification.getIun() )
-		.date( this.instantToDate( Instant.now() ) )
-		.recipient( RecipientInfo.builder()
-        				.taxId( recipient.getTaxId() )
-        				.denomination( recipient.getDenomination() )
-        				.build() 
-        )
-		.build();
-        
-    	this.saveLegalFact( notification.getIun(), "notification_viewed_" + notification.getRecipients().get(0).getTaxId(), 
-    							notificationViewedLegalFact);
-    }
-    	
 }

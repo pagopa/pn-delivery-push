@@ -65,7 +65,7 @@ public enum ActionType {
     NOTIFICATION_VIEWED() {
         @Override
         public String buildActionId(Action action) {
-            return String.format("%s_notification_viewed%d", 
+            return String.format("%s_notification_viewed_rec%d",
             					action.getIun(),
             					action.getRecipientIndex()
             );
