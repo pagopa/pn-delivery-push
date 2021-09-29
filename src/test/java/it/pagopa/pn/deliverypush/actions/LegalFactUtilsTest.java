@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,7 +31,8 @@ class LegalFactUtilsTest {
         pdfUtils = Mockito.mock(LegalFactPdfGeneratorUtils.class);
         legalFactUtils = new LegalFactUtils(
                 fileStorage,
-                pdfUtils);
+                pdfUtils,
+                new LegalfactsMetadataUtils() );
         metadata.put("Content-Type", "application/pdf; charset=utf-8");
     }
     
