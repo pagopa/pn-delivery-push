@@ -3,36 +3,22 @@ package it.pagopa.pn.deliverypush.actions;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.temporal.ChronoField;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
+import com.itextpdf.text.DocumentException;
 
-import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
-import it.pagopa.pn.api.dto.legalfacts.DigitalAdviceReceiptLegalFact;
-import it.pagopa.pn.api.dto.legalfacts.DigitalAdviceReceiptLegalFact.OkOrFail;
-import it.pagopa.pn.api.dto.legalfacts.NotificationReceivedLegalFact;
-import it.pagopa.pn.api.dto.legalfacts.NotificationViewedLegalFact;
-import it.pagopa.pn.api.dto.legalfacts.RecipientInfo;
-import it.pagopa.pn.api.dto.legalfacts.RecipientInfoWithAddresses;
-import it.pagopa.pn.api.dto.legalfacts.SenderInfo;
+import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
@@ -40,121 +26,85 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 
 @Component
 public class LegalFactUtils {
-    private final ConcurrentHashMap<Class<?>, ObjectWriter> mapObjWriter = new ConcurrentHashMap<>();
     private final FileStorage fileStorage;
-    private final ObjectMapper objMapper;
+    private final LegalFactPdfGeneratorUtils pdfUtils;
 
-    public LegalFactUtils(FileStorage fileStorage, ObjectMapper objMapper) {
+    public LegalFactUtils(FileStorage fileStorage,
+    		LegalFactPdfGeneratorUtils pdfUtils) {
         this.fileStorage = fileStorage;
-        this.objMapper = objMapper;
+        this.pdfUtils = pdfUtils;
     }
-
-    public void saveLegalFact(String iun, String name, Object legalFact) {
+    
+    public void saveLegalFact(String iun, String name, byte[] legalFact, Map<String, String> metadata) {
+    	String key = iun + "/legalfacts/" + name + ".pdf";
         try {
-            ObjectWriter writer = mapObjWriter.computeIfAbsent(legalFact.getClass(), objMapper::writerFor);
-            String bodyString = writer.writeValueAsString(legalFact);
-            String key = iun + "/legalfacts/" + name + ".json";
-            Map<String, String> metadata = Collections.singletonMap("Content-Type", "application/json; charset=utf-8");
-
-            byte[] body = bodyString.getBytes(StandardCharsets.UTF_8);
-            try (InputStream bodyStream = new ByteArrayInputStream(body)) {
-                fileStorage.putFileVersion(key, bodyStream, body.length, metadata);
+        	//Map<String, String> metadata = Collections.singletonMap("Content-Type", "application/pdf; charset=utf-8");
+            try (InputStream bodyStream = new ByteArrayInputStream(legalFact)) {
+                fileStorage.putFileVersion(key, bodyStream, legalFact.length, metadata);
             }
         } catch (IOException exc) {
-            throw new PnInternalException("Generating legal fact", exc);
+        	String errMsg = "Error while saving file on storage: " + key + ".";
+            throw new PnInternalException(errMsg, exc);
         }
     }
 
-	public void saveNotificationReceivedLegalFact(Action action, Notification notification, NotificationRecipient recipient) {
-		DigitalAddress digitalDomicile = recipient.getDigitalDomicile();
-
-		this.saveLegalFact( action.getIun(), "sender_ack_" + recipient.getTaxId(),
-				NotificationReceivedLegalFact.builder()
-						.iun( action.getIun() )
-						.sender( SenderInfo.builder()
-								.paTaxId( notification.getSender().getPaId() )
-								.paDenomination( notification.getSender().getPaDenomination() )
-								.build()
-						)
-						.date( this.instantToDate( notification.getSentAt() ))
-						.recipient( RecipientInfoWithAddresses.builder()
-								.taxId( recipient.getTaxId() )
-								.denomination( recipient.getDenomination() )
-								.digitalDomicile( digitalDomicile )
-								.physicalDomicile( nullSafePhysicalAddressToString(recipient) )
-								.build()
-						)
-						.digests( notification.getDocuments()
-								.stream()
-								.map( d -> d.getDigests().getSha256() )
-								.collect(Collectors.toList()) )
-						.build()
-		);
+	public void saveNotificationReceivedLegalFact(Action action, Notification notification) {
+		try {
+			Map<String, String> metadata = metadata( LegalFactType.SENDER_ACK.name(), null );
+			
+    		byte[] pdfBytes = pdfUtils.generateNotificationReceivedLegalFact( action, notification);
+    		this.saveLegalFact(action.getIun(), "sender_ack", pdfBytes, metadata);
+		} catch (DocumentException exc) {
+			String errMsg = "Error while generating legal fact \"Attestazione (lett. a, b)\" for Notification with Iun: " + notification.getIun() + ".";
+			throw new PnInternalException(errMsg, exc);
+		}
 	}
-
-    public String instantToDate(Instant instant) {
-        OffsetDateTime odt = instant.atOffset(ZoneOffset.UTC);
-        int year = odt.get(ChronoField.YEAR_OF_ERA);
-        int month = odt.get(ChronoField.MONTH_OF_YEAR);
-        int day = odt.get(ChronoField.DAY_OF_MONTH);
-		int hour = odt.get(ChronoField.HOUR_OF_DAY);
-		int min = odt.get(ChronoField.MINUTE_OF_HOUR);
-        return String.format("%04d-%02d-%02d %02d:%02d", year, month, day, hour, min);
-    }
     
     public void savePecDeliveryWorkflowLegalFact(List<Action> actions, Notification notification, NotificationPathChooseDetails addresses ) {
-
     	Set<Integer> recipientIdx = actions.stream()
 				.map( Action::getRecipientIndex )
 				.collect(Collectors.toSet());
     	if( recipientIdx.size() > 1 ) {
     		throw new PnInternalException("Impossible generate distinct act for distinct recipients");
 		}
-
-    	List<DigitalAdviceReceiptLegalFact> legalFacts = actions.stream()
-				.map( receivePecAction -> {
-    				DigitalAddress address = receivePecAction.getDigitalAddressSource().getAddressFrom( addresses );
-    				return buildDigitalAdviceReceiptLegalFact(receivePecAction, notification, address);
-    			})
-				.collect( Collectors.toList() );
-
-    	String taxId = notification.getRecipients().get( recipientIdx.iterator().next() ).getTaxId();
-    	this.saveLegalFact( notification.getIun(), "digital_delivery_info_" + taxId,
-				legalFacts.toArray( new DigitalAdviceReceiptLegalFact[0] )
-			);
-    }
-
-	private DigitalAdviceReceiptLegalFact buildDigitalAdviceReceiptLegalFact(Action action, Notification notification, DigitalAddress address) {
-		PnExtChnProgressStatus status = action.getResponseStatus();
-        NotificationRecipient recipient = notification.getRecipients().get( action.getRecipientIndex() );
-        
-		return DigitalAdviceReceiptLegalFact.builder()
-			.iun( notification.getIun() )
-			.date( this.instantToDate( Instant.now() ) )
-			.outcome( PnExtChnProgressStatus.OK.equals( status ) ? OkOrFail.OK : OkOrFail.FAIL )
-			.recipient( RecipientInfo.builder()
-		            		.taxId( recipient.getTaxId() )
-		            		.denomination( recipient.getDenomination() )
-		            		.build()
-		    )
-			.digitalAddress( address )
-			.build();
-	}
-    
-	private String nullSafePhysicalAddressToString( NotificationRecipient recipient ) {
-		String result = null;
-		
-		if ( recipient != null ) {
-			PhysicalAddress physicalAddress = recipient.getPhysicalAddress();
-			if ( physicalAddress != null ) {
-				List<String> standardAddressString = physicalAddress.toStandardAddressString( recipient.getDenomination() );
-				if ( standardAddressString != null ) {
-					result = String.join("\n", standardAddressString );
-				}
-			}
+    	    	
+    	try {
+    		String taxId = notification.getRecipients().get( recipientIdx.iterator().next() ).getTaxId();
+    		Map<String, String> metadata = metadata( LegalFactType.DIGITAL_DELIVERY.name(), taxId );
+    		
+    		byte[] pdfBytes = pdfUtils.generatePecDeliveryWorkflowLegalFact( actions, notification, addresses );
+    		this.saveLegalFact( notification.getIun(), "digital_delivery_info_" + taxId, pdfBytes, metadata );
+		} catch (DocumentException exc) {
+			String errMsg = "Error while generating legal fact \"Attestazione (lett. c)\" for Notification with Iun: " + notification.getIun() + ".";
+			throw new PnInternalException( errMsg, exc );
 		}
+    }
+    
+    public void saveNotificationViewedLegalFact(Action action, Notification notification) {
+    	try {
+    		String taxId = notification.getRecipients().get(0).getTaxId();
+    		Map<String, String> metadata = metadata( LegalFactType.RECIPIENT_ACCESS.name(), taxId );
+    		
+    		byte[] pdfBytes = pdfUtils.generateNotificationViewedLegalFact( action, notification );
+    		this.saveLegalFact( notification.getIun(), "notification_viewed_" + taxId, pdfBytes, metadata );
+		} catch (DocumentException exc) {
+			String errMsg = "Error while generating legal fact \"Attestazione (lett. e)\" for Notification with Iun: " + notification.getIun() + ".";
+			throw new PnInternalException( errMsg, exc );
+		}
+    }
+    
+	private Map<String, String> metadata(String type, String taxId) {
+		Map<String, String> metadata = new HashMap<>();
+		metadata.put("Content-Type", "application/pdf; charset=utf-8");
 		
-		return result;
+		if ( StringUtils.isNotBlank( type ) ) {
+			metadata.put("type", type);
+		}
+		if ( StringUtils.isNotBlank( taxId ) ) {
+			metadata.put("taxid", taxId);
+		}
+
+		return metadata;
 	}
 
     public void saveNotificationViewedLegalFact(Action action, Notification notification) {

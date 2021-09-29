@@ -28,8 +28,6 @@ public class NotificationViewedActionHandler extends AbstractActionHandler {
     public void handleAction(Action action, Notification notification) {
     	NotificationRecipient recipient = notification.getRecipients().get( action.getRecipientIndex() );
     	
-    	legalFactStore.saveNotificationViewedLegalFact( action, notification );
-    	
     	 addTimelineElement(action, TimelineElement.builder()
                  .category( TimelineElementCategory.NOTIFICATION_VIEWED )
                  .details( NotificationViewedDetails.builder()
@@ -38,6 +36,8 @@ public class NotificationViewedActionHandler extends AbstractActionHandler {
                  )
                  .build()
          );
+    	 
+    	 legalFactStore.saveNotificationViewedLegalFact( action, notification );
     }
 
     @Override
