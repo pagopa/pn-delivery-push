@@ -30,7 +30,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
-class SendPecActionHandlerTest {
+class ReceiveRegisteredLetterDeliveredNoticeActionHandlerTest {
     private MomProducer<PnExtChnPecEvent> pecRequestProducer;
     private MomProducer<PnExtChnPaperEvent> paperRequestProducer;
     private TimelineDao timelineDao;

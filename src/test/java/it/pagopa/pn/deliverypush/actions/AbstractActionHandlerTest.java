@@ -185,7 +185,7 @@ class AbstractActionHandlerTest {
     }
 
     @Test
-    void successBuildNextSendActionNullTest() {
+    void successBuildNextSendActionSendPaperTest() {
         //Given
         Action.ActionBuilder nextActionBuilder2 = Action.builder()
                 .iun("Test_iun01")
@@ -205,8 +205,7 @@ class AbstractActionHandlerTest {
         Optional<Action> nextAction = abstractActionHandler.buildNextSendAction(action2);
 
         //Then
-        Assertions.assertEquals(Optional.empty(), nextAction);
-
+        Assertions.assertEquals(action2.getIun(), nextAction.get().getIun(), "Different Iun");
     }
 
     @Test

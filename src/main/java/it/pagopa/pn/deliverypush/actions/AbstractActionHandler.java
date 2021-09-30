@@ -70,14 +70,24 @@ public abstract class AbstractActionHandler implements ActionHandler {
         else if ( nextIsInSecondRound ) {
             nextAction = buildNextSendPecActionWithRound( action, SECOND_ROUND);
         }
-        // If neither first nor second round: we have done with send attempt and can wait for recipient
+        // If neither first nor second round: we have done with send attempt and can proceed with paper delivery request
         else {
-            nextAction = null;
+            //nextAction = null;
+        	nextAction = buildSendPaperDeliveryRequestAction( action );
         }
 
         return Optional.ofNullable( nextAction );
     }
 
+    protected Action buildSendPaperDeliveryRequestAction(Action action ) {
+    	return Action.builder()
+                .iun( action.getIun() )
+                .recipientIndex( action.getRecipientIndex() )
+                .notBefore( Instant.now() )		// TODO CHIEDERE A MARCO / ALESSIO
+                .type( ActionType.SEND_PAPER )
+                .build();
+    }
+    
     protected Action buildWaitRecipientTimeoutAction(Action action ) {
         Duration recipientViewMaxTime = pnDeliveryPushConfigs.getTimeParams().getRecipientViewMaxTime();
         return Action.builder()

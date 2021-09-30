@@ -70,6 +70,26 @@ public enum ActionType {
             					action.getRecipientIndex()
             );
         }
+    },
+    SEND_PAPER() {
+        @Override
+        public String buildActionId(Action action) {
+            return String.format(
+                    "%s_send_paper_rec%d",
+                    action.getIun(),
+                    action.getRecipientIndex()
+                );
+        }
+    },
+    RECEIVE_PAPER() {
+        @Override
+        public String buildActionId(Action action) {
+            return String.format(
+                    "%s_send_paper_result_rec%d",
+                    action.getIun(),
+                    action.getRecipientIndex()
+            );
+        }
     };
 
     public String buildActionId(Action action) {

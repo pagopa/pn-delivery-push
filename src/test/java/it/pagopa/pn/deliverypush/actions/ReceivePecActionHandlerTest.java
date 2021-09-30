@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
 import it.pagopa.pn.api.dto.legalfacts.DigitalAdviceReceiptLegalFact;
 import it.pagopa.pn.api.dto.notification.Notification;
@@ -22,6 +23,7 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
@@ -37,16 +39,19 @@ class ReceivePecActionHandlerTest {
     private ActionsPool actionsPool;
     private ReceivePecActionHandler handler;
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
-
+    private MomProducer<PnExtChnPaperEvent> paperRequestProducer;
+    
     @BeforeEach
     public void setup() {
         timelineDao = Mockito.mock(TimelineDao.class);
         actionsPool = Mockito.mock(ActionsPool.class);
         pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
+        paperRequestProducer = Mockito.mock(MomProducer.class);
         handler = new ReceivePecActionHandler(
                 timelineDao,
                 actionsPool,
-                pnDeliveryPushConfigs
+                pnDeliveryPushConfigs,
+                paperRequestProducer
         );
         TimeParams times = new TimeParams();
         times.setRecipientViewMaxTime(Duration.ZERO);

@@ -6,6 +6,7 @@ import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
 import it.pagopa.pn.api.dto.notification.timeline.SendDigitalDetails;
+import it.pagopa.pn.api.dto.notification.timeline.SendDigitalFailure;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.commons.abstractions.MomProducer;
@@ -24,17 +25,22 @@ import java.util.Optional;
 public class SendPecActionHandler extends AbstractActionHandler {
 
     private final MomProducer<PnExtChnPecEvent> pecRequestProducer;
-
-    public SendPecActionHandler(TimelineDao timelineDao, ActionsPool actionsPool, MomProducer<PnExtChnPecEvent> pecRequestProducer, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
+    private final MomProducer<PnExtChnPaperEvent> paperRequestProducer;
+    
+    public SendPecActionHandler(TimelineDao timelineDao, ActionsPool actionsPool, 
+    		MomProducer<PnExtChnPecEvent> pecRequestProducer, PnDeliveryPushConfigs pnDeliveryPushConfigs,
+    		MomProducer<PnExtChnPaperEvent> paperRequestProducer) {
         super( timelineDao, actionsPool , pnDeliveryPushConfigs);
         this.pecRequestProducer = pecRequestProducer;
+        this.paperRequestProducer = paperRequestProducer;
     }
 
     @Override
     public void handleAction(Action action, Notification notification ) {
 
         NotificationRecipient recipient = notification.getRecipients().get(action.getRecipientIndex());
-
+        boolean isPecDeliverable = false;
+        
         // - Retrieve addresses
         Optional<NotificationPathChooseDetails> addresses =
                 getTimelineElement( action, ActionType.CHOOSE_DELIVERY_MODE, NotificationPathChooseDetails.class );
@@ -69,23 +75,43 @@ public class SendPecActionHandler extends AbstractActionHandler {
             }
             //   else go to next address (if this is not last)
             else {
-                Action nextAction = buildNextSendAction( action )
-                        .orElse( buildSendCourtesyAction(action) );
-
+            	/* Action nextAction = buildNextSendAction( action )
+                        .orElse( buildSendCourtesyAction(action) ); */
+            	Action nextAction = buildNextSendAction( action )
+                        .orElse( buildSendPaperDeliveryRequestAction( action ) );
+            	
+            	// non ho ulteriori indirizzi/tentativi per invio PEC, invio richiesta via raccomandata e registro evento timeline definitivo fallimento notifica digitale
+            	if ( nextAction.getType().equals( ActionType.SEND_PAPER ) ) {
+                	isPecDeliverable = true;
+                	this.paperRequestProducer.push( buildSendPaperRequest( action, notification ) );
+                }
+            	
                 scheduleAction( nextAction );
             }
-
-            // - Write timeline
-            addTimelineElement( action, TimelineElement.builder()
+  
+            if ( isPecDeliverable ) {
+            	// - Write timeline
+            	addTimelineElement( action, TimelineElement.builder()
                     .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE )
                     .details( SendDigitalDetails.sendBuilder()
-                            .taxId( recipient.getTaxId() )
-                            .address( address )
-                            .retryNumber( action.getRetryNumber() )
-                            .build()
-                        )
+                            	.taxId( recipient.getTaxId() )
+                            	.address( address )
+                            	.retryNumber( action.getRetryNumber() )
+                            	.build()
+                    	)
                     .build()
                 );
+            } else {
+                // - WRITE TIMELINE IN CASE OF PEC PERMANENT DELIVER FAILURE
+            	addTimelineElement(action, TimelineElement.builder()
+                        .category( TimelineElementCategory.SEND_DIGITAL_DOMICILE_FAILURE )
+                        .details( SendDigitalFailure.builder()
+                        			.address( address )
+                        			.build()
+                        )
+                        .build()
+                );
+            }
         }
         else {
             throw new PnInternalException( "Addresses list not found!!! Needed for action " + action );
@@ -93,6 +119,50 @@ public class SendPecActionHandler extends AbstractActionHandler {
 
     }
 
+    private PnExtChnPaperEvent buildSendPaperRequest (Action action, Notification notification) {
+		NotificationRecipient recipient = notification.getRecipients().get( action.getRecipientIndex() );
+		
+		return PnExtChnPaperEvent.builder()
+		        .header( StandardEventHeader.builder()
+		                	.iun( action.getIun() )
+		                	.eventId( action.getActionId() )
+		                	.eventType( EventType.SEND_PAPER_REQUEST.name() )
+		                	.publisher( EventPublisher.DELIVERY_PUSH.name() )
+		                	.createdAt( Instant.now() )
+		                	.build()
+		        )
+		        .payload( PnExtChnPaperEventPayload.builder()
+		    				.urlCallBack( "urlCallBack" )
+		    				.documento( PnExtChnPaperEventPayloadDocument.builder()
+		    								.iun( action.getIun() )
+		    								.codiceAtto( "codiceAtto" )
+		    								.numeroCronologico( 1 )
+		    								.parteIstante( "parteIstante" )
+		    								.procuratore( "procuratore" )
+		    								.ufficialeGiudiziario( "ufficialeGiudiziario" )
+		    								.build()
+		    				)
+		    				.mittente( PnExtChnPaperEventPayloadSender.builder()
+		    							.paMittente( notification.getSender().getPaId() )
+		    							.pecMittente( "pecMittente" )
+		    							.build()
+		    				)
+		    				.destinatario( PnExtChnPaperEventPayloadReceiver.builder()
+		    								.destinatario( recipient.getDenomination() )
+		    								.codiceFiscale( recipient.getTaxId() )
+		    								.presso( recipient.getPhysicalAddress().getAt() )
+		    								.indirizzo( recipient.getPhysicalAddress().getAddress() )
+		    								.specificaIndirizzo( "specificaIndirizzo" )
+		    								.cap( recipient.getPhysicalAddress().getZip() )
+		    								.comune( recipient.getPhysicalAddress().getMunicipality() )
+		    								.provincia( recipient.getPhysicalAddress().getProvince() )
+		    								.build()
+		    				)
+		    				.build()
+		        )
+		        .build();
+	}
+    
     @Override
     public ActionType getActionType() {
         return ActionType.SEND_PEC;
