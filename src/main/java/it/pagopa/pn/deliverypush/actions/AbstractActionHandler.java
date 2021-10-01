@@ -83,7 +83,7 @@ public abstract class AbstractActionHandler implements ActionHandler {
     	return Action.builder()
                 .iun( action.getIun() )
                 .recipientIndex( action.getRecipientIndex() )
-                .notBefore( Instant.now() )		// TODO CHIEDERE A MARCO / ALESSIO
+                .notBefore( Instant.now() )
                 .type( ActionType.SEND_PAPER )
                 .build();
     }
