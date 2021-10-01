@@ -5,16 +5,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
-import it.pagopa.pn.api.dto.legalfacts.DigitalAdviceReceiptLegalFact;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
@@ -25,13 +22,12 @@ import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
-import it.pagopa.pn.deliverypush.actions.LegalFactUtils;
-import it.pagopa.pn.deliverypush.actions.ReceivePecActionHandler;
 
 class ReceivePecActionHandlerTest {
 
@@ -96,7 +92,6 @@ class ReceivePecActionHandlerTest {
 
         //Then
         Mockito.verify(timelineDao).addTimelineElement(Mockito.any(TimelineElement.class));
-
     }
 
     @Test

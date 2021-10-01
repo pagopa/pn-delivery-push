@@ -1,5 +1,16 @@
 package it.pagopa.pn.deliverypush.actions;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Optional;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
 import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
 import it.pagopa.pn.api.dto.notification.Notification;
@@ -18,17 +29,6 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
-import it.pagopa.pn.deliverypush.actions.SendPecActionHandler;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Optional;
 
 class SendPecActionHandlerTest {
     private MomProducer<PnExtChnPecEvent> pecRequestProducer;

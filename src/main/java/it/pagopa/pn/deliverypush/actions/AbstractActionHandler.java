@@ -73,13 +73,13 @@ public abstract class AbstractActionHandler implements ActionHandler {
         // If neither first nor second round: we have done with send attempt and can proceed with paper delivery request
         else {
             //nextAction = null;
-        	nextAction = buildSendPaperDeliveryRequestAction( action );
+        	nextAction = buildSendPaperAction( action );
         }
 
         return Optional.ofNullable( nextAction );
     }
 
-    protected Action buildSendPaperDeliveryRequestAction(Action action ) {
+    protected Action buildSendPaperAction(Action action ) {
     	return Action.builder()
                 .iun( action.getIun() )
                 .recipientIndex( action.getRecipientIndex() )

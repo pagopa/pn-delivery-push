@@ -1,55 +1,48 @@
 package it.pagopa.pn.deliverypush.actions;
 
-import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
-import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Optional;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
-import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
+import it.pagopa.pn.api.dto.notification.timeline.SendPaperDetails;
+import it.pagopa.pn.api.dto.notification.timeline.SendPaperFeedbackDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.commons.abstractions.MomProducer;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
-import it.pagopa.pn.deliverypush.actions.SendPecActionHandler;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Optional;
-
-class ReceiveRegisteredLetterDeliveredNoticeActionHandlerTest {
-    private MomProducer<PnExtChnPecEvent> pecRequestProducer;
-    private MomProducer<PnExtChnPaperEvent> paperRequestProducer;
+class ReceiveRegisteredLetterDeliveredActionHandlerTest {
     private TimelineDao timelineDao;
     private ActionsPool actionsPool;
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
-    private SendPecActionHandler handler;
+    private ReceiveRegisteredLetterDeliveredActionHandler handler;
 
     @BeforeEach
     void setup() {
         pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
-        pecRequestProducer = Mockito.mock(MomProducer.class);
-        paperRequestProducer = Mockito.mock(MomProducer.class);
         timelineDao = Mockito.mock(TimelineDao.class);
-        handler = new SendPecActionHandler(
+        actionsPool = Mockito.mock(ActionsPool.class);
+        handler = new ReceiveRegisteredLetterDeliveredActionHandler(
                 timelineDao,
                 actionsPool,
-                pecRequestProducer,
-                pnDeliveryPushConfigs,
-                paperRequestProducer
+                pnDeliveryPushConfigs
         );
         TimeParams times = new TimeParams();
         times.setRecipientViewMaxTime(Duration.ZERO);
@@ -65,35 +58,34 @@ class ReceiveRegisteredLetterDeliveredNoticeActionHandlerTest {
     void successHandleAction() {
         //Given
         Action action = Action.builder()
-                .iun("Test_iun01")
-                .recipientIndex(0)
-                .type(ActionType.SEND_PEC)
-                .retryNumber(1)
-                .notBefore(Instant.now())
-                .digitalAddressSource(DigitalAddressSource.GENERAL)
-                .actionId("Test_iun01_send_pec_rec0_null_nnull")
-                .build();
+    						.iun( "IUN_01" )
+    						.actionId( "IUN_01_send_paper_result_rec0" )
+    						.type( ActionType.END_OF_DIGITAL_DELIVERY_WORKFLOW )
+    						.recipientIndex( 0 )
+    						.responseStatus( PnExtChnProgressStatus.OK )
+    						.build();
 
-        String actionId = action.getType().buildActionId(action);
-        action = action.toBuilder().actionId(actionId).build();
+        String actionId = action.getType().buildActionId( action );
+        action = action.toBuilder().actionId( actionId ).build();
 
         Notification notification = newNotificationWithoutPayments();
-
-        Mockito.when(timelineDao.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Optional.of(TimelineElement.builder()
-                        .details(NotificationPathChooseDetails.builder()
-                                .general(DigitalAddress.builder()
-                                        .address("account@dominio.it")
-                                        .type(DigitalAddressType.PEC)
-                                        .build())
-                                .build())
-                        .build()));
+        NotificationRecipient recipient = notification.getRecipients().get( action.getRecipientIndex() );
+        
+        Mockito.when(timelineDao.getTimelineElement( Mockito.anyString(), Mockito.anyString() ))
+                .thenReturn( Optional.of( TimelineElement.builder()
+                        .category( TimelineElementCategory.SEND_PAPER_FEEDBACK )
+                        .details( new SendPaperFeedbackDetails ( SendPaperDetails.builder()
+                        			.address( recipient.getPhysicalAddress() )
+                        			.build(),
+                                    Collections.singletonList( action.getResponseStatus().name() )
+                        ))
+                        .build() ) );
 
         //When
-        handler.handleAction(action, notification);
+        handler.handleAction( action, notification );
 
         //Then
-        Mockito.verify(pecRequestProducer).push(Mockito.any(PnExtChnPecEvent.class));
+        Mockito.verify( timelineDao ).addTimelineElement( Mockito.any(TimelineElement.class) );
     }
 
     @Test
@@ -101,7 +93,7 @@ class ReceiveRegisteredLetterDeliveredNoticeActionHandlerTest {
         //When
         ActionType actionType = handler.getActionType();
         //Then
-        Assertions.assertEquals(ActionType.SEND_PEC, actionType, "Different Action Type");
+        Assertions.assertEquals(ActionType.RECEIVE_PAPER, actionType, "Different Action Type");
     }
 
     private Notification newNotificationWithoutPayments() {

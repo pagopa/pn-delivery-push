@@ -10,17 +10,15 @@ import it.pagopa.pn.api.dto.events.EventPublisher;
 import it.pagopa.pn.api.dto.events.EventType;
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEventPayload;
-import it.pagopa.pn.api.dto.events.PnExtChnPaperEventPayloadDocument;
-import it.pagopa.pn.api.dto.events.PnExtChnPaperEventPayloadReceiver;
-import it.pagopa.pn.api.dto.events.PnExtChnPaperEventPayloadSender;
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
 import it.pagopa.pn.api.dto.events.StandardEventHeader;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
+import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
 import it.pagopa.pn.api.dto.notification.timeline.SendDigitalDetails;
-import it.pagopa.pn.api.dto.notification.timeline.SendDigitalFailure;
+import it.pagopa.pn.api.dto.notification.timeline.SendDigitalFailureDetails;
 import it.pagopa.pn.api.dto.notification.timeline.SendDigitalFeedbackDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
@@ -57,9 +55,9 @@ public class ReceivePecActionHandler extends AbstractActionHandler {
         // ... altrimenti continua
         else {
             nextAction = buildNextSendAction( action )
-            				.orElse( buildSendPaperDeliveryRequestAction( action ) );
+            				.orElse( buildSendPaperAction( action ) );
             
-            // non ho ulteriori indirizzi/tentativi per invio PEC, invio richiesta via raccomandata e registro evento timeline definitivo fallimento notifica digitale
+            // invio richiesta via raccomandata e registro evento timeline definitivo fallimento notifica digitale
             if ( nextAction.getType().equals( ActionType.SEND_PAPER ) ) {
             	pecDeliveryFailure = true;
             	this.paperRequestProducer.push( buildSendPaperRequest( action, notification ) );
@@ -89,7 +87,7 @@ public class ReceivePecActionHandler extends AbstractActionHandler {
                 // - WRITE TIMELINE IN CASE OF PEC PERMANENT DELIVER FAILURE
             	addTimelineElement(action, TimelineElement.builder()
                         .category( TimelineElementCategory.SEND_DIGITAL_DOMICILE_FAILURE )
-                        .details( SendDigitalFailure.builder()
+                        .details( SendDigitalFailureDetails.builder()
                         			.address( address )
                         			.build()
                         )
@@ -115,32 +113,20 @@ public class ReceivePecActionHandler extends AbstractActionHandler {
 		                	.build()
 		        )
 		        .payload( PnExtChnPaperEventPayload.builder()
-		    				.urlCallBack( "urlCallBack" )
-		    				.documento( PnExtChnPaperEventPayloadDocument.builder()
-		    								.iun( action.getIun() )
-		    								.codiceAtto( "codiceAtto" )
-		    								.numeroCronologico( 1 )
-		    								.parteIstante( "parteIstante" )
-		    								.procuratore( "procuratore" )
-		    								.ufficialeGiudiziario( "ufficialeGiudiziario" )
-		    								.build()
-		    				)
-		    				.mittente( PnExtChnPaperEventPayloadSender.builder()
-		    							.paMittente( notification.getSender().getPaId() )
-		    							.pecMittente( "pecMittente" )
-		    							.build()
-		    				)
-		    				.destinatario( PnExtChnPaperEventPayloadReceiver.builder()
-		    								.destinatario( recipient.getDenomination() )
-		    								.codiceFiscale( recipient.getTaxId() )
-		    								.presso( recipient.getPhysicalAddress().getAt() )
-		    								.indirizzo( recipient.getPhysicalAddress().getAddress() )
-		    								.specificaIndirizzo( "specificaIndirizzo" )
-		    								.cap( recipient.getPhysicalAddress().getZip() )
-		    								.comune( recipient.getPhysicalAddress().getMunicipality() )
-		    								.provincia( recipient.getPhysicalAddress().getProvince() )
-		    								.build()
-		    				)
+		        			.iun( action.getIun() )
+		        			.requestCorrelationId( "mock:requestCorrelationId" )
+		        			.destinationAddress( PhysicalAddress.builder()
+		        									.at( recipient.getPhysicalAddress().getAt() )
+		        									.address( recipient.getPhysicalAddress().getAddress() )
+		        									.addressDetails( recipient.getPhysicalAddress().getAddressDetails() )
+		        									.zip( recipient.getPhysicalAddress().getZip() )
+		        									.municipality( recipient.getPhysicalAddress().getMunicipality())
+		        									.province( recipient.getPhysicalAddress().getProvince())
+		        									.foreignState( recipient.getPhysicalAddress().getForeignState() )
+		        									.build())
+		        			.communicationType( "mock:communicationType" )
+		        			.serviceLevel( "mock:serviceLevel" )
+		        			.senderDenomination( notification.getSender().getPaDenomination() )
 		    				.build()
 		        )
 		        .build();
