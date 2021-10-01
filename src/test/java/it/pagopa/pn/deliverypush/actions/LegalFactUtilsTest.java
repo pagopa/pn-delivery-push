@@ -57,6 +57,7 @@ class LegalFactUtilsTest {
                 keyCapture.capture(),
                 bodyCapture.capture(),
                 bodyLengthCapture.capture(),
+                Mockito.anyString(),
                 mapCapture.capture()
         );
         
@@ -84,7 +85,13 @@ class LegalFactUtilsTest {
         legalFactUtils.saveLegalFact(iun2, legalFactName, legalFact2, metadata);
 
         //Then
-        Mockito.verify(fileStorage, Mockito.times(2)).putFileVersion(Mockito.anyString(), Mockito.any(InputStream.class), Mockito.anyLong(), Mockito.anyMap());
+        Mockito.verify(fileStorage, Mockito.times(2)).putFileVersion(
+                Mockito.anyString(),
+                Mockito.any(InputStream.class),
+                Mockito.anyLong(),
+                Mockito.anyString(),
+                Mockito.anyMap()
+            );
     }
 
     public byte[] readByte(InputStream inputStream) throws IOException {

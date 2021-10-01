@@ -158,7 +158,7 @@ class ChooseDeliveryModeActionHandlerTest {
                                         .build())
                                 .build()
                 ))
-                .documents(Arrays.asList(
+                /*.documents(Arrays.asList(
                         NotificationAttachment.builder()
                                 .savedVersionId("v01_doc00")
                                 .digests(NotificationAttachment.Digests.builder()
@@ -177,7 +177,7 @@ class ChooseDeliveryModeActionHandlerTest {
                                 .contentType("application/pdf")
                                 .body("Ym9keV8wMg==")
                                 .build()
-                ))
+                ))*/
                 .build();
     }
 

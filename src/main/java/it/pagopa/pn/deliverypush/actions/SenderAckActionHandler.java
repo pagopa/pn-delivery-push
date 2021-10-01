@@ -3,7 +3,6 @@ package it.pagopa.pn.deliverypush.actions;
 import java.time.Instant;
 import java.util.stream.Collectors;
 
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import org.springframework.stereotype.Component;
 
 import it.pagopa.pn.api.dto.notification.Notification;

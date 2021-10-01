@@ -36,10 +36,10 @@ public class LegalFactUtils {
 	}
     
     public void saveLegalFact(String iun, String name, byte[] legalFact, Map<String, String> metadata) {
-    	String key = iun + "/legalfacts/" + name + ".pdf";
+    	String key = legalfactMetadataUtils.fullKey( iun, name );
         try {
         	try (InputStream bodyStream = new ByteArrayInputStream(legalFact)) {
-                fileStorage.putFileVersion(key, bodyStream, legalFact.length, metadata);
+                fileStorage.putFileVersion(key, bodyStream, legalFact.length, "application/pdf", metadata);
             }
         } catch (IOException exc) {
         	String errMsg = "Error while saving file on storage: " + key + ".";
