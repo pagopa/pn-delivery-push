@@ -37,19 +37,22 @@ class SendPecActionHandlerTest {
     private ActionsPool actionsPool;
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private SendPecActionHandler handler;
-
+    private ExtChnEventUtils extChnEventUtils;
+    
     @BeforeEach
     void setup() {
         pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
         pecRequestProducer = Mockito.mock(MomProducer.class);
         paperRequestProducer = Mockito.mock(MomProducer.class);
         timelineDao = Mockito.mock(TimelineDao.class);
+        extChnEventUtils = Mockito.mock(ExtChnEventUtils.class);
         handler = new SendPecActionHandler(
                 timelineDao,
                 actionsPool,
                 pecRequestProducer,
                 pnDeliveryPushConfigs,
-                paperRequestProducer
+                paperRequestProducer,
+                extChnEventUtils
         );
         TimeParams times = new TimeParams();
         times.setRecipientViewMaxTime(Duration.ZERO);
@@ -93,7 +96,10 @@ class SendPecActionHandlerTest {
         handler.handleAction(action, notification);
 
         //Then
-        Mockito.verify(pecRequestProducer).push(Mockito.any(PnExtChnPecEvent.class));
+        //Mockito.verify(pecRequestProducer).push(Mockito.any(PnExtChnPecEvent.class));
+        Mockito.verify(pecRequestProducer).push( extChnEventUtils.buildSendPecRequest(Mockito.any(Action.class), 
+        		Mockito.any(Notification.class), Mockito.any(NotificationRecipient.class), Mockito.any(DigitalAddress.class)) );
+       
     }
 
     @Test

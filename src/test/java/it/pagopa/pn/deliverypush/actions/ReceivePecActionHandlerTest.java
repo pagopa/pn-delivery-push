@@ -36,6 +36,7 @@ class ReceivePecActionHandlerTest {
     private ReceivePecActionHandler handler;
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private MomProducer<PnExtChnPaperEvent> paperRequestProducer;
+    private ExtChnEventUtils extChnEventUtils;
     
     @BeforeEach
     public void setup() {
@@ -43,11 +44,13 @@ class ReceivePecActionHandlerTest {
         actionsPool = Mockito.mock(ActionsPool.class);
         pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
         paperRequestProducer = Mockito.mock(MomProducer.class);
+        extChnEventUtils = Mockito.mock(ExtChnEventUtils.class);
         handler = new ReceivePecActionHandler(
                 timelineDao,
                 actionsPool,
                 pnDeliveryPushConfigs,
-                paperRequestProducer
+                paperRequestProducer,
+                extChnEventUtils
         );
         TimeParams times = new TimeParams();
         times.setRecipientViewMaxTime(Duration.ZERO);

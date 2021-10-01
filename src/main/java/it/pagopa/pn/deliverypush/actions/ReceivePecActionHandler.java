@@ -1,21 +1,17 @@
 package it.pagopa.pn.deliverypush.actions;
 
-import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
-import it.pagopa.pn.api.dto.events.EventPublisher;
-import it.pagopa.pn.api.dto.events.EventType;
+import it.pagopa.pn.api.dto.events.CommunicationType;
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
-import it.pagopa.pn.api.dto.events.PnExtChnPaperEventPayload;
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
-import it.pagopa.pn.api.dto.events.StandardEventHeader;
+import it.pagopa.pn.api.dto.events.ServiceLevelType;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
 import it.pagopa.pn.api.dto.notification.timeline.SendDigitalDetails;
 import it.pagopa.pn.api.dto.notification.timeline.SendDigitalFailureDetails;
@@ -34,11 +30,13 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 public class ReceivePecActionHandler extends AbstractActionHandler {
 
 	private final MomProducer<PnExtChnPaperEvent> paperRequestProducer;
+	private final ExtChnEventUtils extChnEventUtils;
 	
 	public ReceivePecActionHandler(TimelineDao timelineDao, ActionsPool actionsPool, 
-			PnDeliveryPushConfigs pnDeliveryPushConfigs, MomProducer<PnExtChnPaperEvent> paperRequestProducer) {
+			PnDeliveryPushConfigs pnDeliveryPushConfigs, MomProducer<PnExtChnPaperEvent> paperRequestProducer, ExtChnEventUtils extChnEventUtils) {
         super( timelineDao, actionsPool , pnDeliveryPushConfigs);
         this.paperRequestProducer = paperRequestProducer;
+        this.extChnEventUtils = extChnEventUtils;
     }
 
     @Override
@@ -60,7 +58,8 @@ public class ReceivePecActionHandler extends AbstractActionHandler {
             // invio richiesta via raccomandata e registro evento timeline definitivo fallimento notifica digitale
             if ( nextAction.getType().equals( ActionType.SEND_PAPER ) ) {
             	pecDeliveryFailure = true;
-            	this.paperRequestProducer.push( buildSendPaperRequest( action, notification ) );
+            	this.paperRequestProducer.push( extChnEventUtils.buildSendPaperRequest( action, notification, 
+            			CommunicationType.RECIEVED_DELIVERY_NOTICE, ServiceLevelType.SIMPLE_REGISTERED_LETTER ) );
             }
         }
 
@@ -99,38 +98,6 @@ public class ReceivePecActionHandler extends AbstractActionHandler {
             throw new PnInternalException( "Addresses list not found!!! Needed for action " + action );
         }
     }
-
-	private PnExtChnPaperEvent buildSendPaperRequest (Action action, Notification notification) {
-		NotificationRecipient recipient = notification.getRecipients().get( action.getRecipientIndex() );
-		
-		return PnExtChnPaperEvent.builder()
-		        .header( StandardEventHeader.builder()
-		                	.iun( action.getIun() )
-		                	.eventId( action.getActionId() )
-		                	.eventType( EventType.SEND_PAPER_REQUEST.name() )
-		                	.publisher( EventPublisher.DELIVERY_PUSH.name() )
-		                	.createdAt( Instant.now() )
-		                	.build()
-		        )
-		        .payload( PnExtChnPaperEventPayload.builder()
-		        			.iun( action.getIun() )
-		        			.requestCorrelationId( "mock:requestCorrelationId" )
-		        			.destinationAddress( PhysicalAddress.builder()
-		        									.at( recipient.getPhysicalAddress().getAt() )
-		        									.address( recipient.getPhysicalAddress().getAddress() )
-		        									.addressDetails( recipient.getPhysicalAddress().getAddressDetails() )
-		        									.zip( recipient.getPhysicalAddress().getZip() )
-		        									.municipality( recipient.getPhysicalAddress().getMunicipality())
-		        									.province( recipient.getPhysicalAddress().getProvince())
-		        									.foreignState( recipient.getPhysicalAddress().getForeignState() )
-		        									.build())
-		        			.communicationType( "mock:communicationType" )
-		        			.serviceLevel( "mock:serviceLevel" )
-		        			.senderDenomination( notification.getSender().getPaDenomination() )
-		    				.build()
-		        )
-		        .build();
-	}
 
     @Override
     public ActionType getActionType() {
