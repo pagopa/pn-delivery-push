@@ -22,7 +22,8 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 
 @Component
 public class LegalFactUtils {
-    private final FileStorage fileStorage;
+	public static final String LEGALFACTS_MEDIATYPE_STRING = "application/pdf";
+	private final FileStorage fileStorage;
     private final LegalFactPdfGeneratorUtils pdfUtils;
     private final LegalfactsMetadataUtils legalfactMetadataUtils;
 
@@ -36,10 +37,10 @@ public class LegalFactUtils {
 	}
     
     public void saveLegalFact(String iun, String name, byte[] legalFact, Map<String, String> metadata) {
-    	String key = iun + "/legalfacts/" + name + ".pdf";
+    	String key = legalfactMetadataUtils.fullKey( iun, name );
         try {
         	try (InputStream bodyStream = new ByteArrayInputStream(legalFact)) {
-                fileStorage.putFileVersion(key, bodyStream, legalFact.length, metadata);
+                fileStorage.putFileVersion(key, bodyStream, legalFact.length, LEGALFACTS_MEDIATYPE_STRING, metadata);
             }
         } catch (IOException exc) {
         	String errMsg = "Error while saving file on storage: " + key + ".";

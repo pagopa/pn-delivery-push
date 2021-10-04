@@ -82,14 +82,16 @@ public class LegalFactPdfGeneratorUtils {
 	    		+ "1 e 2, del DPCM del - ........, sono indicati unitamente al loro domicilio digitale o in assenza al\n"
 	    		+ "loro indirizzo fisico utile ai fini della notificazione richiesta:";
 	    
-	    String paragraph4 = "";
+	    StringBuilder paragraph4 = new StringBuilder();
 	    for ( NotificationRecipient recipient : notification.getRecipients() ) {
-		    paragraph4 += "nome e cognome/ragione sociale %s, C.F. %s "
-		    		+ "domicilio digitale %s, indirizzo fisico %s;\n\n";
-		    paragraph4 = String.format( paragraph4, recipient.getDenomination(),
-													recipient.getTaxId(),
-													recipient.getDigitalDomicile().getAddress(),
-													nullSafePhysicalAddressToString( recipient ) );
+		    paragraph4.append( String.format(
+		    		"nome e cognome/ragione sociale %s, C.F. %s domicilio digitale %s, indirizzo fisico %s;",
+					recipient.getDenomination(),
+					recipient.getTaxId(),
+					recipient.getDigitalDomicile().getAddress(),
+					nullSafePhysicalAddressToString( recipient )
+				))
+				.append("\n\n");
 		}
 	
 	    document.add( new Paragraph( PARAGRAPH1 ) );
@@ -98,7 +100,7 @@ public class LegalFactPdfGeneratorUtils {
 	    document.add( Chunk.NEWLINE );
 	    document.add( new Paragraph( paragraph3 ) );
 	    document.add( Chunk.NEWLINE );
-	    document.add( new Paragraph( paragraph4 ) );
+	    document.add( new Paragraph( paragraph4.toString() ) );
 	    
 	    document.close();
 		writer.close();

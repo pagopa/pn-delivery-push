@@ -121,26 +121,6 @@ class SendPecActionHandlerTest {
                                         .build())
                                 .build()
                 ))
-                .documents(Arrays.asList(
-                        NotificationAttachment.builder()
-                                .savedVersionId("v01_doc00")
-                                .digests(NotificationAttachment.Digests.builder()
-                                        .sha256("sha256_doc00")
-                                        .build()
-                                )
-                                .contentType("application/pdf")
-                                .body("Ym9keV8wMQ==")
-                                .build(),
-                        NotificationAttachment.builder()
-                                .savedVersionId("v01_doc01")
-                                .digests(NotificationAttachment.Digests.builder()
-                                        .sha256("sha256_doc01")
-                                        .build()
-                                )
-                                .contentType("application/pdf")
-                                .body("Ym9keV8wMg==")
-                                .build()
-                ))
                 .build();
     }
 }
