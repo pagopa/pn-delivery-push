@@ -38,7 +38,7 @@ class ExtChnEventUtilsTest {
     					.iun( notification.getIun() )
     					.recipientIndex( 0 )
     					.notBefore( Instant.now() )
-    					.type( ActionType.SEND_PAPER )
+    					.type( ActionType.PEC_FAIL_SEND_PAPER )
     					.build();
     
     	//WHEN

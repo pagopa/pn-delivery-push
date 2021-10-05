@@ -71,21 +71,21 @@ public enum ActionType {
             );
         }
     },
-    SEND_PAPER() {
+    PEC_FAIL_SEND_PAPER() {
         @Override
         public String buildActionId(Action action) {
             return String.format(
-                    "%s_send_paper_rec%d",
+                    "%s_send_paper_after_digital_rec%d",
                     action.getIun(),
                     action.getRecipientIndex()
                 );
         }
     },
-    RECEIVE_PAPER() {
+    PEC_FAIL_RECEIVE_PAPER() {
         @Override
         public String buildActionId(Action action) {
             return String.format(
-                    "%s_send_paper_result_rec%d",
+                    "%s_receive_paper_after_digital_rec%d",
                     action.getIun(),
                     action.getRecipientIndex()
             );

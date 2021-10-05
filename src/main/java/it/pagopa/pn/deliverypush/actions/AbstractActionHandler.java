@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
@@ -49,7 +50,7 @@ public abstract class AbstractActionHandler implements ActionHandler {
 
         return row.map( el -> timelineDetailsClass.cast( el.getDetails() ) );
     }
-    protected Optional<Action> buildNextSendAction(Action action ) {
+    protected Action buildNextSendAction(Action action ) {
         boolean nextIsInFirstRound = FIRST_ROUND.equals( action.getRetryNumber() )
                 && ! DigitalAddressSource.GENERAL.equals( action.getDigitalAddressSource() );
 
@@ -72,19 +73,18 @@ public abstract class AbstractActionHandler implements ActionHandler {
         }
         // If neither first nor second round: we have done with send attempt and can proceed with paper delivery request
         else {
-            //nextAction = null;
-        	nextAction = buildSendPaperAction( action );
+            nextAction = buildSendPaperAfterPecAction( action );
         }
 
-        return Optional.ofNullable( nextAction );
+        return nextAction;
     }
 
-    protected Action buildSendPaperAction(Action action ) {
+    protected Action buildSendPaperAfterPecAction(Action action ) {
     	return Action.builder()
                 .iun( action.getIun() )
                 .recipientIndex( action.getRecipientIndex() )
                 .notBefore( Instant.now() )
-                .type( ActionType.SEND_PAPER )
+                .type( ActionType.PEC_FAIL_SEND_PAPER )
                 .build();
     }
     
@@ -98,7 +98,7 @@ public abstract class AbstractActionHandler implements ActionHandler {
                 .build();
     }
 
-    protected Action buildSendCourtesyAction(Action action ) {
+    protected Action buildEndofDigitalWorkflowAction(Action action ) {
         return Action.builder()
                 .iun(action.getIun())
                 .recipientIndex(action.getRecipientIndex())
@@ -136,6 +136,11 @@ public abstract class AbstractActionHandler implements ActionHandler {
         }
         else {
             throw new PnInternalException("Pec workflow: not supported round " + roundNumber);
+        }
+
+        Instant now = Instant.now();
+        if( now.isAfter( actionTime )) {
+            actionTime = now;
         }
 
         return Action.builder()

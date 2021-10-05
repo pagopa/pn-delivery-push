@@ -150,11 +150,11 @@ class AbstractActionHandlerTest {
                 .build();
 
         //When
-        Optional<Action> nextAction = abstractActionHandler.buildNextSendAction(action1);
+        Action nextAction = abstractActionHandler.buildNextSendAction(action1);
 
         //Then
-        Assertions.assertEquals(action1.getIun(), nextAction.get().getIun(), "Different Iun");
-        Assertions.assertEquals(1, nextAction.get().getRetryNumber());
+        Assertions.assertEquals(action1.getIun(), nextAction.getIun(), "Different Iun");
+        Assertions.assertEquals(1, nextAction.getRetryNumber());
 
     }
 
@@ -176,11 +176,11 @@ class AbstractActionHandlerTest {
                 .build();
 
         //When
-        Optional<Action> nextAction = abstractActionHandler.buildNextSendAction(action2);
+        Action nextAction = abstractActionHandler.buildNextSendAction(action2);
 
         //Then
-        Assertions.assertEquals(action2.getIun(), nextAction.get().getIun(), "Different Iun");
-        Assertions.assertEquals(2, nextAction.get().getRetryNumber(), "Different retry number");
+        Assertions.assertEquals(action2.getIun(), nextAction.getIun(), "Different Iun");
+        Assertions.assertEquals(2, nextAction.getRetryNumber(), "Different retry number");
 
     }
 
@@ -202,10 +202,10 @@ class AbstractActionHandlerTest {
                 .build();
 
         //When
-        Optional<Action> nextAction = abstractActionHandler.buildNextSendAction(action2);
+        Action nextAction = abstractActionHandler.buildNextSendAction(action2);
 
         //Then
-        Assertions.assertEquals(action2.getIun(), nextAction.get().getIun(), "Different Iun");
+        Assertions.assertEquals(action2.getIun(), nextAction.getIun(), "Different Iun");
     }
 
     @Test
@@ -279,7 +279,7 @@ class AbstractActionHandlerTest {
         }
 
         @Override
-        public Optional<Action> buildNextSendAction(Action action) {
+        public Action buildNextSendAction(Action action) {
             return super.buildNextSendAction(action);
         }
 

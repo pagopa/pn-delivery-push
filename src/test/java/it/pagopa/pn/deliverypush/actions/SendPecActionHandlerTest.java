@@ -51,7 +51,6 @@ class SendPecActionHandlerTest {
                 actionsPool,
                 pecRequestProducer,
                 pnDeliveryPushConfigs,
-                paperRequestProducer,
                 extChnEventUtils
         );
         TimeParams times = new TimeParams();

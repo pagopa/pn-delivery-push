@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.actions;
 
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -12,7 +11,6 @@ import org.mockito.Mockito;
 
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
 import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
@@ -28,18 +26,18 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 
-class ReceiveRegisteredLetterDeliveredActionHandlerTest {
+class PecFailReceivePaperFeedbackActionHandlerTest {
     private TimelineDao timelineDao;
     private ActionsPool actionsPool;
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
-    private ReceiveRegisteredLetterDeliveredActionHandler handler;
+    private PecFailReceivePaperFeedbackActionHandler handler;
 
     @BeforeEach
     void setup() {
         pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
         timelineDao = Mockito.mock(TimelineDao.class);
         actionsPool = Mockito.mock(ActionsPool.class);
-        handler = new ReceiveRegisteredLetterDeliveredActionHandler(
+        handler = new PecFailReceivePaperFeedbackActionHandler(
                 timelineDao,
                 actionsPool,
                 pnDeliveryPushConfigs
@@ -93,7 +91,7 @@ class ReceiveRegisteredLetterDeliveredActionHandlerTest {
         //When
         ActionType actionType = handler.getActionType();
         //Then
-        Assertions.assertEquals(ActionType.RECEIVE_PAPER, actionType, "Different Action Type");
+        Assertions.assertEquals(ActionType.PEC_FAIL_RECEIVE_PAPER, actionType, "Different Action Type");
     }
 
     private Notification newNotificationWithoutPayments() {
@@ -115,26 +113,6 @@ class ReceiveRegisteredLetterDeliveredActionHandlerTest {
                                         .type(DigitalAddressType.PEC)
                                         .address("account@dominio.it")
                                         .build())
-                                .build()
-                ))
-                .documents(Arrays.asList(
-                        NotificationAttachment.builder()
-                                .savedVersionId("v01_doc00")
-                                .digests(NotificationAttachment.Digests.builder()
-                                        .sha256("sha256_doc00")
-                                        .build()
-                                )
-                                .contentType("application/pdf")
-                                .body("Ym9keV8wMQ==")
-                                .build(),
-                        NotificationAttachment.builder()
-                                .savedVersionId("v01_doc01")
-                                .digests(NotificationAttachment.Digests.builder()
-                                        .sha256("sha256_doc01")
-                                        .build()
-                                )
-                                .contentType("application/pdf")
-                                .body("Ym9keV8wMg==")
                                 .build()
                 ))
                 .build();

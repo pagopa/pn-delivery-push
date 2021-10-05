@@ -18,29 +18,30 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 
 @Component
-public class ReceiveRegisteredLetterDeliveredActionHandler extends AbstractActionHandler {
+public class PecFailReceivePaperFeedbackActionHandler extends AbstractActionHandler {
     
-	public ReceiveRegisteredLetterDeliveredActionHandler(TimelineDao timelineDao, ActionsPool actionsPool,
-			PnDeliveryPushConfigs pnDeliveryPushConfigs) {
+	public PecFailReceivePaperFeedbackActionHandler(TimelineDao timelineDao, ActionsPool actionsPool,
+                                                    PnDeliveryPushConfigs pnDeliveryPushConfigs) {
 		super(timelineDao, actionsPool, pnDeliveryPushConfigs);
 	}
     
     @Override
     public void handleAction( Action action, Notification notification ) {
-    	Action nextAction = null;
     	PnExtChnProgressStatus status = action.getResponseStatus();
         NotificationRecipient recipient = notification.getRecipients().get( action.getRecipientIndex() );
-       
-        nextAction = buildSendCourtesyAction( action );	// END_OF_DIGITAL_DELIVERY_WORKFLOW
+
+        Action nextAction = buildEndofDigitalWorkflowAction( action );	// END_OF_DIGITAL_DELIVERY_WORKFLOW
         scheduleAction( nextAction );
     	
     	// - Write timeline
         addTimelineElement( action, TimelineElement.builder()
                 .category( TimelineElementCategory.SEND_PAPER_FEEDBACK )
-                .details( new SendPaperFeedbackDetails (SendPaperDetails.builder()
-                			.address( recipient.getPhysicalAddress() )
-                			.build(),
-                            Collections.singletonList( status.name() )
+                .details( new SendPaperFeedbackDetails (
+                            SendPaperDetails.builder()
+                                .taxId( recipient.getTaxId() )
+                			    .address( recipient.getPhysicalAddress() )
+                			    .build(),
+                            Collections.singletonList( status.name())
                 ))
                 .build()
         );
@@ -48,7 +49,7 @@ public class ReceiveRegisteredLetterDeliveredActionHandler extends AbstractActio
 
     @Override
     public ActionType getActionType() {
-        return ActionType.RECEIVE_PAPER;
+        return ActionType.PEC_FAIL_RECEIVE_PAPER;
     }
 
 }

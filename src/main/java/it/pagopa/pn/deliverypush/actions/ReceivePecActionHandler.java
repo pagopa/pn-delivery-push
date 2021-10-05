@@ -5,16 +5,13 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
-import it.pagopa.pn.api.dto.events.CommunicationType;
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
-import it.pagopa.pn.api.dto.events.ServiceLevelType;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
 import it.pagopa.pn.api.dto.notification.timeline.SendDigitalDetails;
-import it.pagopa.pn.api.dto.notification.timeline.SendDigitalFailureDetails;
 import it.pagopa.pn.api.dto.notification.timeline.SendDigitalFeedbackDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
@@ -44,23 +41,14 @@ public class ReceivePecActionHandler extends AbstractActionHandler {
         Action nextAction;
         PnExtChnProgressStatus status = action.getResponseStatus();
         NotificationRecipient recipient = notification.getRecipients().get( action.getRecipientIndex() );
-        boolean pecDeliveryFailure = false;
-        	
+
         // - Se il messaggio è andato a buon fine schedula l'attesa
         if ( PnExtChnProgressStatus.OK.equals( status ) ) {
-            nextAction = buildSendCourtesyAction(action);
+            nextAction = buildEndofDigitalWorkflowAction(action);
         }
         // ... altrimenti continua
         else {
-            nextAction = buildNextSendAction( action )
-            				.orElse( buildSendPaperAction( action ) );
-            
-            // invio richiesta via raccomandata e registro evento timeline definitivo fallimento notifica digitale
-            if ( nextAction.getType().equals( ActionType.SEND_PAPER ) ) {
-            	pecDeliveryFailure = true;
-            	this.paperRequestProducer.push( extChnEventUtils.buildSendPaperRequest( action, notification, 
-            			CommunicationType.RECIEVED_DELIVERY_NOTICE, ServiceLevelType.SIMPLE_REGISTERED_LETTER ) );
-            }
+            nextAction = buildNextSendAction( action );
         }
 
         scheduleAction( nextAction );
@@ -81,18 +69,7 @@ public class ReceivePecActionHandler extends AbstractActionHandler {
                     ))
                     .build()
             );
-            
-            if ( pecDeliveryFailure ) {
-                // - WRITE TIMELINE IN CASE OF PEC PERMANENT DELIVER FAILURE
-            	addTimelineElement(action, TimelineElement.builder()
-                        .category( TimelineElementCategory.SEND_DIGITAL_DOMICILE_FAILURE )
-                        .details( SendDigitalFailureDetails.builder()
-                        			.address( address )
-                        			.build()
-                        )
-                        .build()
-                );
-            }
+
         }
         else {
             throw new PnInternalException( "Addresses list not found!!! Needed for action " + action );
