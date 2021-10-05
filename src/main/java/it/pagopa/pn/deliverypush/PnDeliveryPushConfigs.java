@@ -32,6 +32,8 @@ public class PnDeliveryPushConfigs {
         private String toExternalChannelPec;
         
         private String toExternalChannelEmail;
+        
+        private String toExternalChannelPaper;
 
         private String fromExternalChannel;
 

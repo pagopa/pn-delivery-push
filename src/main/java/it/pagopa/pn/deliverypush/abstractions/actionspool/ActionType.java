@@ -70,6 +70,26 @@ public enum ActionType {
             					action.getRecipientIndex()
             );
         }
+    },
+    PEC_FAIL_SEND_PAPER() {
+        @Override
+        public String buildActionId(Action action) {
+            return String.format(
+                    "%s_send_paper_after_digital_rec%d",
+                    action.getIun(),
+                    action.getRecipientIndex()
+                );
+        }
+    },
+    PEC_FAIL_RECEIVE_PAPER() {
+        @Override
+        public String buildActionId(Action action) {
+            return String.format(
+                    "%s_receive_paper_after_digital_rec%d",
+                    action.getIun(),
+                    action.getRecipientIndex()
+            );
+        }
     };
 
     public String buildActionId(Action action) {

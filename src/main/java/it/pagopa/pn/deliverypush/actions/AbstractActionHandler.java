@@ -49,7 +49,7 @@ public abstract class AbstractActionHandler implements ActionHandler {
 
         return row.map( el -> timelineDetailsClass.cast( el.getDetails() ) );
     }
-    protected Optional<Action> buildNextSendAction(Action action ) {
+    protected Action buildNextSendAction(Action action ) {
         boolean nextIsInFirstRound = FIRST_ROUND.equals( action.getRetryNumber() )
                 && ! DigitalAddressSource.GENERAL.equals( action.getDigitalAddressSource() );
 
@@ -70,14 +70,23 @@ public abstract class AbstractActionHandler implements ActionHandler {
         else if ( nextIsInSecondRound ) {
             nextAction = buildNextSendPecActionWithRound( action, SECOND_ROUND);
         }
-        // If neither first nor second round: we have done with send attempt and can wait for recipient
+        // If neither first nor second round: we have done with send attempt and can proceed with paper delivery request
         else {
-            nextAction = null;
+            nextAction = buildSendPaperAfterPecAction( action );
         }
 
-        return Optional.ofNullable( nextAction );
+        return nextAction;
     }
 
+    protected Action buildSendPaperAfterPecAction(Action action ) {
+    	return Action.builder()
+                .iun( action.getIun() )
+                .recipientIndex( action.getRecipientIndex() )
+                .notBefore( Instant.now() )
+                .type( ActionType.PEC_FAIL_SEND_PAPER )
+                .build();
+    }
+    
     protected Action buildWaitRecipientTimeoutAction(Action action ) {
         Duration recipientViewMaxTime = pnDeliveryPushConfigs.getTimeParams().getRecipientViewMaxTime();
         return Action.builder()
@@ -88,7 +97,7 @@ public abstract class AbstractActionHandler implements ActionHandler {
                 .build();
     }
 
-    protected Action buildSendCourtesyAction(Action action ) {
+    protected Action buildEndofDigitalWorkflowAction(Action action ) {
         return Action.builder()
                 .iun(action.getIun())
                 .recipientIndex(action.getRecipientIndex())
@@ -126,6 +135,11 @@ public abstract class AbstractActionHandler implements ActionHandler {
         }
         else {
             throw new PnInternalException("Pec workflow: not supported round " + roundNumber);
+        }
+
+        Instant now = Instant.now();
+        if( now.isAfter( actionTime )) {
+            actionTime = now;
         }
 
         return Action.builder()
