@@ -26,14 +26,9 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 @Component
 public class ReceivePecActionHandler extends AbstractActionHandler {
 
-	private final MomProducer<PnExtChnPaperEvent> paperRequestProducer;
-	private final ExtChnEventUtils extChnEventUtils;
-	
-	public ReceivePecActionHandler(TimelineDao timelineDao, ActionsPool actionsPool, 
+	public ReceivePecActionHandler(TimelineDao timelineDao, ActionsPool actionsPool,
 			PnDeliveryPushConfigs pnDeliveryPushConfigs, MomProducer<PnExtChnPaperEvent> paperRequestProducer, ExtChnEventUtils extChnEventUtils) {
         super( timelineDao, actionsPool , pnDeliveryPushConfigs);
-        this.paperRequestProducer = paperRequestProducer;
-        this.extChnEventUtils = extChnEventUtils;
     }
 
     @Override

@@ -125,14 +125,14 @@ public class SqsEventReceiver implements EventReceiver {
     private String buildHeaderString(Map<String, MessageAttributeValue> header) {
         boolean first = true;
         StringBuilder json = new StringBuilder("{");
-        for( String key : header.keySet() ) {
+        for( Map.Entry<String, MessageAttributeValue> entry : header.entrySet() ) {
             if( !first ) {
                 json.append(", ");
             }
             json.append("\"")
-                    .append( key )
+                    .append( entry.getKey() )
                     .append("\":\"")
-                    .append( header.get( key ).stringValue() )
+                    .append( entry.getValue().stringValue() )
                     .append("\" ");
             first = false;
         }

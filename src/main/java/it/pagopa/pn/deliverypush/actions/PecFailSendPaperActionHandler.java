@@ -42,7 +42,7 @@ public class PecFailSendPaperActionHandler extends AbstractActionHandler {
 
         List<SendDigitalFailureDetails.FailedContact> usedDigitalDomicile = timelineDao.getTimeline( action.getIun() )
                 .stream()
-                .filter( el -> TimelineElementCategory.SEND_DIGITAL_DOMICILE_FEEDBACK.equals( el.getCategory()))
+                .filter( el -> selectPecTimeline(el, recipient))
                 .map( el -> SendDigitalFailureDetails.FailedContact.builder()
                         .when( el.getTimestamp())
                         .address( ((SendDigitalFeedbackDetails)el.getDetails()).getAddress() )
@@ -71,6 +71,19 @@ public class PecFailSendPaperActionHandler extends AbstractActionHandler {
                 .build()
         );
 
+    }
+
+    private boolean selectPecTimeline(TimelineElement el, NotificationRecipient recipient) {
+        boolean ok;
+        boolean sendPecCategory = TimelineElementCategory.SEND_DIGITAL_DOMICILE_FEEDBACK.equals(el.getCategory());
+        if ( sendPecCategory ) {
+            SendDigitalFeedbackDetails details = (SendDigitalFeedbackDetails) el.getDetails();
+            ok = recipient.getTaxId().equalsIgnoreCase(details.getTaxId());
+        }
+        else {
+            ok = false;
+        }
+        return ok;
     }
 
     @Override
