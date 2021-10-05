@@ -4,16 +4,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import it.pagopa.pn.api.dto.events.IEventType;
+import it.pagopa.pn.api.dto.events.StandardEventHeader;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.sqs.SqsClient;
-import software.amazon.awssdk.services.sqs.model.DeleteMessageRequest;
-import software.amazon.awssdk.services.sqs.model.GetQueueUrlRequest;
-import software.amazon.awssdk.services.sqs.model.Message;
-import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
+import software.amazon.awssdk.services.sqs.model.*;
 
 import java.time.Duration;
 import java.util.*;
+
+import static it.pagopa.pn.api.dto.events.StandardEventHeader.*;
 
 @Slf4j
 public class SqsEventReceiver implements EventReceiver {
@@ -84,13 +84,18 @@ public class SqsEventReceiver implements EventReceiver {
                 .queueUrl( queueUrl )
                 .waitTimeSeconds( maxPollSeconds )
                 .maxNumberOfMessages( 10 )
+                .messageAttributeNames( "All" )
                 .build();
 
         for( Message awsMessage: sqs.receiveMessage(receiveRequest).messages() ) {
             String evtType = computeEventType( awsMessage );
-
-            Object msg = parseMessage( evtType, awsMessage.body() );
-            callHandler(evtType, msg);
+            if( evtType != null ) {
+                Object msg = parseMessage( evtType, awsMessage );
+                callHandler(evtType, msg);
+            }
+            else {
+                log.error("Unknown event type headers:" + buildHeaderString( awsMessage.messageAttributes() ) + "  body: " + awsMessage.body() );
+            }
             deleteMessage( awsMessage );
         }
 
@@ -103,16 +108,37 @@ public class SqsEventReceiver implements EventReceiver {
     }
 
     private String computeEventType(Message awsMessage) {
-        String msgText = awsMessage.body();
-        return  msgText.replaceFirst(".*\"eventType\":\"([^\"]+)\".*", "$1");
+        MessageAttributeValue eventTypeAttribute = awsMessage.messageAttributes().get(PN_EVENT_HEADER_EVENT_TYPE);
+        return eventTypeAttribute == null ? null : eventTypeAttribute.stringValue();
     }
 
-    private <T> T parseMessage(String evtType, String body) {
+    private <T> T parseMessage(String evtType, Message awsMessage ) {
         try {
-            return jsonParsers.get( evtType ).readValue( body );
+            String header = buildHeaderString( awsMessage.messageAttributes() );
+            String body = awsMessage.body();
+            return jsonParsers.get( evtType ).readValue( "{ \"header\": " + header + ", \"payload\": " + body + "}" );
         } catch (JsonProcessingException exc) {
             throw new PnInternalException( "Parsing event", exc );
         }
+    }
+
+    private String buildHeaderString(Map<String, MessageAttributeValue> header) {
+        boolean first = true;
+        StringBuilder json = new StringBuilder("{");
+        for( String key : header.keySet() ) {
+            if( !first ) {
+                json.append(", ");
+            }
+            json.append("\"")
+                    .append( key )
+                    .append("\":\"")
+                    .append( header.get( key ).stringValue() )
+                    .append("\" ");
+            first = false;
+        }
+        json.append(" }");
+
+        return json.toString();
     }
 
     private void deleteMessage(Message awsMsg) {
