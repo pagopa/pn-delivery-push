@@ -37,14 +37,15 @@ public class ExtChannelResponseEventHandler extends AbstractEventHandler<PnExtCh
         Optional<Action> sendAction = actionsPool.loadActionById( sendActionId );
 
         if( sendAction.isPresent() ) {
+            ActionType receiveActionType = sendToReceiveActionType( sendAction.get() );
             Action extChResponseAction = sendAction.get().toBuilder()
-                    .type( ActionType.RECEIVE_PEC )
+                    .type( receiveActionType )
                     .notBefore( header.getCreatedAt().plus( pnDeliveryPushConfigs.getTimeParams().getTimeBetweenExtChReceptionAndMessageProcessed() ) )
                     .responseStatus( evt.getPayload().getStatusCode() )
                     .build();
 
             actionsPool.scheduleFutureAction( extChResponseAction.toBuilder()
-                    .actionId( ActionType.RECEIVE_PEC.buildActionId( extChResponseAction ))
+                    .actionId( receiveActionType.buildActionId( extChResponseAction ))
                     .build()
             );
         }
@@ -52,6 +53,17 @@ public class ExtChannelResponseEventHandler extends AbstractEventHandler<PnExtCh
             throw new PnInternalException("Action with id " + sendActionId + " not found");
         }
 
+    }
+
+    private ActionType sendToReceiveActionType( Action sendAction) {
+        ActionType result;
+        switch ( sendAction.getType() ) {
+            case SEND_PEC: result = ActionType.RECEIVE_PEC; break;
+            case PEC_FAIL_SEND_PAPER: result = ActionType.PEC_FAIL_RECEIVE_PAPER; break;
+            default:
+                throw new PnInternalException( sendAction.getType() + " is not a send");
+        }
+        return result;
     }
 
 }
