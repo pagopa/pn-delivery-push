@@ -78,7 +78,12 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
                                 .payload(PnExtChnEmailEventPayload.builder()
                                         .iun(notification.getIun())
                                         .senderId(notification.getSender().getPaId())
+                                        .senderDenomination("NOT HANDLED FROM in PoC: Id=" + notification.getSender().getPaId())
+                                        .senderEmailAddress("Not required")
+                                        .recipientDenomination(recipient.getDenomination())
+                                        .recipientTaxId(recipient.getTaxId())
                                         .emailAddress(emailAddress.getAddress())
+                                        .shipmentDate(Instant.now())
                                         .build()
                                 )
                                 .build()
@@ -108,7 +113,7 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
                 .build()
             );
     }
-
+        
     @Override
     public ActionType getActionType() {
         return ActionType.CHOOSE_DELIVERY_MODE;

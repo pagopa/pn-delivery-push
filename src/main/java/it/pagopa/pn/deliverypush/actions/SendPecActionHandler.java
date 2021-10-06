@@ -60,8 +60,9 @@ public class SendPecActionHandler extends AbstractActionHandler {
                                 .recipientDenomination( recipient.getDenomination() )
                                 .senderId( notification.getSender().getPaId() )
                                 .senderDenomination( "NOT HANDLED FROM in PoC: Id=" + notification.getSender().getPaId() )
-                                .senderPecAddress("Not required")
+                                .senderPecAddress( "Not required" )
                                 .pecAddress( address.getAddress() )
+                                .shipmentDate( Instant.now() )
                                 .build()
                             )
                         .build()
@@ -92,7 +93,7 @@ public class SendPecActionHandler extends AbstractActionHandler {
         }
 
     }
-
+    
     @Override
     public ActionType getActionType() {
         return ActionType.SEND_PEC;
