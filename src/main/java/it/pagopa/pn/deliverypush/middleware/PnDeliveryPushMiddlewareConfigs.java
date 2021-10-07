@@ -51,8 +51,8 @@ public class PnDeliveryPushMiddlewareConfigs {
                 sqs,
                 cfg.getTopics().getFromExternalChannel(),
                 objMapper,
-                Collections.singletonList( handler ),
-                Collections.singletonList( EventType.SEND_PEC_RESPONSE )
+                Arrays.asList( handler, handler ),
+                Arrays.asList( EventType.SEND_PEC_RESPONSE, EventType.SEND_PAPER_RESPONSE )
             );
     }
 
