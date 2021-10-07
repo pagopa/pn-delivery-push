@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
@@ -114,10 +115,23 @@ public abstract class AbstractActionHandler implements ActionHandler {
 
         // FIXME: se non c'è il risultato verificare che manchi anche la richiesta di invio: se c'è è un anomalia.
 
-        Optional<TimelineElement> firstAttemptResult = timelineDao.getTimeline( action.getIun() )
-            .stream()
+        Set<TimelineElement> timeline = timelineDao.getTimeline(action.getIun());
+
+        Optional<TimelineElement> firstAttemptResult = timeline.stream()
             .filter( timelineElement -> firstAttemptResultActionId.equals( timelineElement.getElementId() ))
             .findFirst();
+
+        if( firstAttemptResult.isEmpty() ) {
+            String firstAttemptActionId = ActionType.SEND_PEC.buildActionId( action.toBuilder()
+                    .retryNumber( 1 )
+                    .build()
+                );
+
+            firstAttemptResult = timeline.stream()
+                    .filter( timelineElement -> firstAttemptActionId.equals( timelineElement.getElementId() ))
+                    .findFirst();
+
+        }
 
         return firstAttemptResult
                 .map( TimelineElement::getTimestamp )
