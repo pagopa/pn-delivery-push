@@ -3,6 +3,9 @@ package it.pagopa.pn.deliverypush.actions;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -41,10 +44,18 @@ class LegalFactPdfGeneratorUtilsTest {
 	
 	@Test
 	void successConversionInstantToDate() {
+		// GIVEN
 		LegalFactPdfGeneratorUtils utils = new LegalFactPdfGeneratorUtils( timelineDao );
-		Instant testDate = Instant.parse("2021-09-03T13:03:00.000Z");
-		String date = utils.instantToDate(testDate);
-		Assertions.assertEquals("2021-09-03 13:03", date);
+		Instant testDateUTC = Instant.now(); //parse("2021-09-03T13:03:00.000Z");
+
+		// WHEN
+		String convertedDate = utils.instantToDate( testDateUTC );
+		
+		ZonedDateTime zdt = testDateUTC.atZone( ZoneId.systemDefault() );
+		String zonedTestDate = zdt.format( DateTimeFormatter.ofPattern( "dd/MM/yyyy HH:mm" ) );
+		
+		// THEN
+		Assertions.assertEquals(zonedTestDate, convertedDate);
 	}	
 	
 	@Test

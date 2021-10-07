@@ -2,9 +2,9 @@ package it.pagopa.pn.deliverypush.actions;
 
 import java.io.ByteArrayOutputStream;
 import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.temporal.ChronoField;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -182,14 +182,14 @@ public class LegalFactPdfGeneratorUtils {
 	    	TimelineElement row = timelineElement(action);
 	    	Instant timestamp = row.getTimestamp();
 	    	 
-	    	String tmpParagraph3 = null;
+	    	String tmpParagraph3 = "";
 	    	if (PnExtChnProgressStatus.OK.equals( status )) {
 	    		tmpParagraph3 += "il relativo avviso di avvenuta ricezione in "
 	    				+ "formato elettronico è stato consegnato in data %s";
 	    		tmpParagraph3 = String.format( tmpParagraph3, this.instantToDate( timestamp ) );
 	    	} else {
 	    		tmpParagraph3 += "in data %s è "
-	    				+ "stato ricevuto il relativo messaggio di mancato recapito al domicilio digitale già indicato";
+	    				+ "stato ricevuto il relativo messaggio di mancato recapito al domicilio digitale già indicato.";
 	    		tmpParagraph3 = String.format(tmpParagraph3, this.instantToDate( timestamp ) );
 	    	}
 	    	
@@ -216,15 +216,12 @@ public class LegalFactPdfGeneratorUtils {
         }
 		return row.get();
 	}
-	
+	    
     public String instantToDate(Instant instant) {
-        OffsetDateTime odt = instant.atOffset(ZoneOffset.UTC);
-        int year = odt.get(ChronoField.YEAR_OF_ERA);
-        int month = odt.get(ChronoField.MONTH_OF_YEAR);
-        int day = odt.get(ChronoField.DAY_OF_MONTH);
-		int hour = odt.get(ChronoField.HOUR_OF_DAY);
-		int min = odt.get(ChronoField.MINUTE_OF_HOUR);
-        return String.format("%04d-%02d-%02d %02d:%02d", year, month, day, hour, min);
+    	ZoneId zoneId = ZoneId.systemDefault();
+		ZonedDateTime zdt = ZonedDateTime.ofInstant(instant, zoneId);
+		
+		return zdt.format( DateTimeFormatter.ofPattern( "dd/MM/yyyy HH:mm" ) );
     }
     
 	private String nullSafePhysicalAddressToString( NotificationRecipient recipient ) {
@@ -243,6 +240,5 @@ public class LegalFactPdfGeneratorUtils {
 		return result;
 	}
 	
-	
-    
 }
+
