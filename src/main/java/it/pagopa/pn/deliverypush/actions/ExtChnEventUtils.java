@@ -40,7 +40,7 @@ public class ExtChnEventUtils {
 		        			.recipientDenomination( recipient.getDenomination() )
 		        			.communicationType( communicationType )
 		        			.serviceLevel( serviceLevelType )
-		        			.senderDenomination( "NOT HANDLED in PoC: Id=" + notification.getSender().getPaId() )
+		        			.senderDenomination( notification.getSender().getPaId() )
 		    				.build()
 		        )
 		        .build();
@@ -63,7 +63,7 @@ public class ExtChnEventUtils {
 		                .recipientTaxId( recipient.getTaxId() )
 		                .recipientDenomination( recipient.getDenomination() )
 		                .senderId( notification.getSender().getPaId() )
-		                .senderDenomination( "NOT HANDLED in PoC: Id=" + notification.getSender().getPaId() )
+		                .senderDenomination( notification.getSender().getPaId() )
 		                .senderPecAddress("Not required")
 		                .pecAddress( address.getAddress() )
 		                .shipmentDate( notification.getSentAt() )
