@@ -66,7 +66,7 @@ public class ExtChnEventUtils {
 		                .senderDenomination( "NOT HANDLED in PoC: Id=" + notification.getSender().getPaId() )
 		                .senderPecAddress("Not required")
 		                .pecAddress( address.getAddress() )
-		                .shipmentDate( Instant.now() )
+		                .shipmentDate( notification.getSentAt() )
 		                .build()
 		            )
 		        .build();

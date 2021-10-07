@@ -83,7 +83,7 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
                                         .recipientDenomination(recipient.getDenomination())
                                         .recipientTaxId(recipient.getTaxId())
                                         .emailAddress(emailAddress.getAddress())
-                                        .shipmentDate(Instant.now())
+                                        .shipmentDate(notification.getSentAt())
                                         .build()
                                 )
                                 .build()
