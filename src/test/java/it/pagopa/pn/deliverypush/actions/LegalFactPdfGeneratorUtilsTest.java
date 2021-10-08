@@ -79,22 +79,6 @@ class LegalFactPdfGeneratorUtilsTest {
 		Assertions.assertEquals(actualZonedDate, actualConvertedDate);
 	}
 	
-//	@Test
-//	void successConversionInstantToDate() {
-//		// GIVEN
-//		LegalFactPdfGeneratorUtils utils = new LegalFactPdfGeneratorUtils( timelineDao );
-//		Instant testDateUTC = Instant.now(); //parse("2021-09-03T13:03:00.000Z");
-//
-//		// WHEN
-//		String convertedDate = utils.instantToDate( testDateUTC );
-//		
-//		ZonedDateTime zdt = testDateUTC.atZone( ZoneId.systemDefault() );
-//		String zonedTestDate = zdt.format( DateTimeFormatter.ofPattern( "dd/MM/yyyy HH:mm" ) );
-//		
-//		// THEN
-//		Assertions.assertEquals(zonedTestDate, convertedDate);
-//	}	
-	
 	@Test
 	void successGenerateNotificationReceivedLegalFact() throws DocumentException {
 		// GIVEN
