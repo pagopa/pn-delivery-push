@@ -1,11 +1,16 @@
 package it.pagopa.pn.deliverypush.actions;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,17 +51,33 @@ class LegalFactPdfGeneratorUtilsTest {
 	void successConversionInstantToDate() {
 		// GIVEN
 		LegalFactPdfGeneratorUtils utils = new LegalFactPdfGeneratorUtils( timelineDao );
-		Instant testDateUTC = Instant.now(); //parse("2021-09-03T13:03:00.000Z");
-
-		// WHEN
-		String convertedDate = utils.instantToDate( testDateUTC );
 		
-		ZonedDateTime zdt = testDateUTC.atZone( ZoneId.systemDefault() );
-		String zonedTestDate = zdt.format( DateTimeFormatter.ofPattern( "dd/MM/yyyy HH:mm" ) );
+		ZoneId zoneId = ZoneId.of( "Europe/Rome" );
+		
+		Instant testDateUTC = Instant.parse( "2021-03-28T01:55:00.000Z" );
+		Instant actualDateUTC = Instant.now();
+		
+		// WHEN
+		LocalDateTime dateBeforeDST = LocalDateTime.ofInstant( testDateUTC, ZoneOffset.UTC );
+		ZonedDateTime zonedDateBeforeDST = dateBeforeDST.atZone( zoneId );
+		String convertedDateBeforeDST = utils.instantToDate( testDateUTC ); 
+		
+		ZonedDateTime zonedDateAfterDST = zonedDateBeforeDST.plus( 10, ChronoUnit.MINUTES );
+		String convertedDateAfterDST = utils.instantToDate( Instant.parse( "2021-03-28T02:05:00.000Z" ) );
+		
+		String actualConvertedDate = utils.instantToDate( actualDateUTC );
+    	LocalDateTime actualLocalDate = LocalDateTime.ofInstant(actualDateUTC, zoneId);
+		String actualZonedDate = actualLocalDate.format(DateTimeFormatter.ofPattern( "dd/MM/yyyy HH:mm" ) );
 		
 		// THEN
-		Assertions.assertEquals(zonedTestDate, convertedDate);
-	}	
+		Assertions.assertEquals( "2021-03-28T01:55+01:00[Europe/Rome]", zonedDateBeforeDST.toString() );
+		Assertions.assertEquals( "2021-03-28T03:05+02:00[Europe/Rome]", zonedDateAfterDST.toString() );
+		
+		Assertions.assertEquals( "28/03/2021 03:55", convertedDateBeforeDST );
+		Assertions.assertEquals( "28/03/2021 04:05", convertedDateAfterDST );
+		
+		Assertions.assertEquals(actualZonedDate, actualConvertedDate);
+	}
 	
 	@Test
 	void successGenerateNotificationReceivedLegalFact() throws DocumentException {
