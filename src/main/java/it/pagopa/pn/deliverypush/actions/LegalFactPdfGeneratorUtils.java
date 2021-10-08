@@ -32,7 +32,8 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Slf4j
 public class LegalFactPdfGeneratorUtils {
-	
+
+	private static final DateTimeFormatter ITALIAN_DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 	private final TimelineDao timelineDao;
 	
 	@Autowired
@@ -221,7 +222,7 @@ public class LegalFactPdfGeneratorUtils {
     	ZoneId zoneId = ZoneId.systemDefault();
 		ZonedDateTime zdt = ZonedDateTime.ofInstant(instant, zoneId);
 		
-		return zdt.format( DateTimeFormatter.ofPattern( "dd/MM/yyyy HH:mm" ) );
+		return zdt.format( ITALIAN_DATE_TIME_FORMAT );
     }
     
 	private String nullSafePhysicalAddressToString( NotificationRecipient recipient ) {
