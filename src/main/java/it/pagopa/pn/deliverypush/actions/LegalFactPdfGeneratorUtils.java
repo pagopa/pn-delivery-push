@@ -2,7 +2,9 @@ package it.pagopa.pn.deliverypush.actions;
 
 import java.io.ByteArrayOutputStream;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -217,11 +219,11 @@ public class LegalFactPdfGeneratorUtils {
 		return row.get();
 	}
 	    
-    public String instantToDate(Instant instant) {
-    	ZoneId zoneId = ZoneId.systemDefault();
-		ZonedDateTime zdt = ZonedDateTime.ofInstant(instant, zoneId);
-		
-		return zdt.format( DateTimeFormatter.ofPattern( "dd/MM/yyyy HH:mm" ) );
+    public String instantToDate(Instant instant) {    	
+    	ZoneId zoneId = ZoneId.of("Europe/Rome");
+    	LocalDateTime localDate = LocalDateTime.ofInstant(instant, zoneId);
+    	
+    	return localDate.format(DateTimeFormatter.ofPattern( "dd/MM/yyyy HH:mm" ) );
     }
     
 	private String nullSafePhysicalAddressToString( NotificationRecipient recipient ) {
