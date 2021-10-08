@@ -47,7 +47,7 @@ class LegalFactPdfGeneratorUtilsTest {
 		timelineDao = Mockito.mock(TimelineDao.class);
     }
 	
-	@Test //TODO rimuovi commenti
+	@Test
 	void successConversionInstantToDate() {
 		// GIVEN
 		LegalFactPdfGeneratorUtils utils = new LegalFactPdfGeneratorUtils( timelineDao );
