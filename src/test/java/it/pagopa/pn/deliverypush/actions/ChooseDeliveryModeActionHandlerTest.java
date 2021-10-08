@@ -4,13 +4,10 @@ import it.pagopa.pn.api.dto.addressbook.AddressBookEntry;
 import it.pagopa.pn.api.dto.addressbook.DigitalAddresses;
 import it.pagopa.pn.api.dto.events.PnExtChnEmailEvent;
 import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
-import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
@@ -41,6 +38,8 @@ class ChooseDeliveryModeActionHandlerTest {
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private ChooseDeliveryModeActionHandler handler;
     private MomProducer<PnExtChnEmailEvent> emailRequestProducer;
+    private ExtChnEventUtils eventUtils;
+
 
     @BeforeEach
     void setup() {
@@ -49,12 +48,14 @@ class ChooseDeliveryModeActionHandlerTest {
         addressBook = Mockito.mock(AddressBook.class);
         timelineDao = Mockito.mock(TimelineDao.class);
         actionsPool = Mockito.mock(ActionsPool.class);
+        eventUtils = new ExtChnEventUtils();
         handler = new ChooseDeliveryModeActionHandler(
                 timelineDao,
                 addressBook,
                 actionsPool,
                 pnDeliveryPushConfigs,
-                emailRequestProducer );
+                emailRequestProducer,
+                eventUtils);
         TimeParams times = new TimeParams();
         times.setRecipientViewMaxTime(Duration.ZERO);
         times.setSecondAttemptWaitingTime(Duration.ZERO);

@@ -27,14 +27,17 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
     private final AddressBook addressBook;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private final MomProducer<PnExtChnEmailEvent> emailRequestProducer;
+    private final ExtChnEventUtils eventUtils;
+
 
     public ChooseDeliveryModeActionHandler(TimelineDao timelineDao, AddressBook addressBook,
-                      ActionsPool actionsPool, PnDeliveryPushConfigs pnDeliveryPushConfigs,
-                                           MomProducer<PnExtChnEmailEvent> emailRequestProducer) {
+                                           ActionsPool actionsPool, PnDeliveryPushConfigs pnDeliveryPushConfigs,
+                                           MomProducer<PnExtChnEmailEvent> emailRequestProducer, ExtChnEventUtils eventUtils) {
         super( timelineDao, actionsPool , pnDeliveryPushConfigs);
         this.addressBook = addressBook;
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
         this.emailRequestProducer = emailRequestProducer;
+        this.eventUtils = eventUtils;
     }
 
     @Override
@@ -66,28 +69,9 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
 
                     for (int idx = 0; idx < numberOfAddresses; idx++) {
                         DigitalAddress emailAddress = courtesyAddresses.get(idx);
-                        this.emailRequestProducer.push(PnExtChnEmailEvent.builder()
-                                .header(StandardEventHeader.builder()
-                                        .iun(action.getIun())
-                                        .eventId(action.getActionId() + "_" + idx)
-                                        .eventType(EventType.SEND_COURTESY_EMAIL.name())
-                                        .publisher(EventPublisher.DELIVERY_PUSH.name())
-                                        .createdAt(Instant.now())
-                                        .build()
-                                )
-                                .payload(PnExtChnEmailEventPayload.builder()
-                                        .iun(notification.getIun())
-                                        .senderId(notification.getSender().getPaId())
-                                        .senderDenomination("NOT HANDLED FROM in PoC: Id=" + notification.getSender().getPaId())
-                                        .senderEmailAddress("Not required")
-                                        .recipientDenomination(recipient.getDenomination())
-                                        .recipientTaxId(recipient.getTaxId())
-                                        .emailAddress(emailAddress.getAddress())
-                                        .shipmentDate(notification.getSentAt())
-                                        .build()
-                                )
-                                .build()
-                        );
+                        this.emailRequestProducer.push(
+                                eventUtils.buildSendEmailRequest(action, notification, recipient, idx, emailAddress)
+                            );
                     }
                 }
 
@@ -113,7 +97,8 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
                 .build()
             );
     }
-        
+
+
     @Override
     public ActionType getActionType() {
         return ActionType.CHOOSE_DELIVERY_MODE;

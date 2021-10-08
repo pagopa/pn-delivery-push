@@ -2,17 +2,9 @@ package it.pagopa.pn.deliverypush.actions;
 
 import java.time.Instant;
 
+import it.pagopa.pn.api.dto.events.*;
 import org.springframework.stereotype.Component;
 
-import it.pagopa.pn.api.dto.events.CommunicationType;
-import it.pagopa.pn.api.dto.events.EventPublisher;
-import it.pagopa.pn.api.dto.events.EventType;
-import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
-import it.pagopa.pn.api.dto.events.PnExtChnPaperEventPayload;
-import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
-import it.pagopa.pn.api.dto.events.PnExtChnPecEventPayload;
-import it.pagopa.pn.api.dto.events.ServiceLevelType;
-import it.pagopa.pn.api.dto.events.StandardEventHeader;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
@@ -20,7 +12,37 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 
 @Component
 public class ExtChnEventUtils {
-    
+
+	public PnExtChnEmailEvent buildSendEmailRequest(
+			Action action,
+			Notification notification,
+			NotificationRecipient recipient,
+			int courtesyAddressIdx,
+			DigitalAddress emailAddress
+	) {
+		return PnExtChnEmailEvent.builder()
+				.header(StandardEventHeader.builder()
+						.iun(action.getIun())
+						.eventId(action.getActionId() + "_" + courtesyAddressIdx)
+						.eventType(EventType.SEND_COURTESY_EMAIL.name())
+						.publisher(EventPublisher.DELIVERY_PUSH.name())
+						.createdAt(Instant.now())
+						.build()
+				)
+				.payload(PnExtChnEmailEventPayload.builder()
+						.iun(notification.getIun())
+						.senderId(notification.getSender().getPaId())
+						.senderDenomination(notification.getSender().getPaId())
+						.senderEmailAddress("Not required")
+						.recipientDenomination(recipient.getDenomination())
+						.recipientTaxId(recipient.getTaxId())
+						.emailAddress(emailAddress.getAddress())
+						.shipmentDate(notification.getSentAt())
+						.build()
+				)
+				.build();
+	}
+
 	public PnExtChnPaperEvent buildSendPaperRequest (Action action, Notification notification, CommunicationType communicationType, ServiceLevelType serviceLevelType) {
 		NotificationRecipient recipient = notification.getRecipients().get( action.getRecipientIndex() );
 				
