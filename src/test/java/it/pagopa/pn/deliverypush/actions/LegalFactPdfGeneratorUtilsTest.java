@@ -1,16 +1,12 @@
 package it.pagopa.pn.deliverypush.actions;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -41,44 +37,121 @@ class LegalFactPdfGeneratorUtilsTest {
 	private LegalFactPdfGeneratorUtils pdfUtils;
 	private TimelineDao timelineDao;
 	
+	private final LegalFactPdfGeneratorUtils PDF_UTILS = new LegalFactPdfGeneratorUtils( timelineDao );
+	private static final Duration ONE_HOUR = Duration.ofHours(1);
+	private static final ZoneId ROME_ZONE = ZoneId.of("Europe/Rome");
+	
 	@BeforeEach
     public void setup() {
 		pdfUtils = Mockito.mock(LegalFactPdfGeneratorUtils.class);
 		timelineDao = Mockito.mock(TimelineDao.class);
     }
 	
+    @Test
+    void testInstantToDateUnambiguousAmbiguousCest() {
+        // - GIVEN
+        Instant instant = Instant.parse("2021-10-30T23:59:00.000Z");
+        
+        // WHEN
+        String convertedDate = PDF_UTILS.instantToDate( instant );
+        
+        // THEN
+        Assertions.assertEquals("31/10/2021 01:59", convertedDate);
+    }
+    
+    @Test
+    void testInstantToDateAmbiguousCest() {
+        // - GIVEN
+        Instant instant = Instant.parse("2021-10-31T00:00:00.000Z");
+        
+        // WHEN
+        String convertedDate = PDF_UTILS.instantToDate( instant );
+        
+        // THEN
+        Assertions.assertEquals("31/10/2021 02:00 CEST", convertedDate);
+    }
+    
+    @Test
+    void testInstantToDateAmbiguousCet() {
+        // - GIVEN
+        Instant instant = Instant.parse("2021-10-31T02:00:00.000Z");
+        
+        // WHEN
+        String convertedDate = PDF_UTILS.instantToDate( instant );
+        
+        // THEN
+        Assertions.assertEquals("31/10/2021 03:00 CET", convertedDate);
+    }
+    
+    @Test
+    void testInstantToDateUnambiguousAmbiguousCet() {
+        // - GIVEN
+        Instant instant = Instant.parse("2021-10-31T02:01:00.000Z");
+        
+        // WHEN
+        String convertedDate = PDF_UTILS.instantToDate( instant );
+        
+        // THEN
+        Assertions.assertEquals("31/10/2021 03:01", convertedDate);
+    }
+    
+    @Test
+    void testInstantToDateAmbiguousCestCet() {
+        // - GIVEN
+        Instant instant1 = Instant.parse("2021-10-31T00:30:00.000Z");
+        Instant instant2 = Instant.parse("2021-10-31T01:30:00.000Z");
+        
+        // WHEN
+        String convertedDate1 = PDF_UTILS.instantToDate( instant1 );
+        String convertedDate2 = PDF_UTILS.instantToDate( instant2 );
+        
+        // THEN
+        Assertions.assertEquals("31/10/2021 02:30 CEST", convertedDate1);
+        Assertions.assertEquals("31/10/2021 02:30 CET", convertedDate2);
+    }
+    
 	@Test
-	void successConversionInstantToDate() {
+	void testNotTimeZoneChangeDayInstantToDate() {
 		// GIVEN
-		LegalFactPdfGeneratorUtils utils = new LegalFactPdfGeneratorUtils( timelineDao );
-		
-		ZoneId zoneId = ZoneId.of( "Europe/Rome" );
-		
-		Instant testDateUTC = Instant.parse( "2021-03-28T01:55:00.000Z" );
-		Instant actualDateUTC = Instant.now();
+		Instant testDate = Instant.parse( "2021-10-11T09:55:00.000Z" );
 		
 		// WHEN
-		LocalDateTime dateBeforeDST = LocalDateTime.ofInstant( testDateUTC, ZoneOffset.UTC );
-		ZonedDateTime zonedDateBeforeDST = dateBeforeDST.atZone( zoneId );
-		String convertedDateBeforeDST = utils.instantToDate( testDateUTC ); 
-		
-		ZonedDateTime zonedDateAfterDST = zonedDateBeforeDST.plus( 10, ChronoUnit.MINUTES );
-		String convertedDateAfterDST = utils.instantToDate( Instant.parse( "2021-03-28T02:05:00.000Z" ) );
-		
-		String actualConvertedDate = utils.instantToDate( actualDateUTC );
-    	LocalDateTime actualLocalDate = LocalDateTime.ofInstant(actualDateUTC, zoneId);
-		String actualZonedDate = actualLocalDate.format(DateTimeFormatter.ofPattern( "dd/MM/yyyy HH:mm" ) );
+		String convertedDate = PDF_UTILS.instantToDate( testDate );
 		
 		// THEN
-		Assertions.assertEquals( "2021-03-28T01:55+01:00[Europe/Rome]", zonedDateBeforeDST.toString() );
-		Assertions.assertEquals( "2021-03-28T03:05+02:00[Europe/Rome]", zonedDateAfterDST.toString() );
-		
-		Assertions.assertEquals( "28/03/2021 03:55", convertedDateBeforeDST );
-		Assertions.assertEquals( "28/03/2021 04:05", convertedDateAfterDST );
-		
-		Assertions.assertEquals(actualZonedDate, actualConvertedDate);
+		Assertions.assertEquals("11/10/2021 11:55", convertedDate);
 	}
 	
+	@Test 
+	void testTrueIsNear() throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		// GIVEN
+		Method privateMethod = LegalFactPdfGeneratorUtils.class.getDeclaredMethod( "isNear", Instant.class, Instant.class );
+		privateMethod.setAccessible( true );
+		Instant instant = Instant.parse("2021-10-31T00:00:00.000Z");
+		Instant nextTransition = ROME_ZONE.getRules().nextTransition( instant ).getInstant();
+		
+		// WHEN
+		boolean result = (boolean) privateMethod.invoke( PDF_UTILS, instant, nextTransition );
+		
+		// THEN
+		Assertions.assertTrue(result);
+	}
+	
+	@Test 
+	void testFalseIsNear() throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		// GIVEN
+		Method privateMethod = LegalFactPdfGeneratorUtils.class.getDeclaredMethod( "isNear", Instant.class, Instant.class );
+		privateMethod.setAccessible( true );
+		Instant instant = Instant.parse("2021-10-31T02:00:00.000Z");
+		Instant nextTransition = ROME_ZONE.getRules().nextTransition( instant ).getInstant();
+		
+		// WHEN
+		boolean result = (boolean) privateMethod.invoke( PDF_UTILS, instant, nextTransition );
+		
+		// THEN
+		Assertions.assertFalse(result);
+	}
+			
 	@Test
 	void successGenerateNotificationReceivedLegalFact() throws DocumentException {
 		// GIVEN
@@ -201,6 +274,36 @@ class LegalFactPdfGeneratorUtilsTest {
 		Assertions.assertEquals( action.getIun(), actionCapture.getValue().get(0).getIun(), "Different iun");
         Assertions.assertEquals( action.getIun(), notificationCapture.getValue().getIun(), "Different iun");
         Assertions.assertEquals( addresses.getPhysicalAddress().getAddress(), addressCapture.getValue().getPhysicalAddress().getAddress(), "Different address");
+	}
+	
+	@Test 
+	void successNullSafePhysicalAddressToString() throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		// GIVEN
+		Notification notification = Notification.builder()
+										.recipients( Collections.singletonList(
+											NotificationRecipient.builder()
+												.denomination( "denomination" )
+												.physicalAddress(PhysicalAddress.builder()
+													.address( "address" )
+													.municipality( "municipality" )
+													.addressDetails( "addressDetail" )
+													.at( "at" )
+													.province( "province" )
+													.zip( "zip" )
+													.build()
+												).build() 
+											) 
+										).build();
+		
+		Method privateMethod = LegalFactPdfGeneratorUtils.class.getDeclaredMethod( "nullSafePhysicalAddressToString", NotificationRecipient.class );
+		privateMethod.setAccessible( true );
+		
+		// WHEN
+		String output = (String) privateMethod.invoke( PDF_UTILS, notification.getRecipients().get( 0 ) );
+		output = String.join(";", output.split("\n"));
+		
+		// THEN
+		Assertions.assertEquals("denomination;at;addressDetail;address;zip municipality province", output, "Different notification data");
 	}
 	
 	private Notification newNotification() {

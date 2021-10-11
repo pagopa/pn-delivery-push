@@ -1,11 +1,10 @@
 package it.pagopa.pn.deliverypush.actions;
 
 import java.io.ByteArrayOutputStream;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +35,9 @@ import lombok.extern.slf4j.Slf4j;
 public class LegalFactPdfGeneratorUtils {
 
 	private static final DateTimeFormatter ITALIAN_DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+	private static final Duration ONE_HOUR = Duration.ofHours(1);
+	private static final ZoneId ROME_ZONE = ZoneId.of("Europe/Rome");
+    
 	private final TimelineDao timelineDao;
 	
 	@Autowired
@@ -221,10 +223,44 @@ public class LegalFactPdfGeneratorUtils {
 	}
 	    
     public String instantToDate(Instant instant) {
-    	ZoneId zoneId = ZoneId.of("Europe/Rome");
-    	LocalDateTime localDate = LocalDateTime.ofInstant(instant, zoneId);
-    	
-    	return localDate.format( ITALIAN_DATE_TIME_FORMAT );
+    	String suffix;
+        Instant nextTransition = ROME_ZONE.getRules().nextTransition( instant ).getInstant();
+        boolean isAmbiguous = isNear( instant, nextTransition );
+        
+        if( ! isAmbiguous ) {
+            Instant prevTransition = ROME_ZONE.getRules().previousTransition( instant ).getInstant();
+            isAmbiguous = isNear( instant, prevTransition );
+            if( isAmbiguous ) {
+                suffix = " CET";
+            }
+            else {
+                suffix = "";
+            }
+        }
+        else {
+            suffix = " CEST";
+        }
+        
+        LocalDateTime localDate = LocalDateTime.ofInstant(instant, ROME_ZONE);
+        String disambiguatedLocalDate = localDate.format( ITALIAN_DATE_TIME_FORMAT ) + suffix;
+        
+        return disambiguatedLocalDate;
+    }
+    
+    private boolean isNear( Instant a, Instant b) {
+        Instant min;
+        Instant max;
+        if( a.isBefore(b) ) {
+            min = a;
+            max = b;
+        }
+        else {
+            min = b;
+            max = a;
+        }
+        Duration timeInterval = Duration.between(min, max);
+        boolean lessOrAnHour = ONE_HOUR.compareTo(timeInterval) >= 0;
+        return lessOrAnHour;
     }
     
 	private String nullSafePhysicalAddressToString( NotificationRecipient recipient ) {
