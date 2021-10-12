@@ -265,7 +265,7 @@ public class LegalFactPdfGeneratorUtils {
 			if ( physicalAddress != null ) {
 				List<String> standardAddressString = physicalAddress.toStandardAddressString( recipient.getDenomination() );
 				if ( standardAddressString != null ) {
-					result = String.join(" ", standardAddressString );
+					result = String.join("\n", standardAddressString );
 				}
 			}
 		}
