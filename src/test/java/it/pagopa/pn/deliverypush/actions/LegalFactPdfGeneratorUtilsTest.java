@@ -11,10 +11,10 @@ import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-
-import com.itextpdf.text.DocumentException;
 
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
@@ -35,192 +35,60 @@ class LegalFactPdfGeneratorUtilsTest {
 	
 	@BeforeEach
     public void setup() {
-		pdfUtils = Mockito.mock(LegalFactPdfGeneratorUtils.class);
 		timelineDao = Mockito.mock(TimelineDao.class);
+		pdfUtils = new LegalFactPdfGeneratorUtils( timelineDao );
     }
 	
-	@Test
-	void successConversionInstantToDate() {
-		LegalFactPdfGeneratorUtils utils = new LegalFactPdfGeneratorUtils( timelineDao );
-		Instant testDate = Instant.parse("2021-09-03T13:03:00.000Z");
-		String date = utils.instantToDate(testDate);
-		Assertions.assertEquals("2021-09-03 13:03", date);
-	}	
-	
-	@Test
-	void successGenerateNotificationReceivedLegalFact() throws DocumentException {
-		// GIVEN
-        Notification notification = newNotification();
-        Action action = Action.builder()
-                .iun( notification.getIun() )
-                .recipientIndex(0)
-                .type(ActionType.SENDER_ACK)
-                .retryNumber(1)
-                .notBefore(Instant.now())
-                .digitalAddressSource(DigitalAddressSource.GENERAL)
-                .actionId("Test_iun01_send_pec_rec0_null_nnull")
-                .build();
-        String actionId = action.getType().buildActionId(action);
-        action = action.toBuilder().actionId(actionId).build();
-        byte[] byteArray = new byte[] { 77, 97, 114, 121 };
+    @ParameterizedTest
+	@CsvSource({
+			"2021-10-31T00:30:00.000Z, 31/10/2021 02:30 CEST",
+			"2021-10-31T01:30:00.000Z, 31/10/2021 02:30 CET",
+			"2021-10-30T23:59:00.000Z, 31/10/2021 01:59",
+			"2021-10-31T00:00:00.000Z, 31/10/2021 02:00 CEST",
+			"2021-10-31T02:00:00.000Z, 31/10/2021 03:00 CET",
+			"2021-10-31T02:01:00.000Z, 31/10/2021 03:01",
+			"2021-10-11T09:55:00.000Z, 11/10/2021 11:55"
+	})
+    void testInstantToDateConversion(String isoZuluTimeInstant, String expected) {
+        // GIVEN
+        Instant instant = Instant.parse(isoZuluTimeInstant);
         
+        // WHEN
+        String convertedDate = pdfUtils.instantToDate( instant );
+        
+        // THEN
+        Assertions.assertEquals(expected, convertedDate);
+    }
+
+
+	
+	@Test 
+	void successNullSafePhysicalAddressToString() {
+		// GIVEN
+		Notification notification = Notification.builder()
+										.recipients( Collections.singletonList(
+											NotificationRecipient.builder()
+												.denomination( "denomination" )
+												.physicalAddress(PhysicalAddress.builder()
+													.address( "address" )
+													.municipality( "municipality" )
+													.addressDetails( "addressDetail" )
+													.at( "at" )
+													.province( "province" )
+													.zip( "zip" )
+													.build()
+												).build() 
+											) 
+										).build();
+		
+
 		// WHEN
-		when(pdfUtils.generateNotificationReceivedLegalFact( action, notification )).thenReturn( byteArray );
+		String output = pdfUtils.nullSafePhysicalAddressToString( notification.getRecipients().get( 0 ) );
+		output = String.join(";", output.split("\n"));
 		
 		// THEN
-		byte[] newByteArray = pdfUtils.generateNotificationReceivedLegalFact( action, notification );
-		Assertions.assertEquals( byteArray, newByteArray, "Different byteArray");
-		
-		ArgumentCaptor<Action> actionCapture = ArgumentCaptor.forClass(Action.class);
-        ArgumentCaptor<Notification> notificationCapture = ArgumentCaptor.forClass(Notification.class);
-
-        Mockito.verify( pdfUtils, Mockito.times(1)).generateNotificationReceivedLegalFact( actionCapture.capture(),
-                notificationCapture.capture() );
-		Mockito.verifyNoMoreInteractions( pdfUtils );
-		
-		Assertions.assertEquals(action.getIun(), actionCapture.getValue().getIun(), "Different iun");
-        Assertions.assertEquals( action.getIun(), notificationCapture.getValue().getIun(), "Different iun");
+		Assertions.assertEquals("denomination;at;addressDetail;address;zip municipality province", output, "Different notification data");
 	}
-	
-	@Test
-	void successGenerateNotificationViewedLegalFact () throws DocumentException {
-		// GIVEN
-		Notification notification = newNotification();
-        Action action = Action.builder()
-                .iun( notification.getIun() )
-                .recipientIndex(0)
-                .type(ActionType.NOTIFICATION_VIEWED)
-                .retryNumber(1)
-                .notBefore(Instant.now())
-                .digitalAddressSource(DigitalAddressSource.GENERAL)
-                .actionId("Test_iun01_notification_viewed0")
-                .build();
-        String actionId = action.getType().buildActionId(action);
-        action = action.toBuilder().actionId(actionId).build();
-        byte[] byteArray = new byte[] { 77, 97, 114, 121 };
-        
-		// WHEN
-		when(pdfUtils.generateNotificationViewedLegalFact( action, notification )).thenReturn( byteArray );
-		
-		//THEN
-		byte[] newByteArray = pdfUtils.generateNotificationViewedLegalFact( action, notification );
-		Assertions.assertEquals( byteArray, newByteArray, "Different byteArray");
-		
-		ArgumentCaptor<Action> actionCapture = ArgumentCaptor.forClass(Action.class);
-        ArgumentCaptor<Notification> notificationCapture = ArgumentCaptor.forClass(Notification.class);
 
-        Mockito.verify( pdfUtils, Mockito.times(1)).generateNotificationViewedLegalFact( actionCapture.capture(),
-                notificationCapture.capture() );
-		Mockito.verifyNoMoreInteractions( pdfUtils );
-		
-		Assertions.assertEquals( action.getIun(), actionCapture.getValue().getIun(), "Different iun");
-        Assertions.assertEquals( action.getIun(), notificationCapture.getValue().getIun(), "Different iun");
-	}
-	
-	@Test
-	void successGeneratePecDeliveryWorkflowLegalFact () throws DocumentException {
-		// GIVEN
-		Notification notification = newNotification();
-        Action action = Action.builder()
-                .iun( notification.getIun() )
-                .recipientIndex(0)
-                .type(ActionType.END_OF_DIGITAL_DELIVERY_WORKFLOW)
-                .retryNumber(1)
-                .notBefore(Instant.now())
-                .digitalAddressSource(DigitalAddressSource.GENERAL)
-                .actionId("Test_iun01_notification_viewed0")
-                .build();
-        String actionId = action.getType().buildActionId(action);
-        action = action.toBuilder().actionId(actionId).build();
-        
-        byte[] byteArray = new byte[] { 77, 97, 114, 121 };
-        
-        NotificationPathChooseDetails addresses = NotificationPathChooseDetails.builder()
-        											.physicalAddress( PhysicalAddress.builder()
-        																.address( "address" )
-        																.addressDetails( "adrressDetail" )
-        																.at( "at" )
-        																.province( "province" )
-        																.zip( "zip" )
-        																.build() )
-        											.build();
-        
-        List<Action> actions = new ArrayList<Action>();
-        actions.add( action );
-        
-		// WHEN
-		when(pdfUtils.generatePecDeliveryWorkflowLegalFact( actions, notification, addresses )).thenReturn( byteArray );
-		
-		//THEN
-		byte[] newByteArray = pdfUtils.generatePecDeliveryWorkflowLegalFact( actions, notification, addresses );
-		Assertions.assertEquals( byteArray, newByteArray, "Different byteArray");
-		
-		@SuppressWarnings("unchecked")
-		Class<ArrayList<Action>> listClass = (Class<ArrayList<Action>>)(Class)ArrayList.class;
-		ArgumentCaptor<ArrayList<Action>> actionCapture = ArgumentCaptor.forClass(listClass);
-	
-        ArgumentCaptor<Notification> notificationCapture = ArgumentCaptor.forClass(Notification.class);
-        ArgumentCaptor<NotificationPathChooseDetails> addressCapture = ArgumentCaptor.forClass(NotificationPathChooseDetails.class);
-
-        Mockito.verify( pdfUtils, Mockito.times(1)).generatePecDeliveryWorkflowLegalFact( actionCapture.capture(),
-                notificationCapture.capture(),  addressCapture.capture() );
-		Mockito.verifyNoMoreInteractions( pdfUtils );
-		
-		Assertions.assertEquals( action.getIun(), actionCapture.getValue().get(0).getIun(), "Different iun");
-        Assertions.assertEquals( action.getIun(), notificationCapture.getValue().getIun(), "Different iun");
-        Assertions.assertEquals( addresses.getPhysicalAddress().getAddress(), addressCapture.getValue().getPhysicalAddress().getAddress(), "Different address");
-	}
-	
-	private Notification newNotification() {
-        return Notification.builder()
-                .iun("IUN_01")
-                .paNotificationId("protocol_01")
-                .subject("Subject 01")
-                .cancelledByIun("IUN_05")
-                .cancelledIun("IUN_00")
-                .sender(NotificationSender.builder()
-                        .paId(" pa_02")
-                        .build()
-                )
-                .recipients(Collections.singletonList(
-                        NotificationRecipient.builder()
-                                .taxId("Codice Fiscale 01")
-                                .denomination("Nome Cognome/Ragione Sociale")
-                                .digitalDomicile(DigitalAddress.builder()
-                                        .type(DigitalAddressType.PEC)
-                                        .address("account@dominio.it")
-                                        .build())
-                                .build()
-                ))
-                .documents(Arrays.asList(
-                        NotificationAttachment.builder()
-                                .ref( NotificationAttachment.Ref.builder()
-										.key("doc00")
-										.versionToken("v01_doc00")
-										.build()
-								)
-								.digests(NotificationAttachment.Digests.builder()
-                                        .sha256("sha256_doc00")
-                                        .build()
-                                )
-                                .contentType("application/pdf")
-                                .body("Ym9keV8wMQ==")
-                                .build(),
-                        NotificationAttachment.builder()
-								.ref( NotificationAttachment.Ref.builder()
-										.key("doc01")
-										.versionToken("v01_doc01")
-										.build()
-								)
-								.digests(NotificationAttachment.Digests.builder()
-                                        .sha256("sha256_doc01")
-                                        .build()
-                                )
-                                .contentType("application/pdf")
-                                .body("Ym9keV8wMg==")
-                                .build()
-                ))
-                .build();
-    }
 
 }
