@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
-import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
@@ -15,7 +14,6 @@ import it.pagopa.pn.api.dto.notification.timeline.SendDigitalDetails;
 import it.pagopa.pn.api.dto.notification.timeline.SendDigitalFeedbackDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
-import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
@@ -27,7 +25,7 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 public class ReceivePecActionHandler extends AbstractActionHandler {
 
 	public ReceivePecActionHandler(TimelineDao timelineDao, ActionsPool actionsPool,
-			PnDeliveryPushConfigs pnDeliveryPushConfigs, MomProducer<PnExtChnPaperEvent> paperRequestProducer, ExtChnEventUtils extChnEventUtils) {
+			PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         super( timelineDao, actionsPool , pnDeliveryPushConfigs);
     }
 

@@ -42,8 +42,6 @@ public class SqsEventReceiver implements EventReceiver {
             throw new PnInternalException("One handler for each eventType is necessary");
         }
 
-        //Set<Class<?>> usedClasses = new HashSet<>();
-
         for( int idx = 0; idx < handlers.size(); idx++ ) {
             EventHandler<?> handler = handlers.get( idx );
             IEventType evtType = eventsTypes.get( idx );
@@ -53,12 +51,6 @@ public class SqsEventReceiver implements EventReceiver {
             if( ! eventJavaClass.equals( evtType.getEventJavaClass() )) {
                 throw new PnInternalException("Event type end handler java classes must be the same");
             }
-            /*if( usedClasses.contains( eventJavaClass )) {
-                throw new PnInternalException("Class " + eventJavaClass + " already used");
-            }
-            else {
-                usedClasses.add( eventJavaClass );
-            }*/
 
             String eventName = evtType.name();
             ObjectReader reader = objMapper.readerFor( eventJavaClass );

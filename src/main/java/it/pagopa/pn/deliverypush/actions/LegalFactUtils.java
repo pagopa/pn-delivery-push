@@ -11,8 +11,6 @@ import java.util.stream.Collectors;
 import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
 import org.springframework.stereotype.Component;
 
-import com.itextpdf.text.DocumentException;
-
 import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
@@ -49,15 +47,9 @@ public class LegalFactUtils {
     }
 
 	public void saveNotificationReceivedLegalFact(Action action, Notification notification) {
-		try {
-			Map<String, String> metadata = legalfactMetadataUtils.buildMetadata( LegalFactType.SENDER_ACK, null );
-			
-    		byte[] pdfBytes = pdfUtils.generateNotificationReceivedLegalFact( action, notification);
-    		this.saveLegalFact(action.getIun(), "sender_ack", pdfBytes, metadata);
-		} catch (DocumentException exc) {
-			String errMsg = "Error while generating legal fact \"Attestazione (lett. a, b)\" for Notification with Iun: " + notification.getIun() + ".";
-			throw new PnInternalException(errMsg, exc);
-		}
+		Map<String, String> metadata = legalfactMetadataUtils.buildMetadata( LegalFactType.SENDER_ACK, null );
+		byte[] pdfBytes = pdfUtils.generateNotificationReceivedLegalFact( action, notification);
+		this.saveLegalFact(action.getIun(), "sender_ack", pdfBytes, metadata);
 	}
     
     public void savePecDeliveryWorkflowLegalFact(List<Action> actions, Notification notification, NotificationPathChooseDetails addresses ) {
@@ -68,29 +60,20 @@ public class LegalFactUtils {
     		throw new PnInternalException("Impossible generate distinct act for distinct recipients");
 		}
     	    	
-    	try {
-    		String taxId = notification.getRecipients().get( recipientIdx.iterator().next() ).getTaxId();
-    		Map<String, String> metadata = legalfactMetadataUtils.buildMetadata( LegalFactType.DIGITAL_DELIVERY, taxId );
+    	String taxId = notification.getRecipients().get( recipientIdx.iterator().next() ).getTaxId();
+    	Map<String, String> metadata = legalfactMetadataUtils.buildMetadata( LegalFactType.DIGITAL_DELIVERY, taxId );
     		
-    		byte[] pdfBytes = pdfUtils.generatePecDeliveryWorkflowLegalFact( actions, notification, addresses );
-    		this.saveLegalFact( notification.getIun(), "digital_delivery_info_" + taxId, pdfBytes, metadata );
-		} catch (DocumentException exc) {
-			String errMsg = "Error while generating legal fact \"Attestazione (lett. c)\" for Notification with Iun: " + notification.getIun() + ".";
-			throw new PnInternalException( errMsg, exc );
-		}
+    	byte[] pdfBytes = pdfUtils.generatePecDeliveryWorkflowLegalFact( actions, notification, addresses );
+    	this.saveLegalFact( notification.getIun(), "digital_delivery_info_" + taxId, pdfBytes, metadata );
     }
     
     public void saveNotificationViewedLegalFact(Action action, Notification notification) {
-    	try {
-    		String taxId = notification.getRecipients().get( action.getRecipientIndex() ).getTaxId();
-    		Map<String, String> metadata = legalfactMetadataUtils.buildMetadata( LegalFactType.RECIPIENT_ACCESS, taxId );
+
+    	String taxId = notification.getRecipients().get( action.getRecipientIndex() ).getTaxId();
+    	Map<String, String> metadata = legalfactMetadataUtils.buildMetadata( LegalFactType.RECIPIENT_ACCESS, taxId );
     		
-    		byte[] pdfBytes = pdfUtils.generateNotificationViewedLegalFact( action, notification );
-    		this.saveLegalFact( notification.getIun(), "notification_viewed_" + taxId, pdfBytes, metadata );
-		} catch (DocumentException exc) {
-			String errMsg = "Error while generating legal fact \"Attestazione (lett. e)\" for Notification with Iun: " + notification.getIun() + ".";
-			throw new PnInternalException( errMsg, exc );
-		}
+    	byte[] pdfBytes = pdfUtils.generateNotificationViewedLegalFact( action, notification );
+    	this.saveLegalFact( notification.getIun(), "notification_viewed_" + taxId, pdfBytes, metadata );
     }
 
 }

@@ -48,9 +48,7 @@ class ReceivePecActionHandlerTest {
         handler = new ReceivePecActionHandler(
                 timelineDao,
                 actionsPool,
-                pnDeliveryPushConfigs,
-                paperRequestProducer,
-                extChnEventUtils
+                pnDeliveryPushConfigs
         );
         TimeParams times = new TimeParams();
         times.setRecipientViewMaxTime(Duration.ZERO);
