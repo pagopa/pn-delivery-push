@@ -1,9 +1,11 @@
 package it.pagopa.pn.deliverypush.actions;
 
+import it.pagopa.pn.api.dto.addressbook.AddressBookEntry;
 import it.pagopa.pn.api.dto.events.*;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
+import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.api.dto.notification.timeline.DeliveryMode;
 import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
@@ -46,12 +48,13 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
         int index = action.getRecipientIndex();
         NotificationRecipient recipient = notification.getRecipients().get( index );
 
+        PhysicalAddress physicalAddress = recipient.getPhysicalAddress();
+
         // - LOAD ADDRESS BOOK and compute timeline
         NotificationPathChooseDetails.NotificationPathChooseDetailsBuilder timelineDetailsBuilder =
                 NotificationPathChooseDetails.builder()
                 .taxId( recipient.getTaxId() )
-                .deliveryMode( DeliveryMode.DIGITAL )
-                .physicalAddress( null )
+                .physicalAddress( physicalAddress )
                 .special( recipient.getDigitalDomicile() )
                 ;
 
@@ -61,41 +64,59 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
                         .general(abEntry.getDigitalAddresses().getGeneral())
                         .platform(abEntry.getDigitalAddresses().getPlatform())
                         .courtesyAddresses(abEntry.getCourtesyAddresses());
-
-                // - Send Email
-                List<DigitalAddress> courtesyAddresses = abEntry.getCourtesyAddresses();
-                if( courtesyAddresses != null ) {
-                    int numberOfAddresses = courtesyAddresses.size();
-
-                    for (int idx = 0; idx < numberOfAddresses; idx++) {
-                        DigitalAddress emailAddress = courtesyAddresses.get(idx);
-                        this.emailRequestProducer.push(
-                                eventUtils.buildSendEmailRequest(action, notification, recipient, idx, emailAddress)
-                            );
-                    }
+                if(physicalAddress == null) {
+                    timelineDetailsBuilder.physicalAddress(abEntry.getResidentialAddress());
                 }
 
+                sendCourtesyMessages(action, notification, recipient, abEntry);
             });
+        //TODO percorso digitale se almeno un indirizzo digitale, valorizzare deliverymode
+        DeliveryMode deliveryMode = recipient.getDigitalDomicile() != null ? DeliveryMode.DIGITAL : DeliveryMode.ANALOG;
 
         NotificationPathChooseDetails timelineDetails = timelineDetailsBuilder.build();
 
-        // - GENERATE NEXT ACTIONS (choose digital)
-        super.scheduleAction( Action.builder()
-                .iun( action.getIun() )
-                .recipientIndex( action.getRecipientIndex() )
-                .type( ActionType.SEND_PEC )
-                .digitalAddressSource( DigitalAddressSource.PLATFORM )
+        Action.ActionBuilder actionBuilder = Action.builder()
+                .iun(action.getIun())
+                .recipientIndex(action.getRecipientIndex())
                 .retryNumber( 1 )
-                .notBefore( Instant.now().plus(pnDeliveryPushConfigs.getTimeParams().getWaitingForNextAction()) )
-                .build()
-            );
+                .notBefore(Instant.now().plus(pnDeliveryPushConfigs.getTimeParams().getWaitingForNextAction()));
 
-        // - WRITE TIMELINE (choose digital)
+        //NEXT ACTION DELIVERY MODE DIGITAL
+        if(deliveryMode.equals(DeliveryMode.DIGITAL)) {
+            super.scheduleAction( actionBuilder
+                    .type( ActionType.SEND_PEC )
+                    .digitalAddressSource( DigitalAddressSource.PLATFORM )
+                    .build()
+            );
+        } //NEXT ACTION DELIVERY MODE ANALOG
+        else {
+            super.scheduleAction( actionBuilder
+                    .type(ActionType.SEND_PAPER)
+                    .build()
+            );
+        }
+
+        // - WRITE TIMELINE
         super.addTimelineElement( action, TimelineElement.builder()
                 .category( TimelineElementCategory.NOTIFICATION_PATH_CHOOSE )
                 .details( timelineDetails )
                 .build()
             );
+    }
+
+    private void sendCourtesyMessages(Action action, Notification notification, NotificationRecipient recipient, AddressBookEntry abEntry) {
+        // - Send Email
+        List<DigitalAddress> courtesyAddresses = abEntry.getCourtesyAddresses();
+        if( courtesyAddresses != null ) {
+            int numberOfAddresses = courtesyAddresses.size();
+
+            for (int idx = 0; idx < numberOfAddresses; idx++) {
+                DigitalAddress emailAddress = courtesyAddresses.get(idx);
+                this.emailRequestProducer.push(
+                        eventUtils.buildSendEmailRequest(action, notification, recipient, idx, emailAddress)
+                    );
+            }
+        }
     }
 
 
