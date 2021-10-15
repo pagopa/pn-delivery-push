@@ -8,6 +8,7 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
@@ -17,6 +18,7 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.time.Duration;
@@ -63,7 +65,13 @@ class EndOfAnalogDeliveryWorkflowActionHandlerTest {
 	    handler.handleAction( action, notification );
 	    
 		//Then
-		verify( timelineDao ).addTimelineElement( Mockito.any(TimelineElement.class) );
+		ArgumentCaptor<TimelineElement> timeLineArg = ArgumentCaptor.forClass(TimelineElement.class);
+		Mockito.verify(timelineDao).addTimelineElement(timeLineArg.capture());
+		Assertions.assertEquals( TimelineElementCategory.END_OF_ANALOG_DELIVERY_WORKFLOW , timeLineArg.getValue().getCategory());
+
+		ArgumentCaptor<Action> actionArg = ArgumentCaptor.forClass(Action.class);
+		Mockito.verify(actionsPool).scheduleFutureAction(actionArg.capture());
+		Assertions.assertEquals(ActionType.WAIT_FOR_RECIPIENT_TIMEOUT , actionArg.getValue().getType());
 	}
 
 	@Test

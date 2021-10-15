@@ -1,14 +1,17 @@
 package it.pagopa.pn.deliverypush.actions;
 
 import it.pagopa.pn.api.dto.events.CommunicationType;
+import it.pagopa.pn.api.dto.events.EventType;
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
 import it.pagopa.pn.api.dto.events.ServiceLevelType;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
+import it.pagopa.pn.api.dto.notification.timeline.DeliveryMode;
 import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
@@ -99,9 +102,12 @@ class SendPaperActionHandlerTest {
         //Then
         ArgumentCaptor<PnExtChnPaperEvent> paperEventArg = ArgumentCaptor.forClass(PnExtChnPaperEvent.class);
         Mockito.verify(paperRequestProducer).push(paperEventArg.capture());
+        //Assertions.assertEquals(CommunicationType.RECIEVED_DELIVERY_NOTICE, paperEventArg.getValue().getPayload().getCommunicationType());
 
+        ArgumentCaptor<TimelineElement> timeLineArg = ArgumentCaptor.forClass(TimelineElement.class);
+        Mockito.verify(timelineDao).addTimelineElement(timeLineArg.capture());
+        Assertions.assertEquals( TimelineElementCategory.SEND_PAPER ,(timeLineArg.getValue().getCategory()));
 
-        //Mockito.verify(timelineDao).addTimelineElement();
     }
 
     private Notification newNotificationWithoutPayments() {
