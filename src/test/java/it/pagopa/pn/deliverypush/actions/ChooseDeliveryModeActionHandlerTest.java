@@ -8,6 +8,7 @@ import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
+import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
@@ -37,6 +38,7 @@ class ChooseDeliveryModeActionHandlerTest {
     private ActionsPool actionsPool;
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private ChooseDeliveryModeActionHandler handler;
+    private AbstractActionHandler abstractHandler;
     private MomProducer<PnExtChnEmailEvent> emailRequestProducer;
     private ExtChnEventUtils eventUtils;
 
@@ -57,7 +59,7 @@ class ChooseDeliveryModeActionHandlerTest {
                 emailRequestProducer,
                 eventUtils);
         TimeParams times = new TimeParams();
-        times.setRecipientViewMaxTime(Duration.ZERO);
+        times.setRecipientViewMaxTimeForAnalog(Duration.ZERO);
         times.setSecondAttemptWaitingTime(Duration.ZERO);
         times.setIntervalBetweenNotificationAndMessageReceived(Duration.ZERO);
         times.setWaitingForNextAction(Duration.ZERO);
@@ -156,6 +158,35 @@ class ChooseDeliveryModeActionHandlerTest {
                                 .digitalDomicile(DigitalAddress.builder()
                                         .type(DigitalAddressType.PEC)
                                         .address("account@dominio.it")
+                                        .build())
+                                .build()
+                ))
+                .build();
+    }
+
+    private Notification newNotificationWithoutPaymentsAnalogOnly() {
+        return Notification.builder()
+                .iun("IUN_01")
+                .paNotificationId("protocol_01")
+                .subject("Subject 01")
+                .cancelledByIun("IUN_05")
+                .cancelledIun("IUN_00")
+                .sender(NotificationSender.builder()
+                        .paId(" pa_02")
+                        .build()
+                )
+                .recipients(Collections.singletonList(
+                        NotificationRecipient.builder()
+                                .taxId("Codice Fiscale 01")
+                                .denomination("Nome Cognome/Ragione Sociale")
+                                .physicalAddress(PhysicalAddress.builder()
+                                        .at("Presso")
+                                        .address("Via di casa sua")
+                                        .zip("00100")
+                                        .municipality("Roma")
+                                        .province("RM")
+                                        .foreignState("IT")
+                                        .addressDetails("Scala A")
                                         .build())
                                 .build()
                 ))

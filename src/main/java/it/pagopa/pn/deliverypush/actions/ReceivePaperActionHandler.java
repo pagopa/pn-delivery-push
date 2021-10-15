@@ -3,10 +3,12 @@ package it.pagopa.pn.deliverypush.actions;
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.api.dto.notification.timeline.SendPaperDetails;
 import it.pagopa.pn.api.dto.notification.timeline.SendPaperFeedbackDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
@@ -15,13 +17,17 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.Optional;
 
 @Component
 public class ReceivePaperActionHandler extends AbstractActionHandler {
 
+    private final ActionsPool actionsPool;
+
 	public ReceivePaperActionHandler(TimelineDao timelineDao, ActionsPool actionsPool,
                                      PnDeliveryPushConfigs pnDeliveryPushConfigs) {
 		super(timelineDao, actionsPool, pnDeliveryPushConfigs);
+        this.actionsPool = actionsPool;
 	}
     
     @Override
@@ -29,8 +35,37 @@ public class ReceivePaperActionHandler extends AbstractActionHandler {
     	PnExtChnProgressStatus status = action.getResponseStatus();
         NotificationRecipient recipient = notification.getRecipients().get( action.getRecipientIndex() );
 
-        Action nextAction = buildEndofDigitalWorkflowAction( action );	// END_OF_ANALOG_DELIVERY_WORKFLOW
+        Action nextAction = null;
+
+        switch (status) {
+            case OK:
+            case PERMANENT_FAIL: {
+                nextAction = buildEndofAnalogWorkflowAction( action );	// END_OF_ANALOG_DELIVERY_WORKFLOW
+            } break;
+            case RETRYABLE_FAIL: {
+                nextAction = action.toBuilder()
+                        .retryNumber(action.getRetryNumber() + 1 )
+                        .newPhysicalAddress( action.getNewPhysicalAddress() ) //TODO in attesa di PN-426
+                        .type( ActionType.SEND_PAPER )
+                        .build();
+            } break;
+            default: throw new PnInternalException("Status not supported: " + status);
+        }
+
         scheduleAction( nextAction );
+
+        // recuperare timeline azione di spedizione corrispondente
+        Optional<SendPaperDetails> sendDetails = super.getTimelineElement(
+                action,
+                ActionType.SEND_PAPER,
+                SendPaperDetails.class);
+
+        PhysicalAddress address;
+        if(sendDetails.isPresent()) {
+            address = sendDetails.get().getAddress();
+        } else {
+            throw new PnInternalException( "Send Timeline related to " + action + " not found!!! " );
+        }
     	
     	// - Write timeline
         addTimelineElement( action, TimelineElement.builder()
@@ -38,8 +73,9 @@ public class ReceivePaperActionHandler extends AbstractActionHandler {
                 .details( new SendPaperFeedbackDetails (
                             SendPaperDetails.builder()
                                 .taxId( recipient.getTaxId() )
-                			    .address( recipient.getPhysicalAddress() )
+                			    .address( address )
                 			    .build(),
+                            action.getNewPhysicalAddress(),
                             Collections.singletonList( status.name())
                 ))
                 .build()

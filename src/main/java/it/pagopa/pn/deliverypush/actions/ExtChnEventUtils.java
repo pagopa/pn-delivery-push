@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.actions;
 import java.time.Instant;
 
 import it.pagopa.pn.api.dto.events.*;
+import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import org.springframework.stereotype.Component;
 
 import it.pagopa.pn.api.dto.notification.Notification;
@@ -43,8 +44,32 @@ public class ExtChnEventUtils {
 				.build();
 	}
 
-	public PnExtChnPaperEvent buildSendPaperRequest (Action action, Notification notification, CommunicationType communicationType, ServiceLevelType serviceLevelType) {
+	public PnExtChnPaperEvent buildSendPaperRequest (
+			Action action,
+			Notification notification,
+			CommunicationType communicationType
+			) {
+		return buildSendPaperRequest(action, notification, communicationType, notification.getPhysicalCommunicationType());
+	}
+
+	public PnExtChnPaperEvent buildSendPaperRequest (
+			Action action,
+			Notification notification,
+			CommunicationType communicationType,
+			ServiceLevelType serviceLevelType
+	) {
+		return buildSendPaperRequest(action, notification, communicationType, serviceLevelType, null);
+	}
+
+
+	public PnExtChnPaperEvent buildSendPaperRequest (
+			Action action,
+			Notification notification,
+			CommunicationType communicationType,
+			ServiceLevelType serviceLevelType,
+			PhysicalAddress address) {
 		NotificationRecipient recipient = notification.getRecipients().get( action.getRecipientIndex() );
+		PhysicalAddress usedAddress = address != null ? address : recipient.getPhysicalAddress();
 				
 		return PnExtChnPaperEvent.builder()
 		        .header( StandardEventHeader.builder()
@@ -58,7 +83,7 @@ public class ExtChnEventUtils {
 		        .payload( PnExtChnPaperEventPayload.builder()
 		        			.iun( action.getIun() )
 		        			.requestCorrelationId( action.getActionId() )
-		        			.destinationAddress( recipient.getPhysicalAddress() )
+		        			.destinationAddress( usedAddress )
 		        			.recipientDenomination( recipient.getDenomination() )
 		        			.communicationType( communicationType )
 		        			.serviceLevel( serviceLevelType )

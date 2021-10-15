@@ -41,6 +41,7 @@ public class PecFailReceivePaperFeedbackActionHandler extends AbstractActionHand
                                 .taxId( recipient.getTaxId() )
                 			    .address( recipient.getPhysicalAddress() )
                 			    .build(),
+                            action.getNewPhysicalAddress(),
                             Collections.singletonList( status.name())
                 ))
                 .build()

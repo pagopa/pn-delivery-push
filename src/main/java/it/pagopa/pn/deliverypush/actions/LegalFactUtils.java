@@ -8,7 +8,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import it.pagopa.pn.api.dto.notification.timeline.SendPaperFeedbackDetails;
 import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
+import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.stereotype.Component;
 
 import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
@@ -76,4 +78,8 @@ public class LegalFactUtils {
     	this.saveLegalFact( notification.getIun(), "notification_viewed_" + taxId, pdfBytes, metadata );
     }
 
+
+	public void savePaperDeliveryWorkflowLegalFact(List<SendPaperFeedbackDetails> paperTrail, Notification notification) {
+		//FIXME da implementare
+	}
 }

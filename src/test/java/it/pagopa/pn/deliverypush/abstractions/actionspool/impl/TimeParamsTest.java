@@ -17,7 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ContextConfiguration(classes = TimeParams.class)
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
 @TestPropertySource(properties = {"pn.delivery-push.time-params.second-attempt-waiting-time=1s",
-        "pn.delivery-push.time-params.recipient-view-max-time=1s",
+        "pn.delivery-push.time-params.recipient-view-max-time-for-digital=1s",
+        "pn.delivery-push.time-params.recipient-view-max-time-for-analog=1s",
         "pn.delivery-push.time-params.waiting-response-from-first-address=1s",
         "pn.delivery-push.time-params.waiting-for-next-action=1m",
         "pn.delivery-push.time-params.time-between-ext-ch-reception-and-message-processed=1h",
@@ -31,7 +32,8 @@ class TimeParamsTest {
     void assertConfigurationIsLoaded(){
         
         assertEquals( Duration.ofSeconds(1), pnDeliveryPushConfigs.getTimeParams().getSecondAttemptWaitingTime() );
-        assertEquals( Duration.ofSeconds(1), pnDeliveryPushConfigs.getTimeParams().getRecipientViewMaxTime() );
+        assertEquals( Duration.ofSeconds(1), pnDeliveryPushConfigs.getTimeParams().getRecipientViewMaxTimeForDigital() );
+        assertEquals( Duration.ofSeconds(1), pnDeliveryPushConfigs.getTimeParams().getRecipientViewMaxTimeForAnalog() );
         assertEquals( Duration.ofSeconds(1), pnDeliveryPushConfigs.getTimeParams().getWaitingResponseFromFirstAddress() );
 
     }

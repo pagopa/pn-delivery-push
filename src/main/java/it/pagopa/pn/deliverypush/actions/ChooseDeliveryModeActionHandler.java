@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
@@ -70,16 +71,21 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
 
                 sendCourtesyMessages(action, notification, recipient, abEntry);
             });
-        //TODO percorso digitale se almeno un indirizzo digitale, valorizzare deliverymode
-        DeliveryMode deliveryMode = recipient.getDigitalDomicile() != null ? DeliveryMode.DIGITAL : DeliveryMode.ANALOG;
 
         NotificationPathChooseDetails timelineDetails = timelineDetailsBuilder.build();
+
+        //TODO percorso digitale se almeno un indirizzo digitale, valorizzare deliverymode vedere tutti gli indirizzi
+
+        boolean analogDeliveryMode = isAnalogRecipient(timelineDetails);
+        DeliveryMode deliveryMode = analogDeliveryMode ? DeliveryMode.ANALOG : DeliveryMode.DIGITAL;
 
         Action.ActionBuilder actionBuilder = Action.builder()
                 .iun(action.getIun())
                 .recipientIndex(action.getRecipientIndex())
                 .retryNumber( 1 )
                 .notBefore(Instant.now().plus(pnDeliveryPushConfigs.getTimeParams().getWaitingForNextAction()));
+
+        //TODO switch case
 
         //NEXT ACTION DELIVERY MODE DIGITAL
         if(deliveryMode.equals(DeliveryMode.DIGITAL)) {
@@ -99,9 +105,20 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
         // - WRITE TIMELINE
         super.addTimelineElement( action, TimelineElement.builder()
                 .category( TimelineElementCategory.NOTIFICATION_PATH_CHOOSE )
-                .details( timelineDetails )
+                .details( timelineDetails.toBuilder()
+                        .deliveryMode( deliveryMode )
+                        .build() )
                 .build()
             );
+    }
+
+    private boolean isAnalogRecipient(NotificationPathChooseDetails timelineDetails) {
+        if (timelineDetails.getGeneral() != null ||
+                timelineDetails.getPlatform() != null ||
+                timelineDetails.getSpecial() != null ) {
+            return false;
+        }
+        return true;
     }
 
     private void sendCourtesyMessages(Action action, Notification notification, NotificationRecipient recipient, AddressBookEntry abEntry) {

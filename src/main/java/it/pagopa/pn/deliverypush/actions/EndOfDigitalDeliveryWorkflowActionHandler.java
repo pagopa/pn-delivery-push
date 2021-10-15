@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.actions;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -55,11 +56,12 @@ public class EndOfDigitalDeliveryWorkflowActionHandler extends AbstractActionHan
                 .map( Optional::get )
                 .collect(Collectors.toList());
 
+            //FIXME recuperare se presente la timeline dell'azione di PEC_FAIL_RECEIVE_PAPER con iun e recipientId recuperati dall'action
+
             legalFactStore.savePecDeliveryWorkflowLegalFact( receivePecActions, notification, addresses );
 
-
             // - GENERATE NEXT ACTIONS
-            Action nextAction = buildWaitRecipientTimeoutAction(action);
+            Action nextAction = buildWaitRecipientTimeoutActionForDigital(action);
             scheduleAction(nextAction);
 
             // - WRITE TIMELINE

@@ -6,8 +6,10 @@ import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
 import it.pagopa.pn.api.dto.events.ServiceLevelType;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.api.dto.notification.timeline.*;
 import it.pagopa.pn.commons.abstractions.MomProducer;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -39,40 +42,53 @@ public class SendPaperActionHandler extends AbstractActionHandler {
     
     @Override
     public void handleAction( Action action, Notification notification ) {
-        NotificationRecipient recipient = notification.getRecipients().get(action.getRecipientIndex());
-        PnExtChnProgressStatus status = action.getResponseStatus();
 
-        // SECONDO TENTATIVO DI INVIO
-        if(status != null && status.equals(PnExtChnProgressStatus.RETRYABLE_FAIL)) {
-            recipient = recipient.toBuilder()
-                    .physicalAddress(action.getNewPhysicalAddress())
-                    .build();
-            action = action.toBuilder()
-                    .retryNumber( 2 )
-                    .build();
-        }
-
-        //TODO
+        PhysicalAddress address = retrievePhysicalAddress(action);
 
         this.paperRequestProducer.push( extChnEventUtils.buildSendPaperRequest(
                 action,
                 notification,
                 CommunicationType.RECIEVED_DELIVERY_NOTICE,
-                notification.getPhysicalCommunicationType()
+                notification.getPhysicalCommunicationType(),
+                address
             ));
 
 
         // - Write timeline
+        NotificationRecipient recipient = notification.getRecipients().get(action.getRecipientIndex());
         addTimelineElement( action, TimelineElement.builder()
                 .category(TimelineElementCategory.SEND_PAPER )
                 .details( SendPaperDetails.builder()
                         .taxId( recipient.getTaxId() )
-                        .address( recipient.getPhysicalAddress() )
+                        .address( address )
                         .build()
                 )
                 .build()
         );
 
+    }
+
+    private PhysicalAddress retrievePhysicalAddress(Action action) {
+        PhysicalAddress sendAddress;
+        PhysicalAddress actionAddress = action.getNewPhysicalAddress();
+
+        // PRIMO TENTATIVO DI INVIO
+        if( actionAddress == null ) {
+            // - Retrieve addresses
+            Optional<NotificationPathChooseDetails> addresses =
+                    getTimelineElement(action, ActionType.CHOOSE_DELIVERY_MODE, NotificationPathChooseDetails.class );
+            if (addresses.isPresent()) {
+                sendAddress = addresses.get().getPhysicalAddress();
+            }
+            else {
+                throw new PnInternalException( "Addresses list not found!!! Needed for action " + action );
+            }
+        }
+        // DAL SECONDO TENTATIVO
+        else {
+            sendAddress = actionAddress;
+        }
+        return sendAddress;
     }
 
     @Override

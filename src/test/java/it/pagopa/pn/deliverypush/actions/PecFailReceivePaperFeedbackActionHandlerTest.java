@@ -43,7 +43,7 @@ class PecFailReceivePaperFeedbackActionHandlerTest {
                 pnDeliveryPushConfigs
         );
         TimeParams times = new TimeParams();
-        times.setRecipientViewMaxTime(Duration.ZERO);
+        times.setRecipientViewMaxTimeForAnalog(Duration.ZERO);
         times.setSecondAttemptWaitingTime(Duration.ZERO);
         times.setIntervalBetweenNotificationAndMessageReceived(Duration.ZERO);
         times.setWaitingForNextAction(Duration.ZERO);
@@ -72,9 +72,8 @@ class PecFailReceivePaperFeedbackActionHandlerTest {
         Mockito.when(timelineDao.getTimelineElement( Mockito.anyString(), Mockito.anyString() ))
                 .thenReturn( Optional.of( TimelineElement.builder()
                         .category( TimelineElementCategory.SEND_PAPER_FEEDBACK )
-                        .details( new SendPaperFeedbackDetails ( SendPaperDetails.builder()
-                        			.address( recipient.getPhysicalAddress() )
-                        			.build(),
+                        .details( new SendPaperFeedbackDetails (
+                        			recipient.getPhysicalAddress(),
                                     Collections.singletonList( action.getResponseStatus().name() )
                         ))
                         .build() ) );

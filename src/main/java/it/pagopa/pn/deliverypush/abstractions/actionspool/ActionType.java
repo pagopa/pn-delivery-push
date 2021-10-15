@@ -51,6 +51,16 @@ public enum ActionType {
                 );
         }
     },
+    END_OF_ANALOG_DELIVERY_WORKFLOW() {
+        @Override
+        public String buildActionId(Action action) {
+            return String.format(
+                    "%s_end_analog_rec%d",
+                    action.getIun(),
+                    action.getRecipientIndex()
+            );
+        }
+    },
     RECEIVE_PEC() {
         @Override
         public String buildActionId(Action action) {

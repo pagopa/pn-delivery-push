@@ -48,7 +48,7 @@ class EndOfDigitalDeliveryWorkflowActionHandlerTest {
 		legalFactStore = Mockito.mock( LegalFactUtils.class );
 		pnDeliveryPushConfigs = Mockito.mock( PnDeliveryPushConfigs.class );
 		TimeParams times = new TimeParams();
-		times.setRecipientViewMaxTime( Duration.ZERO );
+		times.setRecipientViewMaxTimeForDigital( Duration.ZERO );
 		Mockito.when( pnDeliveryPushConfigs.getTimeParams() ).thenReturn( times );
 		endOfDigitalDeliveryWorkflowActionHandler = new EndOfDigitalDeliveryWorkflowActionHandler( timelineDao, actionsPool, legalFactStore, pnDeliveryPushConfigs );
 	}
