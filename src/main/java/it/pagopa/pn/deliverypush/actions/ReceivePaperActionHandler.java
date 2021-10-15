@@ -22,12 +22,11 @@ import java.util.Optional;
 @Component
 public class ReceivePaperActionHandler extends AbstractActionHandler {
 
-    private final ActionsPool actionsPool;
+
 
 	public ReceivePaperActionHandler(TimelineDao timelineDao, ActionsPool actionsPool,
                                      PnDeliveryPushConfigs pnDeliveryPushConfigs) {
 		super(timelineDao, actionsPool, pnDeliveryPushConfigs);
-        this.actionsPool = actionsPool;
 	}
     
     @Override

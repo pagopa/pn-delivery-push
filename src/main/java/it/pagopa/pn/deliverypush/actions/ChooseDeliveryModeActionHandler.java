@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.actions;
 
 import it.pagopa.pn.api.dto.addressbook.AddressBookEntry;
-import it.pagopa.pn.api.dto.events.*;
+import it.pagopa.pn.api.dto.events.PnExtChnEmailEvent;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
@@ -11,6 +11,7 @@ import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.commons.abstractions.MomProducer;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
@@ -22,7 +23,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
@@ -74,8 +74,6 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
 
         NotificationPathChooseDetails timelineDetails = timelineDetailsBuilder.build();
 
-        //TODO percorso digitale se almeno un indirizzo digitale, valorizzare deliverymode vedere tutti gli indirizzi
-
         boolean analogDeliveryMode = isAnalogRecipient(timelineDetails);
         DeliveryMode deliveryMode = analogDeliveryMode ? DeliveryMode.ANALOG : DeliveryMode.DIGITAL;
 
@@ -85,22 +83,24 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
                 .retryNumber( 1 )
                 .notBefore(Instant.now().plus(pnDeliveryPushConfigs.getTimeParams().getWaitingForNextAction()));
 
-        //TODO switch case
 
-        //NEXT ACTION DELIVERY MODE DIGITAL
-        if(deliveryMode.equals(DeliveryMode.DIGITAL)) {
-            super.scheduleAction( actionBuilder
-                    .type( ActionType.SEND_PEC )
-                    .digitalAddressSource( DigitalAddressSource.PLATFORM )
-                    .build()
-            );
-        } //NEXT ACTION DELIVERY MODE ANALOG
-        else {
-            super.scheduleAction( actionBuilder
-                    .type(ActionType.SEND_PAPER)
-                    .build()
-            );
+        switch (deliveryMode) {
+            case DIGITAL: {
+                super.scheduleAction( actionBuilder
+                        .type( ActionType.SEND_PEC )
+                        .digitalAddressSource( DigitalAddressSource.PLATFORM )
+                        .build()
+                );
+            } break;
+            case ANALOG: {
+                super.scheduleAction( actionBuilder
+                        .type(ActionType.SEND_PAPER)
+                        .build()
+                );
+            } break;
+            default: throw new PnInternalException("Delivery mode not supported: " + deliveryMode);
         }
+
 
         // - WRITE TIMELINE
         super.addTimelineElement( action, TimelineElement.builder()
@@ -113,12 +113,9 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
     }
 
     private boolean isAnalogRecipient(NotificationPathChooseDetails timelineDetails) {
-        if (timelineDetails.getGeneral() != null ||
-                timelineDetails.getPlatform() != null ||
-                timelineDetails.getSpecial() != null ) {
-            return false;
-        }
-        return true;
+        return timelineDetails.getGeneral() == null &&
+                timelineDetails.getPlatform() == null &&
+                timelineDetails.getSpecial() == null;
     }
 
     private void sendCourtesyMessages(Action action, Notification notification, NotificationRecipient recipient, AddressBookEntry abEntry) {

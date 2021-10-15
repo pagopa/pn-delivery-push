@@ -2,12 +2,13 @@ package it.pagopa.pn.deliverypush.actions;
 
 import it.pagopa.pn.api.dto.events.CommunicationType;
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
-import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
-import it.pagopa.pn.api.dto.events.ServiceLevelType;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
-import it.pagopa.pn.api.dto.notification.timeline.*;
+import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
+import it.pagopa.pn.api.dto.notification.timeline.SendPaperDetails;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
@@ -17,16 +18,12 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import org.springframework.stereotype.Component;
 
-import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 public class SendPaperActionHandler extends AbstractActionHandler {
 
     private final MomProducer<PnExtChnPaperEvent> paperRequestProducer;
-    private final TimelineDao timelineDao;
     private final ExtChnEventUtils extChnEventUtils;
 
     public SendPaperActionHandler(TimelineDao timelineDao, ActionsPool actionsPool,
@@ -36,7 +33,6 @@ public class SendPaperActionHandler extends AbstractActionHandler {
     ) {
 		super(timelineDao, actionsPool, pnDeliveryPushConfigs);
         this.paperRequestProducer = paperRequestProducer;
-        this.timelineDao = timelineDao;
         this.extChnEventUtils = extChnEventUtils;
     }
     

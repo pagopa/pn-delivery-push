@@ -2,8 +2,10 @@ package it.pagopa.pn.deliverypush.actions;
 
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.timeline.*;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.api.dto.notification.timeline.EndOfAnalogDeliveryWorkflowDetails;
+import it.pagopa.pn.api.dto.notification.timeline.SendPaperFeedbackDetails;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
@@ -14,18 +16,15 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 public class EndOfAnalogDeliveryWorkflowActionHandler extends AbstractActionHandler {
 
-    private final ActionsPool actionsPool;
     private final LegalFactUtils legalFactStore;
 
     public EndOfAnalogDeliveryWorkflowActionHandler(TimelineDao timelineDao, ActionsPool actionsPool,
                                                     LegalFactUtils legalFactStore, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         super(timelineDao, actionsPool, pnDeliveryPushConfigs);
-        this.actionsPool = actionsPool;
         this.legalFactStore = legalFactStore;
     }
 
