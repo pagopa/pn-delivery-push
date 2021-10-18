@@ -30,6 +30,17 @@ public enum ActionType {
                 );
         }
     },
+    SEND_PAPER() {
+        @Override
+        public String buildActionId(Action action) {
+            return String.format(
+                    "%s_send_paper_rec%d_n%d",
+                    action.getIun(),
+                    action.getRecipientIndex(),
+                    action.getRetryNumber()
+            );
+        }
+    },
     END_OF_DIGITAL_DELIVERY_WORKFLOW() {
         @Override
         public String buildActionId(Action action) {
@@ -40,6 +51,16 @@ public enum ActionType {
                 );
         }
     },
+    END_OF_ANALOG_DELIVERY_WORKFLOW() {
+        @Override
+        public String buildActionId(Action action) {
+            return String.format(
+                    "%s_end_analog_rec%d",
+                    action.getIun(),
+                    action.getRecipientIndex()
+            );
+        }
+    },
     RECEIVE_PEC() {
         @Override
         public String buildActionId(Action action) {
@@ -48,6 +69,17 @@ public enum ActionType {
                     action.getIun(),
                     action.getRecipientIndex(),
                     action.getDigitalAddressSource(),
+                    action.getRetryNumber()
+            );
+        }
+    },
+    RECEIVE_PAPER() {
+        @Override
+        public String buildActionId(Action action) {
+            return String.format(
+                    "%s_send_paper_result_rec%d_n%d",
+                    action.getIun(),
+                    action.getRecipientIndex(),
                     action.getRetryNumber()
             );
         }

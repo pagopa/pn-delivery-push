@@ -90,8 +90,10 @@ Resources:
               Value: !Ref WebhookMaxLength
             - Name: PN_DELIVERYPUSH_TIMEPARAMS_SECONDATTEMPTWAITINGTIME
               Value: !Ref PecSecondAttemptWaitTime
-            - Name: PN_DELIVERYPUSH_TIMEPARAMS_RECIPIENTVIEWMAXTIME
-              Value: !Ref RecipientTimeoutDelay
+            - Name: PN_DELIVERYPUSH_TIMEPARAMS_RECIPIENTVIEWMAXTIMEFORDIGITAL
+              Value: !Ref RecipientTimeoutDelayDigital
+            - Name: PN_DELIVERYPUSH_TIMEPARAMS_RECIPIENTVIEWMAXTIMEFORANALOG
+              Value: !Ref RecipientTimeoutDelayAnalog
             - Name: SPRING_DATA_CASSANDRA_KEYSPACENAME
               Value: !Sub ${KeyspaceName}
             - Name: SPRING_DATA_CASSANDRA_SSL

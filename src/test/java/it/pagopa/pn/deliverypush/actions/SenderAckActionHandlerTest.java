@@ -46,7 +46,7 @@ class SenderAckActionHandlerTest {
                 pnDeliveryPushConfigs
         );
         TimeParams times = new TimeParams();
-        times.setRecipientViewMaxTime(Duration.ZERO);
+        times.setRecipientViewMaxTimeForDigital(Duration.ZERO);
         times.setSecondAttemptWaitingTime(Duration.ZERO);
         times.setIntervalBetweenNotificationAndMessageReceived(Duration.ZERO);
         times.setWaitingForNextAction(Duration.ZERO);
