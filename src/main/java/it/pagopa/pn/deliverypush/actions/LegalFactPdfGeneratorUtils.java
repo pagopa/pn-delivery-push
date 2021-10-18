@@ -1,6 +1,8 @@
 package it.pagopa.pn.deliverypush.actions;
 
+import java.awt.Color;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
@@ -15,10 +17,13 @@ import java.util.Optional;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ResourceUtils;
 
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
 import it.pagopa.pn.api.dto.notification.Notification;
@@ -42,15 +47,30 @@ public class LegalFactPdfGeneratorUtils {
     
 	private final TimelineDao timelineDao;
 	
+	private static final String PARAGRAPH1 = "Ai sensi dell’art. 26, comma 11, del decreto-legge,"
+			+ " la PagoPA s.p.a. nella sua qualità di gestore ex lege"
+			+ " ella Piattaforma Notifiche Digitali di cui allo stesso art. 26,"
+			+ " con ogni valore legale per l'opponibilità a terzi, ATTESTA CHE:";
+	
+	private static final PDFont FONT = PDType1Font.TIMES_ROMAN;
+    private static final float FONT_SIZE = 12;
+    private static final float LEADING = -1.5f * FONT_SIZE;
+    private static final float TY_NEW_PAGE = 186f;
+    
+    private static final float MARGINY = 120f;
+    private static final float MARGINX = 80f;
+    
+    private PDDocument document = null;
+    private PDPageContentStream contentStream = null;
+    private float calculatedTY;
+    
+    private float startX;
+    private float startY;
+    
 	@Autowired
 	public LegalFactPdfGeneratorUtils(TimelineDao timelineDao) {
         this.timelineDao = timelineDao;
     }
-	
-	private static final String PARAGRAPH1 = "Ai sensi dell’art. 26, comma 11, del decreto-legge,\n"
-			+ "la PagoPA s.p.a. nella sua qualità di gestore ex lege\n"
-			+ "della Piattaforma Notifiche Digitali di cui allo stesso art. 26,\n"
-			+ "con ogni valore legale per l'opponibilità a terzi, ATTESTA CHE:\n";
     
 	public byte[] generateNotificationReceivedLegalFact(Action action, Notification notification) {
 		String paragraph2 = "in data %s il soggetto mittente %s, C.F. "
@@ -62,18 +82,18 @@ public class LegalFactPdfGeneratorUtils {
 	    										action.getIun());
 	    StringBuilder bld = new StringBuilder();
 	    for (int idx = 0; idx < notification.getDocuments().size(); idx ++) {
-	    	bld.append( notification.getDocuments().get(idx).getDigests().getSha256() + "; " );
+	    	bld.append( "\n" + notification.getDocuments().get(idx).getDigests().getSha256() + "; " );
 	    }
 	    
 	    if ( notification.getPayment() != null && notification.getPayment().getF24() != null ) {
 	    	if ( notification.getPayment().getF24().getFlatRate() != null) {
-	    		bld.append( notification.getPayment().getF24().getFlatRate().getDigests().getSha256() + ";" );
+	    		bld.append( "\n" + notification.getPayment().getF24().getFlatRate().getDigests().getSha256() + ";" );
 	    	}
 	    	if ( notification.getPayment().getF24().getDigital() != null) {
-	    		bld.append( notification.getPayment().getF24().getDigital().getDigests().getSha256() + ";" );
+	    		bld.append( "\n" + notification.getPayment().getF24().getDigital().getDigests().getSha256() + ";" );
 	    	}
 	    	if ( notification.getPayment().getF24().getAnalog() != null) {
-	    		bld.append( notification.getPayment().getF24().getAnalog().getDigests().getSha256() + ";" );
+	    		bld.append( "\n" + notification.getPayment().getF24().getAnalog().getDigests().getSha256() + ";" );
 	    	}
 	    }
 	    
@@ -95,13 +115,12 @@ public class LegalFactPdfGeneratorUtils {
 					recipient.getDenomination(),
 					recipient.getTaxId(),
 					recipient.getDigitalDomicile().getAddress(),
-					nullSafePhysicalAddressToString( recipient )
+					"\n" + nullSafePhysicalAddressToString( recipient )
 				));
 		}
 
 		return toPdfBytes( paragraphs );
 	}
-
 
 	public byte[] generateNotificationViewedLegalFact(Action action, Notification notification) {
 		if (action.getRecipientIndex() == null) {
@@ -173,37 +192,168 @@ public class LegalFactPdfGeneratorUtils {
 	}
 
 	private byte[] toPdfBytes( List<String> paragraphs) throws PnInternalException {
+        try {
+            PDPage page = new PDPage();
+            document = new PDDocument();
+            document.addPage(page);
+            contentStream = new PDPageContentStream(document, page);
+            
+            PDRectangle mediaBox = page.getMediaBox();
+            startX = mediaBox.getLowerLeftX() + MARGINX;
+            startY = mediaBox.getUpperRightY() - MARGINY;
+            float width = mediaBox.getWidth() - 2 * MARGINX;
+            calculatedTY = startY;
+            
+            printHeader(document, contentStream);
+            contentStream.beginText();
+     
+            for (int i=0; i<paragraphs.size(); i++) {
+            	if (i == 0) {
+            		addParagraph(width, startX, startY, paragraphs.get(i));
+            	} else {
+            		addParagraph(width, 0, -FONT_SIZE, paragraphs.get(i));
+            	}
+			}
+            
+            contentStream.endText();
+            printFooter(document, contentStream);  	                        
+            contentStream.close();
+            
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			document.save( baos );
+			return baos.toByteArray();
+        }
+        catch (IOException exc) {
+        	throw new PnInternalException("Error while generatin legalfact document", exc);
+    	}
+	}
+	
+	private void addParagraph(float width, float sx, float sy, String text) throws IOException {
+		addParagraph(width, sx, sy, text, false);
+	}
 
-		try (PDDocument doc = new PDDocument() ) {
-			PDPage page = new PDPage();
-			doc.addPage(page);
-			PDFont font = PDType1Font.HELVETICA;
+	private void addParagraph(float width, float sx, float sy, String text, boolean justify) throws IOException {
+		List<String> lines = parseLines(text, width);
+		contentStream.setFont(FONT, FONT_SIZE);
+		contentStream.newLineAtOffset(sx, sy);
+		for (String line : lines) {
 
-			try (PDPageContentStream contents = new PDPageContentStream(doc, page)) {
-				contents.beginText();
-				contents.setFont(font, 12);
-				contents.newLineAtOffset(50, 700);
-
-				for( String paragraph: paragraphs ) {
-					for(String line: paragraph.split("\n")) {
-						contents.showText( line );
-						contents.newLineAtOffset( 0, -15);
-					}
-					contents.newLineAtOffset( 0, -15);
-				}
-
-				contents.endText();
+			if (calculatedTY <= TY_NEW_PAGE) {
+				contentStream.endText();
+				printFooter(document, contentStream);
+				contentStream.close();
+				
+				PDPage newPage = new PDPage();
+				document.addPage(newPage);
+				contentStream = new PDPageContentStream(document, newPage);
+				
+	            PDRectangle mediaBox = newPage.getMediaBox();
+	            startX = mediaBox.getLowerLeftX() + MARGINX;
+	            startY = mediaBox.getUpperRightY() - MARGINY;
+	            
+				printHeader(document, contentStream);
+				
+				contentStream.beginText();
+				contentStream.setFont(FONT, FONT_SIZE);
+				contentStream.newLineAtOffset(startX, startY); 
+				calculatedTY = startY;
 			}
 
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			doc.save( baos );
-			return baos.toByteArray();
-		}
-		catch (IOException exc) {
-			throw new PnInternalException("Generating PDF", exc);
+			float charSpacing = 0;
+			if (justify && line.length() > 1) {
+				float size = FONT_SIZE * FONT.getStringWidth(line) / 1000;
+				float free = width - size;
+				if (free > 0 && !lines.get(lines.size() - 1).equals(line)) {
+					charSpacing = free / (line.length() - 1);
+				}
+			}
+			contentStream.setCharacterSpacing(charSpacing);
+			contentStream.showText(line);
+			contentStream.newLineAtOffset(0, LEADING);
+			calculatedTY += LEADING;
 		}
 	}
 
+	private List<String> parseLines(String text, float width) throws IOException {
+		List<String> lines = new ArrayList<>();
+		int lastSpace = -1;
+		for (String text1 : text.split("\n")) {
+			while (text1.length() > 0) {
+				int spaceIndex = text1.indexOf(' ', lastSpace + 1);
+				if (spaceIndex < 0)
+					spaceIndex = text1.length();
+				String subString = text1.substring(0, spaceIndex);
+				float size = FONT_SIZE * FONT.getStringWidth(subString) / 1000;
+				if (size > width) {
+					if (lastSpace < 0) {
+						lastSpace = spaceIndex;
+					}
+					subString = text1.substring(0, lastSpace);
+					lines.add(subString);
+					text1 = text1.substring(lastSpace).trim();
+					lastSpace = -1;
+				} else if (spaceIndex == text1.length()) {
+					lines.add(text1);
+					text1 = "";
+				} else {
+					lastSpace = spaceIndex;
+				}
+			}
+		}
+		return lines;
+	}
+
+	private void printHeader(final PDDocument document, PDPageContentStream contentStream) {
+		try {
+			File headerLogo = ResourceUtils.getFile("classpath:image/pn-logo-header.png");
+		    PDImageXObject ximage = PDImageXObject.createFromFileByContent(headerLogo, document);
+		    float scale = 0.22f;
+		    contentStream.drawImage(ximage, 80, 720, ximage.getWidth()*scale, ximage.getHeight()*scale);
+		} catch (IOException e) {
+			throw new PnInternalException("Error loading header image logo while generating legalfacts pdf document", e);
+		}
+	}
+	
+    private void printFooter(PDDocument document, PDPageContentStream cos) throws IOException {
+    	PDFont font = PDType1Font.TIMES_ROMAN;
+    	float ty = 120;
+    	ArrayList<String> footerText = new ArrayList<>(
+    		Arrays.asList("PagoPA S.p.A",
+                		"società per azioni con socio unico",
+                		"capitale sociale di euro 1,000,000 interamente versato",
+                		"sede legale in Roma, Piazza Colonna 370, CAP 00187",
+                		"n. di iscrizione a Registro Imprese di Roma, CF e P.IVA 15376371009"
+    		)
+    	);
+    	
+    	//print separator
+        cos.setLineWidth(0.5f);
+        cos.moveTo(80, 140);
+        cos.lineTo(520, 140);
+        cos.setStrokingColor( Color.DARK_GRAY );
+        cos.closeAndStroke();
+        
+    	//print text
+    	for (int i=0; i<footerText.size(); i++) {
+    		cos.beginText();
+    		cos.setFont(font, 8);
+    		cos.setNonStrokingColor( Color.DARK_GRAY );
+    		cos.newLineAtOffset(80, ty);
+    		cos.showText(footerText.get(i));
+    		cos.endText();
+    		ty -= 15;
+    	}
+    	
+    	//print logo
+        try {
+        	File footerLogo = ResourceUtils.getFile("classpath:image/pn-logo-footer.png");
+            PDImageXObject ximage1 = PDImageXObject.createFromFileByContent(footerLogo, document);
+            float scale = 0.25f;
+            cos.drawImage(ximage1, 480, 80, ximage1.getWidth()*scale, ximage1.getHeight()*scale);
+        } catch (IOException e) {
+        	throw new PnInternalException("Error loading footer image logo while generating legalfacts pdf document", e);
+        }
+    }
 
 	private TimelineElement timelineElement(Action action) {
 		Optional<TimelineElement> row;
