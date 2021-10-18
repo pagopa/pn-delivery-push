@@ -221,6 +221,11 @@ public class LegalFactPdfGeneratorUtils {
             
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			document.save( baos );
+			
+			if (!document.getDocument().isClosed()) {
+				document.close();
+			}
+			
 			return baos.toByteArray();
         }
         catch (IOException exc) {
