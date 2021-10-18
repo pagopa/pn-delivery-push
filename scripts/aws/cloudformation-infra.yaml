@@ -16,9 +16,12 @@ Parameters:
   PecSecondAttemptWaitTime:
     Type: String
     Description: tempo di attesa tra un tentativo di invio pec e il successivo tentativo allo stesso indirizzo
-  RecipientTimeoutDelay:
+  RecipientTimeoutDelayAnalog:
     Type: String
-    Description: tempo di perfezionamento della notifica per il destinatario
+    Description: tempo di perfezionamento della notifica per il destinatario analogico
+  RecipientTimeoutDelayDigital:
+    Type: String
+    Description: tempo di perfezionamento della notifica per il destinatario digitale
   WebhookScanInterval:
     Type: String
     Description: milliseconds between webhook scans
