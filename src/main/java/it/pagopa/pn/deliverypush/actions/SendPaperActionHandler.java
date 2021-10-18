@@ -41,13 +41,14 @@ public class SendPaperActionHandler extends AbstractActionHandler {
 
         PhysicalAddress address = retrievePhysicalAddress(action);
 
-        this.paperRequestProducer.push( extChnEventUtils.buildSendPaperRequest(
+        final PnExtChnPaperEvent event = extChnEventUtils.buildSendPaperRequest(
                 action,
                 notification,
                 CommunicationType.RECIEVED_DELIVERY_NOTICE,
                 notification.getPhysicalCommunicationType(),
                 address
-            ));
+        );
+        this.paperRequestProducer.push(event);
 
 
         // - Write timeline

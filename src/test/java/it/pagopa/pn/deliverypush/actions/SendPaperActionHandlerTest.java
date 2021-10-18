@@ -1,14 +1,11 @@
 package it.pagopa.pn.deliverypush.actions;
 
 import it.pagopa.pn.api.dto.events.CommunicationType;
-import it.pagopa.pn.api.dto.events.EventType;
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
-import it.pagopa.pn.api.dto.events.ServiceLevelType;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
-import it.pagopa.pn.api.dto.notification.timeline.DeliveryMode;
 import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
@@ -28,15 +25,14 @@ import org.mockito.Mockito;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 class SendPaperActionHandlerTest {
 
     private MomProducer<PnExtChnPaperEvent> paperRequestProducer;
     private TimelineDao timelineDao;
-    private ActionsPool actionsPool;
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
-    private ExtChnEventUtils extChnEventUtils;
     private SendPaperActionHandler handler;
 
     @BeforeEach
@@ -44,13 +40,12 @@ class SendPaperActionHandlerTest {
         pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
         paperRequestProducer = Mockito.mock(MomProducer.class);
         timelineDao = Mockito.mock(TimelineDao.class);
-        extChnEventUtils = Mockito.mock(ExtChnEventUtils.class);
         handler = new SendPaperActionHandler(
                 timelineDao,
-                actionsPool,
+                null,
                 pnDeliveryPushConfigs,
                 paperRequestProducer,
-                extChnEventUtils
+                new ExtChnEventUtils()
         );
         TimeParams times = new TimeParams();
         times.setRecipientViewMaxTimeForAnalog(Duration.ZERO);
@@ -99,10 +94,12 @@ class SendPaperActionHandlerTest {
         //When
         handler.handleAction(inputAction, notification);
 
+
         //Then
         ArgumentCaptor<PnExtChnPaperEvent> paperEventArg = ArgumentCaptor.forClass(PnExtChnPaperEvent.class);
         Mockito.verify(paperRequestProducer).push(paperEventArg.capture());
-        //Assertions.assertEquals(CommunicationType.RECIEVED_DELIVERY_NOTICE, paperEventArg.getValue().getPayload().getCommunicationType());
+        final PnExtChnPaperEvent value = paperEventArg.getValue();
+        Assertions.assertEquals(CommunicationType.RECIEVED_DELIVERY_NOTICE, value.getPayload().getCommunicationType());
 
         ArgumentCaptor<TimelineElement> timeLineArg = ArgumentCaptor.forClass(TimelineElement.class);
         Mockito.verify(timelineDao).addTimelineElement(timeLineArg.capture());
