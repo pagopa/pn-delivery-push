@@ -208,22 +208,4 @@ public abstract class AbstractActionHandler implements ActionHandler {
         }
         return result;
     }
-
-    protected List<Action> replicateForEachPaperWorkflowAction(Action templateAction) {
-        List<Action> result = new ArrayList<>();
-
-        Action.ActionBuilder builder =  templateAction.toBuilder();
-
-        for( int retryNum = FIRST_ROUND; retryNum <= LAST_ROUND; retryNum++ ) {
-            Action actionWithoutId = builder
-                    .retryNumber( retryNum )
-                    .build();
-            Action actionWithId = actionWithoutId.toBuilder()
-                    .actionId( actionWithoutId.getType().buildActionId( actionWithoutId ))
-                    .build();
-            result.add( actionWithId );
-        }
-
-        return result;
-    }
 }
