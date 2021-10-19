@@ -11,22 +11,22 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 
 class OpenHtmlToPdfTest {
-
+	
+	private final Path resourceDirectory = Paths.get("src", "main", "resources", "openhtmltopdf");
+	private final String absolutePath = resourceDirectory.toFile().getAbsolutePath();
+	private final String baseUri = FileSystems.getDefault().getPath(absolutePath).toUri().toString();
+	
 	@Test
-	void testOpenHtmlToPdf() throws Exception {
-				
-		Path resourceDirectory = Paths.get("src", "main", "resources", "openhtmltopdf");
-		String absolutePath = resourceDirectory.toFile().getAbsolutePath();
-		 		
+	void testOpenHtmlToPdf(@TempDir Path tempDir) throws Exception {
 		StringBuilder sb = new StringBuilder();
 		try (Stream<String> stream = Files.lines(Paths.get(absolutePath + "/openHtmlToPdf.html"), StandardCharsets.UTF_8)) {
 			stream.forEach(s -> sb.append(s).append("\n"));
@@ -39,7 +39,34 @@ class OpenHtmlToPdfTest {
 		ByteArrayOutputStream renderedPdfBytes = new ByteArrayOutputStream();
 		PdfRendererBuilder builder = new PdfRendererBuilder();
 		
-		String baseUri = FileSystems.getDefault().getPath(absolutePath).toUri().toString();
+		builder.withHtmlContent(html, baseUri);
+		builder.toStream(renderedPdfBytes);
+		builder.run();
+		renderedPdfBytes.close();
+		
+		byte[] renderedPdf = renderedPdfBytes.toByteArray();
+
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("ddMMyyyyHHmmss").withZone(ZoneId.of("Europe/Rome"));
+        String formattedDate = dtf.format(Instant.now()); 
+		
+		Path tempPath = tempDir.resolve(formattedDate + "_openHtmlToPdf.pdf");
+		Files.write(tempPath, renderedPdf);
+		
+		Assertions.assertTrue(Files.exists(tempPath), "File should exist" );
+    }
+	
+	void writeFile() throws Exception {
+		StringBuilder sb = new StringBuilder();
+		try (Stream<String> stream = Files.lines(Paths.get(absolutePath + "/openHtmlToPdf.html"), StandardCharsets.UTF_8)) {
+			stream.forEach(s -> sb.append(s).append("\n"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	
+		String html = sb.toString();
+		
+		ByteArrayOutputStream renderedPdfBytes = new ByteArrayOutputStream();
+		PdfRendererBuilder builder = new PdfRendererBuilder();
 		
 		builder.withHtmlContent(html, baseUri);
 		builder.toStream(renderedPdfBytes);
