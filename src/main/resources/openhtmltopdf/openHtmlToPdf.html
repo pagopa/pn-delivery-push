@@ -2,7 +2,6 @@
 	<head>
 	<style type="text/css" media="all">
 	.container {
-		margin: 25px;
 		width: 650px;
 		margin: 0 auto;
 		margin-top: 25px;
@@ -12,12 +11,8 @@
 		font-family: "Times New Roman", Times, serif;
 		font-size: 16px;
 		margin-top: 25px;
-		/*width: 600px;*/
 	}
 	
-	* {
-		box-sizing: border-box;
-	}
 	.row {
 		margin-top: 25px;
 	}
@@ -70,18 +65,19 @@
     }
 	
 	@page {
-		margin: 1.5cm;
+		size: A4;
+		margin: 10%;
+		margin-bottom: 150px;
+		
 		@top-left {
 			content: element(header); 
 		}
-	}
-	
-	@page {
-		margin-bottom: 150px;
+		
 		@bottom-center { 
             content: element(footer);
 		}
 	}
+	
 	</style>
 	</head>
 	<body>
@@ -230,7 +226,7 @@
 					<p>FRANCIA</p>
 				</div>
 			</div>
-		
+	
 			<div class="footer" id="footer">
 				<hr/>
 				<img id="pippo" src="pn-logo-footer.png" width="70" height="70" />
