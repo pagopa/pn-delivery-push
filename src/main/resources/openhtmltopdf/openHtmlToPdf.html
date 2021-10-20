@@ -13,23 +13,24 @@
 		margin-top: 25px;
 	}
 
-	.mytable {
+	.recipient {
 		margin-top: 25px;
+		page-break-inside: avoid !important;
 		display: table;
 	}
-	.myrow {
+	.recipient_row {
 		display: table-row;
 	}
-	.mycell {
+	.recipient_row > .title {
 		display: table-cell;
+		padding: 2pt;
+		font-weight: bold;
 	}
-	.column1 {
-		display: table-column;
+	.recipient_row > .value {
+		display: table-cell;
+		padding: 2pt;
 	}
-	.column2 {
-		display: table-column;
-	}
-	
+
 	p {
 		margin: 1px;
 		padding: 1px;
@@ -58,11 +59,12 @@
 	#header {
         position: running(header);	
     }
+
 	#footer {
 		margin-top: 25px;
         position: running(footer);
     }
-	
+
 	@page {
 		size: A4;
 		margin: 10%;
@@ -72,7 +74,7 @@
 			content: element(header); 
 		}
 		
-		@bottom-center { 
+		@bottom-left {
             content: element(footer);
 		}
 	}
@@ -83,6 +85,16 @@
 			<div id="header">
 				<img src="pn-logo-header.png" width="180" height="55" />
 			</div>
+			<div class="footer" id="footer">
+				<hr/>
+				<img id="footer_img" src="pn-logo-footer.png" width="70" height="70" />
+				PagoPA S.p.A.<br/>
+				società per azioni con socio unico<br/>
+				capitale sociale di euro 1,000,000 interamente versato<br/>
+				sede legale in Roma, Piazza Colonna 370, CAP 00187<br/>
+				n. di iscrizione a Registro Imprese di Roma, CF e P.IVA 15376371009
+			</div>
+
 			<div class="paragraph">
 				Ai sensi dell’art. 26, comma 11, del decreto-legge, la PagoPA s.p.a. nella sua qualità di gestore ex lege della Piattaforma Notifiche Digitali 
 				di cui allo stesso art. 26, con ogni valore legale per l'opponibilità a terzi, ATTESTA CHE:
@@ -106,178 +118,186 @@
 			</div>
 			
 			
-			<div class="mytable">
-				<div class="column1"></div>
-				<div class="column2"></div>
-				<div class="myrow">
-					<div class="mycell"><p>nome e cognome/ragione sociale</p>
-					<p>Codice Fiscale</p>
-					<p>domicilio digitale</p>
-					<p>indirizzo fisico</p></div>
-					<div class="mycell"><p>Pinco Pallino,</p>
-					<p>AAABBB99A00A944L</p>
-					<p>a@undominiopec.it,</p>
-					<p>Mario Rossi</p>
-					<p>Presso assicurazioni unite</p>
-					<p>Edificio 12 interno 8 piano 4</p>
-					<p>Via pincopallino 23</p>
-					<p>20133 Milano MI</p>
-					<p>FRANCIA</p></div>
-				</div>
+			<div class="recipient">
+				<p class="recipient_row">
+					<span class="title">nome e cognome/ragione sociale</span>
+					<span class="value">Pinco Pallino</span>
+				</p>
+				<p class="recipient_row">
+					<span class="title">Codice Fiscale</span>
+					<span class="value">AAABBB99A00A944L</span>
+				</p>
+				<p class="recipient_row">
+					<span class="title">Domicilio Digitale</span>
+					<span class="value">a@undominiopec.it</span>
+				</p>
+				<p class="recipient_row">
+					<span class="title">Indirizzo Fisico</span>
+					<span class="value">
+						Pinco Pallino<br/>
+						Presso assicurazioni unite<br/>
+						Edificio 12 interno 8 piano 4<br/>
+						Via pincopallino 23<br/>
+						20133 Milano MI<br/>
+						FRANCIA
+					</span>
+				</p>
 			</div>
 
-			<div class="mytable">
-				<div class="column1"></div>
-				<div class="column2"></div>
-				<div class="myrow">
-					<div class="mycell">
-						<p>nome e cognome/ragione sociale</p>
-						<p>Codice Fiscale</p>
-						<p>domicilio digitale</p>
-						<p>indirizzo fisico</p>
-					</div>
-					<div class="mycell">
-						<p>Pinco Pallino,</p>
-						<p>AAABBB99A00A944L</p>
-						<p>a@undominiopec.it,</p>
-						<p>Mario Rossi</p>
-						<p>Presso assicurazioni unite</p>
-						<p>Edificio 12 interno 8 piano 4</p>
-						<p>Via pincopallino 23</p>
-						<p>20133 Milano MI</p>
-						<p>FRANCIA</p>
-					</div>
-				</div>
+			<div class="recipient">
+				<p class="recipient_row">
+					<span class="title">nome e cognome/ragione sociale</span>
+					<span class="value">Pinco Pallino</span>
+				</p>
+				<p class="recipient_row">
+					<span class="title">Codice Fiscale</span>
+					<span class="value">AAABBB99A00A944L</span>
+				</p>
+				<p class="recipient_row">
+					<span class="title">Domicilio Digitale</span>
+					<span class="value">a@undominiopec.it</span>
+				</p>
+				<p class="recipient_row">
+					<span class="title">Indirizzo Fisico</span>
+					<span class="value">
+						Pinco Pallino<br/>
+						Presso assicurazioni unite<br/>
+						Edificio 12 interno 8 piano 4<br/>
+						Via pincopallino 23<br/>
+						20133 Milano MI<br/>
+						FRANCIA
+					</span>
+				</p>
 			</div>
 
-			<div class="mytable">
-				<div class="column1"></div>
-				<div class="column2"></div>
-				<div class="myrow">
-					<div class="mycell">
-						<p>nome e cognome/ragione sociale</p>
-						<p>Codice Fiscale</p>
-						<p>domicilio digitale</p>
-						<p>indirizzo fisico</p>
-					</div>
-					<div class="mycell">
-						<p>Pinco Pallino,</p>
-						<p>AAABBB99A00A944L</p>
-						<p>a@undominiopec.it,</p>
-						<p>Mario Rossi</p>
-						<p>Presso assicurazioni unite</p>
-						<p>Edificio 12 interno 8 piano 4</p>
-						<p>Via pincopallino 23</p>
-						<p>20133 Milano MI</p>
-						<p>FRANCIA</p>
-					</div>
-				</div>
+			<div class="recipient">
+				<p class="recipient_row">
+					<span class="title">nome e cognome/ragione sociale</span>
+					<span class="value">Pinco Pallino</span>
+				</p>
+				<p class="recipient_row">
+					<span class="title">Codice Fiscale</span>
+					<span class="value">AAABBB99A00A944L</span>
+				</p>
+				<p class="recipient_row">
+					<span class="title">Domicilio Digitale</span>
+					<span class="value">a@undominiopec.it</span>
+				</p>
+				<p class="recipient_row">
+					<span class="title">Indirizzo Fisico</span>
+					<span class="value">
+						Pinco Pallino<br/>
+						Presso assicurazioni unite<br/>
+						Edificio 12 interno 8 piano 4<br/>
+						Via pincopallino 23<br/>
+						20133 Milano MI<br/>
+						FRANCIA
+					</span>
+				</p>
 			</div>
 
-			<div class="mytable">
-				<div class="column1"></div>
-				<div class="column2"></div>
-				<div class="myrow">
-					<div class="mycell">
-						<p>nome e cognome/ragione sociale</p>
-						<p>Codice Fiscale</p>
-						<p>domicilio digitale</p>
-						<p>indirizzo fisico</p>
-					</div>
-					<div class="mycell">
-						<p>Pinco Pallino,</p>
-						<p>AAABBB99A00A944L</p>
-						<p>a@undominiopec.it,</p>
-						<p>Mario Rossi</p>
-						<p>Presso assicurazioni unite</p>
-						<p>Edificio 12 interno 8 piano 4</p>
-						<p>Via pincopallino 23</p>
-						<p>20133 Milano MI</p>
-						<p>FRANCIA</p>
-					</div>
-				</div>
+			<div class="recipient">
+				<p class="recipient_row">
+					<span class="title">Nome e cognome/ragione sociale</span>
+					<span class="value">Pinco Pallino</span>
+				</p>
+				<p class="recipient_row">
+					<span class="title">Codice fiscale</span>
+					<span class="value">AAABBB99A00A944L</span>
+				</p>
+				<p class="recipient_row">
+					<span class="title">Domicilio digitale</span>
+					<span class="value">a@undominiopec.it</span>
+				</p>
+				<p class="recipient_row">
+					<span class="title">Indirizzo fisico</span>
+					<span class="value">
+						Pinco Pallino<br/>
+						Presso assicurazioni unite<br/>
+						Edificio 12 interno 8 piano 4<br/>
+						Via pincopallino 23<br/>
+						20133 Milano MI<br/>
+						FRANCIA
+					</span>
+				</p>
 			</div>
 
-			<div class="mytable">
-				<div class="column1"></div>
-				<div class="column2"></div>
-				<div class="myrow">
-					<div class="mycell">
-						<p>nome e cognome/ragione sociale</p>
-						<p>Codice Fiscale</p>
-						<p>domicilio digitale</p>
-						<p>indirizzo fisico</p>
-					</div>
-					<div class="mycell">
-						<p>Pinco Pallino,</p>
-						<p>AAABBB99A00A944L</p>
-						<p>a@undominiopec.it,</p>
-						<p>Mario Rossi</p>
-						<p>Presso assicurazioni unite</p>
-						<p>Edificio 12 interno 8 piano 4</p>
-						<p>Via pincopallino 23</p>
-						<p>20133 Milano MI</p>
-						<p>FRANCIA</p>
-					</div>
-				</div>
+			<div class="recipient">
+				<p class="recipient_row">
+					<span class="title">nome e cognome/ragione sociale</span>
+					<span class="value">Pinco Pallino</span>
+				</p>
+				<p class="recipient_row">
+					<span class="title">Codice Fiscale</span>
+					<span class="value">AAABBB99A00A944L</span>
+				</p>
+				<p class="recipient_row">
+					<span class="title">Domicilio Digitale</span>
+					<span class="value">a@undominiopec.it</span>
+				</p>
+				<p class="recipient_row">
+					<span class="title">Indirizzo Fisico</span>
+					<span class="value">
+						Pinco Pallino<br/>
+						Presso assicurazioni unite<br/>
+						Edificio 12 interno 8 piano 4<br/>
+						Via pincopallino 23<br/>
+						20133 Milano MI<br/>
+						FRANCIA
+					</span>
+				</p>
 			</div>
 
-			<div class="mytable">
-				<div class="column1"></div>
-				<div class="column2"></div>
-				<div class="myrow">
-					<div class="mycell">
-						<p>nome e cognome/ragione sociale</p>
-						<p>Codice Fiscale</p>
-						<p>domicilio digitale</p>
-						<p>indirizzo fisico</p>
-					</div>
-					<div class="mycell">
-						<p>Pinco Pallino,</p>
-						<p>AAABBB99A00A944L</p>
-						<p>a@undominiopec.it,</p>
-						<p>Mario Rossi</p>
-						<p>Presso assicurazioni unite</p>
-						<p>Edificio 12 interno 8 piano 4</p>
-						<p>Via pincopallino 23</p>
-						<p>20133 Milano MI</p>
-						<p>FRANCIA</p>
-					</div>
-				</div>
+			<div class="recipient">
+				<p class="recipient_row">
+					<span class="title">nome e cognome/ragione sociale</span>
+					<span class="value">Pinco Pallino</span>
+				</p>
+				<p class="recipient_row">
+					<span class="title">Codice Fiscale</span>
+					<span class="value">AAABBB99A00A944L</span>
+				</p>
+				<p class="recipient_row">
+					<span class="title">Domicilio Digitale</span>
+					<span class="value">a@undominiopec.it</span>
+				</p>
+				<p class="recipient_row">
+					<span class="title">Indirizzo Fisico</span>
+					<span class="value">
+						Pinco Pallino<br/>
+						Presso assicurazioni unite<br/>
+						Edificio 12 interno 8 piano 4<br/>
+						Via pincopallino 23<br/>
+						20133 Milano MI<br/>
+						FRANCIA
+					</span>
+				</p>
 			</div>
 
-			<div class="mytable">
-				<div class="column1"></div>
-				<div class="column2"></div>
-				<div class="myrow">
-					<div class="mycell">
-						<p>nome e cognome/ragione sociale</p>
-						<p>Codice Fiscale</p>
-						<p>domicilio digitale</p>
-						<p>indirizzo fisico</p>
-					</div>
-					<div class="mycell">
-						<p>Pinco Pallino,</p>
-						<p>AAABBB99A00A944L</p>
-						<p>a@undominiopec.it,</p>
-						<p>Mario Rossi</p>
-						<p>Presso assicurazioni unite</p>
-						<p>Edificio 12 interno 8 piano 4</p>
-						<p>Via pincopallino 23</p>
-						<p>20133 Milano MI</p>
-						<p>FRANCIA</p>
-					</div>
-				</div>
-			</div>
-	
-			<div class="footer" id="footer">
-				<hr/>
-				<img id="pippo" src="pn-logo-footer.png" width="70" height="70" />
-				PagoPA S.p.A.<br/>
-				società per azioni con socio unico<br/>
-				capitale sociale di euro 1,000,000 interamente versato<br/>
-				sede legale in Roma, Piazza Colonna 370, CAP 00187<br/>
-				n. di iscrizione a Registro Imprese di Roma, CF e P.IVA 15376371009
+			<div class="recipient">
+				<p class="recipient_row">
+					<span class="title">nome e cognome/ragione sociale</span>
+					<span class="value">Pinco Pallino</span>
+				</p>
+				<p class="recipient_row">
+					<span class="title">Codice Fiscale</span>
+					<span class="value">AAABBB99A00A944L</span>
+				</p>
+				<p class="recipient_row">
+					<span class="title">Domicilio Digitale</span>
+					<span class="value">a@undominiopec.it</span>
+				</p>
+				<p class="recipient_row">
+					<span class="title">Indirizzo Fisico</span>
+					<span class="value">
+						Pinco Pallino<br/>
+						Presso assicurazioni unite<br/>
+						Edificio 12 interno 8 piano 4<br/>
+						Via pincopallino 23<br/>
+						20133 Milano MI<br/>
+						FRANCIA
+					</span>
+				</p>
 			</div>
 		</div>
 	</body>
