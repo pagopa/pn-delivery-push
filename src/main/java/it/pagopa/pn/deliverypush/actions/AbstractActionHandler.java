@@ -87,13 +87,22 @@ public abstract class AbstractActionHandler implements ActionHandler {
                 .type( ActionType.PEC_FAIL_SEND_PAPER )
                 .build();
     }
+
+    protected Action buildWaitRecipientTimeoutActionForDigital(Action action ) {
+        Duration recipientViewMaxTime = pnDeliveryPushConfigs.getTimeParams().getRecipientViewMaxTimeForDigital();
+        return buildWaitRecipientTimeoutAction(action,recipientViewMaxTime);
+    }
+
+    protected Action buildWaitRecipientTimeoutActionForAnalog(Action action ) {
+        Duration recipientViewMaxTime = pnDeliveryPushConfigs.getTimeParams().getRecipientViewMaxTimeForAnalog();
+        return buildWaitRecipientTimeoutAction(action,recipientViewMaxTime);
+    }
     
-    protected Action buildWaitRecipientTimeoutAction(Action action ) {
-        Duration recipientViewMaxTime = pnDeliveryPushConfigs.getTimeParams().getRecipientViewMaxTime();
+    protected Action buildWaitRecipientTimeoutAction(Action action, Duration delay ) {
         return Action.builder()
                 .iun(action.getIun())
                 .recipientIndex(action.getRecipientIndex())
-                .notBefore(Instant.now().plus(recipientViewMaxTime) )
+                .notBefore(Instant.now().plus(delay) )
                 .type(ActionType.WAIT_FOR_RECIPIENT_TIMEOUT)
                 .build();
     }
@@ -104,6 +113,15 @@ public abstract class AbstractActionHandler implements ActionHandler {
                 .recipientIndex(action.getRecipientIndex())
                 .notBefore(Instant.now())
                 .type(ActionType.END_OF_DIGITAL_DELIVERY_WORKFLOW)
+                .build();
+    }
+
+    protected Action buildEndofAnalogWorkflowAction(Action action ) {
+        return Action.builder()
+                .iun(action.getIun())
+                .recipientIndex(action.getRecipientIndex())
+                .notBefore(Instant.now())
+                .type(ActionType.END_OF_ANALOG_DELIVERY_WORKFLOW)
                 .build();
     }
 

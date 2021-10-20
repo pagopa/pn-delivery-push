@@ -42,6 +42,7 @@ public class ExtChannelResponseEventHandler extends AbstractEventHandler<PnExtCh
                     .type( receiveActionType )
                     .notBefore( header.getCreatedAt().plus( pnDeliveryPushConfigs.getTimeParams().getTimeBetweenExtChReceptionAndMessageProcessed() ) )
                     .responseStatus( evt.getPayload().getStatusCode() )
+                    .newPhysicalAddress( evt.getPayload().getNewPhysicalAddress() )
                     .build();
 
             actionsPool.scheduleFutureAction( extChResponseAction.toBuilder()
@@ -59,6 +60,7 @@ public class ExtChannelResponseEventHandler extends AbstractEventHandler<PnExtCh
         ActionType result;
         switch ( sendAction.getType() ) {
             case SEND_PEC: result = ActionType.RECEIVE_PEC; break;
+            case SEND_PAPER: result = ActionType.RECEIVE_PAPER; break;
             case PEC_FAIL_SEND_PAPER: result = ActionType.PEC_FAIL_RECEIVE_PAPER; break;
             default:
                 throw new PnInternalException( sendAction.getType() + " is not a send");

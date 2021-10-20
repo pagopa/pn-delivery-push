@@ -41,7 +41,7 @@ class AbstractActionHandlerTest {
                 actionsPool,
                 pnDeliveryPushConfigs);
         TimeParams times = new TimeParams();
-        times.setRecipientViewMaxTime(Duration.ZERO);
+        times.setRecipientViewMaxTimeForDigital(Duration.ZERO);
         times.setSecondAttemptWaitingTime(Duration.ofSeconds(2));
         times.setIntervalBetweenNotificationAndMessageReceived(Duration.ZERO);
         times.setWaitingForNextAction(Duration.ZERO);
@@ -223,7 +223,7 @@ class AbstractActionHandlerTest {
                 .build();
 
         //When
-        Action returnAction = abstractActionHandler.buildWaitRecipientTimeoutAction(action);
+        Action returnAction = abstractActionHandler.buildWaitRecipientTimeoutActionForDigital(action);
 
         //Then
         ArgumentCaptor<Action> actionCapture = ArgumentCaptor.forClass(Action.class);
@@ -284,8 +284,8 @@ class AbstractActionHandlerTest {
         }
 
         @Override
-        public Action buildWaitRecipientTimeoutAction(Action action) {
-            return super.buildWaitRecipientTimeoutAction(action);
+        public Action buildWaitRecipientTimeoutActionForDigital(Action action) {
+            return super.buildWaitRecipientTimeoutActionForDigital(action);
         }
 
         @Override

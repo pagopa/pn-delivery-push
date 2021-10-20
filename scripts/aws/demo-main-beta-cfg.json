@@ -5,7 +5,8 @@
     "KeyspaceName": "demo_delivery",
     "AddressBookUrl": "https://zkkwwk0v41.execute-api.eu-central-1.amazonaws.com/mock/demo/addresses/",
     "PecSecondAttemptWaitTime": "70s",
-    "RecipientTimeoutDelay": "5m",
+    "RecipientTimeoutDelayAnalog": "5m",
+    "RecipientTimeoutDelayDigital": "4m",
     "WebhookScanInterval": "60000",
     "WebhookMaxLength": "10"
   }

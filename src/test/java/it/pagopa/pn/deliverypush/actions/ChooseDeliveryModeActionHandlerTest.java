@@ -8,6 +8,10 @@ import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
+import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
+import it.pagopa.pn.api.dto.notification.timeline.DeliveryMode;
+import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
@@ -23,6 +27,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +42,7 @@ class ChooseDeliveryModeActionHandlerTest {
     private ActionsPool actionsPool;
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private ChooseDeliveryModeActionHandler handler;
+    private AbstractActionHandler abstractHandler;
     private MomProducer<PnExtChnEmailEvent> emailRequestProducer;
     private ExtChnEventUtils eventUtils;
 
@@ -57,7 +63,8 @@ class ChooseDeliveryModeActionHandlerTest {
                 emailRequestProducer,
                 eventUtils);
         TimeParams times = new TimeParams();
-        times.setRecipientViewMaxTime(Duration.ZERO);
+        times.setRecipientViewMaxTimeForDigital(Duration.ZERO);
+        times.setRecipientViewMaxTimeForAnalog(Duration.ZERO);
         times.setSecondAttemptWaitingTime(Duration.ZERO);
         times.setIntervalBetweenNotificationAndMessageReceived(Duration.ZERO);
         times.setWaitingForNextAction(Duration.ZERO);
@@ -131,6 +138,55 @@ class ChooseDeliveryModeActionHandlerTest {
     }
 
     @Test
+    void successHandleAnalogActionTest() {
+
+        //Given
+        Action inputAction = Action.builder()
+                .type(ActionType.CHOOSE_DELIVERY_MODE)
+                .iun("test_iun")
+                .retryNumber(1)
+                .notBefore(Instant.now())
+                .recipientIndex(0)
+                .actionId("test_iun_deliveryMode_rec0")
+                .build();
+
+        Notification notification = newNotificationWithoutPaymentsAnalogOnly();
+
+        Mockito.when(addressBook.getAddresses(Mockito.anyString()))
+                .thenReturn(Optional.of(AddressBookEntry.builder()
+                        .digitalAddresses( DigitalAddresses.builder()
+                                .general( null )
+                                .platform( null )
+                                .build())
+                        .residentialAddress(PhysicalAddress.builder()
+                                .at("Presso")
+                                .address("Via di casa sua")
+                                .zip("00100")
+                                .municipality("Roma")
+                                .province("RM")
+                                .foreignState("IT")
+                                .addressDetails("Scala A")
+                                .build())
+                        .courtesyAddresses(Collections.emptyList())
+                        .build()));
+
+
+
+        //When
+        handler.handleAction(inputAction,notification);
+
+        //Then
+        ArgumentCaptor<TimelineElement> timeLineArg = ArgumentCaptor.forClass(TimelineElement.class);
+        Mockito.verify(timelineDao).addTimelineElement(timeLineArg.capture());
+        Assertions.assertEquals( DeliveryMode.ANALOG ,((NotificationPathChooseDetails) timeLineArg.getValue().getDetails()).getDeliveryMode());
+
+        ArgumentCaptor<Action> actionArg = ArgumentCaptor.forClass(Action.class);
+        Mockito.verify(actionsPool).scheduleFutureAction(actionArg.capture());
+        Assertions.assertEquals(ActionType.SEND_PAPER , actionArg.getValue().getType());
+
+    }
+
+    @Test
     void successGetActionType() {
         //When
         ActionType actionType = handler.getActionType();
@@ -156,6 +212,35 @@ class ChooseDeliveryModeActionHandlerTest {
                                 .digitalDomicile(DigitalAddress.builder()
                                         .type(DigitalAddressType.PEC)
                                         .address("account@dominio.it")
+                                        .build())
+                                .build()
+                ))
+                .build();
+    }
+
+    private Notification newNotificationWithoutPaymentsAnalogOnly() {
+        return Notification.builder()
+                .iun("IUN_01")
+                .paNotificationId("protocol_01")
+                .subject("Subject 01")
+                .cancelledByIun("IUN_05")
+                .cancelledIun("IUN_00")
+                .sender(NotificationSender.builder()
+                        .paId(" pa_02")
+                        .build()
+                )
+                .recipients(Collections.singletonList(
+                        NotificationRecipient.builder()
+                                .taxId("Codice Fiscale 01")
+                                .denomination("Nome Cognome/Ragione Sociale")
+                                .physicalAddress(PhysicalAddress.builder()
+                                        .at("Presso")
+                                        .address("Via di casa sua")
+                                        .zip("00100")
+                                        .municipality("Roma")
+                                        .province("RM")
+                                        .foreignState("IT")
+                                        .addressDetails("Scala A")
                                         .build())
                                 .build()
                 ))

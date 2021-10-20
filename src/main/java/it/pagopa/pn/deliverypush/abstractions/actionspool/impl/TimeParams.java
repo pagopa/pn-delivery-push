@@ -10,7 +10,8 @@ public class TimeParams {
     private Duration waitingResponseFromFirstAddress;
     private Duration secondAttemptWaitingTime;
 
-    private Duration recipientViewMaxTime;
+    private Duration recipientViewMaxTimeForDigital;
+    private Duration recipientViewMaxTimeForAnalog;
 
     private Duration waitingForNextAction;
     private Duration timeBetweenExtChReceptionAndMessageProcessed;

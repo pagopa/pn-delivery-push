@@ -110,7 +110,8 @@ public class LegalFactPdfGeneratorUtils {
 		paragraphs.add( paragraph3 );
 
 		for ( NotificationRecipient recipient : notification.getRecipients() ) {
-		    paragraphs.add( String.format(
+			final DigitalAddress digitalDomicile = recipient.getDigitalDomicile();
+			paragraphs.add( String.format(
 		    		"nome e cognome/ragione sociale %s, C.F. %s domicilio digitale %s, indirizzo fisico %s;",
 					recipient.getDenomination(),
 					recipient.getTaxId(),

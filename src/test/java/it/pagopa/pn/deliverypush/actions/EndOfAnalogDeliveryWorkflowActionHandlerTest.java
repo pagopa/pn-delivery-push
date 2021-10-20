@@ -1,40 +1,36 @@
 package it.pagopa.pn.deliverypush.actions;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
-import java.time.Duration;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-
-import it.pagopa.pn.api.dto.events.PnExtChnEmailEvent;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
+import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.commons.abstractions.MomProducer;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
-class EndOfDigitalDeliveryWorkflowActionHandlerTest {
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
-	private EndOfDigitalDeliveryWorkflowActionHandler endOfDigitalDeliveryWorkflowActionHandler;
+import static org.mockito.Mockito.verify;
+
+class EndOfAnalogDeliveryWorkflowActionHandlerTest {
+
+	private EndOfAnalogDeliveryWorkflowActionHandler handler;
 	private TimelineDao timelineDao;
 	private ActionsPool actionsPool;
 	private PnDeliveryPushConfigs pnDeliveryPushConfigs;
@@ -48,32 +44,42 @@ class EndOfDigitalDeliveryWorkflowActionHandlerTest {
 		legalFactStore = Mockito.mock( LegalFactUtils.class );
 		pnDeliveryPushConfigs = Mockito.mock( PnDeliveryPushConfigs.class );
 		TimeParams times = new TimeParams();
-		times.setRecipientViewMaxTimeForDigital( Duration.ZERO );
+		times.setRecipientViewMaxTimeForAnalog( Duration.ZERO );
 		Mockito.when( pnDeliveryPushConfigs.getTimeParams() ).thenReturn( times );
-		endOfDigitalDeliveryWorkflowActionHandler = new EndOfDigitalDeliveryWorkflowActionHandler( timelineDao, actionsPool, legalFactStore, pnDeliveryPushConfigs );
+		handler = new EndOfAnalogDeliveryWorkflowActionHandler(
+				timelineDao,
+				actionsPool,
+				legalFactStore,
+				pnDeliveryPushConfigs );
 	}
 	
 	@Test
-    void successSendCourtesyEmail() {
-		ArgumentCaptor<PnExtChnEmailEvent> emailEventCaptor = ArgumentCaptor.forClass( PnExtChnEmailEvent.class );
+    void successHandleAction() {
 		
 		//Given
 		Action action = newAction();
 	    Notification notification = newNotification();
 
-		NotificationPathChooseDetails details = newNotificationPathChooseDetails();
-		List<DigitalAddress> addresses = details.getCourtesyAddresses();
-		TimelineElement timelineElement = newTimelineElement( addresses );
-	    Mockito.when( timelineDao.getTimelineElement( Mockito.anyString(), Mockito.anyString()) )
-				.thenReturn( Optional.of( timelineElement ) );
 	    
 	    //When
-	    endOfDigitalDeliveryWorkflowActionHandler.handleAction( action, notification );
+	    handler.handleAction( action, notification );
 	    
 		//Then
-		verify( actionsPool ).scheduleFutureAction( Mockito.any(Action.class) );
-		
-		verify( timelineDao ).addTimelineElement( Mockito.any(TimelineElement.class) );
+		ArgumentCaptor<TimelineElement> timeLineArg = ArgumentCaptor.forClass(TimelineElement.class);
+		Mockito.verify(timelineDao).addTimelineElement(timeLineArg.capture());
+		Assertions.assertEquals( TimelineElementCategory.END_OF_ANALOG_DELIVERY_WORKFLOW , timeLineArg.getValue().getCategory());
+
+		ArgumentCaptor<Action> actionArg = ArgumentCaptor.forClass(Action.class);
+		Mockito.verify(actionsPool).scheduleFutureAction(actionArg.capture());
+		Assertions.assertEquals(ActionType.WAIT_FOR_RECIPIENT_TIMEOUT , actionArg.getValue().getType());
+	}
+
+	@Test
+	void successGetActionType() {
+		//When
+		ActionType actionType = handler.getActionType();
+		//Then
+		Assertions.assertEquals(ActionType.END_OF_ANALOG_DELIVERY_WORKFLOW, actionType, "Different Action Type");
 	}
 
 	private TimelineElement newTimelineElement(List<DigitalAddress> addresses) {
@@ -106,8 +112,8 @@ class EndOfDigitalDeliveryWorkflowActionHandlerTest {
 	private Action newAction() {
 		return Action.builder()
 				.iun( "IUN_01" )
-				.actionId( "IUN_01_send_courtesy_rec0" )
-				.type( ActionType.END_OF_DIGITAL_DELIVERY_WORKFLOW)
+				.actionId( "IUN_01_end_analog_rec0" )
+				.type( ActionType.END_OF_ANALOG_DELIVERY_WORKFLOW)
 				.recipientIndex( 0 )
 				.build();
 	}
@@ -126,10 +132,15 @@ class EndOfDigitalDeliveryWorkflowActionHandlerTest {
 		                NotificationRecipient.builder()
 		                        .taxId( "CGNNMO80A01H501M" )
 		                        .denomination( "Nome1 Cognome1" )
-		                        .digitalDomicile(DigitalAddress.builder()
-		                                .type( DigitalAddressType.PEC )
-		                                .address( "nome1.cognome1@develop.it" )
-		                                .build())
+								.physicalAddress(PhysicalAddress.builder()
+										.at("presso")
+										.address("via di casa sua")
+										.addressDetails("scala A")
+										.zip("00100")
+										.municipality("Roma")
+										.province("RM")
+										.foreignState("IT")
+										.build())
 		                        .build()
 		                        )
 		        )

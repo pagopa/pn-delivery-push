@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.abstractions.actionspool;
 
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
+import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import lombok.*;
 
 import java.time.Instant;
@@ -31,5 +32,8 @@ public class Action {
 
     // Required and used only for RECEIVE_PEC ActionType
     private PnExtChnProgressStatus responseStatus;
+
+    // Optional and used only for RECEIVE_PAPER ActionType
+    private PhysicalAddress newPhysicalAddress; //FIXME verificare per privacy
 
 }
