@@ -115,11 +115,11 @@ public class LegalFactPdfGeneratorUtils {
 		    		"nome e cognome/ragione sociale %s, C.F. %s domicilio digitale %s, indirizzo fisico %s;",
 					recipient.getDenomination(),
 					recipient.getTaxId(),
-					recipient.getDigitalDomicile().getAddress(),
+					digitalDomicile != null ? digitalDomicile.getAddress() : "",
 					"\n" + nullSafePhysicalAddressToString( recipient )
 				));
 		}
-
+				
 		return toPdfBytes( paragraphs );
 	}
 

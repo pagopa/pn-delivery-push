@@ -21,14 +21,14 @@ import it.pagopa.pn.commons.abstractions.FileStorage;
 class LegalFactUtilsTest {
     private LegalFactUtils legalFactUtils;
     private FileStorage fileStorage;
-    private LegalFactPdfGeneratorUtils pdfUtils;
+    private LegalFactPdfFromHtmlGeneratorUtils pdfUtils;
     
     private Map<String, String> metadata = new HashMap<>();
     
     @BeforeEach
     public void setup() {
         fileStorage = Mockito.mock(FileStorage.class);
-        pdfUtils = Mockito.mock(LegalFactPdfGeneratorUtils.class);
+        pdfUtils = Mockito.mock(LegalFactPdfFromHtmlGeneratorUtils.class);
         legalFactUtils = new LegalFactUtils(
                 fileStorage,
                 pdfUtils,

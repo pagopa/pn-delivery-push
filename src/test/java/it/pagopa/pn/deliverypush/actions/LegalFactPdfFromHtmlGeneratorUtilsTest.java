@@ -15,14 +15,14 @@ import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 
-class LegalFactPdfGeneratorUtilsTest {
-	private LegalFactPdfGeneratorUtils pdfUtils;
+class LegalFactPdfFromHtmlGeneratorUtilsTest {
+	private LegalFactPdfFromHtmlGeneratorUtils pdfUtils;
 	private TimelineDao timelineDao;
 	
 	@BeforeEach
     public void setup() {
 		timelineDao = Mockito.mock(TimelineDao.class);
-		pdfUtils = new LegalFactPdfGeneratorUtils( timelineDao );
+		pdfUtils = new LegalFactPdfFromHtmlGeneratorUtils( timelineDao );
     }
 	
     @ParameterizedTest
@@ -70,7 +70,7 @@ class LegalFactPdfGeneratorUtilsTest {
 
 		// WHEN
 		String output = pdfUtils.nullSafePhysicalAddressToString( notification.getRecipients().get( 0 ) );
-		output = String.join(";", output.split("\n"));
+		output = String.join(";", output.split("<br/>"));
 		
 		// THEN
 		Assertions.assertEquals("denomination;at;addressDetail;address;zip municipality province", output, "Different notification data");

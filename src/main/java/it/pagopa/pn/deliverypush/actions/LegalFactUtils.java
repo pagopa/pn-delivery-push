@@ -1,15 +1,5 @@
 package it.pagopa.pn.deliverypush.actions;
 
-import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
-import it.pagopa.pn.api.dto.notification.timeline.SendPaperFeedbackDetails;
-import it.pagopa.pn.commons.abstractions.FileStorage;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
-import org.springframework.stereotype.Component;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,15 +8,27 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.stereotype.Component;
+
+import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
+import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
+import it.pagopa.pn.api.dto.notification.timeline.SendPaperFeedbackDetails;
+import it.pagopa.pn.commons.abstractions.FileStorage;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
+
 @Component
 public class LegalFactUtils {
 	public static final String LEGALFACTS_MEDIATYPE_STRING = "application/pdf";
 	private final FileStorage fileStorage;
-    private final LegalFactPdfGeneratorUtils pdfUtils;
+    //private final LegalFactPdfGeneratorUtils pdfUtils;
+    private final LegalFactPdfFromHtmlGeneratorUtils pdfUtils;
     private final LegalfactsMetadataUtils legalfactMetadataUtils;
 
     public LegalFactUtils(FileStorage fileStorage,
-						  LegalFactPdfGeneratorUtils pdfUtils,
+    					  LegalFactPdfFromHtmlGeneratorUtils pdfUtils,
 						  LegalfactsMetadataUtils legalfactMetadataUtils
 	) {
         this.fileStorage = fileStorage;
