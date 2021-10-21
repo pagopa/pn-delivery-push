@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.actions;
+package it.pagopa.pn.deliverypush.legalfacts;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -21,14 +21,14 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 
 @Component
 public class LegalFactUtils {
+
 	public static final String LEGALFACTS_MEDIATYPE_STRING = "application/pdf";
 	private final FileStorage fileStorage;
-    //private final LegalFactPdfGeneratorUtils pdfUtils;
-    private final LegalFactPdfFromHtmlGeneratorUtils pdfUtils;
+    private final LegalFactPdfGenerator pdfUtils;
     private final LegalfactsMetadataUtils legalfactMetadataUtils;
 
     public LegalFactUtils(FileStorage fileStorage,
-    					  LegalFactPdfFromHtmlGeneratorUtils pdfUtils,
+    					  LegalFactPdfGenerator pdfUtils,
 						  LegalfactsMetadataUtils legalfactMetadataUtils
 	) {
         this.fileStorage = fileStorage;

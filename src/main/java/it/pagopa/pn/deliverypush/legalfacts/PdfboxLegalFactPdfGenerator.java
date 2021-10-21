@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.actions;
+package it.pagopa.pn.deliverypush.legalfacts;
 
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
@@ -6,13 +6,11 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -22,6 +20,7 @@ import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 
@@ -29,7 +28,6 @@ import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
@@ -39,14 +37,9 @@ import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
-public class LegalFactPdfGeneratorUtils {
+@ConditionalOnProperty( name = "pn.legalfacts.generator", havingValue = "PDFBOX")
+public class PdfboxLegalFactPdfGenerator extends AbstractLegalFactPdfGenerator implements LegalFactPdfGenerator {
 
-	private static final DateTimeFormatter ITALIAN_DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-	private static final Duration ONE_HOUR = Duration.ofHours(1);
-	private static final ZoneId ROME_ZONE = ZoneId.of("Europe/Rome");
-    
-	private final TimelineDao timelineDao;
-	
 	private static final String PARAGRAPH1 = "Ai sensi dell’art. 26, comma 11, del decreto-legge,"
 			+ " la PagoPA s.p.a. nella sua qualità di gestore ex lege"
 			+ " ella Piattaforma Notifiche Digitali di cui allo stesso art. 26,"
@@ -68,10 +61,11 @@ public class LegalFactPdfGeneratorUtils {
     private float startY;
     
 	@Autowired
-	public LegalFactPdfGeneratorUtils(TimelineDao timelineDao) {
-        this.timelineDao = timelineDao;
+	public PdfboxLegalFactPdfGenerator(TimelineDao timelineDao) {
+		super(timelineDao);
     }
-    
+
+    @Override
 	public byte[] generateNotificationReceivedLegalFact(Action action, Notification notification) {
 		String paragraph2 = "in data %s il soggetto mittente %s, C.F. "
 	    		+ "%s ha messo a disposizione del gestore i documenti informatici di "
@@ -116,13 +110,14 @@ public class LegalFactPdfGeneratorUtils {
 					recipient.getDenomination(),
 					recipient.getTaxId(),
 					digitalDomicile != null ? digitalDomicile.getAddress() : "",
-					"\n" + nullSafePhysicalAddressToString( recipient )
+					"\n" + nullSafePhysicalAddressToString( recipient, "\n" )
 				));
 		}
 				
 		return toPdfBytes( paragraphs );
 	}
 
+	@Override
 	public byte[] generateNotificationViewedLegalFact(Action action, Notification notification) {
 		if (action.getRecipientIndex() == null) {
 			String msg = "Error while retrieving RecipientIndex for IUN %s";
@@ -150,7 +145,8 @@ public class LegalFactPdfGeneratorUtils {
 
 		return toPdfBytes( Arrays.asList( PARAGRAPH1, paragraph2, paragraph3, paragraph4));
 	}
-	
+
+	@Override
 	public byte[] generatePecDeliveryWorkflowLegalFact(List<Action> actions, Notification notification, NotificationPathChooseDetails addresses) {
 
 		List<String> paragraphs = new ArrayList<>();
@@ -360,74 +356,6 @@ public class LegalFactPdfGeneratorUtils {
         	throw new PnInternalException("Error loading footer image logo while generating legalfacts pdf document", e);
         }
     }
-
-	private TimelineElement timelineElement(Action action) {
-		Optional<TimelineElement> row;
-        row = this.timelineDao.getTimelineElement( action.getIun(), action.getActionId() );
-        if ( !row.isPresent() ) {
-        	String msg = "Error while retrieving timeline for IUN %s and action %s";
-        	msg = String.format( msg, action.getIun(), action.getActionId() );
-        	log.debug( msg );
-        	throw new PnInternalException( msg );
-        }
-		return row.get();
-	}
-	    
-    public String instantToDate(Instant instant) {
-    	String suffix;
-        Instant nextTransition = ROME_ZONE.getRules().nextTransition( instant ).getInstant();
-        boolean isAmbiguous = isNear( instant, nextTransition );
-        
-        if( ! isAmbiguous ) {
-            Instant prevTransition = ROME_ZONE.getRules().previousTransition( instant ).getInstant();
-            isAmbiguous = isNear( instant, prevTransition );
-            if( isAmbiguous ) {
-                suffix = " CET";
-            }
-            else {
-                suffix = "";
-            }
-        }
-        else {
-            suffix = " CEST";
-        }
-        
-        LocalDateTime localDate = LocalDateTime.ofInstant(instant, ROME_ZONE);
-        String date = localDate.format( ITALIAN_DATE_TIME_FORMAT );
-        
-        return date + suffix;
-    }
-    
-    private boolean isNear( Instant a, Instant b) {
-        Instant min;
-        Instant max;
-        if( a.isBefore(b) ) {
-            min = a;
-            max = b;
-        }
-        else {
-            min = b;
-            max = a;
-        }
-        Duration timeInterval = Duration.between(min, max);
-        return ONE_HOUR.compareTo(timeInterval) >= 0;
-    }
-    
-	protected String nullSafePhysicalAddressToString( NotificationRecipient recipient ) {
-		String result = null;
-	
-		if ( recipient != null ) {
-			PhysicalAddress physicalAddress = recipient.getPhysicalAddress();
-			if ( physicalAddress != null ) {
-				List<String> standardAddressString = physicalAddress.toStandardAddressString( recipient.getDenomination() );
-				if ( standardAddressString != null ) {
-					result = String.join("\n", standardAddressString );
-				}
-			}
-		}
-	
-		return result;
-	}
 	
 }
 

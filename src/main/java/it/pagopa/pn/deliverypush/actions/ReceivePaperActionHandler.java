@@ -44,7 +44,7 @@ public class ReceivePaperActionHandler extends AbstractActionHandler {
             case RETRYABLE_FAIL: {
                 nextAction = action.toBuilder()
                         .retryNumber(action.getRetryNumber() + 1 )
-                        .newPhysicalAddress( action.getNewPhysicalAddress() ) //TODO in attesa di PN-426
+                        .newPhysicalAddress( action.getNewPhysicalAddress() )
                         .type( ActionType.SEND_PAPER )
                         .build();
             } break;
