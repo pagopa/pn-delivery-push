@@ -51,7 +51,7 @@ public class LegalFactPdfFromHtmlGeneratorUtils {
 			+ "<head>"
 			+ "<style type=\"text/css\" media=\"all\">"
 			+ ".container {"
-			+ "width: 635px;"
+			+ "width: 625px;"
 			+ "margin: 0 auto;"
 			+ "margin-top: 25px;"
 			+ "}"
@@ -152,24 +152,8 @@ public class LegalFactPdfFromHtmlGeneratorUtils {
 	    										notification.getSender().getPaDenomination(),
 	    										notification.getSender().getTaxId( notification.getSender().getPaId() ),
 	    										action.getIun());
-	    StringBuilder bld = new StringBuilder();
-	    bld.append("<ul>");
-	    for (int idx = 0; idx < notification.getDocuments().size(); idx ++) {
-	    	bld.append(orderedItem(notification.getDocuments().get(idx).getDigests().getSha256()));
-	    }
 	    
-	    if ( notification.getPayment() != null && notification.getPayment().getF24() != null ) {
-	    	if ( notification.getPayment().getF24().getFlatRate() != null) {
-	    		bld.append(orderedItem(notification.getPayment().getF24().getFlatRate().getDigests().getSha256()));
-	    	}
-	    	if ( notification.getPayment().getF24().getDigital() != null) {
-	    		bld.append(orderedItem(notification.getPayment().getF24().getDigital().getDigests().getSha256()));
-	    	}
-	    	if ( notification.getPayment().getF24().getAnalog() != null) {
-	    		bld.append(orderedItem(notification.getPayment().getF24().getAnalog().getDigests().getSha256()));
-	    	}
-	    }
-	    bld.append("</ul>");
+	    StringBuilder bld = hashUnorderedList(notification);
 	    
 	    paragraph2 += bld.toString();
 	    paragraph2 += "</div>";
@@ -385,7 +369,30 @@ public class LegalFactPdfFromHtmlGeneratorUtils {
 		return result;
 	}
 	
-	private String orderedItem(String sha256) {
+	protected StringBuilder hashUnorderedList(Notification notification) {
+		StringBuilder bld = new StringBuilder();
+	    bld.append("<ul>");
+	    for (int idx = 0; idx < notification.getDocuments().size(); idx ++) {
+	    	bld.append(unorderedListItem(notification.getDocuments().get(idx).getDigests().getSha256()));
+	    }
+	    
+	    if ( notification.getPayment() != null && notification.getPayment().getF24() != null ) {
+	    	if ( notification.getPayment().getF24().getFlatRate() != null) {
+	    		bld.append(unorderedListItem(notification.getPayment().getF24().getFlatRate().getDigests().getSha256()));
+	    	}
+	    	if ( notification.getPayment().getF24().getDigital() != null) {
+	    		bld.append(unorderedListItem(notification.getPayment().getF24().getDigital().getDigests().getSha256()));
+	    	}
+	    	if ( notification.getPayment().getF24().getAnalog() != null) {
+	    		bld.append(unorderedListItem(notification.getPayment().getF24().getAnalog().getDigests().getSha256()));
+	    	}
+	    }
+	    bld.append("</ul>");
+	    
+		return bld;
+	}
+	
+	private String unorderedListItem(String sha256) {
 		return "<li>" + sha256 + ";</li>";
 	}
 }
