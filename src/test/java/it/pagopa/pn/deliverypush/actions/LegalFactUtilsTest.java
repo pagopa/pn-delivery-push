@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
+import it.pagopa.pn.deliverypush.legalfacts.OpenhtmltopdfLegalFactPdfGenerator;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactPdfGenerator;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,14 +24,14 @@ import it.pagopa.pn.commons.abstractions.FileStorage;
 class LegalFactUtilsTest {
     private LegalFactUtils legalFactUtils;
     private FileStorage fileStorage;
-    private LegalFactPdfGeneratorUtils pdfUtils;
+    private LegalFactPdfGenerator pdfUtils;
     
     private Map<String, String> metadata = new HashMap<>();
     
     @BeforeEach
     public void setup() {
         fileStorage = Mockito.mock(FileStorage.class);
-        pdfUtils = Mockito.mock(LegalFactPdfGeneratorUtils.class);
+        pdfUtils = Mockito.mock(OpenhtmltopdfLegalFactPdfGenerator.class);
         legalFactUtils = new LegalFactUtils(
                 fileStorage,
                 pdfUtils,

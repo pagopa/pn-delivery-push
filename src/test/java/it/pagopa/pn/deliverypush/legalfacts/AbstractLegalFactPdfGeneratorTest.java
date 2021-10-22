@@ -1,42 +1,28 @@
-package it.pagopa.pn.deliverypush.actions;
-
-import static org.mockito.Mockito.when;
+package it.pagopa.pn.deliverypush.legalfacts;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
-import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.DigitalAddressSource;
 
-class LegalFactPdfGeneratorUtilsTest {
-	private LegalFactPdfGeneratorUtils pdfUtils;
+class AbstractLegalFactPdfGeneratorTest {
+	private AbstractLegalFactPdfGenerator pdfUtils;
 	private TimelineDao timelineDao;
 	
 	@BeforeEach
     public void setup() {
 		timelineDao = Mockito.mock(TimelineDao.class);
-		pdfUtils = new LegalFactPdfGeneratorUtils( timelineDao );
+		pdfUtils = new AbstractLegalFactPdfGenerator( timelineDao ) {};
     }
 	
     @ParameterizedTest
@@ -83,9 +69,8 @@ class LegalFactPdfGeneratorUtilsTest {
 		
 
 		// WHEN
-		String output = pdfUtils.nullSafePhysicalAddressToString( notification.getRecipients().get( 0 ) );
-		output = String.join(";", output.split("\n"));
-		
+		String output = pdfUtils.nullSafePhysicalAddressToString( notification.getRecipients().get( 0 ), ";" );
+
 		// THEN
 		Assertions.assertEquals("denomination;at;addressDetail;address;zip municipality province", output, "Different notification data");
 	}

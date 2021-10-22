@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.actions;
 
 import java.util.Collections;
 
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
