@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -32,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @ConditionalOnProperty( name = "pn.legalfacts.generator", havingValue = "OPENHTML2PDF")
 public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGenerator implements LegalFactPdfGenerator {
-	
+
 	private static final String PARAGRAPH1 = "Ai sensi dell’art. 26, comma 11, del decreto-legge,"
 			+ " la PagoPA s.p.a. nella sua qualità di gestore ex lege"
 			+ " ella Piattaforma Notifiche Digitali di cui allo stesso art. 26,"
@@ -127,7 +128,8 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
 	private static final String DIV_PARAGRAPH = "<div class=\"paragraph\">";
 	private static final String P_RECIPIENT_ROW = "<p class=\"recipient_row\">";
 	private static final String SPAN_CLASS_VALUE = "<span class=\"value\">%s</span>";
-			
+	public static final AtomicReference<String> RESOURCES_BASE_URI = new AtomicReference<>();
+
 	@Autowired
 	public OpenhtmltopdfLegalFactPdfGenerator(TimelineDao timelineDao ) {
 		super(timelineDao);
@@ -272,10 +274,9 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
         	StringBuilder html = new StringBuilder();
         	ByteArrayOutputStream baos = new ByteArrayOutputStream();
     		PdfRendererBuilder builder = new PdfRendererBuilder();
-    		
-    		Path resourceDirectory = Paths.get("src", "main", "resources", "image");
-    		String absolutePath = resourceDirectory.toFile().getAbsolutePath();
-    		String baseUri = FileSystems.getDefault().getPath(absolutePath).toUri().toString();
+
+			String fileUri = getResourceBaseUri();
+			String baseUri = fileUri.replaceFirst("/[^/]*$","/");
     		
     		html.append(HTML_TEMPLATE);
     		for (int i=0; i<paragraphs.size(); i++) {
@@ -294,7 +295,23 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
         	throw new PnInternalException("Error while generatin legalfact document", exc);
     	}
 	}
-	
+
+	private String getResourceBaseUri() {
+		String baseUri = RESOURCES_BASE_URI.get();
+		if( baseUri == null ) {
+			try {
+				baseUri = Thread.currentThread().getContextClassLoader().getResource("image/pn-logo-footer.png").toString();
+				RESOURCES_BASE_URI.set( baseUri );
+			}
+			catch (RuntimeException exc) {
+				// In case of error ignore image
+				baseUri = "ignore";
+			}
+		}
+
+		return baseUri;
+	}
+
 	protected StringBuilder hashUnorderedList(Notification notification) {
 		StringBuilder bld = new StringBuilder();
 	    bld.append("<ul>");
