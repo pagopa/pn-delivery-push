@@ -61,13 +61,15 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
 
         addressBook.getAddresses( recipient.getTaxId() )
             .ifPresent( abEntry -> {
-                timelineDetailsBuilder
-                        .general(abEntry.getDigitalAddresses().getGeneral())
-                        .platform(abEntry.getDigitalAddresses().getPlatform())
-                        .courtesyAddresses(abEntry.getCourtesyAddresses());
+                if(abEntry.getDigitalAddresses() != null) {
+                    timelineDetailsBuilder
+                            .general(abEntry.getDigitalAddresses().getGeneral())
+                            .platform(abEntry.getDigitalAddresses().getPlatform());
+                }
                 if(physicalAddress == null) {
                     timelineDetailsBuilder.physicalAddress(abEntry.getResidentialAddress());
                 }
+                timelineDetailsBuilder.courtesyAddresses(abEntry.getCourtesyAddresses());
 
                 sendCourtesyMessages(action, notification, recipient, abEntry);
             });
