@@ -208,17 +208,31 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
 	    String paragraph2 = DIV_PARAGRAPH
 	    		+ "gli atti di cui alla notifica identificata con IUN %s sono stati gestiti come segue:</div>";
 	    paragraph2 = String.format( paragraph2, notification.getIun() );
-	    
-	    String paragraph3 = DIV_PARAGRAPH
-	    		+ "nome e cognome/ragione sociale %s, C.F. %s "
-	    		+ "domicilio digitale %s: in data %s il destinatario ha avuto "
-	    		+ "accesso ai documenti informatici oggetto di notifica e associati allo IUN già indicato."
-	    		+ "</div>";
-	    paragraph3 = String.format( paragraph3, recipient.getDenomination(), 
-	    										recipient.getTaxId(), 
-	    										recipient.getDigitalDomicile().getAddress(), 
-	    										this.instantToDate( row.getTimestamp() ) );
-	    
+
+		final DigitalAddress digitalDomicile = recipient.getDigitalDomicile();
+		String paragraph3;
+		if(digitalDomicile != null) {
+			paragraph3 = DIV_PARAGRAPH
+					+ "nome e cognome/ragione sociale %s, C.F. %s "
+					+ "domicilio digitale %s: in data %s il destinatario ha avuto "
+					+ "accesso ai documenti informatici oggetto di notifica e associati allo IUN già indicato."
+					+ "</div>";
+			paragraph3 = String.format( paragraph3, recipient.getDenomination(),
+					recipient.getTaxId(),
+					digitalDomicile.getAddress(),
+					this.instantToDate( row.getTimestamp() ) );
+		} else {
+			paragraph3 = DIV_PARAGRAPH
+					+ "nome e cognome/ragione sociale %s, C.F. %s "
+					+ "domicilio analogico %s: in data %s il destinatario ha avuto "
+					+ "accesso ai documenti informatici oggetto di notifica e associati allo IUN già indicato."
+					+ "</div>";
+			paragraph3 = String.format( paragraph3, recipient.getDenomination(),
+					recipient.getTaxId(),
+					recipient.getPhysicalAddress().getAddress(),
+					this.instantToDate( row.getTimestamp() ) );
+		}
+
 	    String paragraph4 = DIV_PARAGRAPH
 	    		+ "Si segnala che ogni successivo accesso ai medesimi documenti non è oggetto della presente "
 	    		+ "attestazione in quanto irrilevante ai fini del perfezionamento della notificazione."
