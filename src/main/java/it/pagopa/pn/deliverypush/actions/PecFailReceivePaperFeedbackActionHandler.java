@@ -40,6 +40,7 @@ public class PecFailReceivePaperFeedbackActionHandler extends AbstractActionHand
                             SendPaperDetails.builder()
                                 .taxId( recipient.getTaxId() )
                 			    .address( recipient.getPhysicalAddress() )
+                                .serviceLevel(PecFailSendPaperActionHandler.DIGITAL_FAILURE_PAPER_FALLBACK_SERVICE_LEVEL)
                 			    .build(),
                             action.getNewPhysicalAddress(),
                             Collections.singletonList( status.name())

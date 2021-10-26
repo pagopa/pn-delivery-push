@@ -73,6 +73,7 @@ public class ReceivePaperActionHandler extends AbstractActionHandler {
                             SendPaperDetails.builder()
                                 .taxId( recipient.getTaxId() )
                 			    .address( address )
+                                .serviceLevel(sendDetails.get().getServiceLevel())
                 			    .build(),
                             action.getNewPhysicalAddress(),
                             Collections.singletonList( status.name())

@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 @Component
 public class PecFailSendPaperActionHandler extends AbstractActionHandler {
 
+    public static final ServiceLevelType DIGITAL_FAILURE_PAPER_FALLBACK_SERVICE_LEVEL = ServiceLevelType.SIMPLE_REGISTERED_LETTER;
     private final MomProducer<PnExtChnPaperEvent> paperRequestProducer;
     private final TimelineDao timelineDao;
     private final ExtChnEventUtils extChnEventUtils;
@@ -56,7 +57,7 @@ public class PecFailSendPaperActionHandler extends AbstractActionHandler {
                 action,
                 notification,
                 CommunicationType.RECIEVED_DELIVERY_NOTICE,
-                ServiceLevelType.SIMPLE_REGISTERED_LETTER
+                DIGITAL_FAILURE_PAPER_FALLBACK_SERVICE_LEVEL
             ));
 
 

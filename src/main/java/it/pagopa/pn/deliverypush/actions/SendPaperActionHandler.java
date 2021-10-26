@@ -58,6 +58,7 @@ public class SendPaperActionHandler extends AbstractActionHandler {
                 .details( SendPaperDetails.builder()
                         .taxId( recipient.getTaxId() )
                         .address( address )
+                        .serviceLevel(event.getPayload().getServiceLevel())
                         .build()
                 )
                 .build()
