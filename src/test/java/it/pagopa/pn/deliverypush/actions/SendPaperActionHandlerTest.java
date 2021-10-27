@@ -10,11 +10,11 @@ import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.commons.abstractions.MomProducer;
+import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +25,6 @@ import org.mockito.Mockito;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 class SendPaperActionHandlerTest {
@@ -34,6 +33,7 @@ class SendPaperActionHandlerTest {
     private TimelineDao timelineDao;
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private SendPaperActionHandler handler;
+    private AddressBook addressBook;
 
     @BeforeEach
     void setup() {
@@ -45,8 +45,8 @@ class SendPaperActionHandlerTest {
                 null,
                 pnDeliveryPushConfigs,
                 paperRequestProducer,
-                new ExtChnEventUtils()
-        );
+                new ExtChnEventUtils(),
+                addressBook);
         TimeParams times = new TimeParams();
         times.setRecipientViewMaxTimeForAnalog(Duration.ZERO);
         times.setSecondAttemptWaitingTime(Duration.ZERO);

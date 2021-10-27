@@ -1,21 +1,24 @@
 package it.pagopa.pn.deliverypush.actions;
 
+import it.pagopa.pn.api.dto.addressbook.AddressBookEntry;
 import it.pagopa.pn.api.dto.events.CommunicationType;
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
-import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
 import it.pagopa.pn.api.dto.notification.timeline.SendPaperDetails;
+import it.pagopa.pn.api.dto.notification.timeline.SendPaperFeedbackDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
+import lombok.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -25,69 +28,134 @@ public class SendPaperActionHandler extends AbstractActionHandler {
 
     private final MomProducer<PnExtChnPaperEvent> paperRequestProducer;
     private final ExtChnEventUtils extChnEventUtils;
+    private final AddressBook addressBook;
 
     public SendPaperActionHandler(TimelineDao timelineDao, ActionsPool actionsPool,
                                   PnDeliveryPushConfigs pnDeliveryPushConfigs,
                                   MomProducer<PnExtChnPaperEvent> paperRequestProducer,
-                                  ExtChnEventUtils extChnEventUtils
-    ) {
-		super(timelineDao, actionsPool, pnDeliveryPushConfigs);
+                                  ExtChnEventUtils extChnEventUtils,
+                                  AddressBook addressBook) {
+        super(timelineDao, actionsPool, pnDeliveryPushConfigs);
         this.paperRequestProducer = paperRequestProducer;
         this.extChnEventUtils = extChnEventUtils;
+        this.addressBook = addressBook;
     }
-    
+
     @Override
     public void handleAction( Action action, Notification notification ) {
 
-        PhysicalAddress address = retrievePhysicalAddress(action);
-
-        final PnExtChnPaperEvent event = extChnEventUtils.buildSendPaperRequest(
-                action,
-                notification,
-                CommunicationType.RECIEVED_DELIVERY_NOTICE,
-                notification.getPhysicalCommunicationType(),
-                address
-        );
-        this.paperRequestProducer.push(event);
-
-
-        // - Write timeline
         NotificationRecipient recipient = notification.getRecipients().get(action.getRecipientIndex());
-        addTimelineElement( action, TimelineElement.builder()
-                .category(TimelineElementCategory.SEND_PAPER )
-                .details( SendPaperDetails.builder()
-                        .taxId( recipient.getTaxId() )
-                        .address( address )
-                        .serviceLevel(event.getPayload().getServiceLevel())
-                        .build()
-                )
-                .build()
-        );
+        PhysicalAddress addressFromPA = recipient.getPhysicalAddress();
+
+        Optional<SendPolicy> optionalSendPolicy;
+
+        switch (action.getRetryNumber()) {
+            case 1: {
+                //address da PA?
+                if (addressFromPA != null) {
+                    // send paper 890 o Racc A/R con indagine
+                    optionalSendPolicy = Optional.of( new SendPolicy(addressFromPA,true) );
+                } else {
+                    // - Retrieve addresses from Action Choose_delivery_mode
+                    Optional<PhysicalAddress> nationalRegistryAddress = retrieveNationalRegistryAddress( recipient.getTaxId() );
+                    if (nationalRegistryAddress.isPresent()) {
+                        optionalSendPolicy = Optional.of( new SendPolicy(nationalRegistryAddress.get(),true) );
+                    }
+                    else {
+                        //FIXME: Cosa prevede l'analisi in mancanza di indirizzi fisici?
+                        throw new PnInternalException( "Addresses list not found!!! Needed for action " + action );
+                    }
+                }
+            } break;
+            case 2: {
+                // secondo tentativo
+                SendPaperFeedbackDetails previousAttempt = retrievePreviousAttempt( action );
+                Optional<PhysicalAddress> nationalRegistryAddress = retrieveNationalRegistryAddress( recipient.getTaxId() );
+                Optional<PhysicalAddress> destination = chooseDestination( previousAttempt, nationalRegistryAddress );
+                if (destination.isPresent()) {
+                    optionalSendPolicy = Optional.of( new SendPolicy(destination.get(), false) );
+                } else {
+                    //IRREPERIBILE TOTALE
+                    optionalSendPolicy = Optional.empty();
+                }
+            } break;
+            case 3: {
+                //IRREPERIBILE TOTALE
+                optionalSendPolicy = Optional.empty();
+            }
+            default: throw new PnInternalException(""+ action.getRetryNumber());
+        }
+
+        if (optionalSendPolicy.isPresent()) {
+            final SendPolicy sendPolicy = optionalSendPolicy.get();
+            final boolean investigation = sendPolicy.isInvestigation();
+            final PhysicalAddress destination = sendPolicy.getDestination();
+
+            final PnExtChnPaperEvent event = extChnEventUtils.buildSendPaperRequest(
+                    action,
+                    notification,
+                    CommunicationType.RECIEVED_DELIVERY_NOTICE,
+                    notification.getPhysicalCommunicationType(),
+                    investigation,
+                    destination);
+            this.paperRequestProducer.push(event);
+
+            // - Write timeline
+            addTimelineElement( action, TimelineElement.builder()
+                    .category(TimelineElementCategory.SEND_PAPER )
+                    .details( SendPaperDetails.builder()
+                            .taxId( recipient.getTaxId() )
+                            .address( destination )
+                            .serviceLevel(event.getPayload().getServiceLevel())
+                            .investigation( investigation )
+                            .build()
+                    ).build());
+        } else {
+            //IRREPERIBILE TOTALE
+            throw new PnInternalException("Irreperibili totali ancora non gestiti"); //FIXME: gestione irreperibili totali
+        }
 
     }
 
-    private PhysicalAddress retrievePhysicalAddress(Action action) {
-        PhysicalAddress sendAddress;
-        PhysicalAddress actionAddress = action.getNewPhysicalAddress();
-
-        // PRIMO TENTATIVO DI INVIO
-        if( actionAddress == null ) {
-            // - Retrieve addresses
-            Optional<NotificationPathChooseDetails> addresses =
-                    getTimelineElement(action, ActionType.CHOOSE_DELIVERY_MODE, NotificationPathChooseDetails.class );
-            if (addresses.isPresent()) {
-                sendAddress = addresses.get().getPhysicalAddress();
-            }
-            else {
-                throw new PnInternalException( "Addresses list not found!!! Needed for action " + action );
-            }
+    private Optional<PhysicalAddress> chooseDestination(
+            SendPaperFeedbackDetails previousAttempt,
+            Optional<PhysicalAddress> nationalRegistryAddress) {
+        if(nationalRegistryAddress.isPresent() &&
+                !nationalRegistryAddress.get().equals(previousAttempt.getAddress())) {
+            return Optional.of( nationalRegistryAddress.get() );
+        } else {
+            return Optional.ofNullable( previousAttempt.getNewAddress() );
         }
-        // DAL SECONDO TENTATIVO
-        else {
-            sendAddress = actionAddress;
-        }
-        return sendAddress;
     }
+
+    private SendPaperFeedbackDetails retrievePreviousAttempt(Action action) {
+        Optional<SendPaperFeedbackDetails> sendPaperFeedbackDetails = super.getTimelineElement(
+                action,
+                ActionType.RECEIVE_PAPER,
+                SendPaperFeedbackDetails.class);
+
+        if(sendPaperFeedbackDetails.isPresent()) {
+            return sendPaperFeedbackDetails.get();
+        } else {
+            throw new PnInternalException( "Send Timeline related to " + action + " not found!!! " );
+        }
+    }
+
+    private Optional<PhysicalAddress> retrieveNationalRegistryAddress(String taxId) {
+        Optional<AddressBookEntry> optionalAddressBookEntry = addressBook.getAddresses( taxId );
+        if ( optionalAddressBookEntry.isPresent() ) {
+            return Optional.ofNullable(optionalAddressBookEntry.get().getResidentialAddress());
+        } else {
+            throw new PnInternalException( "Unable to retrieve physical address for taxId "+ taxId );
+        }
+    }
+
+    @Value
+    private static class SendPolicy {
+        private PhysicalAddress destination;
+        private boolean investigation;
+    }
+
 
     @Override
     public ActionType getActionType() {

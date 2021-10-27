@@ -37,16 +37,19 @@ public class ReceivePaperActionHandler extends AbstractActionHandler {
         Action nextAction = null;
 
         switch (status) {
-            case OK:
-            case PERMANENT_FAIL: {
+            case OK: {
                 nextAction = buildEndofAnalogWorkflowAction( action );	// END_OF_ANALOG_DELIVERY_WORKFLOW
             } break;
+            case PERMANENT_FAIL: {
+                if (action.getRetryNumber().equals(1)) {
+                    nextAction = buildNextPaperSendAction( action );
+                } else {
+                    //IRREPERIBILE TOTALE
+                    throw new PnInternalException("Irreperibili totali ancora non gestiti"); //FIXME: gestione irreperibili totali
+                }
+            } break;
             case RETRYABLE_FAIL: {
-                nextAction = action.toBuilder()
-                        .retryNumber(action.getRetryNumber() + 1 )
-                        .newPhysicalAddress( action.getNewPhysicalAddress() )
-                        .type( ActionType.SEND_PAPER )
-                        .build();
+                nextAction = buildNextPaperSendAction(action);
             } break;
             default: throw new PnInternalException("Status not supported: " + status);
         }
@@ -80,6 +83,14 @@ public class ReceivePaperActionHandler extends AbstractActionHandler {
                 ))
                 .build()
         );
+    }
+
+    private Action buildNextPaperSendAction(Action action) {
+        return action.toBuilder()
+                .retryNumber(action.getRetryNumber() + 1 )
+                .newPhysicalAddress( action.getNewPhysicalAddress() )
+                .type( ActionType.SEND_PAPER )
+                .build();
     }
 
     @Override
