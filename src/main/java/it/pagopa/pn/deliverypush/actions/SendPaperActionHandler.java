@@ -129,13 +129,21 @@ public class SendPaperActionHandler extends AbstractActionHandler {
     }
 
     private SendPaperFeedbackDetails retrievePreviousAttempt(Action action) {
-        Optional<SendPaperFeedbackDetails> sendPaperFeedbackDetails = super.getTimelineElement(
-                action,
+
+        final Integer retryNumber = action.getRetryNumber();
+        if (retryNumber < 2) {
+            throw new PnInternalException("Unable to retrieve previous attempt for action " + action);
+        }
+        Optional<SendPaperFeedbackDetails> sendPaperDetails = super.getTimelineElement(
+                action.toBuilder()
+                        .type(ActionType.RECEIVE_PAPER)
+                        .retryNumber(retryNumber - 1)
+                        .build(),
                 ActionType.RECEIVE_PAPER,
                 SendPaperFeedbackDetails.class);
 
-        if(sendPaperFeedbackDetails.isPresent()) {
-            return sendPaperFeedbackDetails.get();
+        if(sendPaperDetails.isPresent()) {
+            return sendPaperDetails.get();
         } else {
             throw new PnInternalException( "Send Timeline related to " + action + " not found!!! " );
         }
