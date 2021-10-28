@@ -61,12 +61,22 @@ public class ExtChnEventUtils {
 		return buildSendPaperRequest(action, notification, communicationType, serviceLevelType, null);
 	}
 
+	public PnExtChnPaperEvent buildSendPaperRequest (
+			Action action,
+			Notification notification,
+			CommunicationType communicationType,
+			ServiceLevelType serviceLevelType,
+			PhysicalAddress address) {
+		return buildSendPaperRequest(action, notification, communicationType, serviceLevelType, address);
+	}
+
 
 	public PnExtChnPaperEvent buildSendPaperRequest (
 			Action action,
 			Notification notification,
 			CommunicationType communicationType,
 			ServiceLevelType serviceLevelType,
+			boolean investigation,
 			PhysicalAddress address) {
 		NotificationRecipient recipient = notification.getRecipients().get( action.getRecipientIndex() );
 		PhysicalAddress usedAddress = address != null ? address : recipient.getPhysicalAddress();
@@ -88,6 +98,7 @@ public class ExtChnEventUtils {
 		        			.communicationType( communicationType )
 		        			.serviceLevel( serviceLevelType )
 		        			.senderDenomination( notification.getSender().getPaId() )
+							.investigation(investigation)
 		    				.build()
 		        )
 		        .build();
