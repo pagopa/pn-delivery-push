@@ -39,6 +39,7 @@ public class ExtChnEventUtils {
 						.recipientTaxId(recipient.getTaxId())
 						.emailAddress(emailAddress.getAddress())
 						.shipmentDate(notification.getSentAt())
+						.accessUrl("fakeUrl") //TODO
 						.build()
 				)
 				.build();
@@ -99,6 +100,7 @@ public class ExtChnEventUtils {
 		        			.serviceLevel( serviceLevelType )
 		        			.senderDenomination( notification.getSender().getPaId() )
 							.investigation(investigation)
+							.accessUrl("fakeUrl") //TODO
 		    				.build()
 		        )
 		        .build();
@@ -125,6 +127,7 @@ public class ExtChnEventUtils {
 		                .senderPecAddress("Not required")
 		                .pecAddress( address.getAddress() )
 		                .shipmentDate( notification.getSentAt() )
+						.accessUrl("fakeUrl") // TODO
 		                .build()
 		            )
 		        .build();
