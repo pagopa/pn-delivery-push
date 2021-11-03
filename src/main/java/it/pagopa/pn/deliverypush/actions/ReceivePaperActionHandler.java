@@ -40,17 +40,11 @@ public class ReceivePaperActionHandler extends AbstractActionHandler {
             case OK: {
                 nextAction = buildEndofAnalogWorkflowAction( action );	// END_OF_ANALOG_DELIVERY_WORKFLOW
             } break;
-            case PERMANENT_FAIL: {
-                if (action.getRetryNumber().equals(1)) {
-                    nextAction = buildNextPaperSendAction( action );
-                } else {
-                    //IRREPERIBILE TOTALE
-                    throw new PnInternalException("Irreperibili totali ancora non gestiti"); //FIXME: gestione irreperibili totali
-                }
-            } break;
+            case PERMANENT_FAIL:
             case RETRYABLE_FAIL: {
-                nextAction = buildNextPaperSendAction(action);
+                nextAction = buildNextPaperSendAction( action );
             } break;
+
             default: throw new PnInternalException("Status not supported: " + status);
         }
 

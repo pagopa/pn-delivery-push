@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.actions;
 
+import it.pagopa.pn.commons_delivery.middleware.failednotification.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import org.springframework.stereotype.Component;
 
@@ -18,11 +19,14 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 public class NotificationViewedActionHandler extends AbstractActionHandler {
 
     private final LegalFactUtils legalFactStore;
+    private PaperNotificationFailedDao paperNotificationFailedDao;
 
     public NotificationViewedActionHandler(TimelineDao timelineDao, ActionsPool actionsPool,
-                      LegalFactUtils legalFactStore, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
+                      LegalFactUtils legalFactStore, PnDeliveryPushConfigs pnDeliveryPushConfigs,
+                      PaperNotificationFailedDao paperNotificationFailedDao) {
         super(timelineDao, actionsPool, pnDeliveryPushConfigs);
         this.legalFactStore = legalFactStore;
+        this.paperNotificationFailedDao = paperNotificationFailedDao;
     }
 
     @Override
@@ -37,8 +41,8 @@ public class NotificationViewedActionHandler extends AbstractActionHandler {
                  )
                  .build()
          );
-    	 
     	 legalFactStore.saveNotificationViewedLegalFact( action, notification );
+         paperNotificationFailedDao.deleteNotificationFailed(recipient.getTaxId(),action.getIun() ); //Viene eliminata l'istanza di notifica fallita dal momento che la stessa è stata letta
     }
 
     @Override

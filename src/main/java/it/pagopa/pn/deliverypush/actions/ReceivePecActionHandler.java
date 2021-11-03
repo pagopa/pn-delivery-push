@@ -49,7 +49,6 @@ public class ReceivePecActionHandler extends AbstractActionHandler {
         Optional<NotificationPathChooseDetails> addresses =
                 getTimelineElement( action, ActionType.CHOOSE_DELIVERY_MODE, NotificationPathChooseDetails.class );
         if( addresses.isPresent() ) {
-            // - send pec if specific address present
             DigitalAddress address = action.getDigitalAddressSource().getAddressFrom(addresses.get());
             addTimelineElement(action, TimelineElement.builder()
                     .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE_FEEDBACK)
@@ -63,8 +62,7 @@ public class ReceivePecActionHandler extends AbstractActionHandler {
                     .build()
             );
 
-        }
-        else {
+        }else {
             throw new PnInternalException( "Addresses list not found!!! Needed for action " + action );
         }
     }

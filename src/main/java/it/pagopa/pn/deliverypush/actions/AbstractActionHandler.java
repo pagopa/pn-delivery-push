@@ -50,6 +50,9 @@ public abstract class AbstractActionHandler implements ActionHandler {
 
         return row.map( el -> timelineDetailsClass.cast( el.getDetails() ) );
     }
+    protected  boolean isPresentTimeLineElement(Action action, ActionType actionType) {
+        return this.timelineDao.getTimelineElement( action.getIun(), actionType.buildActionId( action ) ).isPresent();
+    }
     protected Action buildNextSendAction(Action action ) {
         boolean nextIsInFirstRound = FIRST_ROUND.equals( action.getRetryNumber() )
                 && ! DigitalAddressSource.GENERAL.equals( action.getDigitalAddressSource() );
@@ -122,6 +125,15 @@ public abstract class AbstractActionHandler implements ActionHandler {
                 .recipientIndex(action.getRecipientIndex())
                 .notBefore(Instant.now())
                 .type(ActionType.END_OF_ANALOG_DELIVERY_WORKFLOW)
+                .build();
+    }
+
+    protected Action buildCompletelyUnreachableAction(Action action ) {
+        return Action.builder()
+                .iun(action.getIun())
+                .recipientIndex(action.getRecipientIndex())
+                .notBefore(Instant.now())
+                .type(ActionType.COMPLETELY_UNREACHABLE)
                 .build();
     }
 
