@@ -25,6 +25,7 @@ public class SendPecActionHandler extends AbstractActionHandler {
 
     private final MomProducer<PnExtChnPecEvent> pecRequestProducer;
     private final ExtChnEventUtils extChnEventUtils;
+    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     
     public SendPecActionHandler(TimelineDao timelineDao, ActionsPool actionsPool, 
     		MomProducer<PnExtChnPecEvent> pecRequestProducer, PnDeliveryPushConfigs pnDeliveryPushConfigs,
@@ -32,6 +33,7 @@ public class SendPecActionHandler extends AbstractActionHandler {
         super( timelineDao, actionsPool , pnDeliveryPushConfigs);
         this.pecRequestProducer = pecRequestProducer;
         this.extChnEventUtils = extChnEventUtils;
+        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
     }
 
     @Override
@@ -48,7 +50,12 @@ public class SendPecActionHandler extends AbstractActionHandler {
             // - send pec if specific address present
             DigitalAddress address = action.getDigitalAddressSource().getAddressFrom( addresses.get() );
             if( address != null ) {
-                this.pecRequestProducer.push( extChnEventUtils.buildSendPecRequest(action, notification, recipient, address) );
+                this.pecRequestProducer.push( extChnEventUtils.buildSendPecRequest(
+                        action,
+                        notification,
+                        recipient,
+                        address,
+                        pnDeliveryPushConfigs) );
             }
             //   else go to next address (if this is not last)
             else {

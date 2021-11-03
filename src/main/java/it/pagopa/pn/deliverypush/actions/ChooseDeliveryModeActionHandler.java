@@ -35,7 +35,8 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
 
     public ChooseDeliveryModeActionHandler(TimelineDao timelineDao, AddressBook addressBook,
                                            ActionsPool actionsPool, PnDeliveryPushConfigs pnDeliveryPushConfigs,
-                                           MomProducer<PnExtChnEmailEvent> emailRequestProducer, ExtChnEventUtils eventUtils) {
+                                           MomProducer<PnExtChnEmailEvent> emailRequestProducer,
+                                           ExtChnEventUtils eventUtils) {
         super( timelineDao, actionsPool , pnDeliveryPushConfigs);
         this.addressBook = addressBook;
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
@@ -120,7 +121,10 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
                 timelineDetails.getSpecial() == null;
     }
 
-    private void sendCourtesyMessages(Action action, Notification notification, NotificationRecipient recipient, AddressBookEntry abEntry) {
+    private void sendCourtesyMessages(Action action,
+                                      Notification notification,
+                                      NotificationRecipient recipient,
+                                      AddressBookEntry abEntry) {
         // - Send Email
         List<DigitalAddress> courtesyAddresses = abEntry.getCourtesyAddresses();
         if( courtesyAddresses != null ) {
@@ -129,8 +133,12 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
             for (int idx = 0; idx < numberOfAddresses; idx++) {
                 DigitalAddress emailAddress = courtesyAddresses.get(idx);
                 this.emailRequestProducer.push(
-                        eventUtils.buildSendEmailRequest(action, notification, recipient, idx, emailAddress)
-                    );
+                        eventUtils.buildSendEmailRequest(action,
+                                notification,
+                                recipient,
+                                idx,
+                                emailAddress,
+                                pnDeliveryPushConfigs));
             }
         }
     }
