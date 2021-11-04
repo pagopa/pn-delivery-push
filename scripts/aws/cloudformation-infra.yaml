@@ -95,7 +95,7 @@ Resources:
               Value: !Join
                 - ''
                 - - !ImportValue { "Fn::Sub": '${EnvName}-cdn-url' }
-                  - '/direct-access.html?token=%s'
+                  - '/direct_access.html?token=%s'
             - Name: PN_DELIVERYPUSH_TIMEPARAMS_SECONDATTEMPTWAITINGTIME
               Value: !Ref PecSecondAttemptWaitTime
             - Name: PN_DELIVERYPUSH_TIMEPARAMS_RECIPIENTVIEWMAXTIMEFORDIGITAL
