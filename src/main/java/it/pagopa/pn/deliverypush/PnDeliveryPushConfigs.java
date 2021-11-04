@@ -20,6 +20,8 @@ public class PnDeliveryPushConfigs {
 
     private Webhook webhook;
 
+    private Webapp webapp;
+
     @Data
     public static class Topics {
 
@@ -44,4 +46,9 @@ public class PnDeliveryPushConfigs {
         private Long scheduleInterval;
         private Integer maxLength;
     }
+
+   @Data
+   public static class Webapp {
+        private String directAccessUrlTemplate;
+   }
 }

@@ -28,6 +28,7 @@ import java.util.Optional;
 
 class SendPaperActionHandlerTest {
 
+    public static final String DIRECT_ACCESS_URL_TEMPLATE = "http://localhost:8090/direct-access.html?token=%s";
     private MomProducer<PnExtChnPaperEvent> paperRequestProducer;
     private TimelineDao timelineDao;
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
@@ -55,6 +56,9 @@ class SendPaperActionHandlerTest {
         times.setTimeBetweenExtChReceptionAndMessageProcessed(Duration.ZERO);
         times.setWaitingResponseFromFirstAddress(Duration.ZERO);
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
+        PnDeliveryPushConfigs.Webapp webAppCgf = new PnDeliveryPushConfigs.Webapp();
+        webAppCgf.setDirectAccessUrlTemplate(DIRECT_ACCESS_URL_TEMPLATE);
+        Mockito.when(pnDeliveryPushConfigs.getWebapp()).thenReturn(webAppCgf);
     }
 
     @Test

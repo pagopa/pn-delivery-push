@@ -97,7 +97,7 @@ class SendPecActionHandlerTest {
         //Then
         //Mockito.verify(pecRequestProducer).push(Mockito.any(PnExtChnPecEvent.class));
         Mockito.verify(pecRequestProducer).push( extChnEventUtils.buildSendPecRequest(Mockito.any(Action.class), 
-        		Mockito.any(Notification.class), Mockito.any(NotificationRecipient.class), Mockito.any(DigitalAddress.class)) );
+        		Mockito.any(Notification.class), Mockito.any(NotificationRecipient.class), Mockito.any(DigitalAddress.class), Mockito.any(PnDeliveryPushConfigs.class)) );
        
     }
 

@@ -4,6 +4,7 @@ import java.time.Instant;
 
 import it.pagopa.pn.api.dto.events.*;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import org.springframework.stereotype.Component;
 
 import it.pagopa.pn.api.dto.notification.Notification;
@@ -19,8 +20,10 @@ public class ExtChnEventUtils {
 			Notification notification,
 			NotificationRecipient recipient,
 			int courtesyAddressIdx,
-			DigitalAddress emailAddress
+			DigitalAddress emailAddress,
+			PnDeliveryPushConfigs cfg
 	) {
+		final String accessUrl = getAccessUrl(recipient, cfg);
 		return PnExtChnEmailEvent.builder()
 				.header(StandardEventHeader.builder()
 						.iun(action.getIun())
@@ -39,9 +42,14 @@ public class ExtChnEventUtils {
 						.recipientTaxId(recipient.getTaxId())
 						.emailAddress(emailAddress.getAddress())
 						.shipmentDate(notification.getSentAt())
+						.accessUrl(accessUrl)
 						.build()
 				)
 				.build();
+	}
+
+	private String getAccessUrl(NotificationRecipient recipient, PnDeliveryPushConfigs cfg) {
+		return String.format(cfg.getWebapp().getDirectAccessUrlTemplate(), recipient.getToken());
 	}
 
 	public PnExtChnPaperEvent buildSendPaperRequest (
@@ -77,10 +85,13 @@ public class ExtChnEventUtils {
 			CommunicationType communicationType,
 			ServiceLevelType serviceLevelType,
 			boolean investigation,
-			PhysicalAddress address) {
+			PhysicalAddress address,
+			PnDeliveryPushConfigs cfg
+			) {
 		NotificationRecipient recipient = notification.getRecipients().get( action.getRecipientIndex() );
 		PhysicalAddress usedAddress = address != null ? address : recipient.getPhysicalAddress();
-				
+		final String accessUrl = getAccessUrl(recipient, cfg);
+
 		return PnExtChnPaperEvent.builder()
 		        .header( StandardEventHeader.builder()
 		        			.iun( action.getIun() )
@@ -99,13 +110,15 @@ public class ExtChnEventUtils {
 		        			.serviceLevel( serviceLevelType )
 		        			.senderDenomination( notification.getSender().getPaId() )
 							.investigation(investigation)
+							.accessUrl(accessUrl)
 		    				.build()
 		        )
 		        .build();
 	}
 	
 	public PnExtChnPecEvent buildSendPecRequest(Action action, Notification notification, 
-			NotificationRecipient recipient, DigitalAddress address) {
+			NotificationRecipient recipient, DigitalAddress address, PnDeliveryPushConfigs cfg) {
+		final String accessUrl = getAccessUrl(recipient, cfg);
 		return PnExtChnPecEvent.builder()
 		        .header( StandardEventHeader.builder()
 		                .iun( action.getIun() )
@@ -125,6 +138,7 @@ public class ExtChnEventUtils {
 		                .senderPecAddress("Not required")
 		                .pecAddress( address.getAddress() )
 		                .shipmentDate( notification.getSentAt() )
+						.accessUrl(accessUrl)
 		                .build()
 		            )
 		        .build();

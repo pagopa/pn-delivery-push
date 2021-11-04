@@ -91,6 +91,11 @@ Resources:
               Value: !Ref WebhookScanInterval
             - Name: PN_DELIVERYPUSH_WEBHOOK_MAXLENGTH
               Value: !Ref WebhookMaxLength
+            - Name: PN_DELIVERYPUSH_WEBAPP_DIRECTACCESSURLTEMPLATE
+              Value: !Join
+                - ''
+                - - !ImportValue { "Fn::Sub": '${EnvName}-cdn-url' }
+                  - '/direct_access.html?token=%s'
             - Name: PN_DELIVERYPUSH_TIMEPARAMS_SECONDATTEMPTWAITINGTIME
               Value: !Ref PecSecondAttemptWaitTime
             - Name: PN_DELIVERYPUSH_TIMEPARAMS_RECIPIENTVIEWMAXTIMEFORDIGITAL

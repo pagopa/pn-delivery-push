@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,10 +24,12 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 
 class ExtChnEventUtilsTest {	
 	private ExtChnEventUtils utils;
+    private PnDeliveryPushConfigs cfg;
     
     @BeforeEach
     public void setup() {
         utils = Mockito.mock(ExtChnEventUtils.class);
+        cfg = Mockito.mock(PnDeliveryPushConfigs.class);
     }
     
     @Test
@@ -77,17 +80,18 @@ class ExtChnEventUtilsTest {
     	DigitalAddress address = notification.getRecipients().get(action.getRecipientIndex()).getDigitalDomicile();
     	
     	//WHEN
-    	utils.buildSendPecRequest( action, notification, recipient, address);
+    	utils.buildSendPecRequest( action, notification, recipient, address, cfg);
     	
     	//THEN
         ArgumentCaptor<Action> actionCapture = ArgumentCaptor.forClass(Action.class);
         ArgumentCaptor<Notification> notificationCapture = ArgumentCaptor.forClass(Notification.class);
         ArgumentCaptor<NotificationRecipient> recipientCapture = ArgumentCaptor.forClass(NotificationRecipient.class);
         ArgumentCaptor<DigitalAddress> addressCapture = ArgumentCaptor.forClass(DigitalAddress.class);
+        ArgumentCaptor<PnDeliveryPushConfigs> cfgCapture = ArgumentCaptor.forClass(PnDeliveryPushConfigs.class);
 
 
         Mockito.verify(utils).buildSendPecRequest(actionCapture.capture(), notificationCapture.capture(), 
-        		recipientCapture.capture(), addressCapture.capture() );
+        		recipientCapture.capture(), addressCapture.capture(), cfgCapture.capture() );
         
         Assertions.assertEquals(actionCapture.getValue(), action, "Different Action from the expected");
         Assertions.assertEquals(notificationCapture.getValue(), notification, "Different Notification from the expected");

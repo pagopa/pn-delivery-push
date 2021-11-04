@@ -37,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 class ChooseDeliveryModeActionHandlerTest {
+    public static final String DIRECT_ACCESS_URL_TEMPLATE = "http://localhost:8090/direct-access.html?token=%s";
     private AddressBook addressBook;
     private TimelineDao timelineDao;
     private ActionsPool actionsPool;
@@ -71,6 +72,9 @@ class ChooseDeliveryModeActionHandlerTest {
         times.setTimeBetweenExtChReceptionAndMessageProcessed(Duration.ZERO);
         times.setWaitingResponseFromFirstAddress(Duration.ZERO);
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
+        PnDeliveryPushConfigs.Webapp webAppCgf = new PnDeliveryPushConfigs.Webapp();
+        webAppCgf.setDirectAccessUrlTemplate(DIRECT_ACCESS_URL_TEMPLATE);
+        Mockito.when(pnDeliveryPushConfigs.getWebapp()).thenReturn(webAppCgf);
     }
 
     @Test

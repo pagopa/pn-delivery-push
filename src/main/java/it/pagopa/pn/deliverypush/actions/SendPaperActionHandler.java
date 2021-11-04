@@ -30,6 +30,7 @@ public class SendPaperActionHandler extends AbstractActionHandler {
     private final MomProducer<PnExtChnPaperEvent> paperRequestProducer;
     private final ExtChnEventUtils extChnEventUtils;
     private final AddressBook addressBook;
+    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     public SendPaperActionHandler(TimelineDao timelineDao, ActionsPool actionsPool,
                                   PnDeliveryPushConfigs pnDeliveryPushConfigs,
@@ -40,6 +41,7 @@ public class SendPaperActionHandler extends AbstractActionHandler {
         this.paperRequestProducer = paperRequestProducer;
         this.extChnEventUtils = extChnEventUtils;
         this.addressBook = addressBook;
+        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
     }
 
     @Override
@@ -96,7 +98,8 @@ public class SendPaperActionHandler extends AbstractActionHandler {
                     CommunicationType.RECIEVED_DELIVERY_NOTICE,
                     notification.getPhysicalCommunicationType(),
                     investigation,
-                    destination);
+                    destination,
+                    pnDeliveryPushConfigs);
             this.paperRequestProducer.push(event);
 
             // - Write timeline
