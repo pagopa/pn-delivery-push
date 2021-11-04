@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.actions;
 
 import java.util.Collections;
 
+import it.pagopa.pn.commons_delivery.middleware.failednotification.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +27,7 @@ class NotificationViewedActionHandlerTest {
     private ActionsPool actionsPool;
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private NotificationViewedActionHandler handler;
+    private PaperNotificationFailedDao paperNotificationFailedDao;
 
     @BeforeEach
     public void setup() {
@@ -33,11 +35,13 @@ class NotificationViewedActionHandlerTest {
         legalFactUtils = Mockito.mock(LegalFactUtils.class);
         timelineDao = Mockito.mock(TimelineDao.class);
         actionsPool = Mockito.mock(ActionsPool.class);
+        paperNotificationFailedDao = Mockito.mock(PaperNotificationFailedDao.class);
         handler = new NotificationViewedActionHandler(
         		timelineDao,
         		actionsPool,
                 legalFactUtils,
-                pnDeliveryPushConfigs
+                pnDeliveryPushConfigs,
+                paperNotificationFailedDao
         );
     }
 

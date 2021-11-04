@@ -19,6 +19,7 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import lombok.Value;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -62,8 +63,7 @@ public class SendPaperActionHandler extends AbstractActionHandler {
                         optionalSendPolicy = Optional.of( new SendPolicy(nationalRegistryAddress.get(),true) );
                     }
                     else {
-                        //FIXME: Cosa prevede l'analisi in mancanza di indirizzi fisici?
-                        throw new PnInternalException( "Addresses list not found!!! Needed for action " + action );
+                        optionalSendPolicy = setForCompletelyUnreachable();
                     }
                 }
             } break;
@@ -75,14 +75,13 @@ public class SendPaperActionHandler extends AbstractActionHandler {
                 if (destination.isPresent()) {
                     optionalSendPolicy = Optional.of( new SendPolicy(destination.get(), false) );
                 } else {
-                    //IRREPERIBILE TOTALE
-                    optionalSendPolicy = Optional.empty();
+                    optionalSendPolicy = setForCompletelyUnreachable();
                 }
             } break;
             case 3: {
-                //IRREPERIBILE TOTALE
-                optionalSendPolicy = Optional.empty();
-            }
+                optionalSendPolicy = setForCompletelyUnreachable();
+            } break;
+
             default: throw new PnInternalException(""+ action.getRetryNumber());
         }
 
@@ -111,10 +110,19 @@ public class SendPaperActionHandler extends AbstractActionHandler {
                             .build()
                     ).build());
         } else {
-            //IRREPERIBILE TOTALE
-            throw new PnInternalException("Irreperibili totali ancora non gestiti"); //FIXME: gestione irreperibili totali
+            scheduleCompletlyUnreachableAction(action);
         }
 
+    }
+
+    //Irreperibile Totale
+    private Optional<SendPolicy> setForCompletelyUnreachable() {
+        return Optional.empty();
+    }
+
+    private void scheduleCompletlyUnreachableAction(Action action) {
+        Action nextAction = buildCompletelyUnreachableAction(action);
+        scheduleAction( nextAction );
     }
 
     private Optional<PhysicalAddress> chooseDestination(
@@ -153,9 +161,8 @@ public class SendPaperActionHandler extends AbstractActionHandler {
         Optional<AddressBookEntry> optionalAddressBookEntry = addressBook.getAddresses( taxId );
         if ( optionalAddressBookEntry.isPresent() ) {
             return Optional.ofNullable(optionalAddressBookEntry.get().getResidentialAddress());
-        } else {
-            throw new PnInternalException( "Unable to retrieve physical address for taxId "+ taxId );
         }
+        return Optional.empty();
     }
 
     @Value

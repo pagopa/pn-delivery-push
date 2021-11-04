@@ -122,6 +122,16 @@ public enum ActionType {
                     action.getRecipientIndex()
             );
         }
+    },
+    COMPLETELY_UNREACHABLE() {
+        @Override
+        public String buildActionId(Action action) {
+            return String.format(
+                    "%s_completely_unreachable_%d",
+                    action.getIun(),
+                    action.getRecipientIndex()
+            );
+        }
     };
 
     public String buildActionId(Action action) {
