@@ -23,7 +23,7 @@ public class ExtChnEventUtils {
 			DigitalAddress emailAddress,
 			PnDeliveryPushConfigs cfg
 	) {
-		final String accessUrl = String.format(cfg.getWebapp().getDirectAccessUrlTemplate(), recipient.getToken());
+		final String accessUrl = getAccessUrl(recipient, cfg);
 		return PnExtChnEmailEvent.builder()
 				.header(StandardEventHeader.builder()
 						.iun(action.getIun())
@@ -46,6 +46,10 @@ public class ExtChnEventUtils {
 						.build()
 				)
 				.build();
+	}
+
+	private String getAccessUrl(NotificationRecipient recipient, PnDeliveryPushConfigs cfg) {
+		return String.format(cfg.getWebapp().getDirectAccessUrlTemplate(), recipient.getToken());
 	}
 
 	public PnExtChnPaperEvent buildSendPaperRequest (
@@ -86,8 +90,8 @@ public class ExtChnEventUtils {
 			) {
 		NotificationRecipient recipient = notification.getRecipients().get( action.getRecipientIndex() );
 		PhysicalAddress usedAddress = address != null ? address : recipient.getPhysicalAddress();
-		final String accessUrl = String.format(cfg.getWebapp().getDirectAccessUrlTemplate(), recipient.getToken());
-				
+		final String accessUrl = getAccessUrl(recipient, cfg);
+
 		return PnExtChnPaperEvent.builder()
 		        .header( StandardEventHeader.builder()
 		        			.iun( action.getIun() )
@@ -114,7 +118,7 @@ public class ExtChnEventUtils {
 	
 	public PnExtChnPecEvent buildSendPecRequest(Action action, Notification notification, 
 			NotificationRecipient recipient, DigitalAddress address, PnDeliveryPushConfigs cfg) {
-		final String accessUrl = String.format(cfg.getWebapp().getDirectAccessUrlTemplate(), recipient.getToken());
+		final String accessUrl = getAccessUrl(recipient, cfg);
 		return PnExtChnPecEvent.builder()
 		        .header( StandardEventHeader.builder()
 		                .iun( action.getIun() )
