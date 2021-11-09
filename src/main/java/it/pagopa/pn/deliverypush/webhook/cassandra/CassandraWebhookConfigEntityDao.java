@@ -4,6 +4,7 @@ import com.datastax.oss.driver.api.core.ConsistencyLevel;
 import it.pagopa.pn.deliverypush.webhook.WebhookConfigsDao;
 import it.pagopa.pn.deliverypush.webhook.WebhookInfoDto;
 import org.springframework.data.cassandra.core.CassandraOperations;
+import org.springframework.data.cassandra.core.InsertOptions;
 import org.springframework.data.cassandra.core.cql.QueryOptions;
 import org.springframework.data.cassandra.core.query.Criteria;
 import org.springframework.data.cassandra.core.query.Query;
@@ -18,6 +19,7 @@ import java.util.stream.Stream;
 public class CassandraWebhookConfigEntityDao implements WebhookConfigsDao {
 
     public static final QueryOptions QUERY_OPTIONS = QueryOptions.builder().consistencyLevel(ConsistencyLevel.LOCAL_QUORUM).build();
+    public static final InsertOptions INSERT_OPTIONS = InsertOptions.builder().consistencyLevel(ConsistencyLevel.LOCAL_QUORUM).build();
 
     private final CassandraOperations cassandra;
 
@@ -70,4 +72,8 @@ public class CassandraWebhookConfigEntityDao implements WebhookConfigsDao {
         this.cassandra.update( query, update, CassandraWebhookConfigEntity.class );
     }
 
+    @Override
+    public void put(CassandraWebhookConfigEntity entity) {
+        cassandra.insert(entity, INSERT_OPTIONS);
+    }
 }

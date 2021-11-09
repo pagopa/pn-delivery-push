@@ -1,0 +1,26 @@
+[
+  {
+    "paId": "paMilano1",
+    "url": "www.pamilanotesturl.com",
+    "since": 1636455010.327241000,
+    "active": false
+  },
+  {
+    "paId": "paBologna1",
+    "url": "www.pabolognatesturl.com",
+    "since": 1636455010.327241000,
+    "active": true
+  },
+  {
+    "paId": "paRoma1",
+    "url": "www.paromatesturl.com",
+    "since": 1636455010.327241000,
+    "active": true
+  },
+  {
+    "paId": "paNapoli1",
+    "url": "www.panapolitesturl.com",
+    "since": 1636455010.327241000,
+    "active": true
+  }
+]
