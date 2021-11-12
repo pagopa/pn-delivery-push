@@ -16,8 +16,11 @@ public class DtoToEntityConfigMapper {
         listDto.forEach(dto -> listEntity.add(CassandraWebhookConfigEntity.builder()
                 .paId(dto.getPaId())
                 .url(dto.getUrl())
-                .since(dto.getSince())
+                .since(dto.getStartFrom())
                 .active(dto.isActive())
+                .allNotifications(dto.isAllNotifications())
+                .notificationsElement(dto.getNotificationsElement())
+                .type(dto.getType())
                 .build()));
 
         return listEntity;
@@ -27,8 +30,11 @@ public class DtoToEntityConfigMapper {
         return CassandraWebhookConfigEntity.builder()
                 .paId(dto.getPaId())
                 .url(dto.getUrl())
-                .since(dto.getSince())
+                .since(dto.getStartFrom())
                 .active(dto.isActive())
+                .allNotifications(dto.isAllNotifications())
+                .notificationsElement(dto.getNotificationsElement())
+                .type(dto.getType())
                 .build();
     }
 }

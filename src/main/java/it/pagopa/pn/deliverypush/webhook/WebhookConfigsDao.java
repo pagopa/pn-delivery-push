@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.webhook;
 
+import it.pagopa.pn.api.dto.webhook.WebhookConfigDto;
 import it.pagopa.pn.deliverypush.webhook.cassandra.CassandraWebhookConfigEntity;
 
 import java.time.Instant;
@@ -14,9 +15,9 @@ public interface WebhookConfigsDao {
 
     void setWebhookStartFrom(String paId, Instant startFrom);
 
-    Optional<WebhookInfoDto> getWebhookInfo(String paId );
+    Optional<WebhookConfigDto> getWebhookInfo(String paId);
 
-    Stream<WebhookInfoDto> activeWebhooks();
+    Stream<WebhookConfigDto> activeWebhooks();
 
     void put(CassandraWebhookConfigEntity entity);
 }

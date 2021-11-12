@@ -1,8 +1,8 @@
 package it.pagopa.pn.deliverypush.webhook.cassandra;
 
 import com.datastax.oss.driver.api.core.ConsistencyLevel;
+import it.pagopa.pn.api.dto.webhook.WebhookConfigDto;
 import it.pagopa.pn.deliverypush.webhook.WebhookConfigsDao;
-import it.pagopa.pn.deliverypush.webhook.WebhookInfoDto;
 import org.springframework.data.cassandra.core.CassandraOperations;
 import org.springframework.data.cassandra.core.InsertOptions;
 import org.springframework.data.cassandra.core.cql.QueryOptions;
@@ -43,25 +43,28 @@ public class CassandraWebhookConfigEntityDao implements WebhookConfigsDao {
     }
 
     @Override
-    public Optional<WebhookInfoDto> getWebhookInfo(String paId) {
-        CassandraWebhookConfigEntity entity = this.cassandra.selectOneById( paId, CassandraWebhookConfigEntity.class );
-        return Optional.ofNullable( entity ).map( this::entity2dto );
+    public Optional<WebhookConfigDto> getWebhookInfo(String paId) {
+        CassandraWebhookConfigEntity entity = this.cassandra.selectOneById(paId, CassandraWebhookConfigEntity.class);
+        return Optional.ofNullable(entity).map(this::entity2dto);
     }
 
     @Override
-    public Stream<WebhookInfoDto> activeWebhooks() {
-        String tableName = this.cassandra.getTableName( CassandraWebhookConfigEntity.class ).asCql(true);
+    public Stream<WebhookConfigDto> activeWebhooks() {
+        String tableName = this.cassandra.getTableName(CassandraWebhookConfigEntity.class).asCql(true);
         return this.cassandra.stream("SELECT * FROM " + tableName, CassandraWebhookConfigEntity.class)
-                .filter( CassandraWebhookConfigEntity::isActive )
-                .map( this::entity2dto );
+                .filter(CassandraWebhookConfigEntity::isActive)
+                .map(this::entity2dto);
     }
 
-    private WebhookInfoDto entity2dto(CassandraWebhookConfigEntity entity) {
-        return WebhookInfoDto.builder()
+    private WebhookConfigDto entity2dto(CassandraWebhookConfigEntity entity) {
+        return WebhookConfigDto.builder()
                 .paId(entity.getPaId())
                 .url(entity.getUrl())
                 .active(entity.isActive())
                 .startFrom(entity.getSince())
+                .type(entity.getType())
+                .allNotifications(entity.isAllNotifications())
+                .notificationsElement(entity.getNotificationsElement())
                 .build();
     }
 

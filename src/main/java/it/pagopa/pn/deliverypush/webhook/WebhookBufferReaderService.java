@@ -1,13 +1,22 @@
 package it.pagopa.pn.deliverypush.webhook;
 
+import it.pagopa.pn.api.dto.webhook.WebhookConfigDto;
+import it.pagopa.pn.commons.utils.DateFormatUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.webhook.dto.WebhookBufferRowDto;
+import it.pagopa.pn.deliverypush.webhook.dto.WebhookOutputDto;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -30,48 +39,60 @@ public class WebhookBufferReaderService {
         webhookConfigsDao.activeWebhooks().forEach( this::readWebhookBufferAndSend );
     }
 
-    protected void readWebhookBufferAndSend(WebhookInfoDto webhook ) {
+    protected void readWebhookBufferAndSend(WebhookConfigDto webhook) {
         log.info("Scan webhook " + webhook);
 
         Instant lastUpdate = webhook.getStartFrom();
-        if( lastUpdate == null ) {
+        if (lastUpdate == null) {
             lastUpdate = Instant.EPOCH;
         }
 
         AtomicReference<List<WebhookBufferRowDto>> bufferChunkRef = new AtomicReference<>();
 
-        webhookBufferDao.bySenderIdAndDate( webhook.getPaId(), lastUpdate )
-            .map( bufferRow -> {
-                    List<WebhookBufferRowDto> bufferChunk = bufferChunkRef.updateAndGet( b -> b != null ? b : new ArrayList<>());
-                    bufferChunk.add( bufferRow );
-                    if( bufferChunk.size() >= chunkSize) {
-                        return bufferChunkRef.getAndSet( null );
-                    }
-                    else {
+        webhookBufferDao.bySenderIdAndDate(webhook.getPaId(), lastUpdate)
+                .map(bufferRow -> {
+                    List<WebhookBufferRowDto> bufferChunk = bufferChunkRef.updateAndGet(b -> b != null ? b : new ArrayList<>());
+
+                    bufferChunk.add(bufferRow);
+                    if (bufferChunk.size() >= chunkSize) {
+                        return bufferChunkRef.getAndSet(null);
+                    } else {
                         return null;
                     }
                 })
-            .filter( Objects::nonNull )
-            .forEachOrdered( chunk -> sendOneChunk(webhook, chunk) );
+                .filter(Objects::nonNull)
+                .forEachOrdered(chunk -> sendOneChunk(webhook, chunk));
 
-        if( bufferChunkRef.get() != null ) {
-            sendOneChunk( webhook, bufferChunkRef.get() );
+        if (bufferChunkRef.get() != null) {
+            sendOneChunk(webhook, bufferChunkRef.get());
         }
     }
 
-    private void sendOneChunk(WebhookInfoDto webhook, List<WebhookBufferRowDto> chunk) {
+    private void sendOneChunk(WebhookConfigDto webhook, List<WebhookBufferRowDto> chunk) {
         try {
-            log.info("Call webhook " + webhook + " with chunk size " + chunk.size() );
-            client.sendInfo( webhook.getUrl(), chunk);
-            chunk.stream().map( WebhookBufferRowDto::getStatusChangeTime )
-                    .max( Comparator.naturalOrder() )
-                    .ifPresent( newLastUpdate ->
-                        webhookConfigsDao.setWebhookStartFrom(webhook.getPaId(), newLastUpdate )
+            log.info("Call webhook " + webhook + " with chunk size " + chunk.size());
+            List<WebhookOutputDto> webhookOutputDtoList = getListWebhookOutputDto(chunk);
+
+            client.sendInfo(webhook.getUrl(), webhookOutputDtoList);
+            chunk.stream().map(WebhookBufferRowDto::getStatusChangeTime)
+                    .max(Comparator.naturalOrder())
+                    .ifPresent(newLastUpdate ->
+                            webhookConfigsDao.setWebhookStartFrom(webhook.getPaId(), newLastUpdate)
                     );
-        }
-        catch (RuntimeException exc) {
+        } catch (RuntimeException exc) {
             log.error("Calling webhook " + webhook.getUrl(), exc);
         }
+    }
+
+    @NotNull
+    private List<WebhookOutputDto> getListWebhookOutputDto(List<WebhookBufferRowDto> chunk) {
+        return chunk.stream().map(row -> WebhookOutputDto.builder()
+                        .notificationElement(row.getNotificationElement())
+                        .iun(row.getIun())
+                        .senderId(row.getSenderId())
+                        .statusChangeTime(DateFormatUtils.formatInstantToString(row.getStatusChangeTime(), DateFormatUtils.yyyyMMddHHmmssSSSZ))
+                        .build())
+                .collect(Collectors.toList());
     }
 
 }

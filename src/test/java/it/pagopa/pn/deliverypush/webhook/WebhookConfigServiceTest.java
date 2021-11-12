@@ -32,7 +32,7 @@ class WebhookConfigServiceTest {
         listConfigDto.add(WebhookConfigDto.builder()
                 .paId("paMilano1")
                 .url("testUrl")
-                .since(Instant.now())
+                .startFrom(Instant.now())
                 .active(true)
                 .build());
         webhookConfigService.putConfigurations(listConfigDto);
@@ -45,7 +45,7 @@ class WebhookConfigServiceTest {
         WebhookConfigDto dto = WebhookConfigDto.builder()
                 .paId("paMilano1")
                 .url("testUrl")
-                .since(Instant.now())
+                .startFrom(Instant.now())
                 .active(true)
                 .build();
         webhookConfigService.putConfiguration(dto);

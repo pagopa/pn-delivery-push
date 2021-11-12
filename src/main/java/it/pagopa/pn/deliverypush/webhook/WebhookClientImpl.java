@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.webhook;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.webhook.dto.WebhookOutputDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -16,9 +17,9 @@ public class WebhookClientImpl implements WebhookClient {
 
     private final RestTemplate rest = new RestTemplate();
 
-    public void sendInfo(String url, List<WebhookBufferRowDto> data) {
+    public void sendInfo(String url, List<WebhookOutputDto> data) {
         log.info("Send info webhook with url: " + url);
-        HttpEntity<List<WebhookBufferRowDto>> entity = new HttpEntity<>(data, null);
+        HttpEntity<List<WebhookOutputDto>> entity = new HttpEntity<>(data, null);
         ResponseEntity<Void> resp = rest.exchange(url, HttpMethod.POST, entity, Void.class);
         log.info("Response: " + resp);
         if (!resp.getStatusCode().is2xxSuccessful()) {

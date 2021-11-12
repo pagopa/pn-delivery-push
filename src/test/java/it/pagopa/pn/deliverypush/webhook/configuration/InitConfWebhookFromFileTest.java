@@ -17,7 +17,8 @@ class InitConfWebhookFromFileTest {
 
     @BeforeEach
     public void setup() {
-        initConfWebhookFromFile = new InitConfWebhookFromFile(webhookInitConfigService);
+        String jsonPropertyFilePath = "/webhookconfig/webhookinit.json";
+        initConfWebhookFromFile = new InitConfWebhookFromFile(webhookInitConfigService, jsonPropertyFilePath);
     }
 
     @ExtendWith(MockitoExtension.class)
