@@ -100,6 +100,11 @@ public abstract class AbstractActionHandler implements ActionHandler {
         Duration recipientViewMaxTime = pnDeliveryPushConfigs.getTimeParams().getRecipientViewMaxTimeForAnalog();
         return buildWaitRecipientTimeoutAction(action,recipientViewMaxTime);
     }
+
+    protected Action buildWaitRecipientTimeoutActionForUnreachable(Action action) {
+        Duration refinementTime = pnDeliveryPushConfigs.getTimeParams().getRefinementTimeForCompletelyUnreachable();
+        return buildWaitRecipientTimeoutAction(action, refinementTime);
+    }
     
     protected Action buildWaitRecipientTimeoutAction(Action action, Duration delay ) {
         return Action.builder()
