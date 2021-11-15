@@ -5,8 +5,9 @@
     "KeyspaceName": "devel_delivery",
     "AddressBookUrl": "https://zkkwwk0v41.execute-api.eu-central-1.amazonaws.com/mock/develop/addresses/",
     "PecSecondAttemptWaitTime": "70s",
-    "RecipientTimeoutDelayAnalog": "5m",
-    "RecipientTimeoutDelayDigital": "4m",
+    "RecipientTimeoutDelayAnalog": "3m",
+    "RecipientTimeoutDelayDigital": "2m",
+    "RefinementTimeCompletelyUnreachable": "4m",
     "WebhookScanInterval": "60000",
     "WebhookMaxLength": "10"
   }
