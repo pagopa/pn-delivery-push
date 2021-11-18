@@ -138,13 +138,15 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
 	@Override
 	public byte[] generateNotificationReceivedLegalFact(Action action, Notification notification) {
 		String paragraph2 = DIV_PARAGRAPH
-				+ "in data %s il soggetto mittente %s, C.F. "
-	    		+ "%s ha messo a disposizione del gestore i documenti informatici di "
+				+ "in data %s il soggetto mittente <i>Denominazione IPA della PA con ID:</i> %s,"
+				+ " <i>Codice Fiscale della PA con ID:</i> %s "
+	    		+ "ha messo a disposizione del gestore i documenti informatici di "
 	    		+ "cui allo IUN %s e identificati in modo univoco con i seguenti hash: ";
-		
-	    paragraph2 = String.format( paragraph2, this.instantToDate( notification.getSentAt() ),
-	    										notification.getSender().getPaDenomination(),
-	    										notification.getSender().getTaxId( notification.getSender().getPaId() ),
+
+		final String paId = notification.getSender().getPaId();
+		paragraph2 = String.format( paragraph2, this.instantToDate( notification.getSentAt() ),
+												paId,
+												paId,
 	    										action.getIun());
 	    
 	    StringBuilder bld = hashUnorderedList(notification);
