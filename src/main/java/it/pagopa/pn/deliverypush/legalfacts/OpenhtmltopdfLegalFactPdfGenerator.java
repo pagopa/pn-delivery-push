@@ -138,13 +138,15 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
 	@Override
 	public byte[] generateNotificationReceivedLegalFact(Action action, Notification notification) {
 		String paragraph2 = DIV_PARAGRAPH
-				+ "in data %s il soggetto mittente %s, C.F. "
-	    		+ "%s ha messo a disposizione del gestore i documenti informatici di "
+				+ "in data %s il soggetto mittente <i>Denominazione IPA della PA con ID:</i> %s,"
+				+ " <i>Codice Fiscale della PA con ID:</i> %s "
+	    		+ "ha messo a disposizione del gestore i documenti informatici di "
 	    		+ "cui allo IUN %s e identificati in modo univoco con i seguenti hash: ";
-		
-	    paragraph2 = String.format( paragraph2, this.instantToDate( notification.getSentAt() ),
-	    										notification.getSender().getPaDenomination(),
-	    										notification.getSender().getTaxId( notification.getSender().getPaId() ),
+
+		final String paId = notification.getSender().getPaId();
+		paragraph2 = String.format( paragraph2, this.instantToDate( notification.getSentAt() ),
+												paId,
+												paId,
 	    										action.getIun());
 	    
 	    StringBuilder bld = hashUnorderedList(notification);
@@ -246,7 +248,7 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
 		List<String> paragraphs = new ArrayList<>();
 		paragraphs.add( PARAGRAPH1 );
 		String paragraph2 = String.format(
-				DIV_PARAGRAPH + "gli atti di cui alla notifica identificata con IUN %s sono stati gestiti come segue:</div>",
+				DIV_PARAGRAPH + "gli atti di cui alla notifica identificata con IUN %s sono stati gestiti come segue:</div> <ul>",
 				notification.getIun()
 			);
 
@@ -257,7 +259,7 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
 	    	PnExtChnProgressStatus status = action.getResponseStatus();
 	       	    	
 	    	paragraph3.append( String.format(
-	    			DIV_PARAGRAPH + "nome e cognome/ragione sociale %s, C.F. %s con domicilio digitale %s: ",
+	    			DIV_PARAGRAPH + "<li> nome e cognome/ragione sociale %s, C.F. %s con domicilio digitale %s: ",
 					recipient.getDenomination(),
 	    			recipient.getTaxId(),
 	    			address.getAddress()
@@ -268,17 +270,18 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
 	    	 
 	    	if (PnExtChnProgressStatus.OK.equals( status )) {
 				paragraph3.append( String.format(
-						"il relativo avviso di avvenuta ricezione in formato elettronico è stato consegnato in data %s",
+						"il relativo avviso di avvenuta ricezione in formato elettronico è stato consegnato in data %s </li>",
 						this.instantToDate( timestamp )
 					));
 	    	} else {
 				paragraph3.append( String.format(
-						"in data %s è stato ricevuto il relativo messaggio di mancato recapito al domicilio digitale già indicato.",
+						"in data %s è stato ricevuto il relativo messaggio di mancato recapito al domicilio digitale già indicato.</li>",
 						this.instantToDate( timestamp )
 					));
 	    	}
-	    	paragraph3.append("</div>");
+			paragraph3.append("</div>");
 		}
+		paragraph3.append("</ul>");
 
 		return toPdfBytes(Arrays.asList(PARAGRAPH1, paragraph2, paragraph3.toString()));
 	}
