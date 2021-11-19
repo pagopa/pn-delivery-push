@@ -1,0 +1,44 @@
+[
+  {
+    "paId": "paRavenna1",
+    "url": "https://webhook.free.beeceptor.com/my/api/path",
+    "startFrom": 1636455010.327241000,
+    "active": true,
+    "type": "STATUS",
+    "allNotifications": false,
+    "notificationsElement": [
+      "RECEIVED",
+      "UNREACHABLE"
+    ]
+  },
+  {
+    "paId": "paMilano1",
+    "url": "https://webhook.free.beeceptor.com/my/api/path",
+    "startFrom": 1636455010.327241000,
+    "active": true,
+    "type": "TIMELINE",
+    "allNotifications": false,
+    "notificationsElement": [
+      "RECEIVED_ACK",
+      "COMPLETELY_UNREACHABLE"
+    ]
+  },
+  {
+    "paId": "paNapoli1",
+    "url": "https://webhook.free.beeceptor.com/my/api/path",
+    "startFrom": 1636455010.327241000,
+    "active": true,
+    "type": "TIMELINE",
+    "allNotifications": true,
+    "notificationsElement": []
+  },
+  {
+    "paId": "paBologna1",
+    "url": "https://webhook.free.beeceptor.com/my/api/path",
+    "startFrom": 1636455010.327241000,
+    "active": true,
+    "type": "STATUS",
+    "allNotifications": true,
+    "notificationsElement": []
+  }
+]

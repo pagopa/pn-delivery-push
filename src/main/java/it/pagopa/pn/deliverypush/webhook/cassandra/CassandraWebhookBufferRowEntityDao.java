@@ -1,9 +1,8 @@
 package it.pagopa.pn.deliverypush.webhook.cassandra;
 
 import com.datastax.oss.driver.api.core.ConsistencyLevel;
-import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
 import it.pagopa.pn.deliverypush.webhook.WebhookBufferDao;
-import it.pagopa.pn.deliverypush.webhook.WebhookBufferRowDto;
+import it.pagopa.pn.deliverypush.webhook.dto.WebhookBufferRowDto;
 import org.springframework.data.cassandra.core.CassandraOperations;
 import org.springframework.data.cassandra.core.InsertOptions;
 import org.springframework.data.cassandra.core.cql.QueryOptions;
@@ -28,15 +27,15 @@ public class CassandraWebhookBufferRowEntityDao implements WebhookBufferDao {
 
 
     @Override
-    public void put(String senderId, String iun, Instant statusChangeDate, NotificationStatus newStatus) {
+    public void put(String senderId, String iun, Instant statusChangeDate, String notificationElement) {
         CassandraWebhookBufferRowEntity entity = CassandraWebhookBufferRowEntity.builder()
-                .id( CassandraWebhookBufferRowEntityId.builder()
-                        .senderId( senderId )
-                        .iun( iun )
-                        .statusChangeTime( statusChangeDate )
+                .id(CassandraWebhookBufferRowEntityId.builder()
+                        .senderId(senderId)
+                        .iun(iun)
+                        .statusChangeTime(statusChangeDate)
                         .build()
                 )
-                .status( newStatus )
+                .notificationElement(notificationElement)
                 .build();
 
         cassandra.insert( entity, INSERT_OPTIONS );
@@ -57,10 +56,10 @@ public class CassandraWebhookBufferRowEntityDao implements WebhookBufferDao {
 
     private WebhookBufferRowDto entity2dto(CassandraWebhookBufferRowEntity entity) {
         return WebhookBufferRowDto.builder()
-                .senderId( entity.getId().getSenderId() )
-                .iun( entity.getId().getIun() )
-                .statusChangeTime( entity.getId().getStatusChangeTime() )
-                .status( entity.getStatus() )
+                .senderId(entity.getId().getSenderId())
+                .iun(entity.getId().getIun())
+                .statusChangeTime(entity.getId().getStatusChangeTime())
+                .notificationElement(entity.getNotificationElement())
                 .build();
     }
 }

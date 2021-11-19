@@ -1,6 +1,5 @@
-package it.pagopa.pn.deliverypush.webhook;
+package it.pagopa.pn.deliverypush.webhook.dto;
 
-import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
 import lombok.Builder;
 import lombok.Value;
 
@@ -12,5 +11,5 @@ public class WebhookBufferRowDto {
     private final String senderId;
     private final Instant statusChangeTime;
     private final String iun;
-    private final NotificationStatus status;
+    private final String notificationElement;
 }
