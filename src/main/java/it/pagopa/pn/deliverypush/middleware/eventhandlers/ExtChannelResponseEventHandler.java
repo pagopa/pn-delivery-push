@@ -43,6 +43,7 @@ public class ExtChannelResponseEventHandler extends AbstractEventHandler<PnExtCh
                     .notBefore( header.getCreatedAt().plus( pnDeliveryPushConfigs.getTimeParams().getTimeBetweenExtChReceptionAndMessageProcessed() ) )
                     .responseStatus( evt.getPayload().getStatusCode() )
                     .newPhysicalAddress( evt.getPayload().getNewPhysicalAddress() )
+                    .attachmentKeys( evt.getPayload().getAttachmentKeys() )
                     .build();
 
             actionsPool.scheduleFutureAction( extChResponseAction.toBuilder()

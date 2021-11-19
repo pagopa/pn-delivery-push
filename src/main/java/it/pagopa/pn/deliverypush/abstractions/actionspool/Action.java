@@ -5,6 +5,7 @@ import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -35,5 +36,8 @@ public class Action {
 
     // Optional and used only for RECEIVE_PAPER ActionType
     private PhysicalAddress newPhysicalAddress; //FIXME verificare per privacy
+
+    // Required and used only for RECEIVER_PAPER ActionType
+    private List<String> attachmentKeys;
 
 }
