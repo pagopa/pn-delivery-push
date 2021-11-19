@@ -16,14 +16,17 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.DigitalAddressSource;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -43,12 +46,16 @@ class CompletelyUnreachableActionHandlerTest {
 
     @BeforeEach
     public void setup() {
+        pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
         handler = new CompletelyUnreachableActionHandler(
                 timelineDao,
                 paperNotificationFailedDao,
                 actionsPool,
                 pnDeliveryPushConfigs
         );
+        TimeParams times = new TimeParams();
+        times.setRefinementTimeForCompletelyUnreachable(Duration.ZERO);
+        Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -65,6 +72,10 @@ class CompletelyUnreachableActionHandlerTest {
         //Then
         Mockito.verify(timelineDao).addTimelineElement(Mockito.any(TimelineElement.class));
         Mockito.verify(paperNotificationFailedDao).addPaperNotificationFailed(Mockito.any(PaperNotificationFailed.class));
+
+        ArgumentCaptor<Action> actionArg = ArgumentCaptor.forClass(Action.class);
+        Mockito.verify(actionsPool).scheduleFutureAction(actionArg.capture());
+        Assertions.assertEquals(ActionType.WAIT_FOR_RECIPIENT_TIMEOUT , actionArg.getValue().getType());
 
     }
 

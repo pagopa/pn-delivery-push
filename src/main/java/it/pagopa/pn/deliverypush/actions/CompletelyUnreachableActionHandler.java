@@ -31,6 +31,10 @@ public class CompletelyUnreachableActionHandler extends AbstractActionHandler{
         log.info("Start CompletelyUnreachableActionHandler:handleAction");
         NotificationRecipient recipient = notification.getRecipients().get(action.getRecipientIndex());
 
+        // - GENERATE NEXT ACTIONS
+        Action nextAction = buildWaitRecipientTimeoutActionForUnreachable(action);
+        scheduleAction(nextAction);
+
         if(!isNotificationAlreadyViewed(action)){
             addPaperNotificationFailed(notification, recipient);
         }

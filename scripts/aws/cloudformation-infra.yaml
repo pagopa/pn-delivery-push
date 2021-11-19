@@ -102,6 +102,8 @@ Resources:
               Value: !Ref RecipientTimeoutDelayDigital
             - Name: PN_DELIVERYPUSH_TIMEPARAMS_RECIPIENTVIEWMAXTIMEFORANALOG
               Value: !Ref RecipientTimeoutDelayAnalog
+            - Name: PN_DELIVERYPUSH_TIMEPARAMS_REFINEMENTTIMEFORCOMPLETELYUNREACHABLE
+              Value: !Ref RefinementTimeCompletelyUnreachable
             - Name: SPRING_DATA_CASSANDRA_KEYSPACENAME
               Value: !Sub ${KeyspaceName}
             - Name: SPRING_DATA_CASSANDRA_SSL
