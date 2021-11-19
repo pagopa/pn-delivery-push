@@ -140,6 +140,7 @@ class SendPaperActionHandlerTest {
                 .notBefore(Instant.now())
                 .recipientIndex(0)
                 .newPhysicalAddress(physicalAddress)
+                .attachmentKeys( Collections.singletonList("letter_template.pdf") )
                 .actionId("test_iun_send_paper_rec0_n2")
                 .build();
 
@@ -154,6 +155,7 @@ class SendPaperActionHandlerTest {
                                 SendPaperDetails.builder()
                                         .build(),
                                 inputAction.getNewPhysicalAddress(),
+                                inputAction.getAttachmentKeys(),
                                 Collections.singletonList("")
                         )).build()));
 

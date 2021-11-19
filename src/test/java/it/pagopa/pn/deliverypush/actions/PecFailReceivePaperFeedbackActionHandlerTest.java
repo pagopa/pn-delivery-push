@@ -61,6 +61,7 @@ class PecFailReceivePaperFeedbackActionHandlerTest {
     						.type( ActionType.END_OF_DIGITAL_DELIVERY_WORKFLOW )
     						.recipientIndex( 0 )
     						.responseStatus( PnExtChnProgressStatus.OK )
+                            .attachmentKeys( Collections.singletonList("letter_template.pdf") )
     						.build();
 
         String actionId = action.getType().buildActionId( action );
@@ -74,6 +75,7 @@ class PecFailReceivePaperFeedbackActionHandlerTest {
                         .category( TimelineElementCategory.SEND_PAPER_FEEDBACK )
                         .details( new SendPaperFeedbackDetails (
                         			recipient.getPhysicalAddress(),
+                                    action.getAttachmentKeys(),
                                     Collections.singletonList( action.getResponseStatus().name() )
                         ))
                         .build() ) );

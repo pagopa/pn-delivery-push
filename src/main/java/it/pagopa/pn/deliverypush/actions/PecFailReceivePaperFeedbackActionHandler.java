@@ -43,6 +43,7 @@ public class PecFailReceivePaperFeedbackActionHandler extends AbstractActionHand
                                 .serviceLevel(PecFailSendPaperActionHandler.DIGITAL_FAILURE_PAPER_FALLBACK_SERVICE_LEVEL)
                 			    .build(),
                             action.getNewPhysicalAddress(),
+                            action.getAttachmentKeys(),
                             Collections.singletonList( status.name())
                 ))
                 .build()

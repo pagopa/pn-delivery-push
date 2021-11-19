@@ -73,6 +73,7 @@ public class ReceivePaperActionHandler extends AbstractActionHandler {
                                 .serviceLevel(sendDetails.get().getServiceLevel())
                 			    .build(),
                             action.getNewPhysicalAddress(),
+                            action.getAttachmentKeys(),
                             Collections.singletonList( status.name())
                 ))
                 .build()
