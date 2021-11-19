@@ -382,9 +382,9 @@ Resources:
           ColumnType: boolean
         - ColumnName: type
           ColumnType: text
-        - ColumnName: allNotifications
+        - ColumnName: allnotifications
           ColumnType: boolean
-        - ColumnName: notificationsElement
+        - ColumnName: notificationselement
           ColumnType: set<text>
 
 Outputs:
