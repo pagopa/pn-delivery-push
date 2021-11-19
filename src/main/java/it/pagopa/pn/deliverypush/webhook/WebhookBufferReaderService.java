@@ -40,7 +40,7 @@ public class WebhookBufferReaderService {
     }
 
     protected void readWebhookBufferAndSend(WebhookConfigDto webhook) {
-        log.info("Scan webhook " + webhook);
+        log.info("Scan webhook " + webhook.getPaId());
 
         Instant lastUpdate = webhook.getStartFrom();
         if (lastUpdate == null) {
@@ -70,7 +70,7 @@ public class WebhookBufferReaderService {
 
     private void sendOneChunk(WebhookConfigDto webhook, List<WebhookBufferRowDto> chunk) {
         try {
-            log.info("Call webhook " + webhook + " with chunk size " + chunk.size());
+            log.info("Call webhook " + webhook.getPaId() + " url(" + webhook.getUrl() + ")" + " with chunk size " + chunk.size());
             List<WebhookOutputDto> webhookOutputDtoList = getListWebhookOutputDto(chunk);
 
             client.sendInfo(webhook.getUrl(), webhookOutputDtoList);
@@ -86,13 +86,19 @@ public class WebhookBufferReaderService {
 
     @NotNull
     private List<WebhookOutputDto> getListWebhookOutputDto(List<WebhookBufferRowDto> chunk) {
-        return chunk.stream().map(row -> WebhookOutputDto.builder()
-                        .notificationElement(row.getNotificationElement())
-                        .iun(row.getIun())
-                        .senderId(row.getSenderId())
-                        .statusChangeTime(DateFormatUtils.formatInstantToString(row.getStatusChangeTime(), DateFormatUtils.yyyyMMddHHmmssSSSZ))
-                        .build())
+        return chunk.stream().map( this::bufferRow2output )
                 .collect(Collectors.toList());
+    }
+
+    private WebhookOutputDto bufferRow2output( WebhookBufferRowDto row ) {
+        WebhookOutputDto out = WebhookOutputDto.builder()
+                .notificationElement(row.getNotificationElement())
+                .iun(row.getIun())
+                .senderId(row.getSenderId())
+                .statusChangeTime(DateFormatUtils.formatInstantToString(row.getStatusChangeTime(), DateFormatUtils.yyyyMMddHHmmssSSSZ))
+                .build();
+        log.debug("webhook Buffer row " + row + " mapped to " + out );
+        return out;
     }
 
 }
