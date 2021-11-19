@@ -361,7 +361,7 @@ Resources:
             ColumnType: text
           OrderBy: ASC
       RegularColumns:
-        - ColumnName: notificationElement
+        - ColumnName: notificationelement
           ColumnType: text
 
   WebhookConfigsTable:
