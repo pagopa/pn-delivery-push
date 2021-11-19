@@ -22,6 +22,9 @@ Parameters:
   RecipientTimeoutDelayDigital:
     Type: String
     Description: tempo di perfezionamento della notifica per il destinatario digitale
+  RefinementTimeCompletelyUnreachable:
+    Type: String
+    Description: tempo di perfezionamento della notifica per il destinatario analogico irreperibile totale
   WebhookScanInterval:
     Type: String
     Description: milliseconds between webhook scans
