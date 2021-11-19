@@ -12,6 +12,7 @@ public class TimeParams {
 
     private Duration recipientViewMaxTimeForDigital;
     private Duration recipientViewMaxTimeForAnalog;
+    private Duration refinementTimeForCompletelyUnreachable;
 
     private Duration waitingForNextAction;
     private Duration timeBetweenExtChReceptionAndMessageProcessed;

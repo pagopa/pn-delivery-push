@@ -12,9 +12,11 @@ import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 public class CompletelyUnreachableActionHandler extends AbstractActionHandler{
     private PaperNotificationFailedDao paperNotificationFailedDao;
 
@@ -26,12 +28,18 @@ public class CompletelyUnreachableActionHandler extends AbstractActionHandler{
 
     @Override
     public void handleAction(Action action, Notification notification) {
+        log.info("Start CompletelyUnreachableActionHandler:handleAction");
         NotificationRecipient recipient = notification.getRecipients().get(action.getRecipientIndex());
+
+        // - GENERATE NEXT ACTIONS
+        Action nextAction = buildWaitRecipientTimeoutActionForUnreachable(action);
+        scheduleAction(nextAction);
 
         if(!isNotificationAlreadyViewed(action)){
             addPaperNotificationFailed(notification, recipient);
         }
         buildAndAddTimeLineElement(action, recipient);
+        log.info("End CompletelyUnreachableActionHandler:handleAction");
     }
 
     private boolean isNotificationAlreadyViewed(Action action) {

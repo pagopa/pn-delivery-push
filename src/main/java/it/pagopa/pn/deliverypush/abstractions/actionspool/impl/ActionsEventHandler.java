@@ -7,15 +7,18 @@ import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionHandler;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionHandler;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.temp.mom.consumer.AbstractEventHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -70,12 +73,13 @@ public class ActionsEventHandler extends AbstractEventHandler<ActionEvent> {
 
     private void doHandle(Action action, Notification notification) {
 
-        ActionHandler actionHandler = actionHandlers.get( action.getType() );
-        if( actionHandler == null ) {
-            throw new PnInternalException("Action type not supported: " + action.getType() );
+        ActionHandler actionHandler = actionHandlers.get(action.getType());
+        if (actionHandler == null) {
+            log.error("Action type not supported: " + action.getType());
+            throw new PnInternalException("Action type not supported: " + action.getType());
         }
 
-        actionHandler.handleAction( action, notification );
+        actionHandler.handleAction(action, notification);
     }
 
     public boolean checkAlreadyDone( StandardEventHeader header ) {

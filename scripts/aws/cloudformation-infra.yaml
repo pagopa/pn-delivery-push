@@ -22,6 +22,9 @@ Parameters:
   RecipientTimeoutDelayDigital:
     Type: String
     Description: tempo di perfezionamento della notifica per il destinatario digitale
+  RefinementTimeCompletelyUnreachable:
+    Type: String
+    Description: tempo di perfezionamento della notifica per il destinatario analogico irreperibile totale
   WebhookScanInterval:
     Type: String
     Description: milliseconds between webhook scans
@@ -102,6 +105,8 @@ Resources:
               Value: !Ref RecipientTimeoutDelayDigital
             - Name: PN_DELIVERYPUSH_TIMEPARAMS_RECIPIENTVIEWMAXTIMEFORANALOG
               Value: !Ref RecipientTimeoutDelayAnalog
+            - Name: PN_DELIVERYPUSH_TIMEPARAMS_REFINEMENTTIMEFORCOMPLETELYUNREACHABLE
+              Value: !Ref RefinementTimeCompletelyUnreachable
             - Name: SPRING_DATA_CASSANDRA_KEYSPACENAME
               Value: !Sub ${KeyspaceName}
             - Name: SPRING_DATA_CASSANDRA_SSL
@@ -356,7 +361,7 @@ Resources:
             ColumnType: text
           OrderBy: ASC
       RegularColumns:
-        - ColumnName: status
+        - ColumnName: notificationElement
           ColumnType: text
 
   WebhookConfigsTable:
@@ -375,6 +380,12 @@ Resources:
           ColumnType: timestamp
         - ColumnName: active
           ColumnType: boolean
+        - ColumnName: type
+          ColumnType: text
+        - ColumnName: allnotifications
+          ColumnType: boolean
+        - ColumnName: notificationselement
+          ColumnType: set<text>
 
 Outputs:
   CluserArn:
