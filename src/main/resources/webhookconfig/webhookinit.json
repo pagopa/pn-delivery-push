@@ -1,7 +1,7 @@
 [
   {
     "paId": "paRavenna1",
-    "url": "https://webhook.free.beeceptor.com/my/api/path",
+    "url": "https://pn-status-webhook.free.beeceptor.com/paRavenna1",
     "startFrom": 1636455010.327241000,
     "active": true,
     "type": "STATUS",
@@ -13,7 +13,7 @@
   },
   {
     "paId": "paMilano1",
-    "url": "https://webhook.free.beeceptor.com/my/api/path",
+    "url": "https://pn-timeline-webhook.free.beeceptor.com/paMilano1",
     "startFrom": 1636455010.327241000,
     "active": true,
     "type": "TIMELINE",
@@ -34,7 +34,7 @@
   },
   {
     "paId": "paBologna1",
-    "url": "https://webhook.free.beeceptor.com/my/api/path",
+    "url": "https://pn-status-webhook.free.beeceptor.com/paBologna1",
     "startFrom": 1636455010.327241000,
     "active": true,
     "type": "STATUS",
