@@ -25,7 +25,7 @@
   },
   {
     "paId": "paNapoli1",
-    "url": "https://webhook.free.beeceptor.com/my/api/path",
+    "url": "https://pn-timeline-webhook.free.beeceptor.com/paNapoli1",
     "startFrom": 1636455010.327241000,
     "active": true,
     "type": "TIMELINE",
