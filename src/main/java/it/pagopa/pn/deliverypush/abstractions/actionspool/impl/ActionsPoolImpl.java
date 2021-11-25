@@ -15,6 +15,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +41,11 @@ public class ActionsPoolImpl implements ActionsPool {
 
     @Override
     public void scheduleFutureAction(Action action) {
+        if ( Instant.now().isAfter( action.getNotBefore() )) {
+            action = action.toBuilder()
+                        .notBefore( Instant.now().plusSeconds(1))
+                        .build();
+        }
         final String timeSlot = computeTimeSlot( action.getNotBefore() );
         actionDao.addAction( action, timeSlot);
     }
