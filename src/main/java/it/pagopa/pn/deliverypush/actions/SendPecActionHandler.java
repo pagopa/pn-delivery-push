@@ -54,8 +54,7 @@ public class SendPecActionHandler extends AbstractActionHandler {
                         action,
                         notification,
                         recipient,
-                        address,
-                        pnDeliveryPushConfigs) );
+                        address) );
             }
             //   else go to next address (if this is not last)
             else {

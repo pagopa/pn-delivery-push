@@ -80,18 +80,16 @@ class ExtChnEventUtilsTest {
     	DigitalAddress address = notification.getRecipients().get(action.getRecipientIndex()).getDigitalDomicile();
     	
     	//WHEN
-    	utils.buildSendPecRequest( action, notification, recipient, address, cfg);
+    	utils.buildSendPecRequest( action, notification, recipient, address );
     	
     	//THEN
         ArgumentCaptor<Action> actionCapture = ArgumentCaptor.forClass(Action.class);
         ArgumentCaptor<Notification> notificationCapture = ArgumentCaptor.forClass(Notification.class);
         ArgumentCaptor<NotificationRecipient> recipientCapture = ArgumentCaptor.forClass(NotificationRecipient.class);
         ArgumentCaptor<DigitalAddress> addressCapture = ArgumentCaptor.forClass(DigitalAddress.class);
-        ArgumentCaptor<PnDeliveryPushConfigs> cfgCapture = ArgumentCaptor.forClass(PnDeliveryPushConfigs.class);
 
-
-        Mockito.verify(utils).buildSendPecRequest(actionCapture.capture(), notificationCapture.capture(), 
-        		recipientCapture.capture(), addressCapture.capture(), cfgCapture.capture() );
+        Mockito.verify(utils).buildSendPecRequest(actionCapture.capture(), notificationCapture.capture(),
+        		recipientCapture.capture(), addressCapture.capture() );
         
         Assertions.assertEquals(actionCapture.getValue(), action, "Different Action from the expected");
         Assertions.assertEquals(notificationCapture.getValue(), notification, "Different Notification from the expected");

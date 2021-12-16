@@ -137,8 +137,7 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
                                 notification,
                                 recipient,
                                 idx,
-                                emailAddress,
-                                pnDeliveryPushConfigs));
+                                emailAddress));
             }
         }
     }

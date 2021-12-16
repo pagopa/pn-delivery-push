@@ -46,7 +46,7 @@ class SendPaperActionHandlerTest {
                 null,
                 pnDeliveryPushConfigs,
                 paperRequestProducer,
-                new ExtChnEventUtils(),
+                new ExtChnEventUtils(pnDeliveryPushConfigs),
                 addressBook);
         TimeParams times = new TimeParams();
         times.setRecipientViewMaxTimeForAnalog(Duration.ZERO);

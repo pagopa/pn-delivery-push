@@ -15,15 +15,21 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 @Component
 public class ExtChnEventUtils {
 
+	private final PnDeliveryPushConfigs cfg;
+
+	public ExtChnEventUtils(PnDeliveryPushConfigs cfg) {
+		this.cfg = cfg;
+	}
+
+
 	public PnExtChnEmailEvent buildSendEmailRequest(
 			Action action,
 			Notification notification,
 			NotificationRecipient recipient,
 			int courtesyAddressIdx,
-			DigitalAddress emailAddress,
-			PnDeliveryPushConfigs cfg
+			DigitalAddress emailAddress
 	) {
-		final String accessUrl = getAccessUrl(recipient, cfg);
+		final String accessUrl = getAccessUrl(recipient );
 		return PnExtChnEmailEvent.builder()
 				.header(StandardEventHeader.builder()
 						.iun(action.getIun())
@@ -48,17 +54,17 @@ public class ExtChnEventUtils {
 				.build();
 	}
 
-	private String getAccessUrl(NotificationRecipient recipient, PnDeliveryPushConfigs cfg) {
+	private String getAccessUrl(NotificationRecipient recipient) {
 		return String.format(cfg.getWebapp().getDirectAccessUrlTemplate(), recipient.getToken());
 	}
 
-	public PnExtChnPaperEvent buildSendPaperRequest (
+	/*public PnExtChnPaperEvent buildSendPaperRequest (
 			Action action,
 			Notification notification,
 			CommunicationType communicationType
 			) {
 		return buildSendPaperRequest(action, notification, communicationType, notification.getPhysicalCommunicationType());
-	}
+	}*/
 
 	public PnExtChnPaperEvent buildSendPaperRequest (
 			Action action,
@@ -75,7 +81,7 @@ public class ExtChnEventUtils {
 			CommunicationType communicationType,
 			ServiceLevelType serviceLevelType,
 			PhysicalAddress address) {
-		return buildSendPaperRequest(action, notification, communicationType, serviceLevelType, address);
+		return buildSendPaperRequest(action, notification, communicationType, serviceLevelType, false, address);
 	}
 
 
@@ -85,12 +91,11 @@ public class ExtChnEventUtils {
 			CommunicationType communicationType,
 			ServiceLevelType serviceLevelType,
 			boolean investigation,
-			PhysicalAddress address,
-			PnDeliveryPushConfigs cfg
+			PhysicalAddress address
 			) {
 		NotificationRecipient recipient = notification.getRecipients().get( action.getRecipientIndex() );
 		PhysicalAddress usedAddress = address != null ? address : recipient.getPhysicalAddress();
-		final String accessUrl = getAccessUrl(recipient, cfg);
+		final String accessUrl = getAccessUrl(recipient );
 
 		return PnExtChnPaperEvent.builder()
 		        .header( StandardEventHeader.builder()
@@ -117,8 +122,8 @@ public class ExtChnEventUtils {
 	}
 	
 	public PnExtChnPecEvent buildSendPecRequest(Action action, Notification notification, 
-			NotificationRecipient recipient, DigitalAddress address, PnDeliveryPushConfigs cfg) {
-		final String accessUrl = getAccessUrl(recipient, cfg);
+			NotificationRecipient recipient, DigitalAddress address ) {
+		final String accessUrl = getAccessUrl(recipient );
 		return PnExtChnPecEvent.builder()
 		        .header( StandardEventHeader.builder()
 		                .iun( action.getIun() )

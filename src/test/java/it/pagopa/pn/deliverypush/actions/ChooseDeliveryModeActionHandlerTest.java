@@ -55,7 +55,7 @@ class ChooseDeliveryModeActionHandlerTest {
         addressBook = Mockito.mock(AddressBook.class);
         timelineDao = Mockito.mock(TimelineDao.class);
         actionsPool = Mockito.mock(ActionsPool.class);
-        eventUtils = new ExtChnEventUtils();
+        eventUtils = new ExtChnEventUtils(pnDeliveryPushConfigs);
         handler = new ChooseDeliveryModeActionHandler(
                 timelineDao,
                 addressBook,

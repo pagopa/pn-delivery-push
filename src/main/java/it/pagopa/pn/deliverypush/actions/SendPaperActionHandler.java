@@ -98,8 +98,7 @@ public class SendPaperActionHandler extends AbstractActionHandler {
                     CommunicationType.RECIEVED_DELIVERY_NOTICE,
                     notification.getPhysicalCommunicationType(),
                     investigation,
-                    destination,
-                    pnDeliveryPushConfigs);
+                    destination );
             this.paperRequestProducer.push(event);
 
             // - Write timeline
