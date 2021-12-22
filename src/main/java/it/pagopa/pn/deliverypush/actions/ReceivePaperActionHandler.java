@@ -23,32 +23,34 @@ import java.util.Optional;
 public class ReceivePaperActionHandler extends AbstractActionHandler {
 
 
-
-	public ReceivePaperActionHandler(TimelineDao timelineDao, ActionsPool actionsPool,
+    public ReceivePaperActionHandler(TimelineDao timelineDao, ActionsPool actionsPool,
                                      PnDeliveryPushConfigs pnDeliveryPushConfigs) {
-		super(timelineDao, actionsPool, pnDeliveryPushConfigs);
-	}
-    
+        super(timelineDao, actionsPool, pnDeliveryPushConfigs);
+    }
+
     @Override
-    public void handleAction( Action action, Notification notification ) {
-    	PnExtChnProgressStatus status = action.getResponseStatus();
-        NotificationRecipient recipient = notification.getRecipients().get( action.getRecipientIndex() );
+    public void handleAction(Action action, Notification notification) {
+        PnExtChnProgressStatus status = action.getResponseStatus();
+        NotificationRecipient recipient = notification.getRecipients().get(action.getRecipientIndex());
 
         Action nextAction = null;
 
         switch (status) {
             case OK: {
-                nextAction = buildEndofAnalogWorkflowAction( action );	// END_OF_ANALOG_DELIVERY_WORKFLOW
-            } break;
+                nextAction = buildEndofAnalogWorkflowAction(action);    // END_OF_ANALOG_DELIVERY_WORKFLOW
+            }
+            break;
             case PERMANENT_FAIL:
             case RETRYABLE_FAIL: {
-                nextAction = buildNextPaperSendAction( action );
-            } break;
+                nextAction = buildNextPaperSendAction(action);
+            }
+            break;
 
-            default: throw new PnInternalException("Status not supported: " + status);
+            default:
+                throw new PnInternalException("Status not supported: " + status);
         }
 
-        scheduleAction( nextAction );
+        scheduleAction(nextAction);
 
         // recuperare timeline azione di spedizione corrispondente
         Optional<SendPaperDetails> sendDetails = super.getTimelineElement(
@@ -57,24 +59,24 @@ public class ReceivePaperActionHandler extends AbstractActionHandler {
                 SendPaperDetails.class);
 
         PhysicalAddress address;
-        if(sendDetails.isPresent()) {
+        if (sendDetails.isPresent()) {
             address = sendDetails.get().getAddress();
         } else {
-            throw new PnInternalException( "Send Timeline related to " + action + " not found!!! " );
+            throw new PnInternalException("Send Timeline related to " + action + " not found!!! ");
         }
-    	
-    	// - Write timeline
-        addTimelineElement( action, TimelineElement.builder()
-                .category( TimelineElementCategory.SEND_PAPER_FEEDBACK )
-                .details( new SendPaperFeedbackDetails (
-                            SendPaperDetails.builder()
-                                .taxId( recipient.getTaxId() )
-                			    .address( address )
+
+        // - Write timeline
+        addTimelineElement(action, TimelineElement.builder()
+                .category(TimelineElementCategory.SEND_PAPER_FEEDBACK)
+                .details(new SendPaperFeedbackDetails(
+                        SendPaperDetails.builder()
+                                .taxId(recipient.getTaxId())
+                                .address(address)
                                 .serviceLevel(sendDetails.get().getServiceLevel())
-                			    .build(),
-                            action.getNewPhysicalAddress(),
-                            action.getAttachmentKeys(),
-                            Collections.singletonList( status.name())
+                                .build(),
+                        action.getNewPhysicalAddress(),
+                        action.getAttachmentKeys(),
+                        Collections.singletonList(status.name())
                 ))
                 .build()
         );
@@ -82,9 +84,9 @@ public class ReceivePaperActionHandler extends AbstractActionHandler {
 
     private Action buildNextPaperSendAction(Action action) {
         return action.toBuilder()
-                .retryNumber(action.getRetryNumber() + 1 )
-                .newPhysicalAddress( action.getNewPhysicalAddress() )
-                .type( ActionType.SEND_PAPER )
+                .retryNumber(action.getRetryNumber() + 1)
+                .newPhysicalAddress(action.getNewPhysicalAddress())
+                .type(ActionType.SEND_PAPER)
                 .build();
     }
 

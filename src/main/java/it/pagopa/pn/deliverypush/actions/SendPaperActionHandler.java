@@ -19,7 +19,6 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import lombok.Value;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -45,7 +44,7 @@ public class SendPaperActionHandler extends AbstractActionHandler {
     }
 
     @Override
-    public void handleAction( Action action, Notification notification ) {
+    public void handleAction(Action action, Notification notification) {
 
         NotificationRecipient recipient = notification.getRecipients().get(action.getRecipientIndex());
         PhysicalAddress addressFromPA = recipient.getPhysicalAddress();
@@ -57,34 +56,37 @@ public class SendPaperActionHandler extends AbstractActionHandler {
                 //address da PA?
                 if (addressFromPA != null) {
                     // send paper 890 o Racc A/R con indagine
-                    optionalSendPolicy = Optional.of( new SendPolicy(addressFromPA,true) );
+                    optionalSendPolicy = Optional.of(new SendPolicy(addressFromPA, true));
                 } else {
                     // - Retrieve addresses from Action Choose_delivery_mode
-                    Optional<PhysicalAddress> nationalRegistryAddress = retrieveNationalRegistryAddress( recipient.getTaxId() );
+                    Optional<PhysicalAddress> nationalRegistryAddress = retrieveNationalRegistryAddress(recipient.getTaxId());
                     if (nationalRegistryAddress.isPresent()) {
-                        optionalSendPolicy = Optional.of( new SendPolicy(nationalRegistryAddress.get(),true) );
-                    }
-                    else {
+                        optionalSendPolicy = Optional.of(new SendPolicy(nationalRegistryAddress.get(), true));
+                    } else {
                         optionalSendPolicy = setForCompletelyUnreachable();
                     }
                 }
-            } break;
+            }
+            break;
             case 2: {
                 // secondo tentativo
-                SendPaperFeedbackDetails previousAttempt = retrievePreviousAttempt( action );
-                Optional<PhysicalAddress> nationalRegistryAddress = retrieveNationalRegistryAddress( recipient.getTaxId() );
-                Optional<PhysicalAddress> destination = chooseDestination( previousAttempt, nationalRegistryAddress );
+                SendPaperFeedbackDetails previousAttempt = retrievePreviousAttempt(action);
+                Optional<PhysicalAddress> nationalRegistryAddress = retrieveNationalRegistryAddress(recipient.getTaxId());
+                Optional<PhysicalAddress> destination = chooseDestination(previousAttempt, nationalRegistryAddress);
                 if (destination.isPresent()) {
-                    optionalSendPolicy = Optional.of( new SendPolicy(destination.get(), false) );
+                    optionalSendPolicy = Optional.of(new SendPolicy(destination.get(), false));
                 } else {
                     optionalSendPolicy = setForCompletelyUnreachable();
                 }
-            } break;
+            }
+            break;
             case 3: {
                 optionalSendPolicy = setForCompletelyUnreachable();
-            } break;
+            }
+            break;
 
-            default: throw new PnInternalException(""+ action.getRetryNumber());
+            default:
+                throw new PnInternalException("" + action.getRetryNumber());
         }
 
         if (optionalSendPolicy.isPresent()) {
@@ -102,13 +104,13 @@ public class SendPaperActionHandler extends AbstractActionHandler {
             this.paperRequestProducer.push(event);
 
             // - Write timeline
-            addTimelineElement( action, TimelineElement.builder()
-                    .category(TimelineElementCategory.SEND_PAPER )
-                    .details( SendPaperDetails.builder()
-                            .taxId( recipient.getTaxId() )
-                            .address( destination )
+            addTimelineElement(action, TimelineElement.builder()
+                    .category(TimelineElementCategory.SEND_ANALOG_DOMICILE)
+                    .details(SendPaperDetails.builder()
+                            .taxId(recipient.getTaxId())
+                            .address(destination)
                             .serviceLevel(event.getPayload().getServiceLevel())
-                            .investigation( investigation )
+                            .investigation(investigation)
                             .build()
                     ).build());
         } else {
@@ -124,17 +126,17 @@ public class SendPaperActionHandler extends AbstractActionHandler {
 
     private void scheduleCompletlyUnreachableAction(Action action) {
         Action nextAction = buildCompletelyUnreachableAction(action);
-        scheduleAction( nextAction );
+        scheduleAction(nextAction);
     }
 
     private Optional<PhysicalAddress> chooseDestination(
             SendPaperFeedbackDetails previousAttempt,
             Optional<PhysicalAddress> nationalRegistryAddress) {
-        if(nationalRegistryAddress.isPresent() &&
+        if (nationalRegistryAddress.isPresent() &&
                 !nationalRegistryAddress.get().equals(previousAttempt.getAddress())) {
-            return Optional.of( nationalRegistryAddress.get() );
+            return Optional.of(nationalRegistryAddress.get());
         } else {
-            return Optional.ofNullable( previousAttempt.getNewAddress() );
+            return Optional.ofNullable(previousAttempt.getNewAddress());
         }
     }
 
@@ -152,16 +154,16 @@ public class SendPaperActionHandler extends AbstractActionHandler {
                 ActionType.RECEIVE_PAPER,
                 SendPaperFeedbackDetails.class);
 
-        if(sendPaperDetails.isPresent()) {
+        if (sendPaperDetails.isPresent()) {
             return sendPaperDetails.get();
         } else {
-            throw new PnInternalException( "Send Timeline related to " + action + " not found!!! " );
+            throw new PnInternalException("Send Timeline related to " + action + " not found!!! ");
         }
     }
 
     private Optional<PhysicalAddress> retrieveNationalRegistryAddress(String taxId) {
-        Optional<AddressBookEntry> optionalAddressBookEntry = addressBook.getAddresses( taxId );
-        if ( optionalAddressBookEntry.isPresent() ) {
+        Optional<AddressBookEntry> optionalAddressBookEntry = addressBook.getAddresses(taxId);
+        if (optionalAddressBookEntry.isPresent()) {
             return Optional.ofNullable(optionalAddressBookEntry.get().getResidentialAddress());
         }
         return Optional.empty();

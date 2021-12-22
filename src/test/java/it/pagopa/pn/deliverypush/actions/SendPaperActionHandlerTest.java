@@ -112,7 +112,7 @@ class SendPaperActionHandlerTest {
         ArgumentCaptor<TimelineElement> timeLineArg = ArgumentCaptor.forClass(TimelineElement.class);
         Mockito.verify(timelineDao).addTimelineElement(timeLineArg.capture());
         final TimelineElement timeLineArgValue = timeLineArg.getValue();
-        Assertions.assertEquals( TimelineElementCategory.SEND_PAPER ,(timeLineArgValue.getCategory()));
+        Assertions.assertEquals(TimelineElementCategory.SEND_ANALOG_DOMICILE, (timeLineArgValue.getCategory()));
         final SendPaperDetails details = (SendPaperDetails) timeLineArgValue.getDetails();
         Assertions.assertEquals(true, details.isInvestigation());
 
@@ -140,7 +140,7 @@ class SendPaperActionHandlerTest {
                 .notBefore(Instant.now())
                 .recipientIndex(0)
                 .newPhysicalAddress(physicalAddress)
-                .attachmentKeys( Collections.singletonList("letter_template.pdf") )
+                .attachmentKeys(Collections.singletonList("letter_template.pdf"))
                 .actionId("test_iun_send_paper_rec0_n2")
                 .build();
 
@@ -151,7 +151,7 @@ class SendPaperActionHandlerTest {
                         Mockito.anyString(),
                         Mockito.anyString()))
                 .thenReturn(Optional.of(TimelineElement.builder()
-                        .details(new SendPaperFeedbackDetails (
+                        .details(new SendPaperFeedbackDetails(
                                 SendPaperDetails.builder()
                                         .build(),
                                 inputAction.getNewPhysicalAddress(),
@@ -160,10 +160,10 @@ class SendPaperActionHandlerTest {
                         )).build()));
 
         Mockito.when(addressBook.getAddresses(
-                Mockito.anyString()))
+                        Mockito.anyString()))
                 .thenReturn(Optional.of(AddressBookEntry.builder()
                         .residentialAddress(physicalAddress)
-                .build()));
+                        .build()));
 
 
         //When
@@ -181,7 +181,7 @@ class SendPaperActionHandlerTest {
         ArgumentCaptor<TimelineElement> timeLineArg = ArgumentCaptor.forClass(TimelineElement.class);
         Mockito.verify(timelineDao).addTimelineElement(timeLineArg.capture());
         final TimelineElement timeLineArgValue = timeLineArg.getValue();
-        Assertions.assertEquals( TimelineElementCategory.SEND_PAPER ,(timeLineArgValue.getCategory()));
+        Assertions.assertEquals(TimelineElementCategory.SEND_ANALOG_DOMICILE, (timeLineArgValue.getCategory()));
         final SendPaperDetails details = (SendPaperDetails) timeLineArgValue.getDetails();
         Assertions.assertEquals(false, details.isInvestigation());
 

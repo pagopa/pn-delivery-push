@@ -26,16 +26,18 @@ public class NewNotificationEventHandler extends AbstractEventHandler<PnDelivery
     @Override
     public void handleEvent(PnDeliveryNewNotificationEvent evt ) {
         StandardEventHeader header = evt.getHeader();
-        log.info( "NEW NOTIFICATION iun={} eventId={}", header.getIun(), header.getEventId() );
+        log.info("NEW NOTIFICATION iun={} eventId={}", header.getIun(), header.getEventId());
+
+        //TODO Perchè viene schedulata un azione futura??
 
         Action senderAck = Action.builder()
-                .iun(header.getIun() )
-                .actionId( header.getEventId() )
-                .type( ActionType.SENDER_ACK )
+                .iun(header.getIun())
+                .actionId(header.getEventId())
+                .type(ActionType.SENDER_ACK)
                 //ritardo tra ricezione messaggio new notifica e sua ricezione
-                .notBefore( header.getCreatedAt().plus( pnDeliveryPushConfigs.getTimeParams().getIntervalBetweenNotificationAndMessageReceived() ))
+                .notBefore(header.getCreatedAt().plus(pnDeliveryPushConfigs.getTimeParams().getIntervalBetweenNotificationAndMessageReceived()))
                 .build();
-        actionsPool.scheduleFutureAction( senderAck );
+        actionsPool.scheduleFutureAction(senderAck);
     }
 
 }
