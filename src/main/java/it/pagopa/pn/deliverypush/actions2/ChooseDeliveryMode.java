@@ -32,7 +32,9 @@ public class ChooseDeliveryMode {
     private AnalogWorkflowHandler analogWorkflowHandler;
 
     /**
-     * Get Recipient addresses and try to send notification in this order: PLATFORM, GENERAL, SPECIAL. Save availability information for all address in timeline
+     * Handle notification type choice (DIGITAL or ANALOG)
+     * Get Recipient addresses for user and try to send notification in this order: PLATFORM, GENERAL, SPECIAL.
+     * Save availability information for all address in timeline
      *
      * @param notification Public Administration notification request
      * @param recipient    Notification recipient
@@ -40,6 +42,7 @@ public class ChooseDeliveryMode {
     public void chooseDeliveryTypeAndStartWorkflow(Notification notification, NotificationRecipient recipient) {
         String taxId = recipient.getTaxId();
         String iun = notification.getIun();
+
         addressBook.getAddresses(taxId)
                 .ifPresent(addressBookItem -> {
                     DigitalAddresses digitalAddresses = addressBookItem.getDigitalAddresses();
@@ -66,7 +69,7 @@ public class ChooseDeliveryMode {
     }
 
     /**
-     * Insert timeline element with availability information for passed source
+     * Insert availability information in timeline for user
      *
      * @param taxId       User identifier
      * @param iun         iun Notification unique identifier
@@ -87,7 +90,7 @@ public class ChooseDeliveryMode {
 
 
     /**
-     * Getting special address need async call. The method generate new correlationId start get information.
+     * Send request for get special address (async call). The method generate new correlationId start get information.
      *
      * @param iun   Notification unique identifier
      * @param taxId User identifier
@@ -99,8 +102,8 @@ public class ChooseDeliveryMode {
 
 
     /**
-     * Get special address response. If address is available Start Digital workflow with it else there isn't any digital address
-     * available so start analog workflow
+     * Handle Get special address response. If address is available Start Digital workflow else there isn't any digital address
+     * available, in this case analog workflow will be started
      *
      * @param response Response for get special address
      * @param iun      Notification unique identifier
@@ -135,7 +138,7 @@ public class ChooseDeliveryMode {
             Instant schedulingDate = courtesyMessage.getInsertDate().plus(5, ChronoUnit.DAYS);
             scheduler.schedulEvent(schedulingDate, ActionType.ANALOG_WORKFLOW);
         } else {
-            analogWorkflowHandler.analogWorkflowHandler(iun, taxId);
+            analogWorkflowHandler.nextWorkflowAction(iun, taxId);
         }
     }
 

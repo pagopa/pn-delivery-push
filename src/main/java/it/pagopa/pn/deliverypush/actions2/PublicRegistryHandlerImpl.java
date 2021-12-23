@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.actions2;
 import it.pagopa.pn.api.dto.notification.timeline.*;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
+import org.springframework.cloud.stream.annotation.StreamListener;
 
 import java.util.Optional;
 
@@ -49,6 +50,7 @@ public class PublicRegistryHandlerImpl implements PublicRegistryHandler {
      * @param response public registry response
      */
     @Override
+    @StreamListener(condition = "PUBLIC_REGISTRY_RESPONSE")
     public void handleResponse(PublicRegistryResponse response) {
         String correlationId = response.getCorrelationId();
         String iun = correlationId.substring(0, correlationId.indexOf("_") - 1); //ottiene lo iun dal correlation id

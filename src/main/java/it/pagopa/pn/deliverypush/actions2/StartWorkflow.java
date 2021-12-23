@@ -15,7 +15,9 @@ public class StartWorkflow {
     private ChooseDeliveryMode chooseDeliveryType;
 
     /**
-     * @param iun For all notification recipient send courtesy message and start choose delivery type.
+     * Start new Notification Workflow. For all notification recipient send courtesy message and start choose delivery type
+     *
+     * @param iun Notification unique identifier
      */
     @StreamListener(condition = "NEW_NOTIFICATION")
     public void startWorkflow(String iun) {
@@ -24,7 +26,6 @@ public class StartWorkflow {
 
         if (optNotification.isPresent()) {
             Notification notification = optNotification.get();
-            //Genera atto opponibile a terzi di perfezionamento per il mittente
             legalFactGenerator.sendeAckLegaclFact(notification);
 
             for (NotificationRecipient recipient : notification.getRecipients()) {

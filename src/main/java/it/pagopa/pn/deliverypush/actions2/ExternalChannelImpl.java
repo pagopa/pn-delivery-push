@@ -10,6 +10,7 @@ import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.api.dto.notification.timeline.*;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.actions.PecFailSendPaperActionHandler;
+import org.springframework.cloud.stream.annotation.StreamListener;
 
 import java.time.Instant;
 
@@ -134,6 +135,7 @@ public class ExternalChannelImpl implements ExternalChannel {
      *
      * @param response Notification response
      */
+    @StreamListener(condition = "EXTERNAL_CHANNEL_RESPONSE_DIGITAL")
     public void extChannelResponseReceiverForDigital(ExtChannelDigitalResponse response) {
         //Conservare ricevuta PEC //TODO capire cosa si intende
 
@@ -149,6 +151,13 @@ public class ExternalChannelImpl implements ExternalChannel {
         }
     }
 
+    /**
+     * Handle Analog notification response from external channel. Positive response means notification is delivered correctly, so the workflow can be completed successfully,
+     * negative response means notification could not be delivered to the indicated address so need to start next workflow action.
+     *
+     * @param response Notification response
+     */
+    @StreamListener(condition = "EXTERNAL_CHANNEL_RESPONSE_ANALOG")
     public void extChannelResponseReceiverForAnalog(ExternalChannelAnalogResponse response) {
 
         switch (response.getResponseStatus()) {
@@ -158,7 +167,7 @@ public class ExternalChannelImpl implements ExternalChannel {
                 break;
             case KO:
                 addAnalogFailureAttemptToTimeline(response);
-                analogWorkflowHandler.analogWorkflowHandler(response.getIun(), response.getTaxId());
+                analogWorkflowHandler.nextWorkflowAction(response.getIun(), response.getTaxId());
                 break;
         }
     }

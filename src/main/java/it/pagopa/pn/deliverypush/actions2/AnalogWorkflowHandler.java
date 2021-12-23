@@ -26,7 +26,7 @@ public class AnalogWorkflowHandler {
      * @param iun   Notification unique identifier
      * @param taxId User identifier
      */
-    public void analogWorkflowHandler(String iun, String taxId) {
+    public void nextWorkflowAction(String iun, String taxId) {
         Optional<Notification> optNotification = notificationDao.getNotificationByIun(iun);
 
         if (optNotification.isPresent()) {
@@ -219,8 +219,12 @@ public class AnalogWorkflowHandler {
     }
 
     private void unreachableUser(String iun, String taxId) {
-        //TODO Da implementare
         //TODO Aggiungere alla tabella unreachableUser
+        addUnreachableUserToTimeline(taxId);
+        completionWorkFlow.completionAnalogWorkflow(taxId, iun, Instant.now(), EndWorkflowStatus.FAILURE);
+    }
+
+    private void addUnreachableUserToTimeline(String taxId) {
         timelineService.addTimelineElement(
                 TimelineElement.builder()
                         .category(TimelineElementCategory.COMPLETELY_UNREACHABLE)
@@ -230,7 +234,6 @@ public class AnalogWorkflowHandler {
                         )
                         .build()
         );
-        completionWorkFlow.completionAnalogWorkflow(taxId, iun, Instant.now(), EndWorkflowStatus.FAILURE);
     }
 
 }

@@ -25,7 +25,7 @@ public class CompletionWorkFlow {
     private TimelineService timelineService;
 
     /**
-     * Handle necessary steps to complete the digital.
+     * Handle necessary steps to complete the digital workflow
      *
      * @param taxId            User identifier
      * @param iun              Notification unique identifier
@@ -112,12 +112,11 @@ public class CompletionWorkFlow {
                     scheduleRefinement(notificationDate, SCHEDULING_DAYS_SUCCESS_ANALOG_REFINEMENT);
                     break;
                 case FAILURE:
-                    //Aggiunge alla tabelle irreperibili totali
                     addFailureWorkflowToTimeline(taxId, iun);
                     scheduleRefinement(notificationDate, SCHEDULING_DAYS_FAILURE_ANALOG_REFINEMENT);
                     break;
                 default:
-                    //Gestire errore
+                    //TODO Gestire errore
                     break;
             }
         }
