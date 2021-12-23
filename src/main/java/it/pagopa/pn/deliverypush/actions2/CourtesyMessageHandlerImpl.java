@@ -9,6 +9,12 @@ import java.util.List;
 public class CourtesyMessageHandlerImpl implements CourtesyMessageHandler {
     private AddressBook addressBook;
 
+    /**
+     * Get user address, save and send Courtesy message.
+     *
+     * @param iun   Notification unique identifier
+     * @param taxId User identifier
+     */
     @Override
     public void sendCourtesyMessage(String iun, String taxId) {
         addressBook.getAddresses(taxId)
@@ -29,6 +35,13 @@ public class CourtesyMessageHandlerImpl implements CourtesyMessageHandler {
                 });
     }
 
+    /**
+     * Get user courtesy messages from storage
+     *
+     * @param iun   Notification unique identifier
+     * @param taxId User identifier
+     * @return
+     */
     @Override
     public List<CourtesyMessage> getCourtesyMessages(String iun, String taxId) {
         //TODO Implementare getMessaggiDalDb

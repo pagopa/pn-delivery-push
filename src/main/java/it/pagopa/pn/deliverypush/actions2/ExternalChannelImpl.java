@@ -17,7 +17,7 @@ public class ExternalChannelImpl implements ExternalChannel {
     private DigitalWorkFlowHandler digitalWorkFlowHandler;
     private AnalogWorkflowHandler analogWorkflowHandler;
     private TimelineService timelineService;
-    private CompletionWorkFlow endDigitalWorkflow;
+    private CompletionWorkFlow completionWorkflow;
 
     @Override
     public void sendDigitalNotification(Notification notification, DigitalAddress digitalAddress, String iun, NotificationRecipient recipient) {
@@ -127,13 +127,20 @@ public class ExternalChannelImpl implements ExternalChannel {
                 ).build();
     }
 
+
+    /**
+     * Handle Digital notification response from external channel. Positive response means notification is delivered correctly, so the workflow can be completed successfully,
+     * negative response means notification could not be delivered to the indicated address so need to start next workflow action.
+     *
+     * @param response Notification response
+     */
     public void extChannelResponseReceiverForDigital(ExtChannelDigitalResponse response) {
         //Conservare ricevuta PEC //TODO capire cosa si intende
 
         switch (response.getResponseStatus()) {
             case OK:
                 addSuccessWorkflowToTimeline(response.getTaxId(), response.getIun());
-                endDigitalWorkflow.endOfDigitalWorkflow(response.getTaxId(), response.getIun(), response.getNotificationDate(), EndWorkflowStatus.SUCCESS);
+                completionWorkflow.completionDigitalWorkflow(response.getTaxId(), response.getIun(), response.getNotificationDate(), EndWorkflowStatus.SUCCESS);
                 break;
             case KO:
                 addDigitalFailureAttemptToTimeline(response);
@@ -147,23 +154,13 @@ public class ExternalChannelImpl implements ExternalChannel {
         switch (response.getResponseStatus()) {
             case OK:
                 addSuccessWorkflowToTimeline(response.getTaxId(), response.getIun());
-                endDigitalWorkflow.endOfDigitalWorkflow(response.getTaxId(), response.getIun(), response.getNotificationDate(), EndWorkflowStatus.SUCCESS);
+                completionWorkflow.completionAnalogWorkflow(response.getTaxId(), response.getIun(), response.getNotificationDate(), EndWorkflowStatus.SUCCESS);
                 break;
             case KO:
                 addAnalogFailureAttemptToTimeline(response);
                 analogWorkflowHandler.analogWorkflowHandler(response.getIun(), response.getTaxId());
                 break;
         }
-    }
-
-    private void addSuccessWorkflowToTimeline(String taxId, String iun) {
-        timelineService.addTimelineElement(TimelineElement.builder()
-                .iun(iun)
-                .category(TimelineElementCategory.SUCCESS_WORKFLOW)
-                .details(GetAddressInfo.builder()
-                        .taxId(taxId)
-                        .build())
-                .build());
     }
 
     private void addDigitalFailureAttemptToTimeline(ExtChannelDigitalResponse response) {
@@ -193,6 +190,16 @@ public class ExternalChannelImpl implements ExternalChannel {
                         response.getErrorList()
 
                 ))
+                .build());
+    }
+
+    private void addSuccessWorkflowToTimeline(String taxId, String iun) {
+        timelineService.addTimelineElement(TimelineElement.builder()
+                .iun(iun)
+                .category(TimelineElementCategory.SUCCESS_WORKFLOW)
+                .details(GetAddressInfo.builder()
+                        .taxId(taxId)
+                        .build())
                 .build());
     }
 }

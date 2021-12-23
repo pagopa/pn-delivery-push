@@ -14,8 +14,17 @@ public class PublicRegistryHandlerImpl implements PublicRegistryHandler {
     private DigitalWorkFlowHandler digitalWorkFlowHandler;
     private AnalogWorkflowHandler analogWorkflowHandler;
 
+    /**
+     * Send get request to public registry
+     *
+     * @param iun           Notification unique identifier
+     * @param taxId         User identifier
+     * @param correlationId requestId
+     * @param deliveryMode  DIGITAL,ANALOG or null in choose phase
+     * @param contactPhase  Process phase where the request is sent. CHOOSE_DELIVERY -> request sent during delivery selection,  SEND_ATTEMPT ->  request Sent in Digital or Analogic workflow
+     */
     @Override
-    public void sendNotification(String iun, String taxId, String correlationId, DeliveryMode deliveryMode, ContactPhase contactPhase) {
+    public void sendRequestForGetAddress(String iun, String taxId, String correlationId, DeliveryMode deliveryMode, ContactPhase contactPhase) {
         //TODO Invia notifica a public registry da implementare
         addPublicRegistryCallToTimeline(iun, taxId, correlationId, deliveryMode, contactPhase); //L'inserimento in timeline ha senso portarlo in publicRegistrySender
     }
@@ -33,22 +42,32 @@ public class PublicRegistryHandlerImpl implements PublicRegistryHandler {
                 .build());
     }
 
+
+    /**
+     * Handle response from get request to public registry
+     *
+     * @param response public registry response
+     */
     @Override
     public void handleResponse(PublicRegistryResponse response) {
         String correlationId = response.getCorrelationId();
         String iun = correlationId.substring(0, correlationId.indexOf("_") - 1); //ottiene lo iun dal correlation id
         //TODO Effettuo salvataggio risposta in timeline
 
+        //Get timeline created at sent time
         Optional<PublicRegistryCallDetails> optTimeLinePublicRegistrySend = timelineService.getTimelineElement(iun, response.getCorrelationId(), PublicRegistryCallDetails.class);
+
         if (optTimeLinePublicRegistrySend.isPresent()) {
             PublicRegistryCallDetails publicRegistryCallDetails = optTimeLinePublicRegistrySend.get();
             String taxId = publicRegistryCallDetails.getTaxId();
 
             switch (publicRegistryCallDetails.getContactPhase()) {
                 case CHOOSE_DELIVERY:
+                    //request has been sent during delivery selection
                     chooseDeliveryMode.handleSpecialAddressResponse(response, iun, publicRegistryCallDetails.getTaxId());
                     break;
                 case SEND_ATTEMPT:
+                    //request has been sent in digital or analog workflow
                     handleResponseForSendAttempt(response, iun, publicRegistryCallDetails, taxId);
                     break;
                 default:

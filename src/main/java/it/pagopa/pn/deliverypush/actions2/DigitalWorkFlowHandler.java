@@ -22,6 +22,8 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class DigitalWorkFlowHandler {
+    public static final int MAX_ATTEMPT_NUMBER = 2;
+
     private TimelineService timelineService;
     private CompletionWorkFlow completionWorkFlow;
     private PublicRegistryHandler publicRegistrySender;
@@ -30,47 +32,63 @@ public class DigitalWorkFlowHandler {
     private NotificationDao notificationDao;
     private Scheduler scheduler;
 
+    /**
+     * Handle digital notification Workflow based on already made attempt
+     *
+     * @param iun   Notification unique identifier
+     * @param taxId User identifier
+     */
     public void nextWorkFlowAction(String iun, String taxId) {
         AttemptAddressInfo nextAddressInfo = getNextAddressInfo(iun, taxId);
 
-        if (nextAddressInfo.getNumberOfAttemptMade() < 2) {
-            switch (nextAddressInfo.getNumberOfAttemptMade()) {
+        if (nextAddressInfo.getAttemptNumberMade() < MAX_ATTEMPT_NUMBER) {
+            switch (nextAddressInfo.getAttemptNumberMade()) {
                 case 0:
-                    handleFirstAttempt(iun, taxId, nextAddressInfo);
+                    //Start First attempt for this source
+                    getAddressFromSourceAndSendNotification(iun, taxId, nextAddressInfo);
                     break;
                 case 1:
-                    handleSecondAttempt(iun, taxId, nextAddressInfo);
+                    //Start second attempt for this source
+                    startOrScheduleNextWorkflow(iun, taxId, nextAddressInfo);
                     break;
                 default:
                     //TODO Gestire errore
                     break;
             }
         } else {
-            //Sono stati effettuati i 2 tentativi previsti senza successo
-            completionWorkFlow.endOfDigitalWorkflow(taxId, iun, Instant.now(), EndWorkflowStatus.FAILURE);
+            //Digital workflow is failed because all planned attempt have failed
+            completionWorkFlow.completionDigitalWorkflow(taxId, iun, Instant.now(), EndWorkflowStatus.FAILURE);
         }
     }
 
-    private void handleFirstAttempt(String iun, String taxId, AttemptAddressInfo nextAddressInfo) {
+    private void getAddressFromSourceAndSendNotification(String iun, String taxId, AttemptAddressInfo nextAddressInfo) {
         if (DigitalAddressSource2.SPECIAL.equals(nextAddressInfo.getAddressSource())) {
-            sendRequestForGetSpecialAddress(iun, taxId);
+            sendRequestForGetSpecialAddress(iun, taxId); //special address need async call to get it
         } else {
             DigitalAddress digitalAddresses = getAddressFromAddressSource(nextAddressInfo.getAddressSource(), taxId, iun);
+            //Get address from source and if is available send notification
             if (digitalAddresses != null && digitalAddresses.getAddress() != null) {
                 sendNotificationToExternalChannel(iun, digitalAddresses, taxId);
             } else {
+                //address is not available, start next workflow action
                 nextWorkFlowAction(iun, taxId);
             }
         }
     }
 
-    private void handleSecondAttempt(String iun, String taxId, AttemptAddressInfo nextAddressInfo) {
+    /**
+     * If for this address source 7 days has already passed since the last made attempt, for example because have already performed scheduling for previously
+     * tried address, the notification step is called, else it is scheduled.
+     *
+     * @param iun             Notification unique identifier
+     * @param taxId           User identifier
+     * @param nextAddressInfo Next Address source information
+     */
+    private void startOrScheduleNextWorkflow(String iun, String taxId, AttemptAddressInfo nextAddressInfo) {
         Instant schedulingDate = nextAddressInfo.lastAttemptDate.plus(7, ChronoUnit.DAYS);
-        //Se sono passati già 7 giorni dall'ultimo tentativo effettuato, ad esempio perchè già è stato effettuato lo scheduling dei 7 gg per un precedente indirizzo
         if (Instant.now().isAfter(schedulingDate)) {
-            nextWorkFlowAction(iun, taxId);
+            getAddressFromSourceAndSendNotification(iun, taxId, nextAddressInfo);
         } else {
-            //non sono passati i 7 giorni previsti dalla schedulazione bisogna quindi schedulare l'evento alla data prevista
             scheduler.schedulEvent(schedulingDate, ActionType.DIGITAL_WORKFLOW);
         }
     }
@@ -87,6 +105,11 @@ public class DigitalWorkFlowHandler {
         }
     }
 
+    /**
+     * return address from addressbook and save availability information for all address in timeline
+     *
+     * @return DigitalAddress for send notification
+     */
     private DigitalAddress getAddressFromAddressSource(DigitalAddressSource2 addressSource, String taxId, String iun) {
         AtomicReference<DigitalAddress> digitalAddress = new AtomicReference<>();
 
@@ -137,39 +160,52 @@ public class DigitalWorkFlowHandler {
 
     private void sendRequestForGetSpecialAddress(String iun, String taxId) {
         String correlationId = iun + taxId + "_digital";
-        publicRegistrySender.sendNotification(iun, taxId, correlationId, DeliveryMode.DIGITAL, ContactPhase.SEND_ATTEMPT);
+        publicRegistrySender.sendRequestForGetAddress(iun, taxId, correlationId, DeliveryMode.DIGITAL, ContactPhase.SEND_ATTEMPT);
     }
 
+
+    /**
+     * Handle response to request for get special address. If address is present in response, send notification to this address else startNewWorkflow action.
+     *
+     * @param response Get special address response
+     * @param iun      Notification unique identifier
+     * @param taxId    User identifier
+     */
     public void handleSpecialAddressResponse(PublicRegistryResponse response, String iun, String taxId) {
         if (response.getDigitalAddress() != null) {
-            DigitalAddress digitalAddress = DigitalAddress.builder()
+            addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource2.SPECIAL, true);
+
+            DigitalAddress digitalAddress = DigitalAddress.builder() //TODO Da cambiare
                     .address(response.getDigitalAddress())
                     .type(DigitalAddressType.PEC)
                     .build();
             sendNotificationToExternalChannel(iun, digitalAddress, taxId);
         } else {
+            addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource2.SPECIAL, false);
             nextWorkFlowAction(iun, taxId);
         }
     }
 
     private AttemptAddressInfo getNextAddressInfo(String iun, String taxId) {
+        //TODO Da rivedere i metodi utilizzati per filtrare ecc
+
         AttemptAddressInfo attemptAddressInfo;
         Set<TimelineElement> timeline = timelineService.getTimeline(iun);
 
-        Optional<GetAddressInfo> lastAddressAttemptOpt = timeline.stream()
-                .filter(timelineElement -> filterLastAttemptDateInTimeline(timelineElement, taxId))
-                .map(timelineElement -> (GetAddressInfo) timelineElement.getDetails()).min(Comparator.comparing(GetAddressInfo::getAttemptDate));
-
-        //Ottengo l'indirizzo nuovo
+        //Get last source tryed
+        Optional<GetAddressInfo> lastAddressAttemptOpt = getLastAddressAttempt(taxId, timeline);
 
         if (lastAddressAttemptOpt.isPresent()) {
             GetAddressInfo lastAddressAttempt = lastAddressAttemptOpt.get();
+
+            //Get next source to use from last used
             DigitalAddressSource2 nextAddressSource = getNextAddressSource(lastAddressAttempt.getSource());
-            int attemptMade = (int) timeline.stream()
-                    .filter(timelineElement -> filterTimelineForTaxIdAndSource(timelineElement, taxId, nextAddressSource)).count();
+
+            int attemptsMade = getAttemptsMadeForSource(taxId, timeline, nextAddressSource);
+
             attemptAddressInfo = AttemptAddressInfo.builder()
                     .addressSource(nextAddressSource)
-                    .numberOfAttemptMade(attemptMade)
+                    .attemptNumberMade(attemptsMade)
                     .lastAttemptDate(lastAddressAttempt.getAttemptDate())
                     .build();
         } else {
@@ -177,6 +213,13 @@ public class DigitalWorkFlowHandler {
             throw new RuntimeException();
         }
         return attemptAddressInfo;
+    }
+
+    //Get last tryed source address from timeline. Attempt for source is ever added in timeline (both in case the address is available and if it's not available)
+    private Optional<GetAddressInfo> getLastAddressAttempt(String taxId, Set<TimelineElement> timeline) {
+        return timeline.stream()
+                .filter(timelineElement -> filterLastAttemptDateInTimeline(timelineElement, taxId))
+                .map(timelineElement -> (GetAddressInfo) timelineElement.getDetails()).min(Comparator.comparing(GetAddressInfo::getAttemptDate));
     }
 
     private boolean filterLastAttemptDateInTimeline(TimelineElement el, String taxId) {
@@ -188,6 +231,12 @@ public class DigitalWorkFlowHandler {
         return false;
     }
 
+    // Get attempts number made for passed source
+    private int getAttemptsMadeForSource(String taxId, Set<TimelineElement> timeline, DigitalAddressSource2 nextAddressSource) {
+        return (int) timeline.stream()
+                .filter(timelineElement -> filterTimelineForTaxIdAndSource(timelineElement, taxId, nextAddressSource)).count();
+    }
+
     private boolean filterTimelineForTaxIdAndSource(TimelineElement el, String taxId, DigitalAddressSource2 source) {
         boolean availableAddressCategory = TimelineElementCategory.GET_ADDRESS.equals(el.getCategory());
         if (availableAddressCategory) {
@@ -197,6 +246,13 @@ public class DigitalWorkFlowHandler {
         return false;
     }
 
+
+    /**
+     * Get next address source from passed source in this order: PLATFORM, GENERAL, SPECIAL
+     *
+     * @param addressSource
+     * @return next address source
+     */
     public DigitalAddressSource2 getNextAddressSource(DigitalAddressSource2 addressSource) {
         switch (addressSource) {
             case PLATFORM:
@@ -220,7 +276,7 @@ public class DigitalWorkFlowHandler {
     @ToString
     public static class AttemptAddressInfo {
         private DigitalAddressSource2 addressSource;
-        private int numberOfAttemptMade;
+        private int attemptNumberMade;
         private Instant lastAttemptDate;
     }
 }

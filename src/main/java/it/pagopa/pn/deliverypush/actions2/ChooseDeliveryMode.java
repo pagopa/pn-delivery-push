@@ -29,7 +29,14 @@ public class ChooseDeliveryMode {
     private NotificationDao notificationDao;
     private CourtesyMessageHandler courtesyMessageHandler;
     private Scheduler scheduler;
+    private AnalogWorkflowHandler analogWorkflowHandler;
 
+    /**
+     * Get Recipient addresses and try to send notification in this order: PLATFORM, GENERAL, SPECIAL. Save availability information for all address in timeline
+     *
+     * @param notification Public Administration notification request
+     * @param recipient    Notification recipient
+     */
     public void chooseDeliveryTypeAndStartWorkflow(Notification notification, NotificationRecipient recipient) {
         String taxId = recipient.getTaxId();
         String iun = notification.getIun();
@@ -58,6 +65,14 @@ public class ChooseDeliveryMode {
         return digitalAddresses != null && platform != null && platform.getAddress() != null;
     }
 
+    /**
+     * Insert timeline element with availability information for passed source
+     *
+     * @param taxId       User identifier
+     * @param iun         iun Notification unique identifier
+     * @param source      Source address PLATFORM, GENERAL, SPECIAL
+     * @param isAvailable is address available
+     */
     private void addAvailabilitySourceToTimeline(String taxId, String iun, DigitalAddressSource2 source, boolean isAvailable) {
         timelineService.addTimelineElement(TimelineElement.builder()
                 .category(TimelineElementCategory.GET_ADDRESS)
@@ -70,14 +85,30 @@ public class ChooseDeliveryMode {
                 .build());
     }
 
+
+    /**
+     * Getting special address need async call. The method generate new correlationId start get information.
+     *
+     * @param iun   Notification unique identifier
+     * @param taxId User identifier
+     */
     private void sendRequestForGetSpecialAddress(String iun, String taxId) {
         String correlationId = iun + "_" + taxId + "_" + "choose";
-        publicRegistrySender.sendNotification(iun, taxId, correlationId, null, ContactPhase.CHOOSE_DELIVERY);
+        publicRegistrySender.sendRequestForGetAddress(iun, taxId, correlationId, null, ContactPhase.CHOOSE_DELIVERY);
     }
 
+
+    /**
+     * Get special address response. If address is available Start Digital workflow with it else there isn't any digital address
+     * available so start analog workflow
+     *
+     * @param response Response for get special address
+     * @param iun      Notification unique identifier
+     * @param taxId    User identifier
+     */
     public void handleSpecialAddressResponse(PublicRegistryResponse response, String iun, String taxId) {
         if (response.getDigitalAddress() != null) {
-            DigitalAddress digitalAddress = DigitalAddress.builder()
+            DigitalAddress digitalAddress = DigitalAddress.builder()  //TODO Da modificare
                     .address(response.getDigitalAddress())
                     .type(DigitalAddressType.PEC)
                     .build();
@@ -90,6 +121,12 @@ public class ChooseDeliveryMode {
         }
     }
 
+    /**
+     * if courtesy message has been sent to the user, it is necessary to wait 5 days (from sent message date) before start Analog workflow
+     *
+     * @param iun   Notification unique identifier
+     * @param taxId User identifier
+     */
     private void startAnalogWorkflow(String iun, String taxId) {
         List<CourtesyMessage> courtesyMessages = courtesyMessageHandler.getCourtesyMessages(iun, taxId);
         if (!courtesyMessages.isEmpty()) {
@@ -98,7 +135,7 @@ public class ChooseDeliveryMode {
             Instant schedulingDate = courtesyMessage.getInsertDate().plus(5, ChronoUnit.DAYS);
             scheduler.schedulEvent(schedulingDate, ActionType.ANALOG_WORKFLOW);
         } else {
-            //TODO Inizializzare il workflow analogico
+            analogWorkflowHandler.analogWorkflowHandler(iun, taxId);
         }
     }
 
@@ -113,6 +150,15 @@ public class ChooseDeliveryMode {
         }
     }
 
+
+    /**
+     * Starting digital workflow sending notification information to external channel
+     *
+     * @param notification   Public Administration notification request
+     * @param digitalAddress User address
+     * @param recipient      Notification recipient
+     * @param iun            Notification unique identifier
+     */
     private void startDigitalWorkflow(Notification notification, DigitalAddress digitalAddress, NotificationRecipient recipient, String iun) {
         externalChannel.sendDigitalNotification(notification, digitalAddress, iun, recipient);
     }

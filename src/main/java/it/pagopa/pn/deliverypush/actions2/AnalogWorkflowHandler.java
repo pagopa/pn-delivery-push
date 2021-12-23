@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.actions2;
 
+import it.pagopa.pn.api.dto.events.EndWorkflowStatus;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
@@ -8,6 +9,7 @@ import it.pagopa.pn.api.dto.publicregistry.PhysicalAddressDTO;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.Set;
 
@@ -16,28 +18,41 @@ public class AnalogWorkflowHandler {
     private NotificationDao notificationDao;
     private PublicRegistryHandler publicRegistryHandler;
     private ExternalChannel externalChannel;
+    private CompletionWorkFlow completionWorkFlow;
 
+    /**
+     * Handle analog notification Workflow based on already made attempt
+     *
+     * @param iun   Notification unique identifier
+     * @param taxId User identifier
+     */
     public void analogWorkflowHandler(String iun, String taxId) {
         Optional<Notification> optNotification = notificationDao.getNotificationByIun(iun);
+
         if (optNotification.isPresent()) {
             Notification notification = optNotification.get();
             NotificationRecipient recipient = null; //TODO Ottiene il recipient dalla notifica
 
-            int numberOfSendAttempt = getNumberOfSendAttemptFromTimeLine(iun, taxId);
-            switch (numberOfSendAttempt) {
+            int sentAttempt = getSentAttemptFromTimeLine(iun, taxId);
+
+            switch (sentAttempt) {
                 case 0:
                     PhysicalAddress paProvidedAddress = recipient.getPhysicalAddress();
 
                     if (paProvidedAddress != null && paProvidedAddress.getAddress() != null) {
+                        //send notification with paAddress
                         sendNotificationToExternalChannel(iun, notification, recipient, paProvidedAddress, true);
                     } else {
-                        publicRegistryCall(iun, taxId, numberOfSendAttempt);
+                        //Get address for notification from public registry
+                        getAddressFromPublicRegistry(iun, taxId, sentAttempt);
                     }
                     break;
                 case 1:
-                    publicRegistryCall(iun, taxId, numberOfSendAttempt);
+                    //An send attempt was already made, get address from public registry for second send attempt
+                    getAddressFromPublicRegistry(iun, taxId, sentAttempt);
                     break;
                 case 2:
+                    // All sent attempts have already been made. The user is not reachable
                     unreachableUser(iun, taxId);
                     break;
                 default:
@@ -51,16 +66,24 @@ public class AnalogWorkflowHandler {
 
     }
 
-    private void publicRegistryCall(String iun, String taxId, int numberOfSendAttempt) {
+    private void getAddressFromPublicRegistry(String iun, String taxId, int numberOfSendAttempt) {
         String correlationId = iun + "_" + taxId + "_" + "analog" + "_" + numberOfSendAttempt;
-        publicRegistryHandler.sendNotification(iun, taxId, correlationId, DeliveryMode.ANALOG, ContactPhase.SEND_ATTEMPT);
+        publicRegistryHandler.sendRequestForGetAddress(iun, taxId, correlationId, DeliveryMode.ANALOG, ContactPhase.SEND_ATTEMPT);
     }
 
     private void sendNotificationToExternalChannel(String iun, Notification notification, NotificationRecipient recipient, PhysicalAddress address, boolean investigation) {
         externalChannel.sendAnalogNotification(notification, address, iun, recipient, investigation);
     }
 
-    private int getNumberOfSendAttemptFromTimeLine(String iun, String taxId) {
+
+    /**
+     * Get user sent attempt from timeline
+     *
+     * @param iun   Notification unique identifier
+     * @param taxId User identifier
+     * @return user sent attempt
+     */
+    private int getSentAttemptFromTimeLine(String iun, String taxId) {
         Set<TimelineElement> timeline = timelineService.getTimeline(iun);
         return (int) timeline.stream()
                 .filter(timelineElement -> filterTimelineForTaxIdAndSource(timelineElement, taxId)).count();
@@ -75,20 +98,26 @@ public class AnalogWorkflowHandler {
         return false;
     }
 
-    private void unreachableUser(String iun, String taxId) {
-    }
-
+    /**
+     * Handle get response for public registry call.
+     *
+     * @param iun      Notification unique identifier
+     * @param taxId    User identifier
+     * @param response public registry response
+     */
     public void handlePublicRegistryResponse(String iun, String taxId, PublicRegistryResponse response) {
         Optional<Notification> optNotification = notificationDao.getNotificationByIun(iun);
+
         if (optNotification.isPresent()) {
             Notification notification = optNotification.get();
             NotificationRecipient recipient = null; //TODO Ottiene il recipient dalla notifica
 
-            int numberOfSendAttempt = getNumberOfSendAttemptFromTimeLine(iun, taxId);
+            int numberOfSendAttempt = getSentAttemptFromTimeLine(iun, taxId);
+
             switch (numberOfSendAttempt) {
                 case 0:
-                    //Ottenuta risposta alla prima send
-                    handleFirstSendResponse(iun, taxId, response, notification, recipient);
+                    //Send notification to external channel if response address is available
+                    sendNotificationIfAddressIsAvailable(iun, taxId, response, notification, recipient);
                     break;
                 case 1:
                     //Ottenuta risposta alla seconda send
@@ -108,46 +137,100 @@ public class AnalogWorkflowHandler {
 
     }
 
+    private void sendNotificationIfAddressIsAvailable(String iun, String taxId, PublicRegistryResponse response, Notification notification, NotificationRecipient recipient) {
+        if (response.getPhysicalAddress() != null && response.getPhysicalAddress().getAddress() != null) {
+            // Send notification to external channel If response address is available
+            PhysicalAddress physicalAddress = mapResponseAddressToPhysicalAddress(response.getPhysicalAddress());
+            sendNotificationToExternalChannel(iun, notification, recipient, physicalAddress, true);
+        } else {
+            //there isn't available address for the user so is not reachable
+            unreachableUser(iun, taxId);
+        }
+    }
+
     private void handleSecondSendResponse(String iun, String taxId, PublicRegistryResponse response, Notification notification, NotificationRecipient recipient) {
+        //Get external channel last feedback information returned from timeline
         SendPaperFeedbackDetails lastSentFeedback = getTimelineSentFeedback(iun, taxId);
         PhysicalAddress lastUsedAddress = lastSentFeedback.getAddress();
 
         if (response.getPhysicalAddress() != null && response.getPhysicalAddress().getAddress() != null) {
+
             PhysicalAddress responseAddress = mapResponseAddressToPhysicalAddress(response.getPhysicalAddress());
+            //check if response address is different to last used address to avoid resending failure notification to the same address
             if (!responseAddress.equals(lastUsedAddress)) { //TODO Da definire in maniera chiara il metodo equals
                 sendNotificationToExternalChannel(iun, notification, recipient, responseAddress, false);
             } else {
-                checkInvestigationAddressAndSend(iun, taxId, notification, recipient, lastSentFeedback);
+                //Send notification with investigation address if it is available
+                checkInvestigationAddressAndSend(iun, taxId, notification, recipient, lastSentFeedback.getNewAddress());
             }
         } else {
-            checkInvestigationAddressAndSend(iun, taxId, notification, recipient, lastSentFeedback);
+            //Send notification with investigation address if it is available
+            checkInvestigationAddressAndSend(iun, taxId, notification, recipient, lastSentFeedback.getNewAddress());
         }
     }
 
-    private void handleFirstSendResponse(String iun, String taxId, PublicRegistryResponse response, Notification notification, NotificationRecipient recipient) {
-        if (response.getPhysicalAddress() != null && response.getPhysicalAddress().getAddress() != null) {
-            PhysicalAddress physicalAddress = mapResponseAddressToPhysicalAddress(response.getPhysicalAddress());
-            sendNotificationToExternalChannel(iun, notification, recipient, physicalAddress, true);
+
+    /**
+     * If during last failed sent notification a new address has been obtained send notification else the user is unreachable
+     */
+    private void checkInvestigationAddressAndSend(String iun, String taxId, Notification notification, NotificationRecipient recipient, PhysicalAddress newAddress) {
+        if (newAddress != null && newAddress.getAddress() != null) {
+            sendNotificationToExternalChannel(iun, notification, recipient, newAddress, false);
         } else {
+            // the user is not reachable
             unreachableUser(iun, taxId);
         }
     }
 
-    private void checkInvestigationAddressAndSend(String iun, String taxId, Notification notification, NotificationRecipient recipient, SendPaperFeedbackDetails lastSentFeedback) {
-        if (lastSentFeedback.getNewAddress() != null && lastSentFeedback.getNewAddress().getAddress() != null) {
-            sendNotificationToExternalChannel(iun, notification, recipient, lastSentFeedback.getNewAddress(), false);
-        } else {
-            unreachableUser(iun, taxId);
-        }
-    }
-
+    /**
+     * Get external channel last feedback information from timeline
+     *
+     * @param iun   Notification unique identifier
+     * @param taxId User identifier
+     * @return last sent feedback information
+     */
     private SendPaperFeedbackDetails getTimelineSentFeedback(String iun, String taxId) {
-        
+        Set<TimelineElement> timeline = timelineService.getTimeline(iun);
+
+        Optional<SendPaperFeedbackDetails> sendPaperFeedbackDetailsOpt = timeline.stream()
+                .filter(timelineElement -> filterLastAttemptDateInTimeline(timelineElement, taxId))
+                .map(timelineElement -> (SendPaperFeedbackDetails) timelineElement.getDetails()).findFirst();
+
+        if (sendPaperFeedbackDetailsOpt.isPresent()) {
+            return sendPaperFeedbackDetailsOpt.get();
+        } else {
+            //TODO Gestisci casistica di errore
+            throw new RuntimeException();
+        }
+    }
+
+    private boolean filterLastAttemptDateInTimeline(TimelineElement el, String taxId) {
+        boolean availableAddressCategory = TimelineElementCategory.SEND_PAPER_FEEDBACK.equals(el.getCategory());
+        if (availableAddressCategory) {
+            SendPaperFeedbackDetails details = (SendPaperFeedbackDetails) el.getDetails();
+            return taxId.equalsIgnoreCase(details.getTaxId());
+        }
+        return false;
     }
 
     private PhysicalAddress mapResponseAddressToPhysicalAddress(PhysicalAddressDTO physicalAddress) {
         //TODO DA Implementare
         throw new UnsupportedOperationException();
+    }
+
+    private void unreachableUser(String iun, String taxId) {
+        //TODO Da implementare
+        //TODO Aggiungere alla tabella unreachableUser
+        timelineService.addTimelineElement(
+                TimelineElement.builder()
+                        .category(TimelineElementCategory.COMPLETELY_UNREACHABLE)
+                        .details(CompletlyUnreachableDetails.builder()
+                                .taxId(taxId)
+                                .build()
+                        )
+                        .build()
+        );
+        completionWorkFlow.completionAnalogWorkflow(taxId, iun, Instant.now(), EndWorkflowStatus.FAILURE);
     }
 
 }

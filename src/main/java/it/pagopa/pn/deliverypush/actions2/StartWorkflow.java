@@ -14,6 +14,9 @@ public class StartWorkflow {
     private CourtesyMessageHandler courtesyMessageHandler;
     private ChooseDeliveryMode chooseDeliveryType;
 
+    /**
+     * @param iun For all notification recipient send courtesy message and start choose delivery type.
+     */
     @StreamListener(condition = "NEW_NOTIFICATION")
     public void startWorkflow(String iun) {
 
