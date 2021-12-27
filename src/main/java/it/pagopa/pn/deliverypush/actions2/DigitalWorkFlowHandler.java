@@ -1,36 +1,39 @@
 package it.pagopa.pn.deliverypush.actions2;
 
+import it.pagopa.pn.api.dto.addressbook.AddressBookEntry;
 import it.pagopa.pn.api.dto.addressbook.DigitalAddresses;
 import it.pagopa.pn.api.dto.events.EndWorkflowStatus;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import it.pagopa.pn.api.dto.notification.NotificationSender;
+import it.pagopa.pn.api.dto.notification.address.AttemptAddressInfo;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource2;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.api.dto.notification.timeline.*;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
-import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
-import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.pnclients.addressbook.AddressBook2;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
-import lombok.*;
+import it.pagopa.pn.deliverypush.service.*;
+import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Comparator;
 import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 
+@Slf4j
 public class DigitalWorkFlowHandler {
     public static final int MAX_ATTEMPT_NUMBER = 2;
 
     private TimelineService timelineService;
-    private CompletionWorkFlow completionWorkFlow;
-    private PublicRegistryHandler publicRegistrySender;
-    private AddressBook addressBook;
-    private ExternalChannel externalChannel;
-    private NotificationDao notificationDao;
-    private Scheduler scheduler;
+    private CompletionWorkFlowHandler completionWorkFlow;
+    private PublicRegistryService publicRegistryService;
+    private AddressBook2 addressBook;
+    private ExternalChannelService externalChannelService;
+    private NotificationService notificationService;
+    private SchedulerService scheduler;
+    private DigitalService digitalService;
 
     /**
      * Handle digital notification Workflow based on already made attempt
@@ -39,40 +42,43 @@ public class DigitalWorkFlowHandler {
      * @param taxId User identifier
      */
     public void nextWorkFlowAction(String iun, String taxId) {
-        AttemptAddressInfo nextAddressInfo = getNextAddressInfo(iun, taxId);
+        log.info("Next Digital workflow action for iun {} id {}", iun, taxId);
+
+        //Viene ottenuta la source del prossimo indirizzo da testare, con il numero di tentativi già effettuati per tale sorgente e la data dell'ultimo tentativo
+        AttemptAddressInfo nextAddressInfo = digitalService.getNextAddressInfo(iun, taxId);
+        log.debug("Next address source is {} and attempt number already made is {}", nextAddressInfo.getAddressSource(), nextAddressInfo.getAttemptNumberMade());
 
         if (nextAddressInfo.getAttemptNumberMade() < MAX_ATTEMPT_NUMBER) {
             switch (nextAddressInfo.getAttemptNumberMade()) {
                 case 0:
-                    //Start First attempt for this source
-                    getAddressFromSourceAndSendNotification(iun, taxId, nextAddressInfo);
+                    log.info("Start first attempt for source {}", nextAddressInfo.getAddressSource());
+                    checkAndSendNotification(iun, taxId, nextAddressInfo);
                     break;
                 case 1:
-                    //Start second attempt for this source
-                    startOrScheduleNextWorkflow(iun, taxId, nextAddressInfo);
+                    log.info("Start second attempt for source {}", nextAddressInfo.getAddressSource());
+                    startNextWorkflow7daysAfterLastAttempt(iun, taxId, nextAddressInfo);
                     break;
                 default:
-                    //TODO Gestire errore
-                    break;
+                    log.error("Is not possibile to have {} number of attempt. Iun {} id {}", nextAddressInfo.getAttemptNumberMade(), iun, taxId);
+                    throw new PnInternalException("Is not possibile to have " + nextAddressInfo.getAttemptNumberMade() + ". Iun " + iun + " id " + taxId);
             }
         } else {
-            //Digital workflow is failed because all planned attempt have failed
+            //Sono stati già effettuati tutti i tentativi possibili, la notificazione è quindi fallita
+            log.info("Digital workflow is failed because all planned attempt have failed for iun {} id {}", iun, taxId);
             completionWorkFlow.completionDigitalWorkflow(taxId, iun, Instant.now(), EndWorkflowStatus.FAILURE);
         }
     }
 
-    private void getAddressFromSourceAndSendNotification(String iun, String taxId, AttemptAddressInfo nextAddressInfo) {
-        if (DigitalAddressSource2.SPECIAL.equals(nextAddressInfo.getAddressSource())) {
-            sendRequestForGetSpecialAddress(iun, taxId); //special address need async call to get it
+    private void checkAndSendNotification(String iun, String taxId, AttemptAddressInfo nextAddressInfo) {
+
+        Notification notification = notificationService.getNotificationByIun(iun);
+        NotificationRecipient recipient = notificationService.getRecipientFromNotification(notification, taxId);
+        log.debug("Get notification and recipient completed ");
+
+        if (DigitalAddressSource2.GENERAL.equals(nextAddressInfo.getAddressSource())) {
+            sendRequestForGetGeneralAddress(iun, taxId); //general address need async call to get it
         } else {
-            DigitalAddress digitalAddresses = getAddressFromAddressSource(nextAddressInfo.getAddressSource(), taxId, iun);
-            //Get address from source and if is available send notification
-            if (digitalAddresses != null && digitalAddresses.getAddress() != null) {
-                sendNotificationToExternalChannel(iun, digitalAddresses, taxId);
-            } else {
-                //address is not available, start next workflow action
-                nextWorkFlowAction(iun, taxId);
-            }
+            sendNotificationOrStartNextWorkflowAction(nextAddressInfo.getAddressSource(), recipient, notification);
         }
     }
 
@@ -84,62 +90,80 @@ public class DigitalWorkFlowHandler {
      * @param taxId           User identifier
      * @param nextAddressInfo Next Address source information
      */
-    private void startOrScheduleNextWorkflow(String iun, String taxId, AttemptAddressInfo nextAddressInfo) {
-        Instant schedulingDate = nextAddressInfo.lastAttemptDate.plus(7, ChronoUnit.DAYS);
+    private void startNextWorkflow7daysAfterLastAttempt(String iun, String taxId, AttemptAddressInfo nextAddressInfo) {
+        Instant schedulingDate = nextAddressInfo.getLastAttemptDate().plus(7, ChronoUnit.DAYS);
+        //Vengono aggiunti 7 giorni alla data dell'ultimo tentativo effettuata per questa source
+
         if (Instant.now().isAfter(schedulingDate)) {
-            getAddressFromSourceAndSendNotification(iun, taxId, nextAddressInfo);
+            log.debug("Next workflow scheduling date {} is passed. Start next workflow ", schedulingDate);
+            //Se la data odierna è successiva alla data ottenuta in precedenza, non c'è necessità di schedulare, perchè i 7 giorni necessari di attesa dopo il primo tentativo risultano essere già passati
+            checkAndSendNotification(iun, taxId, nextAddressInfo);
         } else {
-            scheduler.schedulEvent(schedulingDate, ActionType.DIGITAL_WORKFLOW);
+            log.debug("Next workflow scheduling date {} is not passed. Need to schedule next workflow ", schedulingDate);
+            //Se la data è minore alla data odierna, bisogna attendere il completamento dei 7 giorni prima partire con un nuovo workflow per questa source
+            scheduler.schedulEvent(iun, taxId, schedulingDate, ActionType.DIGITAL_WORKFLOW);
         }
     }
 
-    private void sendNotificationToExternalChannel(String iun, DigitalAddress digitalAddress, String taxId) {
-        Optional<Notification> optNotification = notificationDao.getNotificationByIun(iun);
-        if (optNotification.isPresent()) {
-            Notification notification = optNotification.get();
-            NotificationRecipient recipient = null; //TODO Ottiene il recipient dalla notifica
+    private void sendNotificationOrStartNextWorkflowAction(DigitalAddressSource2 addressSource, NotificationRecipient recipient, Notification notification) {
+        log.debug("Start sendNotificationOrStartNextWorkflowAction for addressSource {}", addressSource);
 
-            externalChannel.sendDigitalNotification(notification, digitalAddress, iun, recipient);
+        //Viene ottenuto l'indirizzo a partire dalla source
+        DigitalAddress destinationAddress = getAddressFromSource(addressSource, recipient, notification);
+
+        //Viene Effettuato il check dell'indirizzo e l'eventuale send
+        handleCheckAddressAndSend(recipient, notification, destinationAddress, addressSource);
+    }
+
+    @Nullable
+    private DigitalAddress getAddressFromSource(DigitalAddressSource2 addressSource, NotificationRecipient recipient, Notification notification) {
+        DigitalAddress destinationAddress;
+        switch (addressSource) {
+            case PLATFORM:
+                destinationAddress = retrievePlatformAddress(recipient.getTaxId(), notification.getSender());
+                break;
+            case SPECIAL:
+                destinationAddress = recipient.getDigitalDomicile();
+                break;
+            default:
+                log.error("Specified addressSource {} does not exist for iun {} id {}", addressSource, notification.getIun(), recipient.getTaxId());
+                throw new PnInternalException("Specified addressSource " + addressSource + " does not exist for iun " + notification.getIun() + " id " + recipient.getTaxId());
+        }
+        return destinationAddress;
+    }
+
+    private void handleCheckAddressAndSend(NotificationRecipient recipient, Notification notification, DigitalAddress destinationAddress, DigitalAddressSource2 addressSource) {
+        String iun = notification.getIun();
+        String taxId = recipient.getTaxId();
+
+        if (destinationAddress != null) {
+            log.debug("Destination address is available, send notification to external channel ");
+
+            //Se l'indirizzo è disponibile, dunque valorizzato viene inviata la notifica ad external channel ...
+            addAvailabilitySourceToTimeline(taxId, iun, addressSource, true);
+            externalChannelService.sendDigitalNotification(notification, destinationAddress, recipient);
+
         } else {
-            //TODO Gestione casisitca errore
+            //... altrimenti si passa alla prossima workflow action
+            log.debug("Destination address is not available, need to start next workflow action ");
+
+            addAvailabilitySourceToTimeline(taxId, iun, addressSource, false);
+            nextWorkFlowAction(iun, taxId);
         }
     }
 
-    /**
-     * return address from addressbook and save availability information for all address in timeline
-     *
-     * @return DigitalAddress for send notification
-     */
-    private DigitalAddress getAddressFromAddressSource(DigitalAddressSource2 addressSource, String taxId, String iun) {
-        AtomicReference<DigitalAddress> digitalAddress = new AtomicReference<>();
+    //TODO Questa logica è replicata in DIGITALWORFKLOW E CHOOSE DELIVERY PORTARLA A FATTOR COMUNE
+    //Se il risultato è diverso da null allora i suoi campi sono diversi da null
+    private DigitalAddress retrievePlatformAddress(String taxId, NotificationSender sender) {
 
-        addressBook.getAddresses(taxId)
-                .ifPresent(addressBookItem -> {
-                    DigitalAddresses digitalAddresses = addressBookItem.getDigitalAddresses();
-                    switch (addressSource) {
-                        case PLATFORM:
-                            if (isAddressAvailable(digitalAddresses, digitalAddresses.getPlatform())) {
-                                digitalAddress.set(digitalAddresses.getPlatform());
-                                addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource2.PLATFORM, true);
-                            } else {
-                                addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource2.PLATFORM, false);
-                            }
-                            break;
-                        case GENERAL:
-                            if (isAddressAvailable(digitalAddresses, digitalAddresses.getGeneral())) {
-                                digitalAddress.set(digitalAddresses.getGeneral());
-                                addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource2.GENERAL, true);
-                            } else {
-                                addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource2.GENERAL, false);
-                            }
-                            break;
-                        default:
-                            //TODO GESTIONE ERRORE
-                            break;
-                    }
-                });
+        Optional<AddressBookEntry> addressBookEntryOpt = addressBook.getAddresses(taxId, sender);
 
-        return digitalAddress.get();
+        if (addressBookEntryOpt.isPresent()) {
+            DigitalAddresses digitalAddress = addressBookEntryOpt.get().getDigitalAddresses(); //TODO Valutare se far ritornare un solo indirizzo all'addressbook e non una lista
+            DigitalAddress platformAddress = digitalAddress.getPlatform();
+            return platformAddress != null && platformAddress.getAddress() != null ? platformAddress : null;
+        }
+        return null;
     }
 
     private void addAvailabilitySourceToTimeline(String taxId, String iun, DigitalAddressSource2 source, boolean isAvailable) {
@@ -154,15 +178,12 @@ public class DigitalWorkFlowHandler {
                 .build());
     }
 
-    private boolean isAddressAvailable(DigitalAddresses digitalAddresses, DigitalAddress platform) {
-        return digitalAddresses != null && platform != null && platform.getAddress() != null;
-    }
-
-    private void sendRequestForGetSpecialAddress(String iun, String taxId) {
+    private void sendRequestForGetGeneralAddress(String iun, String taxId) {
         String correlationId = iun + taxId + "_digital";
-        publicRegistrySender.sendRequestForGetAddress(iun, taxId, correlationId, DeliveryMode.DIGITAL, ContactPhase.SEND_ATTEMPT);
-    }
+        log.debug("Start send request for get general address with correlationId {}", correlationId);
 
+        publicRegistryService.sendRequestForGetAddress(iun, taxId, correlationId, DeliveryMode.DIGITAL, ContactPhase.SEND_ATTEMPT);
+    }
 
     /**
      * Handle response to request for get special address. If address is present in response, send notification to this address else startNewWorkflow action.
@@ -171,112 +192,13 @@ public class DigitalWorkFlowHandler {
      * @param iun      Notification unique identifier
      * @param taxId    User identifier
      */
-    public void handleSpecialAddressResponse(PublicRegistryResponse response, String iun, String taxId) {
-        if (response.getDigitalAddress() != null) {
-            addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource2.SPECIAL, true);
+    public void handleGeneralAddressResponse(PublicRegistryResponse response, String iun, String taxId) {
 
-            DigitalAddress digitalAddress = DigitalAddress.builder() //TODO Da cambiare
-                    .address(response.getDigitalAddress())
-                    .type(DigitalAddressType.PEC)
-                    .build();
-            sendNotificationToExternalChannel(iun, digitalAddress, taxId);
-        } else {
-            addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource2.SPECIAL, false);
-            nextWorkFlowAction(iun, taxId);
-        }
-    }
+        Notification notification = notificationService.getNotificationByIun(iun);
+        NotificationRecipient recipient = notificationService.getRecipientFromNotification(notification, taxId);
 
-    private AttemptAddressInfo getNextAddressInfo(String iun, String taxId) {
-        //TODO Da rivedere i metodi utilizzati per filtrare ecc
-
-        AttemptAddressInfo attemptAddressInfo;
-        Set<TimelineElement> timeline = timelineService.getTimeline(iun);
-
-        //Get last source tryed
-        Optional<GetAddressInfo> lastAddressAttemptOpt = getLastAddressAttempt(taxId, timeline);
-
-        if (lastAddressAttemptOpt.isPresent()) {
-            GetAddressInfo lastAddressAttempt = lastAddressAttemptOpt.get();
-
-            //Get next source to use from last used
-            DigitalAddressSource2 nextAddressSource = getNextAddressSource(lastAddressAttempt.getSource());
-
-            int attemptsMade = getAttemptsMadeForSource(taxId, timeline, nextAddressSource);
-
-            attemptAddressInfo = AttemptAddressInfo.builder()
-                    .addressSource(nextAddressSource)
-                    .attemptNumberMade(attemptsMade)
-                    .lastAttemptDate(lastAddressAttempt.getAttemptDate())
-                    .build();
-        } else {
-            //TODO GESTIRE CASISTICA DI ERRORE, NON E' POSSIBILE ARRIVARE QUI
-            throw new RuntimeException();
-        }
-        return attemptAddressInfo;
-    }
-
-    //Get last tryed source address from timeline. Attempt for source is ever added in timeline (both in case the address is available and if it's not available)
-    private Optional<GetAddressInfo> getLastAddressAttempt(String taxId, Set<TimelineElement> timeline) {
-        return timeline.stream()
-                .filter(timelineElement -> filterLastAttemptDateInTimeline(timelineElement, taxId))
-                .map(timelineElement -> (GetAddressInfo) timelineElement.getDetails()).min(Comparator.comparing(GetAddressInfo::getAttemptDate));
-    }
-
-    private boolean filterLastAttemptDateInTimeline(TimelineElement el, String taxId) {
-        boolean availableAdressCategory = TimelineElementCategory.GET_ADDRESS.equals(el.getCategory());
-        if (availableAdressCategory) {
-            GetAddressInfo details = (GetAddressInfo) el.getDetails();
-            return taxId.equalsIgnoreCase(details.getTaxId());
-        }
-        return false;
-    }
-
-    // Get attempts number made for passed source
-    private int getAttemptsMadeForSource(String taxId, Set<TimelineElement> timeline, DigitalAddressSource2 nextAddressSource) {
-        return (int) timeline.stream()
-                .filter(timelineElement -> filterTimelineForTaxIdAndSource(timelineElement, taxId, nextAddressSource)).count();
-    }
-
-    private boolean filterTimelineForTaxIdAndSource(TimelineElement el, String taxId, DigitalAddressSource2 source) {
-        boolean availableAddressCategory = TimelineElementCategory.GET_ADDRESS.equals(el.getCategory());
-        if (availableAddressCategory) {
-            GetAddressInfo details = (GetAddressInfo) el.getDetails();
-            return taxId.equalsIgnoreCase(details.getTaxId()) && source.equals(details.getSource());
-        }
-        return false;
+        handleCheckAddressAndSend(recipient, notification, response.getDigitalAddress(), DigitalAddressSource2.GENERAL);
     }
 
 
-    /**
-     * Get next address source from passed source in this order: PLATFORM, GENERAL, SPECIAL
-     *
-     * @param addressSource
-     * @return next address source
-     */
-    public DigitalAddressSource2 getNextAddressSource(DigitalAddressSource2 addressSource) {
-        switch (addressSource) {
-            case PLATFORM:
-                return DigitalAddressSource2.GENERAL;
-            case GENERAL:
-                return DigitalAddressSource2.SPECIAL;
-            case SPECIAL:
-                return DigitalAddressSource2.PLATFORM;
-            default:
-                //TODO GESTIONE ERRORE
-                throw new RuntimeException();
-        }
-    }
-
-
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Getter
-    @Builder(toBuilder = true)
-    @EqualsAndHashCode
-    @ToString
-    public static class AttemptAddressInfo {
-        private DigitalAddressSource2 addressSource;
-        private int attemptNumberMade;
-        private Instant lastAttemptDate;
-    }
 }

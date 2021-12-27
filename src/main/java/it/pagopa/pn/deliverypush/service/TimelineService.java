@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.actions2;
+package it.pagopa.pn.deliverypush.service;
 
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 
