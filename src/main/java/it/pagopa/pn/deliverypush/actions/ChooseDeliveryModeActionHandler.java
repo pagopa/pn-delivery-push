@@ -37,7 +37,7 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
                                            ActionsPool actionsPool, PnDeliveryPushConfigs pnDeliveryPushConfigs,
                                            MomProducer<PnExtChnEmailEvent> emailRequestProducer,
                                            ExtChnEventUtils eventUtils) {
-        super( timelineDao, actionsPool , pnDeliveryPushConfigs);
+        super(timelineDao, actionsPool, pnDeliveryPushConfigs);
         this.addressBook = addressBook;
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
         this.emailRequestProducer = emailRequestProducer;
@@ -48,32 +48,30 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
     public void handleAction(Action action, Notification notification) {
         // - GET RECIPIENT
         int index = action.getRecipientIndex();
-        NotificationRecipient recipient = notification.getRecipients().get( index );
+        NotificationRecipient recipient = notification.getRecipients().get(index);
 
         PhysicalAddress physicalAddress = recipient.getPhysicalAddress();
 
         // - LOAD ADDRESS BOOK and compute timeline
         NotificationPathChooseDetails.NotificationPathChooseDetailsBuilder timelineDetailsBuilder =
                 NotificationPathChooseDetails.builder()
-                .taxId( recipient.getTaxId() )
-                .physicalAddress( physicalAddress )
-                .special( recipient.getDigitalDomicile() )
-                ;
+                        .taxId(recipient.getTaxId())
+                        .physicalAddress(physicalAddress)
+                        .special(recipient.getDigitalDomicile());
 
-        addressBook.getAddresses( recipient.getTaxId() )
-            .ifPresent( abEntry -> {
-                if(abEntry.getDigitalAddresses() != null) {
-                    timelineDetailsBuilder
-                            .general(abEntry.getDigitalAddresses().getGeneral())
-                            .platform(abEntry.getDigitalAddresses().getPlatform());
-                }
-                if(physicalAddress == null) {
-                    timelineDetailsBuilder.physicalAddress(abEntry.getResidentialAddress());
-                }
-                timelineDetailsBuilder.courtesyAddresses(abEntry.getCourtesyAddresses());
+        addressBook.getAddresses(recipient.getTaxId())
+                .ifPresent(abEntry -> {
+                    if (abEntry.getDigitalAddresses() != null) {
+                        timelineDetailsBuilder
+                                .platform(abEntry.getDigitalAddresses().getPlatform());
+                    }
+                    if (physicalAddress == null) {
+                        timelineDetailsBuilder.physicalAddress(abEntry.getResidentialAddress());
+                    }
+                    timelineDetailsBuilder.courtesyAddresses(abEntry.getCourtesyAddresses());
 
-                sendCourtesyMessages(action, notification, recipient, abEntry);
-            });
+                    sendCourtesyMessages(action, notification, recipient, abEntry);
+                });
 
         NotificationPathChooseDetails timelineDetails = timelineDetailsBuilder.build();
 
@@ -83,36 +81,39 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
         Action.ActionBuilder actionBuilder = Action.builder()
                 .iun(action.getIun())
                 .recipientIndex(action.getRecipientIndex())
-                .retryNumber( 1 )
+                .retryNumber(1)
                 .notBefore(Instant.now().plus(pnDeliveryPushConfigs.getTimeParams().getWaitingForNextAction()));
 
 
         switch (deliveryMode) {
             case DIGITAL: {
-                super.scheduleAction( actionBuilder
-                        .type( ActionType.SEND_PEC )
-                        .digitalAddressSource( DigitalAddressSource.PLATFORM )
+                super.scheduleAction(actionBuilder
+                        .type(ActionType.SEND_PEC)
+                        .digitalAddressSource(DigitalAddressSource.PLATFORM)
                         .build()
                 );
-            } break;
+            }
+            break;
             case ANALOG: {
-                super.scheduleAction( actionBuilder
+                super.scheduleAction(actionBuilder
                         .type(ActionType.SEND_PAPER)
                         .build()
                 );
-            } break;
-            default: throw new PnInternalException("Delivery mode not supported: " + deliveryMode);
+            }
+            break;
+            default:
+                throw new PnInternalException("Delivery mode not supported: " + deliveryMode);
         }
 
 
         // - WRITE TIMELINE
-        super.addTimelineElement( action, TimelineElement.builder()
-                .category( TimelineElementCategory.NOTIFICATION_PATH_CHOOSE )
-                .details( timelineDetails.toBuilder()
-                        .deliveryMode( deliveryMode )
-                        .build() )
+        super.addTimelineElement(action, TimelineElement.builder()
+                .category(TimelineElementCategory.NOTIFICATION_PATH_CHOOSE)
+                .details(timelineDetails.toBuilder()
+                        .deliveryMode(deliveryMode)
+                        .build())
                 .build()
-            );
+        );
     }
 
     private boolean isAnalogRecipient(NotificationPathChooseDetails timelineDetails) {
@@ -127,7 +128,7 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
                                       AddressBookEntry abEntry) {
         // - Send Email
         List<DigitalAddress> courtesyAddresses = abEntry.getCourtesyAddresses();
-        if( courtesyAddresses != null ) {
+        if (courtesyAddresses != null) {
             int numberOfAddresses = courtesyAddresses.size();
 
             for (int idx = 0; idx < numberOfAddresses; idx++) {

@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.actions2;
+package it.pagopa.pn.deliverypush.action2;
 
 
 import it.pagopa.pn.api.dto.notification.Notification;
@@ -8,13 +8,23 @@ import it.pagopa.pn.deliverypush.service.LegalFactGeneratorService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.annotation.StreamListener;
+import org.springframework.stereotype.Component;
 
+@Component
 @Slf4j
 public class StartWorkflowHandler {
-    private LegalFactGeneratorService legalFactGenerator;
-    private NotificationService notificationService;
-    private CourtesyMessageService courtesyMessageService;
-    private ChooseDeliveryModeHandler chooseDeliveryType;
+    private final LegalFactGeneratorService legalFactGenerator;
+    private final NotificationService notificationService;
+    private final CourtesyMessageService courtesyMessageService;
+    private final ChooseDeliveryModeHandler chooseDeliveryType;
+
+    public StartWorkflowHandler(LegalFactGeneratorService legalFactGenerator, NotificationService notificationService, CourtesyMessageService courtesyMessageService,
+                                ChooseDeliveryModeHandler chooseDeliveryType) {
+        this.legalFactGenerator = legalFactGenerator;
+        this.notificationService = notificationService;
+        this.courtesyMessageService = courtesyMessageService;
+        this.chooseDeliveryType = chooseDeliveryType;
+    }
 
     /**
      * Start new Notification Workflow. For all notification recipient send courtesy message and start choose delivery type

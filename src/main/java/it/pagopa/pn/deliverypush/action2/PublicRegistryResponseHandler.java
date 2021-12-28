@@ -1,23 +1,30 @@
-package it.pagopa.pn.deliverypush.actions2;
+package it.pagopa.pn.deliverypush.action2;
 
 import it.pagopa.pn.api.dto.notification.timeline.PublicRegistryCallDetails;
-import it.pagopa.pn.api.dto.notification.timeline.PublicRegistryResponseDetails;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.annotation.StreamListener;
+import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
+@Component
 @Slf4j
 public class PublicRegistryResponseHandler {
-    private TimelineService timelineService;
-    private ChooseDeliveryModeHandler chooseDeliveryHandler;
-    private DigitalWorkFlowHandler digitalWorkFlowHandler;
-    private AnalogWorkflowHandler analogWorkflowHandler;
+    private final TimelineService timelineService;
+    private final ChooseDeliveryModeHandler chooseDeliveryHandler;
+    private final DigitalWorkFlowHandler digitalWorkFlowHandler;
+    private final AnalogWorkflowHandler analogWorkflowHandler;
+
+    public PublicRegistryResponseHandler(TimelineService timelineService, ChooseDeliveryModeHandler chooseDeliveryHandler, DigitalWorkFlowHandler digitalWorkFlowHandler,
+                                         AnalogWorkflowHandler analogWorkflowHandler) {
+        this.timelineService = timelineService;
+        this.chooseDeliveryHandler = chooseDeliveryHandler;
+        this.digitalWorkFlowHandler = digitalWorkFlowHandler;
+        this.analogWorkflowHandler = analogWorkflowHandler;
+    }
 
     /**
      * Handle response from get request to public registry
@@ -38,7 +45,7 @@ public class PublicRegistryResponseHandler {
             PublicRegistryCallDetails publicRegistryCallDetails = optTimeLinePublicRegistrySend.get();
             String taxId = publicRegistryCallDetails.getTaxId();
 
-            addPublicResponseCallToTimeline(iun, taxId, response);
+            timelineService.addPublicRegistryResponseCallToTimeline(iun, taxId, response);
 
             log.debug(" timelineElement is present, id {} contactPhase {}", taxId, publicRegistryCallDetails.getContactPhase());
 
@@ -63,23 +70,10 @@ public class PublicRegistryResponseHandler {
         }
     }
 
-    private void addPublicResponseCallToTimeline(String iun, String taxId, PublicRegistryResponse response) {
-        timelineService.addTimelineElement(TimelineElement.builder()
-                .iun(iun)
-                .elementId(response.getCorrelationId())
-                .category(TimelineElementCategory.PUBLIC_REGISTRY_RESPONSE)
-                .details(PublicRegistryResponseDetails.builder()
-                        .taxId(taxId)
-                        .digitalAddress(response.getDigitalAddress())
-                        .physicalAddress(response.getPhysicalAddress())
-                        .build())
-                .build());
-    }
-
     private void handleResponseForSendAttempt(PublicRegistryResponse response, String iun, PublicRegistryCallDetails publicRegistryCallDetails, String taxId) {
         switch (publicRegistryCallDetails.getDeliveryMode()) {
             case DIGITAL:
-                digitalWorkFlowHandler.handleGeneralAddressResponse(response, iun, publicRegistryCallDetails.getTaxId());
+                digitalWorkFlowHandler.handleGeneralAddressResponse(response, iun, publicRegistryCallDetails.getTaxId(), publicRegistryCallDetails.getSentAttemptMade());
                 break;
             case ANALOG:
                 analogWorkflowHandler.handlePublicRegistryResponse(iun, taxId, response);
@@ -89,5 +83,6 @@ public class PublicRegistryResponseHandler {
                 throw new PnInternalException("Specified deliveryMode " + publicRegistryCallDetails.getDeliveryMode() + " does not exist for iun " + iun + " id " + taxId);
         }
     }
+
 
 }

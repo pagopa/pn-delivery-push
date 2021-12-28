@@ -4,48 +4,64 @@ import it.pagopa.pn.api.dto.events.*;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
+import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource2;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
-import it.pagopa.pn.api.dto.notification.timeline.SendDigitalDetails;
-import it.pagopa.pn.api.dto.notification.timeline.SendPaperDetails;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
+import it.pagopa.pn.api.dto.notification.timeline.EventId;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.actions.ExtChnEventUtils;
 import it.pagopa.pn.deliverypush.external.ExternalChannel;
 import it.pagopa.pn.deliverypush.service.ExternalChannelService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.Instant;
+
 @Slf4j
 public class ExternalChannelServiceImpl implements ExternalChannelService {
     private TimelineService timelineService;
-    private ExtChnEventUtils extChnEventUtils;
-    private ExternalChannel externalChannel;
+    private final ExtChnEventUtils extChnEventUtils;
+    private final ExternalChannel externalChannel;
+
+    public ExternalChannelServiceImpl(TimelineService timelineService, ExtChnEventUtils extChnEventUtils, ExternalChannel externalChannel) {
+        this.timelineService = timelineService;
+        this.extChnEventUtils = extChnEventUtils;
+        this.externalChannel = externalChannel;
+    }
 
     /**
      * Generate and send pec notification request to external channel
      */
     @Override
-    public void sendDigitalNotification(Notification notification, DigitalAddress digitalAddress, NotificationRecipient recipient) {
+    public void sendDigitalNotification(Notification notification, DigitalAddress digitalAddress, DigitalAddressSource2 addressSource, NotificationRecipient recipient,
+                                        int sentAttemptMade) {
         log.debug("Start sendDigitalNotification to external channel for iun {} id {}", notification.getIun(), recipient.getTaxId());
-        String eventId = null; //TODO Generare un event id, capire come generarlo
+        String eventId = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recipientId(recipient.getTaxId())
+                        .source(addressSource)
+                        .index(sentAttemptMade)
+                        .build()
+        );
+
         PnExtChnPecEvent pnExtChnPecEvent = extChnEventUtils.buildSendPecRequest2(eventId, notification, recipient, digitalAddress);
         externalChannel.sendNotification(pnExtChnPecEvent);
-        addSendDigitalNotificationToTimeline(digitalAddress, recipient);
+        timelineService.addSendDigitalNotificationToTimeline(digitalAddress, recipient, notification, sentAttemptMade, eventId);
     }
 
     /**
      * Generate and send email notification request to external channel
      */
     @Override
-    public void sendCourtesyNotification(Notification notification, DigitalAddress courtesyAddress, NotificationRecipient recipient) {
+    public void sendCourtesyNotification(Notification notification, DigitalAddress courtesyAddress, NotificationRecipient recipient, String eventId) {
         log.debug("Start SendCourtesyMessage to external channel for iun {} id {}", notification.getIun(), recipient.getTaxId());
-        String eventId = null; //TODO Generare eventId e capire come generarlo
         PnExtChnEmailEvent pnExtChnEmailEvent = extChnEventUtils.buildSendEmailRequest2(eventId,
                 notification,
                 recipient,
                 courtesyAddress);
 
         externalChannel.sendNotification(pnExtChnEmailEvent);
+        timelineService.addSendCourtesyMessageToTimeline(recipient.getTaxId(), notification.getIun(), courtesyAddress, Instant.now(), eventId);
     }
 
     /**
@@ -54,7 +70,12 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     @Override
     public void sendNotificationForRegisteredLetter(Notification notification, PhysicalAddress physicalAddress, NotificationRecipient recipient) {
 
-        String eventId = null; //TODO Generare un event id, capire come generarlo
+        String eventId = TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recipientId(recipient.getTaxId())
+                        .build()
+        );
 
         PnExtChnPaperEvent pnExtChnPaperEvent = extChnEventUtils.buildSendPaperRequest2(
                 eventId,
@@ -67,16 +88,23 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         );
 
         externalChannel.sendNotification(pnExtChnPaperEvent);
+        timelineService.addSendSimpleRegisteredLetterToTimeline(recipient.getTaxId(), notification.getIun(), physicalAddress, eventId);
     }
 
     /**
      * Generate and send analog notification request to external channel
      */
     @Override
-    public void sendAnalogNotification(Notification notification, PhysicalAddress physicalAddress, NotificationRecipient recipient, boolean investigation) {
+    public void sendAnalogNotification(Notification notification, PhysicalAddress physicalAddress, NotificationRecipient recipient, boolean investigation, int sentAttemptMade) {
         log.debug("Start sendAnalogNotification to external channel for iun {} id {}", notification.getIun(), recipient.getTaxId());
+        String eventId = TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recipientId(recipient.getTaxId())
+                        .index(sentAttemptMade)
+                        .build()
+        );
 
-        String eventId = null; //TODO Generare un event id, capire come generarlo
         final PnExtChnPaperEvent pnExtChnPaperEvent = extChnEventUtils.buildSendPaperRequest2(
                 eventId,
                 recipient,
@@ -87,30 +115,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                 physicalAddress);
 
         externalChannel.sendNotification(pnExtChnPaperEvent);
-        addSendAnalogNotificationToTimeline(notification.getIun(), physicalAddress, recipient, notification, investigation);
+        timelineService.addSendAnalogNotificationToTimeline(physicalAddress, recipient, notification, investigation, sentAttemptMade, eventId);
     }
 
-    private void addSendDigitalNotificationToTimeline(DigitalAddress digitalAddress, NotificationRecipient recipient) {
-        TimelineElement.builder()
-                .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE)
-                .details(SendDigitalDetails.sendBuilder()
-                        .taxId(recipient.getTaxId())
-                        .address(digitalAddress)
-                        .build()
-                )
-                .build();
-    }
-
-    private void addSendAnalogNotificationToTimeline(String iun, PhysicalAddress address, NotificationRecipient recipient, Notification notification, boolean investigation) {
-        TimelineElement.builder()
-                .category(TimelineElementCategory.SEND_ANALOG_DOMICILE)
-                .iun(iun)
-                .details(SendPaperDetails.builder()
-                        .taxId(recipient.getTaxId())
-                        .address(address)
-                        .serviceLevel(notification.getPhysicalCommunicationType())
-                        .investigation(investigation)
-                        .build()
-                ).build();
-    }
 }

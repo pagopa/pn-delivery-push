@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Slf4j
 public class NotificationServiceImpl implements NotificationService {
-    private NotificationDao notificationDao;
+    private final NotificationDao notificationDao;
 
     public NotificationServiceImpl(NotificationDao notificationDao) {
         this.notificationDao = notificationDao;

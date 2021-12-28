@@ -52,7 +52,7 @@ public enum ActionType {
         }
     },
 
-    DIGITAL_WORKFLOW() {
+    DIGITAL_WORKFLOW_NEXT_ACTION() {
         @Override
         public String buildActionId(Action action) {
             return String.format(
