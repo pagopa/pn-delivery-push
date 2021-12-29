@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.action2;
 import it.pagopa.pn.api.dto.events.EndWorkflowStatus;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
@@ -44,24 +45,25 @@ public class CompletionWorkFlowHandler {
      * @param notificationDate Conclusion workflow date
      * @param status           Conclusion workflow status
      */
-    public void completionDigitalWorkflow(String taxId, String iun, Instant notificationDate, EndWorkflowStatus status) {
+    public void completionDigitalWorkflow(String taxId, String iun, Instant notificationDate, DigitalAddress address, EndWorkflowStatus status) {
         log.info("Digital workflow completed with status {} IUN {} id {}", status, iun, taxId);
 
         Notification notification = notificationService.getNotificationByIun(iun);
         NotificationRecipient recipient = notificationService.getRecipientFromNotification(notification, taxId);
 
-        legalFactGenerator.workflowStep(notification);
+        //TODO Capire meglio quali sono le informazioni necessarie e realizzarlo
+        //legalFactStore.savePecDeliveryWorkflowLegalFact( receivePecActions, notification, addresses );
 
         switch (status) {
             case SUCCESS:
-                timelineService.addSuccessWorkflowToTimeline(taxId, iun);
+                timelineService.addSuccessDigitalWorkflowToTimeline(taxId, iun, address);
                 scheduleRefinement(iun, taxId, notificationDate, SCHEDULING_DAYS_SUCCESS_DIGITAL_REFINEMENT);
                 break;
             case FAILURE:
                 //TODO Generare avviso mancato recapito
                 legalFactGenerator.nonDeliveryMessage(notification);
                 sendSimpleRegisteredLetter(notification, recipient);
-                timelineService.addFailureWorkflowToTimeline(taxId, iun);
+                timelineService.addFailureDigitalWorkflowToTimeline(taxId, iun);
                 scheduleRefinement(iun, taxId, notificationDate, SCHEDULING_DAYS_FAILURE_DIGITAL_REFINEMENT);
                 break;
             default:
@@ -95,7 +97,7 @@ public class CompletionWorkFlowHandler {
      * @param notificationDate Conclusion workflow date
      * @param status           Conclusion workflow status
      */
-    public void completionAnalogWorkflow(String taxId, String iun, Instant notificationDate, EndWorkflowStatus status) {
+    public void completionAnalogWorkflow(String taxId, String iun, Instant notificationDate, PhysicalAddress usedAddress, EndWorkflowStatus status) {
         log.info("Analog workflow completed with status {} IUN {} id {}", status, iun, taxId);
 
         Notification notification = notificationService.getNotificationByIun(iun);
@@ -105,11 +107,11 @@ public class CompletionWorkFlowHandler {
 
         switch (status) {
             case SUCCESS:
-                timelineService.addSuccessWorkflowToTimeline(taxId, iun);
+                timelineService.addSuccessAnalogWorkflowToTimeline(taxId, iun, usedAddress);
                 scheduleRefinement(iun, taxId, notificationDate, SCHEDULING_DAYS_SUCCESS_ANALOG_REFINEMENT);
                 break;
             case FAILURE:
-                timelineService.addFailureWorkflowToTimeline(taxId, iun);
+                timelineService.addFailureAnalogWorkflowToTimeline(taxId, iun);
                 scheduleRefinement(iun, taxId, notificationDate, SCHEDULING_DAYS_FAILURE_ANALOG_REFINEMENT);
                 break;
             default:

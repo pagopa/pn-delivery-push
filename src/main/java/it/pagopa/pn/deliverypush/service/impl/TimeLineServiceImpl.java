@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.api.dto.extchannel.ExtChannelResponse;
 import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource2;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -171,40 +173,78 @@ public class TimeLineServiceImpl implements TimelineService {
     }
 
     @Override
-    public void addSuccessWorkflowToTimeline(String taxId, String iun) {
+    public void addSuccessDigitalWorkflowToTimeline(String taxId, String iun, DigitalAddress address) {
         log.debug("AddSuccessWorkflowToTimeline for iun {} id {}", iun, taxId);
 
         addTimelineElement(TimelineElement.builder()
-                .category(TimelineElementCategory.SUCCESS_WORKFLOW)
+                .category(TimelineElementCategory.DIGITAL_SUCCESS_WORKFLOW)
                 .iun(iun)
-                .elementId(TimelineEventId.SUCCESS_WORKFLOW.buildEventId(
+                .elementId(TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.buildEventId(
                         EventId.builder()
                                 .iun(iun)
                                 .recipientId(taxId)
                                 .build())
                 )
                 .timestamp(Instant.now())
-                .details(SuccessWorkflow.builder()
+                .details(DigitalSuccessWorkflow.builder()
+                        .taxId(taxId)
+                        .address(address)
+                        .build())
+                .build());
+    }
+
+    @Override
+    public void addFailureDigitalWorkflowToTimeline(String taxId, String iun) {
+        log.debug("Add Failure Workflow To Timeline for iun {} id {}", iun, taxId);
+
+        addTimelineElement(TimelineElement.builder()
+                .category(TimelineElementCategory.DIGITAL_FAILURE_WORKFLOW)
+                .iun(iun)
+                .elementId(TimelineEventId.DIGITAL_FAILURE_WORKFLOW.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recipientId(taxId)
+                                .build())
+                )
+                .timestamp(Instant.now())
+                .details(DigitalFailureWorkflow.builder()
                         .taxId(taxId)
                         .build())
                 .build());
     }
 
     @Override
-    public void addFailureWorkflowToTimeline(String taxId, String iun) {
-        log.debug("Add Failure Workflow To Timeline for iun {} id {}", iun, taxId);
-
+    public void addSuccessAnalogWorkflowToTimeline(String taxId, String iun, PhysicalAddress address) {
         addTimelineElement(TimelineElement.builder()
-                .category(TimelineElementCategory.FAILURE_WORKFLOW)
+                .category(TimelineElementCategory.ANALOG_SUCCESS_WORKFLOW)
                 .iun(iun)
-                .elementId(TimelineEventId.FAILURE_WORKFLOW.buildEventId(
+                .elementId(TimelineEventId.ANALOG_SUCCESS_WORKFLOW.buildEventId(
                         EventId.builder()
                                 .iun(iun)
                                 .recipientId(taxId)
                                 .build())
                 )
                 .timestamp(Instant.now())
-                .details(FailureWorkflow.builder()
+                .details(AnalogSuccessWorkflow.builder()
+                        .taxId(taxId)
+                        .address(address)
+                        .build())
+                .build());
+    }
+
+    @Override
+    public void addFailureAnalogWorkflowToTimeline(String taxId, String iun) {
+        addTimelineElement(TimelineElement.builder()
+                .category(TimelineElementCategory.ANALOG_FAILURE_WORKFLOW)
+                .iun(iun)
+                .elementId(TimelineEventId.ANALOG_FAILURE_WORKFLOW.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recipientId(taxId)
+                                .build())
+                )
+                .timestamp(Instant.now())
+                .details(AnalogFailureWorkflow.builder()
                         .taxId(taxId)
                         .build())
                 .build());
@@ -267,5 +307,29 @@ public class TimeLineServiceImpl implements TimelineService {
                 ))
                 .build());
     }
+
+    public void addAcceptedRequestToTimeline(Notification notification, String taxId) {
+
+        addTimelineElement(TimelineElement.builder()
+                .category(TimelineElementCategory.REQUEST_ACCEPTED)
+                .timestamp(Instant.now())
+                .iun(notification.getIun())
+                .elementId(TimelineEventId.REQUEST_ACCEPTED.buildEventId(
+                        EventId.builder()
+                                .iun(notification.getIun())
+                                .recipientId(taxId)
+                                .build()))
+                .details(ReceivedDetails.builder()
+                        .recipients(notification.getRecipients())
+                        .documentsDigests(notification.getDocuments()
+                                .stream()
+                                .map(NotificationAttachment::getDigests)
+                                .collect(Collectors.toList())
+                        )
+                        .build()
+                )
+                .build());
+    }
+
 
 }

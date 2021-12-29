@@ -47,10 +47,10 @@ public class LegalFactUtils {
         }
     }
 
-    public void saveNotificationReceivedLegalFact(Action action, Notification notification) {
+    public void saveNotificationReceivedLegalFact(Notification notification) {
         Map<String, String> metadata = legalfactMetadataUtils.buildMetadata(LegalFactType.SENDER_ACK, null);
-        byte[] pdfBytes = pdfUtils.generateNotificationReceivedLegalFact(action, notification);
-        this.saveLegalFact(action.getIun(), "sender_ack", pdfBytes, metadata);
+        byte[] pdfBytes = pdfUtils.generateNotificationReceivedLegalFact(notification);
+        this.saveLegalFact(notification.getIun(), "sender_ack", pdfBytes, metadata);
     }
 
     public void savePecDeliveryWorkflowLegalFact(List<Action> actions, Notification notification, NotificationPathChooseDetails addresses) {

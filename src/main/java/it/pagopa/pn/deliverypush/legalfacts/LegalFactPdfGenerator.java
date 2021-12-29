@@ -7,7 +7,7 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import java.util.List;
 
 public interface LegalFactPdfGenerator {
-    byte[] generateNotificationReceivedLegalFact(Action action, Notification notification);
+    byte[] generateNotificationReceivedLegalFact(Notification notification);
 
     byte[] generateNotificationViewedLegalFact(Action action, Notification notification);
 

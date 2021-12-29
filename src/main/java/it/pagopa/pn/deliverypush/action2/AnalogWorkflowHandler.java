@@ -154,7 +154,7 @@ public class AnalogWorkflowHandler {
         switch (response.getResponseStatus()) {
             case OK:
                 //Se viene la notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
-                completionWorkFlow.completionAnalogWorkflow(response.getTaxId(), response.getIun(), response.getNotificationDate(), EndWorkflowStatus.SUCCESS);
+                completionWorkFlow.completionAnalogWorkflow(response.getTaxId(), response.getIun(), response.getNotificationDate(), response.getAnalogUsedAddress(), EndWorkflowStatus.SUCCESS);
                 break;
             case KO:
                 //Se external channel non è riuscito ad effettuare la notificazione, si passa al prossimo step del workflow
@@ -167,7 +167,7 @@ public class AnalogWorkflowHandler {
     private void unreachableUser(String iun, String taxId) {
         log.info("User with iun {} and id {} is unreachable, all attempt was failed", iun, taxId);
         schedulerService.schedulEvent(iun, taxId, Instant.now(), ActionType.COMPLETELY_UNREACHABLE);
-        completionWorkFlow.completionAnalogWorkflow(taxId, iun, Instant.now(), EndWorkflowStatus.FAILURE);
+        completionWorkFlow.completionAnalogWorkflow(taxId, iun, Instant.now(), null, EndWorkflowStatus.FAILURE);
     }
 
 }

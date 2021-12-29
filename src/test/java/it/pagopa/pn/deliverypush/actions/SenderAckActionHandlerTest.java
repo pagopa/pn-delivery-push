@@ -60,7 +60,7 @@ class SenderAckActionHandlerTest {
         Notification notification = newNotificationWithoutPayments();
 
         Action action = Action.builder()
-                .iun( notification.getIun() )
+                .iun(notification.getIun())
                 .recipientIndex(0)
                 .type(ActionType.SENDER_ACK)
                 .retryNumber(1)
@@ -80,11 +80,11 @@ class SenderAckActionHandlerTest {
         ArgumentCaptor<Action> actionCapture = ArgumentCaptor.forClass(Action.class);
         ArgumentCaptor<Notification> notificationCapture = ArgumentCaptor.forClass(Notification.class);
 
-        Mockito.verify(legalFactUtils).saveNotificationReceivedLegalFact( actionCapture.capture(),
-                            notificationCapture.capture() );
+        Mockito.verify(legalFactUtils).saveNotificationReceivedLegalFact(
+                notificationCapture.capture());
 
         Assertions.assertEquals(action.getIun(), actionCapture.getValue().getIun(), "Different iun");
-        Assertions.assertEquals( action.getIun(), notificationCapture.getValue().getIun(), "Different iun");
+        Assertions.assertEquals(action.getIun(), notificationCapture.getValue().getIun(), "Different iun");
     }
 
 
@@ -119,7 +119,7 @@ class SenderAckActionHandlerTest {
                 ))
                 .documents(Arrays.asList(
                         NotificationAttachment.builder()
-                                .ref( NotificationAttachment.Ref.builder()
+                                .ref(NotificationAttachment.Ref.builder()
                                         .key("doc00")
                                         .versionToken("v01_doc00")
                                         .build()
@@ -132,7 +132,7 @@ class SenderAckActionHandlerTest {
                                 .body("Ym9keV8wMQ==")
                                 .build(),
                         NotificationAttachment.builder()
-                                .ref( NotificationAttachment.Ref.builder()
+                                .ref(NotificationAttachment.Ref.builder()
                                         .key("doc01")
                                         .versionToken("v01_doc01")
                                         .build()

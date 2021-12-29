@@ -24,6 +24,8 @@ public interface TimelineService {
 
     Set<TimelineElement> getTimeline(String iun);
 
+    void addAcceptedRequestToTimeline(Notification notification, String taxId);
+
     void addAvailabilitySourceToTimeline(String taxId, String iun, DigitalAddressSource2 source, boolean isAvailable, int sentAttemptMade);
 
     void addDigitalFailureAttemptToTimeline(ExtChannelResponse response);
@@ -37,13 +39,18 @@ public interface TimelineService {
     void addSendAnalogNotificationToTimeline(PhysicalAddress address, NotificationRecipient recipient, Notification notification, boolean investigation,
                                              int sentAttemptMade, String eventId);
 
-    void addSuccessWorkflowToTimeline(String taxId, String iun);
+    void addSuccessDigitalWorkflowToTimeline(String taxId, String iun, DigitalAddress address);
 
-    void addFailureWorkflowToTimeline(String taxId, String iun);
+    void addFailureDigitalWorkflowToTimeline(String taxId, String iun);
+
+    void addSuccessAnalogWorkflowToTimeline(String taxId, String iun, PhysicalAddress address);
+
+    void addFailureAnalogWorkflowToTimeline(String taxId, String iun);
 
     void addPublicRegistryResponseCallToTimeline(String iun, String taxId, PublicRegistryResponse response);
 
     void addPublicRegistryCallToTimeline(String iun, String taxId, String eventId, DeliveryMode deliveryMode, ContactPhase contactPhase, int sentAttemptMade);
 
     void addAnalogFailureAttemptToTimeline(ExtChannelResponse response, int sentAttemptMade);
+
 }

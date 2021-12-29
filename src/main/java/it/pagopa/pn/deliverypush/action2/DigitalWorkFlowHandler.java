@@ -76,7 +76,7 @@ public class DigitalWorkFlowHandler {
         } else {
             //Sono stati già effettuati tutti i tentativi possibili, la notificazione è quindi fallita
             log.info("Digital workflow is failed because all planned attempt have failed for iun {} id {}", iun, taxId);
-            completionWorkFlow.completionDigitalWorkflow(taxId, iun, Instant.now(), EndWorkflowStatus.FAILURE);
+            completionWorkFlow.completionDigitalWorkflow(taxId, iun, Instant.now(), null, EndWorkflowStatus.FAILURE);
         }
     }
 
@@ -168,7 +168,7 @@ public class DigitalWorkFlowHandler {
             case OK:
                 log.info("Notification sent successfully, starting completion workflow ");
                 //La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
-                completionWorkflow.completionDigitalWorkflow(response.getTaxId(), response.getIun(), response.getNotificationDate(), EndWorkflowStatus.SUCCESS);
+                completionWorkflow.completionDigitalWorkflow(response.getTaxId(), response.getIun(), response.getNotificationDate(), response.getDigitalUsedAddress(), EndWorkflowStatus.SUCCESS);
                 break;
             case KO:
                 //Non è stato possibile effettuare la notificazione, si passa al prossimo step del workflow
