@@ -25,10 +25,12 @@ public class AddressBookServiceImpl implements AddressBookService {
         Optional<AddressBookEntry> addressBookEntryOpt = addressBook.getAddresses(recipient.getTaxId(), sender);
 
         if (addressBookEntryOpt.isPresent()) {
-            DigitalAddresses digitalAddress = addressBookEntryOpt.get().getDigitalAddresses(); //TODO Valutare se far ritornare un solo indirizzo all'addressbook e non una lista
-            DigitalAddress platformAddress = digitalAddress.getPlatform();
+            DigitalAddresses digitalAddresses = addressBookEntryOpt.get().getDigitalAddresses(); //TODO Valutare se far ritornare un solo indirizzo all'addressbook e non una lista
+            DigitalAddress platformAddress = digitalAddresses.getPlatform();
             return platformAddress != null && platformAddress.getAddress() != null ? platformAddress : null;
         }
         return null;
     }
+
+
 }

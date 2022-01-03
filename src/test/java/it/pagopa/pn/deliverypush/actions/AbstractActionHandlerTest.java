@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.actions;
 
 import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementDetails;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
@@ -8,9 +9,7 @@ import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
-import it.pagopa.pn.deliverypush.actions.AbstractActionHandler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +21,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AbstractActionHandlerTest {
@@ -237,17 +235,17 @@ class AbstractActionHandlerTest {
     @Test
     void testPecFirstRoundDelay() throws Exception {
         Action action = Action.builder()
-                .type( ActionType.SEND_PEC )
-                .digitalAddressSource( DigitalAddressSource.GENERAL )
-                .retryNumber( 1 )
+                .type(ActionType.SEND_PEC)
+                .digitalAddressSource(DigitalAddressSource.GENERAL)
+                .retryNumber(1)
                 .build();
-        action = abstractActionHandler.buildNextSendPecActionWithRound( action, 1);
+        action = abstractActionHandler.buildNextSendPecActionWithRound(action, 1);
 
         Duration expectedDelay = pnDeliveryPushConfigs.getTimeParams().getWaitingResponseFromFirstAddress();
-        Instant expectedNotBefore = Instant.now().plus( expectedDelay );
+        Instant expectedNotBefore = Instant.now().plus(expectedDelay);
 
         // FIXME aggiungere clock nel abstractActionHandler per testabilità
-        assertTrue( action.getNotBefore().isBefore( expectedNotBefore ) || action.getNotBefore().equals( expectedNotBefore));
+        assertTrue(action.getNotBefore().isBefore(expectedNotBefore) || action.getNotBefore().equals(expectedNotBefore));
 
     }
 

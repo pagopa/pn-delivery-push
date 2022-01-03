@@ -51,25 +51,31 @@ public class CompletionWorkFlowHandler {
         Notification notification = notificationService.getNotificationByIun(iun);
         NotificationRecipient recipient = notificationService.getRecipientFromNotification(notification, taxId);
 
+        //TODO Capire meglio quali sono le operazioni da realizzare nel perfezionamento e quali in questa fase
+
         //TODO Capire meglio quali sono le informazioni necessarie e realizzarlo
         //legalFactStore.savePecDeliveryWorkflowLegalFact( receivePecActions, notification, addresses );
 
-        switch (status) {
-            case SUCCESS:
-                timelineService.addSuccessDigitalWorkflowToTimeline(taxId, iun, address);
-                scheduleRefinement(iun, taxId, notificationDate, SCHEDULING_DAYS_SUCCESS_DIGITAL_REFINEMENT);
-                break;
-            case FAILURE:
-                //TODO Generare avviso mancato recapito
-                legalFactGenerator.nonDeliveryMessage(notification);
-                sendSimpleRegisteredLetter(notification, recipient);
-                timelineService.addFailureDigitalWorkflowToTimeline(taxId, iun);
-                scheduleRefinement(iun, taxId, notificationDate, SCHEDULING_DAYS_FAILURE_DIGITAL_REFINEMENT);
-                break;
-            default:
-                log.error("Specified status {} does not exist. Iun {}, id {}", status, iun, taxId);
-                throw new PnInternalException("Specified contactPhase " + status + " does not exist. Iun " + iun + " id" + taxId);
+        if (status != null) {
+            switch (status) {
+                case SUCCESS:
+                    timelineService.addSuccessDigitalWorkflowToTimeline(taxId, iun, address);
+                    scheduleRefinement(iun, taxId, notificationDate, SCHEDULING_DAYS_SUCCESS_DIGITAL_REFINEMENT);
+                    break;
+                case FAILURE:
+                    //TODO Generare avviso mancato recapito
+                    legalFactGenerator.nonDeliveryMessage(notification);
+                    sendSimpleRegisteredLetter(notification, recipient);
+                    timelineService.addFailureDigitalWorkflowToTimeline(taxId, iun);
+                    scheduleRefinement(iun, taxId, notificationDate, SCHEDULING_DAYS_FAILURE_DIGITAL_REFINEMENT);
+                    break;
+                default:
+                    handleError(taxId, iun, status);
+            }
+        } else {
+            handleError(taxId, iun, null);
         }
+
 
     }
 
@@ -115,8 +121,7 @@ public class CompletionWorkFlowHandler {
                 scheduleRefinement(iun, taxId, notificationDate, SCHEDULING_DAYS_FAILURE_ANALOG_REFINEMENT);
                 break;
             default:
-                log.error("Specified status {} does not exist. Iun {}, id {}", status, iun, taxId);
-                throw new PnInternalException("Specified contactPhase " + status + " does not exist. Iun " + iun + " id" + taxId);
+                handleError(taxId, iun, status);
         }
     }
 
@@ -124,6 +129,12 @@ public class CompletionWorkFlowHandler {
         Instant schedulingDate = notificationDate.plus(schedulingDays, ChronoUnit.DAYS);
         log.info("Schedule refinement in {}", schedulingDate);
         scheduler.schedulEvent(iun, taxId, schedulingDate, ActionType.REFINEMENT_NOTIFICATION);
+    }
+
+
+    private void handleError(String taxId, String iun, EndWorkflowStatus status) {
+        log.error("Specified status {} does not exist. Iun {}, id {}", status, iun, taxId);
+        throw new PnInternalException("Specified status " + status + " does not exist. Iun " + iun + " id" + taxId);
     }
 
 

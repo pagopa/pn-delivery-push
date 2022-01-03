@@ -6,4 +6,6 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 
 public interface AddressBookService {
     DigitalAddress retrievePlatformAddress(NotificationRecipient recipient, NotificationSender sender);
+
+    retrievePlatformAddress
 }

@@ -4,7 +4,7 @@ import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.AttemptAddressInfo;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource2;
+import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.timeline.GetAddressInfo;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
@@ -19,6 +19,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
+
+;
 
 @Slf4j
 public class DigitalWorkFlowServiceImpl implements DigitaWorkFlowService {
@@ -45,7 +47,7 @@ public class DigitalWorkFlowServiceImpl implements DigitaWorkFlowService {
         log.debug("Get last address attempt with source {}", lastAddressAttempt.getSource());
 
         //Ottiene la source del prossimo indirizzo da utilizzare
-        DigitalAddressSource2 nextAddressSource = getNextAddressSource(lastAddressAttempt.getSource());
+        DigitalAddressSource nextAddressSource = getNextAddressSource(lastAddressAttempt.getSource());
         log.debug("nextAddressSource {}", nextAddressSource);
 
         //Ottiene i tentativi effettuati per tale indirizzo
@@ -86,12 +88,12 @@ public class DigitalWorkFlowServiceImpl implements DigitaWorkFlowService {
     }
 
     // Get attempts number made for passed source
-    private int getAttemptsMadeForSource(String taxId, Set<TimelineElement> timeline, DigitalAddressSource2 nextAddressSource) {
+    private int getAttemptsMadeForSource(String taxId, Set<TimelineElement> timeline, DigitalAddressSource nextAddressSource) {
         return (int) timeline.stream()
                 .filter(timelineElement -> filterTimelineForTaxIdAndSource(timelineElement, taxId, nextAddressSource)).count();
     }
 
-    private boolean filterTimelineForTaxIdAndSource(TimelineElement el, String taxId, DigitalAddressSource2 source) {
+    private boolean filterTimelineForTaxIdAndSource(TimelineElement el, String taxId, DigitalAddressSource source) {
         boolean availableAddressCategory = TimelineElementCategory.GET_ADDRESS.equals(el.getCategory());
         if (availableAddressCategory) {
             GetAddressInfo details = (GetAddressInfo) el.getDetails();
@@ -106,14 +108,14 @@ public class DigitalWorkFlowServiceImpl implements DigitaWorkFlowService {
      * @param addressSource
      * @return next address source
      */
-    public DigitalAddressSource2 getNextAddressSource(DigitalAddressSource2 addressSource) {
+    public DigitalAddressSource getNextAddressSource(DigitalAddressSource addressSource) {
         switch (addressSource) {
             case PLATFORM:
-                return DigitalAddressSource2.GENERAL;
+                return DigitalAddressSource.GENERAL;
             case GENERAL:
-                return DigitalAddressSource2.SPECIAL;
+                return DigitalAddressSource.SPECIAL;
             case SPECIAL:
-                return DigitalAddressSource2.PLATFORM;
+                return DigitalAddressSource.PLATFORM;
             default:
                 log.error("Address source {} is not valid", addressSource);
                 throw new PnInternalException("Address source " + addressSource + " is not valid");
@@ -122,7 +124,7 @@ public class DigitalWorkFlowServiceImpl implements DigitaWorkFlowService {
 
     @Nullable
     @Override
-    public DigitalAddress getAddressFromSource(DigitalAddressSource2 addressSource, NotificationRecipient recipient, Notification notification) {
+    public DigitalAddress getAddressFromSource(DigitalAddressSource addressSource, NotificationRecipient recipient, Notification notification) {
         DigitalAddress destinationAddress;
         switch (addressSource) {
             case PLATFORM:

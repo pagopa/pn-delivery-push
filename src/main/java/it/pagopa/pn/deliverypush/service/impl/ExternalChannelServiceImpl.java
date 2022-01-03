@@ -4,7 +4,7 @@ import it.pagopa.pn.api.dto.events.*;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource2;
+import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.api.dto.notification.timeline.EventId;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineEventId;
@@ -15,6 +15,8 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
+
+;
 
 @Slf4j
 public class ExternalChannelServiceImpl implements ExternalChannelService {
@@ -32,7 +34,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
      * Generate and send pec notification request to external channel
      */
     @Override
-    public void sendDigitalNotification(Notification notification, DigitalAddress digitalAddress, DigitalAddressSource2 addressSource, NotificationRecipient recipient,
+    public void sendDigitalNotification(Notification notification, DigitalAddress digitalAddress, DigitalAddressSource addressSource, NotificationRecipient recipient,
                                         int sentAttemptMade) {
         log.debug("Start sendDigitalNotification to external channel for iun {} id {}", notification.getIun(), recipient.getTaxId());
         String eventId = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(

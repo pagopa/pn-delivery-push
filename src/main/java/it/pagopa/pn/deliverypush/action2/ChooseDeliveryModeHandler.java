@@ -3,7 +3,7 @@ package it.pagopa.pn.deliverypush.action2;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource2;
+import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.timeline.ContactPhase;
 import it.pagopa.pn.api.dto.notification.timeline.SendCourtesyMessageDetails;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
@@ -20,6 +20,7 @@ import java.util.Optional;
 @Slf4j
 public class ChooseDeliveryModeHandler {
     public static final int START_SENT_ATTEMPT_NUMBER = 0;
+    public static final int READ_COURTESY_MESSAGE_WAITING_TIME = 5;
 
     private final AddressBookService addressBookService;
     private final TimelineService timelineService;
@@ -59,22 +60,22 @@ public class ChooseDeliveryModeHandler {
         //Verifico presenza indirizzo di piattaforma, ...
         if (platformAddress != null) {
             log.debug("Platform address is present, Digital workflow can be started");
-            addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource2.PLATFORM, true);
-            startDigitalWorkflow(notification, platformAddress, DigitalAddressSource2.PLATFORM, recipient);
+            addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource.PLATFORM, true);
+            startDigitalWorkflow(notification, platformAddress, DigitalAddressSource.PLATFORM, recipient);
         } else {
             log.debug("Platform address isn't present");
-            addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource2.PLATFORM, false);
+            addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource.PLATFORM, false);
 
             // ... se non lo trovo, verifico presenza indirizzo speciale, ...
             DigitalAddress specialAddress = recipient.getDigitalDomicile();
             if (specialAddress != null) {
                 log.debug("Special address is present, Digital workflow can be started");
 
-                startDigitalWorkflow(notification, specialAddress, DigitalAddressSource2.SPECIAL, recipient);
-                addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource2.SPECIAL, true);
+                startDigitalWorkflow(notification, specialAddress, DigitalAddressSource.SPECIAL, recipient);
+                addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource.SPECIAL, true);
             } else {
                 log.debug("Special address isn't present, need to get General address async");
-                addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource2.SPECIAL, false);
+                addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource.SPECIAL, false);
 
                 // ... se non lo trovo, lancio ricerca asincrona dell'indirizzo generale
                 publicRegistryService.sendRequestForGetAddress(iun, taxId, null, ContactPhase.CHOOSE_DELIVERY, START_SENT_ATTEMPT_NUMBER);
@@ -102,11 +103,11 @@ public class ChooseDeliveryModeHandler {
             NotificationRecipient recipient = notificationService.getRecipientFromNotification(notification, taxId);
             log.debug("Notification and recipient successfully obtained");
 
-            addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource2.GENERAL, true);
-            startDigitalWorkflow(notification, response.getDigitalAddress(), DigitalAddressSource2.GENERAL, recipient);
+            addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource.GENERAL, true);
+            startDigitalWorkflow(notification, response.getDigitalAddress(), DigitalAddressSource.GENERAL, recipient);
         } else {
             log.debug("General address is not present, digital workflow can't be started. Starting Analog Workflow");
-            addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource2.GENERAL, false);
+            addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource.GENERAL, false);
             scheduleAnalogWorkflow(iun, taxId);
         }
     }
@@ -118,7 +119,7 @@ public class ChooseDeliveryModeHandler {
      * @param digitalAddress User address
      * @param recipient      Notification recipient
      */
-    public void startDigitalWorkflow(Notification notification, DigitalAddress digitalAddress, DigitalAddressSource2 addressSource, NotificationRecipient recipient) {
+    public void startDigitalWorkflow(Notification notification, DigitalAddress digitalAddress, DigitalAddressSource addressSource, NotificationRecipient recipient) {
         log.info("Starting digital workflow for IUN {} id {} sending notification to external channel", notification.getIun(), recipient.getTaxId());
         externalChannelService.sendDigitalNotification(notification, digitalAddress, addressSource, recipient, START_SENT_ATTEMPT_NUMBER);
     }
@@ -137,7 +138,7 @@ public class ChooseDeliveryModeHandler {
 
         if (sendCourtesyMessageDetailsOpt.isPresent()) {
             SendCourtesyMessageDetails sendCourtesyMessageDetails = sendCourtesyMessageDetailsOpt.get();
-            schedulingDate = sendCourtesyMessageDetails.getSendDate().plus(5, ChronoUnit.DAYS);
+            schedulingDate = sendCourtesyMessageDetails.getSendDate().plus(READ_COURTESY_MESSAGE_WAITING_TIME, ChronoUnit.DAYS);
             log.info("Courtesy message is present, need to schedule analog workflow at {}", schedulingDate);
         } else {
             schedulingDate = Instant.now();
@@ -145,8 +146,8 @@ public class ChooseDeliveryModeHandler {
         }
         schedulerService.schedulEvent(iun, taxId, schedulingDate, ActionType.ANALOG_WORKFLOW);
     }
-    
-    private void addAvailabilitySourceToTimeline(String taxId, String iun, DigitalAddressSource2 special, boolean isAvailable) {
-        timelineService.addAvailabilitySourceToTimeline(taxId, iun, special, isAvailable, START_SENT_ATTEMPT_NUMBER);
+
+    private void addAvailabilitySourceToTimeline(String taxId, String iun, DigitalAddressSource addressSource, boolean isAvailable) {
+        timelineService.addAvailabilitySourceToTimeline(taxId, iun, addressSource, isAvailable, START_SENT_ATTEMPT_NUMBER);
     }
 }

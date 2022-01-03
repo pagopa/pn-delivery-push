@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class ExternalChannelResponseHandler {
-    private DigitalWorkFlowHandler digitalWorkFlowHandler;
-    private AnalogWorkflowHandler analogWorkflowHandler;
+    private final DigitalWorkFlowHandler digitalWorkFlowHandler;
+    private final AnalogWorkflowHandler analogWorkflowHandler;
 
     public ExternalChannelResponseHandler(DigitalWorkFlowHandler digitalWorkFlowHandler, AnalogWorkflowHandler analogWorkflowHandler) {
         this.digitalWorkFlowHandler = digitalWorkFlowHandler;
@@ -23,9 +23,11 @@ public class ExternalChannelResponseHandler {
      * @param response Notification response
      */
     @StreamListener(condition = "EXTERNAL_CHANNEL_RESPONSE")
-    public void extChannelResponseReceiverForDigital(ExtChannelResponse response) {
+    public void extChannelResponseReceiver(ExtChannelResponse response) {
         log.info("Get response from external channel for iun {} id {} with status {}", response.getIun(), response.getTaxId(), response.getResponseStatus());
-        if (response.getDigitalUsedAddress() != null)
+        //TODO Verificare se è possibile verificare in un altro modo il digitale e l'analogico
+        
+        if (response.getDigitalUsedAddress() != null && response.getDigitalUsedAddress().getAddress() != null)
             digitalWorkFlowHandler.handleExternalChannelResponse(response);
         else
             analogWorkflowHandler.extChannelResponseHandler(response);

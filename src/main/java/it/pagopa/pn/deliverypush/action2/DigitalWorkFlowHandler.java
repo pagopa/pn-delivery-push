@@ -6,11 +6,10 @@ import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.AttemptAddressInfo;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource2;
+import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.timeline.ContactPhase;
 import it.pagopa.pn.api.dto.notification.timeline.DeliveryMode;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.*;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +22,7 @@ import java.time.temporal.ChronoUnit;
 @Slf4j
 public class DigitalWorkFlowHandler {
     public static final int MAX_ATTEMPT_NUMBER = 2;
+    public static final int SECOND_NOTIFICATION_WORKFLOW_WAITING_TIME = 7;
 
     private final CompletionWorkFlowHandler completionWorkFlow;
     private final ExternalChannelService externalChannelService;
@@ -69,9 +69,6 @@ public class DigitalWorkFlowHandler {
                     log.info("Start second attempt for source {}", nextAddressInfo.getAddressSource());
                     startNextWorkflow7daysAfterLastAttempt(iun, taxId, nextAddressInfo, nextAddressInfo.getSentAttemptMade());
                     break;
-                default:
-                    log.error("Is not possibile to have {} number of attempt. Iun {} id {}", nextAddressInfo.getSentAttemptMade(), iun, taxId);
-                    throw new PnInternalException("Is not possibile to have " + nextAddressInfo.getSentAttemptMade() + ". Iun " + iun + " id " + taxId);
             }
         } else {
             //Sono stati già effettuati tutti i tentativi possibili, la notificazione è quindi fallita
@@ -86,10 +83,18 @@ public class DigitalWorkFlowHandler {
         NotificationRecipient recipient = notificationService.getRecipientFromNotification(notification, taxId);
         log.debug("Get notification and recipient completed ");
 
-        if (DigitalAddressSource2.GENERAL.equals(nextAddressInfo.getAddressSource())) {
+        if (DigitalAddressSource.GENERAL.equals(nextAddressInfo.getAddressSource())) {
+            log.debug("Address is general");
             publicRegistryService.sendRequestForGetAddress(iun, taxId, DeliveryMode.DIGITAL, ContactPhase.SEND_ATTEMPT, sentAttemptMade);//general address need async call to get it
+
         } else {
-            sendNotificationOrStartNextWorkflowAction(nextAddressInfo.getAddressSource(), recipient, notification, sentAttemptMade);
+            log.debug("Address source is not general");
+
+            //Viene ottenuto l'indirizzo a partire dalla source
+            DigitalAddress destinationAddress = digitalService.getAddressFromSource(nextAddressInfo.getAddressSource(), recipient, notification);
+
+            //Viene Effettuato il check dell'indirizzo e l'eventuale send
+            checkAddressAndSend(recipient, notification, destinationAddress, nextAddressInfo.getAddressSource(), sentAttemptMade);
         }
     }
 
@@ -102,7 +107,7 @@ public class DigitalWorkFlowHandler {
      * @param nextAddressInfo Next Address source information
      */
     private void startNextWorkflow7daysAfterLastAttempt(String iun, String taxId, AttemptAddressInfo nextAddressInfo, int sentAttemptMade) {
-        Instant schedulingDate = nextAddressInfo.getLastAttemptDate().plus(7, ChronoUnit.DAYS);
+        Instant schedulingDate = nextAddressInfo.getLastAttemptDate().plus(SECOND_NOTIFICATION_WORKFLOW_WAITING_TIME, ChronoUnit.DAYS);
         //Vengono aggiunti 7 giorni alla data dell'ultimo tentativo effettuata per questa source
 
         if (Instant.now().isAfter(schedulingDate)) {
@@ -114,15 +119,6 @@ public class DigitalWorkFlowHandler {
             //Se la data è minore alla data odierna, bisogna attendere il completamento dei 7 giorni prima partire con un nuovo workflow per questa source
             schedulerService.schedulEvent(iun, taxId, schedulingDate, ActionType.DIGITAL_WORKFLOW_NEXT_ACTION);
         }
-    }
-
-    private void sendNotificationOrStartNextWorkflowAction(DigitalAddressSource2 addressSource, NotificationRecipient recipient, Notification notification, int sentAttemptMade) {
-        log.debug("Start sendNotificationOrStartNextWorkflowAction for addressSource {}", addressSource);
-
-        //Viene ottenuto l'indirizzo a partire dalla source
-        DigitalAddress destinationAddress = digitalService.getAddressFromSource(addressSource, recipient, notification);
-        //Viene Effettuato il check dell'indirizzo e l'eventuale send
-        checkAddressAndSend(recipient, notification, destinationAddress, addressSource, sentAttemptMade);
     }
 
     /**
@@ -138,19 +134,19 @@ public class DigitalWorkFlowHandler {
         NotificationRecipient recipient = notificationService.getRecipientFromNotification(notification, taxId);
 
         log.debug("Received general address response, get notification and recipient completed");
-        checkAddressAndSend(recipient, notification, response.getDigitalAddress(), DigitalAddressSource2.GENERAL, sentAttemptMade);
+        checkAddressAndSend(recipient, notification, response.getDigitalAddress(), DigitalAddressSource.GENERAL, sentAttemptMade);
     }
 
-    private void checkAddressAndSend(NotificationRecipient recipient, Notification notification, DigitalAddress address, DigitalAddressSource2 addressSource, int sentAttemptMade) {
+    private void checkAddressAndSend(NotificationRecipient recipient, Notification notification, DigitalAddress digitalAddress, DigitalAddressSource addressSource, int sentAttemptMade) {
         String iun = notification.getIun();
         String taxId = recipient.getTaxId();
 
-        if (address != null) {
+        if (digitalAddress != null && digitalAddress.getAddress() != null) {
             log.debug("Address is available, send notification to external channel");
 
             //Se l'indirizzo è disponibile, dunque valorizzato viene inviata la notifica ad external channel ...
             timelineService.addAvailabilitySourceToTimeline(taxId, iun, addressSource, true, sentAttemptMade);
-            externalChannelService.sendDigitalNotification(notification, address, addressSource, recipient, sentAttemptMade);
+            externalChannelService.sendDigitalNotification(notification, digitalAddress, addressSource, recipient, sentAttemptMade);
 
         } else {
             //... altrimenti si passa alla prossima workflow action

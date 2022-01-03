@@ -9,6 +9,7 @@ import it.pagopa.pn.api.dto.notification.timeline.ContactPhase;
 import it.pagopa.pn.api.dto.notification.timeline.DeliveryMode;
 import it.pagopa.pn.api.dto.notification.timeline.SendPaperFeedbackDetails;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.*;
 import lombok.extern.slf4j.Slf4j;
@@ -81,8 +82,8 @@ public class AnalogWorkflowHandler {
                 unreachableUser(iun, taxId);
                 break;
             default:
-                //TODO Gestire errore
-                break;
+                log.error("Specified attempt {} is not possibile", sentAttemptMade);
+                throw new PnInternalException("Specified attempt " + sentAttemptMade + " is not possibile");
         }
     }
 
@@ -108,8 +109,8 @@ public class AnalogWorkflowHandler {
                 publicRegistrySecondSendResponse(response, notification, recipient, sentAttemptMade);
                 break;
             default:
-                //TODO Gestire errore
-                break;
+                log.error("Specified attempt {} is not possibile", sentAttemptMade);
+                throw new PnInternalException("Specified attempt " + sentAttemptMade + " is not possibile");
         }
     }
 

@@ -1,5 +1,7 @@
 package it.pagopa.pn.deliverypush.action2;
 
+import it.pagopa.pn.api.dto.notification.timeline.ContactPhase;
+import it.pagopa.pn.api.dto.notification.timeline.DeliveryMode;
 import it.pagopa.pn.api.dto.notification.timeline.PublicRegistryCallDetails;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
@@ -36,7 +38,7 @@ public class PublicRegistryResponseHandler {
         log.info("Start handleResponse for correlationId {}", response.getCorrelationId());
 
         String correlationId = response.getCorrelationId();
-        String iun = correlationId.substring(0, correlationId.indexOf("_") - 1); //TODO Da modificare quando verrà risolta PN-533
+        String iun = correlationId.substring(0, correlationId.indexOf("_")); //TODO Da modificare quando verrà risolta PN-533
 
         //Viene ottenuto l'oggetto di timeline creato in fase di invio notifica al public registry
         Optional<PublicRegistryCallDetails> optTimeLinePublicRegistrySend = timelineService.getTimelineElement(iun, response.getCorrelationId(), PublicRegistryCallDetails.class);
@@ -49,8 +51,9 @@ public class PublicRegistryResponseHandler {
 
             log.debug(" timelineElement is present, id {} contactPhase {}", taxId, publicRegistryCallDetails.getContactPhase());
 
+            ContactPhase contactPhase = publicRegistryCallDetails.getContactPhase();
             //In base alla fase di contatto, inserita in timeline al momento dell'invio, viene scelto il percorso da prendere
-            switch (publicRegistryCallDetails.getContactPhase()) {
+            switch (contactPhase) {
                 case CHOOSE_DELIVERY:
                     //request has been sent during delivery selection
                     chooseDeliveryHandler.handleGeneralAddressResponse(response, iun, taxId);
@@ -66,22 +69,32 @@ public class PublicRegistryResponseHandler {
 
         } else {
             log.error("There isn't timelineElement for iun {} correlationId {}", iun, correlationId);
-            throw new PnInternalException("There isn't notification for iun " + iun + " correlationId " + correlationId);
+            throw new PnInternalException("There isn't timelineElement for iun " + iun + " correlationId " + correlationId);
         }
     }
 
     private void handleResponseForSendAttempt(PublicRegistryResponse response, String iun, PublicRegistryCallDetails publicRegistryCallDetails, String taxId) {
-        switch (publicRegistryCallDetails.getDeliveryMode()) {
-            case DIGITAL:
-                digitalWorkFlowHandler.handleGeneralAddressResponse(response, iun, publicRegistryCallDetails.getTaxId(), publicRegistryCallDetails.getSentAttemptMade());
-                break;
-            case ANALOG:
-                analogWorkflowHandler.handlePublicRegistryResponse(iun, taxId, response);
-                break;
-            default:
-                log.error("Specified deliveryMode {} does not exist for iun {} id {}", publicRegistryCallDetails.getDeliveryMode(), iun, taxId);
-                throw new PnInternalException("Specified deliveryMode " + publicRegistryCallDetails.getDeliveryMode() + " does not exist for iun " + iun + " id " + taxId);
+        if (publicRegistryCallDetails.getDeliveryMode() != null) {
+
+            switch (publicRegistryCallDetails.getDeliveryMode()) {
+                case DIGITAL:
+                    digitalWorkFlowHandler.handleGeneralAddressResponse(response, iun, publicRegistryCallDetails.getTaxId(), publicRegistryCallDetails.getSentAttemptMade());
+                    break;
+                case ANALOG:
+                    analogWorkflowHandler.handlePublicRegistryResponse(iun, taxId, response);
+                    break;
+                default:
+                    handleError(iun, publicRegistryCallDetails.getDeliveryMode(), taxId);
+            }
+        } else {
+            handleError(iun, publicRegistryCallDetails.getDeliveryMode(), taxId);
         }
+
+    }
+
+    private void handleError(String iun, DeliveryMode deliveryMode, String taxId) {
+        log.error("Specified deliveryMode {} does not exist for iun {} id {}", deliveryMode, iun, taxId);
+        throw new PnInternalException("Specified deliveryMode " + deliveryMode + " does not exist for iun " + iun + " id " + taxId);
     }
 
 

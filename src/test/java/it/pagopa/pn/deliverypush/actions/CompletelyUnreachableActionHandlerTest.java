@@ -5,6 +5,7 @@ import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
+import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFailed;
 import it.pagopa.pn.api.dto.notification.timeline.CompletlyUnreachableDetails;
@@ -15,7 +16,6 @@ import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -75,14 +75,14 @@ class CompletelyUnreachableActionHandlerTest {
 
         ArgumentCaptor<Action> actionArg = ArgumentCaptor.forClass(Action.class);
         Mockito.verify(actionsPool).scheduleFutureAction(actionArg.capture());
-        Assertions.assertEquals(ActionType.WAIT_FOR_RECIPIENT_TIMEOUT , actionArg.getValue().getType());
+        Assertions.assertEquals(ActionType.WAIT_FOR_RECIPIENT_TIMEOUT, actionArg.getValue().getType());
 
     }
 
     @ExtendWith(MockitoExtension.class)
     @Test
     void handleActionNotificationViewed() {
-       Mockito.when(timelineDao.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(timelineDao.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Optional.of(TimelineElement.builder()
                         .details(CompletlyUnreachableDetails.builder()
                                 .taxId("testIdRecipient")

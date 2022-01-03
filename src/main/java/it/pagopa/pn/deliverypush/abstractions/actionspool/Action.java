@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.abstractions.actionspool;
 
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
+import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import lombok.*;
 

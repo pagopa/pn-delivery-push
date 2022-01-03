@@ -1,23 +1,12 @@
 package it.pagopa.pn.deliverypush.actions;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Optional;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
 import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
 import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
+import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
@@ -27,8 +16,16 @@ import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.Optional;
 
 class SendPecActionHandlerTest {
     private MomProducer<PnExtChnPecEvent> pecRequestProducer;
@@ -38,7 +35,7 @@ class SendPecActionHandlerTest {
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private SendPecActionHandler handler;
     private ExtChnEventUtils extChnEventUtils;
-    
+
     @BeforeEach
     void setup() {
         pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
@@ -96,9 +93,9 @@ class SendPecActionHandlerTest {
 
         //Then
         //Mockito.verify(pecRequestProducer).push(Mockito.any(PnExtChnPecEvent.class));
-        Mockito.verify(pecRequestProducer).push( extChnEventUtils.buildSendPecRequest(Mockito.any(Action.class), 
-        		Mockito.any(Notification.class), Mockito.any(NotificationRecipient.class), Mockito.any(DigitalAddress.class) ) );
-       
+        Mockito.verify(pecRequestProducer).push(extChnEventUtils.buildSendPecRequest(Mockito.any(Action.class),
+                Mockito.any(Notification.class), Mockito.any(NotificationRecipient.class), Mockito.any(DigitalAddress.class)));
+
     }
 
     @Test
