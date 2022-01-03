@@ -61,7 +61,7 @@ class CompletionWorkFlowHandlerTest {
         Mockito.verify(timelineService).addSuccessDigitalWorkflowToTimeline(Mockito.anyString(), Mockito.anyString(), Mockito.any(DigitalAddress.class));
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
-        Mockito.verify(scheduler).schedulEvent(Mockito.anyString(), Mockito.anyString(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
+        Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyString(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
 
         Instant schedulingDateOk = notificationDate.plus(CompletionWorkFlowHandler.SCHEDULING_DAYS_SUCCESS_DIGITAL_REFINEMENT, ChronoUnit.DAYS);
         Assertions.assertEquals(schedulingDateOk, schedulingDateCaptor.getValue());
@@ -89,7 +89,7 @@ class CompletionWorkFlowHandlerTest {
         Mockito.verify(timelineService).addFailureDigitalWorkflowToTimeline(Mockito.anyString(), Mockito.anyString());
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
-        Mockito.verify(scheduler).schedulEvent(Mockito.anyString(), Mockito.anyString(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
+        Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyString(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
 
         Instant schedulingDateOk = notificationDate.plus(CompletionWorkFlowHandler.SCHEDULING_DAYS_FAILURE_DIGITAL_REFINEMENT, ChronoUnit.DAYS);
         Assertions.assertEquals(schedulingDateOk, schedulingDateCaptor.getValue());
@@ -109,7 +109,7 @@ class CompletionWorkFlowHandlerTest {
         Mockito.verify(timelineService).addSuccessAnalogWorkflowToTimeline(Mockito.anyString(), Mockito.anyString(), Mockito.any(PhysicalAddress.class));
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
-        Mockito.verify(scheduler).schedulEvent(Mockito.anyString(), Mockito.anyString(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
+        Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyString(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
 
         Instant schedulingDateOk = notificationDate.plus(CompletionWorkFlowHandler.SCHEDULING_DAYS_SUCCESS_ANALOG_REFINEMENT, ChronoUnit.DAYS);
         Assertions.assertEquals(schedulingDateOk, schedulingDateCaptor.getValue());
@@ -129,7 +129,7 @@ class CompletionWorkFlowHandlerTest {
         Mockito.verify(timelineService).addFailureAnalogWorkflowToTimeline(Mockito.anyString(), Mockito.anyString());
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
-        Mockito.verify(scheduler).schedulEvent(Mockito.anyString(), Mockito.anyString(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
+        Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyString(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
 
         Instant schedulingDateOk = notificationDate.plus(CompletionWorkFlowHandler.SCHEDULING_DAYS_SUCCESS_ANALOG_REFINEMENT, ChronoUnit.DAYS);
         Assertions.assertEquals(schedulingDateOk, schedulingDateCaptor.getValue());

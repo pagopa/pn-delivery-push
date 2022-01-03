@@ -15,8 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-@Slf4j
 @Service
+@Slf4j
 public class CourtesyMessageServiceImpl implements CourtesyMessageService {
     private final AddressBook2 addressBook;
     private final ExternalChannelService externalChannelService;

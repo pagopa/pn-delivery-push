@@ -149,7 +149,7 @@ public class ChooseDeliveryModeHandler {
             schedulingDate = Instant.now();
             log.info("Courtesy message is not present, analog workflow can be started now");
         }
-        schedulerService.schedulEvent(iun, taxId, schedulingDate, ActionType.ANALOG_WORKFLOW);
+        schedulerService.scheduleEvent(iun, taxId, schedulingDate, ActionType.ANALOG_WORKFLOW);
     }
 
     private void addAvailabilitySourceToTimeline(String taxId, String iun, DigitalAddressSource addressSource, boolean isAvailable) {

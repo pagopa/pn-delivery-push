@@ -6,9 +6,9 @@ import it.pagopa.pn.commons_delivery.middleware.failednotification.PaperNotifica
 import it.pagopa.pn.deliverypush.service.CompletelyUnreachableService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 @Slf4j
 public class CompletelyUnreachableServiceImpl implements CompletelyUnreachableService {
     private PaperNotificationFailedDao paperNotificationFailedDao;

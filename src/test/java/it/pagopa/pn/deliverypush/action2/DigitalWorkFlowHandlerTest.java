@@ -173,7 +173,7 @@ class DigitalWorkFlowHandlerTest {
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
 
-        Mockito.verify(schedulerService).schedulEvent(Mockito.anyString(), Mockito.anyString(),
+        Mockito.verify(schedulerService).scheduleEvent(Mockito.anyString(), Mockito.anyString(),
                 schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
 
 

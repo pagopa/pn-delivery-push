@@ -122,7 +122,7 @@ public class DigitalWorkFlowHandler {
         } else {
             log.info("Next workflow scheduling date {} is not passed. Need to schedule next workflow ", schedulingDate);
             //Se la data è minore alla data odierna, bisogna attendere il completamento dei 7 giorni prima partire con un nuovo workflow per questa source
-            schedulerService.schedulEvent(iun, taxId, schedulingDate, ActionType.DIGITAL_WORKFLOW_NEXT_ACTION);
+            schedulerService.scheduleEvent(iun, taxId, schedulingDate, ActionType.DIGITAL_WORKFLOW_NEXT_ACTION);
         }
     }
 

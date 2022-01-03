@@ -6,9 +6,11 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+@Service
 @Slf4j
 public class NotificationServiceImpl implements NotificationService {
     private final NotificationDao notificationDao;

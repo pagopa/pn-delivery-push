@@ -217,7 +217,7 @@ class ChooseDeliveryModeHandlerTest {
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
 
-        Mockito.verify(schedulerService).schedulEvent(Mockito.anyString(), Mockito.anyString(),
+        Mockito.verify(schedulerService).scheduleEvent(Mockito.anyString(), Mockito.anyString(),
                 schedulingDateCaptor.capture(), Mockito.any());
 
         Instant schedulingDateOk = courtesyMessageDate.plus(ChooseDeliveryModeHandler.READ_COURTESY_MESSAGE_WAITING_TIME, ChronoUnit.DAYS);
@@ -249,7 +249,7 @@ class ChooseDeliveryModeHandlerTest {
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
 
-        Mockito.verify(schedulerService).schedulEvent(Mockito.anyString(), Mockito.anyString(),
+        Mockito.verify(schedulerService).scheduleEvent(Mockito.anyString(), Mockito.anyString(),
                 schedulingDateCaptor.capture(), Mockito.any());
 
         Instant schedulingDateOk = Instant.now().truncatedTo(ChronoUnit.MINUTES);

@@ -13,11 +13,11 @@ import it.pagopa.pn.deliverypush.external.ExternalChannel;
 import it.pagopa.pn.deliverypush.service.ExternalChannelService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 
-;
-
+@Service
 @Slf4j
 public class ExternalChannelServiceImpl implements ExternalChannelService {
     private TimelineService timelineService;

@@ -18,13 +18,13 @@ import it.pagopa.pn.deliverypush.service.PublicRegistryService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
 
-;
-
+@Service
 @Slf4j
 public class DigitalWorkFlowServiceImpl implements DigitaWorkFlowService {
     private final TimelineService timelineService;

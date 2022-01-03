@@ -6,7 +6,9 @@ import it.pagopa.pn.deliverypush.external.PublicRegistry;
 import it.pagopa.pn.deliverypush.service.PublicRegistryService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
+@Service
 @Slf4j
 public class PublicRegistryServiceImpl implements PublicRegistryService {
     private final PublicRegistry publicRegistry;

@@ -127,7 +127,7 @@ public class CompletionWorkFlowHandler {
     private void scheduleRefinement(String iun, String taxId, Instant notificationDate, int schedulingDays) {
         Instant schedulingDate = notificationDate.plus(schedulingDays, ChronoUnit.DAYS);
         log.info("Schedule refinement in {}", schedulingDate);
-        scheduler.schedulEvent(iun, taxId, schedulingDate, ActionType.REFINEMENT_NOTIFICATION);
+        scheduler.scheduleEvent(iun, taxId, schedulingDate, ActionType.REFINEMENT_NOTIFICATION);
     }
 
 
