@@ -31,17 +31,19 @@ public class TimeLineServiceImpl implements TimelineService {
 
     @Override
     public void addTimelineElement(TimelineElement element) {
-
+        log.debug("Start getTimelineElement for IUN {} and timelineId {}", element.getIun(), element.getElementId());
+        timelineDao.addTimelineElement(element);
     }
 
     @Override
     public Optional<TimelineElement> getTimelineElement(String iun, String timelineId) {
-        return Optional.empty();
+        log.debug("Start getTimelineElement for IUN {} and timelineId {}", iun, timelineId);
+        return timelineDao.getTimelineElement(iun, timelineId);
     }
 
     @Override
     public <T> Optional<T> getTimelineElement(String iun, String timelineId, Class<T> timelineDetailsClass) {
-        log.debug("Start getTimelineElement for iun {} timelineId {}", iun, timelineId);
+        log.debug("Start getTimelineElement for IUN {} and timelineId {}", iun, timelineId);
 
         Optional<TimelineElement> row = this.timelineDao.getTimelineElement(iun, timelineId);
         return row.map(el -> timelineDetailsClass.cast(el.getDetails()));
@@ -51,6 +53,15 @@ public class TimeLineServiceImpl implements TimelineService {
     public Set<TimelineElement> getTimeline(String iun) {
         log.debug("Start getTimeline for iun {} ", iun);
         return this.timelineDao.getTimeline(iun);
+    }
+
+    @Override
+    public boolean isPresentTimeLineElement(String iun, String taxId, TimelineEventId timelineEventId) {
+        EventId eventId = EventId.builder()
+                .iun(iun)
+                .recipientId(taxId)
+                .build();
+        return this.timelineDao.getTimelineElement(iun, timelineEventId.buildEventId(eventId)).isPresent();
     }
 
     /**
@@ -63,6 +74,7 @@ public class TimeLineServiceImpl implements TimelineService {
      */
     @Override
     public void addAvailabilitySourceToTimeline(String taxId, String iun, DigitalAddressSource source, boolean isAvailable, int sentAttemptMade) {
+        log.info("Start addAvailabilitySourceToTimeline for IUN {} and id {}", iun, taxId);
 
         addTimelineElement(TimelineElement.builder()
                 .category(TimelineElementCategory.GET_ADDRESS)
@@ -89,6 +101,7 @@ public class TimeLineServiceImpl implements TimelineService {
 
     @Override
     public void addDigitalFailureAttemptToTimeline(ExtChannelResponse response) {
+        log.info("Start addDigitalFailureAttemptToTimeline for IUN {} and id {}", response.getIun(), response.getTaxId());
 
         addTimelineElement(TimelineElement.builder()
                 .iun(response.getIun())
@@ -103,7 +116,7 @@ public class TimeLineServiceImpl implements TimelineService {
 
     @Override
     public void addSendCourtesyMessageToTimeline(String taxId, String iun, DigitalAddress address, Instant sendDate, String eventId) {
-        log.debug("Add send courtesy message to timeline");
+        log.info("Start addSendCourtesyMessageToTimeline for IUN {} and id {}", iun, taxId);
 
         //Viene aggiunto l'invio alla timeline con un particolare elementId utile a ottenere tali elementi successivamente nel workflow (Start analog workflow)
         addTimelineElement(TimelineElement.builder()
@@ -121,7 +134,7 @@ public class TimeLineServiceImpl implements TimelineService {
 
     @Override
     public void addSendSimpleRegisteredLetterToTimeline(String taxId, String iun, PhysicalAddress address, String eventId) {
-        log.debug("Add send simple registered letter to timeline");
+        log.info("Start addSendSimpleRegisteredLetterToTimeline for IUN {} and id {}", iun, taxId);
 
         //Viene aggiunto l'invio alla timeline con un particolare elementId utile a ottenere tali elementi successivamente nel workflow (Start analog workflow)
         addTimelineElement(TimelineElement.builder()
@@ -138,6 +151,8 @@ public class TimeLineServiceImpl implements TimelineService {
 
     @Override
     public void addSendDigitalNotificationToTimeline(DigitalAddress digitalAddress, NotificationRecipient recipient, Notification notification, int sentAttemptMade, String eventId) {
+        log.info("Start addSendDigitalNotificationToTimeline for IUN {} and id {}", notification.getIun(), recipient.getTaxId());
+
         addTimelineElement(
                 TimelineElement.builder()
                         .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE)
@@ -156,6 +171,8 @@ public class TimeLineServiceImpl implements TimelineService {
     @Override
     public void addSendAnalogNotificationToTimeline(PhysicalAddress address, NotificationRecipient recipient, Notification notification, boolean investigation,
                                                     int sentAttemptMade, String eventId) {
+        log.info("Start addSendAnalogNotificationToTimeline for IUN {} and id {}", notification.getIun(), recipient.getTaxId());
+
         addTimelineElement(
                 TimelineElement.builder()
                         .category(TimelineElementCategory.SEND_ANALOG_DOMICILE)
@@ -174,7 +191,7 @@ public class TimeLineServiceImpl implements TimelineService {
 
     @Override
     public void addSuccessDigitalWorkflowToTimeline(String taxId, String iun, DigitalAddress address) {
-        log.debug("AddSuccessWorkflowToTimeline for iun {} id {}", iun, taxId);
+        log.info("Start addSuccessDigitalWorkflowToTimeline for IUN {} and id {}", iun, taxId);
 
         addTimelineElement(TimelineElement.builder()
                 .category(TimelineElementCategory.DIGITAL_SUCCESS_WORKFLOW)
@@ -195,7 +212,7 @@ public class TimeLineServiceImpl implements TimelineService {
 
     @Override
     public void addFailureDigitalWorkflowToTimeline(String taxId, String iun) {
-        log.debug("Add Failure Workflow To Timeline for iun {} id {}", iun, taxId);
+        log.info("Start addFailureDigitalWorkflowToTimeline for IUN {} and id {}", iun, taxId);
 
         addTimelineElement(TimelineElement.builder()
                 .category(TimelineElementCategory.DIGITAL_FAILURE_WORKFLOW)
@@ -215,6 +232,8 @@ public class TimeLineServiceImpl implements TimelineService {
 
     @Override
     public void addSuccessAnalogWorkflowToTimeline(String taxId, String iun, PhysicalAddress address) {
+        log.info("Start addSuccessAnalogWorkflowToTimeline for IUN {} and id {}", iun, taxId);
+
         addTimelineElement(TimelineElement.builder()
                 .category(TimelineElementCategory.ANALOG_SUCCESS_WORKFLOW)
                 .iun(iun)
@@ -234,6 +253,8 @@ public class TimeLineServiceImpl implements TimelineService {
 
     @Override
     public void addFailureAnalogWorkflowToTimeline(String taxId, String iun) {
+        log.info("Start addFailureAnalogWorkflowToTimeline for IUN {} and id {}", iun, taxId);
+
         addTimelineElement(TimelineElement.builder()
                 .category(TimelineElementCategory.ANALOG_FAILURE_WORKFLOW)
                 .iun(iun)
@@ -252,6 +273,8 @@ public class TimeLineServiceImpl implements TimelineService {
 
     @Override
     public void addPublicRegistryResponseCallToTimeline(String iun, String taxId, PublicRegistryResponse response) {
+        log.info("Start addPublicRegistryResponseCallToTimeline for IUN {} and id {}", iun, taxId);
+
         addTimelineElement(TimelineElement.builder()
                 .iun(iun)
                 .elementId(response.getCorrelationId())
@@ -267,6 +290,8 @@ public class TimeLineServiceImpl implements TimelineService {
 
     @Override
     public void addPublicRegistryCallToTimeline(String iun, String taxId, String eventId, DeliveryMode deliveryMode, ContactPhase contactPhase, int sentAttemptMade) {
+        log.info("Start addPublicRegistryCallToTimeline for IUN {} and id {}", iun, taxId);
+
         addTimelineElement(TimelineElement.builder()
                 .iun(iun)
                 .elementId(eventId)
@@ -282,6 +307,8 @@ public class TimeLineServiceImpl implements TimelineService {
 
     @Override
     public void addAnalogFailureAttemptToTimeline(ExtChannelResponse response, int sentAttemptMade) {
+        log.info("Start addAnalogFailureAttemptToTimeline for IUN {} and id {}", response.getIun(), response.getTaxId());
+
         String iun = response.getIun();
         String taxId = response.getTaxId();
 
@@ -309,6 +336,7 @@ public class TimeLineServiceImpl implements TimelineService {
     }
 
     public void addAcceptedRequestToTimeline(Notification notification, String taxId) {
+        log.info("Start addAcceptedRequestToTimeline for IUN {} and id {}", notification.getIun(), taxId);
 
         addTimelineElement(TimelineElement.builder()
                 .category(TimelineElementCategory.REQUEST_ACCEPTED)
@@ -331,5 +359,61 @@ public class TimeLineServiceImpl implements TimelineService {
                 .build());
     }
 
+    @Override
+    public void addNotificationViewedToTimeline(String iun, String taxId) {
+        log.info("Start addNotificationViewedToTimeline for IUN {} and id {}", iun, taxId);
+        addTimelineElement(TimelineElement.builder()
+                .category(TimelineElementCategory.NOTIFICATION_VIEWED)
+                .timestamp(Instant.now())
+                .iun(iun)
+                .elementId(TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recipientId(taxId)
+                                .build()))
+                .details(NotificationViewedDetails.builder()
+                        .taxId(taxId)
+                        .build()
+                )
+                .build());
+    }
+
+    @Override
+    public void addCompletelyUnreachableToTimeline(String iun, String taxId) {
+        log.info("Start addCompletelyUnreachableToTimeline for IUN {} and id {}", iun, taxId);
+        addTimelineElement(TimelineElement.builder()
+                .category(TimelineElementCategory.COMPLETELY_UNREACHABLE)
+                .timestamp(Instant.now())
+                .iun(iun)
+                .elementId(TimelineEventId.COMPLETELY_UNREACHABLE.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recipientId(taxId)
+                                .build()))
+                .details(CompletlyUnreachableDetails.builder()
+                        .taxId(taxId)
+                        .build()
+                )
+                .build());
+    }
+
+    @Override
+    public void addRefinementToTimeline(String iun, String taxId) {
+        log.info("Start addRefinementToTimeline for IUN {} and id {}", iun, taxId);
+        addTimelineElement(TimelineElement.builder()
+                .category(TimelineElementCategory.REFINEMENT)
+                .timestamp(Instant.now())
+                .iun(iun)
+                .elementId(TimelineEventId.REFINEMENT.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recipientId(taxId)
+                                .build()))
+                .details(RefinementDetails.builder()
+                        .taxId(taxId)
+                        .build()
+                )
+                .build());
+    }
 
 }

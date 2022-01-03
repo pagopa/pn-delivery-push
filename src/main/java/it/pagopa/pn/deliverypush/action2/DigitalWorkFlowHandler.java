@@ -8,11 +8,11 @@ import it.pagopa.pn.api.dto.notification.address.AttemptAddressInfo;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.timeline.ContactPhase;
-import it.pagopa.pn.api.dto.notification.timeline.DeliveryMode;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -33,8 +33,9 @@ public class DigitalWorkFlowHandler {
     private final TimelineService timelineService;
     private final PublicRegistryService publicRegistryService;
 
-    public DigitalWorkFlowHandler(CompletionWorkFlowHandler completionWorkFlow, ExternalChannelService externalChannelService, NotificationService notificationService,
-                                  SchedulerService schedulerService, DigitaWorkFlowService digitalService, CompletionWorkFlowHandler completionWorkflow,
+    public DigitalWorkFlowHandler(CompletionWorkFlowHandler completionWorkFlow, ExternalChannelService externalChannelService,
+                                  NotificationService notificationService, SchedulerService schedulerService,
+                                  DigitaWorkFlowService digitalService, CompletionWorkFlowHandler completionWorkflow,
                                   TimelineService timelineService, PublicRegistryService publicRegistryService) {
         this.completionWorkFlow = completionWorkFlow;
         this.externalChannelService = externalChannelService;
@@ -52,6 +53,7 @@ public class DigitalWorkFlowHandler {
      * @param iun   Notification unique identifier
      * @param taxId User identifier
      */
+    @StreamListener(condition = "DIGITAL_WORKFLOW")
     public void nextWorkFlowAction(String iun, String taxId) {
         log.info("Next Digital workflow action for iun {} id {}", iun, taxId);
 
@@ -78,6 +80,7 @@ public class DigitalWorkFlowHandler {
     }
 
     private void checkAndSendNotification(String iun, String taxId, AttemptAddressInfo nextAddressInfo, int sentAttemptMade) {
+        log.info("Start checkAndSendNotification for iun {} id {}", iun, taxId);
 
         Notification notification = notificationService.getNotificationByIun(iun);
         NotificationRecipient recipient = notificationService.getRecipientFromNotification(notification, taxId);
@@ -85,14 +88,14 @@ public class DigitalWorkFlowHandler {
 
         if (DigitalAddressSource.GENERAL.equals(nextAddressInfo.getAddressSource())) {
             log.debug("Address is general");
-            publicRegistryService.sendRequestForGetAddress(iun, taxId, DeliveryMode.DIGITAL, ContactPhase.SEND_ATTEMPT, sentAttemptMade);//general address need async call to get it
+            publicRegistryService.sendRequestForGetDigitalAddress(iun, taxId, ContactPhase.SEND_ATTEMPT, sentAttemptMade);//general address need async call to get it
 
         } else {
             log.debug("Address source is not general");
 
             //Viene ottenuto l'indirizzo a partire dalla source
             DigitalAddress destinationAddress = digitalService.getAddressFromSource(nextAddressInfo.getAddressSource(), recipient, notification);
-
+            log.info("Get address completed");
             //Viene Effettuato il check dell'indirizzo e l'eventuale send
             checkAddressAndSend(recipient, notification, destinationAddress, nextAddressInfo.getAddressSource(), sentAttemptMade);
         }
@@ -107,15 +110,17 @@ public class DigitalWorkFlowHandler {
      * @param nextAddressInfo Next Address source information
      */
     private void startNextWorkflow7daysAfterLastAttempt(String iun, String taxId, AttemptAddressInfo nextAddressInfo, int sentAttemptMade) {
+        log.info("Start startNextWorkflow7daysAfterLastAttempt for iun {} id {}", iun, taxId);
+
         Instant schedulingDate = nextAddressInfo.getLastAttemptDate().plus(SECOND_NOTIFICATION_WORKFLOW_WAITING_TIME, ChronoUnit.DAYS);
         //Vengono aggiunti 7 giorni alla data dell'ultimo tentativo effettuata per questa source
 
         if (Instant.now().isAfter(schedulingDate)) {
-            log.debug("Next workflow scheduling date {} is passed. Start next workflow ", schedulingDate);
+            log.info("Next workflow scheduling date {} is passed. Start next workflow ", schedulingDate);
             //Se la data odierna è successiva alla data ottenuta in precedenza, non c'è necessità di schedulare, perchè i 7 giorni necessari di attesa dopo il primo tentativo risultano essere già passati
             checkAndSendNotification(iun, taxId, nextAddressInfo, sentAttemptMade);
         } else {
-            log.debug("Next workflow scheduling date {} is not passed. Need to schedule next workflow ", schedulingDate);
+            log.info("Next workflow scheduling date {} is not passed. Need to schedule next workflow ", schedulingDate);
             //Se la data è minore alla data odierna, bisogna attendere il completamento dei 7 giorni prima partire con un nuovo workflow per questa source
             schedulerService.schedulEvent(iun, taxId, schedulingDate, ActionType.DIGITAL_WORKFLOW_NEXT_ACTION);
         }
@@ -129,6 +134,7 @@ public class DigitalWorkFlowHandler {
      * @param taxId    User identifier
      */
     public void handleGeneralAddressResponse(PublicRegistryResponse response, String iun, String taxId, int sentAttemptMade) {
+        log.info("Start handleGeneralAddressResponse for iun {} id {}", iun, taxId);
 
         Notification notification = notificationService.getNotificationByIun(iun);
         NotificationRecipient recipient = notificationService.getRecipientFromNotification(notification, taxId);
@@ -140,9 +146,10 @@ public class DigitalWorkFlowHandler {
     private void checkAddressAndSend(NotificationRecipient recipient, Notification notification, DigitalAddress digitalAddress, DigitalAddressSource addressSource, int sentAttemptMade) {
         String iun = notification.getIun();
         String taxId = recipient.getTaxId();
+        log.info("Start checkAddressAndSend for iun {} id {}", iun, taxId);
 
         if (digitalAddress != null && digitalAddress.getAddress() != null) {
-            log.debug("Address is available, send notification to external channel");
+            log.info("Address is available, send notification to external channel");
 
             //Se l'indirizzo è disponibile, dunque valorizzato viene inviata la notifica ad external channel ...
             timelineService.addAvailabilitySourceToTimeline(taxId, iun, addressSource, true, sentAttemptMade);
@@ -150,7 +157,7 @@ public class DigitalWorkFlowHandler {
 
         } else {
             //... altrimenti si passa alla prossima workflow action
-            log.debug("Address is not available, need to start next workflow action ");
+            log.info("Address is not available, need to start next workflow action ");
 
             timelineService.addAvailabilitySourceToTimeline(taxId, iun, addressSource, false, sentAttemptMade);
             nextWorkFlowAction(iun, taxId);
@@ -159,17 +166,18 @@ public class DigitalWorkFlowHandler {
 
     public void handleExternalChannelResponse(ExtChannelResponse response) {
         //Conservare ricevuta PEC //TODO capire cosa si intende
+        log.info("Start handleExternalChannelResponse for iun {} id {}", response.getIun(), response.getTaxId());
 
         switch (response.getResponseStatus()) {
             case OK:
-                log.info("Notification sent successfully, starting completion workflow ");
+                log.info("Notification sent successfully, starting completion workflow");
                 //La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
                 completionWorkflow.completionDigitalWorkflow(response.getTaxId(), response.getIun(), response.getNotificationDate(), response.getDigitalUsedAddress(), EndWorkflowStatus.SUCCESS);
                 break;
             case KO:
                 //Non è stato possibile effettuare la notificazione, si passa al prossimo step del workflow
                 timelineService.addDigitalFailureAttemptToTimeline(response);
-                log.info("Notificazione failed, starting next workflow action ");
+                log.info("Notificazione failed, starting next workflow action");
                 nextWorkFlowAction(response.getIun(), response.getTaxId());
                 break;
         }

@@ -20,8 +20,8 @@ public class PublicRegistryResponseHandler {
     private final DigitalWorkFlowHandler digitalWorkFlowHandler;
     private final AnalogWorkflowHandler analogWorkflowHandler;
 
-    public PublicRegistryResponseHandler(TimelineService timelineService, ChooseDeliveryModeHandler chooseDeliveryHandler, DigitalWorkFlowHandler digitalWorkFlowHandler,
-                                         AnalogWorkflowHandler analogWorkflowHandler) {
+    public PublicRegistryResponseHandler(TimelineService timelineService, ChooseDeliveryModeHandler chooseDeliveryHandler,
+                                         DigitalWorkFlowHandler digitalWorkFlowHandler, AnalogWorkflowHandler analogWorkflowHandler) {
         this.timelineService = timelineService;
         this.chooseDeliveryHandler = chooseDeliveryHandler;
         this.digitalWorkFlowHandler = digitalWorkFlowHandler;
@@ -35,10 +35,10 @@ public class PublicRegistryResponseHandler {
      */
     @StreamListener(condition = "PUBLIC_REGISTRY_RESPONSE")
     public void handleResponse(PublicRegistryResponse response) {
-        log.info("Start handleResponse for correlationId {}", response.getCorrelationId());
 
         String correlationId = response.getCorrelationId();
         String iun = correlationId.substring(0, correlationId.indexOf("_")); //TODO Da modificare quando verrà risolta PN-533
+        log.info("Start handleResponse for correlationId {} iun {}", response.getCorrelationId(), iun);
 
         //Viene ottenuto l'oggetto di timeline creato in fase di invio notifica al public registry
         Optional<PublicRegistryCallDetails> optTimeLinePublicRegistrySend = timelineService.getTimelineElement(iun, response.getCorrelationId(), PublicRegistryCallDetails.class);
@@ -49,7 +49,7 @@ public class PublicRegistryResponseHandler {
 
             timelineService.addPublicRegistryResponseCallToTimeline(iun, taxId, response);
 
-            log.debug(" timelineElement is present, id {} contactPhase {}", taxId, publicRegistryCallDetails.getContactPhase());
+            log.info("TimelineElement is present, id {} contactPhase {}", taxId, publicRegistryCallDetails.getContactPhase());
 
             ContactPhase contactPhase = publicRegistryCallDetails.getContactPhase();
             //In base alla fase di contatto, inserita in timeline al momento dell'invio, viene scelto il percorso da prendere
@@ -60,7 +60,7 @@ public class PublicRegistryResponseHandler {
                     break;
                 case SEND_ATTEMPT:
                     //request has been sent in digital or analog workflow
-                    handleResponseForSendAttempt(response, iun, publicRegistryCallDetails, taxId);
+                    handleResponseForSendAttempt(response, iun, publicRegistryCallDetails);
                     break;
                 default:
                     log.error("Specified contactPhase {} does not exist for correlationId {}", publicRegistryCallDetails.getContactPhase(), correlationId);
@@ -73,7 +73,11 @@ public class PublicRegistryResponseHandler {
         }
     }
 
-    private void handleResponseForSendAttempt(PublicRegistryResponse response, String iun, PublicRegistryCallDetails publicRegistryCallDetails, String taxId) {
+    private void handleResponseForSendAttempt(PublicRegistryResponse response, String iun, PublicRegistryCallDetails publicRegistryCallDetails) {
+        String taxId = publicRegistryCallDetails.getTaxId();
+
+        log.info("Start handleResponseForSendAttempt iun {} id {} deliveryMode {}", iun, taxId, publicRegistryCallDetails.getDeliveryMode());
+
         if (publicRegistryCallDetails.getDeliveryMode() != null) {
 
             switch (publicRegistryCallDetails.getDeliveryMode()) {

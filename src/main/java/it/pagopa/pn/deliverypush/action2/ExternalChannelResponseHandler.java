@@ -25,8 +25,8 @@ public class ExternalChannelResponseHandler {
     @StreamListener(condition = "EXTERNAL_CHANNEL_RESPONSE")
     public void extChannelResponseReceiver(ExtChannelResponse response) {
         log.info("Get response from external channel for iun {} id {} with status {}", response.getIun(), response.getTaxId(), response.getResponseStatus());
-        //TODO Verificare se è possibile verificare in un altro modo il digitale e l'analogico
-        
+        //TODO Capire se è possibile verificare in un altro modo il digitale e l'analogico
+
         if (response.getDigitalUsedAddress() != null && response.getDigitalUsedAddress().getAddress() != null)
             digitalWorkFlowHandler.handleExternalChannelResponse(response);
         else

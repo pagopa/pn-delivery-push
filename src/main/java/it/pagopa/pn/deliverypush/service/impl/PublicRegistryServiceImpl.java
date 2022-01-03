@@ -27,22 +27,40 @@ public class PublicRegistryServiceImpl implements PublicRegistryService {
      * @param contactPhase  Process phase where the request is sent. CHOOSE_DELIVERY -> request sent during delivery selection,  SEND_ATTEMPT ->  request Sent in Digital or Analogic workflow
      */
     @Override
-    public void sendRequestForGetAddress(String iun, String taxId, DeliveryMode deliveryMode, ContactPhase contactPhase, int sentAttemptMade) {
-        log.debug("Start sendRequestForGetAddress for IUN {} id {} ", iun, taxId);
+    public void sendRequestForGetDigitalAddress(String iun, String taxId, ContactPhase contactPhase, int sentAttemptMade) {
+        log.info("Start sendRequestForGetDigitalAddress for IUN {} id {} ", iun, taxId);
 
         String correlationId = String.format(
                 "%s_%s_%s_%s_%d",
                 iun,
                 taxId,
-                deliveryMode,
+                DeliveryMode.DIGITAL,
                 contactPhase,
                 sentAttemptMade
         );
 
-        publicRegistry.sendRequest(iun, taxId);
-        timelineService.addPublicRegistryCallToTimeline(iun, taxId, correlationId, deliveryMode, contactPhase, sentAttemptMade); //L'inserimento in timeline ha senso portarlo in publicRegistrySender
+        publicRegistry.sendRequestForGetDigitalAddress(taxId, correlationId);
+        timelineService.addPublicRegistryCallToTimeline(iun, taxId, correlationId, DeliveryMode.DIGITAL, contactPhase, sentAttemptMade);
 
         log.debug("End sendRequestForGetAddress for IUN {} id {} correlationId {}", iun, taxId, correlationId);
     }
 
+    @Override
+    public void sendRequestForGetPhysicalAddress(String iun, String taxId, int sentAttemptMade) {
+        log.info("Start sendRequestForGetPhysicalAddress for IUN {} id {} ", iun, taxId);
+
+        String correlationId = String.format(
+                "%s_%s_%s_%s_%d",
+                iun,
+                taxId,
+                DeliveryMode.ANALOG,
+                ContactPhase.SEND_ATTEMPT,
+                sentAttemptMade
+        );
+
+        publicRegistry.sendRequestForGetPhysicalAddress(taxId, correlationId);
+        timelineService.addPublicRegistryCallToTimeline(iun, taxId, correlationId, DeliveryMode.ANALOG, ContactPhase.SEND_ATTEMPT, sentAttemptMade);
+
+        log.debug("End sendRequestForGetPhysicalAddress for IUN {} id {} correlationId {}", iun, taxId, correlationId);
+    }
 }

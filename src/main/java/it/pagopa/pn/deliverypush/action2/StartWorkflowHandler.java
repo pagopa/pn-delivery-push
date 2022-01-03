@@ -20,8 +20,9 @@ public class StartWorkflowHandler {
     private final ChooseDeliveryModeHandler chooseDeliveryType;
     private final TimelineService timelineService;
 
-    public StartWorkflowHandler(LegalFactUtils legalFactUtils, NotificationService notificationService, CourtesyMessageService courtesyMessageService,
-                                ChooseDeliveryModeHandler chooseDeliveryType, TimelineService timelineService) {
+    public StartWorkflowHandler(LegalFactUtils legalFactUtils, NotificationService notificationService,
+                                CourtesyMessageService courtesyMessageService, ChooseDeliveryModeHandler chooseDeliveryType,
+                                TimelineService timelineService) {
         this.legalFactUtils = legalFactUtils;
         this.notificationService = notificationService;
         this.courtesyMessageService = courtesyMessageService;
@@ -38,24 +39,18 @@ public class StartWorkflowHandler {
     public void startWorkflow(String iun) {
         log.info("Start notification process for IUN {}", iun);
 
-        try {
-            Notification notification = notificationService.getNotificationByIun(iun);
-            legalFactUtils.saveNotificationReceivedLegalFact(notification);
+        Notification notification = notificationService.getNotificationByIun(iun);
+        legalFactUtils.saveNotificationReceivedLegalFact(notification);
 
-            for (NotificationRecipient recipient : notification.getRecipients()) {
-                timelineService.addAcceptedRequestToTimeline(notification, recipient.getTaxId());
-                //Per ogni recipient della notifica viene inviato il messaggio di cortesia ...
-                courtesyMessageService.sendCourtesyMessage(notification, recipient);
-                //... e viene inizializzato il processo di scelta della tipologia di notificazione
-                chooseDeliveryType.chooseDeliveryTypeAndStartWorkflow(notification, recipient);
-            }
-
-        } catch (RuntimeException ex) {
-            log.error("Exception ex {}", ex.getMessage());
-            throw ex;
-            //TODO Capire come gestire l'exception se rilanciare l'exception e far ritornare il message in coda, se avvisare dell'avvenuto errore ecc.
+        for (NotificationRecipient recipient : notification.getRecipients()) {
+            log.info("Notification recipient is {}", recipient.getTaxId());
+            // Per ogni recipient della notifica viene aggiunta l'accettazione della richiesta alla timeline ...
+            timelineService.addAcceptedRequestToTimeline(notification, recipient.getTaxId());
+            //... inviato il messaggio di cortesia ...
+            courtesyMessageService.sendCourtesyMessage(notification, recipient);
+            //... e inizializzato il processo di scelta della tipologia di notificazione
+            chooseDeliveryType.chooseDeliveryTypeAndStartWorkflow(notification, recipient);
         }
-
     }
 
 }

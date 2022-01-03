@@ -9,6 +9,7 @@ import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.api.dto.notification.timeline.ContactPhase;
 import it.pagopa.pn.api.dto.notification.timeline.DeliveryMode;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineEventId;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
 
 import java.time.Instant;
@@ -16,6 +17,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface TimelineService {
+
     void addTimelineElement(TimelineElement element);
 
     Optional<TimelineElement> getTimelineElement(String iun, String timelineId);
@@ -23,6 +25,8 @@ public interface TimelineService {
     <T> Optional<T> getTimelineElement(String iun, String timelineId, Class<T> timelineDetailsClass);
 
     Set<TimelineElement> getTimeline(String iun);
+
+    boolean isPresentTimeLineElement(String iun, String taxId, TimelineEventId timelineEventId);
 
     void addAcceptedRequestToTimeline(Notification notification, String taxId);
 
@@ -53,4 +57,9 @@ public interface TimelineService {
 
     void addAnalogFailureAttemptToTimeline(ExtChannelResponse response, int sentAttemptMade);
 
+    void addNotificationViewedToTimeline(String iun, String taxId);
+
+    void addCompletelyUnreachableToTimeline(String iun, String taxId);
+
+    void addRefinementToTimeline(String iun, String taxId);
 }

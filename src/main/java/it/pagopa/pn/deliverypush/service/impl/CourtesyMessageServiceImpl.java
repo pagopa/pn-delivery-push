@@ -32,18 +32,18 @@ public class CourtesyMessageServiceImpl implements CourtesyMessageService {
      * Get recipient addresses and send courtesy messages.
      */
     public void sendCourtesyMessage(Notification notification, NotificationRecipient recipient) {
-        log.debug("Start sendCourtesyMessage IUN {} id {} ", notification.getIun(), recipient.getTaxId());
+        log.info("Start sendCourtesyMessage IUN {} id {} ", notification.getIun(), recipient.getTaxId());
 
         //Vengono ottenuti tutti gli indirizzi di cortesia per il recipient ...
         addressBook.getAddresses(recipient.getTaxId(), notification.getSender())
                 .ifPresent(addressBookItem -> {
                     int index = 0;
                     for (DigitalAddress courtesyAddress : addressBookItem.getCourtesyAddresses()) {
-                        //... Per ogni indirizzo di cortesia ottenuto viene inviata la notifica del messaggio di cortesia tramite external channel
+                        log.info("send courtesy message for address index {}", index);
 
+                        //... Per ogni indirizzo di cortesia ottenuto viene inviata la notifica del messaggio di cortesia tramite external channel
                         String eventId = getTimelineElementId(recipient.getTaxId(), notification.getIun(), index);
                         externalChannelService.sendCourtesyNotification(notification, courtesyAddress, recipient, eventId);
-
                         index++;
                     }
 

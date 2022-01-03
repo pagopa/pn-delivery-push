@@ -22,8 +22,6 @@ class AnalogWorkflowHandlerTest {
     @Mock
     private CompletionWorkFlowHandler completionWorkFlow;
     @Mock
-    private SchedulerService schedulerService;
-    @Mock
     private AnalogWorkflowService analogService;
     @Mock
     private PublicRegistryService publicRegistryService;
@@ -35,7 +33,7 @@ class AnalogWorkflowHandlerTest {
     @BeforeEach
     public void setup() {
         handler = new AnalogWorkflowHandler(notificationService, externalChannelService, completionWorkFlow,
-                schedulerService, analogService, publicRegistryService,
+                analogService, publicRegistryService,
                 timeLineService);
     }
 

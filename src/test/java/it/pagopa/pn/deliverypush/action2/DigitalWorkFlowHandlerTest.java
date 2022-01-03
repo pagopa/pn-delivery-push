@@ -11,7 +11,6 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.api.dto.notification.timeline.ContactPhase;
-import it.pagopa.pn.api.dto.notification.timeline.DeliveryMode;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.*;
@@ -74,8 +73,8 @@ class DigitalWorkFlowHandlerTest {
 
         handler.nextWorkFlowAction("iun", "text_rec");
 
-        Mockito.verify(publicRegistryService).sendRequestForGetAddress(Mockito.anyString(), Mockito.anyString(),
-                Mockito.any(DeliveryMode.class), Mockito.any(ContactPhase.class), Mockito.anyInt());
+        Mockito.verify(publicRegistryService).sendRequestForGetDigitalAddress(Mockito.anyString(), Mockito.anyString(),
+                Mockito.any(ContactPhase.class), Mockito.anyInt());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -198,8 +197,8 @@ class DigitalWorkFlowHandlerTest {
 
         handler.nextWorkFlowAction("iun", "text_rec");
 
-        Mockito.verify(publicRegistryService).sendRequestForGetAddress(Mockito.anyString(), Mockito.anyString(),
-                Mockito.any(DeliveryMode.class), Mockito.any(ContactPhase.class), Mockito.anyInt());
+        Mockito.verify(publicRegistryService).sendRequestForGetDigitalAddress(Mockito.anyString(), Mockito.anyString(),
+                Mockito.any(ContactPhase.class), Mockito.anyInt());
     }
 
     @ExtendWith(MockitoExtension.class)

@@ -22,19 +22,22 @@ public class CompletionWorkFlowHandler {
     public static final int SCHEDULING_DAYS_SUCCESS_ANALOG_REFINEMENT = 10;
     public static final int SCHEDULING_DAYS_FAILURE_ANALOG_REFINEMENT = 10;
 
-    private LegalFactGeneratorService legalFactGenerator;
-    private NotificationService notificationService;
-    private SchedulerService scheduler;
-    private ExternalChannelService externalChannelService;
-    private TimelineService timelineService;
+    private final LegalFactGeneratorService legalFactGenerator;
+    private final NotificationService notificationService;
+    private final SchedulerService scheduler;
+    private final ExternalChannelService externalChannelService;
+    private final TimelineService timelineService;
+    private final CompletelyUnreachableService completelyUnreachableService;
 
-    public CompletionWorkFlowHandler(LegalFactGeneratorService legalFactGenerator, NotificationService notificationService, SchedulerService scheduler,
-                                     ExternalChannelService externalChannelService, TimelineService timelineService) {
+    public CompletionWorkFlowHandler(LegalFactGeneratorService legalFactGenerator, NotificationService notificationService,
+                                     SchedulerService scheduler, ExternalChannelService externalChannelService,
+                                     TimelineService timelineService, CompletelyUnreachableService completelyUnreachableService) {
         this.legalFactGenerator = legalFactGenerator;
         this.notificationService = notificationService;
         this.scheduler = scheduler;
         this.externalChannelService = externalChannelService;
         this.timelineService = timelineService;
+        this.completelyUnreachableService = completelyUnreachableService;
     }
 
     /**
@@ -106,11 +109,6 @@ public class CompletionWorkFlowHandler {
     public void completionAnalogWorkflow(String taxId, String iun, Instant notificationDate, PhysicalAddress usedAddress, EndWorkflowStatus status) {
         log.info("Analog workflow completed with status {} IUN {} id {}", status, iun, taxId);
 
-        Notification notification = notificationService.getNotificationByIun(iun);
-
-        legalFactGenerator.workflowStep(notification);
-        legalFactGenerator.receivedMessage(notification);//avviso avvenuta ricezione
-
         switch (status) {
             case SUCCESS:
                 timelineService.addSuccessAnalogWorkflowToTimeline(taxId, iun, usedAddress);
@@ -118,6 +116,7 @@ public class CompletionWorkFlowHandler {
                 break;
             case FAILURE:
                 timelineService.addFailureAnalogWorkflowToTimeline(taxId, iun);
+                completelyUnreachableService.handleCompletelyUnreachable(iun, taxId);
                 scheduleRefinement(iun, taxId, notificationDate, SCHEDULING_DAYS_FAILURE_ANALOG_REFINEMENT);
                 break;
             default:

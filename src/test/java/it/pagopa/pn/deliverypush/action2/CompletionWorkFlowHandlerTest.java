@@ -33,13 +33,15 @@ class CompletionWorkFlowHandlerTest {
     private ExternalChannelService externalChannelService;
     @Mock
     private TimelineService timelineService;
+    @Mock
+    private CompletelyUnreachableService completelyUnreachableService;
 
     private CompletionWorkFlowHandler handler;
 
     @BeforeEach
     public void setup() {
         handler = new CompletionWorkFlowHandler(legalFactGenerator, notificationService, scheduler,
-                externalChannelService, timelineService);
+                externalChannelService, timelineService, completelyUnreachableService);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -100,14 +102,9 @@ class CompletionWorkFlowHandlerTest {
         Notification notification = getNotification();
         NotificationRecipient recipient = notification.getRecipients().get(0);
 
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
-                .thenReturn(notification);
         Instant notificationDate = Instant.now();
 
         handler.completionAnalogWorkflow(recipient.getTaxId(), notification.getIun(), notificationDate, recipient.getPhysicalAddress(), EndWorkflowStatus.SUCCESS);
-
-        Mockito.verify(legalFactGenerator).workflowStep(Mockito.any(Notification.class));
-        Mockito.verify(legalFactGenerator).receivedMessage(Mockito.any(Notification.class));
 
         Mockito.verify(timelineService).addSuccessAnalogWorkflowToTimeline(Mockito.anyString(), Mockito.anyString(), Mockito.any(PhysicalAddress.class));
 
@@ -125,14 +122,9 @@ class CompletionWorkFlowHandlerTest {
         Notification notification = getNotification();
         NotificationRecipient recipient = notification.getRecipients().get(0);
 
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
-                .thenReturn(notification);
         Instant notificationDate = Instant.now();
 
         handler.completionAnalogWorkflow(recipient.getTaxId(), notification.getIun(), notificationDate, recipient.getPhysicalAddress(), EndWorkflowStatus.FAILURE);
-
-        Mockito.verify(legalFactGenerator).workflowStep(Mockito.any(Notification.class));
-        Mockito.verify(legalFactGenerator).receivedMessage(Mockito.any(Notification.class));
 
         Mockito.verify(timelineService).addFailureAnalogWorkflowToTimeline(Mockito.anyString(), Mockito.anyString());
 

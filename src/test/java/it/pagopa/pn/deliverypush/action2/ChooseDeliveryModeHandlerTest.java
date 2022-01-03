@@ -1,5 +1,7 @@
 package it.pagopa.pn.deliverypush.action2;
 
+import it.pagopa.pn.api.dto.addressbook.AddressBookEntry;
+import it.pagopa.pn.api.dto.addressbook.DigitalAddresses;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
@@ -9,6 +11,7 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.api.dto.notification.timeline.ContactPhase;
 import it.pagopa.pn.api.dto.notification.timeline.SendCourtesyMessageDetails;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.commons.pnclients.addressbook.AddressBook2;
 import it.pagopa.pn.deliverypush.service.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,7 +32,7 @@ import static org.mockito.Mockito.times;
 
 class ChooseDeliveryModeHandlerTest {
     @Mock
-    private AddressBookService addressBookService;
+    private AddressBook2 addressBook;
     @Mock
     private TimelineService timelineService;
     @Mock
@@ -47,7 +50,7 @@ class ChooseDeliveryModeHandlerTest {
 
     @BeforeEach
     public void setup() {
-        handler = new ChooseDeliveryModeHandler(addressBookService, timelineService, notificationService,
+        handler = new ChooseDeliveryModeHandler(addressBook, timelineService, notificationService,
                 externalChannelService, courtesyMessageService, schedulerService,
                 publicRegistryService);
     }
@@ -56,12 +59,18 @@ class ChooseDeliveryModeHandlerTest {
     @Test
     void chooseDeliveryTypeAndStartWorkflowPlatformAddress() {
         Notification notification = getNotification();
+        AddressBookEntry entry = AddressBookEntry.builder()
+                .digitalAddresses(
+                        DigitalAddresses.builder().platform(
+                                DigitalAddress.builder()
+                                        .type(DigitalAddressType.PEC)
+                                        .address("Via di test")
+                                        .build()
+                        ).build()
+                ).build();
 
-        Mockito.when(addressBookService.retrievePlatformAddress(Mockito.any(NotificationRecipient.class), Mockito.any(NotificationSender.class)))
-                .thenReturn(DigitalAddress.builder()
-                        .type(DigitalAddressType.PEC)
-                        .address("Via di test")
-                        .build());
+        Mockito.when(addressBook.getAddresses(Mockito.anyString(), Mockito.any(NotificationSender.class)))
+                .thenReturn(Optional.of(entry));
 
         handler.chooseDeliveryTypeAndStartWorkflow(notification, notification.getRecipients().get(0));
 
@@ -84,8 +93,8 @@ class ChooseDeliveryModeHandlerTest {
     void chooseDeliveryTypeAndStartWorkflowSpecial() {
         Notification notification = getNotification();
 
-        Mockito.when(addressBookService.retrievePlatformAddress(Mockito.any(NotificationRecipient.class), Mockito.any(NotificationSender.class)))
-                .thenReturn(null);
+        Mockito.when(addressBook.getAddresses(Mockito.anyString(), Mockito.any(NotificationSender.class)))
+                .thenReturn(Optional.empty());
 
         handler.chooseDeliveryTypeAndStartWorkflow(notification, notification.getRecipients().get(0));
 
@@ -119,8 +128,8 @@ class ChooseDeliveryModeHandlerTest {
     void chooseDeliveryTypeAndStartWorkflowGeneral() {
         Notification notification = getNotificationWithoutDigitalDomicile();
 
-        Mockito.when(addressBookService.retrievePlatformAddress(Mockito.any(NotificationRecipient.class), Mockito.any(NotificationSender.class)))
-                .thenReturn(null);
+        Mockito.when(addressBook.getAddresses(Mockito.anyString(), Mockito.any(NotificationSender.class)))
+                .thenReturn(Optional.empty());
 
         handler.chooseDeliveryTypeAndStartWorkflow(notification, notification.getRecipients().get(0));
 
@@ -142,8 +151,8 @@ class ChooseDeliveryModeHandlerTest {
         Assertions.assertEquals(DigitalAddressSource.SPECIAL, listDigitalAddressSourceCaptorValues.get(1));
         Assertions.assertFalse(listIsAvailableCaptorValues.get(1));
 
-        Mockito.verify(publicRegistryService).sendRequestForGetAddress(Mockito.anyString(), Mockito.anyString(),
-                Mockito.any(), Mockito.any(ContactPhase.class), Mockito.anyInt());
+        Mockito.verify(publicRegistryService).sendRequestForGetDigitalAddress(Mockito.anyString(), Mockito.anyString(),
+                Mockito.any(ContactPhase.class), Mockito.anyInt());
     }
 
     @ExtendWith(MockitoExtension.class)

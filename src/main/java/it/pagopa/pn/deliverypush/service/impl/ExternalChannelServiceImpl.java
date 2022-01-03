@@ -36,7 +36,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     @Override
     public void sendDigitalNotification(Notification notification, DigitalAddress digitalAddress, DigitalAddressSource addressSource, NotificationRecipient recipient,
                                         int sentAttemptMade) {
-        log.debug("Start sendDigitalNotification to external channel for iun {} id {}", notification.getIun(), recipient.getTaxId());
+        log.info("Start sendDigitalNotification to external channel for iun {} id {}", notification.getIun(), recipient.getTaxId());
         String eventId = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())
@@ -56,7 +56,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
      */
     @Override
     public void sendCourtesyNotification(Notification notification, DigitalAddress courtesyAddress, NotificationRecipient recipient, String eventId) {
-        log.debug("Start SendCourtesyMessage to external channel for iun {} id {}", notification.getIun(), recipient.getTaxId());
+        log.info("Start SendCourtesyMessage to external channel for iun {} id {}", notification.getIun(), recipient.getTaxId());
         PnExtChnEmailEvent pnExtChnEmailEvent = extChnEventUtils.buildSendEmailRequest2(eventId,
                 notification,
                 recipient,
@@ -71,6 +71,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
      */
     @Override
     public void sendNotificationForRegisteredLetter(Notification notification, PhysicalAddress physicalAddress, NotificationRecipient recipient) {
+        log.info("Start sendNotificationForRegisteredLetter to external channel for iun {} id {}", notification.getIun(), recipient.getTaxId());
 
         String eventId = TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER.buildEventId(
                 EventId.builder()
@@ -98,7 +99,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
      */
     @Override
     public void sendAnalogNotification(Notification notification, PhysicalAddress physicalAddress, NotificationRecipient recipient, boolean investigation, int sentAttemptMade) {
-        log.debug("Start sendAnalogNotification to external channel for iun {} id {}", notification.getIun(), recipient.getTaxId());
+        log.info("Start sendAnalogNotification to external channel for iun {} id {}", notification.getIun(), recipient.getTaxId());
         String eventId = TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())
