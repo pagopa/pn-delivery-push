@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.Optional;
 
 public class AddressBookTest implements AddressBook {
-    List<AddressBookEntry> addressBook;
+    private final List<AddressBookEntry> addressBook;
 
-    public AddressBookTest() {
-        addressBook = new ArrayList<>();
+    public AddressBookTest(List<AddressBookEntry> addressBook) {
+        this.addressBook = addressBook;
 
         List<DigitalAddress> cuortesyAddress = new ArrayList<>();
         cuortesyAddress.add(DigitalAddress.builder()
