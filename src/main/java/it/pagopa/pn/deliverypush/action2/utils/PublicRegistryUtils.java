@@ -1,34 +1,34 @@
-package it.pagopa.pn.deliverypush.service.impl;
+package it.pagopa.pn.deliverypush.action2.utils;
 
 import it.pagopa.pn.api.dto.notification.timeline.ContactPhase;
 import it.pagopa.pn.api.dto.notification.timeline.DeliveryMode;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.deliverypush.external.PublicRegistry;
-import it.pagopa.pn.deliverypush.service.PublicRegistryService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class PublicRegistryServiceImpl implements PublicRegistryService {
+public class PublicRegistryUtils {
     private final PublicRegistry publicRegistry;
     private final TimelineService timelineService;
+    private final TimelineUtils timelineUtils;
 
-    public PublicRegistryServiceImpl(PublicRegistry publicRegistry, TimelineService timelineService) {
+    public PublicRegistryUtils(PublicRegistry publicRegistry, TimelineService timelineService,
+                               TimelineUtils timelineUtils) {
         this.publicRegistry = publicRegistry;
         this.timelineService = timelineService;
+        this.timelineUtils = timelineUtils;
     }
 
     /**
      * Send get request to public registry
      *
-     * @param iun           Notification unique identifier
-     * @param taxId         User identifier
-     * @param correlationId requestId
-     * @param deliveryMode  DIGITAL,ANALOG or null in choose phase
-     * @param contactPhase  Process phase where the request is sent. CHOOSE_DELIVERY -> request sent during delivery selection,  SEND_ATTEMPT ->  request Sent in Digital or Analogic workflow
+     * @param iun          Notification unique identifier
+     * @param taxId        User identifier
+     * @param contactPhase Process phase where the request is sent. CHOOSE_DELIVERY -> request sent during delivery selection,  SEND_ATTEMPT ->  request Sent in Digital or analogic workflow
      */
-    @Override
     public void sendRequestForGetDigitalAddress(String iun, String taxId, ContactPhase contactPhase, int sentAttemptMade) {
         log.info("Start sendRequestForGetDigitalAddress for IUN {} id {} ", iun, taxId);
 
@@ -42,12 +42,11 @@ public class PublicRegistryServiceImpl implements PublicRegistryService {
         );
 
         publicRegistry.sendRequestForGetDigitalAddress(taxId, correlationId);
-        timelineService.addPublicRegistryCallToTimeline(iun, taxId, correlationId, DeliveryMode.DIGITAL, contactPhase, sentAttemptMade);
+        addTimelineElement(timelineUtils.buildPublicRegistryCallTimelineElement(iun, taxId, correlationId, DeliveryMode.DIGITAL, contactPhase, sentAttemptMade));
 
         log.debug("End sendRequestForGetAddress for IUN {} id {} correlationId {}", iun, taxId, correlationId);
     }
 
-    @Override
     public void sendRequestForGetPhysicalAddress(String iun, String taxId, int sentAttemptMade) {
         log.info("Start sendRequestForGetPhysicalAddress for IUN {} id {} ", iun, taxId);
 
@@ -61,8 +60,12 @@ public class PublicRegistryServiceImpl implements PublicRegistryService {
         );
 
         publicRegistry.sendRequestForGetPhysicalAddress(taxId, correlationId);
-        timelineService.addPublicRegistryCallToTimeline(iun, taxId, correlationId, DeliveryMode.ANALOG, ContactPhase.SEND_ATTEMPT, sentAttemptMade);
+        addTimelineElement(timelineUtils.buildPublicRegistryCallTimelineElement(iun, taxId, correlationId, DeliveryMode.ANALOG, ContactPhase.SEND_ATTEMPT, sentAttemptMade));
 
         log.debug("End sendRequestForGetPhysicalAddress for IUN {} id {} correlationId {}", iun, taxId, correlationId);
+    }
+
+    private void addTimelineElement(TimelineElement element) {
+        timelineService.addTimelineElement(element);
     }
 }

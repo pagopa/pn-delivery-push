@@ -9,10 +9,17 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.timeline.ContactPhase;
 import it.pagopa.pn.api.dto.notification.timeline.SendCourtesyMessageDetails;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.service.*;
+import it.pagopa.pn.deliverypush.action2.utils.CourtesyMessageUtils;
+import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
+import it.pagopa.pn.deliverypush.action2.utils.PublicRegistryUtils;
+import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.SchedulerService;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -29,22 +36,24 @@ public class ChooseDeliveryModeHandler {
     private final AddressBook addressBook;
     private final TimelineService timelineService;
     private final NotificationService notificationService;
-    private final ExternalChannelService externalChannelService;
-    private final CourtesyMessageService courtesyMessageService;
+    private final ExternalChannelUtils externalChannelUtils;
+    private final CourtesyMessageUtils courtesyMessageUtils;
     private final SchedulerService schedulerService;
-    private final PublicRegistryService publicRegistryService;
+    private final PublicRegistryUtils publicRegistryUtils;
+    private final TimelineUtils timelineUtils;
 
     public ChooseDeliveryModeHandler(AddressBook addressBook, TimelineService timelineService,
-                                     NotificationService notificationService, ExternalChannelService externalChannelService,
-                                     CourtesyMessageService courtesyMessageService, SchedulerService schedulerService,
-                                     PublicRegistryService publicRegistryService) {
+                                     NotificationService notificationService, ExternalChannelUtils externalChannelUtils,
+                                     CourtesyMessageUtils courtesyMessageUtils, SchedulerService schedulerService,
+                                     PublicRegistryUtils publicRegistryUtils, TimelineUtils timelineUtils) {
         this.addressBook = addressBook;
         this.timelineService = timelineService;
         this.notificationService = notificationService;
-        this.externalChannelService = externalChannelService;
-        this.courtesyMessageService = courtesyMessageService;
+        this.externalChannelUtils = externalChannelUtils;
+        this.courtesyMessageUtils = courtesyMessageUtils;
         this.schedulerService = schedulerService;
-        this.publicRegistryService = publicRegistryService;
+        this.publicRegistryUtils = publicRegistryUtils;
+        this.timelineUtils = timelineUtils;
     }
 
     /**
@@ -83,7 +92,7 @@ public class ChooseDeliveryModeHandler {
                 addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource.SPECIAL, false);
 
                 // ... se non lo trovo, lancio ricerca asincrona dell'indirizzo generale
-                publicRegistryService.sendRequestForGetDigitalAddress(iun, taxId, ContactPhase.CHOOSE_DELIVERY, START_SENT_ATTEMPT_NUMBER);
+                publicRegistryUtils.sendRequestForGetDigitalAddress(iun, taxId, ContactPhase.CHOOSE_DELIVERY, START_SENT_ATTEMPT_NUMBER);
             }
         }
 
@@ -126,7 +135,7 @@ public class ChooseDeliveryModeHandler {
      */
     public void startDigitalWorkflow(Notification notification, DigitalAddress digitalAddress, DigitalAddressSource addressSource, NotificationRecipient recipient) {
         log.info("Starting digital workflow for IUN {} id {} sending notification to external channel", notification.getIun(), recipient.getTaxId());
-        externalChannelService.sendDigitalNotification(notification, digitalAddress, addressSource, recipient, START_SENT_ATTEMPT_NUMBER);
+        externalChannelUtils.sendDigitalNotification(notification, digitalAddress, addressSource, recipient, START_SENT_ATTEMPT_NUMBER);
     }
 
     /**
@@ -138,7 +147,7 @@ public class ChooseDeliveryModeHandler {
     public void scheduleAnalogWorkflow(String iun, String taxId) {
         log.info("Start analog workflow for iun {} id {} ", iun, taxId);
 
-        Optional<SendCourtesyMessageDetails> sendCourtesyMessageDetailsOpt = courtesyMessageService.getFirstSentCourtesyMessage(iun, taxId);
+        Optional<SendCourtesyMessageDetails> sendCourtesyMessageDetailsOpt = courtesyMessageUtils.getFirstSentCourtesyMessage(iun, taxId);
         Instant schedulingDate;
 
         if (sendCourtesyMessageDetailsOpt.isPresent()) {
@@ -153,7 +162,8 @@ public class ChooseDeliveryModeHandler {
     }
 
     private void addAvailabilitySourceToTimeline(String taxId, String iun, DigitalAddressSource addressSource, boolean isAvailable) {
-        timelineService.addAvailabilitySourceToTimeline(taxId, iun, addressSource, isAvailable, START_SENT_ATTEMPT_NUMBER);
+        TimelineElement element = timelineUtils.buildAvailabilitySourceTimelineElement(taxId, iun, addressSource, isAvailable, START_SENT_ATTEMPT_NUMBER);
+        timelineService.addTimelineElement(element);
     }
 
     private DigitalAddress retrievePlatformAddress(NotificationRecipient recipient, NotificationSender sender) {

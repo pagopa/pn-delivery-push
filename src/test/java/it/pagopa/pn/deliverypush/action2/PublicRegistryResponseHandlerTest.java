@@ -8,6 +8,7 @@ import it.pagopa.pn.api.dto.notification.timeline.DeliveryMode;
 import it.pagopa.pn.api.dto.notification.timeline.PublicRegistryCallDetails;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,13 +32,15 @@ class PublicRegistryResponseHandlerTest {
     private DigitalWorkFlowHandler digitalWorkFlowHandler;
     @Mock
     private AnalogWorkflowHandler analogWorkflowHandler;
+    @Mock
+    private TimelineUtils timelineUtils;
 
     private PublicRegistryResponseHandler handler;
 
     @BeforeEach
     public void setup() {
         handler = new PublicRegistryResponseHandler(timelineService, chooseDeliveryHandler, digitalWorkFlowHandler,
-                analogWorkflowHandler);
+                analogWorkflowHandler, timelineUtils);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -64,7 +67,7 @@ class PublicRegistryResponseHandlerTest {
 
         handler.handleResponse(response);
 
-        Mockito.verify(timelineService).addPublicRegistryResponseCallToTimeline(Mockito.anyString(), Mockito.anyString(), Mockito.any(PublicRegistryResponse.class));
+        Mockito.verify(timelineUtils).buildPublicRegistryResponseCallTimelineElement(Mockito.anyString(), Mockito.anyString(), Mockito.any(PublicRegistryResponse.class));
 
         ArgumentCaptor<String> iunCaptor = ArgumentCaptor.forClass(String.class);
 
@@ -99,7 +102,7 @@ class PublicRegistryResponseHandlerTest {
 
         handler.handleResponse(response);
 
-        Mockito.verify(timelineService).addPublicRegistryResponseCallToTimeline(Mockito.anyString(), Mockito.anyString(), Mockito.any(PublicRegistryResponse.class));
+        Mockito.verify(timelineUtils).buildPublicRegistryResponseCallTimelineElement(Mockito.anyString(), Mockito.anyString(), Mockito.any(PublicRegistryResponse.class));
 
         ArgumentCaptor<String> iunCaptor = ArgumentCaptor.forClass(String.class);
 
@@ -135,7 +138,7 @@ class PublicRegistryResponseHandlerTest {
 
         handler.handleResponse(response);
 
-        Mockito.verify(timelineService).addPublicRegistryResponseCallToTimeline(Mockito.anyString(), Mockito.anyString(), Mockito.any(PublicRegistryResponse.class));
+        Mockito.verify(timelineUtils).buildPublicRegistryResponseCallTimelineElement(Mockito.anyString(), Mockito.anyString(), Mockito.any(PublicRegistryResponse.class));
 
         ArgumentCaptor<String> iunCaptor = ArgumentCaptor.forClass(String.class);
 

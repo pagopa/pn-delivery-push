@@ -5,9 +5,15 @@ import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.service.*;
+import it.pagopa.pn.deliverypush.action2.utils.CompletelyUnreachableUtils;
+import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
+import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.SchedulerService;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -24,18 +30,21 @@ public class CompletionWorkFlowHandler {
 
     private final NotificationService notificationService;
     private final SchedulerService scheduler;
-    private final ExternalChannelService externalChannelService;
+    private final ExternalChannelUtils externalChannelUtils;
     private final TimelineService timelineService;
-    private final CompletelyUnreachableService completelyUnreachableService;
+    private final CompletelyUnreachableUtils completelyUnreachableService;
+    private final TimelineUtils timelineUtils;
 
     public CompletionWorkFlowHandler(NotificationService notificationService,
-                                     SchedulerService scheduler, ExternalChannelService externalChannelService,
-                                     TimelineService timelineService, CompletelyUnreachableService completelyUnreachableService) {
+                                     SchedulerService scheduler, ExternalChannelUtils externalChannelUtils,
+                                     TimelineService timelineService, CompletelyUnreachableUtils completelyUnreachableUtils,
+                                     TimelineUtils timelineUtils) {
         this.notificationService = notificationService;
         this.scheduler = scheduler;
-        this.externalChannelService = externalChannelService;
+        this.externalChannelUtils = externalChannelUtils;
         this.timelineService = timelineService;
-        this.completelyUnreachableService = completelyUnreachableService;
+        this.completelyUnreachableService = completelyUnreachableUtils;
+        this.timelineUtils = timelineUtils;
     }
 
     /**
@@ -60,13 +69,13 @@ public class CompletionWorkFlowHandler {
         if (status != null) {
             switch (status) {
                 case SUCCESS:
-                    timelineService.addSuccessDigitalWorkflowToTimeline(taxId, iun, address);
+                    addTimelineElement(timelineUtils.buildSuccessDigitalWorkflowTimelineElement(taxId, iun, address));
                     scheduleRefinement(iun, taxId, notificationDate, SCHEDULING_DAYS_SUCCESS_DIGITAL_REFINEMENT);
                     break;
                 case FAILURE:
                     //TODO Generare avviso mancato recapito
                     sendSimpleRegisteredLetter(notification, recipient);
-                    timelineService.addFailureDigitalWorkflowToTimeline(taxId, iun);
+                    addTimelineElement(timelineUtils.buildFailureDigitalWorkflowTimelineElement(taxId, iun));
                     scheduleRefinement(iun, taxId, notificationDate, SCHEDULING_DAYS_FAILURE_DIGITAL_REFINEMENT);
                     break;
                 default:
@@ -75,8 +84,6 @@ public class CompletionWorkFlowHandler {
         } else {
             handleError(taxId, iun, null);
         }
-
-
     }
 
     /**
@@ -89,7 +96,7 @@ public class CompletionWorkFlowHandler {
 
         if (physicalAddress != null) {
             log.info("Sending simple registered letter for iun {} id {}", notification.getIun(), recipient.getTaxId());
-            externalChannelService.sendNotificationForRegisteredLetter(notification, physicalAddress, recipient);
+            externalChannelUtils.sendNotificationForRegisteredLetter(notification, physicalAddress, recipient);
         } else {
             log.info("Simple registered letter can't be send, there isn't physical address for recipient. iun {} id {}", notification.getIun(), recipient.getTaxId());
         }
@@ -108,11 +115,11 @@ public class CompletionWorkFlowHandler {
 
         switch (status) {
             case SUCCESS:
-                timelineService.addSuccessAnalogWorkflowToTimeline(taxId, iun, usedAddress);
+                addTimelineElement(timelineUtils.buildSuccessAnalogWorkflowTimelineElement(taxId, iun, usedAddress));
                 scheduleRefinement(iun, taxId, notificationDate, SCHEDULING_DAYS_SUCCESS_ANALOG_REFINEMENT);
                 break;
             case FAILURE:
-                timelineService.addFailureAnalogWorkflowToTimeline(taxId, iun);
+                addTimelineElement(timelineUtils.buildFailureAnalogWorkflowTimelineElement(taxId, iun));
                 completelyUnreachableService.handleCompletelyUnreachable(iun, taxId);
                 scheduleRefinement(iun, taxId, notificationDate, SCHEDULING_DAYS_FAILURE_ANALOG_REFINEMENT);
                 break;
@@ -133,5 +140,8 @@ public class CompletionWorkFlowHandler {
         throw new PnInternalException("Specified status " + status + " does not exist. Iun " + iun + " id" + taxId);
     }
 
+    private void addTimelineElement(TimelineElement element) {
+        timelineService.addTimelineElement(element);
+    }
 
 }

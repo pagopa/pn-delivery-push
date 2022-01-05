@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.service.impl;
+package it.pagopa.pn.deliverypush.action2.utils;
 
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
@@ -7,8 +7,6 @@ import it.pagopa.pn.api.dto.notification.timeline.EventId;
 import it.pagopa.pn.api.dto.notification.timeline.SendCourtesyMessageDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineEventId;
 import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
-import it.pagopa.pn.deliverypush.service.CourtesyMessageService;
-import it.pagopa.pn.deliverypush.service.ExternalChannelService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,14 +15,14 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-public class CourtesyMessageServiceImpl implements CourtesyMessageService {
+public class CourtesyMessageUtils {
     private final AddressBook addressBook;
-    private final ExternalChannelService externalChannelService;
+    private final ExternalChannelUtils externalChannelUtils;
     private final TimelineService timelineService;
 
-    public CourtesyMessageServiceImpl(AddressBook addressBook, ExternalChannelService externalChannelService, TimelineService timelineService) {
+    public CourtesyMessageUtils(AddressBook addressBook, ExternalChannelUtils externalChannelUtils, TimelineService timelineService) {
         this.addressBook = addressBook;
-        this.externalChannelService = externalChannelService;
+        this.externalChannelUtils = externalChannelUtils;
         this.timelineService = timelineService;
     }
 
@@ -43,7 +41,7 @@ public class CourtesyMessageServiceImpl implements CourtesyMessageService {
 
                         //... Per ogni indirizzo di cortesia ottenuto viene inviata la notifica del messaggio di cortesia tramite external channel
                         String eventId = getTimelineElementId(recipient.getTaxId(), notification.getIun(), index);
-                        externalChannelService.sendCourtesyNotification(notification, courtesyAddress, recipient, eventId);
+                        externalChannelUtils.sendCourtesyNotification(notification, courtesyAddress, recipient, eventId);
                         index++;
                     }
 
@@ -66,13 +64,12 @@ public class CourtesyMessageServiceImpl implements CourtesyMessageService {
      *
      * @param iun   Notification unique identifier
      * @param taxId User identifier
-     * @return
      */
-    @Override
     public Optional<SendCourtesyMessageDetails> getFirstSentCourtesyMessage(String iun, String taxId) {
         String timeLineCourtesyId = getTimelineElementId(taxId, iun, 0);
         log.debug("Get courtesy message for timelineCourtesyId {}", timeLineCourtesyId);
 
         return timelineService.getTimelineElement(iun, timeLineCourtesyId, SendCourtesyMessageDetails.class);
     }
+
 }

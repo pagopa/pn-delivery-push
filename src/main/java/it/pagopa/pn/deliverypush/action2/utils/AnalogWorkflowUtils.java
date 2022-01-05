@@ -1,10 +1,10 @@
-package it.pagopa.pn.deliverypush.service.impl;
+package it.pagopa.pn.deliverypush.action2.utils;
 
 import it.pagopa.pn.api.dto.notification.timeline.SendPaperDetails;
 import it.pagopa.pn.api.dto.notification.timeline.SendPaperFeedbackDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
-import it.pagopa.pn.deliverypush.service.AnalogWorkflowService;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,10 +14,10 @@ import java.util.Set;
 
 @Service
 @Slf4j
-public class AnalogWorkflowServiceImpl implements AnalogWorkflowService {
+public class AnalogWorkflowUtils {
     private final TimelineService timelineService;
 
-    public AnalogWorkflowServiceImpl(TimelineService timelineService) {
+    public AnalogWorkflowUtils(TimelineService timelineService) {
         this.timelineService = timelineService;
     }
 
@@ -28,7 +28,6 @@ public class AnalogWorkflowServiceImpl implements AnalogWorkflowService {
      * @param taxId User identifier
      * @return user sent attempt
      */
-    @Override
     public int getSentAttemptFromTimeLine(String iun, String taxId) {
         return (int) timelineService.getTimeline(iun).stream()
                 .filter(timelineElement -> filterTimelineForTaxIdAndSource(timelineElement, taxId)).count();
@@ -50,7 +49,6 @@ public class AnalogWorkflowServiceImpl implements AnalogWorkflowService {
      * @param taxId User identifier
      * @return last sent feedback information
      */
-    @Override
     public SendPaperFeedbackDetails getLastTimelineSentFeedback(String iun, String taxId) {
         Set<TimelineElement> timeline = timelineService.getTimeline(iun);
 
@@ -61,8 +59,8 @@ public class AnalogWorkflowServiceImpl implements AnalogWorkflowService {
         if (sendPaperFeedbackDetailsOpt.isPresent()) {
             return sendPaperFeedbackDetailsOpt.get();
         } else {
-            //TODO Gestisci casistica di errore
-            throw new RuntimeException();
+            log.error("Last send feedback is not available for iun {} id {}", iun, taxId);
+            throw new PnInternalException("Last send feedback is not available for iun " + iun + " id " + taxId);
         }
     }
 

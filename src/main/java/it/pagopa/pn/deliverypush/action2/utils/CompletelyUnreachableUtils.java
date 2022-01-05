@@ -1,23 +1,25 @@
-package it.pagopa.pn.deliverypush.service.impl;
+package it.pagopa.pn.deliverypush.action2.utils;
 
 import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFailed;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineEventId;
 import it.pagopa.pn.commons_delivery.middleware.failednotification.PaperNotificationFailedDao;
-import it.pagopa.pn.deliverypush.service.CompletelyUnreachableService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class CompletelyUnreachableServiceImpl implements CompletelyUnreachableService {
-    private PaperNotificationFailedDao paperNotificationFailedDao;
-    private TimelineService timelineService;
+public class CompletelyUnreachableUtils {
+    private final PaperNotificationFailedDao paperNotificationFailedDao;
+    private final TimelineService timelineService;
+    private final TimelineUtils timelineUtils;
 
-    public CompletelyUnreachableServiceImpl(PaperNotificationFailedDao paperNotificationFailedDao,
-                                            TimelineService timelineService) {
+    public CompletelyUnreachableUtils(PaperNotificationFailedDao paperNotificationFailedDao, TimelineService timelineService,
+                                      TimelineUtils timelineUtils) {
         this.paperNotificationFailedDao = paperNotificationFailedDao;
         this.timelineService = timelineService;
+        this.timelineUtils = timelineUtils;
     }
 
     public void handleCompletelyUnreachable(String iun, String taxId) {
@@ -26,7 +28,7 @@ public class CompletelyUnreachableServiceImpl implements CompletelyUnreachableSe
         if (!isNotificationAlreadyViewed(iun, taxId)) {
             addPaperNotificationFailed(iun, taxId);
         }
-        timelineService.addCompletelyUnreachableToTimeline(iun, taxId);
+        addTimelineElement(timelineUtils.buildCompletelyUnreachableTimelineElement(iun, taxId));
     }
 
     private boolean isNotificationAlreadyViewed(String iun, String taxId) {
@@ -45,4 +47,7 @@ public class CompletelyUnreachableServiceImpl implements CompletelyUnreachableSe
         );
     }
 
+    private void addTimelineElement(TimelineElement element) {
+        timelineService.addTimelineElement(element);
+    }
 }

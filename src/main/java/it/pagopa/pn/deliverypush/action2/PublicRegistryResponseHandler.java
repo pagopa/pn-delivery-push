@@ -3,8 +3,10 @@ package it.pagopa.pn.deliverypush.action2;
 import it.pagopa.pn.api.dto.notification.timeline.ContactPhase;
 import it.pagopa.pn.api.dto.notification.timeline.DeliveryMode;
 import it.pagopa.pn.api.dto.notification.timeline.PublicRegistryCallDetails;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.annotation.StreamListener;
@@ -19,13 +21,16 @@ public class PublicRegistryResponseHandler {
     private final ChooseDeliveryModeHandler chooseDeliveryHandler;
     private final DigitalWorkFlowHandler digitalWorkFlowHandler;
     private final AnalogWorkflowHandler analogWorkflowHandler;
+    private final TimelineUtils timelineUtils;
 
     public PublicRegistryResponseHandler(TimelineService timelineService, ChooseDeliveryModeHandler chooseDeliveryHandler,
-                                         DigitalWorkFlowHandler digitalWorkFlowHandler, AnalogWorkflowHandler analogWorkflowHandler) {
+                                         DigitalWorkFlowHandler digitalWorkFlowHandler, AnalogWorkflowHandler analogWorkflowHandler,
+                                         TimelineUtils timelineUtils) {
         this.timelineService = timelineService;
         this.chooseDeliveryHandler = chooseDeliveryHandler;
         this.digitalWorkFlowHandler = digitalWorkFlowHandler;
         this.analogWorkflowHandler = analogWorkflowHandler;
+        this.timelineUtils = timelineUtils;
     }
 
     /**
@@ -40,14 +45,14 @@ public class PublicRegistryResponseHandler {
         String iun = correlationId.substring(0, correlationId.indexOf("_")); //TODO Da modificare quando verrà risolta PN-533
         log.info("Start handleResponse for correlationId {} iun {}", response.getCorrelationId(), iun);
 
-        //Viene ottenuto l'oggetto di timeline creato in fase di invio notifica al public registry
+        //Viene ottenuto l'oggetto di timeline creato in fase d'invio notifica al public registry
         Optional<PublicRegistryCallDetails> optTimeLinePublicRegistrySend = timelineService.getTimelineElement(iun, response.getCorrelationId(), PublicRegistryCallDetails.class);
 
         if (optTimeLinePublicRegistrySend.isPresent()) {
             PublicRegistryCallDetails publicRegistryCallDetails = optTimeLinePublicRegistrySend.get();
             String taxId = publicRegistryCallDetails.getTaxId();
 
-            timelineService.addPublicRegistryResponseCallToTimeline(iun, taxId, response);
+            addTimelineElement(timelineUtils.buildPublicRegistryResponseCallTimelineElement(iun, taxId, response));
 
             log.info("TimelineElement is present, id {} contactPhase {}", taxId, publicRegistryCallDetails.getContactPhase());
 
@@ -101,5 +106,7 @@ public class PublicRegistryResponseHandler {
         throw new PnInternalException("Specified deliveryMode " + deliveryMode + " does not exist for iun " + iun + " id " + taxId);
     }
 
-
+    private void addTimelineElement(TimelineElement element) {
+        timelineService.addTimelineElement(element);
+    }
 }

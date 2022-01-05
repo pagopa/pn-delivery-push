@@ -3,8 +3,10 @@ package it.pagopa.pn.deliverypush.action2;
 
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.deliverypush.action2.utils.CourtesyMessageUtils;
+import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
-import it.pagopa.pn.deliverypush.service.CourtesyMessageService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
@@ -16,18 +18,20 @@ import org.springframework.stereotype.Component;
 public class StartWorkflowHandler {
     private final LegalFactUtils legalFactUtils;
     private final NotificationService notificationService;
-    private final CourtesyMessageService courtesyMessageService;
+    private final CourtesyMessageUtils courtesyMessageUtils;
     private final ChooseDeliveryModeHandler chooseDeliveryType;
     private final TimelineService timelineService;
+    private final TimelineUtils timelineUtils;
 
     public StartWorkflowHandler(LegalFactUtils legalFactUtils, NotificationService notificationService,
-                                CourtesyMessageService courtesyMessageService, ChooseDeliveryModeHandler chooseDeliveryType,
-                                TimelineService timelineService) {
+                                CourtesyMessageUtils courtesyMessageUtils, ChooseDeliveryModeHandler chooseDeliveryType,
+                                TimelineService timelineService, TimelineUtils timelineUtils) {
         this.legalFactUtils = legalFactUtils;
         this.notificationService = notificationService;
-        this.courtesyMessageService = courtesyMessageService;
+        this.courtesyMessageUtils = courtesyMessageUtils;
         this.chooseDeliveryType = chooseDeliveryType;
         this.timelineService = timelineService;
+        this.timelineUtils = timelineUtils;
     }
 
     /**
@@ -45,12 +49,16 @@ public class StartWorkflowHandler {
         for (NotificationRecipient recipient : notification.getRecipients()) {
             log.info("Notification recipient is {}", recipient.getTaxId());
             // Per ogni recipient della notifica viene aggiunta l'accettazione della richiesta alla timeline ...
-            timelineService.addAcceptedRequestToTimeline(notification, recipient.getTaxId());
+            addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification, recipient.getTaxId()));
             //... inviato il messaggio di cortesia ...
-            courtesyMessageService.sendCourtesyMessage(notification, recipient);
+            courtesyMessageUtils.sendCourtesyMessage(notification, recipient);
             //... e inizializzato il processo di scelta della tipologia di notificazione
             chooseDeliveryType.chooseDeliveryTypeAndStartWorkflow(notification, recipient);
         }
+    }
+
+    private void addTimelineElement(TimelineElement element) {
+        timelineService.addTimelineElement(element);
     }
 
 }

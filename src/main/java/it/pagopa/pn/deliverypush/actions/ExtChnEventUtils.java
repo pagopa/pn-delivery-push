@@ -19,38 +19,7 @@ public class ExtChnEventUtils {
     public ExtChnEventUtils(PnDeliveryPushConfigs cfg) {
         this.cfg = cfg;
     }
-
-    public PnExtChnEmailEvent buildSendEmailRequest2(
-            String eventId,
-            Notification notification,
-            NotificationRecipient recipient,
-            DigitalAddress emailAddress
-    ) {
-        final String accessUrl = getAccessUrl(recipient);
-        return PnExtChnEmailEvent.builder()
-                .header(StandardEventHeader.builder()
-                        .iun(notification.getIun())
-                        .eventId(eventId)
-                        .eventType(EventType.SEND_COURTESY_EMAIL.name())
-                        .publisher(EventPublisher.DELIVERY_PUSH.name())
-                        .createdAt(Instant.now())
-                        .build()
-                )
-                .payload(PnExtChnEmailEventPayload.builder()
-                        .iun(notification.getIun())
-                        .senderId(notification.getSender().getPaId())
-                        .senderDenomination(notification.getSender().getPaId())
-                        .senderEmailAddress("Not required")
-                        .recipientDenomination(recipient.getDenomination())
-                        .recipientTaxId(recipient.getTaxId())
-                        .emailAddress(emailAddress.getAddress())
-                        .shipmentDate(notification.getSentAt())
-                        .accessUrl(accessUrl)
-                        .build()
-                )
-                .build();
-    }
-
+    
     public PnExtChnEmailEvent buildSendEmailRequest(
             Action action,
             Notification notification,
@@ -84,9 +53,7 @@ public class ExtChnEventUtils {
     }
 
     private String getAccessUrl(NotificationRecipient recipient) {
-        //TODO Capire a cosa serve
-        return "test";
-        //return String.format(cfg.getWebapp().getDirectAccessUrlTemplate(), recipient.getToken());
+        return String.format(cfg.getWebapp().getDirectAccessUrlTemplate(), recipient.getToken());
     }
 
 	/*public PnExtChnPaperEvent buildSendPaperRequest (
@@ -152,68 +119,6 @@ public class ExtChnEventUtils {
                 .build();
     }
 
-    public PnExtChnPaperEvent buildSendPaperRequest2(
-            String eventId,
-            NotificationRecipient recipient,
-            Notification notification,
-            CommunicationType communicationType,
-            ServiceLevelType serviceLevelType,
-            boolean investigation,
-            PhysicalAddress address
-    ) {
-        final String accessUrl = getAccessUrl(recipient);
-
-        return PnExtChnPaperEvent.builder()
-                .header(StandardEventHeader.builder()
-                        .iun(notification.getIun()) //TODO Lo iun viene replicato anche nel payload ha probabilmente senso eliminarne uno
-                        .eventId(eventId) //TODO Da capire cosa inserire
-                        .eventType(EventType.SEND_PAPER_REQUEST.name())
-                        .publisher(EventPublisher.DELIVERY_PUSH.name())
-                        .createdAt(Instant.now())
-                        .build()
-                )
-                .payload(PnExtChnPaperEventPayload.builder()
-                        .iun(notification.getIun())
-                        .requestCorrelationId(eventId) //TODO Duplicato ha senso averne uno solo
-                        .destinationAddress(address)
-                        .recipientDenomination(recipient.getDenomination())
-                        .communicationType(communicationType)
-                        .serviceLevel(serviceLevelType)
-                        .senderDenomination(notification.getSender().getPaId())
-                        .investigation(investigation)
-                        .accessUrl(accessUrl)
-                        .build()
-                )
-                .build();
-    }
-
-    public PnExtChnPecEvent buildSendPecRequest2(String eventId, Notification notification,
-                                                 NotificationRecipient recipient, DigitalAddress address) {
-        final String accessUrl = getAccessUrl(recipient);
-        return PnExtChnPecEvent.builder()
-                .header(StandardEventHeader.builder()
-                        .iun(notification.getIun()) //TODO Lo iun viene replicato anche nel payload ha probabilmente senso eliminarne uno
-                        .eventId(eventId) //TODO Da capire cosa inserire
-                        .eventType(EventType.SEND_PEC_REQUEST.name())
-                        .publisher(EventPublisher.DELIVERY_PUSH.name())
-                        .createdAt(Instant.now())
-                        .build()
-                )
-                .payload(PnExtChnPecEventPayload.builder()
-                        .iun(notification.getIun())
-                        .requestCorrelationId(eventId) //TODO Duplicato ha senso averne uno solo
-                        .recipientTaxId(recipient.getTaxId())
-                        .recipientDenomination(recipient.getDenomination())
-                        .senderId(notification.getSender().getPaId())
-                        .senderDenomination(notification.getSender().getPaId())
-                        .senderPecAddress("Not required")
-                        .pecAddress(address.getAddress())
-                        .shipmentDate(notification.getSentAt())
-                        .accessUrl(accessUrl)
-                        .build()
-                )
-                .build();
-    }
 
     public PnExtChnPecEvent buildSendPecRequest(Action action, Notification notification,
                                                 NotificationRecipient recipient, DigitalAddress address) {

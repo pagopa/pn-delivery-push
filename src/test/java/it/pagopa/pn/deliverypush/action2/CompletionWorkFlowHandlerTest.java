@@ -8,7 +8,12 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.service.*;
+import it.pagopa.pn.deliverypush.action2.utils.CompletelyUnreachableUtils;
+import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
+import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.SchedulerService;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,18 +33,20 @@ class CompletionWorkFlowHandlerTest {
     @Mock
     private SchedulerService scheduler;
     @Mock
-    private ExternalChannelService externalChannelService;
+    private ExternalChannelUtils externalChannelUtils;
     @Mock
     private TimelineService timelineService;
     @Mock
-    private CompletelyUnreachableService completelyUnreachableService;
+    private CompletelyUnreachableUtils completelyUnreachableUtils;
+    @Mock
+    private TimelineUtils timelineUtils;
 
     private CompletionWorkFlowHandler handler;
 
     @BeforeEach
     public void setup() {
         handler = new CompletionWorkFlowHandler(notificationService, scheduler,
-                externalChannelService, timelineService, completelyUnreachableService);
+                externalChannelUtils, timelineService, completelyUnreachableUtils, timelineUtils);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -56,7 +63,7 @@ class CompletionWorkFlowHandlerTest {
         Instant notificationDate = Instant.now();
         handler.completionDigitalWorkflow(recipient.getTaxId(), notification.getIun(), notificationDate, recipient.getDigitalDomicile(), EndWorkflowStatus.SUCCESS);
 
-        Mockito.verify(timelineService).addSuccessDigitalWorkflowToTimeline(Mockito.anyString(), Mockito.anyString(), Mockito.any(DigitalAddress.class));
+        Mockito.verify(timelineUtils).buildSuccessDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyString(), Mockito.any(DigitalAddress.class));
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
         Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyString(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
@@ -79,10 +86,10 @@ class CompletionWorkFlowHandlerTest {
 
         Instant notificationDate = Instant.now();
         handler.completionDigitalWorkflow(recipient.getTaxId(), notification.getIun(), notificationDate, recipient.getDigitalDomicile(), EndWorkflowStatus.FAILURE);
-        
-        Mockito.verify(externalChannelService).sendNotificationForRegisteredLetter(Mockito.any(Notification.class), Mockito.any(PhysicalAddress.class), Mockito.any(NotificationRecipient.class));
 
-        Mockito.verify(timelineService).addFailureDigitalWorkflowToTimeline(Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(externalChannelUtils).sendNotificationForRegisteredLetter(Mockito.any(Notification.class), Mockito.any(PhysicalAddress.class), Mockito.any(NotificationRecipient.class));
+
+        Mockito.verify(timelineUtils).buildFailureDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyString());
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
         Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyString(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
@@ -102,7 +109,7 @@ class CompletionWorkFlowHandlerTest {
 
         handler.completionAnalogWorkflow(recipient.getTaxId(), notification.getIun(), notificationDate, recipient.getPhysicalAddress(), EndWorkflowStatus.SUCCESS);
 
-        Mockito.verify(timelineService).addSuccessAnalogWorkflowToTimeline(Mockito.anyString(), Mockito.anyString(), Mockito.any(PhysicalAddress.class));
+        Mockito.verify(timelineUtils).buildSuccessAnalogWorkflowTimelineElement(Mockito.anyString(), Mockito.anyString(), Mockito.any(PhysicalAddress.class));
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
         Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyString(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
@@ -122,7 +129,7 @@ class CompletionWorkFlowHandlerTest {
 
         handler.completionAnalogWorkflow(recipient.getTaxId(), notification.getIun(), notificationDate, recipient.getPhysicalAddress(), EndWorkflowStatus.FAILURE);
 
-        Mockito.verify(timelineService).addFailureAnalogWorkflowToTimeline(Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(timelineUtils).buildFailureAnalogWorkflowTimelineElement(Mockito.anyString(), Mockito.anyString());
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
         Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyString(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));

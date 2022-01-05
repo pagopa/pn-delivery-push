@@ -8,9 +8,17 @@ import it.pagopa.pn.api.dto.notification.address.AttemptAddressInfo;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.timeline.ContactPhase;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.service.*;
+import it.pagopa.pn.deliverypush.action2.utils.DigitalWorkFlowUtils;
+import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
+import it.pagopa.pn.deliverypush.action2.utils.PublicRegistryUtils;
+import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.SchedulerService;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.stereotype.Component;
@@ -24,25 +32,28 @@ public class DigitalWorkFlowHandler {
     public static final int MAX_ATTEMPT_NUMBER = 2;
     public static final int SECOND_NOTIFICATION_WORKFLOW_WAITING_TIME = 7;
 
-    private final ExternalChannelService externalChannelService;
+    private final ExternalChannelUtils externalChannelUtils;
     private final NotificationService notificationService;
     private final SchedulerService schedulerService;
-    private final DigitalWorkFlowService digitalService;
+    private final DigitalWorkFlowUtils digitalWorkFlowUtils;
     private final CompletionWorkFlowHandler completionWorkflow;
     private final TimelineService timelineService;
-    private final PublicRegistryService publicRegistryService;
+    private final PublicRegistryUtils publicRegistryUtils;
+    private final TimelineUtils timelineUtils;
 
-    public DigitalWorkFlowHandler(ExternalChannelService externalChannelService,
+    public DigitalWorkFlowHandler(ExternalChannelUtils externalChannelUtils,
                                   NotificationService notificationService, SchedulerService schedulerService,
-                                  DigitalWorkFlowService digitalService, CompletionWorkFlowHandler completionWorkflow,
-                                  TimelineService timelineService, PublicRegistryService publicRegistryService) {
-        this.externalChannelService = externalChannelService;
+                                  DigitalWorkFlowUtils digitalWorkFlowUtils, CompletionWorkFlowHandler completionWorkflow,
+                                  TimelineService timelineService, PublicRegistryUtils publicRegistryUtils,
+                                  TimelineUtils timelineUtils) {
+        this.externalChannelUtils = externalChannelUtils;
         this.notificationService = notificationService;
         this.schedulerService = schedulerService;
-        this.digitalService = digitalService;
+        this.digitalWorkFlowUtils = digitalWorkFlowUtils;
         this.completionWorkflow = completionWorkflow;
         this.timelineService = timelineService;
-        this.publicRegistryService = publicRegistryService;
+        this.publicRegistryUtils = publicRegistryUtils;
+        this.timelineUtils = timelineUtils;
     }
 
     /**
@@ -56,7 +67,7 @@ public class DigitalWorkFlowHandler {
         log.info("Next Digital workflow action for iun {} id {}", iun, taxId);
 
         //Viene ottenuta la source del prossimo indirizzo da testare, con il numero di tentativi già effettuati per tale sorgente e la data dell'ultimo tentativo
-        AttemptAddressInfo nextAddressInfo = digitalService.getNextAddressInfo(iun, taxId);
+        AttemptAddressInfo nextAddressInfo = digitalWorkFlowUtils.getNextAddressInfo(iun, taxId);
         log.debug("Next address source is {} and attempt number already made is {}", nextAddressInfo.getAddressSource(), nextAddressInfo.getSentAttemptMade());
 
         if (nextAddressInfo.getSentAttemptMade() < MAX_ATTEMPT_NUMBER) {
@@ -69,6 +80,9 @@ public class DigitalWorkFlowHandler {
                     log.info("Start second attempt for source {}", nextAddressInfo.getAddressSource());
                     startNextWorkflow7daysAfterLastAttempt(iun, taxId, nextAddressInfo, nextAddressInfo.getSentAttemptMade());
                     break;
+                default:
+                    log.error("Specified attempt {} is not possibile", nextAddressInfo.getSentAttemptMade());
+                    throw new PnInternalException("Specified attempt " + nextAddressInfo.getSentAttemptMade() + " is not possibile");
             }
         } else {
             //Sono stati già effettuati tutti i tentativi possibili, la notificazione è quindi fallita
@@ -86,13 +100,13 @@ public class DigitalWorkFlowHandler {
 
         if (DigitalAddressSource.GENERAL.equals(nextAddressInfo.getAddressSource())) {
             log.debug("Address is general");
-            publicRegistryService.sendRequestForGetDigitalAddress(iun, taxId, ContactPhase.SEND_ATTEMPT, sentAttemptMade);//general address need async call to get it
+            publicRegistryUtils.sendRequestForGetDigitalAddress(iun, taxId, ContactPhase.SEND_ATTEMPT, sentAttemptMade);//general address need async call to get it
 
         } else {
             log.debug("Address source is not general");
 
             //Viene ottenuto l'indirizzo a partire dalla source
-            DigitalAddress destinationAddress = digitalService.getAddressFromSource(nextAddressInfo.getAddressSource(), recipient, notification);
+            DigitalAddress destinationAddress = digitalWorkFlowUtils.getAddressFromSource(nextAddressInfo.getAddressSource(), recipient, notification);
             log.info("Get address completed");
             //Viene Effettuato il check dell'indirizzo e l'eventuale send
             checkAddressAndSend(recipient, notification, destinationAddress, nextAddressInfo.getAddressSource(), sentAttemptMade);
@@ -150,14 +164,14 @@ public class DigitalWorkFlowHandler {
             log.info("Address is available, send notification to external channel");
 
             //Se l'indirizzo è disponibile, dunque valorizzato viene inviata la notifica ad external channel ...
-            timelineService.addAvailabilitySourceToTimeline(taxId, iun, addressSource, true, sentAttemptMade);
-            externalChannelService.sendDigitalNotification(notification, digitalAddress, addressSource, recipient, sentAttemptMade);
+            addTimelineElement(timelineUtils.buildAvailabilitySourceTimelineElement(taxId, iun, addressSource, true, sentAttemptMade));
+            externalChannelUtils.sendDigitalNotification(notification, digitalAddress, addressSource, recipient, sentAttemptMade);
 
         } else {
             //... altrimenti si passa alla prossima workflow action
             log.info("Address is not available, need to start next workflow action ");
 
-            timelineService.addAvailabilitySourceToTimeline(taxId, iun, addressSource, false, sentAttemptMade);
+            addTimelineElement(timelineUtils.buildAvailabilitySourceTimelineElement(taxId, iun, addressSource, false, sentAttemptMade));
             nextWorkFlowAction(iun, taxId);
         }
     }
@@ -174,11 +188,18 @@ public class DigitalWorkFlowHandler {
                 break;
             case KO:
                 //Non è stato possibile effettuare la notificazione, si passa al prossimo step del workflow
-                timelineService.addDigitalFailureAttemptToTimeline(response);
+                addTimelineElement(timelineUtils.buildDigitalFailureAttemptTimelineElement(response));
                 log.info("Notificazione failed, starting next workflow action");
                 nextWorkFlowAction(response.getIun(), response.getTaxId());
                 break;
+            default:
+                log.error("Specified status {} is not possibile", response.getResponseStatus());
+                throw new PnInternalException("Specified status" + response.getResponseStatus() + " is not possibile");
         }
+    }
+
+    private void addTimelineElement(TimelineElement element) {
+        timelineService.addTimelineElement(element);
     }
 
 }

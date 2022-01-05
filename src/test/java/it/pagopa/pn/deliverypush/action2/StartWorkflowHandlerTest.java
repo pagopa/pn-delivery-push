@@ -5,8 +5,9 @@ import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
+import it.pagopa.pn.deliverypush.action2.utils.CourtesyMessageUtils;
+import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
-import it.pagopa.pn.deliverypush.service.CourtesyMessageService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,32 +25,35 @@ class StartWorkflowHandlerTest {
     @Mock
     private NotificationService notificationService;
     @Mock
-    private CourtesyMessageService courtesyMessageService;
+    private CourtesyMessageUtils courtesyMessageUtils;
     @Mock
     private ChooseDeliveryModeHandler chooseDeliveryType;
     @Mock
     private TimelineService timelineService;
+    @Mock
+    private TimelineUtils timelineUtils;
 
     private StartWorkflowHandler handler;
 
     @BeforeEach
     public void setup() {
-        handler = new StartWorkflowHandler(legalFactUtils, notificationService, courtesyMessageService,
-                chooseDeliveryType, timelineService
+        handler = new StartWorkflowHandler(legalFactUtils, notificationService, courtesyMessageUtils,
+                chooseDeliveryType, timelineService, timelineUtils
         );
     }
 
     @ExtendWith(MockitoExtension.class)
     @Test
     void startWorkflow() {
+
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(getNotification());
 
         handler.startWorkflow("IUN_01");
-
+        
         Mockito.verify(legalFactUtils).saveNotificationReceivedLegalFact(Mockito.any(Notification.class));
-        Mockito.verify(timelineService).addAcceptedRequestToTimeline(Mockito.any(Notification.class), Mockito.anyString());
-        Mockito.verify(courtesyMessageService).sendCourtesyMessage(Mockito.any(Notification.class), Mockito.any(NotificationRecipient.class));
+        Mockito.verify(timelineUtils).buildAcceptedRequestTimelineElement(Mockito.any(Notification.class), Mockito.anyString());
+        Mockito.verify(courtesyMessageUtils).sendCourtesyMessage(Mockito.any(Notification.class), Mockito.any(NotificationRecipient.class));
         Mockito.verify(chooseDeliveryType).chooseDeliveryTypeAndStartWorkflow(Mockito.any(Notification.class), Mockito.any(NotificationRecipient.class));
     }
 

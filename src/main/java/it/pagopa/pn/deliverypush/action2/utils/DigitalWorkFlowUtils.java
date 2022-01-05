@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.service.impl;
+package it.pagopa.pn.deliverypush.action2.utils;
 
 import it.pagopa.pn.api.dto.addressbook.AddressBookEntry;
 import it.pagopa.pn.api.dto.addressbook.DigitalAddresses;
@@ -13,8 +13,6 @@ import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
-import it.pagopa.pn.deliverypush.service.DigitalWorkFlowService;
-import it.pagopa.pn.deliverypush.service.PublicRegistryService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
@@ -26,18 +24,15 @@ import java.util.Set;
 
 @Service
 @Slf4j
-public class DigitalWorkFlowServiceImpl implements DigitalWorkFlowService {
+public class DigitalWorkFlowUtils {
     private final TimelineService timelineService;
-    private final PublicRegistryService publicRegistryService;
     private final AddressBook addressBook;
 
-    public DigitalWorkFlowServiceImpl(TimelineService timelineService, PublicRegistryService publicRegistryService, AddressBook addressBook) {
+    public DigitalWorkFlowUtils(TimelineService timelineService, AddressBook addressBook) {
         this.timelineService = timelineService;
-        this.publicRegistryService = publicRegistryService;
         this.addressBook = addressBook;
     }
 
-    @Override
     public AttemptAddressInfo getNextAddressInfo(String iun, String taxId) {
         log.info("Start getNextAddressInfo for iun {} id {}", iun, taxId);
 
@@ -111,9 +106,6 @@ public class DigitalWorkFlowServiceImpl implements DigitalWorkFlowService {
 
     /**
      * Get next address source from passed source in this order: PLATFORM, GENERAL, SPECIAL
-     *
-     * @param addressSource
-     * @return next address source
      */
     public DigitalAddressSource getNextAddressSource(DigitalAddressSource addressSource) {
         log.debug("Start getNextAddressSource for source {}", addressSource);
@@ -132,7 +124,6 @@ public class DigitalWorkFlowServiceImpl implements DigitalWorkFlowService {
     }
 
     @Nullable
-    @Override
     public DigitalAddress getAddressFromSource(DigitalAddressSource addressSource, NotificationRecipient recipient, Notification notification) {
         log.info("Start getAddressFromSource for source {} iun {} id {}", addressSource, notification.getIun(), recipient.getTaxId());
 
