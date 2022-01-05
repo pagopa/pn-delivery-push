@@ -22,17 +22,15 @@ public class CompletionWorkFlowHandler {
     public static final int SCHEDULING_DAYS_SUCCESS_ANALOG_REFINEMENT = 10;
     public static final int SCHEDULING_DAYS_FAILURE_ANALOG_REFINEMENT = 10;
 
-    private final LegalFactGeneratorService legalFactGenerator;
     private final NotificationService notificationService;
     private final SchedulerService scheduler;
     private final ExternalChannelService externalChannelService;
     private final TimelineService timelineService;
     private final CompletelyUnreachableService completelyUnreachableService;
 
-    public CompletionWorkFlowHandler(LegalFactGeneratorService legalFactGenerator, NotificationService notificationService,
+    public CompletionWorkFlowHandler(NotificationService notificationService,
                                      SchedulerService scheduler, ExternalChannelService externalChannelService,
                                      TimelineService timelineService, CompletelyUnreachableService completelyUnreachableService) {
-        this.legalFactGenerator = legalFactGenerator;
         this.notificationService = notificationService;
         this.scheduler = scheduler;
         this.externalChannelService = externalChannelService;
@@ -67,7 +65,6 @@ public class CompletionWorkFlowHandler {
                     break;
                 case FAILURE:
                     //TODO Generare avviso mancato recapito
-                    legalFactGenerator.nonDeliveryMessage(notification);
                     sendSimpleRegisteredLetter(notification, recipient);
                     timelineService.addFailureDigitalWorkflowToTimeline(taxId, iun);
                     scheduleRefinement(iun, taxId, notificationDate, SCHEDULING_DAYS_FAILURE_DIGITAL_REFINEMENT);

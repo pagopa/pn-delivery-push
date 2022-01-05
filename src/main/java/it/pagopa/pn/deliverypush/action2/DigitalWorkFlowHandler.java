@@ -24,20 +24,18 @@ public class DigitalWorkFlowHandler {
     public static final int MAX_ATTEMPT_NUMBER = 2;
     public static final int SECOND_NOTIFICATION_WORKFLOW_WAITING_TIME = 7;
 
-    private final CompletionWorkFlowHandler completionWorkFlow;
     private final ExternalChannelService externalChannelService;
     private final NotificationService notificationService;
     private final SchedulerService schedulerService;
-    private final DigitaWorkFlowService digitalService;
+    private final DigitalWorkFlowService digitalService;
     private final CompletionWorkFlowHandler completionWorkflow;
     private final TimelineService timelineService;
     private final PublicRegistryService publicRegistryService;
 
-    public DigitalWorkFlowHandler(CompletionWorkFlowHandler completionWorkFlow, ExternalChannelService externalChannelService,
+    public DigitalWorkFlowHandler(ExternalChannelService externalChannelService,
                                   NotificationService notificationService, SchedulerService schedulerService,
-                                  DigitaWorkFlowService digitalService, CompletionWorkFlowHandler completionWorkflow,
+                                  DigitalWorkFlowService digitalService, CompletionWorkFlowHandler completionWorkflow,
                                   TimelineService timelineService, PublicRegistryService publicRegistryService) {
-        this.completionWorkFlow = completionWorkFlow;
         this.externalChannelService = externalChannelService;
         this.notificationService = notificationService;
         this.schedulerService = schedulerService;
@@ -75,7 +73,7 @@ public class DigitalWorkFlowHandler {
         } else {
             //Sono stati già effettuati tutti i tentativi possibili, la notificazione è quindi fallita
             log.info("Digital workflow is failed because all planned attempt have failed for iun {} id {}", iun, taxId);
-            completionWorkFlow.completionDigitalWorkflow(taxId, iun, Instant.now(), null, EndWorkflowStatus.FAILURE);
+            completionWorkflow.completionDigitalWorkflow(taxId, iun, Instant.now(), null, EndWorkflowStatus.FAILURE);
         }
     }
 

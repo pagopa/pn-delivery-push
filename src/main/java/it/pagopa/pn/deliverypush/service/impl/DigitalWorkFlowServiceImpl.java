@@ -12,8 +12,8 @@ import it.pagopa.pn.api.dto.notification.timeline.GetAddressInfo;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.pnclients.addressbook.AddressBook2;
-import it.pagopa.pn.deliverypush.service.DigitaWorkFlowService;
+import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
+import it.pagopa.pn.deliverypush.service.DigitalWorkFlowService;
 import it.pagopa.pn.deliverypush.service.PublicRegistryService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
@@ -26,12 +26,12 @@ import java.util.Set;
 
 @Service
 @Slf4j
-public class DigitalWorkFlowServiceImpl implements DigitaWorkFlowService {
+public class DigitalWorkFlowServiceImpl implements DigitalWorkFlowService {
     private final TimelineService timelineService;
     private final PublicRegistryService publicRegistryService;
-    private final AddressBook2 addressBook;
+    private final AddressBook addressBook;
 
-    public DigitalWorkFlowServiceImpl(TimelineService timelineService, PublicRegistryService publicRegistryService, AddressBook2 addressBook) {
+    public DigitalWorkFlowServiceImpl(TimelineService timelineService, PublicRegistryService publicRegistryService, AddressBook addressBook) {
         this.timelineService = timelineService;
         this.publicRegistryService = publicRegistryService;
         this.addressBook = addressBook;

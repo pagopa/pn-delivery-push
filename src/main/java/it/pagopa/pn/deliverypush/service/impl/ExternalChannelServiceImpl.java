@@ -20,7 +20,7 @@ import java.time.Instant;
 @Service
 @Slf4j
 public class ExternalChannelServiceImpl implements ExternalChannelService {
-    private TimelineService timelineService;
+    private final TimelineService timelineService;
     private final ExtChnEventUtils extChnEventUtils;
     private final ExternalChannel externalChannel;
 

@@ -8,7 +8,7 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 
 ;
 
-public interface DigitaWorkFlowService {
+public interface DigitalWorkFlowService {
     AttemptAddressInfo getNextAddressInfo(String iun, String taxId);
 
     DigitalAddress getAddressFromSource(DigitalAddressSource addressSource, NotificationRecipient recipient, Notification notification);

@@ -37,7 +37,7 @@ class DigitalWorkFlowHandlerTest {
     @Mock
     private SchedulerService schedulerService;
     @Mock
-    private DigitaWorkFlowService digitalService;
+    private DigitalWorkFlowService digitalService;
     @Mock
     private CompletionWorkFlowHandler completionWorkflow;
     @Mock
@@ -49,7 +49,7 @@ class DigitalWorkFlowHandlerTest {
 
     @BeforeEach
     public void setup() {
-        handler = new DigitalWorkFlowHandler(completionWorkFlow, externalChannelService, notificationService,
+        handler = new DigitalWorkFlowHandler(externalChannelService, notificationService,
                 schedulerService, digitalService, completionWorkflow, timelineService, publicRegistryService);
     }
 

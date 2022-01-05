@@ -11,7 +11,7 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.api.dto.notification.timeline.ContactPhase;
 import it.pagopa.pn.api.dto.notification.timeline.SendCourtesyMessageDetails;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
-import it.pagopa.pn.commons.pnclients.addressbook.AddressBook2;
+import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
 import it.pagopa.pn.deliverypush.service.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +32,7 @@ import static org.mockito.Mockito.times;
 
 class ChooseDeliveryModeHandlerTest {
     @Mock
-    private AddressBook2 addressBook;
+    private AddressBook addressBook;
     @Mock
     private TimelineService timelineService;
     @Mock

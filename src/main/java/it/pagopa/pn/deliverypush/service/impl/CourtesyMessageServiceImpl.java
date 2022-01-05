@@ -6,7 +6,7 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.timeline.EventId;
 import it.pagopa.pn.api.dto.notification.timeline.SendCourtesyMessageDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineEventId;
-import it.pagopa.pn.commons.pnclients.addressbook.AddressBook2;
+import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
 import it.pagopa.pn.deliverypush.service.CourtesyMessageService;
 import it.pagopa.pn.deliverypush.service.ExternalChannelService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -18,11 +18,11 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class CourtesyMessageServiceImpl implements CourtesyMessageService {
-    private final AddressBook2 addressBook;
+    private final AddressBook addressBook;
     private final ExternalChannelService externalChannelService;
     private final TimelineService timelineService;
 
-    public CourtesyMessageServiceImpl(AddressBook2 addressBook, ExternalChannelService externalChannelService, TimelineService timelineService) {
+    public CourtesyMessageServiceImpl(AddressBook addressBook, ExternalChannelService externalChannelService, TimelineService timelineService) {
         this.addressBook = addressBook;
         this.externalChannelService = externalChannelService;
         this.timelineService = timelineService;

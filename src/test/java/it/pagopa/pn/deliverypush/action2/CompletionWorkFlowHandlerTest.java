@@ -24,8 +24,6 @@ import java.util.Collections;
 
 class CompletionWorkFlowHandlerTest {
     @Mock
-    private LegalFactGeneratorService legalFactGenerator;
-    @Mock
     private NotificationService notificationService;
     @Mock
     private SchedulerService scheduler;
@@ -40,7 +38,7 @@ class CompletionWorkFlowHandlerTest {
 
     @BeforeEach
     public void setup() {
-        handler = new CompletionWorkFlowHandler(legalFactGenerator, notificationService, scheduler,
+        handler = new CompletionWorkFlowHandler(notificationService, scheduler,
                 externalChannelService, timelineService, completelyUnreachableService);
     }
 
@@ -81,9 +79,7 @@ class CompletionWorkFlowHandlerTest {
 
         Instant notificationDate = Instant.now();
         handler.completionDigitalWorkflow(recipient.getTaxId(), notification.getIun(), notificationDate, recipient.getDigitalDomicile(), EndWorkflowStatus.FAILURE);
-
-        Mockito.verify(legalFactGenerator).nonDeliveryMessage(Mockito.any(Notification.class));
-
+        
         Mockito.verify(externalChannelService).sendNotificationForRegisteredLetter(Mockito.any(Notification.class), Mockito.any(PhysicalAddress.class), Mockito.any(NotificationRecipient.class));
 
         Mockito.verify(timelineService).addFailureDigitalWorkflowToTimeline(Mockito.anyString(), Mockito.anyString());

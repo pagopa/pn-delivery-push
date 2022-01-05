@@ -100,7 +100,7 @@ public class SendPaperActionHandler extends AbstractActionHandler {
                     CommunicationType.RECIEVED_DELIVERY_NOTICE,
                     notification.getPhysicalCommunicationType(),
                     investigation,
-                    destination );
+                    destination);
             this.paperRequestProducer.push(event);
 
             // - Write timeline
@@ -162,7 +162,7 @@ public class SendPaperActionHandler extends AbstractActionHandler {
     }
 
     private Optional<PhysicalAddress> retrieveNationalRegistryAddress(String taxId) {
-        Optional<AddressBookEntry> optionalAddressBookEntry = addressBook.getAddresses(taxId);
+        Optional<AddressBookEntry> optionalAddressBookEntry = addressBook.getAddresses(taxId, null);
         if (optionalAddressBookEntry.isPresent()) {
             return Optional.ofNullable(optionalAddressBookEntry.get().getResidentialAddress());
         }

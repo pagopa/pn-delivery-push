@@ -84,7 +84,9 @@ public class ExtChnEventUtils {
     }
 
     private String getAccessUrl(NotificationRecipient recipient) {
-        return String.format(cfg.getWebapp().getDirectAccessUrlTemplate(), recipient.getToken());
+        //TODO Capire a cosa serve
+        return "test";
+        //return String.format(cfg.getWebapp().getDirectAccessUrlTemplate(), recipient.getToken());
     }
 
 	/*public PnExtChnPaperEvent buildSendPaperRequest (

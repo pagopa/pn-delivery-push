@@ -10,7 +10,7 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.timeline.ContactPhase;
 import it.pagopa.pn.api.dto.notification.timeline.SendCourtesyMessageDetails;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
-import it.pagopa.pn.commons.pnclients.addressbook.AddressBook2;
+import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.*;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ public class ChooseDeliveryModeHandler {
     public static final int START_SENT_ATTEMPT_NUMBER = 0;
     public static final int READ_COURTESY_MESSAGE_WAITING_TIME = 5;
 
-    private final AddressBook2 addressBook;
+    private final AddressBook addressBook;
     private final TimelineService timelineService;
     private final NotificationService notificationService;
     private final ExternalChannelService externalChannelService;
@@ -34,7 +34,7 @@ public class ChooseDeliveryModeHandler {
     private final SchedulerService schedulerService;
     private final PublicRegistryService publicRegistryService;
 
-    public ChooseDeliveryModeHandler(AddressBook2 addressBook, TimelineService timelineService,
+    public ChooseDeliveryModeHandler(AddressBook addressBook, TimelineService timelineService,
                                      NotificationService notificationService, ExternalChannelService externalChannelService,
                                      CourtesyMessageService courtesyMessageService, SchedulerService schedulerService,
                                      PublicRegistryService publicRegistryService) {
