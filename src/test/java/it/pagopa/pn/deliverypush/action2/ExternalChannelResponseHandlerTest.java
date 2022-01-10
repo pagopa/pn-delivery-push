@@ -4,6 +4,7 @@ import it.pagopa.pn.api.dto.extchannel.ExtChannelResponse;
 import it.pagopa.pn.api.dto.extchannel.ExtChannelResponseStatus;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
+import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,12 +19,14 @@ class ExternalChannelResponseHandlerTest {
     private DigitalWorkFlowHandler digitalWorkFlowHandler;
     @Mock
     private AnalogWorkflowHandler analogWorkflowHandler;
+    @Mock
+    private ExternalChannelUtils externalChannelUtils;
 
     private ExternalChannelResponseHandler handler;
 
     @BeforeEach
     public void setup() {
-        handler = new ExternalChannelResponseHandler(digitalWorkFlowHandler, analogWorkflowHandler);
+        handler = new ExternalChannelResponseHandler(digitalWorkFlowHandler, analogWorkflowHandler, externalChannelUtils);
     }
 
     @ExtendWith(MockitoExtension.class)

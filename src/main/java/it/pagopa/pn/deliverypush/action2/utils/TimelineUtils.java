@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class TimelineUtils {
-    
+
     public TimelineElement buildAcceptedRequestTimelineElement(Notification notification, String taxId) {
         log.debug("buildAcceptedRequestTimelineElement for IUN {} and id {}", notification.getIun(), taxId);
 
@@ -273,11 +273,10 @@ public class TimelineUtils {
     }
 
 
-    public TimelineElement buildAnalogFailureAttemptTimelineElement(ExtChannelResponse response, int sentAttemptMade) {
+    public TimelineElement buildAnalogFailureAttemptTimelineElement(ExtChannelResponse response, String taxId, int sentAttemptMade) {
         log.debug("buildAnalogFailureAttemptTimelineElement for IUN {} and id {}", response.getIun(), response.getTaxId());
 
         String iun = response.getIun();
-        String taxId = response.getTaxId();
 
         return TimelineElement.builder()
                 .category(TimelineElementCategory.SEND_PAPER_FEEDBACK)
@@ -288,6 +287,8 @@ public class TimelineUtils {
                                 .index(sentAttemptMade)
                                 .build()
                 ))
+                .iun(iun)
+                .timestamp(Instant.now())
                 .details(new SendPaperFeedbackDetails(
                         SendPaperDetails.builder()
                                 .taxId(taxId)

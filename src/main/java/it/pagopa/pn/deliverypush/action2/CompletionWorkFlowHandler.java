@@ -113,18 +113,22 @@ public class CompletionWorkFlowHandler {
     public void completionAnalogWorkflow(String taxId, String iun, Instant notificationDate, PhysicalAddress usedAddress, EndWorkflowStatus status) {
         log.info("Analog workflow completed with status {} IUN {} id {}", status, iun, taxId);
 
-        switch (status) {
-            case SUCCESS:
-                addTimelineElement(timelineUtils.buildSuccessAnalogWorkflowTimelineElement(taxId, iun, usedAddress));
-                scheduleRefinement(iun, taxId, notificationDate, SCHEDULING_DAYS_SUCCESS_ANALOG_REFINEMENT);
-                break;
-            case FAILURE:
-                addTimelineElement(timelineUtils.buildFailureAnalogWorkflowTimelineElement(taxId, iun));
-                completelyUnreachableService.handleCompletelyUnreachable(iun, taxId);
-                scheduleRefinement(iun, taxId, notificationDate, SCHEDULING_DAYS_FAILURE_ANALOG_REFINEMENT);
-                break;
-            default:
-                handleError(taxId, iun, status);
+        if (status != null) {
+            switch (status) {
+                case SUCCESS:
+                    addTimelineElement(timelineUtils.buildSuccessAnalogWorkflowTimelineElement(taxId, iun, usedAddress));
+                    scheduleRefinement(iun, taxId, notificationDate, SCHEDULING_DAYS_SUCCESS_ANALOG_REFINEMENT);
+                    break;
+                case FAILURE:
+                    addTimelineElement(timelineUtils.buildFailureAnalogWorkflowTimelineElement(taxId, iun));
+                    completelyUnreachableService.handleCompletelyUnreachable(iun, taxId);
+                    scheduleRefinement(iun, taxId, notificationDate, SCHEDULING_DAYS_FAILURE_ANALOG_REFINEMENT);
+                    break;
+                default:
+                    handleError(taxId, iun, status);
+            }
+        } else {
+            handleError(taxId, iun, status);
         }
     }
 

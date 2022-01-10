@@ -33,7 +33,7 @@ public class NotificationViewedHandler {
 
     @StreamListener(condition = "NOTIFICATION_VIEWED")
     public void handleViewNotification(String iun, String taxId) {
-        log.info("HandleViewNotification for iun {} id {}", iun, taxId);
+        log.info("Start HandleViewNotification for iun {} id {}", iun, taxId);
 
         Notification notification = notificationService.getNotificationByIun(iun);
 

@@ -54,28 +54,36 @@ public class PublicRegistryResponseHandler {
 
             addTimelineElement(timelineUtils.buildPublicRegistryResponseCallTimelineElement(iun, taxId, response));
 
-            log.info("TimelineElement is present,iun {} id {} contactPhase {}", iun, taxId, publicRegistryCallDetails.getContactPhase());
+            log.info("public registry response is in contactPhase {} iun {} id {} ", publicRegistryCallDetails.getContactPhase(), iun, taxId);
 
             ContactPhase contactPhase = publicRegistryCallDetails.getContactPhase();
             //In base alla fase di contatto, inserita in timeline al momento dell'invio, viene scelto il percorso da prendere
-            switch (contactPhase) {
-                case CHOOSE_DELIVERY:
-                    //request has been sent during delivery selection
-                    chooseDeliveryHandler.handleGeneralAddressResponse(response, iun, taxId);
-                    break;
-                case SEND_ATTEMPT:
-                    //request has been sent in digital or analog workflow
-                    handleResponseForSendAttempt(response, iun, publicRegistryCallDetails);
-                    break;
-                default:
-                    log.error("Specified contactPhase {} does not exist for correlationId {}", publicRegistryCallDetails.getContactPhase(), correlationId);
-                    throw new PnInternalException("Specified contactPhase " + publicRegistryCallDetails.getContactPhase() + " does not exist for correlationId " + correlationId);
+            if (contactPhase != null) {
+                switch (contactPhase) {
+                    case CHOOSE_DELIVERY:
+                        //request has been sent during choose delivery
+                        chooseDeliveryHandler.handleGeneralAddressResponse(response, iun, taxId);
+                        break;
+                    case SEND_ATTEMPT:
+                        //request has been sent in digital or analog workflow
+                        handleResponseForSendAttempt(response, iun, publicRegistryCallDetails);
+                        break;
+                    default:
+                        handleContactPhaseError(correlationId, publicRegistryCallDetails);
+                }
+            } else {
+                handleContactPhaseError(correlationId, publicRegistryCallDetails);
             }
 
         } else {
             log.error("There isn't timelineElement for iun {} correlationId {}", iun, correlationId);
             throw new PnInternalException("There isn't timelineElement for iun " + iun + " correlationId " + correlationId);
         }
+    }
+
+    private void handleContactPhaseError(String correlationId, PublicRegistryCallDetails publicRegistryCallDetails) {
+        log.error("Specified contactPhase {} does not exist for correlationId {}", publicRegistryCallDetails.getContactPhase(), correlationId);
+        throw new PnInternalException("Specified contactPhase " + publicRegistryCallDetails.getContactPhase() + " does not exist for correlationId " + correlationId);
     }
 
     private void handleResponseForSendAttempt(PublicRegistryResponse response, String iun, PublicRegistryCallDetails publicRegistryCallDetails) {
@@ -90,7 +98,7 @@ public class PublicRegistryResponseHandler {
                     digitalWorkFlowHandler.handleGeneralAddressResponse(response, iun, publicRegistryCallDetails.getTaxId(), publicRegistryCallDetails.getSentAttemptMade());
                     break;
                 case ANALOG:
-                    analogWorkflowHandler.handlePublicRegistryResponse(iun, taxId, response);
+                    analogWorkflowHandler.handlePublicRegistryResponse(iun, taxId, response, publicRegistryCallDetails.getSentAttemptMade());
                     break;
                 default:
                     handleError(iun, publicRegistryCallDetails.getDeliveryMode(), taxId);

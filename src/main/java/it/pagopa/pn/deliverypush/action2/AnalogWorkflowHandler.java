@@ -5,6 +5,7 @@ import it.pagopa.pn.api.dto.extchannel.ExtChannelResponse;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
+import it.pagopa.pn.api.dto.notification.timeline.SendPaperDetails;
 import it.pagopa.pn.api.dto.notification.timeline.SendPaperFeedbackDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
@@ -52,19 +53,18 @@ public class AnalogWorkflowHandler {
      * @param taxId User identifier
      */
     @StreamListener(condition = "ANALOG_WORKFLOW")
-    public void nextWorkflowStep(String iun, String taxId) {
-        log.info("Analog next workflow action for iun {} id {}", iun, taxId);
+    public void nextWorkflowStep(String iun, String taxId, int sentAttemptMade) {
+        log.info("Start Analog next workflow action for iun {} id {}", iun, taxId);
 
         Notification notification = notificationService.getNotificationByIun(iun);
         NotificationRecipient recipient = notificationService.getRecipientFromNotification(notification, taxId);
         log.debug("Get notification and recipient completed for iun {} id {}", iun, taxId);
 
-        int sentAttemptMade = analogWorkflowUtils.getSentAttemptFromTimeLine(iun, taxId);
         log.debug("Sent attempt made is {} for iun {} id {}", sentAttemptMade, iun, taxId);
 
         switch (sentAttemptMade) {
             case 0:
-                log.info("Handle send first attempt for iun {} id {}", iun, taxId);
+                log.info("Handle first send attempt for iun {} id {}", iun, taxId);
 
                 PhysicalAddress paProvidedAddress = recipient.getPhysicalAddress();
 
@@ -79,8 +79,8 @@ public class AnalogWorkflowHandler {
                 }
                 break;
             case 1:
-                log.info("Handle second attempt for iun {} id {}", iun, taxId);
-                //An send attempt was already made, get address from public registry for second send attempt
+                log.info("Handle second attempt, send request to public registry for iun {} id {}", iun, taxId);
+                //Send attempt was already made, get address from public registry for second send attempt
                 publicRegistryUtils.sendRequestForGetPhysicalAddress(iun, taxId, sentAttemptMade);
                 break;
             case 2:
@@ -101,23 +101,19 @@ public class AnalogWorkflowHandler {
      * @param taxId    User identifier
      * @param response public registry response
      */
-    public void handlePublicRegistryResponse(String iun, String taxId, PublicRegistryResponse response) {
-        log.info("Start analog next workflow action for iun {} id {}", iun, taxId);
+    public void handlePublicRegistryResponse(String iun, String taxId, PublicRegistryResponse response, int sentAttemptMade) {
+        log.info("Handle analog public registry response for iun {} id {} sentAttemptMade {}", iun, taxId, sentAttemptMade);
 
         Notification notification = notificationService.getNotificationByIun(iun);
         NotificationRecipient recipient = notificationService.getRecipientFromNotification(notification, taxId);
 
-        int sentAttemptMade = analogWorkflowUtils.getSentAttemptFromTimeLine(iun, taxId);
-        log.info("sentAttemptMade is {}", sentAttemptMade);
-
         switch (sentAttemptMade) {
             case 0:
-                log.info("Handle public registry response for first attempt for iun {} id {}", iun, taxId);
+                log.info("Public registry response is for first attempt for iun {} id {}", iun, taxId);
                 checkAddressAndSend(notification, recipient, response.getPhysicalAddress(), true, sentAttemptMade);
                 break;
             case 1:
-                log.info("Handle public registry response for second attempt for iun {} id {}", iun, taxId);
-                //Ottenuta risposta alla seconda send
+                log.info("Public registry response is for second attempt for iun {} id {}", iun, taxId);
                 publicRegistrySecondSendResponse(response, notification, recipient, sentAttemptMade);
                 break;
             default:
@@ -172,23 +168,35 @@ public class AnalogWorkflowHandler {
     }
 
     public void extChannelResponseHandler(ExtChannelResponse response) {
-        log.info("Get response from external channel for iun {} id {} with status {}", response.getIun(), response.getTaxId(), response.getResponseStatus());
+        SendPaperDetails sendPaperDetails = externalChannelUtils.getSendAnalogDomicileTimelineElement(response.getIun(), response.getEventId());
+        String iun = response.getIun();
+        String taxId = sendPaperDetails.getTaxId();
+        log.info("Analog workflow Ext channel response for iun {} id {} with status {}", iun, taxId, response.getResponseStatus());
 
-        switch (response.getResponseStatus()) {
-            case OK:
-                // La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
-                completionWorkFlow.completionAnalogWorkflow(response.getTaxId(), response.getIun(), response.getNotificationDate(), response.getAnalogUsedAddress(), EndWorkflowStatus.SUCCESS);
-                break;
-            case KO:
-                // External channel non è riuscito ad effettuare la notificazione, si passa al prossimo step del workflow
-                int sentAttemptMade = analogWorkflowUtils.getSentAttemptFromTimeLine(response.getIun(), response.getTaxId()); //TODO Valutare di cambiare tale logica e ricevere da extchannel il numero di tentativi effettuati
-                addTimelineElement(timelineUtils.buildAnalogFailureAttemptTimelineElement(response, sentAttemptMade));
-                nextWorkflowStep(response.getIun(), response.getTaxId());
-                break;
-            default:
-                log.error("Specified response {} is not possibile for iun {} id {}", response.getResponseStatus(), response.getIun(), response.getTaxId());
-                throw new PnInternalException("Specified response " + response.getResponseStatus() + " is not possibile");
+        if (response.getResponseStatus() != null) {
+            switch (response.getResponseStatus()) {
+                case OK:
+                    // La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
+                    completionWorkFlow.completionAnalogWorkflow(taxId, iun, response.getNotificationDate(), response.getAnalogUsedAddress(), EndWorkflowStatus.SUCCESS);
+                    break;
+                case KO:
+                    // External channel non è riuscito a effettuare la notificazione, si passa al prossimo step del workflow
+                    int sentAttemptMade = sendPaperDetails.getSentAttemptMade() + 1;
+                    addTimelineElement(timelineUtils.buildAnalogFailureAttemptTimelineElement(response, taxId, sentAttemptMade));
+                    nextWorkflowStep(iun, taxId, sentAttemptMade);
+                    break;
+                default:
+                    handleStatusError(response, iun, taxId);
+            }
+        } else {
+            handleStatusError(response, iun, taxId);
         }
+
+    }
+
+    private void handleStatusError(ExtChannelResponse response, String iun, String taxId) {
+        log.error("Specified response {} is not possibile for iun {} id {}", response.getResponseStatus(), iun, taxId);
+        throw new PnInternalException("Specified response " + response.getResponseStatus() + " is not possibile");
     }
 
     private void addTimelineElement(TimelineElement element) {

@@ -30,7 +30,6 @@ public class PublicRegistryUtils {
      * @param contactPhase Process phase where the request is sent. CHOOSE_DELIVERY -> request sent during delivery selection,  SEND_ATTEMPT ->  request Sent in Digital or analogic workflow
      */
     public void sendRequestForGetDigitalAddress(String iun, String taxId, ContactPhase contactPhase, int sentAttemptMade) {
-        log.info("SendRequestForGetDigitalAddress for IUN {} id {} ", iun, taxId);
 
         String correlationId = String.format(
                 "%s_%s_%s_%s_%d",
@@ -40,15 +39,15 @@ public class PublicRegistryUtils {
                 contactPhase,
                 sentAttemptMade
         );
+        log.info("SendRequestForGetDigitalAddress for IUN {} id {} correlationId {}", iun, taxId, correlationId);
 
-        publicRegistry.sendRequestForGetDigitalAddress(taxId, correlationId);
         addTimelineElement(timelineUtils.buildPublicRegistryCallTimelineElement(iun, taxId, correlationId, DeliveryMode.DIGITAL, contactPhase, sentAttemptMade));
+        publicRegistry.sendRequestForGetDigitalAddress(taxId, correlationId);
 
         log.debug("End sendRequestForGetAddress for IUN {} id {} correlationId {}", iun, taxId, correlationId);
     }
 
     public void sendRequestForGetPhysicalAddress(String iun, String taxId, int sentAttemptMade) {
-        log.info("SendRequestForGetPhysicalAddress for IUN {} id {} ", iun, taxId);
 
         String correlationId = String.format(
                 "%s_%s_%s_%s_%d",
@@ -58,9 +57,10 @@ public class PublicRegistryUtils {
                 ContactPhase.SEND_ATTEMPT,
                 sentAttemptMade
         );
+        log.info("SendRequestForGetPhysicalAddress for IUN {} id {} correlationId {}", iun, taxId, correlationId);
 
-        publicRegistry.sendRequestForGetPhysicalAddress(taxId, correlationId);
         addTimelineElement(timelineUtils.buildPublicRegistryCallTimelineElement(iun, taxId, correlationId, DeliveryMode.ANALOG, ContactPhase.SEND_ATTEMPT, sentAttemptMade));
+        publicRegistry.sendRequestForGetPhysicalAddress(taxId, correlationId);
 
         log.debug("End sendRequestForGetPhysicalAddress for IUN {} id {} correlationId {}", iun, taxId, correlationId);
     }

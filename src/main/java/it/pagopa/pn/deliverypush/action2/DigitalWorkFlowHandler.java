@@ -64,7 +64,7 @@ public class DigitalWorkFlowHandler {
      */
     @StreamListener(condition = "DIGITAL_WORKFLOW")
     public void nextWorkFlowAction(String iun, String taxId) {
-        log.info("Next Digital workflow action for iun {} id {}", iun, taxId);
+        log.info("Start Next Digital workflow action for iun {} id {}", iun, taxId);
 
         //Viene ottenuta la source del prossimo indirizzo da testare, con il numero di tentativi già effettuati per tale sorgente e la data dell'ultimo tentativo
         AttemptAddressInfo nextAddressInfo = digitalWorkFlowUtils.getNextAddressInfo(iun, taxId);
@@ -179,23 +179,30 @@ public class DigitalWorkFlowHandler {
     public void handleExternalChannelResponse(ExtChannelResponse response) {
         //Conservare ricevuta PEC //TODO capire cosa si intende
         log.info("HandleExternalChannelResponse for iun {} id {}", response.getIun(), response.getTaxId());
-
-        switch (response.getResponseStatus()) {
-            case OK:
-                log.info("Notification sent successfully, starting completion workflow for iun {} id {}", response.getIun(), response.getTaxId());
-                //La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
-                completionWorkflow.completionDigitalWorkflow(response.getTaxId(), response.getIun(), response.getNotificationDate(), response.getDigitalUsedAddress(), EndWorkflowStatus.SUCCESS);
-                break;
-            case KO:
-                //Non è stato possibile effettuare la notificazione, si passa al prossimo step del workflow
-                addTimelineElement(timelineUtils.buildDigitalFailureAttemptTimelineElement(response));
-                log.info("Notificazione failed, starting next workflow action for iun {} id {}", response.getIun(), response.getTaxId());
-                nextWorkFlowAction(response.getIun(), response.getTaxId());
-                break;
-            default:
-                log.error("Specified status {} is not possibile for iun {} id {}", response.getResponseStatus(), response.getIun(), response.getTaxId());
-                throw new PnInternalException("Specified status" + response.getResponseStatus() + " is not possibile");
+        if (response.getResponseStatus() != null) {
+            switch (response.getResponseStatus()) {
+                case OK:
+                    log.info("Notification sent successfully, starting completion workflow for iun {} id {}", response.getIun(), response.getTaxId());
+                    //La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
+                    completionWorkflow.completionDigitalWorkflow(response.getTaxId(), response.getIun(), response.getNotificationDate(), response.getDigitalUsedAddress(), EndWorkflowStatus.SUCCESS);
+                    break;
+                case KO:
+                    //Non è stato possibile effettuare la notificazione, si passa al prossimo step del workflow
+                    addTimelineElement(timelineUtils.buildDigitalFailureAttemptTimelineElement(response));
+                    log.info("Notificazione failed, starting next workflow action for iun {} id {}", response.getIun(), response.getTaxId());
+                    nextWorkFlowAction(response.getIun(), response.getTaxId());
+                    break;
+                default:
+                    handleStatusError(response);
+            }
+        } else {
+            handleStatusError(response);
         }
+    }
+
+    private void handleStatusError(ExtChannelResponse response) {
+        log.error("Specified status {} is not possibile for iun {} id {}", response.getResponseStatus(), response.getIun(), response.getTaxId());
+        throw new PnInternalException("Specified status" + response.getResponseStatus() + " is not possibile");
     }
 
     private void addTimelineElement(TimelineElement element) {

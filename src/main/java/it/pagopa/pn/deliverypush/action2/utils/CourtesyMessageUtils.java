@@ -29,25 +29,29 @@ public class CourtesyMessageUtils {
     /**
      * Get recipient addresses and send courtesy messages.
      */
-    public void sendCourtesyMessage(Notification notification, NotificationRecipient recipient) {
-        log.info("SendCourtesyMessage for iun {} id {} ", notification.getIun(), recipient.getTaxId());
+    public void checkAddressesForSendCourtesyMessage(Notification notification, NotificationRecipient recipient) {
+        log.info("CheckAddressesForSendCourtesyMessage for iun {} id {} ", notification.getIun(), recipient.getTaxId());
 
         //Vengono ottenuti tutti gli indirizzi di cortesia per il recipient ...
         addressBook.getAddresses(recipient.getTaxId(), notification.getSender())
                 .ifPresent(addressBookItem -> {
                     int index = 0;
                     for (DigitalAddress courtesyAddress : addressBookItem.getCourtesyAddresses()) {
-                        log.info("Send courtesy message for address index {} for iun {} id {} ", index, notification.getIun(), recipient.getTaxId());
-
-                        //... Per ogni indirizzo di cortesia ottenuto viene inviata la notifica del messaggio di cortesia tramite external channel
-                        String eventId = getTimelineElementId(recipient.getTaxId(), notification.getIun(), index);
-                        externalChannelUtils.sendCourtesyNotification(notification, courtesyAddress, recipient, eventId);
+                        sendCourtesyMessage(notification, recipient, index, courtesyAddress);
                         index++;
                     }
 
                 });
 
         log.debug("End sendCourtesyMessage for IUN {} id {}", notification.getIun(), recipient.getTaxId());
+    }
+
+    private void sendCourtesyMessage(Notification notification, NotificationRecipient recipient, int index, DigitalAddress courtesyAddress) {
+        log.debug("Send courtesy message address index {} for iun {} id {} ", index, notification.getIun(), recipient.getTaxId());
+
+        //... Per ogni indirizzo di cortesia ottenuto viene inviata la notifica del messaggio di cortesia tramite external channel
+        String eventId = getTimelineElementId(recipient.getTaxId(), notification.getIun(), index);
+        externalChannelUtils.sendCourtesyNotification(notification, courtesyAddress, recipient, eventId);
     }
 
     private String getTimelineElementId(String taxId, String iun, int index) {

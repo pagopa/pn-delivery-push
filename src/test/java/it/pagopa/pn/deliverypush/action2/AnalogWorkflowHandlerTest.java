@@ -55,7 +55,7 @@ class AnalogWorkflowHandlerTest {
         Mockito.when(analogWorkflowUtils.getSentAttemptFromTimeLine(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(0);
 
-        handler.nextWorkflowStep(notification.getIun(), notification.getRecipients().get(0).getTaxId());
+        handler.nextWorkflowStep(notification.getIun(), notification.getRecipients().get(0).getTaxId(), 0);
 
         //TODO Da continuare
 

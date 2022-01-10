@@ -110,33 +110,50 @@ public class DigitalWorkFlowUtils {
     public DigitalAddressSource getNextAddressSource(DigitalAddressSource addressSource) {
         log.debug("GetNextAddressSource for source {}", addressSource);
 
-        switch (addressSource) {
-            case PLATFORM:
-                return DigitalAddressSource.GENERAL;
-            case GENERAL:
-                return DigitalAddressSource.SPECIAL;
-            case SPECIAL:
-                return DigitalAddressSource.PLATFORM;
-            default:
-                log.error("Address source {} is not valid", addressSource);
-                throw new PnInternalException("Address source " + addressSource + " is not valid");
+        if (addressSource != null) {
+            switch (addressSource) {
+                case PLATFORM:
+                    return DigitalAddressSource.GENERAL;
+                case GENERAL:
+                    return DigitalAddressSource.SPECIAL;
+                case SPECIAL:
+                    return DigitalAddressSource.PLATFORM;
+                default:
+                    handleAddressSourceError(addressSource);
+            }
+        } else {
+            handleAddressSourceError(addressSource);
         }
+        return null;
+    }
+
+    private void handleAddressSourceError(DigitalAddressSource addressSource) {
+        log.error("Address source {} is not valid", addressSource);
+        throw new PnInternalException("Address source " + addressSource + " is not valid");
     }
 
     @Nullable
     public DigitalAddress getAddressFromSource(DigitalAddressSource addressSource, NotificationRecipient recipient, Notification notification) {
         log.info("GetAddressFromSource for source {} iun {} id {}", addressSource, notification.getIun(), recipient.getTaxId());
-
-        switch (addressSource) {
-            case PLATFORM:
-                return retrievePlatformAddress(recipient, notification.getSender());
-            case SPECIAL:
-                log.debug("Return digital domicile for iun {} id {}", notification.getIun(), recipient.getTaxId());
-                return recipient.getDigitalDomicile();
-            default:
-                log.error("Specified addressSource {} does not exist for iun {} id {}", addressSource, notification.getIun(), recipient.getTaxId());
-                throw new PnInternalException("Specified addressSource " + addressSource + " does not exist for iun " + notification.getIun() + " id " + recipient.getTaxId());
+        if (addressSource != null) {
+            switch (addressSource) {
+                case PLATFORM:
+                    return retrievePlatformAddress(recipient, notification.getSender());
+                case SPECIAL:
+                    log.debug("Return digital domicile for iun {} id {}", notification.getIun(), recipient.getTaxId());
+                    return recipient.getDigitalDomicile();
+                default:
+                    handleAddressSourceError(addressSource, recipient, notification);
+            }
+        } else {
+            handleAddressSourceError(addressSource, recipient, notification);
         }
+        return null;
+    }
+
+    private void handleAddressSourceError(DigitalAddressSource addressSource, NotificationRecipient recipient, Notification notification) {
+        log.error("Specified addressSource {} does not exist for iun {} id {}", addressSource, notification.getIun(), recipient.getTaxId());
+        throw new PnInternalException("Specified addressSource " + addressSource + " does not exist for iun " + notification.getIun() + " id " + recipient.getTaxId());
     }
 
     private DigitalAddress retrievePlatformAddress(NotificationRecipient recipient, NotificationSender sender) {

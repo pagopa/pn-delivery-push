@@ -51,7 +51,7 @@ public class StartWorkflowHandler {
             // Per ogni recipient della notifica viene aggiunta l'accettazione della richiesta alla timeline ...
             addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification, recipient.getTaxId()));
             //... inviato il messaggio di cortesia ...
-            courtesyMessageUtils.sendCourtesyMessage(notification, recipient);
+            courtesyMessageUtils.checkAddressesForSendCourtesyMessage(notification, recipient);
             //... e inizializzato il processo di scelta della tipologia di notificazione
             chooseDeliveryType.chooseDeliveryTypeAndStartWorkflow(notification, recipient);
         }

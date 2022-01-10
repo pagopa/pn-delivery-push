@@ -50,10 +50,10 @@ class StartWorkflowHandlerTest {
                 .thenReturn(getNotification());
 
         handler.startWorkflow("IUN_01");
-        
+
         Mockito.verify(legalFactUtils).saveNotificationReceivedLegalFact(Mockito.any(Notification.class));
         Mockito.verify(timelineUtils).buildAcceptedRequestTimelineElement(Mockito.any(Notification.class), Mockito.anyString());
-        Mockito.verify(courtesyMessageUtils).sendCourtesyMessage(Mockito.any(Notification.class), Mockito.any(NotificationRecipient.class));
+        Mockito.verify(courtesyMessageUtils).checkAddressesForSendCourtesyMessage(Mockito.any(Notification.class), Mockito.any(NotificationRecipient.class));
         Mockito.verify(chooseDeliveryType).chooseDeliveryTypeAndStartWorkflow(Mockito.any(Notification.class), Mockito.any(NotificationRecipient.class));
     }
 

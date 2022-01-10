@@ -142,7 +142,7 @@ class PublicRegistryResponseHandlerTest {
 
         ArgumentCaptor<String> iunCaptor = ArgumentCaptor.forClass(String.class);
 
-        Mockito.verify(analogWorkflowHandler).handlePublicRegistryResponse(iunCaptor.capture(), Mockito.anyString(), Mockito.any(PublicRegistryResponse.class));
+        Mockito.verify(analogWorkflowHandler).handlePublicRegistryResponse(iunCaptor.capture(), Mockito.anyString(), Mockito.any(PublicRegistryResponse.class), Mockito.anyInt());
 
         Assertions.assertEquals(iun, iunCaptor.getValue());
 

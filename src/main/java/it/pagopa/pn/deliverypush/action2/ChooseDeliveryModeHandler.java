@@ -65,7 +65,7 @@ public class ChooseDeliveryModeHandler {
      * @param recipient    Notification recipient
      */
     public void chooseDeliveryTypeAndStartWorkflow(Notification notification, NotificationRecipient recipient) {
-        log.info("ChooseDeliveryTypeAndStartWorkflow process for IUN {} id {}", notification.getIun(), recipient.getTaxId());
+        log.info("Start ChooseDeliveryTypeAndStartWorkflow process for IUN {} id {}", notification.getIun(), recipient.getTaxId());
 
         String taxId = recipient.getTaxId();
         String iun = notification.getIun();
@@ -145,7 +145,7 @@ public class ChooseDeliveryModeHandler {
      * @param taxId User identifier
      */
     public void scheduleAnalogWorkflow(String iun, String taxId) {
-        log.info("Schedule analog workflow for iun {} id {} ", iun, taxId);
+        log.debug("Scheduling analog workflow for iun {} id {} ", iun, taxId);
 
         Optional<SendCourtesyMessageDetails> sendCourtesyMessageDetailsOpt = courtesyMessageUtils.getFirstSentCourtesyMessage(iun, taxId);
         Instant schedulingDate;
@@ -167,14 +167,16 @@ public class ChooseDeliveryModeHandler {
     }
 
     private DigitalAddress retrievePlatformAddress(NotificationRecipient recipient, NotificationSender sender) {
-        log.info("Start retrievePlatformAddress  for id {}", recipient.getTaxId());
+        log.debug("retrievePlatformAddress  for id {}", recipient.getTaxId());
 
         Optional<AddressBookEntry> addressBookEntryOpt = addressBook.getAddresses(recipient.getTaxId(), sender);
 
         if (addressBookEntryOpt.isPresent()) {
             DigitalAddresses digitalAddresses = addressBookEntryOpt.get().getDigitalAddresses(); //TODO Valutare se far ritornare un solo indirizzo all'addressbook e non una lista
-            DigitalAddress platformAddress = digitalAddresses.getPlatform();
-            return platformAddress != null && platformAddress.getAddress() != null ? platformAddress : null;
+            if (digitalAddresses != null) {
+                DigitalAddress platformAddress = digitalAddresses.getPlatform();
+                return platformAddress != null && platformAddress.getAddress() != null ? platformAddress : null;
+            }
         }
         return null;
     }
