@@ -34,7 +34,7 @@ public class PublicRegistryResponseHandler {
     }
 
     /**
-     * Handle response from get request to public registry
+     * Handle response for request to public registry
      *
      * @param response public registry response
      */
@@ -43,7 +43,7 @@ public class PublicRegistryResponseHandler {
 
         String correlationId = response.getCorrelationId();
         String iun = correlationId.substring(0, correlationId.indexOf("_")); //TODO Da modificare quando verrà risolta PN-533
-        log.info("Start handleResponse for correlationId {} iun {}", response.getCorrelationId(), iun);
+        log.info("Handle public registry response for correlationId {} iun {}", response.getCorrelationId(), iun);
 
         //Viene ottenuto l'oggetto di timeline creato in fase d'invio notifica al public registry
         Optional<PublicRegistryCallDetails> optTimeLinePublicRegistrySend = timelineService.getTimelineElement(iun, response.getCorrelationId(), PublicRegistryCallDetails.class);
@@ -54,7 +54,7 @@ public class PublicRegistryResponseHandler {
 
             addTimelineElement(timelineUtils.buildPublicRegistryResponseCallTimelineElement(iun, taxId, response));
 
-            log.info("TimelineElement is present, id {} contactPhase {}", taxId, publicRegistryCallDetails.getContactPhase());
+            log.info("TimelineElement is present,iun {} id {} contactPhase {}", iun, taxId, publicRegistryCallDetails.getContactPhase());
 
             ContactPhase contactPhase = publicRegistryCallDetails.getContactPhase();
             //In base alla fase di contatto, inserita in timeline al momento dell'invio, viene scelto il percorso da prendere

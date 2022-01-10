@@ -30,14 +30,14 @@ public class CourtesyMessageUtils {
      * Get recipient addresses and send courtesy messages.
      */
     public void sendCourtesyMessage(Notification notification, NotificationRecipient recipient) {
-        log.info("Start sendCourtesyMessage IUN {} id {} ", notification.getIun(), recipient.getTaxId());
+        log.info("SendCourtesyMessage for iun {} id {} ", notification.getIun(), recipient.getTaxId());
 
         //Vengono ottenuti tutti gli indirizzi di cortesia per il recipient ...
         addressBook.getAddresses(recipient.getTaxId(), notification.getSender())
                 .ifPresent(addressBookItem -> {
                     int index = 0;
                     for (DigitalAddress courtesyAddress : addressBookItem.getCourtesyAddresses()) {
-                        log.info("send courtesy message for address index {}", index);
+                        log.info("Send courtesy message for address index {} for iun {} id {} ", index, notification.getIun(), recipient.getTaxId());
 
                         //... Per ogni indirizzo di cortesia ottenuto viene inviata la notifica del messaggio di cortesia tramite external channel
                         String eventId = getTimelineElementId(recipient.getTaxId(), notification.getIun(), index);
@@ -47,7 +47,7 @@ public class CourtesyMessageUtils {
 
                 });
 
-        log.debug("End sendCourtesyMessage IUN {} id {}", notification.getIun(), recipient.getTaxId());
+        log.debug("End sendCourtesyMessage for IUN {} id {}", notification.getIun(), recipient.getTaxId());
     }
 
     private String getTimelineElementId(String taxId, String iun, int index) {
@@ -67,7 +67,7 @@ public class CourtesyMessageUtils {
      */
     public Optional<SendCourtesyMessageDetails> getFirstSentCourtesyMessage(String iun, String taxId) {
         String timeLineCourtesyId = getTimelineElementId(taxId, iun, 0);
-        log.debug("Get courtesy message for timelineCourtesyId {}", timeLineCourtesyId);
+        log.debug("Get courtesy message for timelineCourtesyId {} for IUN {} id {}", timeLineCourtesyId, iun, taxId);
 
         return timelineService.getTimelineElement(iun, timeLineCourtesyId, SendCourtesyMessageDetails.class);
     }

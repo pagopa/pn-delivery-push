@@ -7,9 +7,11 @@ import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class NotificationViewedHandler {
 
@@ -31,12 +33,16 @@ public class NotificationViewedHandler {
 
     @StreamListener(condition = "NOTIFICATION_VIEWED")
     public void handleViewNotification(String iun, String taxId) {
+        log.info("HandleViewNotification for iun {} id {}", iun, taxId);
+
         Notification notification = notificationService.getNotificationByIun(iun);
 
         addTimelineElement(timelineUtils.buildNotificationViewedTimelineElement(iun, taxId));
         //TODO Da aggiungere quando verranno modificati i vari legalFacts
         //legalFactStore.saveNotificationViewedLegalFact(action, notification);
         paperNotificationFailedDao.deleteNotificationFailed(taxId, iun); //Viene eliminata l'istanza di notifica fallita dal momento che la stessa è stata letta
+
+        log.debug("End HandleViewNotification for iun {} id {}", iun, taxId);
     }
 
     private void addTimelineElement(TimelineElement element) {

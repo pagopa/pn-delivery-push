@@ -36,7 +36,7 @@ public class NotificationServiceImpl implements NotificationService {
         if (optRec.isPresent()) {
             return optRec.get();
         } else {
-            log.error("There isn't recipient in notification for iun {} id", notification.getIun(), taxId);
+            log.error("There isn't recipient in notification for iun {} id {}", notification.getIun(), taxId);
             throw new PnInternalException("There isn't notification for iun " + notification.getIun() + " id " + taxId);
         }
     }

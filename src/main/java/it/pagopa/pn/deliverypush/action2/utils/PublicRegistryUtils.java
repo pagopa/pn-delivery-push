@@ -30,7 +30,7 @@ public class PublicRegistryUtils {
      * @param contactPhase Process phase where the request is sent. CHOOSE_DELIVERY -> request sent during delivery selection,  SEND_ATTEMPT ->  request Sent in Digital or analogic workflow
      */
     public void sendRequestForGetDigitalAddress(String iun, String taxId, ContactPhase contactPhase, int sentAttemptMade) {
-        log.info("Start sendRequestForGetDigitalAddress for IUN {} id {} ", iun, taxId);
+        log.info("SendRequestForGetDigitalAddress for IUN {} id {} ", iun, taxId);
 
         String correlationId = String.format(
                 "%s_%s_%s_%s_%d",
@@ -48,7 +48,7 @@ public class PublicRegistryUtils {
     }
 
     public void sendRequestForGetPhysicalAddress(String iun, String taxId, int sentAttemptMade) {
-        log.info("Start sendRequestForGetPhysicalAddress for IUN {} id {} ", iun, taxId);
+        log.info("SendRequestForGetPhysicalAddress for IUN {} id {} ", iun, taxId);
 
         String correlationId = String.format(
                 "%s_%s_%s_%s_%d",

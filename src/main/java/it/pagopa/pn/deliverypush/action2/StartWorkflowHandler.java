@@ -47,7 +47,7 @@ public class StartWorkflowHandler {
         legalFactUtils.saveNotificationReceivedLegalFact(notification);
 
         for (NotificationRecipient recipient : notification.getRecipients()) {
-            log.info("Notification recipient is {}", recipient.getTaxId());
+            log.info("Notification recipient is {} for iun {}", recipient.getTaxId(), iun);
             // Per ogni recipient della notifica viene aggiunta l'accettazione della richiesta alla timeline ...
             addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification, recipient.getTaxId()));
             //... inviato il messaggio di cortesia ...

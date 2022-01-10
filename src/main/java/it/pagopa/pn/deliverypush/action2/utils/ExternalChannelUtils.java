@@ -38,7 +38,7 @@ public class ExternalChannelUtils {
      */
     public void sendDigitalNotification(Notification notification, DigitalAddress digitalAddress, DigitalAddressSource addressSource, NotificationRecipient recipient,
                                         int sentAttemptMade) {
-        log.info("Start sendDigitalNotification to external channel for iun {} id {}", notification.getIun(), recipient.getTaxId());
+        log.info("SendDigitalNotification to external channel for iun {} id {}", notification.getIun(), recipient.getTaxId());
         String eventId = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())
@@ -57,7 +57,7 @@ public class ExternalChannelUtils {
      * Generate and send email notification request to external channel
      */
     public void sendCourtesyNotification(Notification notification, DigitalAddress courtesyAddress, NotificationRecipient recipient, String eventId) {
-        log.info("Start SendCourtesyMessage to external channel for iun {} id {}", notification.getIun(), recipient.getTaxId());
+        log.info("SendCourtesyMessage to external channel for iun {} id {}", notification.getIun(), recipient.getTaxId());
         PnExtChnEmailEvent pnExtChnEmailEvent = buildSendEmailRequest2(eventId,
                 notification,
                 recipient,
@@ -71,7 +71,7 @@ public class ExternalChannelUtils {
      * Generate and send simple registered letter notification request to external channel
      */
     public void sendNotificationForRegisteredLetter(Notification notification, PhysicalAddress physicalAddress, NotificationRecipient recipient) {
-        log.info("Start sendNotificationForRegisteredLetter to external channel for iun {} id {}", notification.getIun(), recipient.getTaxId());
+        log.info("SendNotificationForRegisteredLetter to external channel for iun {} id {}", notification.getIun(), recipient.getTaxId());
 
         String eventId = TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER.buildEventId(
                 EventId.builder()
@@ -98,7 +98,7 @@ public class ExternalChannelUtils {
      * Generate and send analog notification request to external channel
      */
     public void sendAnalogNotification(Notification notification, PhysicalAddress physicalAddress, NotificationRecipient recipient, boolean investigation, int sentAttemptMade) {
-        log.info("Start sendAnalogNotification to external channel for iun {} id {}", notification.getIun(), recipient.getTaxId());
+        log.info("SendAnalogNotification to external channel for iun {} id {}", notification.getIun(), recipient.getTaxId());
         String eventId = TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())

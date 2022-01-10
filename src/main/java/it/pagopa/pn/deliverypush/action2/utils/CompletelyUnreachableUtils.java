@@ -23,7 +23,7 @@ public class CompletelyUnreachableUtils {
     }
 
     public void handleCompletelyUnreachable(String iun, String taxId) {
-        log.info("Start handleCompletelyUnreachable for iun {} id {} ", iun, taxId);
+        log.info("HandleCompletelyUnreachable for iun {} id {} ", iun, taxId);
 
         if (!isNotificationAlreadyViewed(iun, taxId)) {
             addPaperNotificationFailed(iun, taxId);

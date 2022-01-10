@@ -69,8 +69,7 @@ class WorkflowTest {
                 .chooseDeliveryTypeAndStartWorkflow(SIMPLE_NOTIFICATION, SIMPLE_NOTIFICATION.getRecipients().get(0));
     }
 
-
-    private static Notification SIMPLE_NOTIFICATION = Notification.builder()
+    private static final Notification SIMPLE_NOTIFICATION = Notification.builder()
             .iun("IUN_01")
             .paNotificationId("protocol_01")
             .subject("Subject 01")

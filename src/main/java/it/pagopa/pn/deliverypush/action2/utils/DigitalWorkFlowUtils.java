@@ -41,7 +41,7 @@ public class DigitalWorkFlowUtils {
         Set<TimelineElement> timeline = timelineService.getTimeline(iun);
 
         //Viene ottenuto l'ultimo indirizzo utilizzato
-        GetAddressInfo lastAddressAttempt = getLastAddressAttempt(taxId, timeline);
+        GetAddressInfo lastAddressAttempt = getLastAddressAttempt(iun, taxId, timeline);
         log.debug("Get last address attempt with source {}", lastAddressAttempt.getSource());
 
         //Ottiene la source del prossimo indirizzo da utilizzare
@@ -64,19 +64,19 @@ public class DigitalWorkFlowUtils {
     }
 
     //Get last tried source address from timeline. Attempt for source is ever added in timeline (both in case the address is available and if it's not available)
-    private GetAddressInfo getLastAddressAttempt(String taxId, Set<TimelineElement> timeline) {
-        log.debug("Start getLastAddressAttempt for id {}", taxId);
+    private GetAddressInfo getLastAddressAttempt(String iun, String taxId, Set<TimelineElement> timeline) {
+        log.debug("GetLastAddressAttempt for iun {} id {}", iun, taxId);
 
         Optional<GetAddressInfo> lastAddressAttemptOpt = timeline.stream()
                 .filter(timelineElement -> filterLastAttemptDateInTimeline(timelineElement, taxId))
                 .map(timelineElement -> (GetAddressInfo) timelineElement.getDetails()).min(Comparator.comparing(GetAddressInfo::getAttemptDate));
 
         if (lastAddressAttemptOpt.isPresent()) {
-            log.debug("Get getLastAddressAttempt OK for id {}", taxId);
+            log.debug("Get getLastAddressAttempt OK for iun {} id {}", iun, taxId);
             return lastAddressAttemptOpt.get();
         } else {
-            log.error("Last address attempt not found for taxId {}", taxId);
-            throw new PnInternalException("Last address attempt not found for taxId " + taxId);
+            log.error("Last address attempt not found for iun {} id {}", iun, taxId);
+            throw new PnInternalException("Last address attempt not found for iun " + iun + " id" + taxId);
         }
     }
 
@@ -108,7 +108,7 @@ public class DigitalWorkFlowUtils {
      * Get next address source from passed source in this order: PLATFORM, GENERAL, SPECIAL
      */
     public DigitalAddressSource getNextAddressSource(DigitalAddressSource addressSource) {
-        log.debug("Start getNextAddressSource for source {}", addressSource);
+        log.debug("GetNextAddressSource for source {}", addressSource);
 
         switch (addressSource) {
             case PLATFORM:
@@ -125,13 +125,13 @@ public class DigitalWorkFlowUtils {
 
     @Nullable
     public DigitalAddress getAddressFromSource(DigitalAddressSource addressSource, NotificationRecipient recipient, Notification notification) {
-        log.info("Start getAddressFromSource for source {} iun {} id {}", addressSource, notification.getIun(), recipient.getTaxId());
+        log.info("GetAddressFromSource for source {} iun {} id {}", addressSource, notification.getIun(), recipient.getTaxId());
 
         switch (addressSource) {
             case PLATFORM:
                 return retrievePlatformAddress(recipient, notification.getSender());
             case SPECIAL:
-                log.debug("Return digital domicile");
+                log.debug("Return digital domicile for iun {} id {}", notification.getIun(), recipient.getTaxId());
                 return recipient.getDigitalDomicile();
             default:
                 log.error("Specified addressSource {} does not exist for iun {} id {}", addressSource, notification.getIun(), recipient.getTaxId());
@@ -140,18 +140,18 @@ public class DigitalWorkFlowUtils {
     }
 
     private DigitalAddress retrievePlatformAddress(NotificationRecipient recipient, NotificationSender sender) {
-        log.debug("Start retrievePlatformAddress for recipient {} sender {}", recipient.getTaxId(), sender.getPaId());
+        log.debug("RetrievePlatformAddress for recipient {} sender {}", recipient.getTaxId(), sender.getPaId());
 
         Optional<AddressBookEntry> addressBookEntryOpt = addressBook.getAddresses(recipient.getTaxId(), sender);
 
         if (addressBookEntryOpt.isPresent()) {
-            log.debug("Retrive platformAddress ok");
+            log.debug("Retrive platformAddress ok for recipient {} sender {}", recipient.getTaxId(), sender.getPaId());
 
             DigitalAddresses digitalAddresses = addressBookEntryOpt.get().getDigitalAddresses(); //TODO Valutare se far ritornare un solo indirizzo all'addressbook e non una lista
             DigitalAddress platformAddress = digitalAddresses.getPlatform();
             return platformAddress != null && platformAddress.getAddress() != null ? platformAddress : null;
         }
-        log.debug("platform address is empty");
+        log.info("Platform address is empty for recipient {} sender {}", recipient.getTaxId(), sender.getPaId());
         return null;
     }
 }
