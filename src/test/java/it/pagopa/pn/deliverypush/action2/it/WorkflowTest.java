@@ -1,16 +1,19 @@
 package it.pagopa.pn.deliverypush.action2.it;
 
 import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineInfoElementDetails;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action2.*;
 import it.pagopa.pn.deliverypush.action2.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action2.utils.*;
 import it.pagopa.pn.deliverypush.actions.ExtChnEventUtils;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.NotificationServiceImpl;
 import it.pagopa.pn.deliverypush.service.impl.TimeLineServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.test.context.ContextConfiguration;
@@ -18,6 +21,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
@@ -45,6 +50,7 @@ import java.util.List;
         SchedulerServiceMock.class,
         PublicRegistryMock.class,
         ExternalChannelMock.class,
+        PaperNotificationFailedDaoMock.class,
         WorkflowTest.SpringTestConfiguration.class
 })
 class WorkflowTest {
@@ -64,7 +70,7 @@ class WorkflowTest {
     private StartWorkflowHandler startWorkflowHandler;
 
     @Autowired
-    private ChooseDeliveryModeHandler chooseDeliveryModeHandler;
+    private TimelineService timelineService;
 
     @Test
     void AnalogWorkflowTest() {
@@ -84,8 +90,24 @@ class WorkflowTest {
         //Start del workflow
         startWorkflowHandler.startWorkflow(notification.getIun());
 
-        Mockito.verify(chooseDeliveryModeHandler, Mockito.times(1))
+        Set<TimelineElement> setTimeline = timelineService.getTimeline(notification.getIun());
+        List<TimelineElement> timelineElements = setTimeline.stream()
+                .filter(timelineElement -> checkCategoryAndTaxId(timelineElement, TimelineElementCategory.COMPLETELY_UNREACHABLE, taxId))
+                .collect(Collectors.toList());
+
+        /*Mockito.verify(chooseDeliveryModeHandler, Mockito.times(1))
                 .chooseDeliveryTypeAndStartWorkflow(notification, notification.getRecipients().get(0));
+                
+         */
+    }
+
+    private boolean checkCategoryAndTaxId(TimelineElement el, TimelineElementCategory category, String taxId) {
+        boolean isCorrectCategory = category.equals(el.getCategory());
+        if (isCorrectCategory) {
+            TimelineInfoElementDetails details = (TimelineInfoElementDetails) el.getDetails();
+            return taxId.equalsIgnoreCase(details.getTaxId());
+        }
+        return false;
     }
 
 
