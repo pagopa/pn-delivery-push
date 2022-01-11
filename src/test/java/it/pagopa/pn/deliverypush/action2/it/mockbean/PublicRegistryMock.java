@@ -2,7 +2,6 @@ package it.pagopa.pn.deliverypush.action2.it.mockbean;
 
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.action2.PublicRegistryResponseHandler;
 import it.pagopa.pn.deliverypush.action2.it.TestUtils;
@@ -18,6 +17,7 @@ public class PublicRegistryMock implements PublicRegistry {
 
     @Override
     public void sendRequestForGetDigitalAddress(String taxId, String correlationId) {
+        //TODO Da completare
         PublicRegistryResponse response;
         if (taxId.contains(TestUtils.PUBLIC_REGISTRY_FAIL_GET_DIGITAL_ADDRESS)) {
             //Simulazione casistica registri pubblici non riescono a fornire indirizzo generale
@@ -41,44 +41,28 @@ public class PublicRegistryMock implements PublicRegistry {
 
     @Override
     public void sendRequestForGetPhysicalAddress(String taxId, String correlationId) {
-        PublicRegistryResponse response;
+        PublicRegistryResponse response = PublicRegistryResponse.builder()
+                .correlationId(correlationId)
+                .build();
         if (taxId.contains(TestUtils.PUBLIC_REGISTRY_FAIL_GET_ANALOG_ADDRESS)) {
             //In questo caso public registry non è riuscito a fornire l'indirizzo
-            response = PublicRegistryResponse.builder()
-                    .correlationId(correlationId)
+            response = response.toBuilder()
                     .physicalAddress(null)
                     .build();
         } else {
-            if (taxId.contains(TestUtils.PUBLIC_REGISTRY_OK_GET_ANALOG_ADDRESS_WITH_FAILURE_ADDRESS)) {
-                //In questo caso è stata ottenuta la risposta positiva da public registry ma l'indirizzo fornito sarà di una tipologia di fallimmento per external channel
-                response = PublicRegistryResponse.builder()
-                        .correlationId(correlationId)
-                        .physicalAddress(PhysicalAddress.builder()
-                                .at("Presso")
-                                .address("Via nuova 26 - " + TestUtils.EXTERNAL_CHANNEL_ANALOG_FAILURE_ATTEMPT)
-                                .zip("00100")
-                                .municipality("Roma")
-                                .province("RM")
-                                .foreignState("IT")
-                                .addressDetails("Scala A")
-                                .build())
-                        .build();
-            } else {
-                //In questo caso è stata ottenuta la risposta positiva da public registry e l'indirizzo fornito sarà di una tipologia di successo per external channel
-                response = PublicRegistryResponse.builder()
-                        .correlationId(correlationId)
-                        .physicalAddress(PhysicalAddress.builder()
-                                .at("Presso")
-                                .address("Via nuova 26")
-                                .zip("00100")
-                                .municipality("Roma")
-                                .province("RM")
-                                .foreignState("IT")
-                                .addressDetails("Scala A")
-                                .build())
-                        .build();
-            }
+            //In questo caso public registry è riuscito a fornire l'indirizzo
+            //La logica per l'indirizzo restituito è presente nel taxId. Viene quindi concatenato il taxId all'address restitutito per permettere alle logiche presenti
+            // in ExternalChannelMock di funzionare
+
+            response = PublicRegistryResponse.builder()
+                    .correlationId(correlationId)
+                    .physicalAddress(
+                            TestUtils.getPhysicalAddressWithTaxIdForPublicRegistry(taxId)
+                    )
+                    .build();
         }
+
         publicRegistryResponseHandler.handleResponse(response);
     }
+
 }

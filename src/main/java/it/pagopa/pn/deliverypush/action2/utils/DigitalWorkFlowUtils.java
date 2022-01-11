@@ -37,7 +37,6 @@ public class DigitalWorkFlowUtils {
         log.info("Start getNextAddressInfo for iun {} id {}", iun, taxId);
 
         //TODO Da rivedere i metodi utilizzati per filtrare ecc
-        AttemptAddressInfo attemptAddressInfo;
         Set<TimelineElement> timeline = timelineService.getTimeline(iun);
 
         //Viene ottenuto l'ultimo indirizzo utilizzato
@@ -45,14 +44,14 @@ public class DigitalWorkFlowUtils {
         log.debug("Get last address attempt with source {}", lastAddressAttempt.getSource());
 
         //Ottiene la source del prossimo indirizzo da utilizzare
-        DigitalAddressSource nextAddressSource = getNextAddressSource(lastAddressAttempt.getSource());
+        DigitalAddressSource nextAddressSource = lastAddressAttempt.getSource().next();
         log.debug("nextAddressSource {}", nextAddressSource);
 
         //Ottiene i tentativi effettuati per tale indirizzo
         int attemptsMade = getAttemptsMadeForSource(taxId, timeline, nextAddressSource);
         log.debug("AttemptsMade for source {} is {}", nextAddressSource, attemptsMade);
 
-        attemptAddressInfo = AttemptAddressInfo.builder()
+        AttemptAddressInfo attemptAddressInfo = AttemptAddressInfo.builder()
                 .addressSource(nextAddressSource)
                 .sentAttemptMade(attemptsMade)
                 .lastAttemptDate(lastAddressAttempt.getAttemptDate())
@@ -63,13 +62,14 @@ public class DigitalWorkFlowUtils {
         return attemptAddressInfo;
     }
 
-    //Get last tried source address from timeline. Attempt for source is ever added in timeline (both in case the address is available and if it's not available)
+    //Ottiene l'ultimo indirizzo dalla timeline. I tentavi sono sempre presenti in timeline, sia nel caso in cui l'indirizzo sia presente sia nel caso in cui non lo sia
     private GetAddressInfo getLastAddressAttempt(String iun, String taxId, Set<TimelineElement> timeline) {
         log.debug("GetLastAddressAttempt for iun {} id {}", iun, taxId);
 
         Optional<GetAddressInfo> lastAddressAttemptOpt = timeline.stream()
-                .filter(timelineElement -> filterLastAttemptDateInTimeline(timelineElement, taxId))
-                .map(timelineElement -> (GetAddressInfo) timelineElement.getDetails()).min(Comparator.comparing(GetAddressInfo::getAttemptDate));
+                .filter(timelineElement -> checkGetAddressCategoryAndTaxId(timelineElement, taxId))
+                .map(timelineElement -> (GetAddressInfo) timelineElement.getDetails())
+                .min(Comparator.comparing(GetAddressInfo::getAttemptDate));
 
         if (lastAddressAttemptOpt.isPresent()) {
             log.debug("Get getLastAddressAttempt OK for iun {} id {}", iun, taxId);
@@ -80,7 +80,7 @@ public class DigitalWorkFlowUtils {
         }
     }
 
-    private boolean filterLastAttemptDateInTimeline(TimelineElement el, String taxId) {
+    private boolean checkGetAddressCategoryAndTaxId(TimelineElement el, String taxId) {
         boolean availableAddressCategory = TimelineElementCategory.GET_ADDRESS.equals(el.getCategory());
         if (availableAddressCategory) {
             GetAddressInfo details = (GetAddressInfo) el.getDetails();
@@ -89,7 +89,7 @@ public class DigitalWorkFlowUtils {
         return false;
     }
 
-    // Get attempts number made for passed source
+    // Get attempts number made for source
     private int getAttemptsMadeForSource(String taxId, Set<TimelineElement> timeline, DigitalAddressSource nextAddressSource) {
         return (int) timeline.stream()
                 .filter(timelineElement -> filterTimelineForTaxIdAndSource(timelineElement, taxId, nextAddressSource)).count();
@@ -102,34 +102,6 @@ public class DigitalWorkFlowUtils {
             return taxId.equalsIgnoreCase(details.getTaxId()) && source.equals(details.getSource());
         }
         return false;
-    }
-
-    /**
-     * Get next address source from passed source in this order: PLATFORM, GENERAL, SPECIAL
-     */
-    public DigitalAddressSource getNextAddressSource(DigitalAddressSource addressSource) {
-        log.debug("GetNextAddressSource for source {}", addressSource);
-
-        if (addressSource != null) {
-            switch (addressSource) {
-                case PLATFORM:
-                    return DigitalAddressSource.GENERAL;
-                case GENERAL:
-                    return DigitalAddressSource.SPECIAL;
-                case SPECIAL:
-                    return DigitalAddressSource.PLATFORM;
-                default:
-                    handleAddressSourceError(addressSource);
-            }
-        } else {
-            handleAddressSourceError(addressSource);
-        }
-        return null;
-    }
-
-    private void handleAddressSourceError(DigitalAddressSource addressSource) {
-        log.error("Address source {} is not valid", addressSource);
-        throw new PnInternalException("Address source " + addressSource + " is not valid");
     }
 
     @Nullable

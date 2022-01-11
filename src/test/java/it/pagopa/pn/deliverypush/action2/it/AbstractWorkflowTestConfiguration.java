@@ -37,6 +37,12 @@ public class AbstractWorkflowTestConfiguration {
         return Mockito.mock(LegalFactUtils.class);
     }
 
+    /*@Bean
+    @Primary
+    public ExternalChannel externalChannelMock(ExternalChannelMock externalChannelMock) {
+        return Mockito.spy(externalChannelMock);
+    }
+    */
   /*  @Bean
     public ChooseDeliveryModeHandler temporaryChooseDeliveryHandler() {
         return Mockito.mock(ChooseDeliveryModeHandler.class);

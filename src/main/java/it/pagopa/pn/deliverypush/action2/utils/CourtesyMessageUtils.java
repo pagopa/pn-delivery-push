@@ -36,11 +36,12 @@ public class CourtesyMessageUtils {
         addressBook.getAddresses(recipient.getTaxId(), notification.getSender())
                 .ifPresent(addressBookItem -> {
                     int index = 0;
-                    for (DigitalAddress courtesyAddress : addressBookItem.getCourtesyAddresses()) {
-                        sendCourtesyMessage(notification, recipient, index, courtesyAddress);
-                        index++;
+                    if (addressBookItem.getCourtesyAddresses() != null) {
+                        for (DigitalAddress courtesyAddress : addressBookItem.getCourtesyAddresses()) {
+                            sendCourtesyMessage(notification, recipient, index, courtesyAddress);
+                            index++;
+                        }
                     }
-
                 });
 
         log.debug("End sendCourtesyMessage for IUN {} id {}", notification.getIun(), recipient.getTaxId());

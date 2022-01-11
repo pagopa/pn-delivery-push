@@ -7,7 +7,6 @@ import it.pagopa.pn.api.dto.extchannel.ExtChannelResponse;
 import it.pagopa.pn.api.dto.extchannel.ExtChannelResponseStatus;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.deliverypush.action2.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action2.it.TestUtils;
 import it.pagopa.pn.deliverypush.external.ExternalChannel;
@@ -63,30 +62,14 @@ public class ExternalChannelMock implements ExternalChannel {
                 // Risulta presente un nuovo indirizzo dall'investigazione del postino, ma tale indirizzo dovrà fallire nuovamente nell'invio di external channels
                 response = response.toBuilder()
                         .analogNewAddressFromInvestigation(
-                                PhysicalAddress.builder()
-                                        .at("Presso")
-                                        .address("Via nuova 14 - " + TestUtils.EXTERNAL_CHANNEL_ANALOG_FAILURE_ATTEMPT)
-                                        .zip("00100")
-                                        .municipality("Roma")
-                                        .province("RM")
-                                        .foreignState("IT")
-                                        .addressDetails("Scala A")
-                                        .build()
+                                TestUtils.PHYSICAL_ADDRESS_FAILURE_BOTH
                         ).build();
             } else {
                 if (address.contains(TestUtils.INVESTIGATION_ADDRESS_PRESENT_POSITIVE)) {
                     // Risulta presente un nuovo indirizzo dall'investigazione del postino, è tale indirizzo dovrà avere esito positivo nel successivo invio di external channel
                     response = response.toBuilder()
                             .analogNewAddressFromInvestigation(
-                                    PhysicalAddress.builder()
-                                            .at("Presso")
-                                            .address("Via nuova 14")
-                                            .zip("00100")
-                                            .municipality("Roma")
-                                            .province("RM")
-                                            .foreignState("IT")
-                                            .addressDetails("Scala A")
-                                            .build()
+                                    TestUtils.PHYSICAL_ADDRESS_OK
                             ).build();
                 }
             }
