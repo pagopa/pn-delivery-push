@@ -6,6 +6,7 @@ import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
+import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.api.dto.notification.timeline.*;
@@ -63,11 +64,14 @@ class AnalogWorkflowTestTwo {
     private static final String taxId = listNotification.get(0).getRecipients().get(0).getTaxId();
     private static final List<AddressBookEntry> addressBookEntries = getListAddressBook(taxId);
 
+    private static final Map<String, DigitalAddress> PUB_REGISTRY_DIGITAL = Collections.emptyMap();
+    private static final Map<String, PhysicalAddress> PUB_REGISTRY_PHYSICAL = Collections.emptyMap();
+
     @TestConfiguration
     static class SpringTestConfiguration extends AbstractWorkflowTestConfiguration {
 
         public SpringTestConfiguration() {
-            super(listNotification, addressBookEntries);
+            super(listNotification, addressBookEntries, PUB_REGISTRY_DIGITAL, PUB_REGISTRY_PHYSICAL);
         }
     }
 

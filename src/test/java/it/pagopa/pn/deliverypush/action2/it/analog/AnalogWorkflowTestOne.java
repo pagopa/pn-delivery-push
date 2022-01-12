@@ -59,23 +59,29 @@ import java.util.*;
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
         SchedulerServiceMock.class,
-        PublicRegistryMock.class,
         ExternalChannelMock.class,
         PaperNotificationFailedDaoMock.class,
         AnalogWorkflowTestOne.SpringTestConfiguration.class
 })
 class AnalogWorkflowTestOne {
-    private static final List<Notification> listNotification = new ArrayList<>(getListNotification());
-    private static final String taxId = listNotification.get(0).getRecipients().get(0).getTaxId();
-    private static final List<AddressBookEntry> addressBookEntries = getListAddressBook(taxId);
 
     @TestConfiguration
     static class SpringTestConfiguration extends AbstractWorkflowTestConfiguration {
 
         public SpringTestConfiguration() {
-            super(listNotification, addressBookEntries);
+            super(listNotification, addressBookEntries, PUB_REGISTRY_DIGITAL, PUB_REGISTRY_PHYSICAL);
         }
     }
+
+    // - GIVEN
+    private static final List<Notification> listNotification = new ArrayList<>(getListNotification());
+    private static final String taxId = listNotification.get(0).getRecipients().get(0).getTaxId();
+    private static final List<AddressBookEntry> addressBookEntries = getListAddressBook(taxId);
+
+    private static final Map<String, DigitalAddress> PUB_REGISTRY_DIGITAL = Collections.emptyMap();
+    private static final Map<String, PhysicalAddress> PUB_REGISTRY_PHYSICAL = Collections.emptyMap();
+
+
 
     @Autowired
     private StartWorkflowHandler startWorkflowHandler;
@@ -228,11 +234,11 @@ class AnalogWorkflowTestOne {
                 )
                 .recipients(Collections.singletonList(
                         NotificationRecipient.builder()
-                                .taxId("Codice Fiscale 01_" + TestUtils.PUBLIC_REGISTRY_FAIL_GET_DIGITAL_ADDRESS + "_" + TestUtils.PUBLIC_REGISTRY_FAIL_GET_ANALOG_ADDRESS)
+                                .taxId("Codice Fiscale 01")
                                 .denomination("Nome Cognome/Ragione Sociale")
                                 .physicalAddress(PhysicalAddress.builder()
                                         .at("Presso")
-                                        .address("Via di casa sua - " + TestUtils.EXTERNAL_CHANNEL_ANALOG_FAILURE_ATTEMPT + "_" + TestUtils.INVESTIGATION_ADDRESS_PRESENT_FAILURE)
+                                        .address("NEW_ADDR: FAIL indirizzo del cf 01" + TestUtils.PUBLIC_REGISTRY_FAIL_GET_DIGITAL_ADDRESS + "")
                                         .zip("00100")
                                         .municipality("Roma")
                                         .province("RM")
