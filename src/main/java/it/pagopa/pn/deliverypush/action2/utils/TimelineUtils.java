@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class TimelineUtils {
 
     public TimelineElement buildAcceptedRequestTimelineElement(Notification notification, String taxId) {
-        log.debug("buildAcceptedRequestTimelineElement for IUN {} and id {}", notification.getIun(), taxId);
+        log.debug("buildAcceptedRequestTimelineElement - iun {} and id {}", notification.getIun(), taxId);
 
         return TimelineElement.builder()
                 .category(TimelineElementCategory.REQUEST_ACCEPTED)
@@ -43,7 +43,7 @@ public class TimelineUtils {
     }
 
     public TimelineElement buildAvailabilitySourceTimelineElement(String taxId, String iun, DigitalAddressSource source, boolean isAvailable, int sentAttemptMade) {
-        log.debug("buildAvailabilitySourceTimelineElement for IUN {} and id {}", iun, taxId);
+        log.debug("buildAvailabilitySourceTimelineElement - IUN {} and id {}", iun, taxId);
 
         return TimelineElement.builder()
                 .category(TimelineElementCategory.GET_ADDRESS)
@@ -64,13 +64,14 @@ public class TimelineUtils {
                                 .taxId(taxId)
                                 .source(source)
                                 .isAvailable(isAvailable)
+                                .attemptDate(Instant.now())
                                 .build())
                 .build();
     }
 
 
     public TimelineElement buildDigitalFailureAttemptTimelineElement(ExtChannelResponse response) {
-        log.debug("buildDigitalFailureAttemptTimelineElement for IUN {} and id {}", response.getIun(), response.getTaxId());
+        log.debug("buildDigitalFailureAttemptTimelineElement - IUN {} and id {}", response.getIun(), response.getTaxId());
 
         return TimelineElement.builder()
                 .iun(response.getIun())
@@ -85,7 +86,7 @@ public class TimelineUtils {
 
 
     public TimelineElement buildSendCourtesyMessageTimelineElement(String taxId, String iun, DigitalAddress address, Instant sendDate, String eventId) {
-        log.debug("buildSendCourtesyMessageTimelineElement for IUN {} and id {}", iun, taxId);
+        log.debug("buildSendCourtesyMessageTimelineElement - IUN {} and id {}", iun, taxId);
 
         //Viene aggiunto l'invio alla timeline con un particolare elementId utile a ottenere tali elementi successivamente nel workflow (Start analog workflow)
         return TimelineElement.builder()
@@ -103,7 +104,7 @@ public class TimelineUtils {
 
 
     public TimelineElement buildSendSimpleRegisteredLetterTimelineElement(String taxId, String iun, PhysicalAddress address, String eventId) {
-        log.debug("buildSendSimpleRegisteredLetterTimelineElement for IUN {} and id {}", iun, taxId);
+        log.debug("buildSendSimpleRegisteredLetterTimelineElement - IUN {} and id {}", iun, taxId);
 
         //Viene aggiunto l'invio alla timeline con un particolare elementId utile a ottenere tali elementi successivamente nel workflow (Start analog workflow)
         return TimelineElement.builder()
@@ -120,7 +121,7 @@ public class TimelineUtils {
 
 
     public TimelineElement buildSendDigitalNotificationTimelineElement(DigitalAddress digitalAddress, NotificationRecipient recipient, Notification notification, int sentAttemptMade, String eventId) {
-        log.debug("buildSendDigitalNotificationTimelineElement for IUN {} and id {}", notification.getIun(), recipient.getTaxId());
+        log.debug("buildSendDigitalNotificationTimelineElement - IUN {} and id {}", notification.getIun(), recipient.getTaxId());
 
         return TimelineElement.builder()
                 .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE)
@@ -139,7 +140,7 @@ public class TimelineUtils {
 
     public TimelineElement buildSendAnalogNotificationTimelineElement(PhysicalAddress address, NotificationRecipient recipient, Notification notification, boolean investigation,
                                                                       int sentAttemptMade, String eventId) {
-        log.debug("buildSendAnalogNotificationTimelineElement for IUN {} and id {}", notification.getIun(), recipient.getTaxId());
+        log.debug("buildSendAnalogNotificationTimelineElement - IUN {} and id {}", notification.getIun(), recipient.getTaxId());
 
         return TimelineElement.builder()
                 .category(TimelineElementCategory.SEND_ANALOG_DOMICILE)
@@ -158,7 +159,7 @@ public class TimelineUtils {
 
 
     public TimelineElement buildSuccessDigitalWorkflowTimelineElement(String taxId, String iun, DigitalAddress address) {
-        log.debug("buildSuccessDigitalWorkflowTimelineElement for IUN {} and id {}", iun, taxId);
+        log.debug("buildSuccessDigitalWorkflowTimelineElement - IUN {} and id {}", iun, taxId);
 
         return TimelineElement.builder()
                 .category(TimelineElementCategory.DIGITAL_SUCCESS_WORKFLOW)
@@ -179,7 +180,7 @@ public class TimelineUtils {
 
 
     public TimelineElement buildFailureDigitalWorkflowTimelineElement(String taxId, String iun) {
-        log.debug("buildFailureDigitalWorkflowTimelineElement for IUN {} and id {}", iun, taxId);
+        log.debug("buildFailureDigitalWorkflowTimelineElement - IUN {} and id {}", iun, taxId);
 
         return TimelineElement.builder()
                 .category(TimelineElementCategory.DIGITAL_FAILURE_WORKFLOW)
@@ -199,7 +200,7 @@ public class TimelineUtils {
 
 
     public TimelineElement buildSuccessAnalogWorkflowTimelineElement(String taxId, String iun, PhysicalAddress address) {
-        log.debug("buildSuccessAnalogWorkflowTimelineElement for IUN {} and id {}", iun, taxId);
+        log.debug("buildSuccessAnalogWorkflowTimelineElement - iun {} and id {}", iun, taxId);
 
         return TimelineElement.builder()
                 .category(TimelineElementCategory.ANALOG_SUCCESS_WORKFLOW)
@@ -220,7 +221,7 @@ public class TimelineUtils {
 
 
     public TimelineElement buildFailureAnalogWorkflowTimelineElement(String taxId, String iun) {
-        log.debug("buildFailureAnalogWorkflowTimelineElement for IUN {} and id {}", iun, taxId);
+        log.debug("buildFailureAnalogWorkflowTimelineElement - iun {} and id {}", iun, taxId);
 
         return TimelineElement.builder()
                 .category(TimelineElementCategory.ANALOG_FAILURE_WORKFLOW)
@@ -240,7 +241,7 @@ public class TimelineUtils {
 
 
     public TimelineElement buildPublicRegistryResponseCallTimelineElement(String iun, String taxId, PublicRegistryResponse response) {
-        log.debug("buildPublicRegistryResponseCallTimelineElement for IUN {} and id {}", iun, taxId);
+        log.debug("buildPublicRegistryResponseCallTimelineElement - iun {} and id {}", iun, taxId);
 
         return TimelineElement.builder()
                 .iun(iun)
@@ -257,7 +258,7 @@ public class TimelineUtils {
 
 
     public TimelineElement buildPublicRegistryCallTimelineElement(String iun, String taxId, String eventId, DeliveryMode deliveryMode, ContactPhase contactPhase, int sentAttemptMade) {
-        log.debug("buildPublicRegistryCallTimelineElement for IUN {} and id {}", iun, taxId);
+        log.debug("buildPublicRegistryCallTimelineElement - iun {} and id {}", iun, taxId);
 
         return TimelineElement.builder()
                 .iun(iun)
@@ -274,7 +275,7 @@ public class TimelineUtils {
 
 
     public TimelineElement buildAnalogFailureAttemptTimelineElement(ExtChannelResponse response, String taxId, int sentAttemptMade) {
-        log.debug("buildAnalogFailureAttemptTimelineElement for IUN {} and id {}", response.getIun(), response.getTaxId());
+        log.debug("buildAnalogFailureAttemptTimelineElement - iun {} and id {}", response.getIun(), response.getTaxId());
 
         String iun = response.getIun();
 
@@ -304,7 +305,7 @@ public class TimelineUtils {
     }
 
     public TimelineElement buildNotificationViewedTimelineElement(String iun, String taxId) {
-        log.debug("buildNotificationViewedTimelineElement for IUN {} and id {}", iun, taxId);
+        log.debug("buildNotificationViewedTimelineElement - iun {} and id {}", iun, taxId);
 
         return TimelineElement.builder()
                 .category(TimelineElementCategory.NOTIFICATION_VIEWED)
@@ -324,7 +325,7 @@ public class TimelineUtils {
 
 
     public TimelineElement buildCompletelyUnreachableTimelineElement(String iun, String taxId) {
-        log.debug("buildCompletelyUnreachableTimelineElement for IUN {} and id {}", iun, taxId);
+        log.debug("buildCompletelyUnreachableTimelineElement - iun {} and id {}", iun, taxId);
 
         return TimelineElement.builder()
                 .category(TimelineElementCategory.COMPLETELY_UNREACHABLE)
@@ -343,7 +344,7 @@ public class TimelineUtils {
     }
 
     public TimelineElement buildRefinementTimelineElement(String iun, String taxId) {
-        log.debug("buildRefinementTimelineElement for IUN {} and id {}", iun, taxId);
+        log.debug("buildRefinementTimelineElement - iun {} and id {}", iun, taxId);
         return TimelineElement.builder()
                 .category(TimelineElementCategory.REFINEMENT)
                 .timestamp(Instant.now())

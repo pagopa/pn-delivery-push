@@ -33,7 +33,7 @@ public class NotificationViewedHandler {
 
     @StreamListener(condition = "NOTIFICATION_VIEWED")
     public void handleViewNotification(String iun, String taxId) {
-        log.info("Start HandleViewNotification for iun {} id {}", iun, taxId);
+        log.info("Start HandleViewNotification - iun {} id {}", iun, taxId);
 
         Notification notification = notificationService.getNotificationByIun(iun);
 
@@ -42,7 +42,7 @@ public class NotificationViewedHandler {
         //legalFactStore.saveNotificationViewedLegalFact(action, notification);
         paperNotificationFailedDao.deleteNotificationFailed(taxId, iun); //Viene eliminata l'istanza di notifica fallita dal momento che la stessa è stata letta
 
-        log.debug("End HandleViewNotification for iun {} id {}", iun, taxId);
+        log.debug("End HandleViewNotification - iun {} id {}", iun, taxId);
     }
 
     private void addTimelineElement(TimelineElement element) {

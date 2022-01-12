@@ -49,7 +49,7 @@ public class ExternalChannelUtils {
                         .index(sentAttemptMade)
                         .build()
         );
-        log.info("SendDigitalNotification to external channel for iun {} id {} eventId{}", notification.getIun(), recipient.getTaxId(), eventId);
+        log.info("SendDigitalNotification to external channel - iun {} id {} eventId{}", notification.getIun(), recipient.getTaxId(), eventId);
 
         PnExtChnPecEvent pnExtChnPecEvent = buildSendPecRequest(eventId, notification, recipient, digitalAddress);
 
@@ -65,7 +65,7 @@ public class ExternalChannelUtils {
                 notification,
                 recipient,
                 courtesyAddress);
-        log.info("SendCourtesyMessage to external channel for iun {} id {} eventId{}", notification.getIun(), recipient.getTaxId(), eventId);
+        log.info("SendCourtesyMessage to external channel eventId{} - iun {} id {}", eventId, notification.getIun(), recipient.getTaxId());
 
         addTimelineElement(timelineUtils.buildSendCourtesyMessageTimelineElement(recipient.getTaxId(), notification.getIun(), courtesyAddress, Instant.now(), eventId));
         externalChannel.sendNotification(pnExtChnEmailEvent);
@@ -109,7 +109,7 @@ public class ExternalChannelUtils {
                         .index(sentAttemptMade)
                         .build()
         );
-        log.info("SendAnalogNotification to external channel for iun {} id {} eventId{}", notification.getIun(), recipient.getTaxId(), eventId);
+        log.info("SendAnalogNotification to external channel eventId{} - iun {} id {}", eventId, notification.getIun(), recipient.getTaxId());
 
         final PnExtChnPaperEvent pnExtChnPaperEvent = buildSendPaperRequest(
                 eventId,

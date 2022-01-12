@@ -65,7 +65,7 @@ public class ChooseDeliveryModeHandler {
      * @param recipient    Notification recipient
      */
     public void chooseDeliveryTypeAndStartWorkflow(Notification notification, NotificationRecipient recipient) {
-        log.info("Start ChooseDeliveryTypeAndStartWorkflow process for IUN {} id {}", notification.getIun(), recipient.getTaxId());
+        log.info("Start ChooseDeliveryTypeAndStartWorkflow process-IUN {} id {}", notification.getIun(), recipient.getTaxId());
 
         String taxId = recipient.getTaxId();
         String iun = notification.getIun();
@@ -73,17 +73,17 @@ public class ChooseDeliveryModeHandler {
 
         //Verifico presenza indirizzo di piattaforma, ...
         if (platformAddress != null) {
-            log.info("Platform address is present, Digital workflow can be started for IUN {} id {}", notification.getIun(), recipient.getTaxId());
+            log.info("Platform address is present, Digital workflow can be started - IUN {} id {}", notification.getIun(), recipient.getTaxId());
             addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource.PLATFORM, true);
             startDigitalWorkflow(notification, platformAddress, DigitalAddressSource.PLATFORM, recipient);
         } else {
-            log.info("Platform address isn't present for IUN {} id {}", notification.getIun(), recipient.getTaxId());
+            log.info("Platform address isn't present  - iun {} id {}", notification.getIun(), recipient.getTaxId());
             addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource.PLATFORM, false);
 
             // ... se non lo trovo, verifico presenza indirizzo speciale, ...
             DigitalAddress specialAddress = recipient.getDigitalDomicile();
             if (specialAddress != null) {
-                log.info("Special address is present, Digital workflow can be started for IUN {} id {}", notification.getIun(), recipient.getTaxId());
+                log.info("Special address is present, Digital workflow can be started  - iun {} id {}", notification.getIun(), recipient.getTaxId());
 
                 startDigitalWorkflow(notification, specialAddress, DigitalAddressSource.SPECIAL, recipient);
                 addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource.SPECIAL, true);
@@ -96,7 +96,7 @@ public class ChooseDeliveryModeHandler {
             }
         }
 
-        log.info("END chooseDeliveryTypeAndStartWorkflow process for IUN {} id {}", notification.getIun(), recipient.getTaxId());
+        log.info("END chooseDeliveryTypeAndStartWorkflow process  - iun {} id {}", notification.getIun(), recipient.getTaxId());
     }
 
     /**
@@ -108,19 +108,19 @@ public class ChooseDeliveryModeHandler {
      * @param taxId    User identifier
      */
     public void handleGeneralAddressResponse(PublicRegistryResponse response, String iun, String taxId) {
-        log.info("HandleGeneralAddressResponse in choose phase for IUN {} id {}", iun, taxId);
+        log.info("HandleGeneralAddressResponse in choose phase  - iun {} id {}", iun, taxId);
 
         if (response.getDigitalAddress() != null) {
-            log.info("General address is present, Digital workflow can be started for IUN {} id {}", iun, taxId);
+            log.info("General address is present, Digital workflow can be started  - iun {} id {}", iun, taxId);
 
             Notification notification = notificationService.getNotificationByIun(iun);
             NotificationRecipient recipient = notificationService.getRecipientFromNotification(notification, taxId);
-            log.debug("Notification and recipient successfully obtained for IUN {} id {}", iun, taxId);
+            log.debug("Notification and recipient successfully obtained  - iun {} id {}", iun, taxId);
 
             addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource.GENERAL, true);
             startDigitalWorkflow(notification, response.getDigitalAddress(), DigitalAddressSource.GENERAL, recipient);
         } else {
-            log.info("General address is not present, digital workflow can't be started. Starting Analog Workflow for IUN {} id {}", iun, taxId);
+            log.info("General address is not present, digital workflow can't be started. Starting Analog Workflow  - iun {} id {}", iun, taxId);
             addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource.GENERAL, false);
             scheduleAnalogWorkflow(iun, taxId);
         }
@@ -134,7 +134,7 @@ public class ChooseDeliveryModeHandler {
      * @param recipient      Notification recipient
      */
     public void startDigitalWorkflow(Notification notification, DigitalAddress digitalAddress, DigitalAddressSource addressSource, NotificationRecipient recipient) {
-        log.info("Starting digital workflow for IUN {} id {} sending notification to external channel", notification.getIun(), recipient.getTaxId());
+        log.info("Starting digital workflow sending notification to external channel - iun {} id {} ", notification.getIun(), recipient.getTaxId());
         externalChannelUtils.sendDigitalNotification(notification, digitalAddress, addressSource, recipient, START_SENT_ATTEMPT_NUMBER);
     }
 
@@ -153,10 +153,10 @@ public class ChooseDeliveryModeHandler {
         if (sendCourtesyMessageDetailsOpt.isPresent()) {
             SendCourtesyMessageDetails sendCourtesyMessageDetails = sendCourtesyMessageDetailsOpt.get();
             schedulingDate = sendCourtesyMessageDetails.getSendDate().plus(READ_COURTESY_MESSAGE_WAITING_TIME, ChronoUnit.DAYS);
-            log.info("Courtesy message is present, need to schedule analog workflow at {} for iun {} id {} ", schedulingDate, iun, taxId);
+            log.info("Courtesy message is present, need to schedule analog workflow at {}  - iun {} id {} ", schedulingDate, iun, taxId);
         } else {
             schedulingDate = Instant.now();
-            log.info("Courtesy message is not present, analog workflow can be started now for iun {} id {} ", iun, taxId);
+            log.info("Courtesy message is not present, analog workflow can be started now  - iun {} id {} ", iun, taxId);
         }
         schedulerService.scheduleEvent(iun, taxId, schedulingDate, ActionType.ANALOG_WORKFLOW);
     }

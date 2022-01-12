@@ -34,7 +34,7 @@ public class DigitalWorkFlowUtils {
     }
 
     public AttemptAddressInfo getNextAddressInfo(String iun, String taxId) {
-        log.info("Start getNextAddressInfo for iun {} id {}", iun, taxId);
+        log.info("Start getNextAddressInfo - iun {} id {}", iun, taxId);
 
         //TODO Da rivedere i metodi utilizzati per filtrare ecc
         Set<TimelineElement> timeline = timelineService.getTimeline(iun);
@@ -57,26 +57,26 @@ public class DigitalWorkFlowUtils {
                 .lastAttemptDate(lastAddressAttempt.getAttemptDate())
                 .build();
 
-        log.info("GetNextAddressInfo completed for iun {} id {}", iun, taxId);
+        log.info("GetNextAddressInfo completed - iun {} id {}", iun, taxId);
 
         return attemptAddressInfo;
     }
 
     //Ottiene l'ultimo indirizzo dalla timeline. I tentavi sono sempre presenti in timeline, sia nel caso in cui l'indirizzo sia presente sia nel caso in cui non lo sia
     private GetAddressInfo getLastAddressAttempt(String iun, String taxId, Set<TimelineElement> timeline) {
-        log.debug("GetLastAddressAttempt for iun {} id {}", iun, taxId);
+        log.debug("GetLastAddressAttempt - iun {} id {}", iun, taxId);
 
         Optional<GetAddressInfo> lastAddressAttemptOpt = timeline.stream()
                 .filter(timelineElement -> checkGetAddressCategoryAndTaxId(timelineElement, taxId))
                 .map(timelineElement -> (GetAddressInfo) timelineElement.getDetails())
-                .min(Comparator.comparing(GetAddressInfo::getAttemptDate));
+                .max(Comparator.comparing(GetAddressInfo::getAttemptDate));
 
         if (lastAddressAttemptOpt.isPresent()) {
-            log.debug("Get getLastAddressAttempt OK for iun {} id {}", iun, taxId);
+            log.debug("Get getLastAddressAttempt OK - iun {} id {}", iun, taxId);
             return lastAddressAttemptOpt.get();
         } else {
-            log.error("Last address attempt not found for iun {} id {}", iun, taxId);
-            throw new PnInternalException("Last address attempt not found for iun " + iun + " id" + taxId);
+            log.error("Last address attempt not found - iun {} id {}", iun, taxId);
+            throw new PnInternalException("Last address attempt not found - iun " + iun + " id" + taxId);
         }
     }
 
@@ -106,13 +106,13 @@ public class DigitalWorkFlowUtils {
 
     @Nullable
     public DigitalAddress getAddressFromSource(DigitalAddressSource addressSource, NotificationRecipient recipient, Notification notification) {
-        log.info("GetAddressFromSource for source {} iun {} id {}", addressSource, notification.getIun(), recipient.getTaxId());
+        log.info("GetAddressFromSource for source {} - iun {} id {}", addressSource, notification.getIun(), recipient.getTaxId());
         if (addressSource != null) {
             switch (addressSource) {
                 case PLATFORM:
                     return retrievePlatformAddress(recipient, notification.getSender());
                 case SPECIAL:
-                    log.debug("Return digital domicile for iun {} id {}", notification.getIun(), recipient.getTaxId());
+                    log.debug("Return digital domicile - iun {} id {}", notification.getIun(), recipient.getTaxId());
                     return recipient.getDigitalDomicile();
                 default:
                     handleAddressSourceError(addressSource, recipient, notification);
@@ -124,8 +124,8 @@ public class DigitalWorkFlowUtils {
     }
 
     private void handleAddressSourceError(DigitalAddressSource addressSource, NotificationRecipient recipient, Notification notification) {
-        log.error("Specified addressSource {} does not exist for iun {} id {}", addressSource, notification.getIun(), recipient.getTaxId());
-        throw new PnInternalException("Specified addressSource " + addressSource + " does not exist for iun " + notification.getIun() + " id " + recipient.getTaxId());
+        log.error("Specified addressSource {} does not exist - iun {} id {}", addressSource, notification.getIun(), recipient.getTaxId());
+        throw new PnInternalException("Specified addressSource " + addressSource + " does not exist - iun " + notification.getIun() + " id " + recipient.getTaxId());
     }
 
     private DigitalAddress retrievePlatformAddress(NotificationRecipient recipient, NotificationSender sender) {

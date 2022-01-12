@@ -1,0 +1,155 @@
+package it.pagopa.pn.deliverypush.action2.it.analog;
+
+import it.pagopa.pn.api.dto.addressbook.AddressBookEntry;
+import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
+import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
+import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
+import it.pagopa.pn.api.dto.notification.timeline.EventId;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.action2.*;
+import it.pagopa.pn.deliverypush.action2.it.AbstractWorkflowTestConfiguration;
+import it.pagopa.pn.deliverypush.action2.it.mockbean.ExternalChannelMock;
+import it.pagopa.pn.deliverypush.action2.it.mockbean.PaperNotificationFailedDaoMock;
+import it.pagopa.pn.deliverypush.action2.it.mockbean.SchedulerServiceMock;
+import it.pagopa.pn.deliverypush.action2.it.mockbean.TimelineDaoMock;
+import it.pagopa.pn.deliverypush.action2.it.utils.*;
+import it.pagopa.pn.deliverypush.action2.utils.*;
+import it.pagopa.pn.deliverypush.actions.ExtChnEventUtils;
+import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.impl.NotificationServiceImpl;
+import it.pagopa.pn.deliverypush.service.impl.TimeLineServiceImpl;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.util.Collections;
+import java.util.Map;
+
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {
+        StartWorkflowHandler.class,
+        AnalogWorkflowHandler.class,
+        ChooseDeliveryModeHandler.class,
+        DigitalWorkFlowHandler.class,
+        CompletionWorkFlowHandler.class,
+        PublicRegistryResponseHandler.class,
+        ExternalChannelResponseHandler.class,
+        RefinementHandler.class,
+        DigitalWorkFlowUtils.class,
+        CourtesyMessageUtils.class,
+        ExternalChannelUtils.class,
+        CompletelyUnreachableUtils.class,
+        ExtChnEventUtils.class,
+        AnalogWorkflowUtils.class,
+        TimelineUtils.class,
+        PublicRegistryUtils.class,
+        NotificationServiceImpl.class,
+        TimeLineServiceImpl.class,
+        PnDeliveryPushConfigs.class,
+        PaperNotificationFailedDaoMock.class,
+        TimelineDaoMock.class,
+        SchedulerServiceMock.class,
+        ExternalChannelMock.class,
+        PaperNotificationFailedDaoMock.class,
+        AnalogPrAddressFailInvestAddressSuccessTest.SpringTestConfiguration.class
+})
+class AnalogPrAddressFailInvestAddressSuccessTest {
+    /*
+       - Platform address vuoto (Ottenuto non valorizzando il platformAddress in addressBookEntry)
+       - Special address vuoto (Ottenuto non valorizzando il digitalDomicile del recipient)
+       - General address vuoto (Ottenuto non valorizzando nessun digital address per il recipient in PUB_REGISTRY_DIGITAL)
+       
+       - Pa physical address NON presente (Ottenuto NON valorizzando physicalAddress del recipient della notifica)
+       - Public Registry indirizzo trovato ma restituisce un indirizzo che fallirà nell'invio di external channel (Ottenuto inserendo nell'indirizzo ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR)
+         con invio di una seconda notifica (all'indirizzo ottenuto dall'investigazione) con successo (ottenuto concatenando all'indirizzo ExternalChannelMock.EXTCHANNEL_SEND_OK)
+ì    */
+
+    private static final PhysicalAddress publicRegistryAddress = PhysicalAddressBuilder.builder()
+            .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS + " Via Nuova")
+            .build();
+
+    private static final NotificationRecipient recipient = NotificationRecipientTestBuilder.builder()
+            .withTaxId("TAXID01")
+            .build();
+
+    private static final Notification notification = NotificationTestBuilder.builder()
+            .withIun("IUN01")
+            .withNotificationRecipient(recipient)
+            .build();
+
+    private static final AddressBookEntry addressBookEntry = AddressBookEntryTestBuilder.builder()
+            .withTaxId(recipient.getTaxId())
+            .build();
+
+    private static final Map<String, DigitalAddress> PUB_REGISTRY_DIGITAL = Collections.emptyMap();
+    private static final Map<String, PhysicalAddress> PUB_REGISTRY_PHYSICAL = Collections.singletonMap(recipient.getTaxId(), publicRegistryAddress);
+
+    @TestConfiguration
+    static class SpringTestConfiguration extends AbstractWorkflowTestConfiguration {
+
+        public SpringTestConfiguration() {
+            super(notification, addressBookEntry, PUB_REGISTRY_DIGITAL, PUB_REGISTRY_PHYSICAL);
+        }
+    }
+
+    @Autowired
+    private StartWorkflowHandler startWorkflowHandler;
+
+    @Autowired
+    private TimelineService timelineService;
+    @SpyBean
+    private ExternalChannelMock externalChannelMock;
+
+    @Test
+    void workflowTest() {
+        //Notifica utilizzata
+        String iun = notification.getIun();
+        String taxId = recipient.getTaxId();
+
+        //Start del workflow
+        startWorkflowHandler.startWorkflow(notification.getIun());
+
+        //Viene verificato che non sia stato inviato alcun messaggio di cortesia
+        TestUtils.checkSendCourtesyAddresses(iun, taxId, addressBookEntry.getCourtesyAddresses(), timelineService, externalChannelMock);
+
+        //Viene verificato che gli indirizzi PLATFORM SPECIAL E GENERAL non siano presenti
+        TestUtils.checkGetAddress(iun, taxId, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeHandler.START_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, taxId, false, DigitalAddressSource.SPECIAL, ChooseDeliveryModeHandler.START_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, taxId, false, DigitalAddressSource.GENERAL, ChooseDeliveryModeHandler.START_SENT_ATTEMPT_NUMBER, timelineService);
+
+        //Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito da publicRegistry
+        TestUtils.checkSendPaperToExtChannel(iun, taxId, publicRegistryAddress, 0, timelineService);
+
+        /*Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito dall'investigazione
+        checkSendToExtChannel(iun, TestUtils.PHYSICAL_ADDRESS_OK, 1);
+        */
+
+        //Viene verificato che il workflow abbia avuto successo
+        Assertions.assertTrue(timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.ANALOG_SUCCESS_WORKFLOW.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recipientId(taxId)
+                                .build())).isPresent());
+
+        //Viene verificato che sia avvenuto il perfezionamento
+        Assertions.assertTrue(timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.REFINEMENT.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recipientId(taxId)
+                                .build())).isPresent());
+
+    }
+
+}

@@ -39,12 +39,12 @@ public class PublicRegistryUtils {
                 contactPhase,
                 sentAttemptMade
         );
-        log.info("SendRequestForGetDigitalAddress for IUN {} id {} correlationId {}", iun, taxId, correlationId);
+        log.info("SendRequestForGetDigitalAddress correlationId {} - iun {} id {}", correlationId, iun, taxId);
 
         addTimelineElement(timelineUtils.buildPublicRegistryCallTimelineElement(iun, taxId, correlationId, DeliveryMode.DIGITAL, contactPhase, sentAttemptMade));
         publicRegistry.sendRequestForGetDigitalAddress(taxId, correlationId);
 
-        log.debug("End sendRequestForGetAddress for IUN {} id {} correlationId {}", iun, taxId, correlationId);
+        log.debug("End sendRequestForGetAddress correlationId {} - iun {} id {}", correlationId, iun, taxId);
     }
 
     public void sendRequestForGetPhysicalAddress(String iun, String taxId, int sentAttemptMade) {
@@ -57,12 +57,12 @@ public class PublicRegistryUtils {
                 ContactPhase.SEND_ATTEMPT,
                 sentAttemptMade
         );
-        log.info("SendRequestForGetPhysicalAddress for IUN {} id {} correlationId {}", iun, taxId, correlationId);
+        log.info("SendRequestForGetPhysicalAddress correlationId {} - iun {} id {}", correlationId, iun, taxId);
 
         addTimelineElement(timelineUtils.buildPublicRegistryCallTimelineElement(iun, taxId, correlationId, DeliveryMode.ANALOG, ContactPhase.SEND_ATTEMPT, sentAttemptMade));
         publicRegistry.sendRequestForGetPhysicalAddress(taxId, correlationId);
 
-        log.debug("End sendRequestForGetPhysicalAddress for IUN {} id {} correlationId {}", iun, taxId, correlationId);
+        log.debug("End sendRequestForGetPhysicalAddress correlationId {} - iun {} id {}", correlationId, iun, taxId);
     }
 
     private void addTimelineElement(TimelineElement element) {

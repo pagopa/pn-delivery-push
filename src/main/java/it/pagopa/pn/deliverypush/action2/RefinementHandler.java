@@ -20,7 +20,7 @@ public class RefinementHandler {
 
     @StreamListener(condition = "REFINEMENT")
     public void handleRefinement(String iun, String taxId) {
-        log.info("Start HandleRefinement for iun {} id {}", iun, taxId);
+        log.info("Start HandleRefinement - iun {} id {}", iun, taxId);
 
         //TODO Capire cosa altro va fatto in fase di perfezionamento
         addTimelineElement(timelineUtils.buildRefinementTimelineElement(iun, taxId));

@@ -20,7 +20,7 @@ public class SchedulerServiceImpl implements SchedulerService {
     @Override
     public void scheduleEvent(String iun, String taxId, Instant dateToSchedule, ActionType actionType) {
         //TODO Da realizzare lo scheduling
-        log.info("scheduleEvent for IUN {} and id {} date {} action {}", iun, taxId, dateToSchedule, actionType);
+        log.info("scheduleEvent date {} action {} - IUN {} and id {} ", dateToSchedule, actionType, iun, taxId);
    
         /*
         Action actionToSchedule = Action.builder()

@@ -41,7 +41,7 @@ public class StartWorkflowHandler {
      */
     @StreamListener(condition = "NEW_NOTIFICATION")
     public void startWorkflow(String iun) {
-        log.info("Start notification process for IUN {}", iun);
+        log.info("Start notification process  - iun {}", iun);
 
         Notification notification = notificationService.getNotificationByIun(iun);
         legalFactUtils.saveNotificationReceivedLegalFact(notification);

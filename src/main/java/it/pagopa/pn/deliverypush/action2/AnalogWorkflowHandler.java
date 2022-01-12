@@ -54,32 +54,32 @@ public class AnalogWorkflowHandler {
      */
     @StreamListener(condition = "ANALOG_WORKFLOW")
     public void nextWorkflowStep(String iun, String taxId, int sentAttemptMade) {
-        log.info("Start Analog next workflow action for iun {} id {}", iun, taxId);
+        log.info("Start Analog next workflow action - iun {} id {}", iun, taxId);
 
         Notification notification = notificationService.getNotificationByIun(iun);
         NotificationRecipient recipient = notificationService.getRecipientFromNotification(notification, taxId);
-        log.debug("Get notification and recipient completed for iun {} id {}", iun, taxId);
+        log.debug("Get notification and recipient completed - iun {} id {}", iun, taxId);
 
-        log.debug("Sent attempt made is {} for iun {} id {}", sentAttemptMade, iun, taxId);
+        log.debug("Sent attempt made is {} - iun {} id {}", sentAttemptMade, iun, taxId);
 
         switch (sentAttemptMade) {
             case 0:
-                log.info("Handle first send attempt for iun {} id {}", iun, taxId);
+                log.info("Handle first send attempt - iun {} id {}", iun, taxId);
 
                 PhysicalAddress paProvidedAddress = recipient.getPhysicalAddress();
 
                 if (paProvidedAddress != null) {
-                    log.info("Start send notification with Pa address for iun {} id {}", iun, taxId);
+                    log.info("Start send notification with Pa address - iun {} id {}", iun, taxId);
                     //send notification with paAddress
                     externalChannelUtils.sendAnalogNotification(notification, paProvidedAddress, recipient, true, sentAttemptMade);
                 } else {
-                    log.info("Pa address is not available, need to get address from public registry for iun {} id {}", iun, taxId);
+                    log.info("Pa address is not available, need to get address from public registry - iun {} id {}", iun, taxId);
                     //Get address for notification from public registry
                     publicRegistryUtils.sendRequestForGetPhysicalAddress(iun, taxId, sentAttemptMade);
                 }
                 break;
             case 1:
-                log.info("Handle second attempt, send request to public registry for iun {} id {}", iun, taxId);
+                log.info("Handle second attempt, send request to public registry - iun {} id {}", iun, taxId);
                 //Send attempt was already made, get address from public registry for second send attempt
                 publicRegistryUtils.sendRequestForGetPhysicalAddress(iun, taxId, sentAttemptMade);
                 break;
@@ -89,7 +89,7 @@ public class AnalogWorkflowHandler {
                 completionWorkFlow.completionAnalogWorkflow(taxId, iun, Instant.now(), null, EndWorkflowStatus.FAILURE);
                 break;
             default:
-                log.error("Specified attempt {} is not possibile  for iun {} id {}", sentAttemptMade, iun, taxId);
+                log.error("Specified attempt {} is not possibile  - iun {} id {}", sentAttemptMade, iun, taxId);
                 throw new PnInternalException("Specified attempt " + sentAttemptMade + " is not possibile");
         }
     }
@@ -102,22 +102,22 @@ public class AnalogWorkflowHandler {
      * @param response public registry response
      */
     public void handlePublicRegistryResponse(String iun, String taxId, PublicRegistryResponse response, int sentAttemptMade) {
-        log.info("Handle analog public registry response for iun {} id {} sentAttemptMade {}", iun, taxId, sentAttemptMade);
+        log.info("Handle analog public registry response sentAttemptMade {} - iun {} id {} ", sentAttemptMade, iun, taxId);
 
         Notification notification = notificationService.getNotificationByIun(iun);
         NotificationRecipient recipient = notificationService.getRecipientFromNotification(notification, taxId);
 
         switch (sentAttemptMade) {
             case 0:
-                log.info("Public registry response is for first attempt for iun {} id {}", iun, taxId);
+                log.info("Public registry response is for first attempt  - iun {} id {}", iun, taxId);
                 checkAddressAndSend(notification, recipient, response.getPhysicalAddress(), true, sentAttemptMade);
                 break;
             case 1:
-                log.info("Public registry response is for second attempt for iun {} id {}", iun, taxId);
+                log.info("Public registry response is for second attempt  - iun {} id {}", iun, taxId);
                 publicRegistrySecondSendResponse(response, notification, recipient, sentAttemptMade);
                 break;
             default:
-                log.error("Specified attempt {} is not possibile for iun {} id {}", sentAttemptMade, iun, taxId);
+                log.error("Specified attempt {} is not possibile  - iun {} id {}", sentAttemptMade, iun, taxId);
                 throw new PnInternalException("Specified attempt " + sentAttemptMade + " is not possibile");
         }
     }
@@ -125,11 +125,11 @@ public class AnalogWorkflowHandler {
     private void publicRegistrySecondSendResponse(PublicRegistryResponse response, Notification notification, NotificationRecipient recipient, int sentAttemptMade) {
         String iun = notification.getIun();
         String taxId = recipient.getTaxId();
-        log.info("Start publicRegistrySecondSendResponse for iun {} id {}", iun, taxId);
+        log.info("Start publicRegistrySecondSendResponse  - iun {} id {}", iun, taxId);
 
         //Vengono ottenute le informazioni del primo invio effettuato tramite external channel dalla timeline
         SendPaperFeedbackDetails lastSentFeedback = analogWorkflowUtils.getLastTimelineSentFeedback(iun, taxId);
-        log.debug("getLastTimelineSentFeedback completed for iun {} id {}", iun, taxId);
+        log.debug("getLastTimelineSentFeedback completed  - iun {} id {}", iun, taxId);
 
         //Se l'indirizzo fornito da public registry è presente ...
         if (response.getPhysicalAddress() != null && response.getPhysicalAddress().getAddress() != null) {
@@ -138,15 +138,15 @@ public class AnalogWorkflowHandler {
 
             //... e risulta diverso da quello utilizzato nel primo tentativo, viene inviata seconda notifica ad external channel con questo indirizzo
             if (!response.getPhysicalAddress().equals(lastUsedAddress)) { //TODO Da definire in maniera chiara il metodo equals
-                log.info("Send second notification to external channel with public registry response address for iun {} id {}", iun, taxId);
+                log.info("Send second notification to external channel with public registry response address  - iun {} id {}", iun, taxId);
                 externalChannelUtils.sendAnalogNotification(notification, response.getPhysicalAddress(), recipient, false, sentAttemptMade);
             } else {
-                log.info("First send address and public registry response address are equals for iun {} id {}", iun, taxId);
+                log.info("First send address and public registry response address are equals  - iun {} id {}", iun, taxId);
                 //... se i due indirizzi sono uguali, viene verificata la presenza dell'indirizzo ottenuto dall'investigazione del postino
                 checkAddressAndSend(notification, recipient, lastSentFeedback.getNewAddress(), false, sentAttemptMade);
             }
         } else {
-            log.info("Public registry response address is empty for iun {} id {}", iun, taxId);
+            log.info("Public registry response address is empty  - iun {} id {}", iun, taxId);
             //Viene verificata la presenza dell'indirizzo ottenuto dall'investigazione del postino
             checkAddressAndSend(notification, recipient, lastSentFeedback.getNewAddress(), false, sentAttemptMade);
         }
@@ -158,11 +158,11 @@ public class AnalogWorkflowHandler {
     private void checkAddressAndSend(Notification notification, NotificationRecipient recipient, PhysicalAddress address, boolean investigation, int sentAttemptMade) {
         //Se l'indirizzo passato è valorizzato viene inviata la notifica ad external channel...
         if (address != null && address.getAddress() != null) {
-            log.info("Have a valid address, send notification to external channel for iun {} id {}", notification.getIun(), recipient.getTaxId());
+            log.info("Have a valid address, send notification to external channel  - iun {} id {}", notification.getIun(), recipient.getTaxId());
             externalChannelUtils.sendAnalogNotification(notification, address, recipient, investigation, sentAttemptMade);
         } else {
             //... se l'indirizzo non è presente non è possibile raggiungere il destinario che risulta irreperibile 
-            log.info("Address isn't valid, user is unreachable for iun {} id {}", notification.getIun(), recipient.getTaxId());
+            log.info("Address isn't valid, user is unreachable  - iun {} id {}", notification.getIun(), recipient.getTaxId());
             completionWorkFlow.completionAnalogWorkflow(recipient.getTaxId(), notification.getIun(), Instant.now(), null, EndWorkflowStatus.FAILURE);
         }
     }
@@ -171,7 +171,7 @@ public class AnalogWorkflowHandler {
         SendPaperDetails sendPaperDetails = externalChannelUtils.getSendAnalogDomicileTimelineElement(response.getIun(), response.getEventId());
         String iun = response.getIun();
         String taxId = sendPaperDetails.getTaxId();
-        log.info("Analog workflow Ext channel response for iun {} id {} with status {}", iun, taxId, response.getResponseStatus());
+        log.info("Analog workflow Ext channel response  - iun {} id {} with status {}", iun, taxId, response.getResponseStatus());
 
         if (response.getResponseStatus() != null) {
             switch (response.getResponseStatus()) {
@@ -195,7 +195,7 @@ public class AnalogWorkflowHandler {
     }
 
     private void handleStatusError(ExtChannelResponse response, String iun, String taxId) {
-        log.error("Specified response {} is not possibile for iun {} id {}", response.getResponseStatus(), iun, taxId);
+        log.error("Specified response {} is not possibile  - iun {} id {}", response.getResponseStatus(), iun, taxId);
         throw new PnInternalException("Specified response " + response.getResponseStatus() + " is not possibile");
     }
 

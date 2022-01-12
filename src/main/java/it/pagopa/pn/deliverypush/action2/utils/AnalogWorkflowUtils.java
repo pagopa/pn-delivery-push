@@ -59,8 +59,8 @@ public class AnalogWorkflowUtils {
         if (sendPaperFeedbackDetailsOpt.isPresent()) {
             return sendPaperFeedbackDetailsOpt.get();
         } else {
-            log.error("Last send feedback is not available for iun {} id {}", iun, taxId);
-            throw new PnInternalException("Last send feedback is not available for iun " + iun + " id " + taxId);
+            log.error("Last send feedback is not available - iun {} id {}", iun, taxId);
+            throw new PnInternalException("Last send feedback is not available - iun " + iun + " id " + taxId);
         }
     }
 

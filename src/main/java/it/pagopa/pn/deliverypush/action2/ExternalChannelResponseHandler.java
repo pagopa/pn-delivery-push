@@ -28,7 +28,7 @@ public class ExternalChannelResponseHandler {
      */
     @StreamListener(condition = "EXTERNAL_CHANNEL_RESPONSE")
     public void extChannelResponseReceiver(ExtChannelResponse response) {
-        log.info("Get response from external channel for iun {} eventId {} with status {}", response.getIun(), response.getEventId(), response.getResponseStatus());
+        log.info("Get response from external channel - iun {} eventId {} with status {}", response.getIun(), response.getEventId(), response.getResponseStatus());
 
         if (response.getDigitalUsedAddress() != null && response.getDigitalUsedAddress().getAddress() != null) {
             digitalWorkFlowHandler.handleExternalChannelResponse(response);

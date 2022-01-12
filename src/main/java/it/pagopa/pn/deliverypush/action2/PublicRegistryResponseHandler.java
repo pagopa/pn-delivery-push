@@ -43,7 +43,7 @@ public class PublicRegistryResponseHandler {
 
         String correlationId = response.getCorrelationId();
         String iun = correlationId.substring(0, correlationId.indexOf("_")); //TODO Da modificare quando verrà risolta PN-533
-        log.info("Handle public registry response for correlationId {} iun {}", response.getCorrelationId(), iun);
+        log.info("Handle public registry response -  iun {} correlationId {}", iun, response.getCorrelationId());
 
         //Viene ottenuto l'oggetto di timeline creato in fase d'invio notifica al public registry
         Optional<PublicRegistryCallDetails> optTimeLinePublicRegistrySend = timelineService.getTimelineElement(iun, response.getCorrelationId(), PublicRegistryCallDetails.class);
@@ -76,8 +76,8 @@ public class PublicRegistryResponseHandler {
             }
 
         } else {
-            log.error("There isn't timelineElement for iun {} correlationId {}", iun, correlationId);
-            throw new PnInternalException("There isn't timelineElement for iun " + iun + " correlationId " + correlationId);
+            log.error("There isn't timelineElement - iun {} correlationId {}", iun, correlationId);
+            throw new PnInternalException("There isn't timelineElement - iun " + iun + " correlationId " + correlationId);
         }
     }
 
@@ -110,8 +110,8 @@ public class PublicRegistryResponseHandler {
     }
 
     private void handleError(String iun, DeliveryMode deliveryMode, String taxId) {
-        log.error("Specified deliveryMode {} does not exist for iun {} id {}", deliveryMode, iun, taxId);
-        throw new PnInternalException("Specified deliveryMode " + deliveryMode + " does not exist for iun " + iun + " id " + taxId);
+        log.error("Specified deliveryMode {} does not exist - iun {} id {}", deliveryMode, iun, taxId);
+        throw new PnInternalException("Specified deliveryMode " + deliveryMode + " does not exist - iun " + iun + " id " + taxId);
     }
 
     private void addTimelineElement(TimelineElement element) {

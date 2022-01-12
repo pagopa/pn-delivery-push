@@ -12,10 +12,7 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.api.dto.notification.timeline.ContactPhase;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.action2.utils.DigitalWorkFlowUtils;
-import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
-import it.pagopa.pn.deliverypush.action2.utils.PublicRegistryUtils;
-import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.action2.utils.*;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -51,13 +48,15 @@ class DigitalWorkFlowHandlerTest {
     private PublicRegistryUtils publicRegistryUtils;
     @Mock
     private TimelineUtils timelineUtils;
+    @Mock
+    private InstantNowSupplier instantNowSupplier;
 
     private DigitalWorkFlowHandler handler;
 
     @BeforeEach
     public void setup() {
         handler = new DigitalWorkFlowHandler(externalChannelUtils, notificationService,
-                schedulerService, digitalWorkFlowUtils, completionWorkflow, timelineService, publicRegistryUtils, timelineUtils);
+                schedulerService, digitalWorkFlowUtils, completionWorkflow, timelineService, publicRegistryUtils, timelineUtils, instantNowSupplier);
     }
 
     @ExtendWith(MockitoExtension.class)

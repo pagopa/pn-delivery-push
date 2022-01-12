@@ -22,19 +22,19 @@ public class TimeLineServiceImpl implements TimelineService {
 
     @Override
     public void addTimelineElement(TimelineElement element) {
-        log.debug("addTimelineElement for IUN {} and timelineId {}", element.getIun(), element.getElementId());
+        log.debug("addTimelineElement - IUN {} and timelineId {}", element.getIun(), element.getElementId());
         timelineDao.addTimelineElement(element);
     }
 
     @Override
     public Optional<TimelineElement> getTimelineElement(String iun, String timelineId) {
-        log.debug("GetTimelineElement for IUN {} and timelineId {}", iun, timelineId);
+        log.debug("GetTimelineElement - IUN {} and timelineId {}", iun, timelineId);
         return timelineDao.getTimelineElement(iun, timelineId);
     }
 
     @Override
     public <T> Optional<T> getTimelineElement(String iun, String timelineId, Class<T> timelineDetailsClass) {
-        log.debug("GetTimelineElement for IUN {} and timelineId {}", iun, timelineId);
+        log.debug("GetTimelineElement - IUN {} and timelineId {}", iun, timelineId);
 
         Optional<TimelineElement> row = this.timelineDao.getTimelineElement(iun, timelineId);
         return row.map(el -> timelineDetailsClass.cast(el.getDetails()));
@@ -42,7 +42,7 @@ public class TimeLineServiceImpl implements TimelineService {
 
     @Override
     public Set<TimelineElement> getTimeline(String iun) {
-        log.debug("GetTimeline for iun {} ", iun);
+        log.debug("GetTimeline - iun {} ", iun);
         return this.timelineDao.getTimeline(iun);
     }
 

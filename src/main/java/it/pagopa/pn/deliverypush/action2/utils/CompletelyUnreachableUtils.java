@@ -23,7 +23,7 @@ public class CompletelyUnreachableUtils {
     }
 
     public void handleCompletelyUnreachable(String iun, String taxId) {
-        log.info("HandleCompletelyUnreachable for iun {} id {} ", iun, taxId);
+        log.info("HandleCompletelyUnreachable - iun {} id {} ", iun, taxId);
 
         if (!isNotificationAlreadyViewed(iun, taxId)) {
             addPaperNotificationFailed(iun, taxId);
@@ -37,7 +37,7 @@ public class CompletelyUnreachableUtils {
     }
 
     private void addPaperNotificationFailed(String iun, String taxId) {
-        log.info("AddPaperNotificationFailed for iun {} id {} ", iun, taxId);
+        log.info("AddPaperNotificationFailed - iun {} id {} ", iun, taxId);
 
         paperNotificationFailedDao.addPaperNotificationFailed(
                 PaperNotificationFailed.builder()
