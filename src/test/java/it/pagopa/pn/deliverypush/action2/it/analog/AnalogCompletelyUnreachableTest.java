@@ -14,7 +14,6 @@ import it.pagopa.pn.deliverypush.action2.*;
 import it.pagopa.pn.deliverypush.action2.it.AbstractWorkflowTestConfiguration;
 import it.pagopa.pn.deliverypush.action2.it.mockbean.ExternalChannelMock;
 import it.pagopa.pn.deliverypush.action2.it.mockbean.PaperNotificationFailedDaoMock;
-import it.pagopa.pn.deliverypush.action2.it.mockbean.SchedulerServiceMock;
 import it.pagopa.pn.deliverypush.action2.it.mockbean.TimelineDaoMock;
 import it.pagopa.pn.deliverypush.action2.it.utils.*;
 import it.pagopa.pn.deliverypush.action2.utils.*;
@@ -32,6 +31,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Map;
 
@@ -58,7 +58,6 @@ import java.util.Map;
         PnDeliveryPushConfigs.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
-        SchedulerServiceMock.class,
         ExternalChannelMock.class,
         PaperNotificationFailedDaoMock.class,
         AnalogCompletelyUnreachableTest.SpringTestConfiguration.class
@@ -110,12 +109,17 @@ class AnalogCompletelyUnreachableTest {
 
     @Autowired
     private TimelineService timelineService;
+    
+    @Autowired
+    private InstantNowSupplier instantNowSupplier;
 
     @SpyBean
     private ExternalChannelMock externalChannelMock;
 
     @Test
     void workflowTest() {
+        Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
+
         String iun = notification.getIun();
         String taxId = recipient.getTaxId();
 

@@ -1,19 +1,17 @@
 package it.pagopa.pn.deliverypush.action2.it.analog;
 
 import it.pagopa.pn.api.dto.addressbook.AddressBookEntry;
+import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
-import it.pagopa.pn.api.dto.notification.timeline.EventId;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action2.*;
 import it.pagopa.pn.deliverypush.action2.it.AbstractWorkflowTestConfiguration;
 import it.pagopa.pn.deliverypush.action2.it.mockbean.ExternalChannelMock;
 import it.pagopa.pn.deliverypush.action2.it.mockbean.PaperNotificationFailedDaoMock;
-import it.pagopa.pn.deliverypush.action2.it.mockbean.SchedulerServiceMock;
 import it.pagopa.pn.deliverypush.action2.it.mockbean.TimelineDaoMock;
 import it.pagopa.pn.deliverypush.action2.it.utils.*;
 import it.pagopa.pn.deliverypush.action2.utils.*;
@@ -21,15 +19,16 @@ import it.pagopa.pn.deliverypush.actions.ExtChnEventUtils;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.NotificationServiceImpl;
 import it.pagopa.pn.deliverypush.service.impl.TimeLineServiceImpl;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Map;
 
@@ -56,7 +55,6 @@ import java.util.Map;
         PnDeliveryPushConfigs.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
-        SchedulerServiceMock.class,
         ExternalChannelMock.class,
         PaperNotificationFailedDaoMock.class,
         AnalogPrAddressFailInvestAddressSuccessTest.SpringTestConfiguration.class
@@ -105,11 +103,18 @@ class AnalogPrAddressFailInvestAddressSuccessTest {
 
     @Autowired
     private TimelineService timelineService;
+    @Autowired
+    private InstantNowSupplier instantNowSupplier;
+
     @SpyBean
     private ExternalChannelMock externalChannelMock;
+    @SpyBean
+    private CompletionWorkFlowHandler completionWorkflow;
+
 
     @Test
     void workflowTest() {
+        Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
         //Notifica utilizzata
         String iun = notification.getIun();
         String taxId = recipient.getTaxId();
@@ -128,28 +133,20 @@ class AnalogPrAddressFailInvestAddressSuccessTest {
         //Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito da publicRegistry
         TestUtils.checkSendPaperToExtChannel(iun, taxId, publicRegistryAddress, 0, timelineService);
 
-        /*Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito dall'investigazione
-        checkSendToExtChannel(iun, TestUtils.PHYSICAL_ADDRESS_OK, 1);
+        /*
+        Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito dall'investigazione
+            checkSendToExtChannel(iun, TestUtils.PHYSICAL_ADDRESS_OK, 1);
         */
 
-        //Viene verificato che il workflow abbia avuto successo
-        Assertions.assertTrue(timelineService.getTimelineElement(
-                iun,
-                TimelineEventId.ANALOG_SUCCESS_WORKFLOW.buildEventId(
-                        EventId.builder()
-                                .iun(iun)
-                                .recipientId(taxId)
-                                .build())).isPresent());
+        //Vengono verificati il numero di send verso external channel
+        Mockito.verify(externalChannelMock, Mockito.times(2)).sendNotification(Mockito.any(PnExtChnPaperEvent.class));
+
+        TestUtils.checkSuccessAnalogWorkflow(iun, taxId, timelineService, completionWorkflow);
 
         //Viene verificato che sia avvenuto il perfezionamento
-        Assertions.assertTrue(timelineService.getTimelineElement(
-                iun,
-                TimelineEventId.REFINEMENT.buildEventId(
-                        EventId.builder()
-                                .iun(iun)
-                                .recipientId(taxId)
-                                .build())).isPresent());
+        TestUtils.checkRefinement(iun, taxId, timelineService);
 
     }
+
 
 }

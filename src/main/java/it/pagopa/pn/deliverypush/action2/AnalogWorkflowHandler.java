@@ -10,17 +10,12 @@ import it.pagopa.pn.api.dto.notification.timeline.SendPaperFeedbackDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.action2.utils.AnalogWorkflowUtils;
-import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
-import it.pagopa.pn.deliverypush.action2.utils.PublicRegistryUtils;
-import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.action2.utils.*;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.stereotype.Component;
-
-import java.time.Instant;
 
 @Component
 @Slf4j
@@ -32,11 +27,12 @@ public class AnalogWorkflowHandler {
     private final PublicRegistryUtils publicRegistryUtils;
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
+    private final InstantNowSupplier instantNowSupplier;
 
     public AnalogWorkflowHandler(NotificationService notificationService, ExternalChannelUtils externalChannelUtils,
                                  CompletionWorkFlowHandler completionWorkFlow, AnalogWorkflowUtils analogWorkflowUtils,
                                  PublicRegistryUtils publicRegistryUtils, TimelineService timeLineService,
-                                 TimelineUtils timelineUtils) {
+                                 TimelineUtils timelineUtils, InstantNowSupplier instantNowSupplier) {
         this.notificationService = notificationService;
         this.externalChannelUtils = externalChannelUtils;
         this.completionWorkFlow = completionWorkFlow;
@@ -44,6 +40,7 @@ public class AnalogWorkflowHandler {
         this.publicRegistryUtils = publicRegistryUtils;
         this.timelineService = timeLineService;
         this.timelineUtils = timelineUtils;
+        this.instantNowSupplier = instantNowSupplier;
     }
 
     /**
@@ -86,7 +83,7 @@ public class AnalogWorkflowHandler {
             case 2:
                 // All sent attempts have been made. The user is not reachable
                 log.info("User with iun {} and id {} is unreachable, all attempt was failed", iun, taxId);
-                completionWorkFlow.completionAnalogWorkflow(taxId, iun, Instant.now(), null, EndWorkflowStatus.FAILURE);
+                completionWorkFlow.completionAnalogWorkflow(taxId, iun, instantNowSupplier.get(), null, EndWorkflowStatus.FAILURE);
                 break;
             default:
                 log.error("Specified attempt {} is not possibile  - iun {} id {}", sentAttemptMade, iun, taxId);
@@ -163,7 +160,7 @@ public class AnalogWorkflowHandler {
         } else {
             //... se l'indirizzo non è presente non è possibile raggiungere il destinario che risulta irreperibile 
             log.info("Address isn't valid, user is unreachable  - iun {} id {}", notification.getIun(), recipient.getTaxId());
-            completionWorkFlow.completionAnalogWorkflow(recipient.getTaxId(), notification.getIun(), Instant.now(), null, EndWorkflowStatus.FAILURE);
+            completionWorkFlow.completionAnalogWorkflow(recipient.getTaxId(), notification.getIun(), instantNowSupplier.get(), null, EndWorkflowStatus.FAILURE);
         }
     }
 

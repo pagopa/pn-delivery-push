@@ -1,15 +1,19 @@
 package it.pagopa.pn.deliverypush.action2.it.utils;
 
+import it.pagopa.pn.api.dto.events.EndWorkflowStatus;
 import it.pagopa.pn.api.dto.events.PnExtChnEmailEvent;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.api.dto.notification.timeline.*;
+import it.pagopa.pn.deliverypush.action2.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action2.it.mockbean.ExternalChannelMock;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Assertions;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -65,9 +69,64 @@ public class TestUtils {
                         .recipientId(taxId)
                         .index(sendAttempt)
                         .build());
+
         Optional<SendPaperDetails> sendPaperDetailsOpt = timelineService.getTimelineElement(iun, eventIdFirstSend, SendPaperDetails.class);
         Assertions.assertTrue(sendPaperDetailsOpt.isPresent());
         SendPaperDetails firstSendPaperDetails = sendPaperDetailsOpt.get();
         Assertions.assertEquals(physicalAddress, firstSendPaperDetails.getAddress());
+    }
+
+    public static void checkSuccessAnalogWorkflow(String iun, String taxId, TimelineService timelineService, CompletionWorkFlowHandler completionWorkflow) {
+        //Viene verificato che il workflow abbia avuto successo
+        Assertions.assertTrue(timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.ANALOG_SUCCESS_WORKFLOW.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recipientId(taxId)
+                                .build())).isPresent());
+
+        ArgumentCaptor<EndWorkflowStatus> endWorkflowStatusArgumentCaptor = ArgumentCaptor.forClass(EndWorkflowStatus.class);
+        ArgumentCaptor<String> iunCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> taxIdCaptor = ArgumentCaptor.forClass(String.class);
+
+        Mockito.verify(completionWorkflow, Mockito.times(1)).completionAnalogWorkflow(
+                taxIdCaptor.capture(), iunCaptor.capture(), Mockito.any(Instant.class), Mockito.any(PhysicalAddress.class), endWorkflowStatusArgumentCaptor.capture()
+        );
+        Assertions.assertEquals(iun, iunCaptor.getValue());
+        Assertions.assertEquals(taxId, taxIdCaptor.getValue());
+        Assertions.assertEquals(EndWorkflowStatus.SUCCESS, endWorkflowStatusArgumentCaptor.getValue());
+    }
+
+    public static void checkSuccessDigitalWorkflow(String iun, String taxId, TimelineService timelineService, CompletionWorkFlowHandler completionWorkflow) {
+        //Viene verificato che il workflow abbia avuto successo
+        Assertions.assertTrue(timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recipientId(taxId)
+                                .build())).isPresent());
+
+        ArgumentCaptor<EndWorkflowStatus> endWorkflowStatusArgumentCaptor = ArgumentCaptor.forClass(EndWorkflowStatus.class);
+        ArgumentCaptor<String> iunCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> taxIdCaptor = ArgumentCaptor.forClass(String.class);
+
+        Mockito.verify(completionWorkflow, Mockito.times(1)).completionDigitalWorkflow(
+                taxIdCaptor.capture(), iunCaptor.capture(), Mockito.any(Instant.class), Mockito.any(DigitalAddress.class), endWorkflowStatusArgumentCaptor.capture()
+        );
+        Assertions.assertEquals(iun, iunCaptor.getValue());
+        Assertions.assertEquals(taxId, taxIdCaptor.getValue());
+        Assertions.assertEquals(EndWorkflowStatus.SUCCESS, endWorkflowStatusArgumentCaptor.getValue());
+    }
+
+    public static void checkRefinement(String iun, String taxId, TimelineService timelineService) {
+        Assertions.assertTrue(timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.REFINEMENT.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recipientId(taxId)
+                                .build())).isPresent());
     }
 }

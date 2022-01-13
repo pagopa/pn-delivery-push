@@ -86,7 +86,7 @@ public class DigitalWorkFlowHandler {
         } else {
             //Sono stati già effettuati tutti i tentativi possibili, la notificazione è quindi fallita
             log.info("Digital workflow is failed because all planned attempt have failed  - iun {} id {}", iun, taxId);
-            completionWorkflow.completionDigitalWorkflow(taxId, iun, Instant.now(), null, EndWorkflowStatus.FAILURE);
+            completionWorkflow.completionDigitalWorkflow(taxId, iun, instantNowSupplier.get(), null, EndWorkflowStatus.FAILURE);
         }
     }
 
@@ -100,7 +100,6 @@ public class DigitalWorkFlowHandler {
         if (DigitalAddressSource.GENERAL.equals(nextAddressInfo.getAddressSource())) {
             log.debug("Address is general - iun {} id {}", iun, taxId);
             publicRegistryUtils.sendRequestForGetDigitalAddress(iun, taxId, ContactPhase.SEND_ATTEMPT, sentAttemptMade);//general address need async call to get it
-
         } else {
             log.debug("Address source is not general - iun {} id {}", iun, taxId);
 

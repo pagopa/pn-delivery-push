@@ -18,12 +18,18 @@ import java.util.stream.Collectors;
 @Slf4j
 public class TimelineUtils {
 
+    private final InstantNowSupplier instantNowSupplier;
+
+    public TimelineUtils(InstantNowSupplier instantNowSupplier) {
+        this.instantNowSupplier = instantNowSupplier;
+    }
+
     public TimelineElement buildAcceptedRequestTimelineElement(Notification notification, String taxId) {
         log.debug("buildAcceptedRequestTimelineElement - iun {} and id {}", notification.getIun(), taxId);
 
         return TimelineElement.builder()
                 .category(TimelineElementCategory.REQUEST_ACCEPTED)
-                .timestamp(Instant.now())
+                .timestamp(instantNowSupplier.get())
                 .iun(notification.getIun())
                 .elementId(TimelineEventId.REQUEST_ACCEPTED.buildEventId(
                         EventId.builder()
@@ -58,13 +64,13 @@ public class TimelineUtils {
                         )
                 )
                 .iun(iun)
-                .timestamp(Instant.now())
+                .timestamp(instantNowSupplier.get())
                 .details(
                         GetAddressInfo.builder()
                                 .taxId(taxId)
                                 .source(source)
                                 .isAvailable(isAvailable)
-                                .attemptDate(Instant.now())
+                                .attemptDate(instantNowSupplier.get())
                                 .build())
                 .build();
     }
@@ -93,7 +99,7 @@ public class TimelineUtils {
                 .category(TimelineElementCategory.SEND_COURTESY_MESSAGE)
                 .elementId(eventId)
                 .iun(iun)
-                .timestamp(Instant.now())
+                .timestamp(instantNowSupplier.get())
                 .details(SendCourtesyMessageDetails.builder()
                         .taxId(taxId)
                         .address(address)
@@ -111,7 +117,7 @@ public class TimelineUtils {
                 .category(TimelineElementCategory.SEND_SIMPLE_REGISTERED_LETTER)
                 .elementId(eventId)
                 .iun(iun)
-                .timestamp(Instant.now())
+                .timestamp(instantNowSupplier.get())
                 .details(SimpleRegisteredLetterDetails.builder()
                         .taxId(taxId)
                         .address(address)
@@ -126,7 +132,7 @@ public class TimelineUtils {
         return TimelineElement.builder()
                 .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE)
                 .iun(notification.getIun())
-                .timestamp(Instant.now())
+                .timestamp(instantNowSupplier.get())
                 .elementId(eventId)
                 .details(SendDigitalDetails.sendBuilder()
                         .taxId(recipient.getTaxId())
@@ -145,7 +151,7 @@ public class TimelineUtils {
         return TimelineElement.builder()
                 .category(TimelineElementCategory.SEND_ANALOG_DOMICILE)
                 .iun(notification.getIun())
-                .timestamp(Instant.now())
+                .timestamp(instantNowSupplier.get())
                 .elementId(eventId)
                 .details(SendPaperDetails.builder()
                         .taxId(recipient.getTaxId())
@@ -170,7 +176,7 @@ public class TimelineUtils {
                                 .recipientId(taxId)
                                 .build())
                 )
-                .timestamp(Instant.now())
+                .timestamp(instantNowSupplier.get())
                 .details(DigitalSuccessWorkflow.builder()
                         .taxId(taxId)
                         .address(address)
@@ -191,7 +197,7 @@ public class TimelineUtils {
                                 .recipientId(taxId)
                                 .build())
                 )
-                .timestamp(Instant.now())
+                .timestamp(instantNowSupplier.get())
                 .details(DigitalFailureWorkflow.builder()
                         .taxId(taxId)
                         .build())
@@ -211,7 +217,7 @@ public class TimelineUtils {
                                 .recipientId(taxId)
                                 .build())
                 )
-                .timestamp(Instant.now())
+                .timestamp(instantNowSupplier.get())
                 .details(AnalogSuccessWorkflow.builder()
                         .taxId(taxId)
                         .address(address)
@@ -232,7 +238,7 @@ public class TimelineUtils {
                                 .recipientId(taxId)
                                 .build())
                 )
-                .timestamp(Instant.now())
+                .timestamp(instantNowSupplier.get())
                 .details(AnalogFailureWorkflow.builder()
                         .taxId(taxId)
                         .build())
@@ -247,7 +253,7 @@ public class TimelineUtils {
                 .iun(iun)
                 .elementId(response.getCorrelationId())
                 .category(TimelineElementCategory.PUBLIC_REGISTRY_RESPONSE)
-                .timestamp(Instant.now())
+                .timestamp(instantNowSupplier.get())
                 .details(PublicRegistryResponseDetails.builder()
                         .taxId(taxId)
                         .digitalAddress(response.getDigitalAddress())
@@ -289,7 +295,7 @@ public class TimelineUtils {
                                 .build()
                 ))
                 .iun(iun)
-                .timestamp(Instant.now())
+                .timestamp(instantNowSupplier.get())
                 .details(new SendPaperFeedbackDetails(
                         SendPaperDetails.builder()
                                 .taxId(taxId)
@@ -309,7 +315,7 @@ public class TimelineUtils {
 
         return TimelineElement.builder()
                 .category(TimelineElementCategory.NOTIFICATION_VIEWED)
-                .timestamp(Instant.now())
+                .timestamp(instantNowSupplier.get())
                 .iun(iun)
                 .elementId(TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
                         EventId.builder()
@@ -329,7 +335,7 @@ public class TimelineUtils {
 
         return TimelineElement.builder()
                 .category(TimelineElementCategory.COMPLETELY_UNREACHABLE)
-                .timestamp(Instant.now())
+                .timestamp(instantNowSupplier.get())
                 .iun(iun)
                 .elementId(TimelineEventId.COMPLETELY_UNREACHABLE.buildEventId(
                         EventId.builder()
@@ -347,7 +353,7 @@ public class TimelineUtils {
         log.debug("buildRefinementTimelineElement - iun {} and id {}", iun, taxId);
         return TimelineElement.builder()
                 .category(TimelineElementCategory.REFINEMENT)
-                .timestamp(Instant.now())
+                .timestamp(instantNowSupplier.get())
                 .iun(iun)
                 .elementId(TimelineEventId.REFINEMENT.buildEventId(
                         EventId.builder()

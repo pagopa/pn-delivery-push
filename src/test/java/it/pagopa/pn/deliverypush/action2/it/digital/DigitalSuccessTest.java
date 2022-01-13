@@ -1,9 +1,11 @@
 package it.pagopa.pn.deliverypush.action2.it.digital;
 
 import it.pagopa.pn.api.dto.addressbook.AddressBookEntry;
+import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
+import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
@@ -11,11 +13,11 @@ import it.pagopa.pn.deliverypush.action2.*;
 import it.pagopa.pn.deliverypush.action2.it.AbstractWorkflowTestConfiguration;
 import it.pagopa.pn.deliverypush.action2.it.mockbean.ExternalChannelMock;
 import it.pagopa.pn.deliverypush.action2.it.mockbean.PaperNotificationFailedDaoMock;
-import it.pagopa.pn.deliverypush.action2.it.mockbean.SchedulerServiceMock;
 import it.pagopa.pn.deliverypush.action2.it.mockbean.TimelineDaoMock;
 import it.pagopa.pn.deliverypush.action2.it.utils.AddressBookEntryTestBuilder;
 import it.pagopa.pn.deliverypush.action2.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action2.it.utils.NotificationTestBuilder;
+import it.pagopa.pn.deliverypush.action2.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action2.utils.*;
 import it.pagopa.pn.deliverypush.actions.ExtChnEventUtils;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -23,6 +25,7 @@ import it.pagopa.pn.deliverypush.service.impl.NotificationServiceImpl;
 import it.pagopa.pn.deliverypush.service.impl.TimeLineServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -55,7 +58,6 @@ import java.util.Map;
         PnDeliveryPushConfigs.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
-        SchedulerServiceMock.class,
         ExternalChannelMock.class,
         PaperNotificationFailedDaoMock.class,
         DigitalSuccessTest.SpringTestConfiguration.class
@@ -104,12 +106,26 @@ class DigitalSuccessTest {
 
     @SpyBean
     private ExternalChannelMock externalChannelMock;
+    @SpyBean
+    private CompletionWorkFlowHandler completionWorkflow;
 
     @Test
     void workflowTest() {
+        String iun = notification.getIun();
+        String taxId = recipient.getTaxId();
 
         //Start del workflow
-        startWorkflowHandler.startWorkflow(notification.getIun());
+        startWorkflowHandler.startWorkflow(iun);
 
+        //Viene verificata la presenza dell'indirizzo di piattaforma
+        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeHandler.START_SENT_ATTEMPT_NUMBER, timelineService);
+        //Viene verificato che sia stata effettuata una sola chiamata ad external channel
+        Mockito.verify(externalChannelMock, Mockito.times(1)).sendNotification(Mockito.any(PnExtChnPecEvent.class));
+
+        //Viene verificato che il workflow abbia avuto successo
+        TestUtils.checkSuccessDigitalWorkflow(iun, taxId, timelineService, completionWorkflow);
+
+        //Viene verificato che sia avvenuto il perfezionamento
+        TestUtils.checkRefinement(iun, taxId, timelineService);
     }
 }

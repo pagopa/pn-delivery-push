@@ -17,7 +17,6 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.Optional;
 
 @Service
@@ -27,13 +26,15 @@ public class ExternalChannelUtils {
     private final PnDeliveryPushConfigs cfg;
     private final ExternalChannel externalChannel;
     private final TimelineUtils timelineUtils;
+    private final InstantNowSupplier instantNowSupplier;
 
     public ExternalChannelUtils(TimelineService timelineService, PnDeliveryPushConfigs cfg,
-                                ExternalChannel externalChannel, TimelineUtils timelineUtils) {
+                                ExternalChannel externalChannel, TimelineUtils timelineUtils, InstantNowSupplier instantNowSupplier) {
         this.timelineService = timelineService;
         this.cfg = cfg;
         this.externalChannel = externalChannel;
         this.timelineUtils = timelineUtils;
+        this.instantNowSupplier = instantNowSupplier;
     }
 
     /**
@@ -67,7 +68,7 @@ public class ExternalChannelUtils {
                 courtesyAddress);
         log.info("SendCourtesyMessage to external channel eventId{} - iun {} id {}", eventId, notification.getIun(), recipient.getTaxId());
 
-        addTimelineElement(timelineUtils.buildSendCourtesyMessageTimelineElement(recipient.getTaxId(), notification.getIun(), courtesyAddress, Instant.now(), eventId));
+        addTimelineElement(timelineUtils.buildSendCourtesyMessageTimelineElement(recipient.getTaxId(), notification.getIun(), courtesyAddress, instantNowSupplier.get(), eventId));
         externalChannel.sendNotification(pnExtChnEmailEvent);
     }
 
@@ -133,7 +134,7 @@ public class ExternalChannelUtils {
                         .eventId(eventId) //TODO Da capire cosa inserire
                         .eventType(EventType.SEND_PEC_REQUEST.name())
                         .publisher(EventPublisher.DELIVERY_PUSH.name())
-                        .createdAt(Instant.now())
+                        .createdAt(instantNowSupplier.get())
                         .build()
                 )
                 .payload(PnExtChnPecEventPayload.builder()
@@ -169,7 +170,7 @@ public class ExternalChannelUtils {
                         .eventId(eventId)
                         .eventType(EventType.SEND_PAPER_REQUEST.name())
                         .publisher(EventPublisher.DELIVERY_PUSH.name())
-                        .createdAt(Instant.now())
+                        .createdAt(instantNowSupplier.get())
                         .build()
                 )
                 .payload(PnExtChnPaperEventPayload.builder()
@@ -200,7 +201,7 @@ public class ExternalChannelUtils {
                         .eventId(eventId)
                         .eventType(EventType.SEND_COURTESY_EMAIL.name())
                         .publisher(EventPublisher.DELIVERY_PUSH.name())
-                        .createdAt(Instant.now())
+                        .createdAt(instantNowSupplier.get())
                         .build()
                 )
                 .payload(PnExtChnEmailEventPayload.builder()

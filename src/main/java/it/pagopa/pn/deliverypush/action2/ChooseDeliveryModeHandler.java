@@ -13,10 +13,7 @@ import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.action2.utils.CourtesyMessageUtils;
-import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
-import it.pagopa.pn.deliverypush.action2.utils.PublicRegistryUtils;
-import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.action2.utils.*;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -41,11 +38,12 @@ public class ChooseDeliveryModeHandler {
     private final SchedulerService schedulerService;
     private final PublicRegistryUtils publicRegistryUtils;
     private final TimelineUtils timelineUtils;
+    private final InstantNowSupplier instantNowSupplier;
 
     public ChooseDeliveryModeHandler(AddressBook addressBook, TimelineService timelineService,
                                      NotificationService notificationService, ExternalChannelUtils externalChannelUtils,
                                      CourtesyMessageUtils courtesyMessageUtils, SchedulerService schedulerService,
-                                     PublicRegistryUtils publicRegistryUtils, TimelineUtils timelineUtils) {
+                                     PublicRegistryUtils publicRegistryUtils, TimelineUtils timelineUtils, InstantNowSupplier instantNowSupplier) {
         this.addressBook = addressBook;
         this.timelineService = timelineService;
         this.notificationService = notificationService;
@@ -54,6 +52,7 @@ public class ChooseDeliveryModeHandler {
         this.schedulerService = schedulerService;
         this.publicRegistryUtils = publicRegistryUtils;
         this.timelineUtils = timelineUtils;
+        this.instantNowSupplier = instantNowSupplier;
     }
 
     /**
@@ -155,7 +154,7 @@ public class ChooseDeliveryModeHandler {
             schedulingDate = sendCourtesyMessageDetails.getSendDate().plus(READ_COURTESY_MESSAGE_WAITING_TIME, ChronoUnit.DAYS);
             log.info("Courtesy message is present, need to schedule analog workflow at {}  - iun {} id {} ", schedulingDate, iun, taxId);
         } else {
-            schedulingDate = Instant.now();
+            schedulingDate = instantNowSupplier.get();
             log.info("Courtesy message is not present, analog workflow can be started now  - iun {} id {} ", iun, taxId);
         }
         schedulerService.scheduleEvent(iun, taxId, schedulingDate, ActionType.ANALOG_WORKFLOW);

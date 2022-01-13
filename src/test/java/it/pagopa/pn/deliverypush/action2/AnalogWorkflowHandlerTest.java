@@ -4,10 +4,7 @@ import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
-import it.pagopa.pn.deliverypush.action2.utils.AnalogWorkflowUtils;
-import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
-import it.pagopa.pn.deliverypush.action2.utils.PublicRegistryUtils;
-import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.action2.utils.*;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,13 +31,15 @@ class AnalogWorkflowHandlerTest {
     private TimelineService timeLineService;
     @Mock
     private TimelineUtils timelineUtils;
+    @Mock
+    private InstantNowSupplier instantNowSupplier;
 
     private AnalogWorkflowHandler handler;
 
     @BeforeEach
     public void setup() {
         handler = new AnalogWorkflowHandler(notificationService, externalChannelUtils, completionWorkFlow,
-                analogWorkflowUtils, publicRegistryUtils, timeLineService, timelineUtils);
+                analogWorkflowUtils, publicRegistryUtils, timeLineService, timelineUtils, instantNowSupplier);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -52,8 +51,8 @@ class AnalogWorkflowHandlerTest {
                 .thenReturn(notification);
         Mockito.when(notificationService.getRecipientFromNotification(Mockito.any(Notification.class), Mockito.anyString()))
                 .thenReturn(notification.getRecipients().get(0));
-        Mockito.when(analogWorkflowUtils.getSentAttemptFromTimeLine(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(0);
+        //Mockito.when(analogWorkflowUtils.getSentAttemptFromTimeLine(Mockito.anyString(), Mockito.anyString()))
+        //        .thenReturn(0);
 
         handler.nextWorkflowStep(notification.getIun(), notification.getRecipients().get(0).getTaxId(), 0);
 

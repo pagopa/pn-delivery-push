@@ -12,10 +12,7 @@ import it.pagopa.pn.api.dto.notification.timeline.ContactPhase;
 import it.pagopa.pn.api.dto.notification.timeline.SendCourtesyMessageDetails;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
-import it.pagopa.pn.deliverypush.action2.utils.CourtesyMessageUtils;
-import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
-import it.pagopa.pn.deliverypush.action2.utils.PublicRegistryUtils;
-import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.action2.utils.*;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -53,6 +50,8 @@ class ChooseDeliveryModeHandlerTest {
     private PublicRegistryUtils publicRegistryUtils;
     @Mock
     private TimelineUtils timelineUtils;
+    @Mock
+    private InstantNowSupplier instantNowSupplier;
 
     private ChooseDeliveryModeHandler handler;
 
@@ -60,7 +59,7 @@ class ChooseDeliveryModeHandlerTest {
     public void setup() {
         handler = new ChooseDeliveryModeHandler(addressBook, timelineService, notificationService,
                 externalChannelUtils, courtesyMessageUtils, schedulerService,
-                publicRegistryUtils, timelineUtils);
+                publicRegistryUtils, timelineUtils, instantNowSupplier);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -236,6 +235,8 @@ class ChooseDeliveryModeHandlerTest {
     @ExtendWith(MockitoExtension.class)
     @Test
     void handleGeneralAddressResponseAnalogWithoutCourtesyMessage() {
+        Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
+        
         PublicRegistryResponse response = PublicRegistryResponse.builder()
                 .digitalAddress(null).build();
 

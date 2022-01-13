@@ -13,10 +13,10 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 public class SchedulerServiceMock implements SchedulerService {
-    private DigitalWorkFlowHandler digitalWorkFlowHandler;
-    private AnalogWorkflowHandler analogWorkflowHandler;
-    private RefinementHandler refinementHandler;
-    private InstantNowSupplier instantNowSupplier;
+    private final DigitalWorkFlowHandler digitalWorkFlowHandler;
+    private final AnalogWorkflowHandler analogWorkflowHandler;
+    private final RefinementHandler refinementHandler;
+    private final InstantNowSupplier instantNowSupplier;
 
     public SchedulerServiceMock(@Lazy DigitalWorkFlowHandler digitalWorkFlowHandler, @Lazy AnalogWorkflowHandler analogWorkflowHandler,
                                 @Lazy RefinementHandler refinementHandler, @Lazy InstantNowSupplier instantNowSupplier) {
@@ -28,16 +28,7 @@ public class SchedulerServiceMock implements SchedulerService {
 
     @Override
     public void scheduleEvent(String iun, String taxId, Instant dateToSchedule, ActionType actionType) {
-        /*Clock clock = Clock.fixed(dateToSchedule, ZoneId.of("UTC"));
-        Instant instant = Instant.now(clock);
-        try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
-            mockedStatic.when(Instant::now).thenReturn(instant);
-        }
-        Ha bisogno di una versione di mockito aggiornata
-        */
-        Instant schedulingDate = dateToSchedule.plus(1, ChronoUnit.HOURS);
-
-        Mockito.when(instantNowSupplier.get()).thenReturn(schedulingDate);
+        mockSchedulingDate(dateToSchedule);
 
         switch (actionType) {
             case ANALOG_WORKFLOW:
@@ -50,6 +41,11 @@ public class SchedulerServiceMock implements SchedulerService {
                 digitalWorkFlowHandler.nextWorkFlowAction(iun, taxId);
                 break;
         }
+    }
+
+    private void mockSchedulingDate(Instant dateToSchedule) {
+        Instant schedulingDate = dateToSchedule.plus(1, ChronoUnit.HOURS);
+        Mockito.when(instantNowSupplier.get()).thenReturn(schedulingDate);
     }
 
 }

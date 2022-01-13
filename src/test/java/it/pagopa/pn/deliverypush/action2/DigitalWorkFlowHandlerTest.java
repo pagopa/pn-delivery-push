@@ -62,7 +62,6 @@ class DigitalWorkFlowHandlerTest {
     @ExtendWith(MockitoExtension.class)
     @Test
     void nextWorkFlowAction_0_General() {
-
         Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(AttemptAddressInfo.builder()
                         .addressSource(DigitalAddressSource.GENERAL)
@@ -128,6 +127,7 @@ class DigitalWorkFlowHandlerTest {
     @ExtendWith(MockitoExtension.class)
     @Test
     void nextWorkFlowAction_0_NotGeneral_WithoutAddress() {
+        Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
         Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(AttemptAddressInfo.builder()
@@ -164,6 +164,7 @@ class DigitalWorkFlowHandlerTest {
     @ExtendWith(MockitoExtension.class)
     @Test
     void nextWorkFlowAction_1_General() {
+        Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
         Instant lastAttemptDate = Instant.now();
 
@@ -190,6 +191,7 @@ class DigitalWorkFlowHandlerTest {
     @ExtendWith(MockitoExtension.class)
     @Test
     void nextWorkFlowAction_1_General_Not_Schedule() {
+        Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
         Instant lastAttemptDate = Instant.now().minus(DigitalWorkFlowHandler.SECOND_NOTIFICATION_WORKFLOW_WAITING_TIME + 1, ChronoUnit.DAYS);
 
@@ -210,6 +212,7 @@ class DigitalWorkFlowHandlerTest {
     @ExtendWith(MockitoExtension.class)
     @Test
     void nextWorkFlowAction_1_NotGeneral() {
+        Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
         Instant lastAttemptDate = Instant.now().minus(DigitalWorkFlowHandler.SECOND_NOTIFICATION_WORKFLOW_WAITING_TIME + 1, ChronoUnit.DAYS);
 
@@ -330,6 +333,7 @@ class DigitalWorkFlowHandlerTest {
     @ExtendWith(MockitoExtension.class)
     @Test
     void handleExternalChannelResponseOKƒ() {
+
         ExtChannelResponse extChannelResponse = ExtChannelResponse.builder()
                 .responseStatus(ExtChannelResponseStatus.OK)
                 .iun("IUN")
@@ -354,6 +358,7 @@ class DigitalWorkFlowHandlerTest {
     @ExtendWith(MockitoExtension.class)
     @Test
     void handleExternalChannelResponseKO() {
+
         ExtChannelResponse extChannelResponse = ExtChannelResponse.builder()
                 .responseStatus(ExtChannelResponseStatus.KO)
                 .iun("IUN")
