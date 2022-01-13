@@ -7,6 +7,8 @@ import it.pagopa.pn.deliverypush.webhook.dto.WebhookBufferRowDto;
 import it.pagopa.pn.deliverypush.webhook.dto.WebhookOutputDto;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -24,13 +26,16 @@ public class WebhookBufferReaderService {
 
     private final WebhookConfigsDao webhookConfigsDao;
     private final WebhookBufferDao webhookBufferDao;
-    private final WebhookClient client;
+
+    @Autowired
+    @Qualifier("WebhookClientCertImpl")
+    private WebhookClient client;
+
     private final int chunkSize;
 
-    public WebhookBufferReaderService(WebhookConfigsDao webhookConfigsDao, WebhookBufferDao webhookBufferDao, WebhookClient client, PnDeliveryPushConfigs cfg) {
+    public WebhookBufferReaderService(WebhookConfigsDao webhookConfigsDao, WebhookBufferDao webhookBufferDao, PnDeliveryPushConfigs cfg) {
         this.webhookConfigsDao = webhookConfigsDao;
         this.webhookBufferDao = webhookBufferDao;
-        this.client = client;
         this.chunkSize = cfg.getWebhook().getMaxLength();
     }
 
