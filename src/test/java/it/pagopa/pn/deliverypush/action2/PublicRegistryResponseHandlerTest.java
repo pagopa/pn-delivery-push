@@ -106,7 +106,7 @@ class PublicRegistryResponseHandlerTest {
 
         ArgumentCaptor<String> iunCaptor = ArgumentCaptor.forClass(String.class);
 
-        Mockito.verify(digitalWorkFlowHandler).handleGeneralAddressResponse(Mockito.any(PublicRegistryResponse.class), iunCaptor.capture(), Mockito.anyString(), Mockito.anyInt());
+        Mockito.verify(digitalWorkFlowHandler).handleGeneralAddressResponse(Mockito.any(PublicRegistryResponse.class), iunCaptor.capture(), Mockito.any(PublicRegistryCallDetails.class));
 
         Assertions.assertEquals(iun, iunCaptor.getValue());
 

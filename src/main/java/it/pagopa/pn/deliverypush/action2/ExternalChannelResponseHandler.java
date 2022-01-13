@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action2;
 
 import it.pagopa.pn.api.dto.extchannel.ExtChannelResponse;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.annotation.StreamListener;
@@ -28,12 +29,13 @@ public class ExternalChannelResponseHandler {
      */
     @StreamListener(condition = "EXTERNAL_CHANNEL_RESPONSE")
     public void extChannelResponseReceiver(ExtChannelResponse response) {
-        log.info("Get response from external channel - iun {} eventId {} with status {}", response.getIun(), response.getEventId(), response.getResponseStatus());
+        log.info("Get response from external channel for iun {} eventId {} with status {}", response.getIun(), response.getEventId(), response.getResponseStatus());
+        TimelineElement notificationTimelineElement = externalChannelUtils.getExternalChannelNotificationTimelineElement(response.getIun(), response.getEventId());
 
         if (response.getDigitalUsedAddress() != null && response.getDigitalUsedAddress().getAddress() != null) {
-            digitalWorkFlowHandler.handleExternalChannelResponse(response);
+            digitalWorkFlowHandler.handleExternalChannelResponse(response, notificationTimelineElement);
         } else {
-            analogWorkflowHandler.extChannelResponseHandler(response);
+            analogWorkflowHandler.extChannelResponseHandler(response, notificationTimelineElement);
         }
     }
 

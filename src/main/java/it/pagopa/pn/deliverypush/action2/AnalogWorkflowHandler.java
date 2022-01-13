@@ -164,8 +164,9 @@ public class AnalogWorkflowHandler {
         }
     }
 
-    public void extChannelResponseHandler(ExtChannelResponse response) {
-        SendPaperDetails sendPaperDetails = externalChannelUtils.getSendAnalogDomicileTimelineElement(response.getIun(), response.getEventId());
+    public void extChannelResponseHandler(ExtChannelResponse response, TimelineElement notificationTimelineElement) {
+        SendPaperDetails sendPaperDetails = (SendPaperDetails) notificationTimelineElement.getDetails();
+        
         String iun = response.getIun();
         String taxId = sendPaperDetails.getTaxId();
         log.info("Analog workflow Ext channel response  - iun {} id {} with status {}", iun, taxId, response.getResponseStatus());

@@ -4,6 +4,7 @@ import it.pagopa.pn.api.dto.extchannel.ExtChannelResponse;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import it.pagopa.pn.api.dto.notification.address.AttemptAddressInfo;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
@@ -126,7 +127,7 @@ public class TimelineUtils {
     }
 
 
-    public TimelineElement buildSendDigitalNotificationTimelineElement(DigitalAddress digitalAddress, NotificationRecipient recipient, Notification notification, int sentAttemptMade, String eventId) {
+    public TimelineElement buildSendDigitalNotificationTimelineElement(DigitalAddress digitalAddress, DigitalAddressSource addressSource, NotificationRecipient recipient, Notification notification, int sentAttemptMade, String eventId) {
         log.debug("buildSendDigitalNotificationTimelineElement - IUN {} and id {}", notification.getIun(), recipient.getTaxId());
 
         return TimelineElement.builder()
@@ -138,6 +139,7 @@ public class TimelineUtils {
                         .taxId(recipient.getTaxId())
                         .retryNumber(sentAttemptMade)
                         .address(digitalAddress)
+                        .addressSource(addressSource)
                         .build()
                 )
                 .build();
@@ -269,12 +271,14 @@ public class TimelineUtils {
         return TimelineElement.builder()
                 .iun(iun)
                 .elementId(eventId)
+                .timestamp(instantNowSupplier.get())
                 .category(TimelineElementCategory.PUBLIC_REGISTRY_CALL)
                 .details(PublicRegistryCallDetails.builder()
                         .taxId(taxId)
                         .contactPhase(contactPhase)
                         .sentAttemptMade(sentAttemptMade)
                         .deliveryMode(deliveryMode)
+                        .sendDate(instantNowSupplier.get())
                         .build())
                 .build();
     }
@@ -367,4 +371,24 @@ public class TimelineUtils {
                 .build();
     }
 
+    public TimelineElement buildScheduledDigitalWorkflowTimeline(String iun, String taxId, AttemptAddressInfo lastAttemptInfo) {
+        log.debug("buildScheduledActionTimeline - iun {} and id {}", iun, taxId);
+        return TimelineElement.builder()
+                .category(TimelineElementCategory.SCHEDULE_DIGITAL_WORKFLOW)
+                .timestamp(instantNowSupplier.get())
+                .iun(iun)
+                .elementId(
+                        TimelineEventId.SCHEDULE_DIGITAL_WORKFLOW.buildEventId(
+                                EventId.builder()
+                                        .iun(iun)
+                                        .recipientId(taxId)
+                                        .build())
+                )
+                .details(ScheduleDigitalWorkflow.builder()
+                        .taxId(taxId)
+                        .lastAttemptInfo(lastAttemptInfo)
+                        .build()
+                )
+                .build();
+    }
 }

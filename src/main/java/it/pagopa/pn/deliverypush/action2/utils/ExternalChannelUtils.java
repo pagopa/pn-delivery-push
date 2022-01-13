@@ -54,7 +54,7 @@ public class ExternalChannelUtils {
 
         PnExtChnPecEvent pnExtChnPecEvent = buildSendPecRequest(eventId, notification, recipient, digitalAddress);
 
-        addTimelineElement(timelineUtils.buildSendDigitalNotificationTimelineElement(digitalAddress, recipient, notification, sentAttemptMade, eventId));
+        addTimelineElement(timelineUtils.buildSendDigitalNotificationTimelineElement(digitalAddress, addressSource, recipient, notification, sentAttemptMade, eventId));
         externalChannel.sendNotification(pnExtChnPecEvent);
     }
 
@@ -226,8 +226,8 @@ public class ExternalChannelUtils {
         if (optTimeLineSendAnalogDomicile.isPresent()) {
             return optTimeLineSendAnalogDomicile.get();
         } else {
-            log.error("There isn't timelineElement for iun {} eventId {}", iun, eventId);
-            throw new PnInternalException("There isn't timelineElement for iun " + iun + " eventId " + eventId);
+            log.error("There isn't timelineElement - iun {} eventId {}", iun, eventId);
+            throw new PnInternalException("There isn't timelineElement - iun " + iun + " eventId " + eventId);
         }
 
     }
@@ -242,4 +242,15 @@ public class ExternalChannelUtils {
         timelineService.addTimelineElement(element);
     }
 
+    public TimelineElement getExternalChannelNotificationTimelineElement(String iun, String eventId) {
+        //Viene ottenuto l'oggetto di timeline creato in fase d'invio notifica al public registry
+        Optional<TimelineElement> timelineElement = timelineService.getTimelineElement(iun, eventId);
+
+        if (timelineElement.isPresent()) {
+            return timelineElement.get();
+        } else {
+            log.error("There isn't timelineElement - iun {} eventId {}", iun, eventId);
+            throw new PnInternalException("There isn't timelineElement - iun " + iun + " eventId " + eventId);
+        }
+    }
 }

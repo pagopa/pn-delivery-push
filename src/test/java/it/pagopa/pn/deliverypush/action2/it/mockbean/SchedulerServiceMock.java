@@ -38,7 +38,7 @@ public class SchedulerServiceMock implements SchedulerService {
                 refinementHandler.handleRefinement(iun, taxId);
                 break;
             case DIGITAL_WORKFLOW_NEXT_ACTION:
-                digitalWorkFlowHandler.nextWorkFlowAction(iun, taxId);
+                digitalWorkFlowHandler.startScheduledNextWorkflow(iun, taxId);
                 break;
         }
     }

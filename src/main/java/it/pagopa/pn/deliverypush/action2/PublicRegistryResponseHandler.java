@@ -95,7 +95,7 @@ public class PublicRegistryResponseHandler {
 
             switch (publicRegistryCallDetails.getDeliveryMode()) {
                 case DIGITAL:
-                    digitalWorkFlowHandler.handleGeneralAddressResponse(response, iun, publicRegistryCallDetails.getTaxId(), publicRegistryCallDetails.getSentAttemptMade());
+                    digitalWorkFlowHandler.handleGeneralAddressResponse(response, iun, publicRegistryCallDetails);
                     break;
                 case ANALOG:
                     analogWorkflowHandler.handlePublicRegistryResponse(iun, taxId, response, publicRegistryCallDetails.getSentAttemptMade());
