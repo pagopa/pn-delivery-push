@@ -3,34 +3,28 @@ package it.pagopa.pn.deliverypush.action2;
 import it.pagopa.pn.api.dto.notification.timeline.ContactPhase;
 import it.pagopa.pn.api.dto.notification.timeline.DeliveryMode;
 import it.pagopa.pn.api.dto.notification.timeline.PublicRegistryCallDetails;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
-import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.action2.utils.PublicRegistryUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
-
 @Component
 @Slf4j
 public class PublicRegistryResponseHandler {
-    private final TimelineService timelineService;
     private final ChooseDeliveryModeHandler chooseDeliveryHandler;
     private final DigitalWorkFlowHandler digitalWorkFlowHandler;
     private final AnalogWorkflowHandler analogWorkflowHandler;
-    private final TimelineUtils timelineUtils;
+    private final PublicRegistryUtils publicRegistryUtils;
 
-    public PublicRegistryResponseHandler(TimelineService timelineService, ChooseDeliveryModeHandler chooseDeliveryHandler,
+    public PublicRegistryResponseHandler(ChooseDeliveryModeHandler chooseDeliveryHandler,
                                          DigitalWorkFlowHandler digitalWorkFlowHandler, AnalogWorkflowHandler analogWorkflowHandler,
-                                         TimelineUtils timelineUtils) {
-        this.timelineService = timelineService;
+                                         PublicRegistryUtils publicRegistryUtils) {
         this.chooseDeliveryHandler = chooseDeliveryHandler;
         this.digitalWorkFlowHandler = digitalWorkFlowHandler;
         this.analogWorkflowHandler = analogWorkflowHandler;
-        this.timelineUtils = timelineUtils;
+        this.publicRegistryUtils = publicRegistryUtils;
     }
 
     /**
@@ -46,39 +40,32 @@ public class PublicRegistryResponseHandler {
         log.info("Handle public registry response -  iun {} correlationId {}", iun, response.getCorrelationId());
 
         //Viene ottenuto l'oggetto di timeline creato in fase d'invio notifica al public registry
-        Optional<PublicRegistryCallDetails> optTimeLinePublicRegistrySend = timelineService.getTimelineElement(iun, response.getCorrelationId(), PublicRegistryCallDetails.class);
+        PublicRegistryCallDetails publicRegistryCallDetails = publicRegistryUtils.getPublicRegistryCallDetail(iun, correlationId);
+        String taxId = publicRegistryCallDetails.getTaxId();
 
-        if (optTimeLinePublicRegistrySend.isPresent()) {
-            PublicRegistryCallDetails publicRegistryCallDetails = optTimeLinePublicRegistrySend.get();
-            String taxId = publicRegistryCallDetails.getTaxId();
+        publicRegistryUtils.addPublicRegistryResponseToTimeline(iun, taxId, response);
 
-            addTimelineElement(timelineUtils.buildPublicRegistryResponseCallTimelineElement(iun, taxId, response));
+        log.info("public registry response is in contactPhase {} iun {} id {} ", publicRegistryCallDetails.getContactPhase(), iun, taxId);
 
-            log.info("public registry response is in contactPhase {} iun {} id {} ", publicRegistryCallDetails.getContactPhase(), iun, taxId);
-
-            ContactPhase contactPhase = publicRegistryCallDetails.getContactPhase();
-            //In base alla fase di contatto, inserita in timeline al momento dell'invio, viene scelto il percorso da prendere
-            if (contactPhase != null) {
-                switch (contactPhase) {
-                    case CHOOSE_DELIVERY:
-                        //request has been sent during choose delivery
-                        chooseDeliveryHandler.handleGeneralAddressResponse(response, iun, taxId);
-                        break;
-                    case SEND_ATTEMPT:
-                        //request has been sent in digital or analog workflow
-                        handleResponseForSendAttempt(response, iun, publicRegistryCallDetails);
-                        break;
-                    default:
-                        handleContactPhaseError(correlationId, publicRegistryCallDetails);
-                }
-            } else {
-                handleContactPhaseError(correlationId, publicRegistryCallDetails);
+        ContactPhase contactPhase = publicRegistryCallDetails.getContactPhase();
+        //In base alla fase di contatto, inserita in timeline al momento dell'invio, viene scelto il percorso da prendere
+        if (contactPhase != null) {
+            switch (contactPhase) {
+                case CHOOSE_DELIVERY:
+                    //request has been sent during choose delivery
+                    chooseDeliveryHandler.handleGeneralAddressResponse(response, iun, taxId);
+                    break;
+                case SEND_ATTEMPT:
+                    //request has been sent in digital or analog workflow
+                    handleResponseForSendAttempt(response, iun, publicRegistryCallDetails);
+                    break;
+                default:
+                    handleContactPhaseError(correlationId, publicRegistryCallDetails);
             }
-
         } else {
-            log.error("There isn't timelineElement - iun {} correlationId {}", iun, correlationId);
-            throw new PnInternalException("There isn't timelineElement - iun " + iun + " correlationId " + correlationId);
+            handleContactPhaseError(correlationId, publicRegistryCallDetails);
         }
+
     }
 
     private void handleContactPhaseError(String correlationId, PublicRegistryCallDetails publicRegistryCallDetails) {
@@ -101,20 +88,15 @@ public class PublicRegistryResponseHandler {
                     analogWorkflowHandler.handlePublicRegistryResponse(iun, taxId, response, publicRegistryCallDetails.getSentAttemptMade());
                     break;
                 default:
-                    handleError(iun, publicRegistryCallDetails.getDeliveryMode(), taxId);
+                    handleDeliveryModeError(iun, publicRegistryCallDetails.getDeliveryMode(), taxId);
             }
         } else {
-            handleError(iun, publicRegistryCallDetails.getDeliveryMode(), taxId);
+            handleDeliveryModeError(iun, publicRegistryCallDetails.getDeliveryMode(), taxId);
         }
-
     }
 
-    private void handleError(String iun, DeliveryMode deliveryMode, String taxId) {
+    private void handleDeliveryModeError(String iun, DeliveryMode deliveryMode, String taxId) {
         log.error("Specified deliveryMode {} does not exist - iun {} id {}", deliveryMode, iun, taxId);
         throw new PnInternalException("Specified deliveryMode " + deliveryMode + " does not exist - iun " + iun + " id " + taxId);
-    }
-
-    private void addTimelineElement(TimelineElement element) {
-        timelineService.addTimelineElement(element);
     }
 }

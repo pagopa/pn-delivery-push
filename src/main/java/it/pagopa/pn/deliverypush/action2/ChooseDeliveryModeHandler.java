@@ -9,14 +9,12 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.timeline.ContactPhase;
 import it.pagopa.pn.api.dto.notification.timeline.SendCourtesyMessageDetails;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
-import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.action2.utils.*;
+import it.pagopa.pn.deliverypush.action2.utils.ChooseDeliveryModeUtils;
+import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -27,31 +25,23 @@ import java.util.Optional;
 @Component
 @Slf4j
 public class ChooseDeliveryModeHandler {
-    public static final int START_SENT_ATTEMPT_NUMBER = 0;
     public static final int READ_COURTESY_MESSAGE_WAITING_TIME = 5;
 
-    private final AddressBook addressBook;
-    private final TimelineService timelineService;
     private final NotificationService notificationService;
-    private final ExternalChannelUtils externalChannelUtils;
-    private final CourtesyMessageUtils courtesyMessageUtils;
+    private final ExternalChannelSendHandler externalChannelSendHandler;
     private final SchedulerService schedulerService;
-    private final PublicRegistryUtils publicRegistryUtils;
-    private final TimelineUtils timelineUtils;
+    private final PublicRegistrySendHandler publicRegistrySendHandler;
+    private final ChooseDeliveryModeUtils chooseDeliveryUtils;
     private final InstantNowSupplier instantNowSupplier;
 
-    public ChooseDeliveryModeHandler(AddressBook addressBook, TimelineService timelineService,
-                                     NotificationService notificationService, ExternalChannelUtils externalChannelUtils,
-                                     CourtesyMessageUtils courtesyMessageUtils, SchedulerService schedulerService,
-                                     PublicRegistryUtils publicRegistryUtils, TimelineUtils timelineUtils, InstantNowSupplier instantNowSupplier) {
-        this.addressBook = addressBook;
-        this.timelineService = timelineService;
+    public ChooseDeliveryModeHandler(ChooseDeliveryModeUtils chooseDeliveryUtils, NotificationService notificationService,
+                                     ExternalChannelSendHandler externalChannelSendHandler, SchedulerService schedulerService,
+                                     PublicRegistrySendHandler publicRegistrySendHandler, InstantNowSupplier instantNowSupplier) {
+        this.chooseDeliveryUtils = chooseDeliveryUtils;
         this.notificationService = notificationService;
-        this.externalChannelUtils = externalChannelUtils;
-        this.courtesyMessageUtils = courtesyMessageUtils;
+        this.externalChannelSendHandler = externalChannelSendHandler;
         this.schedulerService = schedulerService;
-        this.publicRegistryUtils = publicRegistryUtils;
-        this.timelineUtils = timelineUtils;
+        this.publicRegistrySendHandler = publicRegistrySendHandler;
         this.instantNowSupplier = instantNowSupplier;
     }
 
@@ -73,11 +63,11 @@ public class ChooseDeliveryModeHandler {
         //Verifico presenza indirizzo di piattaforma, ...
         if (platformAddress != null) {
             log.info("Platform address is present, Digital workflow can be started - IUN {} id {}", notification.getIun(), recipient.getTaxId());
-            addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource.PLATFORM, true);
+            chooseDeliveryUtils.addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource.PLATFORM, true);
             startDigitalWorkflow(notification, platformAddress, DigitalAddressSource.PLATFORM, recipient);
         } else {
             log.info("Platform address isn't present  - iun {} id {}", notification.getIun(), recipient.getTaxId());
-            addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource.PLATFORM, false);
+            chooseDeliveryUtils.addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource.PLATFORM, false);
 
             // ... se non lo trovo, verifico presenza indirizzo speciale, ...
             DigitalAddress specialAddress = recipient.getDigitalDomicile();
@@ -85,13 +75,13 @@ public class ChooseDeliveryModeHandler {
                 log.info("Special address is present, Digital workflow can be started  - iun {} id {}", notification.getIun(), recipient.getTaxId());
 
                 startDigitalWorkflow(notification, specialAddress, DigitalAddressSource.SPECIAL, recipient);
-                addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource.SPECIAL, true);
+                chooseDeliveryUtils.addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource.SPECIAL, true);
             } else {
                 log.info("Special address isn't present, need to get General address async");
-                addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource.SPECIAL, false);
+                chooseDeliveryUtils.addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource.SPECIAL, false);
 
                 // ... se non lo trovo, lancio ricerca asincrona dell'indirizzo generale
-                publicRegistryUtils.sendRequestForGetDigitalAddress(iun, taxId, ContactPhase.CHOOSE_DELIVERY, START_SENT_ATTEMPT_NUMBER);
+                publicRegistrySendHandler.sendRequestForGetDigitalAddress(iun, taxId, ContactPhase.CHOOSE_DELIVERY, ChooseDeliveryModeUtils.START_SENT_ATTEMPT_NUMBER);
             }
         }
 
@@ -116,11 +106,11 @@ public class ChooseDeliveryModeHandler {
             NotificationRecipient recipient = notificationService.getRecipientFromNotification(notification, taxId);
             log.debug("Notification and recipient successfully obtained  - iun {} id {}", iun, taxId);
 
-            addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource.GENERAL, true);
+            chooseDeliveryUtils.addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource.GENERAL, true);
             startDigitalWorkflow(notification, response.getDigitalAddress(), DigitalAddressSource.GENERAL, recipient);
         } else {
             log.info("General address is not present, digital workflow can't be started. Starting Analog Workflow  - iun {} id {}", iun, taxId);
-            addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource.GENERAL, false);
+            chooseDeliveryUtils.addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource.GENERAL, false);
             scheduleAnalogWorkflow(iun, taxId);
         }
     }
@@ -134,7 +124,7 @@ public class ChooseDeliveryModeHandler {
      */
     public void startDigitalWorkflow(Notification notification, DigitalAddress digitalAddress, DigitalAddressSource addressSource, NotificationRecipient recipient) {
         log.info("Starting digital workflow sending notification to external channel - iun {} id {} ", notification.getIun(), recipient.getTaxId());
-        externalChannelUtils.sendDigitalNotification(notification, digitalAddress, addressSource, recipient, START_SENT_ATTEMPT_NUMBER);
+        externalChannelSendHandler.sendDigitalNotification(notification, digitalAddress, addressSource, recipient, ChooseDeliveryModeUtils.START_SENT_ATTEMPT_NUMBER);
     }
 
     /**
@@ -146,7 +136,7 @@ public class ChooseDeliveryModeHandler {
     public void scheduleAnalogWorkflow(String iun, String taxId) {
         log.debug("Scheduling analog workflow for iun {} id {} ", iun, taxId);
 
-        Optional<SendCourtesyMessageDetails> sendCourtesyMessageDetailsOpt = courtesyMessageUtils.getFirstSentCourtesyMessage(iun, taxId);
+        Optional<SendCourtesyMessageDetails> sendCourtesyMessageDetailsOpt = chooseDeliveryUtils.getFirstSentCourtesyMessage(iun, taxId);
         Instant schedulingDate;
 
         if (sendCourtesyMessageDetailsOpt.isPresent()) {
@@ -160,15 +150,11 @@ public class ChooseDeliveryModeHandler {
         schedulerService.scheduleEvent(iun, taxId, schedulingDate, ActionType.ANALOG_WORKFLOW);
     }
 
-    private void addAvailabilitySourceToTimeline(String taxId, String iun, DigitalAddressSource addressSource, boolean isAvailable) {
-        TimelineElement element = timelineUtils.buildAvailabilitySourceTimelineElement(taxId, iun, addressSource, isAvailable, START_SENT_ATTEMPT_NUMBER);
-        timelineService.addTimelineElement(element);
-    }
 
     private DigitalAddress retrievePlatformAddress(NotificationRecipient recipient, NotificationSender sender) {
         log.debug("retrievePlatformAddress  for id {}", recipient.getTaxId());
 
-        Optional<AddressBookEntry> addressBookEntryOpt = addressBook.getAddresses(recipient.getTaxId(), sender);
+        Optional<AddressBookEntry> addressBookEntryOpt = chooseDeliveryUtils.getAddresses(recipient.getTaxId(), sender);
 
         if (addressBookEntryOpt.isPresent()) {
             DigitalAddresses digitalAddresses = addressBookEntryOpt.get().getDigitalAddresses(); //TODO Valutare se far ritornare un solo indirizzo all'addressbook e non una lista

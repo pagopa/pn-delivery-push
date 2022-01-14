@@ -15,7 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 
-class ExternalChannelResponseHandlerTest {
+class ExternalChannelHandlerTest {
     @Mock
     private DigitalWorkFlowHandler digitalWorkFlowHandler;
     @Mock
@@ -38,10 +38,14 @@ class ExternalChannelResponseHandlerTest {
                 .iun("IUN")
                 .taxId("TaxId")
                 .notificationDate(Instant.now())
+                .eventId("Test event id")
                 .digitalUsedAddress(DigitalAddress.builder()
                         .type(DigitalAddressType.PEC)
                         .address("account@dominio.it")
                         .build()).build();
+
+        Mockito.when(externalChannelUtils.getExternalChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(TimelineElement.builder().build());
 
         handler.extChannelResponseReceiver(extChannelResponse);
 
@@ -56,8 +60,12 @@ class ExternalChannelResponseHandlerTest {
                 .responseStatus(ExtChannelResponseStatus.OK)
                 .iun("IUN")
                 .taxId("TaxId")
+                .eventId("test event id")
                 .notificationDate(Instant.now())
                 .digitalUsedAddress(null).build();
+
+        Mockito.when(externalChannelUtils.getExternalChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(TimelineElement.builder().build());
 
         handler.extChannelResponseReceiver(extChannelResponse);
 

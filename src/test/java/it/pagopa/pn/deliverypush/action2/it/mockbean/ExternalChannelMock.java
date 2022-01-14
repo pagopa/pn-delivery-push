@@ -22,10 +22,10 @@ public class ExternalChannelMock implements ExternalChannel {
     public static final String EXT_CHANNEL_SEND_NEW_ADDR = "NEW_ADDR:"; //Invio notifica fallita con nuovo indirizzo da investigazione
     //Esempio: La combinazione di EXT_CHANNEL_SEND_NEW_ADDR + EXTCHANNEL_SEND_OK ad esempio significa -> Invio notifica fallito ma con nuovo indirizzo trovato e l'invio a tale indirzzo avrà successo
 
-    ExternalChannelResponseHandler externalChannelResponseHandler;
+    ExternalChannelResponseHandler externalChannelHandler;
 
-    public ExternalChannelMock(@Lazy ExternalChannelResponseHandler externalChannelResponseHandler) {
-        this.externalChannelResponseHandler = externalChannelResponseHandler;
+    public ExternalChannelMock(@Lazy ExternalChannelResponseHandler externalChannelHandler) {
+        this.externalChannelHandler = externalChannelHandler;
     }
 
     @Override
@@ -59,7 +59,7 @@ public class ExternalChannelMock implements ExternalChannel {
                 .iun(event.getPayload().getIun())
                 .taxId(event.getPayload().getRecipientTaxId())
                 .build();
-        externalChannelResponseHandler.extChannelResponseReceiver(extChannelResponse);
+        externalChannelHandler.extChannelResponseReceiver(extChannelResponse);
     }
 
     private static final Pattern NEW_ADDRESS_INPUT_PATTERN = Pattern.compile("^" + EXT_CHANNEL_SEND_NEW_ADDR + "(.*)$");
@@ -101,6 +101,6 @@ public class ExternalChannelMock implements ExternalChannel {
             responseBuilder.analogNewAddressFromInvestigation(newDestinationAddress);
         }
 
-        externalChannelResponseHandler.extChannelResponseReceiver(responseBuilder.build());
+        externalChannelHandler.extChannelResponseReceiver(responseBuilder.build());
     }
 }

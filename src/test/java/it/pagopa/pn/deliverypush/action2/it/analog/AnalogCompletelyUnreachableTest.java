@@ -44,6 +44,8 @@ import java.util.Map;
         CompletionWorkFlowHandler.class,
         PublicRegistryResponseHandler.class,
         ExternalChannelResponseHandler.class,
+        PublicRegistrySendHandler.class,
+        ExternalChannelSendHandler.class,
         RefinementHandler.class,
         DigitalWorkFlowUtils.class,
         CourtesyMessageUtils.class,
@@ -53,6 +55,7 @@ import java.util.Map;
         AnalogWorkflowUtils.class,
         TimelineUtils.class,
         PublicRegistryUtils.class,
+        ChooseDeliveryModeUtils.class,
         NotificationServiceImpl.class,
         TimeLineServiceImpl.class,
         PnDeliveryPushConfigs.class,
@@ -109,7 +112,7 @@ class AnalogCompletelyUnreachableTest {
 
     @Autowired
     private TimelineService timelineService;
-    
+
     @Autowired
     private InstantNowSupplier instantNowSupplier;
 
@@ -130,9 +133,9 @@ class AnalogCompletelyUnreachableTest {
         TestUtils.checkSendCourtesyAddresses(iun, taxId, addressBookEntry.getCourtesyAddresses(), timelineService, externalChannelMock);
 
         //Viene verificato che gli indirizzi PLATFORM SPECIAL E GENERAL non siano presenti
-        TestUtils.checkGetAddress(iun, taxId, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeHandler.START_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, false, DigitalAddressSource.SPECIAL, ChooseDeliveryModeHandler.START_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, false, DigitalAddressSource.GENERAL, ChooseDeliveryModeHandler.START_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, taxId, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.START_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, taxId, false, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.START_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, taxId, false, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.START_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito dalla PA
         TestUtils.checkSendPaperToExtChannel(iun, taxId, paPhysicalAddress, 0, timelineService);

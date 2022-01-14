@@ -48,14 +48,18 @@ import java.util.Map;
         DigitalWorkFlowHandler.class,
         CompletionWorkFlowHandler.class,
         PublicRegistryResponseHandler.class,
+        PublicRegistrySendHandler.class,
+        ExternalChannelSendHandler.class,
         ExternalChannelResponseHandler.class,
+        ExternalChannelUtils.class,
         RefinementHandler.class,
         DigitalWorkFlowUtils.class,
         CourtesyMessageUtils.class,
-        ExternalChannelUtils.class,
         CompletelyUnreachableUtils.class,
         ExtChnEventUtils.class,
+        ExternalChannelUtils.class,
         AnalogWorkflowUtils.class,
+        ChooseDeliveryModeUtils.class,
         TimelineUtils.class,
         PublicRegistryUtils.class,
         NotificationServiceImpl.class,
@@ -141,12 +145,11 @@ class DigitalCompleteFailTest {
         startWorkflowHandler.startWorkflow(iun);
 
         //Viene verificato che l'indirizzo Platform risulti presente
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeHandler.START_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.START_SENT_ATTEMPT_NUMBER, timelineService);
 
         ArgumentCaptor<PnExtChnPecEvent> pnExtChnPecEventCaptor = ArgumentCaptor.forClass(PnExtChnPecEvent.class);
 
         Mockito.verify(externalChannelMock, Mockito.times(6)).sendNotification(pnExtChnPecEventCaptor.capture());
-
 
         List<PnExtChnPecEvent> sendPecEvent = pnExtChnPecEventCaptor.getAllValues();
 

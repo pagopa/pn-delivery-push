@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action2.utils;
 
+import it.pagopa.pn.api.dto.extchannel.ExtChannelResponse;
 import it.pagopa.pn.api.dto.notification.timeline.SendPaperDetails;
 import it.pagopa.pn.api.dto.notification.timeline.SendPaperFeedbackDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
@@ -16,9 +17,11 @@ import java.util.Set;
 @Slf4j
 public class AnalogWorkflowUtils {
     private final TimelineService timelineService;
+    private final TimelineUtils timelineUtils;
 
-    public AnalogWorkflowUtils(TimelineService timelineService) {
+    public AnalogWorkflowUtils(TimelineService timelineService, TimelineUtils timelineUtils) {
         this.timelineService = timelineService;
+        this.timelineUtils = timelineUtils;
     }
 
     /**
@@ -71,6 +74,14 @@ public class AnalogWorkflowUtils {
             return taxId.equalsIgnoreCase(details.getTaxId());
         }
         return false;
+    }
+
+    public void addAnalogFailureAttemptToTimeline(ExtChannelResponse response, String taxId, int sentAttemptMade) {
+        addTimelineElement(timelineUtils.buildAnalogFailureAttemptTimelineElement(response, taxId, sentAttemptMade));
+    }
+
+    private void addTimelineElement(TimelineElement element) {
+        timelineService.addTimelineElement(element);
     }
 
 }

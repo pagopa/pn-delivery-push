@@ -7,6 +7,7 @@ import it.pagopa.pn.api.dto.notification.timeline.EventId;
 import it.pagopa.pn.api.dto.notification.timeline.SendCourtesyMessageDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineEventId;
 import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
+import it.pagopa.pn.deliverypush.action2.ExternalChannelSendHandler;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,12 +18,12 @@ import java.util.Optional;
 @Slf4j
 public class CourtesyMessageUtils {
     private final AddressBook addressBook;
-    private final ExternalChannelUtils externalChannelUtils;
+    private final ExternalChannelSendHandler externalChannelSendHandler;
     private final TimelineService timelineService;
 
-    public CourtesyMessageUtils(AddressBook addressBook, ExternalChannelUtils externalChannelUtils, TimelineService timelineService) {
+    public CourtesyMessageUtils(AddressBook addressBook, ExternalChannelSendHandler externalChannelSendHandler, TimelineService timelineService) {
         this.addressBook = addressBook;
-        this.externalChannelUtils = externalChannelUtils;
+        this.externalChannelSendHandler = externalChannelSendHandler;
         this.timelineService = timelineService;
     }
 
@@ -52,7 +53,7 @@ public class CourtesyMessageUtils {
 
         //... Per ogni indirizzo di cortesia ottenuto viene inviata la notifica del messaggio di cortesia tramite external channel
         String eventId = getTimelineElementId(recipient.getTaxId(), notification.getIun(), index);
-        externalChannelUtils.sendCourtesyNotification(notification, courtesyAddress, recipient, eventId);
+        externalChannelSendHandler.sendCourtesyNotification(notification, courtesyAddress, recipient, eventId);
     }
 
     private String getTimelineElementId(String taxId, String iun, int index) {

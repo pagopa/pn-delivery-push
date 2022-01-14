@@ -4,9 +4,9 @@ import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
-import it.pagopa.pn.deliverypush.action2.utils.*;
+import it.pagopa.pn.deliverypush.action2.utils.AnalogWorkflowUtils;
+import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,17 +20,13 @@ class AnalogWorkflowHandlerTest {
     @Mock
     private NotificationService notificationService;
     @Mock
-    private ExternalChannelUtils externalChannelUtils;
+    private ExternalChannelSendHandler externalChannelSendHandler;
     @Mock
     private CompletionWorkFlowHandler completionWorkFlow;
     @Mock
     private AnalogWorkflowUtils analogWorkflowUtils;
     @Mock
-    private PublicRegistryUtils publicRegistryUtils;
-    @Mock
-    private TimelineService timeLineService;
-    @Mock
-    private TimelineUtils timelineUtils;
+    private PublicRegistrySendHandler publicRegistrySendHandler;
     @Mock
     private InstantNowSupplier instantNowSupplier;
 
@@ -38,9 +34,11 @@ class AnalogWorkflowHandlerTest {
 
     @BeforeEach
     public void setup() {
-        handler = new AnalogWorkflowHandler(notificationService, externalChannelUtils, completionWorkFlow,
-                analogWorkflowUtils, publicRegistryUtils, timeLineService, timelineUtils, instantNowSupplier);
+        handler = new AnalogWorkflowHandler(notificationService, externalChannelSendHandler,
+                completionWorkFlow, analogWorkflowUtils,
+                publicRegistrySendHandler, instantNowSupplier);
     }
+
 
     @ExtendWith(MockitoExtension.class)
     @Test

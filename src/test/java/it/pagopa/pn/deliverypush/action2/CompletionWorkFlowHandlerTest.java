@@ -9,7 +9,6 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.action2.utils.CompletelyUnreachableUtils;
-import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
@@ -33,7 +32,7 @@ class CompletionWorkFlowHandlerTest {
     @Mock
     private SchedulerService scheduler;
     @Mock
-    private ExternalChannelUtils externalChannelUtils;
+    private ExternalChannelSendHandler externalChannelSendHandler;
     @Mock
     private TimelineService timelineService;
     @Mock
@@ -46,7 +45,7 @@ class CompletionWorkFlowHandlerTest {
     @BeforeEach
     public void setup() {
         handler = new CompletionWorkFlowHandler(notificationService, scheduler,
-                externalChannelUtils, timelineService, completelyUnreachableUtils, timelineUtils);
+                externalChannelSendHandler, timelineService, completelyUnreachableUtils, timelineUtils);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -87,7 +86,7 @@ class CompletionWorkFlowHandlerTest {
         Instant notificationDate = Instant.now();
         handler.completionDigitalWorkflow(recipient.getTaxId(), notification.getIun(), notificationDate, recipient.getDigitalDomicile(), EndWorkflowStatus.FAILURE);
 
-        Mockito.verify(externalChannelUtils).sendNotificationForRegisteredLetter(Mockito.any(Notification.class), Mockito.any(PhysicalAddress.class), Mockito.any(NotificationRecipient.class));
+        Mockito.verify(externalChannelSendHandler).sendNotificationForRegisteredLetter(Mockito.any(Notification.class), Mockito.any(PhysicalAddress.class), Mockito.any(NotificationRecipient.class));
 
         Mockito.verify(timelineUtils).buildFailureDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyString());
 

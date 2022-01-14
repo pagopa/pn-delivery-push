@@ -41,14 +41,17 @@ import java.util.Map;
         CompletionWorkFlowHandler.class,
         PublicRegistryResponseHandler.class,
         ExternalChannelResponseHandler.class,
+        PublicRegistrySendHandler.class,
+        ExternalChannelSendHandler.class,
+        ExternalChannelUtils.class,
         RefinementHandler.class,
         DigitalWorkFlowUtils.class,
         CourtesyMessageUtils.class,
-        ExternalChannelUtils.class,
         CompletelyUnreachableUtils.class,
         ExtChnEventUtils.class,
         AnalogWorkflowUtils.class,
         TimelineUtils.class,
+        ChooseDeliveryModeUtils.class,
         PublicRegistryUtils.class,
         NotificationServiceImpl.class,
         TimeLineServiceImpl.class,
@@ -126,9 +129,9 @@ class AnalogPrAddressFailInvestAddressSuccessTest {
         TestUtils.checkSendCourtesyAddresses(iun, taxId, addressBookEntry.getCourtesyAddresses(), timelineService, externalChannelMock);
 
         //Viene verificato che gli indirizzi PLATFORM SPECIAL E GENERAL non siano presenti
-        TestUtils.checkGetAddress(iun, taxId, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeHandler.START_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, false, DigitalAddressSource.SPECIAL, ChooseDeliveryModeHandler.START_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, false, DigitalAddressSource.GENERAL, ChooseDeliveryModeHandler.START_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, taxId, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.START_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, taxId, false, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.START_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, taxId, false, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.START_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito da publicRegistry
         TestUtils.checkSendPaperToExtChannel(iun, taxId, publicRegistryAddress, 0, timelineService);

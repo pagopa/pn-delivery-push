@@ -42,8 +42,10 @@ import java.util.Map;
         ChooseDeliveryModeHandler.class,
         DigitalWorkFlowHandler.class,
         CompletionWorkFlowHandler.class,
-        PublicRegistryResponseHandler.class,
         ExternalChannelResponseHandler.class,
+        PublicRegistryResponseHandler.class,
+        PublicRegistrySendHandler.class,
+        ExternalChannelSendHandler.class,
         RefinementHandler.class,
         DigitalWorkFlowUtils.class,
         CourtesyMessageUtils.class,
@@ -53,6 +55,7 @@ import java.util.Map;
         AnalogWorkflowUtils.class,
         TimelineUtils.class,
         PublicRegistryUtils.class,
+        ChooseDeliveryModeUtils.class,
         NotificationServiceImpl.class,
         TimeLineServiceImpl.class,
         PnDeliveryPushConfigs.class,
@@ -118,7 +121,7 @@ class DigitalSuccessTest {
         startWorkflowHandler.startWorkflow(iun);
 
         //Viene verificata la presenza dell'indirizzo di piattaforma
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeHandler.START_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.START_SENT_ATTEMPT_NUMBER, timelineService);
         //Viene verificato che sia stata effettuata una sola chiamata ad external channel
         Mockito.verify(externalChannelMock, Mockito.times(1)).sendNotification(Mockito.any(PnExtChnPecEvent.class));
 

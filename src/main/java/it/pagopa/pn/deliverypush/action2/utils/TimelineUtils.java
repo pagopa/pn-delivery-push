@@ -4,8 +4,8 @@ import it.pagopa.pn.api.dto.extchannel.ExtChannelResponse;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.address.AttemptAddressInfo;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
+import it.pagopa.pn.api.dto.notification.address.DigitalAddressInfo;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.api.dto.notification.timeline.*;
@@ -371,7 +371,7 @@ public class TimelineUtils {
                 .build();
     }
 
-    public TimelineElement buildScheduledDigitalWorkflowTimeline(String iun, String taxId, AttemptAddressInfo lastAttemptInfo) {
+    public TimelineElement buildScheduledDigitalWorkflowTimeline(String iun, String taxId, DigitalAddressInfo lastAttemptInfo) {
         log.debug("buildScheduledActionTimeline - iun {} and id {}", iun, taxId);
         return TimelineElement.builder()
                 .category(TimelineElementCategory.SCHEDULE_DIGITAL_WORKFLOW)

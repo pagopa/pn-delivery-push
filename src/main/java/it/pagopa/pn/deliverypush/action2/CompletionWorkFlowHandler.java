@@ -9,7 +9,6 @@ import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.action2.utils.CompletelyUnreachableUtils;
-import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
@@ -30,18 +29,18 @@ public class CompletionWorkFlowHandler {
 
     private final NotificationService notificationService;
     private final SchedulerService scheduler;
-    private final ExternalChannelUtils externalChannelUtils;
+    private final ExternalChannelSendHandler externalChannelSendHandler;
     private final TimelineService timelineService;
     private final CompletelyUnreachableUtils completelyUnreachableService;
     private final TimelineUtils timelineUtils;
 
     public CompletionWorkFlowHandler(NotificationService notificationService,
-                                     SchedulerService scheduler, ExternalChannelUtils externalChannelUtils,
+                                     SchedulerService scheduler, ExternalChannelSendHandler externalChannelSendHandler,
                                      TimelineService timelineService, CompletelyUnreachableUtils completelyUnreachableUtils,
                                      TimelineUtils timelineUtils) {
         this.notificationService = notificationService;
         this.scheduler = scheduler;
-        this.externalChannelUtils = externalChannelUtils;
+        this.externalChannelSendHandler = externalChannelSendHandler;
         this.timelineService = timelineService;
         this.completelyUnreachableService = completelyUnreachableUtils;
         this.timelineUtils = timelineUtils;
@@ -96,7 +95,7 @@ public class CompletionWorkFlowHandler {
 
         if (physicalAddress != null) {
             log.info("Sending simple registered letter  - iun {} id {}", notification.getIun(), recipient.getTaxId());
-            externalChannelUtils.sendNotificationForRegisteredLetter(notification, physicalAddress, recipient);
+            externalChannelSendHandler.sendNotificationForRegisteredLetter(notification, physicalAddress, recipient);
         } else {
             log.info("Simple registered letter can't be send, there isn't physical address for recipient. iun {} id {}", notification.getIun(), recipient.getTaxId());
         }

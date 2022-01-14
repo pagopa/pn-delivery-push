@@ -10,9 +10,9 @@ import it.pagopa.pn.api.dto.notification.timeline.SendPaperFeedbackDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.action2.utils.*;
+import it.pagopa.pn.deliverypush.action2.utils.AnalogWorkflowUtils;
+import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.stereotype.Component;
@@ -21,25 +21,20 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class AnalogWorkflowHandler {
     private final NotificationService notificationService;
-    private final ExternalChannelUtils externalChannelUtils;
+    private final ExternalChannelSendHandler externalChannelSendHandler;
     private final CompletionWorkFlowHandler completionWorkFlow;
     private final AnalogWorkflowUtils analogWorkflowUtils;
-    private final PublicRegistryUtils publicRegistryUtils;
-    private final TimelineService timelineService;
-    private final TimelineUtils timelineUtils;
+    private final PublicRegistrySendHandler publicRegistrySendHandler;
     private final InstantNowSupplier instantNowSupplier;
 
-    public AnalogWorkflowHandler(NotificationService notificationService, ExternalChannelUtils externalChannelUtils,
+    public AnalogWorkflowHandler(NotificationService notificationService, ExternalChannelSendHandler externalChannelSendHandler,
                                  CompletionWorkFlowHandler completionWorkFlow, AnalogWorkflowUtils analogWorkflowUtils,
-                                 PublicRegistryUtils publicRegistryUtils, TimelineService timeLineService,
-                                 TimelineUtils timelineUtils, InstantNowSupplier instantNowSupplier) {
+                                 PublicRegistrySendHandler publicRegistrySendHandler, InstantNowSupplier instantNowSupplier) {
         this.notificationService = notificationService;
-        this.externalChannelUtils = externalChannelUtils;
+        this.externalChannelSendHandler = externalChannelSendHandler;
         this.completionWorkFlow = completionWorkFlow;
         this.analogWorkflowUtils = analogWorkflowUtils;
-        this.publicRegistryUtils = publicRegistryUtils;
-        this.timelineService = timeLineService;
-        this.timelineUtils = timelineUtils;
+        this.publicRegistrySendHandler = publicRegistrySendHandler;
         this.instantNowSupplier = instantNowSupplier;
     }
 
@@ -68,17 +63,17 @@ public class AnalogWorkflowHandler {
                 if (paProvidedAddress != null) {
                     log.info("Start send notification with Pa address - iun {} id {}", iun, taxId);
                     //send notification with paAddress
-                    externalChannelUtils.sendAnalogNotification(notification, paProvidedAddress, recipient, true, sentAttemptMade);
+                    externalChannelSendHandler.sendAnalogNotification(notification, paProvidedAddress, recipient, true, sentAttemptMade);
                 } else {
                     log.info("Pa address is not available, need to get address from public registry - iun {} id {}", iun, taxId);
                     //Get address for notification from public registry
-                    publicRegistryUtils.sendRequestForGetPhysicalAddress(iun, taxId, sentAttemptMade);
+                    publicRegistrySendHandler.sendRequestForGetPhysicalAddress(iun, taxId, sentAttemptMade);
                 }
                 break;
             case 1:
                 log.info("Handle second attempt, send request to public registry - iun {} id {}", iun, taxId);
                 //Send attempt was already made, get address from public registry for second send attempt
-                publicRegistryUtils.sendRequestForGetPhysicalAddress(iun, taxId, sentAttemptMade);
+                publicRegistrySendHandler.sendRequestForGetPhysicalAddress(iun, taxId, sentAttemptMade);
                 break;
             case 2:
                 // All sent attempts have been made. The user is not reachable
@@ -136,7 +131,7 @@ public class AnalogWorkflowHandler {
             //... e risulta diverso da quello utilizzato nel primo tentativo, viene inviata seconda notifica ad external channel con questo indirizzo
             if (!response.getPhysicalAddress().equals(lastUsedAddress)) { //TODO Da definire in maniera chiara il metodo equals
                 log.info("Send second notification to external channel with public registry response address  - iun {} id {}", iun, taxId);
-                externalChannelUtils.sendAnalogNotification(notification, response.getPhysicalAddress(), recipient, false, sentAttemptMade);
+                externalChannelSendHandler.sendAnalogNotification(notification, response.getPhysicalAddress(), recipient, false, sentAttemptMade);
             } else {
                 log.info("First send address and public registry response address are equals  - iun {} id {}", iun, taxId);
                 //... se i due indirizzi sono uguali, viene verificata la presenza dell'indirizzo ottenuto dall'investigazione del postino
@@ -156,7 +151,7 @@ public class AnalogWorkflowHandler {
         //Se l'indirizzo passato è valorizzato viene inviata la notifica ad external channel...
         if (address != null && address.getAddress() != null) {
             log.info("Have a valid address, send notification to external channel  - iun {} id {}", notification.getIun(), recipient.getTaxId());
-            externalChannelUtils.sendAnalogNotification(notification, address, recipient, investigation, sentAttemptMade);
+            externalChannelSendHandler.sendAnalogNotification(notification, address, recipient, investigation, sentAttemptMade);
         } else {
             //... se l'indirizzo non è presente non è possibile raggiungere il destinario che risulta irreperibile 
             log.info("Address isn't valid, user is unreachable  - iun {} id {}", notification.getIun(), recipient.getTaxId());
@@ -166,7 +161,7 @@ public class AnalogWorkflowHandler {
 
     public void extChannelResponseHandler(ExtChannelResponse response, TimelineElement notificationTimelineElement) {
         SendPaperDetails sendPaperDetails = (SendPaperDetails) notificationTimelineElement.getDetails();
-        
+
         String iun = response.getIun();
         String taxId = sendPaperDetails.getTaxId();
         log.info("Analog workflow Ext channel response  - iun {} id {} with status {}", iun, taxId, response.getResponseStatus());
@@ -180,7 +175,7 @@ public class AnalogWorkflowHandler {
                 case KO:
                     // External channel non è riuscito a effettuare la notificazione, si passa al prossimo step del workflow
                     int sentAttemptMade = sendPaperDetails.getSentAttemptMade() + 1;
-                    addTimelineElement(timelineUtils.buildAnalogFailureAttemptTimelineElement(response, taxId, sentAttemptMade));
+                    analogWorkflowUtils.addAnalogFailureAttemptToTimeline(response, taxId, sentAttemptMade);
                     nextWorkflowStep(iun, taxId, sentAttemptMade);
                     break;
                 default:
@@ -197,7 +192,4 @@ public class AnalogWorkflowHandler {
         throw new PnInternalException("Specified response " + response.getResponseStatus() + " is not possibile");
     }
 
-    private void addTimelineElement(TimelineElement element) {
-        timelineService.addTimelineElement(element);
-    }
 }

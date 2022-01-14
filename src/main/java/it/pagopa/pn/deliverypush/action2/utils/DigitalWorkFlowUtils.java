@@ -2,11 +2,12 @@ package it.pagopa.pn.deliverypush.action2.utils;
 
 import it.pagopa.pn.api.dto.addressbook.AddressBookEntry;
 import it.pagopa.pn.api.dto.addressbook.DigitalAddresses;
+import it.pagopa.pn.api.dto.extchannel.ExtChannelResponse;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.api.dto.notification.address.AttemptAddressInfo;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
+import it.pagopa.pn.api.dto.notification.address.DigitalAddressInfo;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.timeline.*;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
@@ -26,26 +27,28 @@ import java.util.Set;
 public class DigitalWorkFlowUtils {
     private final TimelineService timelineService;
     private final AddressBook addressBook;
+    private final TimelineUtils timelineUtils;
 
-    public DigitalWorkFlowUtils(TimelineService timelineService, AddressBook addressBook) {
+    public DigitalWorkFlowUtils(TimelineService timelineService, AddressBook addressBook, TimelineUtils timelineUtils) {
         this.timelineService = timelineService;
         this.addressBook = addressBook;
+        this.timelineUtils = timelineUtils;
     }
 
-    public AttemptAddressInfo getNextAddressInfo(String iun, String taxId, AttemptAddressInfo lastAttemptMade) {
+    public DigitalAddressInfo getNextAddressInfo(String iun, String taxId, DigitalAddressInfo lastAttemptMade) {
         log.debug("Start getNextAddressInfo - iun {} id {}", iun, taxId);
 
         //Ottiene la source del prossimo indirizzo da utilizzare
         DigitalAddressSource nextAddressSource = lastAttemptMade.getAddressSource().next();
         log.debug("nextAddressSource {}", nextAddressSource);
 
-        AttemptAddressInfo attemptAddressInfo = getNextAddressInfo(iun, taxId, nextAddressSource);
+        DigitalAddressInfo digitalAddressInfo = getNextAddressInfo(iun, taxId, nextAddressSource);
 
         log.debug("GetNextAddressInfo completed - iun {} id {}", iun, taxId);
-        return attemptAddressInfo;
+        return digitalAddressInfo;
     }
 
-    private AttemptAddressInfo getNextAddressInfo(String iun, String taxId, DigitalAddressSource nextAddressSource) {
+    private DigitalAddressInfo getNextAddressInfo(String iun, String taxId, DigitalAddressSource nextAddressSource) {
         Set<TimelineElement> timeline = timelineService.getTimeline(iun);
 
         //Ottiene il numero di tentativi effettuati per tale indirizzo
@@ -60,7 +63,7 @@ public class DigitalWorkFlowUtils {
             log.debug("lastAttemptMadeForSource for source {} is {}", nextAddressSource, lastAttemptMadeForSource);
         }
 
-        return AttemptAddressInfo.builder()
+        return DigitalAddressInfo.builder()
                 .addressSource(nextAddressSource)
                 .sentAttemptMade(nextSourceAttemptsMade)
                 .lastAttemptDate(lastAttemptMadeForSource)
@@ -182,4 +185,21 @@ public class DigitalWorkFlowUtils {
             throw new PnInternalException("ScheduleDigitalWorkflowTimelineElement element not exist - iun " + iun + " eventId " + eventId);
         }
     }
+
+    public void addScheduledDigitalWorkflowToTimeline(String iun, String taxId, DigitalAddressInfo lastAttemptMade) {
+        addTimelineElement(timelineUtils.buildScheduledDigitalWorkflowTimeline(iun, taxId, lastAttemptMade));
+    }
+
+    public void addAvailabilitySourceToTimeline(String taxId, String iun, DigitalAddressSource source, boolean isAvailable, int sentAttemptMade) {
+        addTimelineElement(timelineUtils.buildAvailabilitySourceTimelineElement(taxId, iun, source, isAvailable, sentAttemptMade));
+    }
+
+    public void addDigitalFailureAttemptTimelineElement(ExtChannelResponse response) {
+        addTimelineElement(timelineUtils.buildDigitalFailureAttemptTimelineElement(response));
+    }
+
+    private void addTimelineElement(TimelineElement element) {
+        timelineService.addTimelineElement(element);
+    }
+
 }
