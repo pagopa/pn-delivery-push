@@ -17,6 +17,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ExternalChannelMock implements ExternalChannel {
+    //DIGITAL
+    public static final String EXT_CHANNEL_SEND_FAIL_BOTH = "fail-both";
+    public static final String EXT_CHANNEL_SEND_FAIL_FIRST = "fail-first";
+    public static final String EXT_CHANNEL_WORKS = "works";
+
+    //ANALOG
     public static final String EXTCHANNEL_SEND_SUCCESS = "OK"; //Invio notifica ok
     public static final String EXTCHANNEL_SEND_FAIL = "FAIL"; //Invio notifica fallita
     public static final String EXT_CHANNEL_SEND_NEW_ADDR = "NEW_ADDR:"; //Invio notifica fallita con nuovo indirizzo da investigazione
@@ -39,12 +45,22 @@ public class ExternalChannelMock implements ExternalChannel {
 
         String pecAddress = event.getPayload().getPecAddress();
 
-        if (pecAddress.startsWith(EXTCHANNEL_SEND_SUCCESS)) {
-            status = ExtChannelResponseStatus.OK;
-        } else if (pecAddress.startsWith(EXTCHANNEL_SEND_FAIL)) {
-            status = ExtChannelResponseStatus.KO;
+        String eventId = event.getHeader().getEventId();
+        String retryNumberPart = eventId.replaceFirst(".*([0-9]+)$", "$1");
+
+        if (pecAddress != null) {
+            String domainPart = pecAddress.replaceFirst(".*@", "");
+
+            if (domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_BOTH)
+                    || (domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_FIRST) && "1".equals(retryNumberPart))) {
+                status = ExtChannelResponseStatus.KO;
+            } else if (domainPart.startsWith(EXT_CHANNEL_WORKS) || domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_FIRST)) {
+                status = ExtChannelResponseStatus.OK;
+            } else {
+                throw new IllegalArgumentException("PecAddress " + pecAddress + " do not match test rule for mocks");
+            }
         } else {
-            throw new IllegalArgumentException("PecAddress " + pecAddress + " do not match test rule for mocks");
+            throw new IllegalArgumentException("PecAddress is null");
         }
 
         ExtChannelResponse extChannelResponse = ExtChannelResponse.builder()

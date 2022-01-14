@@ -45,6 +45,18 @@ public class AbstractWorkflowTestConfiguration {
 
     public AbstractWorkflowTestConfiguration(
             Notification notification,
+            Collection<AddressBookEntry> addressBookEntries,
+            Map<String, DigitalAddress> publicRegistryDigitalAddresses,
+            Map<String, PhysicalAddress> publicRegistryPhysicalAddresses
+    ) {
+        this.notifications = Collections.singletonList(notification);
+        this.addressBookEntries = addressBookEntries;
+        this.publicRegistryDigitalAddresses = publicRegistryDigitalAddresses;
+        this.publicRegistryPhysicalAddresses = publicRegistryPhysicalAddresses;
+    }
+
+    public AbstractWorkflowTestConfiguration(
+            Notification notification,
             AddressBookEntry addressBookEntries,
             Map<String, DigitalAddress> publicRegistryDigitalAddresses,
             Map<String, PhysicalAddress> publicRegistryPhysicalAddresses

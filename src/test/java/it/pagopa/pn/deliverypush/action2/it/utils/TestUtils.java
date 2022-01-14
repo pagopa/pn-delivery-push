@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.action2.it.utils;
 
 import it.pagopa.pn.api.dto.events.EndWorkflowStatus;
 import it.pagopa.pn.api.dto.events.PnExtChnEmailEvent;
+import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
@@ -98,7 +99,9 @@ public class TestUtils {
         Assertions.assertEquals(EndWorkflowStatus.SUCCESS, endWorkflowStatusArgumentCaptor.getValue());
     }
 
-    public static void checkSuccessDigitalWorkflow(String iun, String taxId, TimelineService timelineService, CompletionWorkFlowHandler completionWorkflow) {
+    public static void checkSuccessDigitalWorkflow(String iun, String taxId, TimelineService timelineService,
+                                                   CompletionWorkFlowHandler completionWorkflow, DigitalAddress address,
+                                                   int invocationsNumber, int invocation) {
         //Viene verificato che il workflow abbia avuto successo
         Assertions.assertTrue(timelineService.getTimelineElement(
                 iun,
@@ -111,13 +114,43 @@ public class TestUtils {
         ArgumentCaptor<EndWorkflowStatus> endWorkflowStatusArgumentCaptor = ArgumentCaptor.forClass(EndWorkflowStatus.class);
         ArgumentCaptor<String> iunCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> taxIdCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<DigitalAddress> addressCaptor = ArgumentCaptor.forClass(DigitalAddress.class);
+
+        Mockito.verify(completionWorkflow, Mockito.times(invocationsNumber)).completionDigitalWorkflow(
+                taxIdCaptor.capture(), iunCaptor.capture(), Mockito.any(Instant.class), addressCaptor.capture(),
+                endWorkflowStatusArgumentCaptor.capture());
+
+        List<EndWorkflowStatus> endWorkflowStatusArgumentCaptorValue = endWorkflowStatusArgumentCaptor.getAllValues();
+        List<String> iunCaptorValue = iunCaptor.getAllValues();
+        List<String> taxIdCaptorValue = taxIdCaptor.getAllValues();
+        List<DigitalAddress> addressCaptorValue = addressCaptor.getAllValues();
+
+        Assertions.assertEquals(iun, iunCaptorValue.get(invocation));
+        Assertions.assertEquals(taxId, taxIdCaptorValue.get(invocation));
+        Assertions.assertEquals(EndWorkflowStatus.SUCCESS, endWorkflowStatusArgumentCaptorValue.get(invocation));
+        Assertions.assertEquals(address, addressCaptorValue.get(invocation));
+    }
+
+    public static void checkFailDigitalWorkflow(String iun, String taxId, TimelineService timelineService, CompletionWorkFlowHandler completionWorkflow) {
+        //Viene verificato che il workflow sia fallito
+        Assertions.assertTrue(timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.DIGITAL_FAILURE_WORKFLOW.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recipientId(taxId)
+                                .build())).isPresent());
+
+        ArgumentCaptor<EndWorkflowStatus> endWorkflowStatusArgumentCaptor = ArgumentCaptor.forClass(EndWorkflowStatus.class);
+        ArgumentCaptor<String> iunCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> taxIdCaptor = ArgumentCaptor.forClass(String.class);
 
         Mockito.verify(completionWorkflow, Mockito.times(1)).completionDigitalWorkflow(
-                taxIdCaptor.capture(), iunCaptor.capture(), Mockito.any(Instant.class), Mockito.any(DigitalAddress.class), endWorkflowStatusArgumentCaptor.capture()
+                taxIdCaptor.capture(), iunCaptor.capture(), Mockito.any(Instant.class), Mockito.any(), endWorkflowStatusArgumentCaptor.capture()
         );
         Assertions.assertEquals(iun, iunCaptor.getValue());
         Assertions.assertEquals(taxId, taxIdCaptor.getValue());
-        Assertions.assertEquals(EndWorkflowStatus.SUCCESS, endWorkflowStatusArgumentCaptor.getValue());
+        Assertions.assertEquals(EndWorkflowStatus.FAILURE, endWorkflowStatusArgumentCaptor.getValue());
     }
 
     public static void checkRefinement(String iun, String taxId, TimelineService timelineService) {
@@ -128,5 +161,11 @@ public class TestUtils {
                                 .iun(iun)
                                 .recipientId(taxId)
                                 .build())).isPresent());
+    }
+
+    public static void checkExternalChannelPecSend(String iun, String taxId, List<PnExtChnPecEvent> sendPecEvent, int sendTime, String address) {
+        Assertions.assertEquals(iun, sendPecEvent.get(sendTime).getPayload().getIun());
+        Assertions.assertEquals(taxId, sendPecEvent.get(sendTime).getPayload().getRecipientTaxId());
+        Assertions.assertEquals(address, sendPecEvent.get(sendTime).getPayload().getPecAddress());
     }
 }

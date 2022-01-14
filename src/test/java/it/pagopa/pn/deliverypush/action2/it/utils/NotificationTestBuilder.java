@@ -8,13 +8,14 @@ import it.pagopa.pn.api.dto.notification.NotificationSender;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 public class NotificationTestBuilder {
     private String iun;
-    private NotificationRecipient recipient;
+    private List<NotificationRecipient> recipients;
 
     public NotificationTestBuilder() {
-        recipient = NotificationRecipient.builder().build();
+        recipients = Collections.emptyList();
     }
 
     public static NotificationTestBuilder builder() {
@@ -27,7 +28,14 @@ public class NotificationTestBuilder {
     }
 
     public NotificationTestBuilder withNotificationRecipient(NotificationRecipient recipient) {
-        this.recipient = recipient;
+        this.recipients = Collections.singletonList(
+                recipient
+        );
+        return this;
+    }
+
+    public NotificationTestBuilder withNotificationRecipients(List<NotificationRecipient> recipientCollections) {
+        this.recipients = recipientCollections;
         return this;
     }
 
@@ -41,10 +49,7 @@ public class NotificationTestBuilder {
                         .paId(" pa_02")
                         .build()
                 )
-                .recipients(
-                        Collections.singletonList(
-                                recipient
-                        ))
+                .recipients(recipients)
                 .documents(Arrays.asList(
                         NotificationAttachment.builder()
                                 .ref(NotificationAttachment.Ref.builder()

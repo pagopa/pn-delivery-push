@@ -15,7 +15,8 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class ChooseDeliveryModeUtils {
-    public static final int START_SENT_ATTEMPT_NUMBER = 0;
+    public static final int ZERO_SENT_ATTEMPT_NUMBER = 0;
+    public static final int ONE_SENT_ATTEMPT_NUMBER = 0;
 
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
@@ -30,7 +31,7 @@ public class ChooseDeliveryModeUtils {
     }
 
     public void addAvailabilitySourceToTimeline(String taxId, String iun, DigitalAddressSource addressSource, boolean isAvailable) {
-        TimelineElement element = timelineUtils.buildAvailabilitySourceTimelineElement(taxId, iun, addressSource, isAvailable, START_SENT_ATTEMPT_NUMBER);
+        TimelineElement element = timelineUtils.buildAvailabilitySourceTimelineElement(taxId, iun, addressSource, isAvailable, ZERO_SENT_ATTEMPT_NUMBER);
         timelineService.addTimelineElement(element);
     }
 

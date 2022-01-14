@@ -23,8 +23,10 @@ import it.pagopa.pn.deliverypush.actions.ExtChnEventUtils;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.NotificationServiceImpl;
 import it.pagopa.pn.deliverypush.service.impl.TimeLineServiceImpl;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -32,7 +34,9 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.time.Instant;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 @ExtendWith(SpringExtension.class)
@@ -63,21 +67,24 @@ import java.util.Map;
         TimelineDaoMock.class,
         ExternalChannelMock.class,
         PaperNotificationFailedDaoMock.class,
-        DigitalSuccessTest.SpringTestConfiguration.class
+        DigitalEmptyFirstSuccessSpecialTest.SpringTestConfiguration.class
 })
-class DigitalSuccessTest {
+class DigitalEmptyFirstSuccessSpecialTest {
     /*
-       - Platform address presente e invio con successo (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS)
-       - Special address vuoto (Ottenuto non valorizzando il digitalDomicile del recipient)
+       - Platform address vuoto (Ottenuto non valorizzando nessun platformAddress in addressBookEntry)
+       - Special address presente e primo invio con successo (Ottenuto valorizzando il digitalDomicile del recipient con ExternalChannelMock.EXT_CHANNEL_WORKS)
        - General address vuoto (Ottenuto non valorizzando nessun digital address per il recipient in PUB_REGISTRY_DIGITAL)
     */
-    private static final DigitalAddress platformAddress = DigitalAddress.builder()
-            .address(ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS + " test@mail.com")
+
+
+    private static final DigitalAddress digitalDomicile = DigitalAddress.builder()
+            .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
             .type(DigitalAddressType.PEC)
             .build();
 
     private static final NotificationRecipient recipient = NotificationRecipientTestBuilder.builder()
             .withTaxId("TAXID01")
+            .withDigitalDomicile(digitalDomicile)
             .build();
 
     private static final Notification notification = NotificationTestBuilder.builder()
@@ -87,7 +94,6 @@ class DigitalSuccessTest {
 
     private static final AddressBookEntry addressBookEntry = AddressBookEntryTestBuilder.builder()
             .withTaxId(recipient.getTaxId())
-            .withPlatformAddress(platformAddress)
             .build();
 
     private static final Map<String, DigitalAddress> PUB_REGISTRY_DIGITAL = Collections.emptyMap();
@@ -103,14 +109,19 @@ class DigitalSuccessTest {
 
     @Autowired
     private StartWorkflowHandler startWorkflowHandler;
-
     @Autowired
     private TimelineService timelineService;
-
+    @Autowired
+    private InstantNowSupplier instantNowSupplier;
     @SpyBean
     private ExternalChannelMock externalChannelMock;
     @SpyBean
     private CompletionWorkFlowHandler completionWorkflow;
+
+    @BeforeEach
+    public void setup() {
+        Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
+    }
 
     @Test
     void workflowTest() {
@@ -120,13 +131,21 @@ class DigitalSuccessTest {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-        //Viene verificata la presenza dell'indirizzo di piattaforma
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.START_SENT_ATTEMPT_NUMBER, timelineService);
-        //Viene verificato che sia stata effettuata una sola chiamata ad external channel
-        Mockito.verify(externalChannelMock, Mockito.times(1)).sendNotification(Mockito.any(PnExtChnPecEvent.class));
+        //Viene verificata la disponibilità degli indirizzi per il primo tentativo
+        TestUtils.checkGetAddress(iun, taxId, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+
+        //Viene verificato il numero di send PEC verso external channel
+        ArgumentCaptor<PnExtChnPecEvent> pnExtChnPecEventCaptor = ArgumentCaptor.forClass(PnExtChnPecEvent.class);
+        Mockito.verify(externalChannelMock, Mockito.times(1)).sendNotification(pnExtChnPecEventCaptor.capture());
+
+        List<PnExtChnPecEvent> sendPecEvent = pnExtChnPecEventCaptor.getAllValues();
+
+        //Viene verificato che il primo tentativo sia avvenuto con il domicilio digitale
+        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 0, digitalDomicile.getAddress());
 
         //Viene verificato che il workflow abbia avuto successo
-        TestUtils.checkSuccessDigitalWorkflow(iun, taxId, timelineService, completionWorkflow);
+        TestUtils.checkSuccessDigitalWorkflow(iun, taxId, timelineService, completionWorkflow, digitalDomicile, 1, 0);
 
         //Viene verificato che sia avvenuto il perfezionamento
         TestUtils.checkRefinement(iun, taxId, timelineService);

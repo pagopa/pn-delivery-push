@@ -32,7 +32,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public NotificationRecipient getRecipientFromNotification(Notification notification, String taxId) {
-        Optional<NotificationRecipient> optRec = notification.getRecipients().stream().filter(recipient -> taxId.equals(taxId)).findFirst();
+        Optional<NotificationRecipient> optRec = notification.getRecipients().stream().filter(recipient -> taxId.equals(recipient.getTaxId())).findFirst();
         if (optRec.isPresent()) {
             return optRec.get();
         } else {

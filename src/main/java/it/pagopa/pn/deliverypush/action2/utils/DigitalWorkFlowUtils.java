@@ -42,10 +42,10 @@ public class DigitalWorkFlowUtils {
         DigitalAddressSource nextAddressSource = lastAttemptMade.getAddressSource().next();
         log.debug("nextAddressSource {}", nextAddressSource);
 
-        DigitalAddressInfo digitalAddressInfo = getNextAddressInfo(iun, taxId, nextAddressSource);
+        DigitalAddressInfo nextAddressInfo = getNextAddressInfo(iun, taxId, nextAddressSource);
 
         log.debug("GetNextAddressInfo completed - iun {} id {}", iun, taxId);
-        return digitalAddressInfo;
+        return nextAddressInfo;
     }
 
     private DigitalAddressInfo getNextAddressInfo(String iun, String taxId, DigitalAddressSource nextAddressSource) {

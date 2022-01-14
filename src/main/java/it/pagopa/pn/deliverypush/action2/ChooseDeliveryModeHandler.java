@@ -81,7 +81,7 @@ public class ChooseDeliveryModeHandler {
                 chooseDeliveryUtils.addAvailabilitySourceToTimeline(taxId, iun, DigitalAddressSource.SPECIAL, false);
 
                 // ... se non lo trovo, lancio ricerca asincrona dell'indirizzo generale
-                publicRegistrySendHandler.sendRequestForGetDigitalAddress(iun, taxId, ContactPhase.CHOOSE_DELIVERY, ChooseDeliveryModeUtils.START_SENT_ATTEMPT_NUMBER);
+                publicRegistrySendHandler.sendRequestForGetDigitalAddress(iun, taxId, ContactPhase.CHOOSE_DELIVERY, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER);
             }
         }
 
@@ -124,7 +124,7 @@ public class ChooseDeliveryModeHandler {
      */
     public void startDigitalWorkflow(Notification notification, DigitalAddress digitalAddress, DigitalAddressSource addressSource, NotificationRecipient recipient) {
         log.info("Starting digital workflow sending notification to external channel - iun {} id {} ", notification.getIun(), recipient.getTaxId());
-        externalChannelSendHandler.sendDigitalNotification(notification, digitalAddress, addressSource, recipient, ChooseDeliveryModeUtils.START_SENT_ATTEMPT_NUMBER);
+        externalChannelSendHandler.sendDigitalNotification(notification, digitalAddress, addressSource, recipient, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER);
     }
 
     /**

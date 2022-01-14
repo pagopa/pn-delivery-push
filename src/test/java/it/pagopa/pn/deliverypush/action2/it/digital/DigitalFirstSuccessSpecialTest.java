@@ -46,21 +46,20 @@ import java.util.Map;
         ChooseDeliveryModeHandler.class,
         DigitalWorkFlowHandler.class,
         CompletionWorkFlowHandler.class,
+        ExternalChannelResponseHandler.class,
         PublicRegistryResponseHandler.class,
         PublicRegistrySendHandler.class,
         ExternalChannelSendHandler.class,
-        ExternalChannelResponseHandler.class,
-        ExternalChannelUtils.class,
         RefinementHandler.class,
         DigitalWorkFlowUtils.class,
         CourtesyMessageUtils.class,
+        ExternalChannelUtils.class,
         CompletelyUnreachableUtils.class,
         ExtChnEventUtils.class,
-        ExternalChannelUtils.class,
         AnalogWorkflowUtils.class,
-        ChooseDeliveryModeUtils.class,
         TimelineUtils.class,
         PublicRegistryUtils.class,
+        ChooseDeliveryModeUtils.class,
         NotificationServiceImpl.class,
         TimeLineServiceImpl.class,
         PnDeliveryPushConfigs.class,
@@ -68,27 +67,21 @@ import java.util.Map;
         TimelineDaoMock.class,
         ExternalChannelMock.class,
         PaperNotificationFailedDaoMock.class,
-        DigitalCompleteFailTest.SpringTestConfiguration.class
+        DigitalFirstSuccessSpecialTest.SpringTestConfiguration.class
 })
-class DigitalCompleteFailTest {
+class DigitalFirstSuccessSpecialTest {
     /*
-   - Platform address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-   - Special address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il digitalDomicile del recipient con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-   - General address presente e invio fallito per entrambi gli invii (Ottenuto non valorizzando il pbDigitalAddress per il recipient in PUB_REGISTRY_DIGITAL con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
+       - Platform address presente e primo invio con fallimento (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXT_CHANNEL_WORKS)
+       - Special address presente e primo invio con successo (Ottenuto valorizzando il digitalDomicile del recipient con ExternalChannelMock.EXT_CHANNEL_WORKS)
+       - General address vuoto (Ottenuto non valorizzando nessun digital address per il recipient in PUB_REGISTRY_DIGITAL)
     */
-
     private static final DigitalAddress platformAddress = DigitalAddress.builder()
-            .address("platformAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
+            .address("test@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
             .type(DigitalAddressType.PEC)
             .build();
 
     private static final DigitalAddress digitalDomicile = DigitalAddress.builder()
-            .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-            .type(DigitalAddressType.PEC)
-            .build();
-
-    private static final DigitalAddress pbDigitalAddress = DigitalAddress.builder()
-            .address("pbDigitalAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
+            .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
             .type(DigitalAddressType.PEC)
             .build();
 
@@ -107,7 +100,7 @@ class DigitalCompleteFailTest {
             .withPlatformAddress(platformAddress)
             .build();
 
-    private static final Map<String, DigitalAddress> PUB_REGISTRY_DIGITAL = Collections.singletonMap(recipient.getTaxId(), pbDigitalAddress);
+    private static final Map<String, DigitalAddress> PUB_REGISTRY_DIGITAL = Collections.emptyMap();
     private static final Map<String, PhysicalAddress> PUB_REGISTRY_PHYSICAL = Collections.emptyMap();
 
     @TestConfiguration
@@ -120,16 +113,12 @@ class DigitalCompleteFailTest {
 
     @Autowired
     private StartWorkflowHandler startWorkflowHandler;
-
     @Autowired
     private TimelineService timelineService;
-
     @Autowired
     private InstantNowSupplier instantNowSupplier;
-
     @SpyBean
     private ExternalChannelMock externalChannelMock;
-
     @SpyBean
     private CompletionWorkFlowHandler completionWorkflow;
 
@@ -149,15 +138,10 @@ class DigitalCompleteFailTest {
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
         TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        //Viene verificata la disponibilità degli indirizzi per il secondo tentativo
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<PnExtChnPecEvent> pnExtChnPecEventCaptor = ArgumentCaptor.forClass(PnExtChnPecEvent.class);
-        Mockito.verify(externalChannelMock, Mockito.times(6)).sendNotification(pnExtChnPecEventCaptor.capture());
+        Mockito.verify(externalChannelMock, Mockito.times(2)).sendNotification(pnExtChnPecEventCaptor.capture());
 
         List<PnExtChnPecEvent> sendPecEvent = pnExtChnPecEventCaptor.getAllValues();
 
@@ -165,23 +149,11 @@ class DigitalCompleteFailTest {
         TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 0, platformAddress.getAddress());
         //Viene verificato che il secondo tentativo sia avvenuto con il domicilio digitale
         TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 1, digitalDomicile.getAddress());
-        //Viene verificato che il secondo tentativo sia avvenuto con l'indirizzo fornito dai registri pubblici
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 2, pbDigitalAddress.getAddress());
-
-        //Viene verificato che il quarto tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 3, platformAddress.getAddress());
-        //Viene verificato che il quinto tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 4, digitalDomicile.getAddress());
-        //Viene verificato che il sesto tentativo sia avvenuto con l'indirizzo fornito dai registri pubblici
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 5, pbDigitalAddress.getAddress());
 
         //Viene verificato che il workflow abbia avuto successo
-        TestUtils.checkFailDigitalWorkflow(iun, taxId, timelineService, completionWorkflow);
+        TestUtils.checkSuccessDigitalWorkflow(iun, taxId, timelineService, completionWorkflow, digitalDomicile, 1, 0);
 
         //Viene verificato che sia avvenuto il perfezionamento
         TestUtils.checkRefinement(iun, taxId, timelineService);
-
     }
-
-
 }
