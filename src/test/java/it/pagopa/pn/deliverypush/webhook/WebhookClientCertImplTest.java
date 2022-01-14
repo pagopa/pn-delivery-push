@@ -28,7 +28,7 @@ class WebhookClientCertImplTest {
         this.clientCert = new WebhookClientCertImpl( certCfg );
     }
 
-    //@Test
+    //@Test da eseguire in locale dopo aver lanciato un'instanza mockserver
     void sendInfoSuccess() {
         //Given
         String url = "https://localhost:1080/test";

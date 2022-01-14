@@ -54,11 +54,11 @@ public class WebhookClientCertImpl implements WebhookClient{
 
         SSLContext sslContext = null;
         try {
-            String stringCert = certCfg.getClientCertificatePem();
+            String clientCertificatePem = certCfg.getClientCertificatePem();
             String clientKeyPem = certCfg.getClientKeyPem();
 
-            if ( stringCert != null && !stringCert.isEmpty() && clientKeyPem != null && !clientKeyPem.isEmpty() ) {
-                X509Certificate clientCert = buildX509CertificateFromPemString(stringCert);
+            if ( clientCertificatePem != null && !clientCertificatePem.isEmpty() && clientKeyPem != null && !clientKeyPem.isEmpty() ) {
+                X509Certificate clientCert = buildX509CertificateFromPemString(clientCertificatePem);
 
                 KeyStore keyStore = newKeyStore();
 
@@ -73,11 +73,14 @@ public class WebhookClientCertImpl implements WebhookClient{
                         .loadKeyMaterial(keyStore, KEYSTORE_PASSWORD)
                         .build();
             } else {
-                log.error( "Unable to retrieve cert/key from env vars" );
-                throw new PnInternalException( "Unable to retrieve cert/key from env vars" );
+                String message = clientCertificatePem == null || clientCertificatePem.isEmpty()?
+                        "clientCertificatePem" : "clientKeyPem";
+                log.error( "Unable to retrieve " + message + " from environment variables" );
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (KeyStoreException | CertificateException |
+                NoSuchAlgorithmException | IOException | UnrecoverableKeyException
+                | KeyManagementException e) {
+            throw new PnInternalException( e.getMessage(), e );
         }
 
         HttpClient client = HttpClients.custom().setSSLContext(sslContext).build();
