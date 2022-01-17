@@ -4,7 +4,6 @@ import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -18,7 +17,7 @@ public class RefinementHandler {
         this.timelineUtils = timelineUtils;
     }
 
-    @StreamListener(condition = "REFINEMENT")
+    //@StreamListener(condition = "REFINEMENT")
     public void handleRefinement(String iun, String taxId) {
         log.info("Start HandleRefinement - iun {} id {}", iun, taxId);
 

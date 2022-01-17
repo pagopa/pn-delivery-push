@@ -16,7 +16,6 @@ import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -49,7 +48,7 @@ public class DigitalWorkFlowHandler {
         this.instantNowSupplier = instantNowSupplier;
     }
 
-    @StreamListener(condition = "DIGITAL_WORKFLOW")
+    //@StreamListener(condition = "DIGITAL_WORKFLOW")
     public void startScheduledNextWorkflow(String iun, String taxId) {
         ScheduleDigitalWorkflow scheduleDigitalWorkflow = digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(iun, taxId);
         nextWorkFlowAction(iun, taxId, scheduleDigitalWorkflow.getLastAttemptInfo());

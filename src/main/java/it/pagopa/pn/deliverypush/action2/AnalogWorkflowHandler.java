@@ -14,7 +14,6 @@ import it.pagopa.pn.deliverypush.action2.utils.AnalogWorkflowUtils;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -44,7 +43,7 @@ public class AnalogWorkflowHandler {
      * @param iun   Notification unique identifier
      * @param taxId User identifier
      */
-    @StreamListener(condition = "ANALOG_WORKFLOW")
+    //@StreamListener(condition = "ANALOG_WORKFLOW")
     public void nextWorkflowStep(String iun, String taxId, int sentAttemptMade) {
         log.info("Start Analog next workflow action - iun {} id {}", iun, taxId);
 

@@ -10,7 +10,6 @@ import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -39,7 +38,7 @@ public class StartWorkflowHandler {
      *
      * @param iun Notification unique identifier
      */
-    @StreamListener(condition = "NEW_NOTIFICATION")
+    //@StreamListener(condition = "NEW_NOTIFICATION")
     public void startWorkflow(String iun) {
         log.info("Start notification process  - iun {}", iun);
 

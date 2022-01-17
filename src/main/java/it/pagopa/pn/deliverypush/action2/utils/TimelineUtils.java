@@ -12,10 +12,12 @@ import it.pagopa.pn.api.dto.notification.timeline.*;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.actions.PecFailSendPaperActionHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.stream.Collectors;
 
+@Component
 @Slf4j
 public class TimelineUtils {
 

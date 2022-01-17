@@ -4,7 +4,6 @@ import it.pagopa.pn.api.dto.extchannel.ExtChannelResponse;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -27,7 +26,7 @@ public class ExternalChannelResponseHandler {
      *
      * @param response Notification response
      */
-    @StreamListener(condition = "EXTERNAL_CHANNEL_RESPONSE")
+    //@StreamListener(condition = "EXTERNAL_CHANNEL_RESPONSE")
     public void extChannelResponseReceiver(ExtChannelResponse response) {
         log.info("Get response from external channel for iun {} eventId {} with status {}", response.getIun(), response.getEventId(), response.getResponseStatus());
         TimelineElement notificationTimelineElement = externalChannelUtils.getExternalChannelNotificationTimelineElement(response.getIun(), response.getEventId());

@@ -8,7 +8,6 @@ import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -31,7 +30,7 @@ public class NotificationViewedHandler {
         this.timelineUtils = timelineUtils;
     }
 
-    @StreamListener(condition = "NOTIFICATION_VIEWED")
+    //@StreamListener(condition = "NOTIFICATION_VIEWED")
     public void handleViewNotification(String iun, String taxId) {
         log.info("Start HandleViewNotification - iun {} id {}", iun, taxId);
 

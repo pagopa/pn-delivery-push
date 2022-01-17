@@ -7,7 +7,6 @@ import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action2.utils.PublicRegistryUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -32,7 +31,7 @@ public class PublicRegistryResponseHandler {
      *
      * @param response public registry response
      */
-    @StreamListener(condition = "PUBLIC_REGISTRY_RESPONSE")
+    //@StreamListener(condition = "PUBLIC_REGISTRY_RESPONSE")
     public void handleResponse(PublicRegistryResponse response) {
 
         String correlationId = response.getCorrelationId();
