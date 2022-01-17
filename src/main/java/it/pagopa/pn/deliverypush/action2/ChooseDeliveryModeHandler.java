@@ -147,6 +147,7 @@ public class ChooseDeliveryModeHandler {
             schedulingDate = instantNowSupplier.get();
             log.info("Courtesy message is not present, analog workflow can be started now  - iun {} id {} ", iun, taxId);
         }
+        chooseDeliveryUtils.addScheduleAnalogWorkflowToTimeline(taxId, iun);
         schedulerService.scheduleEvent(iun, taxId, schedulingDate, ActionType.ANALOG_WORKFLOW);
     }
 

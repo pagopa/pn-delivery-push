@@ -8,6 +8,7 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
+import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action2.*;
 import it.pagopa.pn.deliverypush.action2.it.AbstractWorkflowTestConfiguration;
@@ -50,8 +51,8 @@ import java.util.Map;
         PublicRegistrySendHandler.class,
         ExternalChannelSendHandler.class,
         ExternalChannelResponseHandler.class,
-        ExternalChannelUtils.class,
         RefinementHandler.class,
+        LegalfactsMetadataUtils.class,
         DigitalWorkFlowUtils.class,
         CourtesyMessageUtils.class,
         CompletelyUnreachableUtils.class,

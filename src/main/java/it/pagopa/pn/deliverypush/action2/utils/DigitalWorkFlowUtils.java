@@ -187,15 +187,15 @@ public class DigitalWorkFlowUtils {
     }
 
     public void addScheduledDigitalWorkflowToTimeline(String iun, String taxId, DigitalAddressInfo lastAttemptMade) {
-        addTimelineElement(timelineUtils.buildScheduledDigitalWorkflowTimeline(iun, taxId, lastAttemptMade));
+        addTimelineElement(timelineUtils.buildScheduleDigitalWorkflowTimeline(iun, taxId, lastAttemptMade));
     }
 
     public void addAvailabilitySourceToTimeline(String taxId, String iun, DigitalAddressSource source, boolean isAvailable, int sentAttemptMade) {
         addTimelineElement(timelineUtils.buildAvailabilitySourceTimelineElement(taxId, iun, source, isAvailable, sentAttemptMade));
     }
 
-    public void addDigitalFailureAttemptTimelineElement(ExtChannelResponse response) {
-        addTimelineElement(timelineUtils.buildDigitalFailureAttemptTimelineElement(response));
+    public void addDigitalFeedbackTimelineElement(ExtChannelResponse response) {
+        addTimelineElement(timelineUtils.buildDigitaFeedbackTimelineElement(response));
     }
 
     private void addTimelineElement(TimelineElement element) {

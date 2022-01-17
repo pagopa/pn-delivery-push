@@ -5,6 +5,7 @@ import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
+import it.pagopa.pn.api.dto.notification.timeline.SendDigitalFeedback;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
@@ -182,6 +183,11 @@ public class PdfboxLegalFactPdfGenerator extends AbstractLegalFactPdfGenerator i
         }
 
         return toPdfBytes(Arrays.asList(PARAGRAPH1, paragraph2, paragraph3.toString()));
+    }
+
+    @Override
+    public byte[] generatePecDeliveryWorkflowLegalFact(List<SendDigitalFeedback> listFeedbackFromExtChannel, Notification notification, NotificationRecipient recipient) {
+        throw new UnsupportedOperationException();
     }
 
     private byte[] toPdfBytes(List<String> paragraphs) throws PnInternalException {

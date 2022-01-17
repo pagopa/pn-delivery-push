@@ -186,6 +186,7 @@ public class DigitalWorkFlowHandler {
     public void handleExternalChannelResponse(ExtChannelResponse response, TimelineElement notificationTimelineElement) {
         //Conservare ricevuta PEC //TODO capire cosa si intende
         log.info("HandleExternalChannelResponse - iun {} id {}", response.getIun(), response.getTaxId());
+        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(response);
 
         if (response.getResponseStatus() != null) {
             switch (response.getResponseStatus()) {
@@ -196,7 +197,6 @@ public class DigitalWorkFlowHandler {
                     break;
                 case KO:
                     //Non è stato possibile effettuare la notificazione, si passa al prossimo step del workflow
-                    digitalWorkFlowUtils.addDigitalFailureAttemptTimelineElement(response);
                     log.info("Notification failed, starting next workflow action - iun {} id {}", response.getIun(), response.getTaxId());
 
                     SendDigitalDetails sendDigitalDetails = (SendDigitalDetails) notificationTimelineElement.getDetails();

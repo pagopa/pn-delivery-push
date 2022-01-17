@@ -29,7 +29,8 @@ public class NotificationViewedHandler {
         this.notificationService = notificationService;
         this.timelineUtils = timelineUtils;
     }
-
+    
+    //TODO Capire se si può eliminare e tenere la Action già presente
     //@StreamListener(condition = "NOTIFICATION_VIEWED")
     public void handleViewNotification(String iun, String taxId) {
         log.info("Start HandleViewNotification - iun {} id {}", iun, taxId);
@@ -37,7 +38,7 @@ public class NotificationViewedHandler {
         Notification notification = notificationService.getNotificationByIun(iun);
 
         addTimelineElement(timelineUtils.buildNotificationViewedTimelineElement(iun, taxId));
-        //TODO Da aggiungere quando verranno modificati i vari legalFacts
+        //TODO Da aggiungere se non eliminato modificando la logica del metodo
         //legalFactStore.saveNotificationViewedLegalFact(action, notification);
         paperNotificationFailedDao.deleteNotificationFailed(taxId, iun); //Viene eliminata l'istanza di notifica fallita dal momento che la stessa è stata letta
 

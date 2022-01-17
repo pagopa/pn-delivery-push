@@ -4,18 +4,19 @@ import it.pagopa.pn.api.dto.addressbook.AddressBookEntry;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
+import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
 import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
+import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.action2.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action2.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action2.PublicRegistryResponseHandler;
 import it.pagopa.pn.deliverypush.action2.RefinementHandler;
-import it.pagopa.pn.deliverypush.action2.it.mockbean.AddressBookMock;
-import it.pagopa.pn.deliverypush.action2.it.mockbean.NotificationDaoMock;
-import it.pagopa.pn.deliverypush.action2.it.mockbean.PublicRegistryMock;
-import it.pagopa.pn.deliverypush.action2.it.mockbean.SchedulerServiceMock;
+import it.pagopa.pn.deliverypush.action2.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactPdfGenerator;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
+import it.pagopa.pn.deliverypush.legalfacts.OpenhtmltopdfLegalFactPdfGenerator;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
@@ -76,10 +77,22 @@ public class AbstractWorkflowTestConfiguration {
     public AddressBook testAddressBook() {
         return new AddressBookMock(addressBookEntries);
     }
-
+    
     @Bean
-    public LegalFactUtils LegalFactsTest() {
-        return Mockito.mock(LegalFactUtils.class);
+    public FileStorage fileStorageTest() {
+        return Mockito.mock(FileStorage.class);
+    }
+    
+    @Bean
+    public LegalFactPdfGenerator legalFactPdfGeneratorTest(TimelineDaoMock timelineDaoMock) {
+        return new OpenhtmltopdfLegalFactPdfGenerator(timelineDaoMock);
+    }
+    
+    @Bean
+    public LegalFactUtils LegalFactsTest(FileStorage fileStorage,
+                                         LegalFactPdfGenerator pdfUtils,
+                                         LegalfactsMetadataUtils legalfactMetadataUtils) {
+        return new LegalFactUtils(fileStorage, pdfUtils, legalfactMetadataUtils);
     }
 
     @Bean

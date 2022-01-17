@@ -5,11 +5,14 @@ import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
+import it.pagopa.pn.api.dto.notification.timeline.SendDigitalFeedback;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.action2.utils.CompletelyUnreachableUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -18,6 +21,9 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -33,17 +39,19 @@ public class CompletionWorkFlowHandler {
     private final TimelineService timelineService;
     private final CompletelyUnreachableUtils completelyUnreachableService;
     private final TimelineUtils timelineUtils;
+    private final LegalFactUtils legalFactUtils;
 
     public CompletionWorkFlowHandler(NotificationService notificationService,
                                      SchedulerService scheduler, ExternalChannelSendHandler externalChannelSendHandler,
                                      TimelineService timelineService, CompletelyUnreachableUtils completelyUnreachableUtils,
-                                     TimelineUtils timelineUtils) {
+                                     TimelineUtils timelineUtils, LegalFactUtils legalFactUtils) {
         this.notificationService = notificationService;
         this.scheduler = scheduler;
         this.externalChannelSendHandler = externalChannelSendHandler;
         this.timelineService = timelineService;
         this.completelyUnreachableService = completelyUnreachableUtils;
         this.timelineUtils = timelineUtils;
+        this.legalFactUtils = legalFactUtils;
     }
 
     /**
@@ -62,8 +70,7 @@ public class CompletionWorkFlowHandler {
 
         //TODO Capire meglio quali sono le operazioni da realizzare nel perfezionamento e quali in questa fase
 
-        //TODO Capire meglio quali sono le informazioni necessarie e realizzarlo
-        //legalFactStore.savePecDeliveryWorkflowLegalFact( receivePecActions, notification, addresses );
+        generatePecDeliveryWorkflowLegalFact(taxId, iun, notification, recipient);
 
         if (status != null) {
             switch (status) {
@@ -83,6 +90,25 @@ public class CompletionWorkFlowHandler {
         } else {
             handleError(taxId, iun, null);
         }
+    }
+
+    private void generatePecDeliveryWorkflowLegalFact(String taxId, String iun, Notification notification, NotificationRecipient recipient) {
+        Set<TimelineElement> timeline = timelineService.getTimeline(iun);
+        List<SendDigitalFeedback> listFeedbackFromExtChannel = timeline.stream()
+                .filter(timelineElement -> filterTimelineForTaxId(timelineElement, taxId))
+                .map(timelineElement -> (SendDigitalFeedback) timelineElement.getDetails())
+                .collect(Collectors.toList());
+
+        legalFactUtils.savePecDeliveryWorkflowLegalFact(listFeedbackFromExtChannel, notification, recipient);
+    }
+
+    private boolean filterTimelineForTaxId(TimelineElement el, String taxId) {
+        boolean availableCategory = TimelineElementCategory.SEND_DIGITAL_FEEDBACK.equals(el.getCategory());
+        if (availableCategory) {
+            SendDigitalFeedback details = (SendDigitalFeedback) el.getDetails();
+            return taxId.equalsIgnoreCase(details.getTaxId());
+        }
+        return false;
     }
 
     /**
@@ -134,6 +160,7 @@ public class CompletionWorkFlowHandler {
     private void scheduleRefinement(String iun, String taxId, Instant notificationDate, int schedulingDays) {
         Instant schedulingDate = notificationDate.plus(schedulingDays, ChronoUnit.DAYS);
         log.info("Schedule refinement in {}", schedulingDate);
+        timelineService.addTimelineElement(timelineUtils.buildRefinementTimelineElement(iun, taxId));
         scheduler.scheduleEvent(iun, taxId, schedulingDate, ActionType.REFINEMENT_NOTIFICATION);
     }
 

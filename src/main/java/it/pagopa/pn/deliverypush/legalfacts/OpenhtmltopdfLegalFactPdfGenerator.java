@@ -2,10 +2,12 @@ package it.pagopa.pn.deliverypush.legalfacts;
 
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
+import it.pagopa.pn.api.dto.extchannel.ExtChannelResponseStatus;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
+import it.pagopa.pn.api.dto.notification.timeline.SendDigitalFeedback;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
@@ -263,6 +265,47 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
             Instant timestamp = row.getTimestamp();
 
             if (PnExtChnProgressStatus.OK.equals(status)) {
+                paragraph3.append(String.format(
+                        "il relativo avviso di avvenuta ricezione in formato elettronico è stato consegnato in data %s </li>",
+                        this.instantToDate(timestamp)
+                ));
+            } else {
+                paragraph3.append(String.format(
+                        "in data %s è stato ricevuto il relativo messaggio di mancato recapito al domicilio digitale già indicato.</li>",
+                        this.instantToDate(timestamp)
+                ));
+            }
+            paragraph3.append("</div>");
+        }
+        paragraph3.append("</ul>");
+
+        return toPdfBytes(Arrays.asList(PARAGRAPH1, paragraph2, paragraph3.toString()));
+    }
+
+    @Override
+    public byte[] generatePecDeliveryWorkflowLegalFact(List<SendDigitalFeedback> listFeedbackFromExtChannel, Notification notification, NotificationRecipient recipient) {
+        List<String> paragraphs = new ArrayList<>();
+        paragraphs.add(PARAGRAPH1);
+        String paragraph2 = String.format(
+                DIV_PARAGRAPH + "gli atti di cui alla notifica identificata con IUN %s sono stati gestiti come segue:</div> <ul>",
+                notification.getIun()
+        );
+
+        StringBuilder paragraph3 = new StringBuilder();
+        for (SendDigitalFeedback digitalFeedback : listFeedbackFromExtChannel) {
+            DigitalAddress address = digitalFeedback.getAddress();
+            ExtChannelResponseStatus status = digitalFeedback.getResponseStatus();
+
+            paragraph3.append(String.format(
+                    DIV_PARAGRAPH + "<li> nome e cognome/ragione sociale %s, C.F. %s con domicilio digitale %s: ",
+                    recipient.getDenomination(),
+                    recipient.getTaxId(),
+                    address.getAddress()
+            ));
+
+            Instant timestamp = digitalFeedback.getNotificationDate();
+
+            if (ExtChannelResponseStatus.OK.equals(status)) {
                 paragraph3.append(String.format(
                         "il relativo avviso di avvenuta ricezione in formato elettronico è stato consegnato in data %s </li>",
                         this.instantToDate(timestamp)

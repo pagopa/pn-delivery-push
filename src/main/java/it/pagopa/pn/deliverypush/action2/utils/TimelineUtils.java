@@ -79,16 +79,18 @@ public class TimelineUtils {
     }
 
 
-    public TimelineElement buildDigitalFailureAttemptTimelineElement(ExtChannelResponse response) {
-        log.debug("buildDigitalFailureAttemptTimelineElement - IUN {} and id {}", response.getIun(), response.getTaxId());
+    public TimelineElement buildDigitaFeedbackTimelineElement(ExtChannelResponse response) {
+        log.debug("buildDigitaFeedbackTimelineElement - IUN {} and id {}", response.getIun(), response.getTaxId());
 
         return TimelineElement.builder()
                 .iun(response.getIun())
-                .category(TimelineElementCategory.SEND_DIGITAL_FEEDBACK_FAILURE)
-                .details(SendDigitalFeedbackFailure.builder()
+                .category(TimelineElementCategory.SEND_DIGITAL_FEEDBACK)
+                .details(SendDigitalFeedback.builder()
                         .errors(response.getErrorList())
                         .address(response.getDigitalUsedAddress())
+                        .responseStatus(response.getResponseStatus())
                         .taxId(response.getTaxId())
+                        .notificationDate(response.getNotificationDate())
                         .build())
                 .build();
     }
@@ -373,7 +375,7 @@ public class TimelineUtils {
                 .build();
     }
 
-    public TimelineElement buildScheduledDigitalWorkflowTimeline(String iun, String taxId, DigitalAddressInfo lastAttemptInfo) {
+    public TimelineElement buildScheduleDigitalWorkflowTimeline(String iun, String taxId, DigitalAddressInfo lastAttemptInfo) {
         log.debug("buildScheduledActionTimeline - iun {} and id {}", iun, taxId);
         return TimelineElement.builder()
                 .category(TimelineElementCategory.SCHEDULE_DIGITAL_WORKFLOW)
@@ -389,6 +391,46 @@ public class TimelineUtils {
                 .details(ScheduleDigitalWorkflow.builder()
                         .taxId(taxId)
                         .lastAttemptInfo(lastAttemptInfo)
+                        .build()
+                )
+                .build();
+    }
+
+    public TimelineElement buildScheduleAnalogWorkflowTimeline(String iun, String taxId) {
+        log.debug("buildScheduleAnalogWorkflowTimeline - iun {} and id {}", iun, taxId);
+        return TimelineElement.builder()
+                .category(TimelineElementCategory.SCHEDULE_ANALOG_WORKFLOW)
+                .timestamp(instantNowSupplier.get())
+                .iun(iun)
+                .elementId(
+                        TimelineEventId.SCHEDULE_ANALOG_WORKFLOW.buildEventId(
+                                EventId.builder()
+                                        .iun(iun)
+                                        .recipientId(taxId)
+                                        .build())
+                )
+                .details(ScheduleAnalogWorkflow.builder()
+                        .taxId(taxId)
+                        .build()
+                )
+                .build();
+    }
+
+    public TimelineElement buildScheduleRefinement(String iun, String taxId) {
+        log.debug("buildScheduleRefinement - iun {} and id {}", iun, taxId);
+        return TimelineElement.builder()
+                .category(TimelineElementCategory.SCHEDULE_REFINEMENT)
+                .timestamp(instantNowSupplier.get())
+                .iun(iun)
+                .elementId(
+                        TimelineEventId.SCHEDULE_REFINEMENT_WORKFLOW.buildEventId(
+                                EventId.builder()
+                                        .iun(iun)
+                                        .recipientId(taxId)
+                                        .build())
+                )
+                .details(ScheduleRefinement.builder()
+                        .taxId(taxId)
                         .build()
                 )
                 .build();

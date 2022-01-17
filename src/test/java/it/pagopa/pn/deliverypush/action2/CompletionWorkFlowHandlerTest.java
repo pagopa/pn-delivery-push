@@ -10,6 +10,7 @@ import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.action2.utils.CompletelyUnreachableUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -39,13 +40,15 @@ class CompletionWorkFlowHandlerTest {
     private CompletelyUnreachableUtils completelyUnreachableUtils;
     @Mock
     private TimelineUtils timelineUtils;
+    @Mock
+    private LegalFactUtils legalFactUtils;
 
     private CompletionWorkFlowHandler handler;
 
     @BeforeEach
     public void setup() {
         handler = new CompletionWorkFlowHandler(notificationService, scheduler,
-                externalChannelSendHandler, timelineService, completelyUnreachableUtils, timelineUtils);
+                externalChannelSendHandler, timelineService, completelyUnreachableUtils, timelineUtils, legalFactUtils);
     }
 
     @ExtendWith(MockitoExtension.class)

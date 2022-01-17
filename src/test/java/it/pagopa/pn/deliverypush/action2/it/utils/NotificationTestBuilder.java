@@ -6,6 +6,7 @@ import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -44,6 +45,7 @@ public class NotificationTestBuilder {
                 .iun(iun)
                 .paNotificationId("protocol_01")
                 .subject("Subject 01")
+                .sentAt(Instant.now())
                 .physicalCommunicationType(ServiceLevelType.SIMPLE_REGISTERED_LETTER)
                 .sender(NotificationSender.builder()
                         .paId(" pa_02")

@@ -9,6 +9,7 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.api.dto.notification.timeline.EventId;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineEventId;
+import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action2.*;
 import it.pagopa.pn.deliverypush.action2.it.AbstractWorkflowTestConfiguration;
@@ -51,6 +52,7 @@ import java.util.Map;
         CourtesyMessageUtils.class,
         ExternalChannelUtils.class,
         CompletelyUnreachableUtils.class,
+        LegalfactsMetadataUtils.class,
         ExtChnEventUtils.class,
         AnalogWorkflowUtils.class,
         TimelineUtils.class,

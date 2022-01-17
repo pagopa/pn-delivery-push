@@ -35,6 +35,11 @@ public class ChooseDeliveryModeUtils {
         timelineService.addTimelineElement(element);
     }
 
+    public void addScheduleAnalogWorkflowToTimeline(String taxId, String iun) {
+        TimelineElement element = timelineUtils.buildScheduleAnalogWorkflowTimeline(iun, taxId);
+        timelineService.addTimelineElement(element);
+    }
+
     public Optional<SendCourtesyMessageDetails> getFirstSentCourtesyMessage(String iun, String taxId) {
         return courtesyMessageUtils.getFirstSentCourtesyMessage(iun, taxId);
     }

@@ -370,7 +370,7 @@ class DigitalWorkFlowHandlerTest {
 
         handler.handleExternalChannelResponse(extChannelResponse, element);
 
-        Mockito.verify(digitalWorkFlowUtils).addDigitalFailureAttemptTimelineElement(Mockito.any(ExtChannelResponse.class));
+        Mockito.verify(digitalWorkFlowUtils).addDigitalFeedbackTimelineElement(Mockito.any(ExtChannelResponse.class));
     }
 
     private Notification getNotification() {
