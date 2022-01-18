@@ -3,12 +3,12 @@ package it.pagopa.pn.deliverypush.webhook;
 import it.pagopa.pn.api.dto.webhook.WebhookConfigDto;
 import it.pagopa.pn.commons.utils.DateFormatUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.webhook.configuration.ClientCertificateCfg;
 import it.pagopa.pn.deliverypush.webhook.dto.WebhookBufferRowDto;
 import it.pagopa.pn.deliverypush.webhook.dto.WebhookOutputDto;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -26,17 +26,18 @@ public class WebhookBufferReaderService {
 
     private final WebhookConfigsDao webhookConfigsDao;
     private final WebhookBufferDao webhookBufferDao;
+    private final ClientCertificateCfg certCfg;
 
     @Autowired
-    @Qualifier("WebhookClientCertImpl")
     private WebhookClient client;
 
     private final int chunkSize;
 
-    public WebhookBufferReaderService(WebhookConfigsDao webhookConfigsDao, WebhookBufferDao webhookBufferDao, PnDeliveryPushConfigs cfg) {
+    public WebhookBufferReaderService(WebhookConfigsDao webhookConfigsDao, WebhookBufferDao webhookBufferDao, PnDeliveryPushConfigs cfg, ClientCertificateCfg certCfg) {
         this.webhookConfigsDao = webhookConfigsDao;
         this.webhookBufferDao = webhookBufferDao;
         this.chunkSize = cfg.getWebhook().getMaxLength();
+        this.certCfg = certCfg;
     }
 
     @Scheduled(fixedDelayString = "${pn.delivery-push.webhook.schedule-interval}")
@@ -78,7 +79,7 @@ public class WebhookBufferReaderService {
             log.info("Call webhook " + webhook.getPaId() + " url(" + webhook.getUrl() + ")" + " with chunk size " + chunk.size());
             List<WebhookOutputDto> webhookOutputDtoList = getListWebhookOutputDto(chunk);
 
-            client.sendInfo(webhook.getUrl(), webhookOutputDtoList);
+            client.sendInfo(webhook.getUrl(), webhookOutputDtoList, certCfg);
             chunk.stream().map(WebhookBufferRowDto::getStatusChangeTime)
                     .max(Comparator.naturalOrder())
                     .ifPresent(newLastUpdate ->

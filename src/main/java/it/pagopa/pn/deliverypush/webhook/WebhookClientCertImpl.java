@@ -1,14 +1,13 @@
 package it.pagopa.pn.deliverypush.webhook;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.webhook.configuration.CertCfg;
+import it.pagopa.pn.deliverypush.webhook.configuration.ClientCertificateCfg;
 import it.pagopa.pn.deliverypush.webhook.dto.WebhookOutputDto;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -33,25 +32,13 @@ import java.util.Base64;
 import java.util.List;
 
 @Slf4j
-@Component( value = "WebhookClientCertImpl")
+@Component
 public class WebhookClientCertImpl implements WebhookClient{
 
     private static final char[] KEYSTORE_PASSWORD = "password".toCharArray();
 
-    private RestTemplate restTemplate;
-
-
-    @Autowired
-    private CertCfg certCfg;
-
-    WebhookClientCertImpl(CertCfg certCfg ) {
-        this.certCfg = certCfg;
-    }
-
-    private RestTemplate buildRestTemplate() {
+    private RestTemplate buildRestTemplate( ClientCertificateCfg certCfg ) {
         RestTemplateBuilder builder = new RestTemplateBuilder();
-
-
         SSLContext sslContext = null;
         try {
             String clientCertificatePem = certCfg.getClientCertificatePem();
@@ -72,21 +59,22 @@ public class WebhookClientCertImpl implements WebhookClient{
                         .loadTrustMaterial( null, acceptingTrustStrategy )
                         .loadKeyMaterial(keyStore, KEYSTORE_PASSWORD)
                         .build();
+
+                HttpClient client = HttpClients.custom().setSSLContext(sslContext).build();
+                return builder
+                        .requestFactory(() -> new HttpComponentsClientHttpRequestFactory(client))
+                        .build();
             } else {
                 String message = clientCertificatePem == null || clientCertificatePem.isEmpty()?
                         "clientCertificatePem" : "clientKeyPem";
-                log.error( "Unable to retrieve " + message + " from environment variables" );
+                log.info( "Unable to retrieve " + message + " from environment variables" );
+                return builder.build();
             }
         } catch (KeyStoreException | CertificateException |
                 NoSuchAlgorithmException | IOException | UnrecoverableKeyException
                 | KeyManagementException e) {
             throw new PnInternalException( e.getMessage(), e );
         }
-
-        HttpClient client = HttpClients.custom().setSSLContext(sslContext).build();
-        return builder
-                .requestFactory(() -> new HttpComponentsClientHttpRequestFactory(client))
-                .build();
     }
 
     private X509Certificate buildX509CertificateFromPemString(String stringCert) throws CertificateException {
@@ -106,7 +94,6 @@ public class WebhookClientCertImpl implements WebhookClient{
         }
     }
 
-
     private KeyStore newKeyStore() throws KeyStoreException, CertificateException, IOException, NoSuchAlgorithmException {
         KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
         ks.load(null, KEYSTORE_PASSWORD);
@@ -118,12 +105,9 @@ public class WebhookClientCertImpl implements WebhookClient{
     }
 
     @Override
-    public void sendInfo(String url, List<WebhookOutputDto> data) {
-        if ( this.restTemplate == null) {
-            this.restTemplate = buildRestTemplate();
-        }
-
-        log.info("Send info cert webhook with url: " + url);
+    public void sendInfo(String url, List<WebhookOutputDto> data, ClientCertificateCfg certCfg) {
+        RestTemplate restTemplate = buildRestTemplate(certCfg);
+        log.info("Send info webhook with url: " + url);
         HttpEntity<List<WebhookOutputDto>> entity = new HttpEntity<>(data, null);
         ResponseEntity<Void> resp = restTemplate.exchange(url, HttpMethod.POST, entity, Void.class);
         log.info("Response: " + resp);

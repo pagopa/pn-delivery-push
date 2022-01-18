@@ -1,35 +1,31 @@
 package it.pagopa.pn.deliverypush.webhook;
 
-import it.pagopa.pn.deliverypush.webhook.configuration.CertCfg;
+import it.pagopa.pn.deliverypush.webhook.configuration.ClientCertificateCfg;
 import it.pagopa.pn.deliverypush.webhook.dto.WebhookOutputDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 class WebhookClientCertImplTest {
 
+    private WebhookClientCertImpl clientCert;
 
-    @Autowired
-    WebhookClientCertImpl clientCert;
-
-    private CertCfg certCfg;
+    private ClientCertificateCfg certCfg;
 
     @BeforeEach
     void setup() {
-        this.certCfg = Mockito.mock( CertCfg.class );
-        this.clientCert = new WebhookClientCertImpl( certCfg );
+        this.certCfg = Mockito.mock( ClientCertificateCfg.class );
+        clientCert = new WebhookClientCertImpl( );
     }
 
-    //@Test da eseguire in locale dopo aver lanciato un'instanza mockserver
-    void sendInfoSuccess() {
+    //@Test //da eseguire in locale dopo aver lanciato un'instanza mockserver
+    void sendInfoWithCertSuccess() {
         //Given
         String url = "https://localhost:1080/test";
         List<WebhookOutputDto> data = new ArrayList<>();
@@ -39,15 +35,31 @@ class WebhookClientCertImplTest {
                         .notificationElement("NOTIFICATION_ELEMENT")
                 .build() );
 
-
         //When
         Mockito.when( certCfg.getClientCertificatePem() )
                 .thenReturn( loadMockClientCert() );
         Mockito.when( certCfg.getClientKeyPem() )
                 .thenReturn( loadMockClientKey() );
-        Mockito.when( certCfg.getTrustedServerCertificates() )
-                .thenReturn( Collections.singletonList( loadMockServerCert() ));
-        clientCert.sendInfo( url, data );
+
+        clientCert.sendInfo( url, data, certCfg);
+
+        //Then
+    }
+
+    @Test //da eseguire in locale dopo aver lanciato un'instanza mockserver
+    void sendInfoNoCertSuccess() {
+        //Given
+        String url = "https://pn-status-webhook.free.beeceptor.com/test";
+        List<WebhookOutputDto> data = new ArrayList<>();
+        data.add( WebhookOutputDto.builder()
+                .iun( "IUN" )
+                .senderId( "SENDER_ID" )
+                .notificationElement("NOTIFICATION_ELEMENT")
+                .build() );
+
+
+        //When
+        clientCert.sendInfo( url, data, certCfg);
 
         //Then
     }

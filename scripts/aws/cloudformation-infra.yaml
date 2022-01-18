@@ -114,7 +114,7 @@ Resources:
             - Name: SPRING_DATA_CASSANDRA_CONTACTPOINTS
               Value: !Sub 'cassandra.${AWS::Region}.${AWS::URLSuffix}:9142'
             - Name: CLIENT_CERTIFICATE_PEM
-              Value: '{{resolve:secretsmanager:pa_webhook_certs:SecretString:cert_inps}}'
+              Value: '{{resolve:secretsmanager:pa_webhook_certs:SecretString:client_certificate_pem}}'
             - Name: CLIENT_KEY_PEM
               Value: '{{resolve:secretsmanager:pa_webhook_certs:SecretString:client_key_pem}}'
           PortMappings:
