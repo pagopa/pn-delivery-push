@@ -83,14 +83,14 @@ public class WebhookClientCertImpl implements WebhookClient{
         return (X509Certificate) cf.generateCertificate(is);
     }
 
-    private PrivateKey buildKeyFromPemString(String stringCert) {
-        InputStream is = new ByteArrayInputStream(Base64.getDecoder().decode(stringCert));
+    private PrivateKey buildKeyFromPemString(String clientKeyPem) {
+        InputStream is = new ByteArrayInputStream(Base64.getDecoder().decode(clientKeyPem));
         try {
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec( is.readAllBytes() );
             return keyFactory.generatePrivate(keySpec);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException | IOException e) {
-            throw new RuntimeException( e );
+            throw new PnInternalException("Error building private key from client key pem", e );
         }
     }
 
