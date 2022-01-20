@@ -3,7 +3,6 @@ package it.pagopa.pn.deliverypush.webhook;
 import it.pagopa.pn.api.dto.webhook.WebhookConfigDto;
 import it.pagopa.pn.commons.utils.DateFormatUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.webhook.configuration.ClientCertificateCfg;
 import it.pagopa.pn.deliverypush.webhook.dto.WebhookBufferRowDto;
 import it.pagopa.pn.deliverypush.webhook.dto.WebhookOutputDto;
 import lombok.extern.slf4j.Slf4j;
@@ -26,18 +25,16 @@ public class WebhookBufferReaderService {
 
     private final WebhookConfigsDao webhookConfigsDao;
     private final WebhookBufferDao webhookBufferDao;
-    private final ClientCertificateCfg certCfg;
 
     @Autowired
     private WebhookClient client;
 
     private final int chunkSize;
 
-    public WebhookBufferReaderService(WebhookConfigsDao webhookConfigsDao, WebhookBufferDao webhookBufferDao, PnDeliveryPushConfigs cfg, ClientCertificateCfg certCfg) {
+    public WebhookBufferReaderService(WebhookConfigsDao webhookConfigsDao, WebhookBufferDao webhookBufferDao, PnDeliveryPushConfigs cfg) {
         this.webhookConfigsDao = webhookConfigsDao;
         this.webhookBufferDao = webhookBufferDao;
         this.chunkSize = cfg.getWebhook().getMaxLength();
-        this.certCfg = certCfg;
     }
 
     @Scheduled(fixedDelayString = "${pn.delivery-push.webhook.schedule-interval}")
@@ -79,7 +76,7 @@ public class WebhookBufferReaderService {
             log.info("Call webhook " + webhook.getPaId() + " url(" + webhook.getUrl() + ")" + " with chunk size " + chunk.size());
             List<WebhookOutputDto> webhookOutputDtoList = getListWebhookOutputDto(chunk);
 
-            client.sendInfo(webhook.getUrl(), webhookOutputDtoList, certCfg);
+            client.sendInfo(webhook.getUrl(), webhookOutputDtoList);
             chunk.stream().map(WebhookBufferRowDto::getStatusChangeTime)
                     .max(Comparator.naturalOrder())
                     .ifPresent(newLastUpdate ->

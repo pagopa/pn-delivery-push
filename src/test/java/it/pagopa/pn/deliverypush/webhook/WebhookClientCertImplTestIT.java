@@ -1,49 +1,74 @@
 package it.pagopa.pn.deliverypush.webhook;
 
+import it.pagopa.pn.commons.utils.ssl.SSLContextFactory;
 import it.pagopa.pn.deliverypush.webhook.configuration.ClientCertificateCfg;
 import it.pagopa.pn.deliverypush.webhook.dto.WebhookOutputDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-class WebhookClientCertImplTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+
+class WebhookClientCertImplTestIT {
+
+    private ClientCertificateCfg certCfg;
+
+    private RestTemplate restTemplate;
 
     private WebhookClientCertImpl clientCert;
 
-    private ClientCertificateCfg certCfg;
+    private SSLContextFactory sslContextFactory;
 
     @BeforeEach
     void setup() {
         this.certCfg = Mockito.mock( ClientCertificateCfg.class );
-        clientCert = new WebhookClientCertImpl( );
+        this.sslContextFactory = new SSLContextFactory();
     }
 
-    //@Test //da eseguire in locale dopo aver lanciato un'instanza mockserver
+    @Test //da eseguire in locale dopo aver lanciato un'instanza mockserver
     void sendInfoWithCertSuccess() {
         //Given
-        String url = "https://localhost:1080/test";
+        String url = "https://localhost:1080/webhook/";
         List<WebhookOutputDto> data = new ArrayList<>();
         data.add( WebhookOutputDto.builder()
                         .iun( "IUN" )
                         .senderId( "SENDER_ID" )
                         .notificationElement("NOTIFICATION_ELEMENT")
                 .build() );
-
-        //When
         Mockito.when( certCfg.getClientCertificatePem() )
                 .thenReturn( loadMockClientCert() );
         Mockito.when( certCfg.getClientKeyPem() )
                 .thenReturn( loadMockClientKey() );
+        Mockito.when( certCfg.getServerCertificatesPem() )
+                .thenReturn( Collections.singletonList( loadMockServerCert() ));
 
-        clientCert.sendInfo( url, data, certCfg);
+        RestTemplate rt = initialize();
+
+        //When
+        clientCert.sendInfo( url, data);
 
         //Then
+        Mockito.verify( rt ).exchange( url, HttpMethod.POST, new HttpEntity<>(data, null), Void.class );
+    }
+
+    private RestTemplate initialize() {
+        restTemplate = new WebhookRestTemplateFactory( this.certCfg, sslContextFactory).restTemplate();
+        RestTemplate rt = Mockito.spy( restTemplate );
+        clientCert = new WebhookClientCertImpl(rt);
+        return rt;
     }
 
     @Test //da eseguire in locale dopo aver lanciato un'instanza mockserver
@@ -57,19 +82,13 @@ class WebhookClientCertImplTest {
                 .notificationElement("NOTIFICATION_ELEMENT")
                 .build() );
 
+        RestTemplate rt = initialize();
 
         //When
-        clientCert.sendInfo( url, data, certCfg);
+        clientCert.sendInfo( url, data);
 
         //Then
-    }
-
-    static String loadINPSCert() {
-        try {
-            return Files.readString(Paths.get( "file:///Users/alessandromasci/Desktop/mockserver/INPS.pem" ));
-        } catch (IOException e) {
-            throw new RuntimeException( e );
-        }
+        Mockito.verify( rt ).exchange( url, HttpMethod.POST, new HttpEntity<>(data, null), Void.class );
     }
 
     static String loadMockClientCert() {
