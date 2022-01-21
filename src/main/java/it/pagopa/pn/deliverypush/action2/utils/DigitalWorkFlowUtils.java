@@ -194,8 +194,8 @@ public class DigitalWorkFlowUtils {
         addTimelineElement(timelineUtils.buildAvailabilitySourceTimelineElement(taxId, iun, source, isAvailable, sentAttemptMade));
     }
 
-    public void addDigitalFeedbackTimelineElement(ExtChannelResponse response) {
-        addTimelineElement(timelineUtils.buildDigitaFeedbackTimelineElement(response));
+    public void addDigitalFeedbackTimelineElement(ExtChannelResponse response, SendDigitalDetails sendDigitalDetails) {
+        addTimelineElement(timelineUtils.buildDigitaFeedbackTimelineElement(response, sendDigitalDetails));
     }
 
     private void addTimelineElement(TimelineElement element) {

@@ -17,4 +17,11 @@ public class TimeParams {
     private Duration timeBetweenExtChReceptionAndMessageProcessed;
     private Duration intervalBetweenNotificationAndMessageReceived;
 
+    private Duration waitingForReadCourtesyMessage;
+    private Duration schedulingDaysSuccessDigitalRefinement;
+    private Duration schedulingDaysFailureDigitalRefinement;
+    private Duration schedulingDaysSuccessAnalogRefinement;
+    private Duration schedulingDaysFailureAnalogRefinement;
+    private Duration secondNotificationWorkflowWaitingTime;
+
 }

@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.action2;
 
 import it.pagopa.pn.api.dto.events.EndWorkflowStatus;
 import it.pagopa.pn.api.dto.extchannel.ExtChannelResponse;
+import it.pagopa.pn.api.dto.extchannel.ExtChannelResponseStatus;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
@@ -10,6 +11,7 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.timeline.*;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.action2.utils.DigitalWorkFlowUtils;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
@@ -19,13 +21,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
 @Component
 @Slf4j
 public class DigitalWorkFlowHandler {
     public static final int MAX_ATTEMPT_NUMBER = 2;
-    public static final int SECOND_NOTIFICATION_WORKFLOW_WAITING_TIME = 7;
 
     private final ExternalChannelSendHandler externalChannelSendHandler;
     private final NotificationService notificationService;
@@ -34,11 +34,13 @@ public class DigitalWorkFlowHandler {
     private final CompletionWorkFlowHandler completionWorkflow;
     private final PublicRegistrySendHandler publicRegistrySendHandler;
     private final InstantNowSupplier instantNowSupplier;
+    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     public DigitalWorkFlowHandler(ExternalChannelSendHandler externalChannelSendHandler,
                                   NotificationService notificationService, SchedulerService schedulerService,
                                   DigitalWorkFlowUtils digitalWorkFlowUtils, CompletionWorkFlowHandler completionWorkflow,
-                                  PublicRegistrySendHandler publicRegistryHandler, InstantNowSupplier instantNowSupplier) {
+                                  PublicRegistrySendHandler publicRegistryHandler, InstantNowSupplier instantNowSupplier,
+                                  PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         this.externalChannelSendHandler = externalChannelSendHandler;
         this.notificationService = notificationService;
         this.schedulerService = schedulerService;
@@ -46,6 +48,7 @@ public class DigitalWorkFlowHandler {
         this.completionWorkflow = completionWorkflow;
         this.publicRegistrySendHandler = publicRegistryHandler;
         this.instantNowSupplier = instantNowSupplier;
+        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
     }
 
     //@StreamListener(condition = "DIGITAL_WORKFLOW")
@@ -122,7 +125,7 @@ public class DigitalWorkFlowHandler {
     private void startNextWorkflow7daysAfterLastAttempt(String iun, String taxId, DigitalAddressInfo nextAddressInfo, DigitalAddressInfo lastAttemptMade) {
         log.info("StartNextWorkflow7daysAfterLastAttempt - iun {} id {}", iun, taxId);
 
-        Instant schedulingDate = nextAddressInfo.getLastAttemptDate().plus(SECOND_NOTIFICATION_WORKFLOW_WAITING_TIME, ChronoUnit.DAYS);
+        Instant schedulingDate = nextAddressInfo.getLastAttemptDate().plus(pnDeliveryPushConfigs.getTimeParams().getSecondNotificationWorkflowWaitingTime());
         //Vengono aggiunti 7 giorni alla data dell'ultimo tentativo effettuata per questa source
         if (instantNowSupplier.get().isAfter(schedulingDate)) {
             log.info("Next workflow scheduling date {} is passed. Start next workflow - iun {} id {}", schedulingDate, iun, taxId);
@@ -185,40 +188,40 @@ public class DigitalWorkFlowHandler {
 
     public void handleExternalChannelResponse(ExtChannelResponse response, TimelineElement notificationTimelineElement) {
         //Conservare ricevuta PEC //TODO capire cosa si intende
-        log.info("HandleExternalChannelResponse - iun {} id {}", response.getIun(), response.getTaxId());
-        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(response);
+        SendDigitalDetails sendDigitalDetails = (SendDigitalDetails) notificationTimelineElement.getDetails();
+        log.info("HandleExternalChannelResponse - iun {} id {}", response.getIun(), sendDigitalDetails.getTaxId());
+
+        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(response, sendDigitalDetails);
 
         if (response.getResponseStatus() != null) {
             switch (response.getResponseStatus()) {
                 case OK:
-                    log.info("Notification sent successfully, starting completion workflow - iun {} id {}", response.getIun(), response.getTaxId());
+                    log.info("Notification sent successfully, starting completion workflow - iun {} id {}", response.getIun(), sendDigitalDetails.getTaxId());
                     //La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
-                    completionWorkflow.completionDigitalWorkflow(response.getTaxId(), response.getIun(), response.getNotificationDate(), response.getDigitalUsedAddress(), EndWorkflowStatus.SUCCESS);
+                    completionWorkflow.completionDigitalWorkflow(sendDigitalDetails.getTaxId(), response.getIun(), response.getNotificationDate(), sendDigitalDetails.getAddress(), EndWorkflowStatus.SUCCESS);
                     break;
                 case KO:
                     //Non è stato possibile effettuare la notificazione, si passa al prossimo step del workflow
-                    log.info("Notification failed, starting next workflow action - iun {} id {}", response.getIun(), response.getTaxId());
-
-                    SendDigitalDetails sendDigitalDetails = (SendDigitalDetails) notificationTimelineElement.getDetails();
+                    log.info("Notification failed, starting next workflow action - iun {} id {}", response.getIun(), sendDigitalDetails.getTaxId());
 
                     DigitalAddressInfo lastAttemptMade = DigitalAddressInfo.builder()
                             .addressSource(sendDigitalDetails.getAddressSource())
                             .lastAttemptDate(notificationTimelineElement.getTimestamp())
                             .build();
 
-                    nextWorkFlowAction(response.getIun(), response.getTaxId(), lastAttemptMade);
+                    nextWorkFlowAction(response.getIun(), sendDigitalDetails.getTaxId(), lastAttemptMade);
                     break;
                 default:
-                    handleStatusError(response);
+                    handleStatusError(response.getResponseStatus(), response.getIun(), sendDigitalDetails.getTaxId());
             }
         } else {
-            handleStatusError(response);
+            handleStatusError(response.getResponseStatus(), response.getIun(), sendDigitalDetails.getTaxId());
         }
     }
 
-    private void handleStatusError(ExtChannelResponse response) {
-        log.error("Specified status {} is not possibile - iun {} id {}", response.getResponseStatus(), response.getIun(), response.getTaxId());
-        throw new PnInternalException("Specified status" + response.getResponseStatus() + " is not possibile");
+    private void handleStatusError(ExtChannelResponseStatus status, String iun, String taxId) {
+        log.error("Specified status {} is not possibile - iun {} id {}", status, iun, taxId);
+        throw new PnInternalException("Specified status" + status + " is not possibile");
     }
 
 

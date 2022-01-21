@@ -10,6 +10,7 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.timeline.ContactPhase;
 import it.pagopa.pn.api.dto.notification.timeline.SendCourtesyMessageDetails;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.action2.utils.ChooseDeliveryModeUtils;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
@@ -19,30 +20,30 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 @Component
 @Slf4j
 public class ChooseDeliveryModeHandler {
-    public static final int READ_COURTESY_MESSAGE_WAITING_TIME = 5;
-
     private final NotificationService notificationService;
     private final ExternalChannelSendHandler externalChannelSendHandler;
     private final SchedulerService schedulerService;
     private final PublicRegistrySendHandler publicRegistrySendHandler;
     private final ChooseDeliveryModeUtils chooseDeliveryUtils;
     private final InstantNowSupplier instantNowSupplier;
+    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     public ChooseDeliveryModeHandler(ChooseDeliveryModeUtils chooseDeliveryUtils, NotificationService notificationService,
                                      ExternalChannelSendHandler externalChannelSendHandler, SchedulerService schedulerService,
-                                     PublicRegistrySendHandler publicRegistrySendHandler, InstantNowSupplier instantNowSupplier) {
+                                     PublicRegistrySendHandler publicRegistrySendHandler, InstantNowSupplier instantNowSupplier,
+                                     PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         this.chooseDeliveryUtils = chooseDeliveryUtils;
         this.notificationService = notificationService;
         this.externalChannelSendHandler = externalChannelSendHandler;
         this.schedulerService = schedulerService;
         this.publicRegistrySendHandler = publicRegistrySendHandler;
         this.instantNowSupplier = instantNowSupplier;
+        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
     }
 
     /**
@@ -141,7 +142,8 @@ public class ChooseDeliveryModeHandler {
 
         if (sendCourtesyMessageDetailsOpt.isPresent()) {
             SendCourtesyMessageDetails sendCourtesyMessageDetails = sendCourtesyMessageDetailsOpt.get();
-            schedulingDate = sendCourtesyMessageDetails.getSendDate().plus(READ_COURTESY_MESSAGE_WAITING_TIME, ChronoUnit.DAYS);
+
+            schedulingDate = sendCourtesyMessageDetails.getSendDate().plus(pnDeliveryPushConfigs.getTimeParams().getWaitingForReadCourtesyMessage());//5 Days
             log.info("Courtesy message is present, need to schedule analog workflow at {}  - iun {} id {} ", schedulingDate, iun, taxId);
         } else {
             schedulingDate = instantNowSupplier.get();

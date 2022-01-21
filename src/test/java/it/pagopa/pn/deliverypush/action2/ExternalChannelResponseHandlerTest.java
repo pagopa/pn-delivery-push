@@ -4,7 +4,9 @@ import it.pagopa.pn.api.dto.extchannel.ExtChannelResponse;
 import it.pagopa.pn.api.dto.extchannel.ExtChannelResponseStatus;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
+import it.pagopa.pn.api.dto.notification.timeline.SendDigitalDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,16 +38,22 @@ class ExternalChannelHandlerTest {
         ExtChannelResponse extChannelResponse = ExtChannelResponse.builder()
                 .responseStatus(ExtChannelResponseStatus.OK)
                 .iun("IUN")
-                .taxId("TaxId")
                 .notificationDate(Instant.now())
                 .eventId("Test event id")
-                .digitalUsedAddress(DigitalAddress.builder()
-                        .type(DigitalAddressType.PEC)
-                        .address("account@dominio.it")
-                        .build()).build();
+                .build();
 
         Mockito.when(externalChannelUtils.getExternalChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(TimelineElement.builder().build());
+                .thenReturn(TimelineElement.builder()
+                        .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE)
+                        .details(
+                                SendDigitalDetails.sendBuilder()
+                                        .taxId("TAXID")
+                                        .address(DigitalAddress.builder()
+                                                .address("TEST")
+                                                .type(DigitalAddressType.PEC).build())
+                                        .build()
+                        )
+                        .build());
 
         handler.extChannelResponseReceiver(extChannelResponse);
 
@@ -59,13 +67,14 @@ class ExternalChannelHandlerTest {
         ExtChannelResponse extChannelResponse = ExtChannelResponse.builder()
                 .responseStatus(ExtChannelResponseStatus.OK)
                 .iun("IUN")
-                .taxId("TaxId")
                 .eventId("test event id")
                 .notificationDate(Instant.now())
-                .digitalUsedAddress(null).build();
+                .build();
 
         Mockito.when(externalChannelUtils.getExternalChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(TimelineElement.builder().build());
+                .thenReturn(TimelineElement.builder()
+                        .category(TimelineElementCategory.SEND_ANALOG_DOMICILE)
+                        .build());
 
         handler.extChannelResponseReceiver(extChannelResponse);
 

@@ -32,16 +32,15 @@ public class StartWorkflowHandler {
         this.timelineService = timelineService;
         this.timelineUtils = timelineUtils;
     }
-
+    
     /**
      * Start new Notification Workflow. For all notification recipient send courtesy message and start choose delivery type
      *
      * @param iun Notification unique identifier
      */
-    //@StreamListener(condition = "NEW_NOTIFICATION")
     public void startWorkflow(String iun) {
         log.info("Start notification process  - iun {}", iun);
-
+        
         Notification notification = notificationService.getNotificationByIun(iun);
         legalFactUtils.saveNotificationReceivedLegalFact(notification);
 

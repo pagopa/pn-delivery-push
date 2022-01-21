@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.temp.mom.consumer;
 
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -15,7 +14,7 @@ public class EventReceiverService {
         this.eventsRecevers = eventsRecevers;
     }
 
-    @Scheduled( fixedDelay = 100 )
+//    @Scheduled( fixedDelay = 100 )
     public void doPoll() {
         for( EventReceiver evtRec : eventsRecevers ) {
             evtRec.poll( Duration.ofSeconds( 1 ));

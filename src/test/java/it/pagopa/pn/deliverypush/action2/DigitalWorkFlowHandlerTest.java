@@ -14,7 +14,9 @@ import it.pagopa.pn.api.dto.notification.timeline.PublicRegistryCallDetails;
 import it.pagopa.pn.api.dto.notification.timeline.SendDigitalDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action2.utils.DigitalWorkFlowUtils;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -28,6 +30,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
@@ -49,13 +52,16 @@ class DigitalWorkFlowHandlerTest {
     private PublicRegistrySendHandler publicRegistrySendHandler;
     @Mock
     private InstantNowSupplier instantNowSupplier;
+    @Mock
+    private PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     private DigitalWorkFlowHandler handler;
 
     @BeforeEach
     public void setup() {
         handler = new DigitalWorkFlowHandler(externalChannelSendHandler, notificationService,
-                schedulerService, digitalWorkFlowUtils, completionWorkflow, publicRegistrySendHandler, instantNowSupplier);
+                schedulerService, digitalWorkFlowUtils, completionWorkflow, publicRegistrySendHandler, instantNowSupplier,
+                pnDeliveryPushConfigs);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -154,6 +160,11 @@ class DigitalWorkFlowHandlerTest {
                 .build();
 
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
+        TimeParams times = new TimeParams();
+        times.setSecondNotificationWorkflowWaitingTime(Duration.ofSeconds(1));
+        Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
+
+        Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
         Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyString(), Mockito.any(DigitalAddressInfo.class)))
                 .thenReturn(DigitalAddressInfo.builder()
@@ -200,6 +211,9 @@ class DigitalWorkFlowHandlerTest {
                 .build();
 
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
+        TimeParams times = new TimeParams();
+        times.setSecondNotificationWorkflowWaitingTime(Duration.ofSeconds(1));
+        Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
 
         Instant lastAttemptDate = Instant.now();
 
@@ -219,7 +233,7 @@ class DigitalWorkFlowHandlerTest {
                 schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
 
 
-        Instant schedulingDateOk = lastAttemptDate.plus(DigitalWorkFlowHandler.SECOND_NOTIFICATION_WORKFLOW_WAITING_TIME, ChronoUnit.DAYS);
+        Instant schedulingDateOk = lastAttemptDate.plus(times.getSecondNotificationWorkflowWaitingTime());
         Assertions.assertEquals(schedulingDateOk.truncatedTo(ChronoUnit.MINUTES), schedulingDateCaptor.getValue().truncatedTo(ChronoUnit.MINUTES));
     }
 
@@ -237,7 +251,13 @@ class DigitalWorkFlowHandlerTest {
 
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
-        Instant lastAttemptDate = Instant.now().minus(DigitalWorkFlowHandler.SECOND_NOTIFICATION_WORKFLOW_WAITING_TIME + 1, ChronoUnit.DAYS);
+        TimeParams times = new TimeParams();
+        times.setSecondNotificationWorkflowWaitingTime(Duration.ofSeconds(1));
+        Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
+
+        Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
+
+        Instant lastAttemptDate = Instant.now().minus(times.getSecondNotificationWorkflowWaitingTime().plus(Duration.ofSeconds(10)));
 
         Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyString(), Mockito.any(DigitalAddressInfo.class)))
                 .thenReturn(DigitalAddressInfo.builder()
@@ -265,9 +285,13 @@ class DigitalWorkFlowHandlerTest {
                         .type(DigitalAddressType.PEC).build())
                 .build();
 
+        TimeParams times = new TimeParams();
+        times.setSecondNotificationWorkflowWaitingTime(Duration.ofSeconds(1));
+        Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
+
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
-        Instant lastAttemptDate = Instant.now().minus(DigitalWorkFlowHandler.SECOND_NOTIFICATION_WORKFLOW_WAITING_TIME + 1, ChronoUnit.DAYS);
+        Instant lastAttemptDate = Instant.now().minus(times.getSecondNotificationWorkflowWaitingTime().plus(Duration.ofSeconds(10)));
 
         DigitalAddressSource addressSource = DigitalAddressSource.PLATFORM;
 
@@ -350,12 +374,8 @@ class DigitalWorkFlowHandlerTest {
         ExtChannelResponse extChannelResponse = ExtChannelResponse.builder()
                 .responseStatus(ExtChannelResponseStatus.KO)
                 .iun("IUN")
-                .taxId("TaxId")
                 .notificationDate(Instant.now())
-                .digitalUsedAddress(DigitalAddress.builder()
-                        .type(DigitalAddressType.PEC)
-                        .address("account@dominio.it")
-                        .build()).build();
+                .build();
 
         Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyString(), Mockito.any(DigitalAddressInfo.class)))
                 .thenReturn(DigitalAddressInfo.builder()
@@ -365,12 +385,19 @@ class DigitalWorkFlowHandlerTest {
                         .build());
 
         TimelineElement element = TimelineElement.builder()
-                .details(SendDigitalDetails.sendBuilder().build())
+                .timestamp(Instant.now())
+                .details(SendDigitalDetails.sendBuilder()
+                        .addressSource(DigitalAddressSource.SPECIAL)
+                        .taxId("TAXID")
+                        .address(DigitalAddress.builder()
+                                .type(DigitalAddressType.PEC)
+                                .address("test")
+                                .build()).build())
                 .build();
 
         handler.handleExternalChannelResponse(extChannelResponse, element);
 
-        Mockito.verify(digitalWorkFlowUtils).addDigitalFeedbackTimelineElement(Mockito.any(ExtChannelResponse.class));
+        Mockito.verify(digitalWorkFlowUtils).addDigitalFeedbackTimelineElement(Mockito.any(ExtChannelResponse.class), Mockito.any(SendDigitalDetails.class));
     }
 
     private Notification getNotification() {

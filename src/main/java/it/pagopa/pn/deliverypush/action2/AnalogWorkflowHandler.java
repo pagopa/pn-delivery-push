@@ -134,18 +134,20 @@ public class AnalogWorkflowHandler {
             } else {
                 log.info("First send address and public registry response address are equals  - iun {} id {}", iun, taxId);
                 //... se i due indirizzi sono uguali, viene verificata la presenza dell'indirizzo ottenuto dall'investigazione del postino
-                checkAddressAndSend(notification, recipient, lastSentFeedback.getNewAddress(), false, sentAttemptMade);
+                sendWithInvestigationAddress(notification, recipient, sentAttemptMade, lastSentFeedback);
             }
         } else {
             log.info("Public registry response address is empty  - iun {} id {}", iun, taxId);
             //Viene verificata la presenza dell'indirizzo ottenuto dall'investigazione del postino
-            checkAddressAndSend(notification, recipient, lastSentFeedback.getNewAddress(), false, sentAttemptMade);
+            sendWithInvestigationAddress(notification, recipient, sentAttemptMade, lastSentFeedback);
         }
     }
 
-    /**
-     * If during last failed sent notification a new address has been obtained send notification else the user is unreachable
-     */
+    private void sendWithInvestigationAddress(Notification notification, NotificationRecipient recipient, int sentAttemptMade, SendPaperFeedbackDetails lastSentFeedback) {
+        log.info("Check address from investigation");
+        checkAddressAndSend(notification, recipient, lastSentFeedback.getNewAddress(), false, sentAttemptMade);
+    }
+
     private void checkAddressAndSend(Notification notification, NotificationRecipient recipient, PhysicalAddress address, boolean investigation, int sentAttemptMade) {
         //Se l'indirizzo passato è valorizzato viene inviata la notifica ad external channel...
         if (address != null && address.getAddress() != null) {
@@ -169,12 +171,12 @@ public class AnalogWorkflowHandler {
             switch (response.getResponseStatus()) {
                 case OK:
                     // La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
-                    completionWorkFlow.completionAnalogWorkflow(taxId, iun, response.getNotificationDate(), response.getAnalogUsedAddress(), EndWorkflowStatus.SUCCESS);
+                    completionWorkFlow.completionAnalogWorkflow(taxId, iun, response.getNotificationDate(), sendPaperDetails.getAddress(), EndWorkflowStatus.SUCCESS);
                     break;
                 case KO:
                     // External channel non è riuscito a effettuare la notificazione, si passa al prossimo step del workflow
                     int sentAttemptMade = sendPaperDetails.getSentAttemptMade() + 1;
-                    analogWorkflowUtils.addAnalogFailureAttemptToTimeline(response, taxId, sentAttemptMade);
+                    analogWorkflowUtils.addAnalogFailureAttemptToTimeline(response, sentAttemptMade, sendPaperDetails);
                     nextWorkflowStep(iun, taxId, sentAttemptMade);
                     break;
                 default:

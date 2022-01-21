@@ -76,8 +76,8 @@ public class AnalogWorkflowUtils {
         return false;
     }
 
-    public void addAnalogFailureAttemptToTimeline(ExtChannelResponse response, String taxId, int sentAttemptMade) {
-        addTimelineElement(timelineUtils.buildAnalogFailureAttemptTimelineElement(response, taxId, sentAttemptMade));
+    public void addAnalogFailureAttemptToTimeline(ExtChannelResponse response, int sentAttemptMade, SendPaperDetails sendPaperDetails) {
+        addTimelineElement(timelineUtils.buildAnalogFailureAttemptTimelineElement(response, sentAttemptMade, sendPaperDetails));
     }
 
     private void addTimelineElement(TimelineElement element) {

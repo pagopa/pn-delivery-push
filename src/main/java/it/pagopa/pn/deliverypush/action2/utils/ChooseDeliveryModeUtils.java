@@ -16,14 +16,15 @@ import java.util.Optional;
 @Slf4j
 public class ChooseDeliveryModeUtils {
     public static final int ZERO_SENT_ATTEMPT_NUMBER = 0;
-    public static final int ONE_SENT_ATTEMPT_NUMBER = 0;
+    public static final int ONE_SENT_ATTEMPT_NUMBER = 1;
 
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
     private final CourtesyMessageUtils courtesyMessageUtils;
     private final AddressBook addressBook;
 
-    public ChooseDeliveryModeUtils(TimelineService timelineService, TimelineUtils timelineUtils, CourtesyMessageUtils courtesyMessageUtils, AddressBook addressBook) {
+    public ChooseDeliveryModeUtils(TimelineService timelineService, TimelineUtils timelineUtils,
+                                   CourtesyMessageUtils courtesyMessageUtils, AddressBook addressBook) {
         this.timelineService = timelineService;
         this.timelineUtils = timelineUtils;
         this.courtesyMessageUtils = courtesyMessageUtils;

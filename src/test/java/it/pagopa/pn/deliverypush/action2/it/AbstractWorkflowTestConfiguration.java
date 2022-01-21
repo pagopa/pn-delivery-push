@@ -8,6 +8,7 @@ import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
 import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
 import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action2.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action2.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action2.PublicRegistryResponseHandler;
@@ -108,7 +109,12 @@ public class AbstractWorkflowTestConfiguration {
     public InstantNowSupplier instantNowSupplierTest() {
         return Mockito.mock(InstantNowSupplier.class);
     }
-
+    
+    @Bean
+    public PnDeliveryPushConfigs pnDeliveryPushConfigsTest() {
+        return Mockito.mock(PnDeliveryPushConfigs.class);
+    }
+    
     @Bean
     public SchedulerServiceMock schedulerServiceMockMock(@Lazy DigitalWorkFlowHandler digitalWorkFlowHandler, @Lazy AnalogWorkflowHandler analogWorkflowHandler,
                                                          @Lazy RefinementHandler refinementHandler, @Lazy InstantNowSupplier instantNowSupplier) {

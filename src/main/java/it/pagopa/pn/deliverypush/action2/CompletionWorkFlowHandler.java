@@ -9,6 +9,7 @@ import it.pagopa.pn.api.dto.notification.timeline.SendDigitalFeedback;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.action2.utils.CompletelyUnreachableUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
@@ -19,8 +20,8 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,11 +29,6 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class CompletionWorkFlowHandler {
-    public static final int SCHEDULING_DAYS_SUCCESS_DIGITAL_REFINEMENT = 7;
-    public static final int SCHEDULING_DAYS_FAILURE_DIGITAL_REFINEMENT = 15;
-    public static final int SCHEDULING_DAYS_SUCCESS_ANALOG_REFINEMENT = 10;
-    public static final int SCHEDULING_DAYS_FAILURE_ANALOG_REFINEMENT = 10;
-
     private final NotificationService notificationService;
     private final SchedulerService scheduler;
     private final ExternalChannelSendHandler externalChannelSendHandler;
@@ -40,11 +36,12 @@ public class CompletionWorkFlowHandler {
     private final CompletelyUnreachableUtils completelyUnreachableService;
     private final TimelineUtils timelineUtils;
     private final LegalFactUtils legalFactUtils;
+    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
-    public CompletionWorkFlowHandler(NotificationService notificationService,
-                                     SchedulerService scheduler, ExternalChannelSendHandler externalChannelSendHandler,
-                                     TimelineService timelineService, CompletelyUnreachableUtils completelyUnreachableUtils,
-                                     TimelineUtils timelineUtils, LegalFactUtils legalFactUtils) {
+    public CompletionWorkFlowHandler(NotificationService notificationService, SchedulerService scheduler,
+                                     ExternalChannelSendHandler externalChannelSendHandler, TimelineService timelineService,
+                                     CompletelyUnreachableUtils completelyUnreachableUtils, TimelineUtils timelineUtils,
+                                     LegalFactUtils legalFactUtils, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         this.notificationService = notificationService;
         this.scheduler = scheduler;
         this.externalChannelSendHandler = externalChannelSendHandler;
@@ -52,6 +49,7 @@ public class CompletionWorkFlowHandler {
         this.completelyUnreachableService = completelyUnreachableUtils;
         this.timelineUtils = timelineUtils;
         this.legalFactUtils = legalFactUtils;
+        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
     }
 
     /**
@@ -76,13 +74,13 @@ public class CompletionWorkFlowHandler {
             switch (status) {
                 case SUCCESS:
                     addTimelineElement(timelineUtils.buildSuccessDigitalWorkflowTimelineElement(taxId, iun, address));
-                    scheduleRefinement(iun, taxId, notificationDate, SCHEDULING_DAYS_SUCCESS_DIGITAL_REFINEMENT);
+                    scheduleRefinement(iun, taxId, notificationDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysSuccessDigitalRefinement());
                     break;
                 case FAILURE:
                     //TODO Generare avviso mancato recapito
                     sendSimpleRegisteredLetter(notification, recipient);
                     addTimelineElement(timelineUtils.buildFailureDigitalWorkflowTimelineElement(taxId, iun));
-                    scheduleRefinement(iun, taxId, notificationDate, SCHEDULING_DAYS_FAILURE_DIGITAL_REFINEMENT);
+                    scheduleRefinement(iun, taxId, notificationDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysFailureDigitalRefinement());
                     break;
                 default:
                     handleError(taxId, iun, status);
@@ -142,12 +140,12 @@ public class CompletionWorkFlowHandler {
             switch (status) {
                 case SUCCESS:
                     addTimelineElement(timelineUtils.buildSuccessAnalogWorkflowTimelineElement(taxId, iun, usedAddress));
-                    scheduleRefinement(iun, taxId, notificationDate, SCHEDULING_DAYS_SUCCESS_ANALOG_REFINEMENT);
+                    scheduleRefinement(iun, taxId, notificationDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysSuccessAnalogRefinement());
                     break;
                 case FAILURE:
                     addTimelineElement(timelineUtils.buildFailureAnalogWorkflowTimelineElement(taxId, iun));
                     completelyUnreachableService.handleCompletelyUnreachable(iun, taxId);
-                    scheduleRefinement(iun, taxId, notificationDate, SCHEDULING_DAYS_FAILURE_ANALOG_REFINEMENT);
+                    scheduleRefinement(iun, taxId, notificationDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysFailureAnalogRefinement());
                     break;
                 default:
                     handleError(taxId, iun, status);
@@ -157,10 +155,10 @@ public class CompletionWorkFlowHandler {
         }
     }
 
-    private void scheduleRefinement(String iun, String taxId, Instant notificationDate, int schedulingDays) {
-        Instant schedulingDate = notificationDate.plus(schedulingDays, ChronoUnit.DAYS);
+    private void scheduleRefinement(String iun, String taxId, Instant notificationDate, Duration scheduleTime) {
+        Instant schedulingDate = notificationDate.plus(scheduleTime);
         log.info("Schedule refinement in {}", schedulingDate);
-        timelineService.addTimelineElement(timelineUtils.buildRefinementTimelineElement(iun, taxId));
+        timelineService.addTimelineElement(timelineUtils.buildScheduleRefinement(iun, taxId));
         scheduler.scheduleEvent(iun, taxId, schedulingDate, ActionType.REFINEMENT_NOTIFICATION);
     }
 

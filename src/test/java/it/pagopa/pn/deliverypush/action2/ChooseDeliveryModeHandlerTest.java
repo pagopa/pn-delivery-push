@@ -11,6 +11,8 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.api.dto.notification.timeline.ContactPhase;
 import it.pagopa.pn.api.dto.notification.timeline.SendCourtesyMessageDetails;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action2.utils.ChooseDeliveryModeUtils;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -24,6 +26,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
@@ -46,6 +49,8 @@ class ChooseDeliveryModeHandlerTest {
     private ChooseDeliveryModeUtils chooseDeliveryUtils;
     @Mock
     private InstantNowSupplier instantNowSupplier;
+    @Mock
+    private PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     private ChooseDeliveryModeHandler handler;
 
@@ -53,7 +58,7 @@ class ChooseDeliveryModeHandlerTest {
     public void setup() {
         handler = new ChooseDeliveryModeHandler(chooseDeliveryUtils, notificationService,
                 externalChannelSendHandler, schedulerService,
-                publicRegistrySendHandler, instantNowSupplier);
+                publicRegistrySendHandler, instantNowSupplier, pnDeliveryPushConfigs);
     }
 
 
@@ -206,6 +211,10 @@ class ChooseDeliveryModeHandlerTest {
         Mockito.when(chooseDeliveryUtils.getFirstSentCourtesyMessage(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Optional.of(sendCourtesyMessageDetails));
 
+        TimeParams times = new TimeParams();
+        times.setWaitingForReadCourtesyMessage(Duration.ofSeconds(1));
+        Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
+
         handler.handleGeneralAddressResponse(response, notification.getIun(), notification.getRecipients().get(0).getTaxId());
 
         ArgumentCaptor<DigitalAddressSource> digitalAddressSourceCaptor = ArgumentCaptor.forClass(DigitalAddressSource.class);
@@ -221,10 +230,7 @@ class ChooseDeliveryModeHandlerTest {
 
         Mockito.verify(schedulerService).scheduleEvent(Mockito.anyString(), Mockito.anyString(),
                 schedulingDateCaptor.capture(), Mockito.any());
-
-        Instant schedulingDateOk = courtesyMessageDate.plus(ChooseDeliveryModeHandler.READ_COURTESY_MESSAGE_WAITING_TIME, ChronoUnit.DAYS);
-        Assertions.assertEquals(schedulingDateOk, schedulingDateCaptor.getValue());
-
+        
     }
 
     @ExtendWith(MockitoExtension.class)

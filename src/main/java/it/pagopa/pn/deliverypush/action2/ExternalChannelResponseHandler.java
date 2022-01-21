@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.action2;
 
 import it.pagopa.pn.api.dto.extchannel.ExtChannelResponse;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -26,16 +27,32 @@ public class ExternalChannelResponseHandler {
      *
      * @param response Notification response
      */
-    //@StreamListener(condition = "EXTERNAL_CHANNEL_RESPONSE")
     public void extChannelResponseReceiver(ExtChannelResponse response) {
-        log.info("Get response from external channel for iun {} eventId {} with status {}", response.getIun(), response.getEventId(), response.getResponseStatus());
+        log.info("Get response from external channel with status {} - iun {} eventId {} ", response.getResponseStatus(), response.getIun(), response.getEventId());
         TimelineElement notificationTimelineElement = externalChannelUtils.getExternalChannelNotificationTimelineElement(response.getIun(), response.getEventId());
 
-        if (response.getDigitalUsedAddress() != null && response.getDigitalUsedAddress().getAddress() != null) {
-            digitalWorkFlowHandler.handleExternalChannelResponse(response, notificationTimelineElement);
+        log.debug("Get notification element ok, category {} - iun {} eventId {} ", notificationTimelineElement.getCategory(), response.getIun(), response.getEventId());
+
+        if (notificationTimelineElement.getCategory() != null) {
+            switch (notificationTimelineElement.getCategory()) {
+                case SEND_DIGITAL_DOMICILE:
+                    digitalWorkFlowHandler.handleExternalChannelResponse(response, notificationTimelineElement);
+                    break;
+                case SEND_ANALOG_DOMICILE:
+                    analogWorkflowHandler.extChannelResponseHandler(response, notificationTimelineElement);
+                    break;
+                default:
+                    handleError(response, notificationTimelineElement);
+                    break;
+            }
         } else {
-            analogWorkflowHandler.extChannelResponseHandler(response, notificationTimelineElement);
+            handleError(response, notificationTimelineElement);
         }
+    }
+
+    private void handleError(ExtChannelResponse response, TimelineElement notificationTimelineElement) {
+        log.error("Specified category {} is not possibile - iun {} eventId {}", notificationTimelineElement.getCategory(), response.getIun(), response.getEventId());
+        throw new PnInternalException("Specified category " + notificationTimelineElement.getCategory() + " is not possibile");
     }
 
 }

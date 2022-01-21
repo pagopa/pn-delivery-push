@@ -10,6 +10,7 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action2.*;
 import it.pagopa.pn.deliverypush.action2.it.AbstractWorkflowTestConfiguration;
 import it.pagopa.pn.deliverypush.action2.it.mockbean.ExternalChannelMock;
@@ -35,6 +36,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -65,7 +67,6 @@ import java.util.Map;
         ChooseDeliveryModeUtils.class,
         NotificationServiceImpl.class,
         TimeLineServiceImpl.class,
-        PnDeliveryPushConfigs.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
         ExternalChannelMock.class,
@@ -161,6 +162,9 @@ class DigitalTwoRecipientTest {
     private TimelineService timelineService;
     @Autowired
     private InstantNowSupplier instantNowSupplier;
+    @Autowired
+    private PnDeliveryPushConfigs pnDeliveryPushConfigs;
+
     @SpyBean
     private ExternalChannelMock externalChannelMock;
     @SpyBean
@@ -168,6 +172,15 @@ class DigitalTwoRecipientTest {
 
     @BeforeEach
     public void setup() {
+        TimeParams times = new TimeParams();
+        times.setWaitingForReadCourtesyMessage(Duration.ofSeconds(1));
+        times.setSchedulingDaysSuccessDigitalRefinement(Duration.ofSeconds(1));
+        times.setSchedulingDaysFailureDigitalRefinement(Duration.ofSeconds(1));
+        times.setSchedulingDaysSuccessAnalogRefinement(Duration.ofSeconds(1));
+        times.setSchedulingDaysFailureAnalogRefinement(Duration.ofSeconds(1));
+        times.setSecondNotificationWorkflowWaitingTime(Duration.ofSeconds(1));
+        Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
+
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
     }
 

@@ -27,9 +27,7 @@ public class NewNotificationEventHandler extends AbstractEventHandler<PnDelivery
     public void handleEvent(PnDeliveryNewNotificationEvent evt ) {
         StandardEventHeader header = evt.getHeader();
         log.info("NEW NOTIFICATION iun={} eventId={}", header.getIun(), header.getEventId());
-
-        //TODO Perchè viene schedulata un azione futura??
-
+        
         Action senderAck = Action.builder()
                 .iun(header.getIun())
                 .actionId(header.getEventId())

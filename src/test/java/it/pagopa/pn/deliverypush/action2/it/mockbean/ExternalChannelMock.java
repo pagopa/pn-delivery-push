@@ -5,8 +5,6 @@ import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
 import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
 import it.pagopa.pn.api.dto.extchannel.ExtChannelResponse;
 import it.pagopa.pn.api.dto.extchannel.ExtChannelResponseStatus;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.deliverypush.action2.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.external.ExternalChannel;
@@ -66,14 +64,8 @@ public class ExternalChannelMock implements ExternalChannel {
         ExtChannelResponse extChannelResponse = ExtChannelResponse.builder()
                 .eventId(event.getHeader().getEventId())
                 .responseStatus(status)
-                .digitalUsedAddress(
-                        DigitalAddress.builder()
-                                .address(pecAddress)
-                                .type(DigitalAddressType.PEC)
-                                .build()
-                ).notificationDate(Instant.now())
+                .notificationDate(Instant.now())
                 .iun(event.getPayload().getIun())
-                .taxId(event.getPayload().getRecipientTaxId())
                 .build();
         externalChannelHandler.extChannelResponseReceiver(extChannelResponse);
     }
@@ -106,7 +98,6 @@ public class ExternalChannelMock implements ExternalChannel {
         ExtChannelResponse.ExtChannelResponseBuilder responseBuilder = ExtChannelResponse.builder()
                 .iun(event.getPayload().getIun())
                 .notificationDate(Instant.now())
-                .analogUsedAddress(event.getPayload().getDestinationAddress())
                 .responseStatus(status)
                 .eventId(event.getHeader().getEventId());
 
