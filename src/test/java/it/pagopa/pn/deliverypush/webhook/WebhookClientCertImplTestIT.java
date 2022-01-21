@@ -8,8 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -18,8 +16,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 class WebhookClientCertImplTestIT {
@@ -38,7 +34,7 @@ class WebhookClientCertImplTestIT {
         this.sslContextFactory = new SSLContextFactory();
     }
 
-    @Test //da eseguire in locale dopo aver lanciato un'instanza mockserver
+    @Test //da eseguire in locale dopo aver lanciato un'istanza mockserver
     void sendInfoWithCertSuccess() {
         //Given
         String url = "https://localhost:1080/webhook/";
