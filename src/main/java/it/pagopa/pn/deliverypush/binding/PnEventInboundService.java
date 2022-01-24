@@ -10,17 +10,15 @@ import it.pagopa.pn.api.dto.extchannel.ExtChannelResponse;
 import it.pagopa.pn.api.dto.extchannel.ExtChannelResponseStatus;
 import it.pagopa.pn.deliverypush.action2.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action2.StartWorkflowHandler;
-import it.pagopa.pn.deliverypush.temp.mom.consumer.EventHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.function.context.MessageRoutingCallback;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Map;
 import java.util.function.Consumer;
 
 import static it.pagopa.pn.api.dto.events.StandardEventHeader.*;
@@ -28,7 +26,6 @@ import static it.pagopa.pn.api.dto.events.StandardEventHeader.*;
 @Configuration
 @Slf4j
 public class PnEventInboundService {
-    private final Map<String, EventHandler<?>> handlers;
     private StartWorkflowHandler startWorkflowHandler;
     private ExternalChannelResponseHandler externalChannelResponseHandler;
 
@@ -36,7 +33,7 @@ public class PnEventInboundService {
         this.startWorkflowHandler = startWorkflowHandler;
         this.externalChannelResponseHandler = externalChannelResponseHandler;
 
-        Arrays.asList(EventType.NEW_NOTIFICATION, EventType.NOTIFICATION_VIEWED);
+    //    Arrays.asList(EventType.NEW_NOTIFICATION, EventType.NOTIFICATION_VIEWED);
 
     }
 
@@ -52,38 +49,46 @@ public class PnEventInboundService {
     }
     */
 
-
-    /*
+    
+       @Bean
+       public MessageRoutingCallback customRouter() {
+           return new MessageRoutingCallback() {
+               @Override
+               public String functionDefinition(Message<?> message) {
+                   System.out.println("customRouter "+message);
+                   return "pnDeliveryNewNotificationEventConsumer";
+               }
+           };
+       }
+       
+    
+    
+    /*public static String routing(Object header){
+        System.out.println("routing "+header);
+        return "pnDeliveryNewNotificationEventConsumer";
+    }*/
+    
     @Bean
-    public Consumer<Message<PnDeliveryNewNotificationEvent.Payload>> pnDeliveryEventInboundConsumer() {
+    public Consumer<Message<PnDeliveryNewNotificationEvent.Payload>> pnDeliveryNewNotificationEventConsumer() {
         return (message) -> {
-            log.debug("New Notification event received");
-
+            log.info("pnDeliveryNewNotificationEventConsumer {}",message);
+/*
             PnDeliveryNewNotificationEvent pnDeliveryNewNotificationEvent = PnDeliveryNewNotificationEvent.builder()
                     .payload(message.getPayload())
                     .header(mapStandardEventHeader(message.getHeaders()))
                     .build();
 
-            startWorkflowHandler.startWorkflow(pnDeliveryNewNotificationEvent.getHeader().getIun());
+            startWorkflowHandler.startWorkflow(pnDeliveryNewNotificationEvent.getHeader().getIun());*/
         };
     }
-*/
+
     @Bean
-    public Consumer<GenericEvent<StandardEventHeader, ?>> pnDeliveryEventInboundConsumer() {
+    public Consumer<Object> pnDeliveryNotificationViewedEventConsumer() {
         return (message) -> {
-            log.debug("New Notification event received");
-            StandardEventHeader header = message.getHeader();
-
-            PnDeliveryNewNotificationEvent pnDeliveryNewNotificationEvent = PnDeliveryNewNotificationEvent.builder()
-                    .payload(message.getPayload())
-                    .header(mapStandardEventHeader(message.getHeaders()))
-                    .build();
-
-            startWorkflowHandler.startWorkflow(pnDeliveryNewNotificationEvent.getHeader().getIun());
+            log.info("pnDeliveryNotificationViewedEventConsumer");
         };
     }
 
-    //PnDeliveryNotificationViewedEvent
     @Bean
     public Consumer<Message<PnExtChnProgressStatusEventPayload>> pnExtChannelEventInboundConsumer() {
         return (message) -> {

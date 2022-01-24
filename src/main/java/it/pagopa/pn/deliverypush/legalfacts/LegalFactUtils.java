@@ -48,7 +48,13 @@ public class LegalFactUtils {
             throw new PnInternalException(errMsg, exc);
         }
     }
-
+    
+    public void saveNotificationReceivedLegalFact(Action action, Notification notification) {
+        Map<String, String> metadata = legalfactMetadataUtils.buildMetadata( LegalFactType.SENDER_ACK, null );
+        byte[] pdfBytes = pdfUtils.generateNotificationReceivedLegalFact( action, notification);
+        this.saveLegalFact(action.getIun(), "sender_ack", pdfBytes, metadata);
+    }
+    
     public void saveNotificationReceivedLegalFact(Notification notification) {
         Map<String, String> metadata = legalfactMetadataUtils.buildMetadata(LegalFactType.SENDER_ACK, null);
         byte[] pdfBytes = pdfUtils.generateNotificationReceivedLegalFact(notification);

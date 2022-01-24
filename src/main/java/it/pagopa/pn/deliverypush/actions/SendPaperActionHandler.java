@@ -162,7 +162,7 @@ public class SendPaperActionHandler extends AbstractActionHandler {
     }
 
     private Optional<PhysicalAddress> retrieveNationalRegistryAddress(String taxId) {
-        Optional<AddressBookEntry> optionalAddressBookEntry = addressBook.getAddresses(taxId, null);
+        Optional<AddressBookEntry> optionalAddressBookEntry = addressBook.getAddresses(taxId);
         if (optionalAddressBookEntry.isPresent()) {
             return Optional.ofNullable(optionalAddressBookEntry.get().getResidentialAddress());
         }

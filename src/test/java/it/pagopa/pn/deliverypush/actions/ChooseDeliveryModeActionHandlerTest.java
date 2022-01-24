@@ -103,9 +103,13 @@ class ChooseDeliveryModeActionHandlerTest {
                         .address("nome2.cognome2@develop2.it")
                         .build()
         );
-        Mockito.when(addressBook.getAddresses(Mockito.anyString(), Mockito.any())).thenReturn(Optional.of(
+        Mockito.when(addressBook.getAddresses(Mockito.anyString())).thenReturn(Optional.of(
                 AddressBookEntry.builder()
                         .digitalAddresses(DigitalAddresses.builder()
+                        .general( DigitalAddress.builder()
+                                .type( DigitalAddressType.PEC )
+                                .address( "a@pec")
+                                .build())
                                 .platform(DigitalAddress.builder()
                                         .type(DigitalAddressType.PEC)
                                         .address("b@pec")
@@ -131,7 +135,7 @@ class ChooseDeliveryModeActionHandlerTest {
             assertEquals(courtesyAddresses.get(idx).getAddress(), events.get(idx).getPayload().getEmailAddress());
         }
         ArgumentCaptor<String> taxIdCapture = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(addressBook).getAddresses(taxIdCapture.capture(), Mockito.any());
+        Mockito.verify(addressBook).getAddresses(taxIdCapture.capture());
 
         Assertions.assertEquals(notification.getRecipients().get(0).getTaxId(), taxIdCapture.getValue());
 
@@ -152,9 +156,10 @@ class ChooseDeliveryModeActionHandlerTest {
 
         Notification notification = newNotificationWithoutPaymentsAnalogOnly();
 
-        Mockito.when(addressBook.getAddresses(Mockito.anyString(), Mockito.any()))
+        Mockito.when(addressBook.getAddresses(Mockito.anyString()))
                 .thenReturn(Optional.of(AddressBookEntry.builder()
                         .digitalAddresses(DigitalAddresses.builder()
+                                .general( null )
                                 .platform(null)
                                 .build())
                         .residentialAddress(PhysicalAddress.builder()

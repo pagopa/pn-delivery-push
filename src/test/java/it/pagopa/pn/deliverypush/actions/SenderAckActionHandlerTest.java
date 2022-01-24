@@ -5,9 +5,11 @@ import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
+import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
@@ -15,9 +17,11 @@ import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -53,7 +57,7 @@ class SenderAckActionHandlerTest {
     @Test
     void successHandleAction() {
         //Given
-        /*
+        
         Notification notification = newNotificationWithoutPayments();
 
         Action action = Action.builder()
@@ -77,11 +81,11 @@ class SenderAckActionHandlerTest {
         ArgumentCaptor<Action> actionCapture = ArgumentCaptor.forClass(Action.class);
         ArgumentCaptor<Notification> notificationCapture = ArgumentCaptor.forClass(Notification.class);
 
-        Mockito.verify(legalFactUtils).saveNotificationReceivedLegalFact(
+        Mockito.verify(legalFactUtils).saveNotificationReceivedLegalFact( actionCapture.capture(),
                 notificationCapture.capture());
 
         Assertions.assertEquals(action.getIun(), actionCapture.getValue().getIun(), "Different iun");
-        Assertions.assertEquals(action.getIun(), notificationCapture.getValue().getIun(), "Different iun");*/
+        Assertions.assertEquals(action.getIun(), notificationCapture.getValue().getIun(), "Different iun");
     }
 
 

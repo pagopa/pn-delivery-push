@@ -1,8 +1,8 @@
 package it.pagopa.pn.deliverypush.action2.it.mockbean;
 
-import it.pagopa.pn.api.dto.addressbook.AddressBookEntry;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
+import it.pagopa.pn.deliverypush.external.AddressBook;
+import it.pagopa.pn.deliverypush.external.AddressBookEntry;
 
 import java.util.Collection;
 import java.util.Optional;

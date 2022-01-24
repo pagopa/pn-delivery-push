@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.action2.it.utils;
+import it.pagopa.pn.deliverypush.external.AddressBookEntry;
 
-import it.pagopa.pn.api.dto.addressbook.AddressBookEntry;
-import it.pagopa.pn.api.dto.addressbook.DigitalAddresses;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 
@@ -10,12 +9,11 @@ import java.util.List;
 
 public class AddressBookEntryTestBuilder {
     private List<DigitalAddress> courtesyAddresses;
-    private DigitalAddresses digitalAddresses;
     private String taxId;
-
+    private DigitalAddress platformAddress;
+    
     private AddressBookEntryTestBuilder() {
         this.courtesyAddresses = Collections.emptyList();
-        this.digitalAddresses = DigitalAddresses.builder().build();
     }
 
     public static AddressBookEntryTestBuilder builder() {
@@ -36,9 +34,7 @@ public class AddressBookEntryTestBuilder {
     }
 
     public AddressBookEntryTestBuilder withPlatformAddress(DigitalAddress platformAddress) {
-        this.digitalAddresses = this.digitalAddresses.toBuilder()
-                .platform(platformAddress)
-                .build();
+        this.platformAddress = platformAddress;
         return this;
     }
 
@@ -46,7 +42,7 @@ public class AddressBookEntryTestBuilder {
         return AddressBookEntry.builder()
                 .taxId(taxId)
                 .courtesyAddresses(courtesyAddresses)
-                .digitalAddresses(digitalAddresses)
+                .platformDigitalAddress(platformAddress)
                 .build();
     }
 }

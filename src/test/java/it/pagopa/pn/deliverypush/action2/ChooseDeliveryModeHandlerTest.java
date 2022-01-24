@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.action2;
 
-import it.pagopa.pn.api.dto.addressbook.AddressBookEntry;
+import it.pagopa.pn.deliverypush.external.AddressBookEntry;
 import it.pagopa.pn.api.dto.addressbook.DigitalAddresses;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
@@ -67,13 +67,11 @@ class ChooseDeliveryModeHandlerTest {
     void chooseDeliveryTypeAndStartWorkflowPlatformAddress() {
         Notification notification = getNotification();
         AddressBookEntry entry = AddressBookEntry.builder()
-                .digitalAddresses(
-                        DigitalAddresses.builder().platform(
-                                DigitalAddress.builder()
-                                        .type(DigitalAddressType.PEC)
-                                        .address("Via di test")
-                                        .build()
-                        ).build()
+                .platformDigitalAddress(
+                        DigitalAddress.builder()
+                                .type(DigitalAddressType.PEC)
+                                .address("Via di test")
+                                .build()
                 ).build();
 
         Mockito.when(chooseDeliveryUtils.getAddresses(Mockito.anyString(), Mockito.any(NotificationSender.class)))

@@ -160,7 +160,7 @@ class SendPaperActionHandlerTest {
                         )).build()));
 
         Mockito.when(addressBook.getAddresses(
-                        Mockito.anyString(), Mockito.any()))
+                        Mockito.anyString()))
                 .thenReturn(Optional.of(AddressBookEntry.builder()
                         .residentialAddress(physicalAddress)
                         .build()));

@@ -132,6 +132,66 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
     }
 
     @Override
+    public byte[] generateNotificationReceivedLegalFact(Action action, Notification notification) {
+        String paragraph2 = DIV_PARAGRAPH
+                + "in data %s il soggetto mittente <i>Denominazione IPA della PA con ID:</i> %s,"
+                + " <i>Codice Fiscale della PA con ID:</i> %s "
+                + "ha messo a disposizione del gestore i documenti informatici di "
+                + "cui allo IUN %s e identificati in modo univoco con i seguenti hash: ";
+
+        final String paId = notification.getSender().getPaId();
+        paragraph2 = String.format( paragraph2, this.instantToDate( notification.getSentAt() ),
+                paId,
+                paId,
+                action.getIun());
+
+        StringBuilder bld = hashUnorderedList(notification);
+
+        paragraph2 += bld.toString();
+        paragraph2 += "</div>";
+
+        String paragraph3 = DIV_PARAGRAPH
+                + "il soggetto mittente ha richiesto che la notificazione di tali documenti fosse eseguita nei "
+                + "confronti dei seguenti soggetti destinatari che in seguito alle verifiche di cui all’art. 7, commi "
+                + "1 e 2, del DPCM del - ........, sono indicati unitamente al loro domicilio digitale o in assenza al "
+                + "loro indirizzo fisico utile ai fini della notificazione richiesta:"
+                + "</div>";
+
+        List<String> paragraphs = new ArrayList<>();
+        paragraphs.add( PARAGRAPH1 );
+        paragraphs.add( paragraph2 );
+        paragraphs.add( paragraph3 );
+
+        for ( NotificationRecipient recipient : notification.getRecipients() ) {
+            final DigitalAddress digitalDomicile = recipient.getDigitalDomicile();
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("<div class=\"recipient\">");
+            sb.append(P_RECIPIENT_ROW);
+            sb.append("<span class=\"title\">nome e cognome/ragione sociale</span>");
+            sb.append(String.format(SPAN_CLASS_VALUE, recipient.getDenomination()));
+            sb.append("</p>");
+            sb.append(P_RECIPIENT_ROW);
+            sb.append("<span class=\"title\">Codice Fiscale</span>");
+            sb.append(String.format(SPAN_CLASS_VALUE, recipient.getTaxId()));
+            sb.append("</p>");
+            sb.append(P_RECIPIENT_ROW);
+            sb.append("<span class=\"title\">Domicilio Digitale</span>");
+            sb.append(String.format(SPAN_CLASS_VALUE, digitalDomicile != null ? digitalDomicile.getAddress() : ""));
+            sb.append("</p>");
+            sb.append(P_RECIPIENT_ROW);
+            sb.append("<span class=\"title\">Indirizzo Fisico</span>");
+            sb.append(String.format(SPAN_CLASS_VALUE, nullSafePhysicalAddressToString(recipient, "<br/>")));
+            sb.append("</p>");
+            sb.append("</div>");
+
+            paragraphs.add( sb.toString() );
+        }
+
+        return toPdfBytes( paragraphs );
+    }
+    
+    @Override
     public byte[] generateNotificationReceivedLegalFact(Notification notification) {
         String paragraph2 = DIV_PARAGRAPH
                 + "in data %s il soggetto mittente <i>Denominazione IPA della PA con ID:</i> %s,"

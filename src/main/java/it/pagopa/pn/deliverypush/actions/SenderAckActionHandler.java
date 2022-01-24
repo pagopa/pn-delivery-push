@@ -31,7 +31,7 @@ public class SenderAckActionHandler extends AbstractActionHandler {
     @Override
     public void handleAction(Action action, Notification notification) {
 
-        legalFactStore.saveNotificationReceivedLegalFact(notification);
+        legalFactStore.saveNotificationReceivedLegalFact(action, notification);
 
         // - GENERATE NEXT ACTIONS
         int numberOfRecipients = notification.getRecipients().size();

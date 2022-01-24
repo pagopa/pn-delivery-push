@@ -132,7 +132,7 @@ public class ExternalChannelUtils {
         return PnExtChnPecEvent.builder()
                 .header(StandardEventHeader.builder()
                         .iun(notification.getIun()) //TODO Lo iun viene replicato anche nel payload ha probabilmente senso eliminarne uno
-                        .eventId(eventId) //TODO Da capire cosa inserire
+                        .eventId(eventId)
                         .eventType(EventType.SEND_PEC_REQUEST.name())
                         .publisher(EventPublisher.DELIVERY_PUSH.name())
                         .createdAt(instantNowSupplier.get())
@@ -176,7 +176,7 @@ public class ExternalChannelUtils {
                 )
                 .payload(PnExtChnPaperEventPayload.builder()
                         .iun(notification.getIun())
-                        .requestCorrelationId(eventId) //TODO Duplicato ha senso averne uno solo
+                        .requestCorrelationId(eventId)
                         .destinationAddress(address)
                         .recipientDenomination(recipient.getDenomination())
                         .communicationType(communicationType)

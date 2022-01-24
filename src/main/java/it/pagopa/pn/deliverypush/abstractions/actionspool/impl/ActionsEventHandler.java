@@ -61,7 +61,7 @@ public class ActionsEventHandler extends AbstractEventHandler<ActionEvent> {
                 log.warn("Duplicated action event: {}", evt);
             }
         } else {
-            log.warn("Notification metadata not found  - iun {}", header.getIun());
+            log.warn("Notification metadata not found for iun {}", header.getIun() );
         }
     }
 

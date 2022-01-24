@@ -63,6 +63,58 @@ public class PdfboxLegalFactPdfGenerator extends AbstractLegalFactPdfGenerator i
     }
 
     @Override
+    public byte[] generateNotificationReceivedLegalFact(Action action, Notification notification) {
+        String paragraph2 = "in data %s il soggetto mittente %s, C.F. "
+                + "%s ha messo a disposizione del gestore i documenti informatici di "
+                + "cui allo IUN %s e identificati in modo univoco con i seguenti hash: ";
+        paragraph2 = String.format( paragraph2, this.instantToDate( notification.getSentAt() ),
+                notification.getSender().getPaDenomination(),
+                notification.getSender().getTaxId( notification.getSender().getPaId() ),
+                action.getIun());
+        StringBuilder bld = new StringBuilder();
+        for (int idx = 0; idx < notification.getDocuments().size(); idx ++) {
+            bld.append( "\n" + notification.getDocuments().get(idx).getDigests().getSha256() + "; " );
+        }
+
+        if ( notification.getPayment() != null && notification.getPayment().getF24() != null ) {
+            if ( notification.getPayment().getF24().getFlatRate() != null) {
+                bld.append( "\n" + notification.getPayment().getF24().getFlatRate().getDigests().getSha256() + ";" );
+            }
+            if ( notification.getPayment().getF24().getDigital() != null) {
+                bld.append( "\n" + notification.getPayment().getF24().getDigital().getDigests().getSha256() + ";" );
+            }
+            if ( notification.getPayment().getF24().getAnalog() != null) {
+                bld.append( "\n" + notification.getPayment().getF24().getAnalog().getDigests().getSha256() + ";" );
+            }
+        }
+
+        paragraph2 = paragraph2 + bld.toString();
+
+        String paragraph3 = "il soggetto mittente ha richiesto che la notificazione di tali documenti fosse eseguita nei "
+                + "confronti dei seguenti soggetti destinatari che in seguito alle verifiche di cui all’art. 7, commi "
+                + "1 e 2, del DPCM del - ........, sono indicati unitamente al loro domicilio digitale o in assenza al "
+                + "loro indirizzo fisico utile ai fini della notificazione richiesta:";
+
+        List<String> paragraphs = new ArrayList<>();
+        paragraphs.add( PARAGRAPH1 );
+        paragraphs.add( paragraph2 );
+        paragraphs.add( paragraph3 );
+
+        for ( NotificationRecipient recipient : notification.getRecipients() ) {
+            final DigitalAddress digitalDomicile = recipient.getDigitalDomicile();
+            paragraphs.add( String.format(
+                    "nome e cognome/ragione sociale %s, C.F. %s domicilio digitale %s, indirizzo fisico %s;",
+                    recipient.getDenomination(),
+                    recipient.getTaxId(),
+                    digitalDomicile != null ? digitalDomicile.getAddress() : "",
+                    "\n" + nullSafePhysicalAddressToString( recipient, "\n" )
+            ));
+        }
+
+        return toPdfBytes( paragraphs );
+    }
+    
+    @Override
     public byte[] generateNotificationReceivedLegalFact(Notification notification) {
         String paragraph2 = "in data %s il soggetto mittente %s, C.F. "
                 + "%s ha messo a disposizione del gestore i documenti informatici di "

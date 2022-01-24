@@ -32,7 +32,7 @@ public class CompletelyUnreachableActionHandler extends AbstractActionHandler {
         NotificationRecipient recipient = notification.getRecipients().get(action.getRecipientIndex());
 
         // - GENERATE NEXT ACTIONS
-        Action nextAction = buildWaitRecipientTimeoutActionForUnreachable(action); //TODO Da eliminare
+        Action nextAction = buildWaitRecipientTimeoutActionForUnreachable(action);
         scheduleAction(nextAction);
 
         if (!isNotificationAlreadyViewed(action)) {

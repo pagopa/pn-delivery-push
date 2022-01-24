@@ -1,7 +1,5 @@
 package it.pagopa.pn.deliverypush.action2.utils;
 
-import it.pagopa.pn.api.dto.addressbook.AddressBookEntry;
-import it.pagopa.pn.api.dto.addressbook.DigitalAddresses;
 import it.pagopa.pn.api.dto.extchannel.ExtChannelResponse;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
@@ -11,7 +9,8 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddressInfo;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.timeline.*;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
+import it.pagopa.pn.deliverypush.external.AddressBook;
+import it.pagopa.pn.deliverypush.external.AddressBookEntry;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
@@ -160,9 +159,7 @@ public class DigitalWorkFlowUtils {
 
         if (addressBookEntryOpt.isPresent()) {
             log.debug("Retrive platformAddress ok for recipient {} sender {}", recipient.getTaxId(), sender.getPaId());
-
-            DigitalAddresses digitalAddresses = addressBookEntryOpt.get().getDigitalAddresses(); //TODO Valutare se far ritornare un solo indirizzo all'addressbook e non una lista
-            DigitalAddress platformAddress = digitalAddresses.getPlatform();
+            DigitalAddress platformAddress = addressBookEntryOpt.get().getPlatformDigitalAddress();
             return platformAddress != null && platformAddress.getAddress() != null ? platformAddress : null;
         }
         log.info("Platform address is empty for recipient {} sender {}", recipient.getTaxId(), sender.getPaId());

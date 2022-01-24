@@ -59,10 +59,11 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
                         .physicalAddress(physicalAddress)
                         .special(recipient.getDigitalDomicile());
 
-        addressBook.getAddresses(recipient.getTaxId(), null)
+        addressBook.getAddresses(recipient.getTaxId())
                 .ifPresent(abEntry -> {
                     if (abEntry.getDigitalAddresses() != null) {
                         timelineDetailsBuilder
+                                .general(abEntry.getDigitalAddresses().getGeneral())
                                 .platform(abEntry.getDigitalAddresses().getPlatform());
                     }
                     if (physicalAddress == null) {

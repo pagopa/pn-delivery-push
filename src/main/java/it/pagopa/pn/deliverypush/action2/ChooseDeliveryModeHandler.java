@@ -1,7 +1,5 @@
 package it.pagopa.pn.deliverypush.action2;
 
-import it.pagopa.pn.api.dto.addressbook.AddressBookEntry;
-import it.pagopa.pn.api.dto.addressbook.DigitalAddresses;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
@@ -14,6 +12,7 @@ import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.action2.utils.ChooseDeliveryModeUtils;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
+import it.pagopa.pn.deliverypush.external.AddressBookEntry;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import lombok.extern.slf4j.Slf4j;
@@ -160,11 +159,8 @@ public class ChooseDeliveryModeHandler {
         Optional<AddressBookEntry> addressBookEntryOpt = chooseDeliveryUtils.getAddresses(recipient.getTaxId(), sender);
 
         if (addressBookEntryOpt.isPresent()) {
-            DigitalAddresses digitalAddresses = addressBookEntryOpt.get().getDigitalAddresses(); //TODO Valutare se far ritornare un solo indirizzo all'addressbook e non una lista
-            if (digitalAddresses != null) {
-                DigitalAddress platformAddress = digitalAddresses.getPlatform();
-                return platformAddress != null && platformAddress.getAddress() != null ? platformAddress : null;
-            }
+            DigitalAddress platformDigitalAddress = addressBookEntryOpt.get().getPlatformDigitalAddress();
+            return platformDigitalAddress != null && platformDigitalAddress.getAddress() != null ? platformDigitalAddress : null;
         }
         return null;
     }

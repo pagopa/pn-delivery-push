@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.action2.it.digital;
 
-import it.pagopa.pn.api.dto.addressbook.AddressBookEntry;
+import it.pagopa.pn.deliverypush.external.AddressBookEntry;
 import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
