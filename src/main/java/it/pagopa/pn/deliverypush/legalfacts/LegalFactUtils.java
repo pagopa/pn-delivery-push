@@ -5,7 +5,6 @@ import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
 import it.pagopa.pn.api.dto.notification.timeline.SendDigitalFeedback;
-import it.pagopa.pn.api.dto.notification.timeline.SendPaperFeedbackDetails;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
@@ -100,7 +99,4 @@ public class LegalFactUtils {
         this.saveLegalFact(notification.getIun(), "notification_viewed_" + taxId, pdfBytes, metadata);
     }
     
-    public void savePaperDeliveryWorkflowLegalFact(List<SendPaperFeedbackDetails> paperTrail, Notification notification) {
-        //FIXME da implementare
-    }
 }

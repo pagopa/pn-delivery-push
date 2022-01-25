@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.external;
 
 import it.pagopa.pn.api.dto.notification.NotificationSender;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -17,13 +16,11 @@ public class AddressBookImpl2 implements AddressBook {
     
     @Override
     public Optional<AddressBookEntry> getAddresses(String taxId, NotificationSender sender) {
-        return legacy.getAddresses(taxId).map((it.pagopa.pn.api.dto.addressbook.AddressBookEntry legacyDto )-> {
-           return  it.pagopa.pn.deliverypush.external.AddressBookEntry.builder()
-                   .courtesyAddresses(legacyDto.getCourtesyAddresses())
-                   .platformDigitalAddress(legacyDto.getDigitalAddresses().getPlatform())
-                   .residentialAddress(legacyDto.getResidentialAddress())
-                   .taxId(legacyDto.getTaxId())
-                   .build();
-        });
+        return legacy.getAddresses(taxId).map((it.pagopa.pn.api.dto.addressbook.AddressBookEntry legacyDto )-> AddressBookEntry.builder()
+                .courtesyAddresses(legacyDto.getCourtesyAddresses())
+                .platformDigitalAddress(legacyDto.getDigitalAddresses().getPlatform())
+                .residentialAddress(legacyDto.getResidentialAddress())
+                .taxId(legacyDto.getTaxId())
+                .build());
     }
 }

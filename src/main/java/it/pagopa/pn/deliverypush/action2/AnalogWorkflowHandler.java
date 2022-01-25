@@ -80,8 +80,7 @@ public class AnalogWorkflowHandler {
                 completionWorkFlow.completionAnalogWorkflow(taxId, iun, instantNowSupplier.get(), null, EndWorkflowStatus.FAILURE);
                 break;
             default:
-                log.error("Specified attempt {} is not possibile  - iun {} id {}", sentAttemptMade, iun, taxId);
-                throw new PnInternalException("Specified attempt " + sentAttemptMade + " is not possibile");
+                handleAttemptError(iun, taxId, sentAttemptMade);
         }
     }
 
@@ -108,9 +107,13 @@ public class AnalogWorkflowHandler {
                 publicRegistrySecondSendResponse(response, notification, recipient, sentAttemptMade);
                 break;
             default:
-                log.error("Specified attempt {} is not possibile  - iun {} id {}", sentAttemptMade, iun, taxId);
-                throw new PnInternalException("Specified attempt " + sentAttemptMade + " is not possibile");
+                handleAttemptError(iun, taxId, sentAttemptMade);
         }
+    }
+    
+    private void handleAttemptError(String iun, String taxId, int sentAttemptMade) {
+        log.error("Specified attempt {} is not possibile  - iun {} id {}", sentAttemptMade, iun, taxId);
+        throw new PnInternalException("Specified attempt " + sentAttemptMade + " is not possibile");
     }
 
     private void publicRegistrySecondSendResponse(PublicRegistryResponse response, Notification notification, NotificationRecipient recipient, int sentAttemptMade) {

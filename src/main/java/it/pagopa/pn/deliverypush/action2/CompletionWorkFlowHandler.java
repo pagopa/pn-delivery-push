@@ -65,9 +65,7 @@ public class CompletionWorkFlowHandler {
 
         Notification notification = notificationService.getNotificationByIun(iun);
         NotificationRecipient recipient = notificationService.getRecipientFromNotification(notification, taxId);
-
-        //TODO Capire meglio quali sono le operazioni da realizzare nel perfezionamento e quali in questa fase
-
+        
         generatePecDeliveryWorkflowLegalFact(taxId, iun, notification, recipient);
 
         if (status != null) {
@@ -77,7 +75,6 @@ public class CompletionWorkFlowHandler {
                     scheduleRefinement(iun, taxId, notificationDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysSuccessDigitalRefinement());
                     break;
                 case FAILURE:
-                    //TODO Generare avviso mancato recapito
                     sendSimpleRegisteredLetter(notification, recipient);
                     addTimelineElement(timelineUtils.buildFailureDigitalWorkflowTimelineElement(taxId, iun));
                     scheduleRefinement(iun, taxId, notificationDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysFailureDigitalRefinement());

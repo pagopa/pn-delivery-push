@@ -33,9 +33,7 @@ public class EndOfAnalogDeliveryWorkflowActionHandler extends AbstractActionHand
     public void handleAction(Action action, Notification notification) {
 
         List<SendPaperFeedbackDetails> paperTrail = loadPaperTrail(action);
-
-        legalFactStore.savePaperDeliveryWorkflowLegalFact(paperTrail, notification);
-
+        
         // - GENERATE NEXT ACTIONS
         Action nextAction = buildWaitRecipientTimeoutActionForAnalog(action);
         scheduleAction(nextAction);

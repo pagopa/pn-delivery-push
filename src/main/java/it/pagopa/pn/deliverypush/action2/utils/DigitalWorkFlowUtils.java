@@ -70,33 +70,6 @@ public class DigitalWorkFlowUtils {
 
     }
 
-    //Ottiene l'ultimo indirizzo dalla timeline. I tentavi sono sempre presenti in timeline, sia nel caso in cui l'indirizzo sia presente sia nel caso in cui non lo sia
-    private GetAddressInfo getLastAddressAttempt(String iun, String taxId, Set<TimelineElement> timeline) {
-        log.debug("GetLastAddressAttempt - iun {} id {}", iun, taxId);
-
-        Optional<GetAddressInfo> lastAddressAttemptOpt = timeline.stream()
-                .filter(timelineElement -> checkGetAddressCategoryAndTaxId(timelineElement, taxId))
-                .map(timelineElement -> (GetAddressInfo) timelineElement.getDetails())
-                .max(Comparator.comparing(GetAddressInfo::getAttemptDate));
-
-        if (lastAddressAttemptOpt.isPresent()) {
-            log.debug("Get getLastAddressAttempt OK - iun {} id {}", iun, taxId);
-            return lastAddressAttemptOpt.get();
-        } else {
-            log.error("Last address attempt not found - iun {} id {}", iun, taxId);
-            throw new PnInternalException("Last address attempt not found - iun " + iun + " id" + taxId);
-        }
-    }
-
-    private boolean checkGetAddressCategoryAndTaxId(TimelineElement el, String taxId) {
-        boolean availableAddressCategory = TimelineElementCategory.GET_ADDRESS.equals(el.getCategory());
-        if (availableAddressCategory) {
-            GetAddressInfo details = (GetAddressInfo) el.getDetails();
-            return taxId.equalsIgnoreCase(details.getTaxId());
-        }
-        return false;
-    }
-
     private Instant getLastAttemptDateForSource(String taxId, DigitalAddressSource nextAddressSource, Set<TimelineElement> timeline) {
         Optional<GetAddressInfo> lastAddressAttemptOpt = timeline.stream()
                 .filter(timelineElement -> filterTimelineForTaxIdAndSource(timelineElement, taxId, nextAddressSource))

@@ -97,7 +97,6 @@ public class PnEventInboundService {
 
             log.info("EXT_CHANNEL RESPONSE iun {} eventId {} correlationId {}", evt.getHeader().getIun(), evt.getHeader().getEventId(), evt.getPayload().getRequestCorrelationId());
 
-            //TODO Questa logica è da cambiare nel momento in cui si applica la logica prevista di OK, RETRYABLE_FAIL, PERMANENT_FAIL 
             ExtChannelResponseStatus status = PnExtChnProgressStatus.OK.equals(evt.getPayload().getStatusCode()) ? ExtChannelResponseStatus.OK : ExtChannelResponseStatus.KO;
 
             ExtChannelResponse response = ExtChannelResponse.builder()
@@ -107,7 +106,7 @@ public class PnEventInboundService {
                     .notificationDate(evt.getPayload().getStatusDate())
                     .iun(evt.getPayload().getIun())
                     .attachmentKeys(evt.getPayload().getAttachmentKeys())
-                    .errorList(Collections.singletonList(status.name())) //TODO La logica con cui viene valorizzato l'error list non mi è chiara, cosa dovrebbe esserci all'interno?
+                    .errorList(Collections.singletonList(status.name())) //TODO La logica con cui viene valorizzato l'error list non mi è chiara, cosa dovrebbe esserci all'interno? Vedere quando viene effettuato il new SendPaperFeedbackDetails
                     .build();
 
             externalChannelResponseHandler.extChannelResponseReceiver(response);

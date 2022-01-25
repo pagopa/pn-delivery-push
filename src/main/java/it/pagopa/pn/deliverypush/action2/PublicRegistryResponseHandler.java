@@ -31,7 +31,6 @@ public class PublicRegistryResponseHandler {
      *
      * @param response public registry response
      */
-    //@StreamListener(condition = "PUBLIC_REGISTRY_RESPONSE")
     public void handleResponse(PublicRegistryResponse response) {
 
         String correlationId = response.getCorrelationId();

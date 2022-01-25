@@ -187,7 +187,6 @@ public class DigitalWorkFlowHandler {
     }
 
     public void handleExternalChannelResponse(ExtChannelResponse response, TimelineElement notificationTimelineElement) {
-        //Conservare ricevuta PEC //TODO capire cosa si intende
         SendDigitalDetails sendDigitalDetails = (SendDigitalDetails) notificationTimelineElement.getDetails();
         log.info("HandleExternalChannelResponse - iun {} id {}", response.getIun(), sendDigitalDetails.getTaxId());
 

@@ -10,7 +10,6 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.api.dto.notification.timeline.*;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
-import it.pagopa.pn.deliverypush.actions.PecFailSendPaperActionHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -273,7 +272,7 @@ public class TimelineUtils {
                         .taxId(sendPaperDetails.getTaxId())
                         .address(sendPaperDetails.getAddress())
                         .sentAttemptMade(sentAttemptMade)
-                        .serviceLevel(PecFailSendPaperActionHandler.DIGITAL_FAILURE_PAPER_FALLBACK_SERVICE_LEVEL) //TODO Capirne il senso
+                        .serviceLevel(sendPaperDetails.getServiceLevel())
                         .build(),
                 response.getAnalogNewAddressFromInvestigation(),
                 response.getAttachmentKeys(),

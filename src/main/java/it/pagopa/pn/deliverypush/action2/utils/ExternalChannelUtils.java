@@ -88,7 +88,7 @@ public class ExternalChannelUtils {
                 eventId,
                 recipient,
                 notification,
-                CommunicationType.RECIEVED_DELIVERY_NOTICE,  //TODO Da capire cosa si intende
+                CommunicationType.RECIEVED_DELIVERY_NOTICE,
                 ServiceLevelType.SIMPLE_REGISTERED_LETTER,
                 false,
                 physicalAddress
@@ -116,7 +116,7 @@ public class ExternalChannelUtils {
                 eventId,
                 recipient,
                 notification,
-                CommunicationType.RECIEVED_DELIVERY_NOTICE, //TODO Da capire cosa si intende
+                CommunicationType.RECIEVED_DELIVERY_NOTICE,
                 notification.getPhysicalCommunicationType(),
                 investigation,
                 physicalAddress);
@@ -131,7 +131,7 @@ public class ExternalChannelUtils {
         final String accessUrl = getAccessUrl(recipient);
         return PnExtChnPecEvent.builder()
                 .header(StandardEventHeader.builder()
-                        .iun(notification.getIun()) //TODO Lo iun viene replicato anche nel payload ha probabilmente senso eliminarne uno
+                        .iun(notification.getIun())
                         .eventId(eventId)
                         .eventType(EventType.SEND_PEC_REQUEST.name())
                         .publisher(EventPublisher.DELIVERY_PUSH.name())
@@ -167,7 +167,7 @@ public class ExternalChannelUtils {
 
         return PnExtChnPaperEvent.builder()
                 .header(StandardEventHeader.builder()
-                        .iun(notification.getIun()) //TODO Lo iun viene replicato anche nel payload ha probabilmente senso eliminarne uno
+                        .iun(notification.getIun()) 
                         .eventId(eventId)
                         .eventType(EventType.SEND_PAPER_REQUEST.name())
                         .publisher(EventPublisher.DELIVERY_PUSH.name())
@@ -221,9 +221,7 @@ public class ExternalChannelUtils {
     }
 
     private String getAccessUrl(NotificationRecipient recipient) {
-        //TODO In fase di test fallisce capire a cosa serve
-        return "test";
-        //return String.format(cfg.getWebapp().getDirectAccessUrlTemplate(), recipient.getToken());
+        return String.format(cfg.getWebapp().getDirectAccessUrlTemplate(), recipient.getToken());
     }
 
     private void addTimelineElement(TimelineElement element) {
