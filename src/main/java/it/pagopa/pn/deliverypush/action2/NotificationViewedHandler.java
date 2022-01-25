@@ -1,8 +1,10 @@
 package it.pagopa.pn.deliverypush.action2;
 
 import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.commons_delivery.middleware.failednotification.PaperNotificationFailedDao;
+import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -19,27 +21,29 @@ public class NotificationViewedHandler {
     private final TimelineService timelineService;
     private final NotificationService notificationService;
     private final TimelineUtils timelineUtils;
+    private final InstantNowSupplier instantNowSupplier;
 
     public NotificationViewedHandler(TimelineService timelineService, LegalFactUtils legalFactStore,
                                      PaperNotificationFailedDao paperNotificationFailedDao, NotificationService notificationService,
-                                     TimelineUtils timelineUtils) {
+                                     TimelineUtils timelineUtils, InstantNowSupplier instantNowSupplier) {
         this.legalFactStore = legalFactStore;
         this.paperNotificationFailedDao = paperNotificationFailedDao;
         this.timelineService = timelineService;
         this.notificationService = notificationService;
         this.timelineUtils = timelineUtils;
+        this.instantNowSupplier = instantNowSupplier;
     }
     
-    //TODO Capire se si può eliminare e tenere la Action già presente
-    //@StreamListener(condition = "NOTIFICATION_VIEWED")
-    public void handleViewNotification(String iun, String taxId) {
-        log.info("Start HandleViewNotification - iun {} id {}", iun, taxId);
+    public void handleViewNotification(String iun, int recipientIndex) {
+        log.info("Start HandleViewNotification - iun ", iun);
 
         Notification notification = notificationService.getNotificationByIun(iun);
-
+        NotificationRecipient recipient = notification.getRecipients().get(recipientIndex);
+        String taxId = recipient.getTaxId();
+        log.debug("handleViewNotification get recipient ok- iun {} taxId {}", iun, taxId);
+        
         addTimelineElement(timelineUtils.buildNotificationViewedTimelineElement(iun, taxId));
-        //TODO Da aggiungere se non eliminato modificando la logica del metodo
-        //legalFactStore.saveNotificationViewedLegalFact(action, notification);
+        legalFactStore.saveNotificationViewedLegalFact(notification, recipient, instantNowSupplier.get());
         paperNotificationFailedDao.deleteNotificationFailed(taxId, iun); //Viene eliminata l'istanza di notifica fallita dal momento che la stessa è stata letta
 
         log.debug("End HandleViewNotification - iun {} id {}", iun, taxId);

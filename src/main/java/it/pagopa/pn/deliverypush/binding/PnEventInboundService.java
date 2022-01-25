@@ -9,6 +9,7 @@ import it.pagopa.pn.api.dto.events.*;
 import it.pagopa.pn.api.dto.extchannel.ExtChannelResponse;
 import it.pagopa.pn.api.dto.extchannel.ExtChannelResponseStatus;
 import it.pagopa.pn.deliverypush.action2.ExternalChannelResponseHandler;
+import it.pagopa.pn.deliverypush.action2.NotificationViewedHandler;
 import it.pagopa.pn.deliverypush.action2.StartWorkflowHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.function.context.MessageRoutingCallback;
@@ -26,74 +27,69 @@ import static it.pagopa.pn.api.dto.events.StandardEventHeader.*;
 @Configuration
 @Slf4j
 public class PnEventInboundService {
-    private StartWorkflowHandler startWorkflowHandler;
-    private ExternalChannelResponseHandler externalChannelResponseHandler;
+    private final StartWorkflowHandler startWorkflowHandler;
+    private final ExternalChannelResponseHandler externalChannelResponseHandler;
+    private final NotificationViewedHandler notificationViewedHandler;
+    private final EventHandler eventHandler;
 
-    public PnEventInboundService(StartWorkflowHandler startWorkflowHandler, ExternalChannelResponseHandler externalChannelResponseHandler) {
+    public PnEventInboundService(StartWorkflowHandler startWorkflowHandler, ExternalChannelResponseHandler externalChannelResponseHandler, NotificationViewedHandler notificationViewedHandler, EventHandler eventHandler) {
         this.startWorkflowHandler = startWorkflowHandler;
         this.externalChannelResponseHandler = externalChannelResponseHandler;
-
-    //    Arrays.asList(EventType.NEW_NOTIFICATION, EventType.NOTIFICATION_VIEWED);
-
+        this.notificationViewedHandler = notificationViewedHandler;
+        this.eventHandler = eventHandler;
+    }
+    
+    @Bean
+    public MessageRoutingCallback customRouter() {
+       return message -> {
+           System.out.println("messaggio ricevuto da customRouter "+message);
+           String eventType = (String) message.getHeaders().get("eventType");
+           log.debug("New notification event received, eventType {}",eventType);
+           return eventHandler.getHandler().get(eventType);
+       };
+         
     }
 
-    //private MyProcessor processor;
-    
-    /*public PnEventInboundService(@Lazy MyProcessor processor) {
-        this.processor = processor;
-    }*/
-
-  /*  @Bean
-    public Supplier<Flux<Instant>>localdeliverypushproducer(){
-        return () -> Flux.interval(Duration.ofSeconds(5)).map(value -> Instant.now()).log();
-    }
-    */
-
-    
-       @Bean
-       public MessageRoutingCallback customRouter() {
-           return new MessageRoutingCallback() {
-               @Override
-               public String functionDefinition(Message<?> message) {
-                   System.out.println("customRouter "+message);
-                   return "pnDeliveryNewNotificationEventConsumer";
-               }
-           };
-       }
-       
-    
-    
-    /*public static String routing(Object header){
-        System.out.println("routing "+header);
-        return "pnDeliveryNewNotificationEventConsumer";
-    }*/
-    
     @Bean
     public Consumer<Message<PnDeliveryNewNotificationEvent.Payload>> pnDeliveryNewNotificationEventConsumer() {
         return (message) -> {
-            log.info("pnDeliveryNewNotificationEventConsumer {}",message);
-/*
+            log.info("pnDeliveryNewNotificationEventConsumer {}", message);
+
             PnDeliveryNewNotificationEvent pnDeliveryNewNotificationEvent = PnDeliveryNewNotificationEvent.builder()
                     .payload(message.getPayload())
                     .header(mapStandardEventHeader(message.getHeaders()))
                     .build();
 
-            startWorkflowHandler.startWorkflow(pnDeliveryNewNotificationEvent.getHeader().getIun());*/
+            String iun = pnDeliveryNewNotificationEvent.getHeader().getIun();
+            log.info("pnDeliveryNewNotificationEventConsumer - iun {}", iun);
+
+            startWorkflowHandler.startWorkflow(iun);
         };
     }
 
     @Bean
-    public Consumer<Object> pnDeliveryNotificationViewedEventConsumer() {
+    public Consumer<Message<PnDeliveryNotificationViewedEvent.Payload>> pnDeliveryNotificationViewedEventConsumer() {
         return (message) -> {
-            log.info("pnDeliveryNotificationViewedEventConsumer");
+            log.info("pnDeliveryNewNotificationEventConsumer {}", message);
+
+            PnDeliveryNotificationViewedEvent pnDeliveryNewNotificationEvent = PnDeliveryNotificationViewedEvent.builder()
+                    .payload(message.getPayload())
+                    .header(mapStandardEventHeader(message.getHeaders()))
+                    .build();
+
+            String iun = pnDeliveryNewNotificationEvent.getHeader().getIun();
+            int recipientIndex = pnDeliveryNewNotificationEvent.getPayload().getRecipientIndex();
+            log.info("pnDeliveryNotificationViewedEventConsumer - iun {}", iun);
+
+            notificationViewedHandler.handleViewNotification(iun, recipientIndex);
         };
     }
 
     @Bean
-    public Consumer<Message<PnExtChnProgressStatusEventPayload>> pnExtChannelEventInboundConsumer() {
+    public Consumer<Message<PnExtChnProgressStatusEventPayload>>  pnExtChannelEventInboundConsumer() {
         return (message) -> {
-
-
+            System.out.println("pnExtChannelEventInboundConsumer");
+            
             PnExtChnProgressStatusEvent evt = PnExtChnProgressStatusEvent.builder()
                     .payload(message.getPayload())
                     .header(mapStandardEventHeader(message.getHeaders()))
@@ -115,6 +111,7 @@ public class PnEventInboundService {
                     .build();
 
             externalChannelResponseHandler.extChannelResponseReceiver(response);
+            
         };
     }
 
@@ -132,13 +129,4 @@ public class PnEventInboundService {
         return createdAt != null ? Instant.parse((CharSequence) createdAt) : null;
     }
     
-  /*  @StreamListener(MyProcessor.INPUT)
-    public void handlePnExtChnPaperEvent(
-            @Payload JsonNode event
-    ) {
-        log.info("PnExtChnPaperEventInboundService - handlePnExtChnPaperEvent - START");
-        log.info("PnExtChnPaperEventInboundService - handlePnExtChnPaperEvent - START");
-        log.info("PnExtChnPaperEventInboundService - handlePnExtChnPaperEvent - START");
-    }
-*/
 }

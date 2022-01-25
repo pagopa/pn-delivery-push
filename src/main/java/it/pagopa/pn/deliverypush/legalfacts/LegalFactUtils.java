@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -92,7 +93,13 @@ public class LegalFactUtils {
         this.saveLegalFact(notification.getIun(), "notification_viewed_" + taxId, pdfBytes, metadata);
     }
 
-
+    public void saveNotificationViewedLegalFact(Notification notification, NotificationRecipient recipient, Instant timeStamp) {
+        String taxId = recipient.getTaxId();
+        Map<String, String> metadata = legalfactMetadataUtils.buildMetadata(LegalFactType.RECIPIENT_ACCESS, taxId);
+        byte[] pdfBytes = pdfUtils.generateNotificationViewedLegalFact(notification.getIun(), recipient, timeStamp);
+        this.saveLegalFact(notification.getIun(), "notification_viewed_" + taxId, pdfBytes, metadata);
+    }
+    
     public void savePaperDeliveryWorkflowLegalFact(List<SendPaperFeedbackDetails> paperTrail, Notification notification) {
         //FIXME da implementare
     }

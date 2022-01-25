@@ -128,7 +128,7 @@ public class AnalogWorkflowHandler {
             PhysicalAddress lastUsedAddress = lastSentFeedback.getAddress();
 
             //... e risulta diverso da quello utilizzato nel primo tentativo, viene inviata seconda notifica ad external channel con questo indirizzo
-            if (!response.getPhysicalAddress().equals(lastUsedAddress)) { //TODO Da definire in maniera chiara il metodo equals
+            if (!response.getPhysicalAddress().equals(lastUsedAddress)) {
                 log.info("Send second notification to external channel with public registry response address  - iun {} id {}", iun, taxId);
                 externalChannelSendHandler.sendAnalogNotification(notification, response.getPhysicalAddress(), recipient, false, sentAttemptMade);
             } else {

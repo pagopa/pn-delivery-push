@@ -41,6 +41,9 @@ public class ExternalChannelResponseHandler {
                 case SEND_ANALOG_DOMICILE:
                     analogWorkflowHandler.extChannelResponseHandler(response, notificationTimelineElement);
                     break;
+                case SEND_SIMPLE_REGISTERED_LETTER:
+                    //Non richiede azioni specifiche
+                    break;
                 default:
                     handleError(response, notificationTimelineElement);
                     break;

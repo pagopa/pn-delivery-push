@@ -300,6 +300,45 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
     }
 
     @Override
+    public byte[] generateNotificationViewedLegalFact(String iun, NotificationRecipient recipient, Instant timeStamp) {
+            String paragraph2 = DIV_PARAGRAPH
+                    + "gli atti di cui alla notifica identificata con IUN %s sono stati gestiti come segue:</div>";
+            paragraph2 = String.format(paragraph2, iun);
+
+            final DigitalAddress digitalDomicile = recipient.getDigitalDomicile();
+            String paragraph3;
+            if (digitalDomicile != null) {
+                paragraph3 = DIV_PARAGRAPH
+                        + "nome e cognome/ragione sociale %s, C.F. %s "
+                        + "domicilio digitale %s: in data %s il destinatario ha avuto "
+                        + "accesso ai documenti informatici oggetto di notifica e associati allo IUN già indicato."
+                        + "</div>";
+                paragraph3 = String.format(paragraph3, recipient.getDenomination(),
+                        recipient.getTaxId(),
+                        digitalDomicile.getAddress(),
+                        this.instantToDate(timeStamp));
+            } else {
+                paragraph3 = DIV_PARAGRAPH
+                        + "nome e cognome/ragione sociale %s, C.F. %s "
+                        + "domicilio analogico %s: in data %s il destinatario ha avuto "
+                        + "accesso ai documenti informatici oggetto di notifica e associati allo IUN già indicato."
+                        + "</div>";
+                paragraph3 = String.format(paragraph3, recipient.getDenomination(),
+                        recipient.getTaxId(),
+                        recipient.getPhysicalAddress().getAddress(),
+                        this.instantToDate(timeStamp));
+            }
+
+            String paragraph4 = DIV_PARAGRAPH
+                    + "Si segnala che ogni successivo accesso ai medesimi documenti non è oggetto della presente "
+                    + "attestazione in quanto irrilevante ai fini del perfezionamento della notificazione."
+                    + "</div>";
+
+            return toPdfBytes(Arrays.asList(PARAGRAPH1, paragraph2, paragraph3, paragraph4));
+        
+    }
+
+    @Override
     public byte[] generatePecDeliveryWorkflowLegalFact(List<Action> actions, Notification notification, NotificationPathChooseDetails addresses) {
         List<String> paragraphs = new ArrayList<>();
         paragraphs.add(PARAGRAPH1);

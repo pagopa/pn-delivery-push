@@ -40,7 +40,7 @@ public class WebhookBufferReaderService {
     }
 
     protected void readWebhookBufferAndSend(WebhookConfigDto webhook) {
-        log.info("Scan webhook " + webhook.getPaId());
+        log.debug("Scan webhook " + webhook.getPaId());
 
         Instant lastUpdate = webhook.getStartFrom();
         if (lastUpdate == null) {

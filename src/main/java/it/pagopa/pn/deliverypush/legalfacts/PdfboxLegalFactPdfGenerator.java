@@ -196,6 +196,11 @@ public class PdfboxLegalFactPdfGenerator extends AbstractLegalFactPdfGenerator i
     }
 
     @Override
+    public byte[] generateNotificationViewedLegalFact(String iun, NotificationRecipient recipient, Instant timeStamp) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public byte[] generatePecDeliveryWorkflowLegalFact(List<Action> actions, Notification notification, NotificationPathChooseDetails addresses) {
 
         List<String> paragraphs = new ArrayList<>();

@@ -88,7 +88,7 @@ public class ExternalChannelUtils {
                 eventId,
                 recipient,
                 notification,
-                CommunicationType.RECIEVED_DELIVERY_NOTICE,  //TODO Da capire cosa si intende e se si può eliminare
+                CommunicationType.RECIEVED_DELIVERY_NOTICE,  //TODO Da capire cosa si intende
                 ServiceLevelType.SIMPLE_REGISTERED_LETTER,
                 false,
                 physicalAddress
@@ -116,7 +116,7 @@ public class ExternalChannelUtils {
                 eventId,
                 recipient,
                 notification,
-                CommunicationType.RECIEVED_DELIVERY_NOTICE, //TODO Da capire cosa si intende e se si può eliminare
+                CommunicationType.RECIEVED_DELIVERY_NOTICE, //TODO Da capire cosa si intende
                 notification.getPhysicalCommunicationType(),
                 investigation,
                 physicalAddress);
