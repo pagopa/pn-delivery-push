@@ -12,6 +12,7 @@ import it.pagopa.pn.deliverypush.action2.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action2.NotificationViewedHandler;
 import it.pagopa.pn.deliverypush.action2.StartWorkflowHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.function.context.MessageRoutingCallback;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +27,7 @@ import static it.pagopa.pn.api.dto.events.StandardEventHeader.*;
 
 @Configuration
 @Slf4j
+@ConditionalOnProperty( name = "pn.delivery-push.featureflags.workflow", havingValue = "v2")
 public class PnEventInboundService {
     private final StartWorkflowHandler startWorkflowHandler;
     private final ExternalChannelResponseHandler externalChannelResponseHandler;
@@ -106,7 +108,7 @@ public class PnEventInboundService {
                     .notificationDate(evt.getPayload().getStatusDate())
                     .iun(evt.getPayload().getIun())
                     .attachmentKeys(evt.getPayload().getAttachmentKeys())
-                    .errorList(Collections.singletonList(status.name())) //TODO La logica con cui viene valorizzato l'error list non mi è chiara, cosa dovrebbe esserci all'interno? Vedere quando viene effettuato il new SendPaperFeedbackDetails
+                    .errorList(Collections.singletonList(status.name()))
                     .build();
 
             externalChannelResponseHandler.extChannelResponseReceiver(response);

@@ -6,6 +6,7 @@ import java.time.Duration;
 
 @Data
 public class TimeParams {
+
     private Duration waitingResponseFromFirstAddress;
     private Duration secondAttemptWaitingTime;
 

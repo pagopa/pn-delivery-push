@@ -30,43 +30,45 @@ public class ActionsEventHandler extends AbstractEventHandler<ActionEvent> {
     private final MomProducer<ActionEvent> actionsDoneQueue;
 
     public ActionsEventHandler(NotificationDao notificationDao, TimelineDao timelineDao, List<ActionHandler> actionHandlers, @Qualifier("action-done") MomProducer<ActionEvent> actionsDoneQueue) {
-        super(ActionEvent.class);
+        super( ActionEvent.class );
         this.notificationDao = notificationDao;
         this.timelineDao = timelineDao;
-        this.actionHandlers = toMap(actionHandlers);
+        this.actionHandlers = toMap( actionHandlers);
         this.actionsDoneQueue = actionsDoneQueue;
     }
 
     private Map<ActionType, ActionHandler> toMap(List<ActionHandler> actionHandlers) {
-        Map<ActionType, ActionHandler> result = new EnumMap<>(ActionType.class);
-        for (ActionHandler actionHandler : actionHandlers) {
-            result.put(actionHandler.getActionType(), actionHandler);
+        Map<ActionType, ActionHandler> result = new EnumMap<>( ActionType.class );
+        for( ActionHandler actionHandler: actionHandlers ) {
+            result.put( actionHandler.getActionType(), actionHandler );
         }
-        return result;
+        return  result;
     }
 
     @Override
-    public void handleEvent(ActionEvent evt) {
+    public void handleEvent(ActionEvent evt ) {
         StandardEventHeader header = evt.getHeader();
         Action action = evt.getPayload();
 
-        log.info("Received ACTION iun={} eventId={} actionType={}", header.getIun(), header.getEventId(), action.getType());
-        Optional<Notification> notification = notificationDao.getNotificationByIun(header.getIun());
-        if (notification.isPresent()) {
-            if (!checkAlreadyDone(header)) {
-                log.info("NOTIFICATION: {}", notification.get());
-                doHandle(action, notification.get());
-                notifyActionDone(evt);
-            } else {
-                log.warn("Duplicated action event: {}", evt);
+        log.info( "Received ACTION iun={} eventId={} actionType={}", header.getIun(), header.getEventId(), action.getType() );
+        Optional<Notification> notification = notificationDao.getNotificationByIun( header.getIun() );
+        if( notification.isPresent() ) {
+            if( ! checkAlreadyDone( header )) {
+                log.info("NOTIFICATION: {}", notification.get() );
+                doHandle( action, notification.get() );
+                notifyActionDone( evt );
             }
-        } else {
+            else {
+                log.warn("Duplicated action event: {}", evt );
+            }
+        }
+        else {
             log.warn("Notification metadata not found for iun {}", header.getIun() );
         }
     }
 
     private void notifyActionDone(ActionEvent evt) {
-        actionsDoneQueue.push(evt);
+        actionsDoneQueue.push( evt );
     }
 
     private void doHandle(Action action, Notification notification) {
@@ -80,8 +82,8 @@ public class ActionsEventHandler extends AbstractEventHandler<ActionEvent> {
         actionHandler.handleAction(action, notification);
     }
 
-    public boolean checkAlreadyDone(StandardEventHeader header) {
-        Optional<TimelineElement> timeline = timelineDao.getTimelineElement(header.getIun(), header.getEventId());
+    public boolean checkAlreadyDone( StandardEventHeader header ) {
+        Optional<TimelineElement> timeline = timelineDao.getTimelineElement( header.getIun(), header.getEventId() );
         return timeline.isPresent();
     }
 

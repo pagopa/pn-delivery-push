@@ -142,6 +142,9 @@ class DigitalFirstSuccessGeneralTest {
         times.setSchedulingDaysSuccessAnalogRefinement(Duration.ofSeconds(1));
         times.setSchedulingDaysFailureAnalogRefinement(Duration.ofSeconds(1));
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
+        PnDeliveryPushConfigs.Webapp webapp = new PnDeliveryPushConfigs.Webapp();
+        webapp.setDirectAccessUrlTemplate("test");
+        Mockito.when(pnDeliveryPushConfigs.getWebapp()).thenReturn(webapp);
 
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
     }

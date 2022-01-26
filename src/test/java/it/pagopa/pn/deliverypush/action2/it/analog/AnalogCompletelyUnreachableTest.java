@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.action2.it.analog;
 
-import it.pagopa.pn.deliverypush.external.AddressBookEntry;
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
@@ -20,6 +19,7 @@ import it.pagopa.pn.deliverypush.action2.it.mockbean.TimelineDaoMock;
 import it.pagopa.pn.deliverypush.action2.it.utils.*;
 import it.pagopa.pn.deliverypush.action2.utils.*;
 import it.pagopa.pn.deliverypush.actions.ExtChnEventUtils;
+import it.pagopa.pn.deliverypush.external.AddressBookEntry;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.NotificationServiceImpl;
 import it.pagopa.pn.deliverypush.service.impl.TimeLineServiceImpl;
@@ -133,6 +133,10 @@ class AnalogCompletelyUnreachableTest {
         times.setSchedulingDaysFailureDigitalRefinement(Duration.ofSeconds(1));
         times.setSchedulingDaysSuccessAnalogRefinement(Duration.ofSeconds(1));
         times.setSchedulingDaysFailureAnalogRefinement(Duration.ofSeconds(1));
+
+        PnDeliveryPushConfigs.Webapp webapp = new PnDeliveryPushConfigs.Webapp();
+        webapp.setDirectAccessUrlTemplate("test");
+        Mockito.when(pnDeliveryPushConfigs.getWebapp()).thenReturn(webapp);
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
 
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());

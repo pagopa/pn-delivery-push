@@ -2,9 +2,10 @@ package it.pagopa.pn.deliverypush.abstractions.actionspool;
 
 public enum ActionType {
     SENDER_ACK() {
+
         @Override
         public String buildActionId(Action action) {
-            return String.format("%s_start", action.getIun());
+            return String.format("%s_start", action.getIun() );
         }
     },
     CHOOSE_DELIVERY_MODE {
@@ -26,7 +27,7 @@ public enum ActionType {
                     action.getRecipientIndex(),
                     action.getDigitalAddressSource(),
                     action.getRetryNumber()
-            );
+                );
         }
     },
     SEND_PAPER() {
@@ -73,7 +74,6 @@ public enum ActionType {
             );
         }
     },
-
     END_OF_ANALOG_DELIVERY_WORKFLOW() {
         @Override
         public String buildActionId(Action action) {
@@ -84,7 +84,6 @@ public enum ActionType {
             );
         }
     },
-
     RECEIVE_PEC() {
         @Override
         public String buildActionId(Action action) {
@@ -97,7 +96,6 @@ public enum ActionType {
             );
         }
     },
-
     RECEIVE_PAPER() {
         @Override
         public String buildActionId(Action action) {
@@ -109,7 +107,6 @@ public enum ActionType {
             );
         }
     },
-
     WAIT_FOR_RECIPIENT_TIMEOUT() {
         @Override
         public String buildActionId(Action action) {
@@ -120,7 +117,6 @@ public enum ActionType {
             );
         }
     },
-
     NOTIFICATION_VIEWED() {
         @Override
         public String buildActionId(Action action) {

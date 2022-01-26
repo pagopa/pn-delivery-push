@@ -142,6 +142,9 @@ class DigitalFirstSuccessSpecialTest {
         times.setSchedulingDaysSuccessAnalogRefinement(Duration.ofSeconds(1));
         times.setSchedulingDaysFailureAnalogRefinement(Duration.ofSeconds(1));
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
+        PnDeliveryPushConfigs.Webapp webapp = new PnDeliveryPushConfigs.Webapp();
+        webapp.setDirectAccessUrlTemplate("test");
+        Mockito.when(pnDeliveryPushConfigs.getWebapp()).thenReturn(webapp);
 
         String iun = notification.getIun();
         String taxId = recipient.getTaxId();
