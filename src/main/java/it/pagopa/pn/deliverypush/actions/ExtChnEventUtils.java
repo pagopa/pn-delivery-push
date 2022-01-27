@@ -56,13 +56,6 @@ public class ExtChnEventUtils {
         return String.format(cfg.getWebapp().getDirectAccessUrlTemplate(), recipient.getToken());
     }
 
-	/*public PnExtChnPaperEvent buildSendPaperRequest (
-			Action action,
-			Notification notification,
-			CommunicationType communicationType
-			) {
-		return buildSendPaperRequest(action, notification, communicationType, notification.getPhysicalCommunicationType());
-	}*/
 
     public PnExtChnPaperEvent buildSendPaperRequest(
             Action action,
