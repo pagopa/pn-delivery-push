@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -35,7 +36,6 @@ class WebhookClientCertImplTestIT {
 
     @Test //da eseguire in locale dopo aver lanciato un'istanza mockserver
     void sendInfoWithCertSuccess() {
-        /*
         //Given
         String url = "https://localhost:1080/webhook/";
         List<WebhookOutputDto> data = new ArrayList<>();
@@ -57,7 +57,7 @@ class WebhookClientCertImplTestIT {
         clientCert.sendInfo( url, data);
 
         //Then
-        Mockito.verify( rt ).exchange( url, HttpMethod.POST, new HttpEntity<>(data, null), Void.class );*/
+        Mockito.verify( rt ).exchange( url, HttpMethod.POST, new HttpEntity<>(data, null), Void.class );
     }
 
     private RestTemplate initialize() {
