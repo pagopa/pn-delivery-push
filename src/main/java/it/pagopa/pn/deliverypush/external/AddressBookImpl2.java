@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
-//@ConditionalOnProperty(name = "pn.legacy", havingValue = "false")
 @Component
 public class AddressBookImpl2 implements AddressBook {
     private final it.pagopa.pn.commons.pnclients.addressbook.AddressBook legacy;

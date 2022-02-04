@@ -6,7 +6,7 @@ import java.time.Duration;
 
 @Data
 public class TimeParams {
-
+    //Timing workflow LEGACY
     private Duration waitingResponseFromFirstAddress;
     private Duration secondAttemptWaitingTime;
 
@@ -17,7 +17,8 @@ public class TimeParams {
     private Duration waitingForNextAction;
     private Duration timeBetweenExtChReceptionAndMessageProcessed;
     private Duration intervalBetweenNotificationAndMessageReceived;
-
+    
+    //Timing workflow NEW
     private Duration waitingForReadCourtesyMessage;
     private Duration schedulingDaysSuccessDigitalRefinement;
     private Duration schedulingDaysFailureDigitalRefinement;
