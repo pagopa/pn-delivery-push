@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.action2;
 
-import it.pagopa.pn.api.dto.events.EndWorkflowStatus;
+import it.pagopa.pn.deliverypush.action2.utils.EndWorkflowStatus;
 import it.pagopa.pn.api.dto.extchannel.ExtChannelResponse;
 import it.pagopa.pn.api.dto.extchannel.ExtChannelResponseStatus;
 import it.pagopa.pn.api.dto.notification.Notification;
