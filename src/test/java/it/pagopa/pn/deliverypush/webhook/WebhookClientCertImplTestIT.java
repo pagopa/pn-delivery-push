@@ -34,7 +34,7 @@ class WebhookClientCertImplTestIT {
         this.sslContextFactory = new SSLContextFactory();
     }
 
-    @Test //da eseguire in locale dopo aver lanciato un'istanza mockserver
+    //@Test //da eseguire in locale dopo aver lanciato un'istanza mockserver
     void sendInfoWithCertSuccess() {
         //Given
         String url = "https://localhost:1080/webhook/";
