@@ -29,6 +29,11 @@
 			<artifactId>spring-cloud-stream</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>de.idealo.spring</groupId>
+			<artifactId>spring-cloud-stream-binder-sqs</artifactId>
+			<version>1.5.0</version>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.pdfbox</groupId>
 			<artifactId>pdfbox</artifactId>
 			<version>2.0.24</version>

@@ -1,14 +1,5 @@
 package it.pagopa.pn.deliverypush.actions;
 
-import java.util.Collections;
-
-import it.pagopa.pn.commons_delivery.middleware.failednotification.PaperNotificationFailedDao;
-import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
@@ -16,10 +7,18 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
+import it.pagopa.pn.commons_delivery.middleware.failednotification.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import java.util.Collections;
 
 class NotificationViewedActionHandlerTest {
     private LegalFactUtils legalFactUtils;
@@ -37,8 +36,8 @@ class NotificationViewedActionHandlerTest {
         actionsPool = Mockito.mock(ActionsPool.class);
         paperNotificationFailedDao = Mockito.mock(PaperNotificationFailedDao.class);
         handler = new NotificationViewedActionHandler(
-        		timelineDao,
-        		actionsPool,
+                timelineDao,
+                actionsPool,
                 legalFactUtils,
                 pnDeliveryPushConfigs,
                 paperNotificationFailedDao
@@ -51,21 +50,21 @@ class NotificationViewedActionHandlerTest {
         Notification notification = newNotification();
 
         Action action = Action.builder()
-                .iun( notification.getIun() )
-                .recipientIndex( 0 )
-                .type( ActionType.NOTIFICATION_VIEWED )
-                .actionId( "Test_iun01_notification_viewed_0" )
+                .iun(notification.getIun())
+                .recipientIndex(0)
+                .type(ActionType.NOTIFICATION_VIEWED)
+                .actionId("Test_iun01_notification_viewed_0")
                 .build();
 
-        String actionId = action.getType().buildActionId( action );
-        action = action.toBuilder().actionId( actionId ).build();
+        String actionId = action.getType().buildActionId(action);
+        action = action.toBuilder().actionId(actionId).build();
 
         //When
         handler.handleAction(action, notification);
 
         //Then
-        Mockito.verify( legalFactUtils ).saveNotificationViewedLegalFact(action, notification);
-        Mockito.verify( timelineDao ).addTimelineElement( Mockito.any(TimelineElement.class) );
+        Mockito.verify(legalFactUtils).saveNotificationViewedLegalFact(action, notification);
+        Mockito.verify(timelineDao).addTimelineElement(Mockito.any(TimelineElement.class));
     }
 
     @Test

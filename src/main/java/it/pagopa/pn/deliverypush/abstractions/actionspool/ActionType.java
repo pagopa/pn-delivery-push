@@ -41,6 +41,29 @@ public enum ActionType {
             );
         }
     },
+
+    ANALOG_WORKFLOW() {
+        @Override
+        public String buildActionId(Action action) {
+            return String.format(
+                    "%s_analog_workflow_e_%d",
+                    action.getIun(),
+                    action.getRecipientIndex()
+            );
+        }
+    },
+
+    DIGITAL_WORKFLOW_NEXT_ACTION() {
+        @Override
+        public String buildActionId(Action action) {
+            return String.format(
+                    "%s_digital_workflow_e_%d",
+                    action.getIun(),
+                    action.getRecipientIndex()
+            );
+        }
+    },
+
     END_OF_DIGITAL_DELIVERY_WORKFLOW() {
         @Override
         public String buildActionId(Action action) {
@@ -48,7 +71,7 @@ public enum ActionType {
                     "%s_send_courtesy_rec%d",
                     action.getIun(),
                     action.getRecipientIndex()
-                );
+            );
         }
     },
     END_OF_ANALOG_DELIVERY_WORKFLOW() {
@@ -98,11 +121,12 @@ public enum ActionType {
         @Override
         public String buildActionId(Action action) {
             return String.format("%s_notification_viewed_rec%d",
-            					action.getIun(),
-            					action.getRecipientIndex()
+                    action.getIun(),
+                    action.getRecipientIndex()
             );
         }
     },
+
     PEC_FAIL_SEND_PAPER() {
         @Override
         public String buildActionId(Action action) {
@@ -110,9 +134,10 @@ public enum ActionType {
                     "%s_send_paper_after_digital_rec%d",
                     action.getIun(),
                     action.getRecipientIndex()
-                );
+            );
         }
     },
+
     PEC_FAIL_RECEIVE_PAPER() {
         @Override
         public String buildActionId(Action action) {
@@ -123,11 +148,23 @@ public enum ActionType {
             );
         }
     },
+
     COMPLETELY_UNREACHABLE() {
         @Override
         public String buildActionId(Action action) {
             return String.format(
                     "%s_completely_unreachable_%d",
+                    action.getIun(),
+                    action.getRecipientIndex()
+            );
+        }
+    },
+
+    REFINEMENT_NOTIFICATION() {
+        @Override
+        public String buildActionId(Action action) {
+            return String.format(
+                    "%s_refinement_notification_%d",
                     action.getIun(),
                     action.getRecipientIndex()
             );

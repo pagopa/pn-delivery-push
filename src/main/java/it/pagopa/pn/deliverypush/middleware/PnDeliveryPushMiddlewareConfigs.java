@@ -1,15 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware;
 
-import java.util.Arrays;
-import java.util.Collections;
-
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import it.pagopa.pn.api.dto.events.EventType;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.ActionEventType;
@@ -23,7 +14,14 @@ import it.pagopa.pn.deliverypush.middleware.momproducer.pecrequest.sqs.SqsPecReq
 import it.pagopa.pn.deliverypush.temp.mom.consumer.EventReceiver;
 import it.pagopa.pn.deliverypush.temp.mom.consumer.SqsEventReceiver;
 import it.pagopa.pn.deliverypush.webhook.WebhookBufferWriterService;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import software.amazon.awssdk.services.sqs.SqsClient;
+
+import java.util.Arrays;
+import java.util.Collections;
 
 @Configuration
 public class PnDeliveryPushMiddlewareConfigs {

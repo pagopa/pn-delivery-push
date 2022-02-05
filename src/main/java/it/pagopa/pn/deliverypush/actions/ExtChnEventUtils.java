@@ -1,16 +1,15 @@
 package it.pagopa.pn.deliverypush.actions;
 
-import java.time.Instant;
-
 import it.pagopa.pn.api.dto.events.*;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import org.springframework.stereotype.Component;
-
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
+import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
+import org.springframework.stereotype.Component;
+
+import java.time.Instant;
 
 @Component
 public class ExtChnEventUtils {

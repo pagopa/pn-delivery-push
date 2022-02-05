@@ -1,11 +1,5 @@
 package it.pagopa.pn.deliverypush.actions;
 
-import java.time.Instant;
-import java.util.stream.Collectors;
-
-import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
-import org.springframework.stereotype.Component;
-
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.timeline.ReceivedDetails;
@@ -16,6 +10,11 @@ import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
+import org.springframework.stereotype.Component;
+
+import java.time.Instant;
+import java.util.stream.Collectors;
 
 @Component
 public class SenderAckActionHandler extends AbstractActionHandler {
@@ -24,7 +23,7 @@ public class SenderAckActionHandler extends AbstractActionHandler {
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     public SenderAckActionHandler(LegalFactUtils legalFactStore, TimelineDao timelineDao, ActionsPool actionsPool, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
-        super( timelineDao, actionsPool , pnDeliveryPushConfigs);
+        super(timelineDao, actionsPool, pnDeliveryPushConfigs);
         this.legalFactStore = legalFactStore;
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
     }
@@ -36,24 +35,24 @@ public class SenderAckActionHandler extends AbstractActionHandler {
 
         // - GENERATE NEXT ACTIONS
         int numberOfRecipients = notification.getRecipients().size();
-        for( int idx = 0; idx < numberOfRecipients; idx ++ ) {
+        for (int idx = 0; idx < numberOfRecipients; idx++) {
             Action nextAction = Action.builder()
-                    .iun( action.getIun() )
-                    .type( ActionType.CHOOSE_DELIVERY_MODE )
-                    .notBefore( Instant.now().plus(pnDeliveryPushConfigs.getTimeParams().getWaitingForNextAction()) )
-                    .recipientIndex( idx )
+                    .iun(action.getIun())
+                    .type(ActionType.CHOOSE_DELIVERY_MODE)
+                    .notBefore(Instant.now().plus(pnDeliveryPushConfigs.getTimeParams().getWaitingForNextAction()))
+                    .recipientIndex(idx)
                     .build();
-            scheduleAction( nextAction );
+            scheduleAction(nextAction);
         }
 
         // - WRITE TIMELINE
-        addTimelineElement( action, TimelineElement.builder()
-                .category( TimelineElementCategory.RECEIVED_ACK )
-                .details( ReceivedDetails.builder()
-                        .recipients( notification.getRecipients() )
-                        .documentsDigests( notification.getDocuments()
+        addTimelineElement(action, TimelineElement.builder()
+                .category(TimelineElementCategory.REQUEST_ACCEPTED)
+                .details(ReceivedDetails.builder()
+                        .recipients(notification.getRecipients())
+                        .documentsDigests(notification.getDocuments()
                                 .stream()
-                                .map( NotificationAttachment::getDigests )
+                                .map(NotificationAttachment::getDigests)
                                 .collect(Collectors.toList())
                         )
                         .build()

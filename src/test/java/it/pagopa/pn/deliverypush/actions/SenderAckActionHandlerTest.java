@@ -5,13 +5,13 @@ import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
+import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import org.junit.jupiter.api.Assertions;
@@ -57,10 +57,11 @@ class SenderAckActionHandlerTest {
     @Test
     void successHandleAction() {
         //Given
+        
         Notification notification = newNotificationWithoutPayments();
 
         Action action = Action.builder()
-                .iun( notification.getIun() )
+                .iun(notification.getIun())
                 .recipientIndex(0)
                 .type(ActionType.SENDER_ACK)
                 .retryNumber(1)
@@ -81,10 +82,10 @@ class SenderAckActionHandlerTest {
         ArgumentCaptor<Notification> notificationCapture = ArgumentCaptor.forClass(Notification.class);
 
         Mockito.verify(legalFactUtils).saveNotificationReceivedLegalFact( actionCapture.capture(),
-                            notificationCapture.capture() );
+                notificationCapture.capture());
 
         Assertions.assertEquals(action.getIun(), actionCapture.getValue().getIun(), "Different iun");
-        Assertions.assertEquals( action.getIun(), notificationCapture.getValue().getIun(), "Different iun");
+        Assertions.assertEquals(action.getIun(), notificationCapture.getValue().getIun(), "Different iun");
     }
 
 
@@ -119,7 +120,7 @@ class SenderAckActionHandlerTest {
                 ))
                 .documents(Arrays.asList(
                         NotificationAttachment.builder()
-                                .ref( NotificationAttachment.Ref.builder()
+                                .ref(NotificationAttachment.Ref.builder()
                                         .key("doc00")
                                         .versionToken("v01_doc00")
                                         .build()
@@ -132,7 +133,7 @@ class SenderAckActionHandlerTest {
                                 .body("Ym9keV8wMQ==")
                                 .build(),
                         NotificationAttachment.builder()
-                                .ref( NotificationAttachment.Ref.builder()
+                                .ref(NotificationAttachment.Ref.builder()
                                         .key("doc01")
                                         .versionToken("v01_doc01")
                                         .build()

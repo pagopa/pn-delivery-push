@@ -34,7 +34,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 class ChooseDeliveryModeActionHandlerTest {
     public static final String DIRECT_ACCESS_URL_TEMPLATE = "http://localhost:8090/direct-access.html?token=%s";
@@ -50,7 +51,7 @@ class ChooseDeliveryModeActionHandlerTest {
 
     @BeforeEach
     void setup() {
-        emailRequestProducer = Mockito.mock( MomProducer.class );
+        emailRequestProducer = Mockito.mock(MomProducer.class);
         pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
         addressBook = Mockito.mock(AddressBook.class);
         timelineDao = Mockito.mock(TimelineDao.class);
@@ -102,25 +103,24 @@ class ChooseDeliveryModeActionHandlerTest {
                         .address("nome2.cognome2@develop2.it")
                         .build()
         );
-        Mockito.when( addressBook.getAddresses( Mockito.anyString()) ).thenReturn(Optional.of(
-           AddressBookEntry.builder()
-                   .digitalAddresses( DigitalAddresses.builder()
+        Mockito.when(addressBook.getAddresses(Mockito.anyString())).thenReturn(Optional.of(
+                AddressBookEntry.builder()
+                        .digitalAddresses(DigitalAddresses.builder()
                         .general( DigitalAddress.builder()
                                 .type( DigitalAddressType.PEC )
                                 .address( "a@pec")
                                 .build())
-                        .platform( DigitalAddress.builder()
-                                .type( DigitalAddressType.PEC )
-                                .address( "b@pec")
-                                .build())
+                                .platform(DigitalAddress.builder()
+                                        .type(DigitalAddressType.PEC)
+                                        .address("b@pec")
+                                        .build())
+                                .build()
+                        )
+                        .courtesyAddresses(courtesyAddresses)
                         .build()
-                   )
-                   .courtesyAddresses(courtesyAddresses)
-                   .build()
         ));
         int numberOfAddresses = courtesyAddresses.size();
         //doNothing().when( emailRequestProducer ).push( Mockito.any( PnExtChnEmailEvent.class ) );
-
 
 
         //When
@@ -128,11 +128,11 @@ class ChooseDeliveryModeActionHandlerTest {
 
         //Then
         ArgumentCaptor<PnExtChnEmailEvent> emailEventCaptor = ArgumentCaptor.forClass(PnExtChnEmailEvent.class);
-        verify( emailRequestProducer, times( numberOfAddresses ) ).push( emailEventCaptor.capture() );
+        verify(emailRequestProducer, times(numberOfAddresses)).push(emailEventCaptor.capture());
 
         List<PnExtChnEmailEvent> events = emailEventCaptor.getAllValues();
-        for (int idx = 0; idx < numberOfAddresses; idx ++) {
-            assertEquals( courtesyAddresses.get( idx).getAddress(), events.get( idx ).getPayload().getEmailAddress() );
+        for (int idx = 0; idx < numberOfAddresses; idx++) {
+            assertEquals(courtesyAddresses.get(idx).getAddress(), events.get(idx).getPayload().getEmailAddress());
         }
         ArgumentCaptor<String> taxIdCapture = ArgumentCaptor.forClass(String.class);
         Mockito.verify(addressBook).getAddresses(taxIdCapture.capture());
@@ -158,9 +158,9 @@ class ChooseDeliveryModeActionHandlerTest {
 
         Mockito.when(addressBook.getAddresses(Mockito.anyString()))
                 .thenReturn(Optional.of(AddressBookEntry.builder()
-                        .digitalAddresses( DigitalAddresses.builder()
+                        .digitalAddresses(DigitalAddresses.builder()
                                 .general( null )
-                                .platform( null )
+                                .platform(null)
                                 .build())
                         .residentialAddress(PhysicalAddress.builder()
                                 .at("Presso")
@@ -175,18 +175,17 @@ class ChooseDeliveryModeActionHandlerTest {
                         .build()));
 
 
-
         //When
-        handler.handleAction(inputAction,notification);
+        handler.handleAction(inputAction, notification);
 
         //Then
         ArgumentCaptor<TimelineElement> timeLineArg = ArgumentCaptor.forClass(TimelineElement.class);
         Mockito.verify(timelineDao).addTimelineElement(timeLineArg.capture());
-        Assertions.assertEquals( DeliveryMode.ANALOG ,((NotificationPathChooseDetails) timeLineArg.getValue().getDetails()).getDeliveryMode());
+        Assertions.assertEquals(DeliveryMode.ANALOG, ((NotificationPathChooseDetails) timeLineArg.getValue().getDetails()).getDeliveryMode());
 
         ArgumentCaptor<Action> actionArg = ArgumentCaptor.forClass(Action.class);
         Mockito.verify(actionsPool).scheduleFutureAction(actionArg.capture());
-        Assertions.assertEquals(ActionType.SEND_PAPER , actionArg.getValue().getType());
+        Assertions.assertEquals(ActionType.SEND_PAPER, actionArg.getValue().getType());
 
     }
 

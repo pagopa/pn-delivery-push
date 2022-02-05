@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class CompletelyUnreachableActionHandler extends AbstractActionHandler{
+public class CompletelyUnreachableActionHandler extends AbstractActionHandler {
     private PaperNotificationFailedDao paperNotificationFailedDao;
 
     protected CompletelyUnreachableActionHandler(TimelineDao timelineDao, PaperNotificationFailedDao paperNotificationFailedDao,
@@ -35,7 +35,7 @@ public class CompletelyUnreachableActionHandler extends AbstractActionHandler{
         Action nextAction = buildWaitRecipientTimeoutActionForUnreachable(action);
         scheduleAction(nextAction);
 
-        if(!isNotificationAlreadyViewed(action)){
+        if (!isNotificationAlreadyViewed(action)) {
             addPaperNotificationFailed(notification, recipient);
         }
         buildAndAddTimeLineElement(action, recipient);
@@ -44,7 +44,7 @@ public class CompletelyUnreachableActionHandler extends AbstractActionHandler{
 
     private boolean isNotificationAlreadyViewed(Action action) {
         //Lo user potrebbe aver visualizzato la notifica tramite canali differenti anche se non raggiunto dai canali 'legali'
-        return this.isPresentTimeLineElement(action,ActionType.NOTIFICATION_VIEWED);
+        return this.isPresentTimeLineElement(action, ActionType.NOTIFICATION_VIEWED);
     }
 
     private void addPaperNotificationFailed(Notification notification, NotificationRecipient recipient) {
@@ -58,7 +58,7 @@ public class CompletelyUnreachableActionHandler extends AbstractActionHandler{
 
     private void buildAndAddTimeLineElement(Action action, NotificationRecipient recipient) {
         addTimelineElement(action, TimelineElement.builder()
-                .category( TimelineElementCategory.COMPLETELY_UNREACHABLE )
+                .category(TimelineElementCategory.COMPLETELY_UNREACHABLE)
                 .details(CompletlyUnreachableDetails.builder()
                         .taxId(recipient.getTaxId())
                         .build()

@@ -19,7 +19,7 @@ public class PnDeliveryPushConfigs {
     private Instant actionPoolEpoch;
 
     private Webhook webhook;
-
+    
     private Webapp webapp;
 
     @Data

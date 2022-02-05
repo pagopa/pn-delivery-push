@@ -32,10 +32,8 @@ public class EndOfAnalogDeliveryWorkflowActionHandler extends AbstractActionHand
     @Override
     public void handleAction(Action action, Notification notification) {
 
-    	List<SendPaperFeedbackDetails> paperTrail = loadPaperTrail(action);
-
-        legalFactStore.savePaperDeliveryWorkflowLegalFact( paperTrail, notification );
-
+        List<SendPaperFeedbackDetails> paperTrail = loadPaperTrail(action);
+        
         // - GENERATE NEXT ACTIONS
         Action nextAction = buildWaitRecipientTimeoutActionForAnalog(action);
         scheduleAction(nextAction);
@@ -43,7 +41,7 @@ public class EndOfAnalogDeliveryWorkflowActionHandler extends AbstractActionHand
         // - WRITE TIMELINE
         NotificationRecipient recipient = notification.getRecipients().get(action.getRecipientIndex());
         addTimelineElement(action, TimelineElement.builder()
-                .category( TimelineElementCategory.END_OF_ANALOG_DELIVERY_WORKFLOW )
+                .category(TimelineElementCategory.END_OF_ANALOG_DELIVERY_WORKFLOW)
                 .details(EndOfAnalogDeliveryWorkflowDetails.builder()
                         .taxId(recipient.getTaxId())
                         .build()
@@ -58,16 +56,16 @@ public class EndOfAnalogDeliveryWorkflowActionHandler extends AbstractActionHand
         List<SendPaperFeedbackDetails> paperTrail = new ArrayList<>();
 
         boolean exists = true;
-        for (int i = 1; exists ; i++){
+        for (int i = 1; exists; i++) {
             Action paperRetrieve = action.toBuilder()
                     .type(ActionType.RECEIVE_PAPER)
-                    .retryNumber( i )
+                    .retryNumber(i)
                     .build();
             Optional<SendPaperFeedbackDetails> paperRetrieveDetail = getTimelineElement(
                     paperRetrieve,
                     ActionType.RECEIVE_PAPER,
                     SendPaperFeedbackDetails.class);
-            if(paperRetrieveDetail.isPresent()){
+            if (paperRetrieveDetail.isPresent()) {
                 paperTrail.add(paperRetrieveDetail.get());
             } else {
                 exists = false;

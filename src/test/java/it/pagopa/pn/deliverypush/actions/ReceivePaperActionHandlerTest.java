@@ -1,14 +1,14 @@
 package it.pagopa.pn.deliverypush.actions;
 
-import it.pagopa.pn.api.dto.events.CommunicationType;
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
-import it.pagopa.pn.api.dto.events.ServiceLevelType;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
-import it.pagopa.pn.api.dto.notification.timeline.*;
+import it.pagopa.pn.api.dto.notification.timeline.SendPaperDetails;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import java.sql.Time;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
@@ -100,11 +99,11 @@ class ReceivePaperActionHandlerTest {
         //Then
         ArgumentCaptor<TimelineElement> timeLineArg = ArgumentCaptor.forClass(TimelineElement.class);
         Mockito.verify(timelineDao).addTimelineElement(timeLineArg.capture());
-        Assertions.assertEquals( TimelineElementCategory.SEND_PAPER_FEEDBACK , timeLineArg.getValue().getCategory());
+        Assertions.assertEquals(TimelineElementCategory.SEND_PAPER_FEEDBACK, timeLineArg.getValue().getCategory());
 
         ArgumentCaptor<Action> actionArg = ArgumentCaptor.forClass(Action.class);
         Mockito.verify(actionsPool).scheduleFutureAction(actionArg.capture());
-        Assertions.assertEquals(ActionType.END_OF_ANALOG_DELIVERY_WORKFLOW , actionArg.getValue().getType());
+        Assertions.assertEquals(ActionType.END_OF_ANALOG_DELIVERY_WORKFLOW, actionArg.getValue().getType());
     }
 
     @Test
@@ -157,11 +156,11 @@ class ReceivePaperActionHandlerTest {
         //Then
         ArgumentCaptor<TimelineElement> timeLineArg = ArgumentCaptor.forClass(TimelineElement.class);
         Mockito.verify(timelineDao).addTimelineElement(timeLineArg.capture());
-        Assertions.assertEquals( TimelineElementCategory.SEND_PAPER_FEEDBACK ,timeLineArg.getValue().getCategory());
+        Assertions.assertEquals(TimelineElementCategory.SEND_PAPER_FEEDBACK, timeLineArg.getValue().getCategory());
 
         ArgumentCaptor<Action> actionArg = ArgumentCaptor.forClass(Action.class);
         Mockito.verify(actionsPool).scheduleFutureAction(actionArg.capture());
-        Assertions.assertEquals(ActionType.SEND_PAPER , actionArg.getValue().getType());
+        Assertions.assertEquals(ActionType.SEND_PAPER, actionArg.getValue().getType());
     }
 
     @Test
