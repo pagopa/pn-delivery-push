@@ -15,7 +15,7 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
-import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,14 +35,14 @@ class EndOfAnalogDeliveryWorkflowActionHandlerTest {
 	private TimelineDao timelineDao;
 	private ActionsPool actionsPool;
 	private PnDeliveryPushConfigs pnDeliveryPushConfigs;
-	private LegalFactUtils legalFactStore;
+	private LegalFactDao legalFactStore;
 	
 	@SuppressWarnings("unchecked")
 	@BeforeEach
 	public void setup() {
 		timelineDao = Mockito.mock( TimelineDao.class );
 		actionsPool = Mockito.mock( ActionsPool.class );
-		legalFactStore = Mockito.mock( LegalFactUtils.class );
+		legalFactStore = Mockito.mock( LegalFactDao.class );
 		pnDeliveryPushConfigs = Mockito.mock( PnDeliveryPushConfigs.class );
 		TimeParams times = new TimeParams();
 		times.setRecipientViewMaxTimeForAnalog( Duration.ZERO );

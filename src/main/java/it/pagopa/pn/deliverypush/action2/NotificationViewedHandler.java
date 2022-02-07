@@ -6,7 +6,7 @@ import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.commons_delivery.middleware.failednotification.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
-import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
@@ -16,14 +16,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class NotificationViewedHandler {
 
-    private final LegalFactUtils legalFactStore;
+    private final LegalFactDao legalFactStore;
     private final PaperNotificationFailedDao paperNotificationFailedDao;
     private final TimelineService timelineService;
     private final NotificationService notificationService;
     private final TimelineUtils timelineUtils;
     private final InstantNowSupplier instantNowSupplier;
 
-    public NotificationViewedHandler(TimelineService timelineService, LegalFactUtils legalFactStore,
+    public NotificationViewedHandler(TimelineService timelineService, LegalFactDao legalFactStore,
                                      PaperNotificationFailedDao paperNotificationFailedDao, NotificationService notificationService,
                                      TimelineUtils timelineUtils, InstantNowSupplier instantNowSupplier) {
         this.legalFactStore = legalFactStore;

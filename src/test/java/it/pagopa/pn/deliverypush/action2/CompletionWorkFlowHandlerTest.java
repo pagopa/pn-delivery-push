@@ -12,7 +12,7 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action2.utils.CompletelyUnreachableUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
-import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -43,7 +43,7 @@ class CompletionWorkFlowHandlerTest {
     @Mock
     private TimelineUtils timelineUtils;
     @Mock
-    private LegalFactUtils legalFactUtils;
+    private LegalFactDao legalFactDao;
     @Mock
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
     
@@ -52,7 +52,7 @@ class CompletionWorkFlowHandlerTest {
     @BeforeEach
     public void setup() {
         handler = new CompletionWorkFlowHandler(notificationService, scheduler,
-                externalChannelSendHandler, timelineService, completelyUnreachableUtils, timelineUtils, legalFactUtils
+                externalChannelSendHandler, timelineService, completelyUnreachableUtils, timelineUtils, legalFactDao
                 ,pnDeliveryPushConfigs);
     }
 

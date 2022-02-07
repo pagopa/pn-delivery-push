@@ -10,7 +10,7 @@ import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
-import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -19,10 +19,10 @@ import java.util.stream.Collectors;
 @Component
 public class SenderAckActionHandler extends AbstractActionHandler {
 
-    private final LegalFactUtils legalFactStore;
+    private final LegalFactDao legalFactStore;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
-    public SenderAckActionHandler(LegalFactUtils legalFactStore, TimelineDao timelineDao, ActionsPool actionsPool, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
+    public SenderAckActionHandler(LegalFactDao legalFactStore, TimelineDao timelineDao, ActionsPool actionsPool, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         super(timelineDao, actionsPool, pnDeliveryPushConfigs);
         this.legalFactStore = legalFactStore;
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;

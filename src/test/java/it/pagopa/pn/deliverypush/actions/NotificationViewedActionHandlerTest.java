@@ -12,7 +12,7 @@ import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
-import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,7 @@ import org.mockito.Mockito;
 import java.util.Collections;
 
 class NotificationViewedActionHandlerTest {
-    private LegalFactUtils legalFactUtils;
+    private LegalFactDao legalFactDao;
     private TimelineDao timelineDao;
     private ActionsPool actionsPool;
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
@@ -31,14 +31,14 @@ class NotificationViewedActionHandlerTest {
     @BeforeEach
     public void setup() {
         pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
-        legalFactUtils = Mockito.mock(LegalFactUtils.class);
+        legalFactDao = Mockito.mock(LegalFactDao.class);
         timelineDao = Mockito.mock(TimelineDao.class);
         actionsPool = Mockito.mock(ActionsPool.class);
         paperNotificationFailedDao = Mockito.mock(PaperNotificationFailedDao.class);
         handler = new NotificationViewedActionHandler(
                 timelineDao,
                 actionsPool,
-                legalFactUtils,
+                legalFactDao,
                 pnDeliveryPushConfigs,
                 paperNotificationFailedDao
         );
@@ -63,7 +63,7 @@ class NotificationViewedActionHandlerTest {
         handler.handleAction(action, notification);
 
         //Then
-        Mockito.verify(legalFactUtils).saveNotificationViewedLegalFact(action, notification);
+        Mockito.verify(legalFactDao).saveNotificationViewedLegalFact(action, notification);
         Mockito.verify(timelineDao).addTimelineElement(Mockito.any(TimelineElement.class));
     }
 

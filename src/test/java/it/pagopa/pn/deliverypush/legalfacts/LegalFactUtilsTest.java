@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.actions;
+package it.pagopa.pn.deliverypush.legalfacts;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,9 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
-import it.pagopa.pn.deliverypush.legalfacts.OpenhtmltopdfLegalFactPdfGenerator;
-import it.pagopa.pn.deliverypush.legalfacts.LegalFactPdfGenerator;
-import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,17 +19,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 
 class LegalFactUtilsTest {
-    private LegalFactUtils legalFactUtils;
+    private LegalFactDao legalFactDao;
     private FileStorage fileStorage;
-    private LegalFactPdfGenerator pdfUtils;
+    private LegalFactGenerator pdfUtils;
     
     private Map<String, String> metadata = new HashMap<>();
     
     @BeforeEach
     public void setup() {
         fileStorage = Mockito.mock(FileStorage.class);
-        pdfUtils = Mockito.mock(OpenhtmltopdfLegalFactPdfGenerator.class);
-        legalFactUtils = new LegalFactUtils(
+        pdfUtils = Mockito.mock(LegalFactGenerator.class);
+        legalFactDao = new LegalFactDao(
                 fileStorage,
                 pdfUtils,
                 new LegalfactsMetadataUtils() );
@@ -48,7 +45,7 @@ class LegalFactUtilsTest {
         Long expectedBodyLength = (long) legalFact.length;
 		
         //When
-        legalFactUtils.saveLegalFact(iun, legalFactName, legalFact, metadata);
+        legalFactDao.saveLegalFact(iun, legalFactName, legalFact, metadata);
 
         //Then
         ArgumentCaptor<String> keyCapture = ArgumentCaptor.forClass(String.class);
@@ -74,7 +71,7 @@ class LegalFactUtilsTest {
     }
     
     @Test
-    void onceWriterTest() throws JsonProcessingException {
+    void onceWriterTest() throws IOException {
         //Given
         String iun1 = "Test_iun1";
         String iun2 = "Test_iun2";
@@ -84,8 +81,8 @@ class LegalFactUtilsTest {
         byte[] legalFact2 = new byte[] { 77, 97, 114, 122 };
 
         //When
-        legalFactUtils.saveLegalFact(iun1, legalFactName, legalFact1, metadata);
-        legalFactUtils.saveLegalFact(iun2, legalFactName, legalFact2, metadata);
+        legalFactDao.saveLegalFact(iun1, legalFactName, legalFact1, metadata);
+        legalFactDao.saveLegalFact(iun2, legalFactName, legalFact2, metadata);
 
         //Then
         Mockito.verify(fileStorage, Mockito.times(2)).putFileVersion(

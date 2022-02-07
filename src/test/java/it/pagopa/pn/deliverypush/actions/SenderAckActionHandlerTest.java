@@ -13,7 +13,7 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
-import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 class SenderAckActionHandlerTest {
-    private LegalFactUtils legalFactUtils;
+    private LegalFactDao legalFactDao;
     private TimelineDao timelineDao;
     private ActionsPool actionsPool;
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
@@ -35,11 +35,11 @@ class SenderAckActionHandlerTest {
     @BeforeEach
     public void setup() {
         pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
-        legalFactUtils = Mockito.mock(LegalFactUtils.class);
+        legalFactDao = Mockito.mock(LegalFactDao.class);
         timelineDao = Mockito.mock(TimelineDao.class);
         actionsPool = Mockito.mock(ActionsPool.class);
         handler = new SenderAckActionHandler(
-                legalFactUtils,
+                legalFactDao,
                 timelineDao,
                 actionsPool,
                 pnDeliveryPushConfigs
@@ -81,7 +81,7 @@ class SenderAckActionHandlerTest {
         ArgumentCaptor<Action> actionCapture = ArgumentCaptor.forClass(Action.class);
         ArgumentCaptor<Notification> notificationCapture = ArgumentCaptor.forClass(Notification.class);
 
-        Mockito.verify(legalFactUtils).saveNotificationReceivedLegalFact( actionCapture.capture(),
+        Mockito.verify(legalFactDao).saveNotificationReceivedLegalFact( actionCapture.capture(),
                 notificationCapture.capture());
 
         Assertions.assertEquals(action.getIun(), actionCapture.getValue().getIun(), "Different iun");

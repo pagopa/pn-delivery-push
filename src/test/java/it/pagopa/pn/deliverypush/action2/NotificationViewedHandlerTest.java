@@ -8,7 +8,7 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.commons_delivery.middleware.failednotification.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
-import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +31,7 @@ class NotificationViewedHandlerTest {
     @Mock
     private PaperNotificationFailedDao paperNotificationFailedDao;
     @Mock
-    private LegalFactUtils legalFactStore;
+    private LegalFactDao legalFactStore;
     @Mock
     private InstantNowSupplier instantNowSupplier;
     @Mock

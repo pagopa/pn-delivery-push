@@ -7,7 +7,7 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.deliverypush.action2.utils.CourtesyMessageUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
-import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +21,7 @@ import java.util.Collections;
 
 class StartWorkflowHandlerTest {
     @Mock
-    private LegalFactUtils legalFactUtils;
+    private LegalFactDao legalFactDao;
     @Mock
     private NotificationService notificationService;
     @Mock
@@ -37,7 +37,7 @@ class StartWorkflowHandlerTest {
 
     @BeforeEach
     public void setup() {
-        handler = new StartWorkflowHandler(legalFactUtils, notificationService, courtesyMessageUtils,
+        handler = new StartWorkflowHandler(legalFactDao, notificationService, courtesyMessageUtils,
                 chooseDeliveryType, timelineService, timelineUtils
         );
     }
@@ -51,7 +51,7 @@ class StartWorkflowHandlerTest {
 
         handler.startWorkflow("IUN_01");
 
-        Mockito.verify(legalFactUtils).saveNotificationReceivedLegalFact(Mockito.any(Notification.class));
+        Mockito.verify(legalFactDao).saveNotificationReceivedLegalFact(Mockito.any(Notification.class));
         Mockito.verify(timelineUtils).buildAcceptedRequestTimelineElement(Mockito.any(Notification.class), Mockito.anyString());
         Mockito.verify(courtesyMessageUtils).checkAddressesForSendCourtesyMessage(Mockito.any(Notification.class), Mockito.any(NotificationRecipient.class));
         Mockito.verify(chooseDeliveryType).chooseDeliveryTypeAndStartWorkflow(Mockito.any(Notification.class), Mockito.any(NotificationRecipient.class));

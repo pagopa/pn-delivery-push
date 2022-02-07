@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.actions;
 
 import it.pagopa.pn.commons_delivery.middleware.failednotification.PaperNotificationFailedDao;
-import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
 import org.springframework.stereotype.Component;
 
 import it.pagopa.pn.api.dto.notification.Notification;
@@ -18,12 +18,12 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 @Component
 public class NotificationViewedActionHandler extends AbstractActionHandler {
 
-    private final LegalFactUtils legalFactStore;
+    private final LegalFactDao legalFactStore;
     private PaperNotificationFailedDao paperNotificationFailedDao;
 
     public NotificationViewedActionHandler(TimelineDao timelineDao, ActionsPool actionsPool,
-                      LegalFactUtils legalFactStore, PnDeliveryPushConfigs pnDeliveryPushConfigs,
-                      PaperNotificationFailedDao paperNotificationFailedDao) {
+                                           LegalFactDao legalFactStore, PnDeliveryPushConfigs pnDeliveryPushConfigs,
+                                           PaperNotificationFailedDao paperNotificationFailedDao) {
         super(timelineDao, actionsPool, pnDeliveryPushConfigs);
         this.legalFactStore = legalFactStore;
         this.paperNotificationFailedDao = paperNotificationFailedDao;
