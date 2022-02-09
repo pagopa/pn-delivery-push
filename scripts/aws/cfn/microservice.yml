@@ -173,7 +173,7 @@ Resources:
             - '='
             - - CLIENT_KEY_PEM
               - '{{resolve:secretsmanager:pa_webhook_client_cert:SecretString:client_key_pem}}'
-        ContainerEnvEntry23: !Sub '='
+        ContainerEnvEntry23:
           Fn::Join:
             - '='
             - - SERVER_CERTIFICATES_PEM
