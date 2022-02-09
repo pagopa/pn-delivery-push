@@ -1,7 +1,10 @@
 package it.pagopa.pn.deliverypush.webhook;
 
+import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.api.dto.webhook.WebhookConfigDto;
 import it.pagopa.pn.commons.utils.DateFormatUtils;
+import it.pagopa.pn.commons_delivery.utils.EncodingUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.webhook.dto.WebhookBufferRowDto;
 import it.pagopa.pn.deliverypush.webhook.dto.WebhookOutputDto;
@@ -75,7 +78,7 @@ public class WebhookBufferReaderService {
         try {
             log.info("Call webhook " + webhook.getPaId() + " url(" + webhook.getUrl() + ")" + " with chunk size " + chunk.size());
             List<WebhookOutputDto> webhookOutputDtoList = getListWebhookOutputDto(chunk);
-
+            
             client.sendInfo(webhook.getUrl(), webhookOutputDtoList);
             chunk.stream().map(WebhookBufferRowDto::getStatusChangeTime)
                     .max(Comparator.naturalOrder())
@@ -94,9 +97,13 @@ public class WebhookBufferReaderService {
     }
 
     private WebhookOutputDto bufferRow2output( WebhookBufferRowDto row ) {
+        boolean refusedCondition = NotificationStatus.REFUSED.toString().equals(row.getNotificationElement()) 
+                || TimelineElementCategory.REQUEST_REFUSED.toString().equals(row.getNotificationElement());
+
         WebhookOutputDto out = WebhookOutputDto.builder()
                 .notificationElement(row.getNotificationElement())
-                .iun(row.getIun())
+                .iun(refusedCondition ? null : row.getIun())
+                .notificationId(EncodingUtils.base64Encoding(row.getIun()))
                 .senderId(row.getSenderId())
                 .statusChangeTime(DateFormatUtils.formatInstantToString(row.getStatusChangeTime(), DateFormatUtils.yyyyMMddHHmmssSSSZ))
                 .build();

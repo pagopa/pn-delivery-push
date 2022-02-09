@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -35,14 +36,13 @@ public class TimelineUtils {
                 .details(details)
                 .build();
     }
-
-    public TimelineElement buildAcceptedRequestTimelineElement(Notification notification, String taxId) {
-        log.debug("buildAcceptedRequestTimelineElement - iun {} and id {}", notification.getIun(), taxId);
+    
+    public TimelineElement buildAcceptedRequestTimelineElement(Notification notification) {
+        log.debug("buildAcceptedRequestTimelineElement - iun {}", notification.getIun());
 
         String elementId = TimelineEventId.REQUEST_ACCEPTED.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())
-                        .recipientId(taxId)
                         .build());
 
         ReceivedDetails details = ReceivedDetails.builder()
@@ -369,5 +369,20 @@ public class TimelineUtils {
                 .build();
 
         return buildTimeline(iun, TimelineElementCategory.SCHEDULE_REFINEMENT, elementId, details);
+    }
+
+    public TimelineElement buildRefusedRequestTimelineElement(Notification notification, List<String> errors) {
+        log.debug("buildRefusedRequestTimelineElement - iun {}", notification.getIun());
+
+        String elementId = TimelineEventId.REQUEST_REFUSED.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .build());
+
+        RequestRefusedDetails details = RequestRefusedDetails.builder()
+                .errors(errors)
+                .build();
+
+        return buildTimeline(notification.getIun(), TimelineElementCategory.REQUEST_REFUSED, elementId, details);
     }
 }

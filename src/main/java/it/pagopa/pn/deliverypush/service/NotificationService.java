@@ -7,4 +7,6 @@ public interface NotificationService {
     Notification getNotificationByIun(String iun);
 
     NotificationRecipient getRecipientFromNotification(Notification notification, String taxId);
+
+    void updateNotification(Notification notification);
 }

@@ -8,6 +8,8 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.api.dto.notification.timeline.EventId;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineEventId;
+import it.pagopa.pn.commons.abstractions.FileData;
+import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
@@ -21,6 +23,7 @@ import it.pagopa.pn.deliverypush.action2.utils.*;
 import it.pagopa.pn.deliverypush.actions.ExtChnEventUtils;
 import it.pagopa.pn.deliverypush.external.AddressBookEntry;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.impl.AttachmentServiceImpl;
 import it.pagopa.pn.deliverypush.service.impl.NotificationServiceImpl;
 import it.pagopa.pn.deliverypush.service.impl.TimeLineServiceImpl;
 import org.junit.jupiter.api.Assertions;
@@ -33,6 +36,8 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
@@ -62,6 +67,7 @@ import java.util.Map;
         ChooseDeliveryModeUtils.class,
         NotificationServiceImpl.class,
         TimeLineServiceImpl.class,
+        AttachmentServiceImpl.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
         ExternalChannelMock.class,
@@ -125,6 +131,11 @@ class AnalogCompletelyUnreachableTest {
     @SpyBean
     private ExternalChannelMock externalChannelMock;
 
+    @SpyBean
+    private FileStorage fileStorage;
+
+    
+    
     @Test
     void workflowTest() {
         TimeParams times = new TimeParams();
@@ -140,6 +151,14 @@ class AnalogCompletelyUnreachableTest {
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
 
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
+
+        FileData fileData = FileData.builder()
+                .content( new ByteArrayInputStream("Body".getBytes(StandardCharsets.UTF_8)) )
+                .build();
+
+        // Given
+        Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
+                .thenReturn( fileData );
 
         String iun = notification.getIun();
         String taxId = recipient.getTaxId();

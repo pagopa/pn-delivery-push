@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.action2.it.digital;
 
-import it.pagopa.pn.deliverypush.external.AddressBookEntry;
 import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
@@ -8,6 +7,8 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
+import it.pagopa.pn.commons.abstractions.FileData;
+import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
@@ -22,7 +23,9 @@ import it.pagopa.pn.deliverypush.action2.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action2.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action2.utils.*;
 import it.pagopa.pn.deliverypush.actions.ExtChnEventUtils;
+import it.pagopa.pn.deliverypush.external.AddressBookEntry;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.impl.AttachmentServiceImpl;
 import it.pagopa.pn.deliverypush.service.impl.NotificationServiceImpl;
 import it.pagopa.pn.deliverypush.service.impl.TimeLineServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,6 +39,8 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
@@ -65,6 +70,7 @@ import java.util.Map;
         PublicRegistryUtils.class,
         ChooseDeliveryModeUtils.class,
         NotificationServiceImpl.class,
+        AttachmentServiceImpl.class,
         TimeLineServiceImpl.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
@@ -120,6 +126,8 @@ class DigitalEmptyFirstSuccessGeneralTest {
     private ExternalChannelMock externalChannelMock;
     @SpyBean
     private CompletionWorkFlowHandler completionWorkflow;
+    @SpyBean
+    private FileStorage fileStorage;
     
     @BeforeEach
     public void setup() {
@@ -135,6 +143,15 @@ class DigitalEmptyFirstSuccessGeneralTest {
         Mockito.when(pnDeliveryPushConfigs.getWebapp()).thenReturn(webapp);
 
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
+
+        FileData fileData = FileData.builder()
+                .content( new ByteArrayInputStream("Body".getBytes(StandardCharsets.UTF_8)) )
+                .build();
+
+        // Given
+        Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
+                .thenReturn( fileData );
+
     }
 
     @Test

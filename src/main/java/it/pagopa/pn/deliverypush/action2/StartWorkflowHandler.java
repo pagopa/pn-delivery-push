@@ -4,13 +4,19 @@ package it.pagopa.pn.deliverypush.action2;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.deliverypush.action2.utils.CourtesyMessageUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
+import it.pagopa.pn.deliverypush.service.AttachmentService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import javax.validation.ConstraintViolation;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -21,16 +27,18 @@ public class StartWorkflowHandler {
     private final ChooseDeliveryModeHandler chooseDeliveryType;
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
-
+    private final AttachmentService attachmentService;
+    
     public StartWorkflowHandler(LegalFactUtils legalFactUtils, NotificationService notificationService,
                                 CourtesyMessageUtils courtesyMessageUtils, ChooseDeliveryModeHandler chooseDeliveryType,
-                                TimelineService timelineService, TimelineUtils timelineUtils) {
+                                TimelineService timelineService, TimelineUtils timelineUtils, AttachmentService attachmentService) {
         this.legalFactUtils = legalFactUtils;
         this.notificationService = notificationService;
         this.courtesyMessageUtils = courtesyMessageUtils;
         this.chooseDeliveryType = chooseDeliveryType;
         this.timelineService = timelineService;
         this.timelineUtils = timelineUtils;
+        this.attachmentService = attachmentService;
     }
     
     /**
@@ -39,20 +47,48 @@ public class StartWorkflowHandler {
      * @param iun Notification unique identifier
      */
     public void startWorkflow(String iun) {
-        log.info("Start notification process  - iun {}", iun);
+        log.info("Start notification process - iun {}", iun);
         
         Notification notification = notificationService.getNotificationByIun(iun);
-        legalFactUtils.saveNotificationReceivedLegalFact(notification);
 
-        for (NotificationRecipient recipient : notification.getRecipients()) {
-            log.info("Notification recipient is {} for iun {}", recipient.getTaxId(), iun);
-            // Per ogni recipient della notifica viene aggiunta l'accettazione della richiesta alla timeline ...
-            addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification, recipient.getTaxId()));
-            //... inviato il messaggio di cortesia ...
-            courtesyMessageUtils.checkAddressesForSendCourtesyMessage(notification, recipient);
-            //... e inizializzato il processo di scelta della tipologia di notificazione
-            chooseDeliveryType.chooseDeliveryTypeAndStartWorkflow(notification, recipient);
+        try{
+            //Validazione degli allegati e update della notifica
+            Notification notificationWithAttachment = validateAndUpdateNotification(notification);
+            addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notificationWithAttachment));
+            
+            legalFactUtils.saveNotificationReceivedLegalFact(notificationWithAttachment);
+            
+            //Start del workflow per ogni recipient della notifica
+            for (NotificationRecipient recipient : notificationWithAttachment.getRecipients()) {
+                startNotificationWorkflowForRecipient(iun, notificationWithAttachment, recipient);
+            }
+        }catch (PnValidationException ex){
+            handleValidationError(notification, ex);
         }
+    }
+
+    private Notification validateAndUpdateNotification(Notification notification) {
+        log.debug("Start validation - iun {}", notification.getIun());
+        Notification notificationWithAttachment = attachmentService.checkAttachmentsAndGetCompleteNotification(notification);
+        notificationService.updateNotification(notificationWithAttachment);
+        log.info("Notification Accepted - iun {}", notification.getIun());
+
+        return notificationWithAttachment;
+    }
+
+    private void startNotificationWorkflowForRecipient(String iun, Notification notificationWithAttachment, NotificationRecipient recipient) {
+        log.info("Start notification workflow - iun {} id {}", iun, recipient.getTaxId());
+        //... Invio messaggio di cortesia ...
+        courtesyMessageUtils.checkAddressesForSendCourtesyMessage(notificationWithAttachment, recipient);
+        //... e inizializzato il processo di scelta della tipologia di notificazione
+        chooseDeliveryType.chooseDeliveryTypeAndStartWorkflow(notificationWithAttachment, recipient);
+    }
+
+    private void handleValidationError(Notification notification, PnValidationException ex) {
+        List<String> errors =  ex.getValidationErrors().stream()
+                .map(ConstraintViolation::getMessage).collect(Collectors.toList());
+        log.info("Notification refused, errors {} - iun {}", errors, notification.getIun());
+        addTimelineElement(timelineUtils.buildRefusedRequestTimelineElement(notification, errors));
     }
 
     private void addTimelineElement(TimelineElement element) {

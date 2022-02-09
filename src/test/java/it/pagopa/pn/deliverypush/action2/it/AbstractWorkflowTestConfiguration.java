@@ -18,6 +18,7 @@ import it.pagopa.pn.deliverypush.external.AddressBookEntry;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactPdfGenerator;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import it.pagopa.pn.deliverypush.legalfacts.OpenhtmltopdfLegalFactPdfGenerator;
+import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
@@ -125,4 +126,12 @@ public class AbstractWorkflowTestConfiguration {
                 instantNowSupplier
         );
     }
+
+    @Bean
+    public NotificationReceiverValidator notificationReceiverValidatorTest() {
+        return Mockito.mock(NotificationReceiverValidator.class);
+    }
+
+    
+
 }
