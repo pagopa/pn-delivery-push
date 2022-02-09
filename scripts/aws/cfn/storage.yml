@@ -64,7 +64,7 @@ Resources:
     Type: AWS::Cassandra::Table
     Properties:
       TableName: future_actions
-      KeyspaceName: !Ref KeyspaceName
+      KeyspaceName: !Sub '${ProjectName}_delivery'
       PointInTimeRecoveryEnabled: true
       PartitionKeyColumns:
         - ColumnName: time_slot
@@ -88,7 +88,7 @@ Resources:
     Type: AWS::Cassandra::Table
     Properties:
       TableName: last_poll_for_future_actions
-      KeyspaceName: !Ref KeyspaceName
+      KeyspaceName: !Sub '${ProjectName}_delivery'
       PointInTimeRecoveryEnabled: true
       PartitionKeyColumns:
         - ColumnName: lastpollkey
@@ -101,7 +101,7 @@ Resources:
     Type: AWS::Cassandra::Table
     Properties:
       TableName: webhook_buffer
-      KeyspaceName: !Ref KeyspaceName
+      KeyspaceName: !Sub '${ProjectName}_delivery'
       PointInTimeRecoveryEnabled: true
       PartitionKeyColumns:
         - ColumnName: senderid
@@ -123,7 +123,7 @@ Resources:
     Type: AWS::Cassandra::Table
     Properties:
       TableName: webhook_configs
-      KeyspaceName: !Ref KeyspaceName
+      KeyspaceName: !Sub '${ProjectName}_delivery'
       PointInTimeRecoveryEnabled: true
       PartitionKeyColumns:
         - ColumnName: paid
