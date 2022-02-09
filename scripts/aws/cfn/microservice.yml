@@ -7,13 +7,13 @@ Parameters:
     Description: 'Usually pn can be pnXYZ where XYZ are the feature number, useful to create
       experimental environments without crash official development environment'
 
-  PfPortalUrl:
-    Type: String
-    Description: 'Url del portale della Persona Fisica/Giuridica?? da inserire degli AAR'
+  #PfPortalUrl:
+  #  Type: String
+  #  Description: 'Url del portale della Persona Fisica/Giuridica?? da inserire degli AAR'
 
-AddressBookUrl:
-  Type: String
-  Description: ''
+  AddressBookUrl:
+    Type: String
+    Description: 'The URL of address book mock service'
 
   WebhookScanInterval:
     Type: String
@@ -155,7 +155,7 @@ Resources:
         ContainerEnvEntry10: !Sub 'PN_DELIVERYPUSH_TOPICS_EXECUTEDACTIONS=${DoneActionsQueueName}'
         ContainerEnvEntry11: !Sub 'PN_DELIVERYPUSH_WEBHOOK_SCHEDULEINTERVAL=${WebhookScanInterval}'
         ContainerEnvEntry12: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXLENGTH=${WebhookMaxLength}'
-        ContainerEnvEntry13: !Sub 'PN_DELIVERYPUSH_WEBAPP_DIRECTACCESSURLTEMPLATE=${PfPortalUrl}/direct_access.html?token=%s'
+        ContainerEnvEntry13: !Sub 'PN_DELIVERYPUSH_WEBAPP_DIRECTACCESSURLTEMPLATE={PfPortalUrl}/direct_access.html?token=%s'
         ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SECONDATTEMPTWAITINGTIME=${PecSecondAttemptWaitTime}'
         ContainerEnvEntry15: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_RECIPIENTVIEWMAXTIMEFORDIGITAL=${RecipientTimeoutDelayDigital}'
         ContainerEnvEntry16: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_RECIPIENTVIEWMAXTIMEFORANALOG=${RecipientTimeoutDelayAnalog}'
