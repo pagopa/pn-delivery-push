@@ -178,6 +178,7 @@ Resources:
             - '='
             - - SERVER_CERTIFICATES_PEM
               - '{{resolve:secretsmanager:pa_webhook_client_cert:SecretString:server_certificates_pem}}'
+        ContainerEnvEntry24: 'PN_DELIVERYPUSH_FEATUREFLAGS_WORKFLOW=v1'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
