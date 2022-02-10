@@ -252,6 +252,7 @@ Resources:
         MicroServiceUniqueName: !Sub '${ProjectName}-delivery-push'
         IntendedUsage: B2B
         DnsName: !Ref ApiDnsName
+        ProjectName: !Ref ProjectName
         ServiceApiPath: 'delivery-push'
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
@@ -265,6 +266,7 @@ Resources:
         MicroServiceUniqueName: !Sub '${ProjectName}-delivery-push'
         IntendedUsage: WEB
         DnsName: !Ref WebApiDnsName
+        ProjectName: !Ref ProjectName
         ServiceApiPath: 'delivery-push'
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
