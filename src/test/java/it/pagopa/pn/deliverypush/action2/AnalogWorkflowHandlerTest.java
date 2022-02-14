@@ -247,11 +247,6 @@ class AnalogWorkflowHandlerTest {
         Mockito.verify(completionWorkFlow).completionAnalogWorkflow(eq(recipient.getTaxId()), eq(notification.getIun()), Mockito.any(Instant.class), eq(null), eq(EndWorkflowStatus.FAILURE));
 
     }
-    
-    @ExtendWith(MockitoExtension.class)
-    @Test
-    void extChannelResponseHandler() {
-    }
 
     private Notification getNotificationWithPhisicalAddress() {
         return Notification.builder()

@@ -79,9 +79,9 @@ import static org.mockito.Mockito.doThrow;
         TimelineDaoMock.class,
         ExternalChannelMock.class,
         PaperNotificationFailedDaoMock.class,
-        ValidationDocumentError.SpringTestConfiguration.class
+        ValidationDocumentErrorTest.SpringTestConfiguration.class
 })
-class ValidationDocumentError {
+class ValidationDocumentErrorTest {
  
 
     @TestConfiguration
