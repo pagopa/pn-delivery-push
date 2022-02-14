@@ -5,10 +5,10 @@ import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.deliverypush.action2.utils.CheckAttachmentUtils;
 import it.pagopa.pn.deliverypush.action2.utils.CourtesyMessageUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
-import it.pagopa.pn.deliverypush.service.AttachmentService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
@@ -27,18 +27,18 @@ public class StartWorkflowHandler {
     private final ChooseDeliveryModeHandler chooseDeliveryType;
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
-    private final AttachmentService attachmentService;
+    private final CheckAttachmentUtils checkAttachmentUtils;
     
     public StartWorkflowHandler(LegalFactUtils legalFactUtils, NotificationService notificationService,
                                 CourtesyMessageUtils courtesyMessageUtils, ChooseDeliveryModeHandler chooseDeliveryType,
-                                TimelineService timelineService, TimelineUtils timelineUtils, AttachmentService attachmentService) {
+                                TimelineService timelineService, TimelineUtils timelineUtils, CheckAttachmentUtils checkAttachmentUtils) {
         this.legalFactUtils = legalFactUtils;
         this.notificationService = notificationService;
         this.courtesyMessageUtils = courtesyMessageUtils;
         this.chooseDeliveryType = chooseDeliveryType;
         this.timelineService = timelineService;
         this.timelineUtils = timelineUtils;
-        this.attachmentService = attachmentService;
+        this.checkAttachmentUtils = checkAttachmentUtils;
     }
     
     /**
@@ -52,28 +52,20 @@ public class StartWorkflowHandler {
         Notification notification = notificationService.getNotificationByIun(iun);
 
         try{
-            //Validazione degli allegati e update della notifica
-            Notification notificationWithAttachment = validateAndUpdateNotification(notification);
-            addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notificationWithAttachment));
+            //Validazione degli allegati della notifica
+            checkAttachmentUtils.validateAttachment(notification);
             
-            legalFactUtils.saveNotificationReceivedLegalFact(notificationWithAttachment);
+            addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification));
+            
+            legalFactUtils.saveNotificationReceivedLegalFact(notification);
             
             //Start del workflow per ogni recipient della notifica
-            for (NotificationRecipient recipient : notificationWithAttachment.getRecipients()) {
-                startNotificationWorkflowForRecipient(iun, notificationWithAttachment, recipient);
+            for (NotificationRecipient recipient : notification.getRecipients()) {
+                startNotificationWorkflowForRecipient(iun, notification, recipient);
             }
         }catch (PnValidationException ex){
             handleValidationError(notification, ex);
         }
-    }
-
-    private Notification validateAndUpdateNotification(Notification notification) {
-        log.debug("Start validation - iun {}", notification.getIun());
-        Notification notificationWithAttachment = attachmentService.checkAttachmentsAndGetCompleteNotification(notification);
-        notificationService.updateNotification(notificationWithAttachment);
-        log.info("Notification Accepted - iun {}", notification.getIun());
-
-        return notificationWithAttachment;
     }
 
     private void startNotificationWorkflowForRecipient(String iun, Notification notificationWithAttachment, NotificationRecipient recipient) {

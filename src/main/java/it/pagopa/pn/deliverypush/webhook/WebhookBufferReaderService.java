@@ -10,7 +10,6 @@ import it.pagopa.pn.deliverypush.webhook.dto.WebhookBufferRowDto;
 import it.pagopa.pn.deliverypush.webhook.dto.WebhookOutputDto;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -28,15 +27,14 @@ public class WebhookBufferReaderService {
 
     private final WebhookConfigsDao webhookConfigsDao;
     private final WebhookBufferDao webhookBufferDao;
-
-    @Autowired
-    private WebhookClient client;
+    private final WebhookClient client;
 
     private final int chunkSize;
 
-    public WebhookBufferReaderService(WebhookConfigsDao webhookConfigsDao, WebhookBufferDao webhookBufferDao, PnDeliveryPushConfigs cfg) {
+    public WebhookBufferReaderService(WebhookConfigsDao webhookConfigsDao, WebhookBufferDao webhookBufferDao, WebhookClient client, PnDeliveryPushConfigs cfg) {
         this.webhookConfigsDao = webhookConfigsDao;
         this.webhookBufferDao = webhookBufferDao;
+        this.client = client;
         this.chunkSize = cfg.getWebhook().getMaxLength();
     }
 
@@ -78,7 +76,7 @@ public class WebhookBufferReaderService {
         try {
             log.info("Call webhook " + webhook.getPaId() + " url(" + webhook.getUrl() + ")" + " with chunk size " + chunk.size());
             List<WebhookOutputDto> webhookOutputDtoList = getListWebhookOutputDto(chunk);
-            
+
             client.sendInfo(webhook.getUrl(), webhookOutputDtoList);
             chunk.stream().map(WebhookBufferRowDto::getStatusChangeTime)
                     .max(Comparator.naturalOrder())

@@ -4,7 +4,6 @@ import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
-import it.pagopa.pn.commons_delivery.model.notification.cassandra.NotificationEntity;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -39,15 +38,6 @@ public class NotificationServiceImpl implements NotificationService {
         } else {
             log.error("There isn't recipient in notification - iun {} id {}", notification.getIun(), taxId);
             throw new PnInternalException("There isn't notification - iun " + notification.getIun() + " id " + taxId);
-        }
-    }
-
-    @Override
-    public void updateNotification(Notification notification) {
-        Optional<NotificationEntity> notificationEntity = notificationDao.updateNotification(notification);
-        if (notificationEntity.isEmpty()) {
-            log.error("Update notification failed - iun {} ", notification.getIun());
-            throw new PnInternalException("Update notification failed - iun {}");
         }
     }
 }

@@ -44,6 +44,7 @@ public class PnEventInboundService {
     @Bean
     public MessageRoutingCallback customRouter() {
        return message -> {
+           System.out.println("messaggio ricevuto da customRouter "+message);
            String eventType = (String) message.getHeaders().get("eventType");
            log.debug("Event received, eventType {}",eventType);
            return eventHandler.getHandler().get(eventType);

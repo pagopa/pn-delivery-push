@@ -5,10 +5,10 @@ import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
+import it.pagopa.pn.deliverypush.action2.utils.CheckAttachmentUtils;
 import it.pagopa.pn.deliverypush.action2.utils.CourtesyMessageUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
-import it.pagopa.pn.deliverypush.service.AttachmentService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,7 +34,7 @@ class StartWorkflowHandlerTest {
     @Mock
     private TimelineUtils timelineUtils;
     @Mock
-    private AttachmentService attachmentService;
+    private CheckAttachmentUtils attachmentService;
     
     private StartWorkflowHandler handler;
 
@@ -52,9 +52,6 @@ class StartWorkflowHandlerTest {
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(getNotification());
 
-        Mockito.when(attachmentService.checkAttachmentsAndGetCompleteNotification(Mockito.any(Notification.class)))
-                .thenReturn(getNotification());
-         
         handler.startWorkflow("IUN_01");
 
         Mockito.verify(legalFactUtils).saveNotificationReceivedLegalFact(Mockito.any(Notification.class));

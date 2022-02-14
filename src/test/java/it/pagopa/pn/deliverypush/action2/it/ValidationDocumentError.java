@@ -1,22 +1,23 @@
 package it.pagopa.pn.deliverypush.action2.it;
 
+import it.pagopa.pn.api.dto.events.PnExtChnEmailEvent;
+import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
+import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.api.dto.notification.timeline.EventId;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineEventId;
 import it.pagopa.pn.commons.abstractions.FileData;
 import it.pagopa.pn.commons.abstractions.FileStorage;
+import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action2.*;
-import it.pagopa.pn.deliverypush.action2.it.mockbean.ExternalChannelMock;
-import it.pagopa.pn.deliverypush.action2.it.mockbean.PaperNotificationFailedDaoMock;
-import it.pagopa.pn.deliverypush.action2.it.mockbean.TimelineDaoMock;
+import it.pagopa.pn.deliverypush.action2.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action2.it.utils.AddressBookEntryTestBuilder;
 import it.pagopa.pn.deliverypush.action2.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action2.it.utils.NotificationTestBuilder;
@@ -24,7 +25,6 @@ import it.pagopa.pn.deliverypush.action2.utils.*;
 import it.pagopa.pn.deliverypush.actions.ExtChnEventUtils;
 import it.pagopa.pn.deliverypush.external.AddressBookEntry;
 import it.pagopa.pn.deliverypush.service.TimelineService;
-import it.pagopa.pn.deliverypush.service.impl.AttachmentServiceImpl;
 import it.pagopa.pn.deliverypush.service.impl.NotificationServiceImpl;
 import it.pagopa.pn.deliverypush.service.impl.TimeLineServiceImpl;
 import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
@@ -45,9 +45,7 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import static org.mockito.Mockito.doThrow;
@@ -76,7 +74,7 @@ import static org.mockito.Mockito.doThrow;
         PublicRegistryUtils.class,
         NotificationServiceImpl.class,
         TimeLineServiceImpl.class,
-        AttachmentServiceImpl.class,
+        CheckAttachmentUtils.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
         ExternalChannelMock.class,
@@ -84,51 +82,13 @@ import static org.mockito.Mockito.doThrow;
         ValidationDocumentError.SpringTestConfiguration.class
 })
 class ValidationDocumentError {
-    /*
-   - Platform address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-   - Special address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il digitalDomicile del recipient con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-   - General address presente e invio fallito per entrambi gli invii (Ottenuto non valorizzando il pbDigitalAddress per il recipient in PUB_REGISTRY_DIGITAL con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-    */
-
-    private static final DigitalAddress platformAddress = DigitalAddress.builder()
-            .address("platformAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-            .type(DigitalAddressType.PEC)
-            .build();
-
-    private static final DigitalAddress digitalDomicile = DigitalAddress.builder()
-            .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-            .type(DigitalAddressType.PEC)
-            .build();
-
-    private static final DigitalAddress pbDigitalAddress = DigitalAddress.builder()
-            .address("pbDigitalAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-            .type(DigitalAddressType.PEC)
-            .build();
-
-    private static final NotificationRecipient recipient = NotificationRecipientTestBuilder.builder()
-            .withTaxId("TAXID01")
-            .withDigitalDomicile(digitalDomicile)
-            .build();
-
-    private static final Notification notification = NotificationTestBuilder.builder()
-            .withIun("IUN01")
-            .withNotificationRecipient(recipient)
-            .build();
-
-    private static final AddressBookEntry addressBookEntry = AddressBookEntryTestBuilder.builder()
-            .withTaxId(recipient.getTaxId())
-            .withPlatformAddress(platformAddress)
-            .build();
-
-    private static final Map<String, DigitalAddress> PUB_REGISTRY_DIGITAL = Collections.singletonMap(recipient.getTaxId(), pbDigitalAddress);
-    private static final Map<String, PhysicalAddress> PUB_REGISTRY_PHYSICAL = Collections.emptyMap();
+ 
 
     @TestConfiguration
     static class SpringTestConfiguration extends AbstractWorkflowTestConfiguration {
 
         public SpringTestConfiguration() {
-            super(notification, addressBookEntry, PUB_REGISTRY_DIGITAL, PUB_REGISTRY_PHYSICAL);
-        }
+            super();        }
     }
 
     @Autowired
@@ -154,6 +114,21 @@ class ValidationDocumentError {
 
     @SpyBean
     private NotificationReceiverValidator notificationReceiverValidator;
+
+    @Autowired
+    private NotificationDaoMock notificationDaoMock;
+
+    @Autowired
+    private AddressBookMock addressBookMock;
+
+    @Autowired
+    private PublicRegistryMock publicRegistryMock;
+
+    @Autowired
+    private TimelineDaoMock timelineDaoMock;
+
+    @Autowired
+    private PaperNotificationFailedDaoMock paperNotificationFailedDaoMock;
     
     @BeforeEach
     public void setup() {
@@ -178,14 +153,61 @@ class ValidationDocumentError {
         // Given
         Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
                 .thenReturn( fileData );
-        
-        Set<ConstraintViolation<DigestEqualityBean>> errors = new HashSet<>();;
-        doThrow(new PnValidationException("key", errors )).when(notificationReceiverValidator).checkPreloadedDigests(Mockito.any(),Mockito.any(),Mockito.any());
 
+        notificationDaoMock.clear();
+        addressBookMock.clear();
+        publicRegistryMock.clear();
+        timelineDaoMock.clear();
+        paperNotificationFailedDaoMock.clear();
+        
     }
 
     @Test
-    void workflowTest() {
+    void workflowTest() throws IdConflictException {
+           /*
+       - Platform address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
+       - Special address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il digitalDomicile del recipient con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
+       - General address presente e invio fallito per entrambi gli invii (Ottenuto non valorizzando il pbDigitalAddress per il recipient in PUB_REGISTRY_DIGITAL con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
+        */
+
+        DigitalAddress platformAddress = DigitalAddress.builder()
+                .address("platformAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
+                .type(DigitalAddressType.PEC)
+                .build();
+
+        DigitalAddress digitalDomicile = DigitalAddress.builder()
+                .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
+                .type(DigitalAddressType.PEC)
+                .build();
+
+        DigitalAddress pbDigitalAddress = DigitalAddress.builder()
+                .address("pbDigitalAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
+                .type(DigitalAddressType.PEC)
+                .build();
+
+        NotificationRecipient recipient = NotificationRecipientTestBuilder.builder()
+                .withTaxId("TAXID01")
+                .withDigitalDomicile(digitalDomicile)
+                .build();
+
+        Notification notification = NotificationTestBuilder.builder()
+                .withIun("IUN01")
+                .withNotificationRecipient(recipient)
+                .build();
+
+        AddressBookEntry addressBookEntry = AddressBookEntryTestBuilder.builder()
+                .withTaxId(recipient.getTaxId())
+                .withPlatformAddress(platformAddress)
+                .build();
+
+
+        notificationDaoMock.addNotification(notification);
+        addressBookMock.add(addressBookEntry);
+        publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
+
+        Set<ConstraintViolation<DigestEqualityBean>> errors = new HashSet<>();;
+        doThrow(new PnValidationException("key", errors )).when(notificationReceiverValidator).checkPreloadedDigests(Mockito.any(),Mockito.any(),Mockito.any());
+
         String iun = notification.getIun();
         String taxId = recipient.getTaxId();
 
@@ -200,6 +222,10 @@ class ValidationDocumentError {
                                 .iun(iun)
                                 .recipientId(taxId)
                                 .build())).isPresent());
+        
+        Mockito.verify(externalChannelMock, Mockito.times(0)).sendNotification(Mockito.any(PnExtChnEmailEvent.class));
+        Mockito.verify(externalChannelMock, Mockito.times(0)).sendNotification(Mockito.any(PnExtChnPecEvent.class));
+        Mockito.verify(externalChannelMock, Mockito.times(0)).sendNotification(Mockito.any(PnExtChnPaperEvent.class));
     }
 
 
