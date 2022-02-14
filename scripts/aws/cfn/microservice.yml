@@ -133,7 +133,7 @@ Parameters:
 
 Resources:
 
-  # Example microservice
+  # PN-Delivery-push microservice
   DeliveryPushMicroservice:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -186,7 +186,7 @@ Resources:
         LoadBalancerListenerArn: !Ref ApplicationLoadBalancerListenerArn
         LoadbalancerRulePriority: !Ref MicroserviceNumber
 
-  # Grant operational rights to Example microservice
+  # Grant operational rights to PN-Delivery-push microservice microservice
   DeliveryPushMicroserviceTaskPolicy:
     Type: AWS::IAM::Policy
     Properties:
@@ -243,7 +243,7 @@ Resources:
               - !Sub "arn:aws:cassandra:*:${AWS::AccountId}:/keyspace/*/table/*"
 
 
-  # Expose Example public API with API-GW for B2B usage
+  # Expose PN-Delivery-push microservice public API with API-GW for B2B usage
   DeliveryPushMicroservicePublicAPI:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -257,7 +257,7 @@ Resources:
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
 
-  # Expose Example public API with API-GW for WEB usage
+  # Expose PN-Delivery-push microservice public API with API-GW for WEB usage
   DeliveryPushMicroservicePublicWebAPI:
     Type: AWS::CloudFormation::Stack
     Properties:

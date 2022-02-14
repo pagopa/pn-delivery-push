@@ -21,7 +21,7 @@ Resources:
     Type: AWS::S3::Bucket
     DeletionPolicy: Retain
     Properties:
-      # No default retentin neither legal hold.
+      # No default retention neither legal hold.
       # Can define retention period or legal hold when upload new object or version
       ObjectLockEnabled: true
       PublicAccessBlockConfiguration:
