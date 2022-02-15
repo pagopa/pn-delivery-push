@@ -163,21 +163,17 @@ Resources:
         ContainerEnvEntry18: !Sub 'SPRING_DATA_CASSANDRA_KEYSPACENAME=${KeyspaceName}'
         ContainerEnvEntry19: !Sub 'SPRING_DATA_CASSANDRA_SSL=true'
         ContainerEnvEntry20: !Sub 'SPRING_DATA_CASSANDRA_CONTACTPOINTS=cassandra.${AWS::Region}.${AWS::URLSuffix}:9142'
-        ContainerEnvEntry21:
-          Fn::Join:
-            - '='
-            - - CLIENT_CERTIFICATE_PEM
-              - '{{resolve:secretsmanager:pa_webhook_client_cert:SecretString:client_certificate_pem}}'
-        ContainerEnvEntry22:
-          Fn::Join:
-            - '='
-            - - CLIENT_KEY_PEM
-              - '{{resolve:secretsmanager:pa_webhook_client_cert:SecretString:client_key_pem}}'
-        ContainerEnvEntry23:
-          Fn::Join:
-            - '='
-            - - SERVER_CERTIFICATES_PEM
-              - '{{resolve:secretsmanager:pa_webhook_client_cert:SecretString:server_certificates_pem}}'
+# WAIT for real client certificates (PN-565)
+#        ContainerEnvEntry21:
+#          Fn::Join:
+#            - '='
+#            - - CLIENT_CERTIFICATE_PEM
+#              - '{{resolve:secretsmanager:pa_webhook_client_cert:SecretString:client_certificate_pem}}'
+#        ContainerEnvEntry22:
+#          Fn::Join:
+#            - '='
+#            - - CLIENT_KEY_PEM
+#              - '{{resolve:secretsmanager:pa_webhook_client_cert:SecretString:client_key_pem}}'
         ContainerEnvEntry24: 'PN_DELIVERYPUSH_FEATUREFLAGS_WORKFLOW=v1'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*'
         ECSClusterName: !Ref ECSClusterName
