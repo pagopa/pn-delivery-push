@@ -6,6 +6,7 @@ Parameters:
     Type: String
     Description: Nome dell'ambiente destinazione
 
+  # Unused but required by CD pipeline
   MicroserviceNumber:
     Type: Number
     Description: unused
@@ -20,6 +21,7 @@ Resources:
   LegalFactsBucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Properties:
       # No default retention neither legal hold.
       # Can define retention period or legal hold when upload new object or version
