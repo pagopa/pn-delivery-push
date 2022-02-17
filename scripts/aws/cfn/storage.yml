@@ -1,0 +1,203 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Actions storage
+
+Parameters:
+  ProjectName:
+    Type: String
+    Description: Nome dell'ambiente destinazione
+
+  # Unused but required by CD pipeline
+  MicroserviceNumber:
+    Type: Number
+    Description: unused
+
+  TemplateBucketBaseUrl:
+    Type: String
+    Description: URL da cui caricare i frammenti di template di infrastruttura
+
+Resources:
+
+  # Legal Facts S3 Storage
+  LegalFactsBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      # No default retention neither legal hold.
+      # Can define retention period or legal hold when upload new object or version
+      ObjectLockEnabled: true
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - GET
+              - PUT
+              - POST
+              - DELETE
+              - HEAD
+            AllowedOrigins:
+              - "*"
+            ExposedHeaders:
+              - "x-amz-version-id"
+
+  # Actions database
+  ActionsTable:
+    Type: AWS::Cassandra::Table
+    Properties:
+      TableName: actions
+      KeyspaceName: !Sub '${ProjectName}_delivery'
+      PointInTimeRecoveryEnabled: true
+      PartitionKeyColumns:
+        - ColumnName: actionid
+          ColumnType: text
+      RegularColumns:
+        - ColumnName: actionjson
+          ColumnType: text
+
+  FutureActionsTable:
+    Type: AWS::Cassandra::Table
+    Properties:
+      TableName: future_actions
+      KeyspaceName: !Sub '${ProjectName}_delivery'
+      PointInTimeRecoveryEnabled: true
+      PartitionKeyColumns:
+        - ColumnName: time_slot
+          ColumnType: text
+      ClusteringKeyColumns:
+        - Column:
+            ColumnName: iun
+            ColumnType: text
+          OrderBy: ASC
+        - Column:
+            ColumnName: action_id
+            ColumnType: text
+          OrderBy: ASC
+      RegularColumns:
+        - ColumnName: notbefore
+          ColumnType: timestamp
+        - ColumnName: actionjson
+          ColumnType: text
+
+  LastActionPollTable:
+    Type: AWS::Cassandra::Table
+    Properties:
+      TableName: last_poll_for_future_actions
+      KeyspaceName: !Sub '${ProjectName}_delivery'
+      PointInTimeRecoveryEnabled: true
+      PartitionKeyColumns:
+        - ColumnName: lastpollkey
+          ColumnType: bigint
+      RegularColumns:
+        - ColumnName: lastpollexecuted
+          ColumnType: timestamp
+
+  WebhookBufferTable:
+    Type: AWS::Cassandra::Table
+    Properties:
+      TableName: webhook_buffer
+      KeyspaceName: !Sub '${ProjectName}_delivery'
+      PointInTimeRecoveryEnabled: true
+      PartitionKeyColumns:
+        - ColumnName: senderid
+          ColumnType: text
+      ClusteringKeyColumns:
+        - Column:
+            ColumnName: statuschangetime
+            ColumnType: timestamp
+          OrderBy: ASC
+        - Column:
+            ColumnName: iun
+            ColumnType: text
+          OrderBy: ASC
+      RegularColumns:
+        - ColumnName: notificationelement
+          ColumnType: text
+
+  WebhookConfigsTable:
+    Type: AWS::Cassandra::Table
+    Properties:
+      TableName: webhook_configs
+      KeyspaceName: !Sub '${ProjectName}_delivery'
+      PointInTimeRecoveryEnabled: true
+      PartitionKeyColumns:
+        - ColumnName: paid
+          ColumnType: text
+      RegularColumns:
+        - ColumnName: url
+          ColumnType: text
+        - ColumnName: since
+          ColumnType: timestamp
+        - ColumnName: active
+          ColumnType: boolean
+        - ColumnName: type
+          ColumnType: text
+        - ColumnName: allnotifications
+          ColumnType: boolean
+        - ColumnName: notificationselement
+          ColumnType: set<text>
+
+  # Internal queues
+  ScheduledActionsQueue:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
+      Parameters:
+        QueueName: !Sub '${ProjectName}-delivery_push_actions'
+        DelaySeconds: 1
+
+  DoneActionsQueue:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
+      Parameters:
+        QueueName: !Sub '${ProjectName}-delivery_push_actions_done'
+        DelaySeconds: 1
+
+
+Outputs:
+
+  # Keyvalue store
+  KeyspaceName:
+    Description: Keyspace Name used by application to access the key-value store
+    Value: !Sub '${ProjectName}_delivery'
+
+
+  # Legal facts S3 bucket
+  LegalFactsBucketName:
+    Description: name of bucket going to contains notification documents
+    Value: !Ref LegalFactsBucket
+
+  LegalFactsBucketArn:
+    Description: ARN of bucket going to contains notification documents
+    Value: !Sub '${LegalFactsBucket.Arn}'
+
+
+  # Scheduled Actions
+  ScheduledActionsQueueName:
+    Value: !GetAtt ScheduledActionsQueue.Outputs.QueueName
+    Description: pn-delivery-push input queue name
+  ScheduledActionsQueueURL:
+    Value: !GetAtt ScheduledActionsQueue.Outputs.QueueURL
+    Description: pn-delivery-push input queue URL
+  ScheduledActionsQueueARN:
+    Value: !GetAtt ScheduledActionsQueue.Outputs.QueueARN
+    Description: pn-delivery-push input queue ARN
+
+  # Already Done Actions
+  DoneActionsQueueName:
+    Value: !GetAtt DoneActionsQueue.Outputs.QueueName
+    Description: pn-delivery-push input queue name
+  DoneActionsQueueURL:
+    Value: !GetAtt DoneActionsQueue.Outputs.QueueURL
+    Description: pn-delivery-push input queue URL
+  DoneActionsQueueARN:
+    Value: !GetAtt DoneActionsQueue.Outputs.QueueARN
+    Description: pn-delivery-push input queue ARN

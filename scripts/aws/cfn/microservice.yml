@@ -1,0 +1,269 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: 'Example microservice deploy'
+
+Parameters:
+  ProjectName:
+    Type: String
+    Description: 'Usually pn can be pnXYZ where XYZ are the feature number, useful to create
+      experimental environments without crash official development environment'
+
+  PhysicalPersonPortalUrl:
+    Type: String
+    Description: 'Url del portale della Persona Fisica/Giuridica?? da inserire degli AAR'
+
+  AddressBookUrl:
+    Type: String
+    Description: 'The URL of address book mock service'
+
+  WebhookScanInterval:
+    Type: String
+    Description: 'Time interval between two webhook-scans every scan send notifications
+                  update to Public Administration'
+
+  WebhookMaxLength:
+    Type: String
+    Description: 'Max elements quantity for each webhook call'
+
+  PecSecondAttemptWaitTime:
+    Type: String
+    Description: 'Time to wait from first to second pec attempt. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
+
+  RecipientTimeoutDelayDigital:
+    Type: String
+    Description: 'refinement time for digital workflow. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
+
+  RecipientTimeoutDelayAnalog:
+    Type: String
+    Description: 'refinement time for analog successful workflow. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
+
+  RefinementTimeCompletelyUnreachable:
+    Type: String
+    Description: 'refinement time for analog failed workflow. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
+
+  ApiDnsName:
+    Type: String
+    Description: 'The DNS name used for B2B rest API.'
+
+  WebApiDnsName:
+    Type: String
+    Description: 'The DNS name used for WEB rest API.'
+
+  ContainerImageUri:
+    Type: String
+    Description: 'Exact container image URI with full repository and image digest'
+
+  MicroserviceNumber:
+    Type: Number
+    Description: 'Disambiguation useful for load balancer rules'
+
+  TemplateBucketBaseUrl:
+    Type: String
+    Description: 'The S3 bucket from which to fetch the templates used by this stack.'
+
+  DeliveryPushInputsQueueName:
+    Type: String
+    Description: 'Queue to pull for inputs event'
+  DeliveryPushInputsQueueARN:
+    Type: String
+    Description: 'Queue to pull for inputs event'
+
+  ExternalChannelsInputsQueueName:
+    Type: String
+    Description: 'Send external-channel messages to this Queue'
+  ExternalChannelsInputsQueueARN:
+    Type: String
+    Description: 'Send external-channel messages to this Queue'
+
+  ExternalChannelsOutputsQueueName:
+    Type: String
+    Description: 'Pull external-channel messages from this Queue'
+  ExternalChannelsOutputsQueueARN:
+    Type: String
+    Description: 'Pull external-channel messages from this Queue'
+
+  ScheduledActionsQueueName:
+    Type: String
+    Description: 'Send and pull ready-to-do actions th this queue'
+  ScheduledActionsQueueARN:
+    Type: String
+    Description: 'Send and pull ready-to-do actions th this queue'
+
+  DoneActionsQueueName:
+    Type: String
+    Description: 'Send done actions to this queue read by webhook'
+  DoneActionsQueueARN:
+    Type: String
+    Description: 'Send done actions to this queue read by webhook'
+
+
+  KeyspaceName:
+    Type: String
+    Description: 'Where to write database data'
+
+  LegalFactsBucketName:
+    Type: String
+    Description: 'Where to write documents files'
+
+  LegalFactsBucketArn:
+    Type: String
+    Description: 'Where to write documents files'
+
+  ECSClusterName:
+    Type: String
+    Description: 'The name of the ECS cluster where the microservice is going to be deployed'
+
+  SubnetsIds:
+    Type: String
+    Description: 'subnets ids comma separated list. Where to deploy the microservice'
+
+  VpcId:
+    Type: String
+    Description: 'VpcId where the microservice is going to be deployed'
+
+  ApplicationLoadBalancerListenerArn:
+    Type: String
+    Description: 'Load balancer listener where HTTP endpoints is going to be registered'
+
+  ApplicationLoadBalancerDomain:
+    Type: String
+    Description: 'Base URL of the load balancer where the service is going to be reachable'
+
+  NetworkLoadBalancerLink:
+    Type: String
+    Description: 'network load balancer link for API-GW'
+
+Resources:
+
+  # PN-Delivery-push microservice
+  DeliveryPushMicroservice:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/ecs-service.yaml"
+      Parameters:
+        MicroServiceUniqueName: !Sub '${ProjectName}-delivery-push'
+        CpuValue: 1024
+        MemoryAmount: 2GB
+        ContainerImageURI: !Sub '${ContainerImageUri}'
+        ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
+        ContainerEnvEntry2: !Sub 'AWS_BUCKETNAME=${LegalFactsBucketName}'
+        ContainerEnvEntry3: !Sub 'PN_CLIENTS_ADDRESSBOOKBASEURL=${AddressBookUrl}'
+        ContainerEnvEntry4: !Sub 'PN_DELIVERYPUSH_TOPICS_NEWNOTIFICATIONS=${DeliveryPushInputsQueueName}'
+        ContainerEnvEntry5: !Sub 'PN_DELIVERYPUSH_TOPICS_TOEXTERNALCHANNELPEC=${ExternalChannelsInputsQueueName}'
+        ContainerEnvEntry6: !Sub 'PN_DELIVERYPUSH_TOPICS_TOEXTERNALCHANNELEMAIL=${ExternalChannelsInputsQueueName}'
+        ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_TOEXTERNALCHANNELPAPER=${ExternalChannelsInputsQueueName}'
+        ContainerEnvEntry8: !Sub 'PN_DELIVERYPUSH_TOPICS_FROMEXTERNALCHANNEL=${ExternalChannelsOutputsQueueName}'
+        ContainerEnvEntry9: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}'
+        ContainerEnvEntry10: !Sub 'PN_DELIVERYPUSH_TOPICS_EXECUTEDACTIONS=${DoneActionsQueueName}'
+        ContainerEnvEntry11: !Sub 'PN_DELIVERYPUSH_WEBHOOK_SCHEDULEINTERVAL=${WebhookScanInterval}'
+        ContainerEnvEntry12: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXLENGTH=${WebhookMaxLength}'
+        ContainerEnvEntry13: !Sub 'PN_DELIVERYPUSH_WEBAPP_DIRECTACCESSURLTEMPLATE=${PhysicalPersonPortalUrl}/direct_access.html?token=%s'
+        ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SECONDATTEMPTWAITINGTIME=${PecSecondAttemptWaitTime}'
+        ContainerEnvEntry15: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_RECIPIENTVIEWMAXTIMEFORDIGITAL=${RecipientTimeoutDelayDigital}'
+        ContainerEnvEntry16: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_RECIPIENTVIEWMAXTIMEFORANALOG=${RecipientTimeoutDelayAnalog}'
+        ContainerEnvEntry17: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_REFINEMENTTIMEFORCOMPLETELYUNREACHABLE=${RefinementTimeCompletelyUnreachable}'
+        ContainerEnvEntry18: !Sub 'SPRING_DATA_CASSANDRA_KEYSPACENAME=${KeyspaceName}'
+        ContainerEnvEntry19: 'SPRING_DATA_CASSANDRA_SSL=true'
+        ContainerEnvEntry20: !Sub 'SPRING_DATA_CASSANDRA_CONTACTPOINTS=cassandra.${AWS::Region}.${AWS::URLSuffix}:9142'
+# WAIT for real client certificates (PN-565)
+#        ContainerEnvEntry21:
+#          Fn::Join:
+#            - '='
+#            - - CLIENT_CERTIFICATE_PEM
+#              - '{{resolve:secretsmanager:pa_webhook_client_cert:SecretString:client_certificate_pem}}'
+#        ContainerEnvEntry22:
+#          Fn::Join:
+#            - '='
+#            - - CLIENT_KEY_PEM
+#              - '{{resolve:secretsmanager:pa_webhook_client_cert:SecretString:client_key_pem}}'
+        ContainerEnvEntry24: 'PN_DELIVERYPUSH_FEATUREFLAGS_WORKFLOW=v1'
+        MappedPaths: '/delivery-push/*,/delivery-push-private/*'
+        ECSClusterName: !Ref ECSClusterName
+        Subnets: !Ref SubnetsIds
+        VpcId: !Ref VpcId
+        LoadBalancerListenerArn: !Ref ApplicationLoadBalancerListenerArn
+        LoadbalancerRulePriority: !Ref MicroserviceNumber
+
+  # Grant operational rights to PN-Delivery-push microservice microservice
+  DeliveryPushMicroserviceTaskPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub '${ProjectName}-delivery-push-CustomTaskPolicy'
+      Roles:
+        - !GetAtt DeliveryPushMicroservice.Outputs.TaskRoleName
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - sqs:ChangeMessageVisibility
+              - sqs:ChangeMessageVisibilityBatch
+              - sqs:DeleteMessage
+              - sqs:DeleteMessageBatch
+              - sqs:GetQueueAttributes
+              - sqs:GetQueueUrl
+              - sqs:ReceiveMessage
+              - sqs:SendMessage
+              - sqs:SendMessageBatch
+            Resource:
+              - !Ref DeliveryPushInputsQueueARN
+              - !Ref ExternalChannelsInputsQueueARN
+              - !Ref ExternalChannelsOutputsQueueARN
+              - !Ref ScheduledActionsQueueARN
+              - !Ref DoneActionsQueueARN
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:GetObjectAcl
+              - s3:GetObjectLegalHold
+              - s3:GetObjectRetention
+              - s3:GetObjectTagging
+              - s3:GetObjectVersion
+              - s3:GetObjectVersionAcl
+              - s3:GetObjectVersionTagging
+              - s3:PutObject
+              - s3:PutObjectLegalHold
+              - s3:PutObjectRetention
+              - s3:PutObjectTagging
+              - s3:PutObjectVersionTagging
+            Resource:
+              - !Sub '${LegalFactsBucketArn}/*'
+          - Effect: Allow
+            Action:
+              - s3:ListBucket
+            Resource:
+              - !Ref LegalFactsBucketArn
+          - Effect: Allow
+            Action:
+              - cassandra:Modify
+              - cassandra:Select
+            Resource:
+              - !Sub "arn:aws:cassandra:*:${AWS::AccountId}:/keyspace/*/table/*"
+
+
+  # Expose PN-Delivery-push microservice public API with API-GW for B2B usage
+  DeliveryPushMicroservicePublicAPI:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service.yaml"
+      Parameters:
+        MicroServiceUniqueName: !Sub '${ProjectName}-delivery-push'
+        IntendedUsage: B2B
+        DnsName: !Ref ApiDnsName
+        ProjectName: !Ref ProjectName
+        ServiceApiPath: 'delivery-push'
+        NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
+        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
+
+  # Expose PN-Delivery-push microservice public API with API-GW for WEB usage
+  DeliveryPushMicroservicePublicWebAPI:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service.yaml"
+      Parameters:
+        MicroServiceUniqueName: !Sub '${ProjectName}-delivery-push'
+        IntendedUsage: WEB
+        DnsName: !Ref WebApiDnsName
+        ProjectName: !Ref ProjectName
+        ServiceApiPath: 'delivery-push'
+        NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
+        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
