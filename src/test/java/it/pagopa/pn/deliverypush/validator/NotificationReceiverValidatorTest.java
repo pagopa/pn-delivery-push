@@ -10,6 +10,7 @@ import javax.validation.Path;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 
+//TODO Da eliminare, una volta implementata la PN-764
 class NotificationReceiverValidatorTest {
     private NotificationReceiverValidator validator;
 

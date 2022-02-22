@@ -82,13 +82,9 @@ import static org.mockito.Mockito.doThrow;
         ValidationDocumentErrorTest.SpringTestConfiguration.class
 })
 class ValidationDocumentErrorTest {
- 
-
+    
     @TestConfiguration
     static class SpringTestConfiguration extends AbstractWorkflowTestConfiguration {
-
-        public SpringTestConfiguration() {
-            super();        }
     }
 
     @Autowired
@@ -105,9 +101,6 @@ class ValidationDocumentErrorTest {
     
     @SpyBean
     private ExternalChannelMock externalChannelMock;
-
-    @SpyBean
-    private CompletionWorkFlowHandler completionWorkflow;
     
     @SpyBean
     private FileStorage fileStorage;
@@ -132,6 +125,7 @@ class ValidationDocumentErrorTest {
     
     @BeforeEach
     public void setup() {
+        //Waiting time for action
         TimeParams times = new TimeParams();
         times.setWaitingForReadCourtesyMessage(Duration.ofSeconds(1));
         times.setSchedulingDaysSuccessDigitalRefinement(Duration.ofSeconds(1));
@@ -140,20 +134,23 @@ class ValidationDocumentErrorTest {
         times.setSchedulingDaysFailureAnalogRefinement(Duration.ofSeconds(1));
         times.setSecondNotificationWorkflowWaitingTime(Duration.ofSeconds(1));
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
+        
+        //Direct access url, not useful for this test
         PnDeliveryPushConfigs.Webapp webapp = new PnDeliveryPushConfigs.Webapp();
         webapp.setDirectAccessUrlTemplate("test");
         Mockito.when(pnDeliveryPushConfigs.getWebapp()).thenReturn(webapp);
-
+        
+        //Mock for get current date
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
-
+        
+        //File mock to return for getFileVersion
         FileData fileData = FileData.builder()
                 .content( new ByteArrayInputStream("Body".getBytes(StandardCharsets.UTF_8)) )
                 .build();
-
-        // Given
         Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
                 .thenReturn( fileData );
-
+        
+        //Clear mock
         notificationDaoMock.clear();
         addressBookMock.clear();
         publicRegistryMock.clear();
@@ -164,22 +161,22 @@ class ValidationDocumentErrorTest {
 
     @Test
     void workflowTest() throws IdConflictException {
-           /*
-       - Platform address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-       - Special address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il digitalDomicile del recipient con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-       - General address presente e invio fallito per entrambi gli invii (Ottenuto non valorizzando il pbDigitalAddress per il recipient in PUB_REGISTRY_DIGITAL con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-        */
-
+        
+        // GIVEN
+        
+        // Platform address is present and all sending attempts fail
         DigitalAddress platformAddress = DigitalAddress.builder()
                 .address("platformAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
                 .type(DigitalAddressType.PEC)
                 .build();
-
+        
+        //Special address is present and all sending attempts fail
         DigitalAddress digitalDomicile = DigitalAddress.builder()
                 .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
                 .type(DigitalAddressType.PEC)
                 .build();
-
+        
+        //General address is present and all sending attempts fail
         DigitalAddress pbDigitalAddress = DigitalAddress.builder()
                 .address("pbDigitalAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
                 .type(DigitalAddressType.PEC)
@@ -200,7 +197,6 @@ class ValidationDocumentErrorTest {
                 .withPlatformAddress(platformAddress)
                 .build();
 
-
         notificationDaoMock.addNotification(notification);
         addressBookMock.add(addressBookEntry);
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
@@ -211,10 +207,12 @@ class ValidationDocumentErrorTest {
         String iun = notification.getIun();
         String taxId = recipient.getTaxId();
 
-        //Start del workflow
+        //WHEN the workflow start
         startWorkflowHandler.startWorkflow(iun);
         
-        //Viene verificato che il workflow sia fallito
+        //THEN
+        
+        //Check worfklow is failed
         Assertions.assertTrue(timelineService.getTimelineElement(
                 iun,
                 TimelineEventId.REQUEST_REFUSED.buildEventId(
