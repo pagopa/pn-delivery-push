@@ -10,6 +10,7 @@ import lombok.*;
 @ToString
 @DigestEquality
 public class DigestEqualityBean {
+//TODO Da eliminare, una volta implementata la PN-764
 
     private String key;
     private NotificationAttachment.Digests expected;

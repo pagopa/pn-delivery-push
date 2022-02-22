@@ -9,6 +9,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import java.util.Set;
 
+//TODO Da eliminare, una volta implementata la PN-764
 @Component
 public class NotificationReceiverValidator {
     private final Validator validator;

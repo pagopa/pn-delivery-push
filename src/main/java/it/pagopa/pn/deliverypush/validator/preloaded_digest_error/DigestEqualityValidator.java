@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.validator.preloaded_digest_error;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
+//TODO Da eliminare, una volta implementata la PN-764
 public class DigestEqualityValidator implements ConstraintValidator<DigestEquality, DigestEqualityBean> {
 
     @Override
