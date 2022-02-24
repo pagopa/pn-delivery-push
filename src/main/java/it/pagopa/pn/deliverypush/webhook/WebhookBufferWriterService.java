@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.webhook;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineInfoDto;
 import it.pagopa.pn.api.dto.webhook.WebhookConfigDto;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -80,8 +82,15 @@ public class WebhookBufferWriterService extends AbstractEventHandler<ActionEvent
 
         Set<TimelineElement> rawTimeline = timelineDao.getTimeline(iun);
 
+        Set<TimelineInfoDto> timelineInfoDto = rawTimeline.stream().map(elem ->
+                TimelineInfoDto.builder()
+                        .category(elem.getCategory())
+                        .timestamp(elem.getTimestamp())
+                        .build()
+        ).collect(Collectors.toSet());
+
         List<NotificationStatusHistoryElement> statusHistory = statusUtils
-                .getStatusHistory(rawTimeline, numberOfRecipients, notificationCreationDate);
+                .getStatusHistory(timelineInfoDto, numberOfRecipients, notificationCreationDate);
 
         int statusHistoryLength = statusHistory.size();
         if (statusHistoryLength >= 1) {
