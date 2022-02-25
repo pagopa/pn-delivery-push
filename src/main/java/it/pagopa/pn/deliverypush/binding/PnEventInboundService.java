@@ -46,16 +46,15 @@ public class PnEventInboundService {
        return message -> {
            System.out.println("messaggio ricevuto da customRouter "+message);
            String eventType = (String) message.getHeaders().get("eventType");
-           log.debug("New notification event received, eventType {}",eventType);
+           log.debug("Event received, eventType {}",eventType);
            return eventHandler.getHandler().get(eventType);
        };
-         
     }
 
     @Bean
     public Consumer<Message<PnDeliveryNewNotificationEvent.Payload>> pnDeliveryNewNotificationEventConsumer() {
         return (message) -> {
-            log.info("pnDeliveryNewNotificationEventConsumer {}", message);
+            log.info("New notification event received, message {}", message);
 
             PnDeliveryNewNotificationEvent pnDeliveryNewNotificationEvent = PnDeliveryNewNotificationEvent.builder()
                     .payload(message.getPayload())
@@ -63,7 +62,6 @@ public class PnEventInboundService {
                     .build();
 
             String iun = pnDeliveryNewNotificationEvent.getHeader().getIun();
-            log.info("pnDeliveryNewNotificationEventConsumer - iun {}", iun);
 
             startWorkflowHandler.startWorkflow(iun);
         };
@@ -72,7 +70,7 @@ public class PnEventInboundService {
     @Bean
     public Consumer<Message<PnDeliveryNotificationViewedEvent.Payload>> pnDeliveryNotificationViewedEventConsumer() {
         return (message) -> {
-            log.info("pnDeliveryNewNotificationEventConsumer {}", message);
+            log.info("Notification viewed event received, message {}", message);
 
             PnDeliveryNotificationViewedEvent pnDeliveryNewNotificationEvent = PnDeliveryNotificationViewedEvent.builder()
                     .payload(message.getPayload())
@@ -90,15 +88,13 @@ public class PnEventInboundService {
     @Bean
     public Consumer<Message<PnExtChnProgressStatusEventPayload>>  pnExtChannelEventInboundConsumer() {
         return (message) -> {
-            System.out.println("pnExtChannelEventInboundConsumer");
+            log.info("External channel event received, message {}", message);
             
             PnExtChnProgressStatusEvent evt = PnExtChnProgressStatusEvent.builder()
                     .payload(message.getPayload())
                     .header(mapStandardEventHeader(message.getHeaders()))
                     .build();
-
-            log.info("EXT_CHANNEL RESPONSE iun {} eventId {} correlationId {}", evt.getHeader().getIun(), evt.getHeader().getEventId(), evt.getPayload().getRequestCorrelationId());
-
+            
             ExtChannelResponseStatus status = PnExtChnProgressStatus.OK.equals(evt.getPayload().getStatusCode()) ? ExtChannelResponseStatus.OK : ExtChannelResponseStatus.KO;
 
             ExtChannelResponse response = ExtChannelResponse.builder()

@@ -13,5 +13,6 @@ public class WebhookOutputDto {
     private final String senderId;
     private final String statusChangeTime;
     private final String iun;
+    private final String notificationId;
     private final String notificationElement;
 }

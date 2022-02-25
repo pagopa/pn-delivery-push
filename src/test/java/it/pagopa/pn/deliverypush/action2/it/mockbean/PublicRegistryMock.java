@@ -6,25 +6,35 @@ import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.action2.PublicRegistryResponseHandler;
 import it.pagopa.pn.deliverypush.external.PublicRegistry;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class PublicRegistryMock implements PublicRegistry {
 
     private final PublicRegistryResponseHandler publicRegistryResponseHandler;
-    private final Map<String, DigitalAddress> digitalAddressResponse;
-    private final Map<String, PhysicalAddress> physicalAddressResponse;
+    private Map<String, DigitalAddress> digitalAddressResponse;
+    private Map<String, PhysicalAddress> physicalAddressResponse;
 
 
     public PublicRegistryMock(
-            Map<String, DigitalAddress> digitalAddressResponse,
-            Map<String, PhysicalAddress> physicalAddressResponse,
             PublicRegistryResponseHandler publicRegistryResponseHandler
     ) {
-        this.digitalAddressResponse = digitalAddressResponse;
-        this.physicalAddressResponse = physicalAddressResponse;
         this.publicRegistryResponseHandler = publicRegistryResponseHandler;
     }
 
+    public void clear() {
+        this.digitalAddressResponse = new HashMap<>();
+        this.physicalAddressResponse = new HashMap<>();
+    }
+
+    public void addDigital(String key, DigitalAddress value) {
+        this.digitalAddressResponse.put(key,value);
+    }
+
+    public void addPhysical(String key, PhysicalAddress value) {
+        this.physicalAddressResponse.put(key,value);
+    }
+    
     @Override
     public void sendRequestForGetDigitalAddress(String taxId, String correlationId) {
 
