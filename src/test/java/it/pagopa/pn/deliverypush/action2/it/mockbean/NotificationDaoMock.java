@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action2.it.mockbean;
 
+import it.pagopa.pn.api.dto.InputSearchNotificationDto;
 import it.pagopa.pn.api.dto.NotificationSearchRow;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
@@ -30,7 +31,8 @@ public class NotificationDaoMock implements NotificationDao {
     }
 
     @Override
-    public List<NotificationSearchRow> searchNotification(boolean bySender, String senderReceiverId, Instant startDate, Instant endDate, String filterId, NotificationStatus status, String subjectRegExp) {
+    public List<NotificationSearchRow> searchNotification(InputSearchNotificationDto inputSearchNotificationDto) {
         throw new UnsupportedOperationException();
     }
+    
 }
