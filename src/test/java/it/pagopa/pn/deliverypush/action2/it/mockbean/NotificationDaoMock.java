@@ -32,7 +32,7 @@ public class NotificationDaoMock implements NotificationDao {
 
     @Override
     public List<NotificationSearchRow> searchNotification(InputSearchNotificationDto inputSearchNotificationDto) {
-        throw new UnsupportedOperationException();
+        return null;
     }
     
 }
