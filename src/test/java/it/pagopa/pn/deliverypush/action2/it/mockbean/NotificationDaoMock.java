@@ -8,20 +8,21 @@ import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 public class NotificationDaoMock implements NotificationDao {
-    private final Collection<Notification> notifications;
+    private Collection<Notification> notifications;
 
-    public NotificationDaoMock(Collection<Notification> notifications) {
-        this.notifications = notifications;
+    public void clear() {
+        this.notifications = new ArrayList<>();
     }
-
+    
     @Override
     public void addNotification(Notification notification) throws IdConflictException {
-        throw new UnsupportedOperationException();
+        this.notifications.add(notification);
     }
 
     @Override
@@ -33,5 +34,5 @@ public class NotificationDaoMock implements NotificationDao {
     public List<NotificationSearchRow> searchNotification(InputSearchNotificationDto inputSearchNotificationDto) {
         return null;
     }
-
+    
 }

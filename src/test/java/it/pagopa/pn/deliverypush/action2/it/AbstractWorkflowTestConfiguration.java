@@ -1,8 +1,5 @@
 package it.pagopa.pn.deliverypush.action2.it;
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
 import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
@@ -14,69 +11,24 @@ import it.pagopa.pn.deliverypush.action2.RefinementHandler;
 import it.pagopa.pn.deliverypush.action2.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.external.AddressBook;
-import it.pagopa.pn.deliverypush.external.AddressBookEntry;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactPdfGenerator;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import it.pagopa.pn.deliverypush.legalfacts.OpenhtmltopdfLegalFactPdfGenerator;
+import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-
 public class AbstractWorkflowTestConfiguration {
-
-    private final Collection<Notification> notifications;
-    private final Collection<AddressBookEntry> addressBookEntries;
-    private final Map<String, DigitalAddress> publicRegistryDigitalAddresses;
-    private final Map<String, PhysicalAddress> publicRegistryPhysicalAddresses;
-
-    public AbstractWorkflowTestConfiguration(
-            Collection<Notification> notifications,
-            Collection<AddressBookEntry> addressBookEntries,
-            Map<String, DigitalAddress> publicRegistryDigitalAddresses,
-            Map<String, PhysicalAddress> publicRegistryPhysicalAddresses
-    ) {
-        this.notifications = notifications;
-        this.addressBookEntries = addressBookEntries;
-        this.publicRegistryDigitalAddresses = publicRegistryDigitalAddresses;
-        this.publicRegistryPhysicalAddresses = publicRegistryPhysicalAddresses;
-    }
-
-    public AbstractWorkflowTestConfiguration(
-            Notification notification,
-            Collection<AddressBookEntry> addressBookEntries,
-            Map<String, DigitalAddress> publicRegistryDigitalAddresses,
-            Map<String, PhysicalAddress> publicRegistryPhysicalAddresses
-    ) {
-        this.notifications = Collections.singletonList(notification);
-        this.addressBookEntries = addressBookEntries;
-        this.publicRegistryDigitalAddresses = publicRegistryDigitalAddresses;
-        this.publicRegistryPhysicalAddresses = publicRegistryPhysicalAddresses;
-    }
-
-    public AbstractWorkflowTestConfiguration(
-            Notification notification,
-            AddressBookEntry addressBookEntries,
-            Map<String, DigitalAddress> publicRegistryDigitalAddresses,
-            Map<String, PhysicalAddress> publicRegistryPhysicalAddresses
-    ) {
-        this.notifications = Collections.singletonList(notification);
-        this.addressBookEntries = Collections.singletonList(addressBookEntries);
-        this.publicRegistryDigitalAddresses = publicRegistryDigitalAddresses;
-        this.publicRegistryPhysicalAddresses = publicRegistryPhysicalAddresses;
-    }
 
     @Bean
     public NotificationDao testNotificationDao() {
-        return new NotificationDaoMock(notifications);
+        return new NotificationDaoMock();
     }
 
     @Bean
     public AddressBook testAddressBook() {
-        return new AddressBookMock(addressBookEntries);
+        return new AddressBookMock();
     }
     
     @Bean
@@ -99,8 +51,6 @@ public class AbstractWorkflowTestConfiguration {
     @Bean
     public PublicRegistryMock publicRegistriesMapMock(@Lazy PublicRegistryResponseHandler publicRegistryResponseHandler) {
         return new PublicRegistryMock(
-                this.publicRegistryDigitalAddresses,
-                this.publicRegistryPhysicalAddresses,
                 publicRegistryResponseHandler
         );
     }
@@ -125,4 +75,12 @@ public class AbstractWorkflowTestConfiguration {
                 instantNowSupplier
         );
     }
+
+    @Bean
+    public NotificationReceiverValidator notificationReceiverValidatorTest() {
+        return Mockito.mock(NotificationReceiverValidator.class);
+    }
+
+    
+
 }

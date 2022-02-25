@@ -10,12 +10,16 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class TimelineDaoMock implements TimelineDao {
-    Collection<TimelineElement> timelineList;
+    private Collection<TimelineElement> timelineList;
 
     public TimelineDaoMock() {
         timelineList = new ArrayList<>();
     }
 
+    public void clear() {
+        this.timelineList = new ArrayList<>();
+    }
+    
     @Override
     public void addTimelineElement(TimelineElement row) {
         timelineList.add(row);

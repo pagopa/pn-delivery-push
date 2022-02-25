@@ -1,13 +1,15 @@
 package it.pagopa.pn.deliverypush.webhook;
 
+import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.api.dto.webhook.WebhookConfigDto;
 import it.pagopa.pn.commons.utils.DateFormatUtils;
+import it.pagopa.pn.commons_delivery.utils.EncodingUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.webhook.dto.WebhookBufferRowDto;
 import it.pagopa.pn.deliverypush.webhook.dto.WebhookOutputDto;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -25,15 +27,14 @@ public class WebhookBufferReaderService {
 
     private final WebhookConfigsDao webhookConfigsDao;
     private final WebhookBufferDao webhookBufferDao;
-
-    @Autowired
-    private WebhookClient client;
+    private final WebhookClient client;
 
     private final int chunkSize;
 
-    public WebhookBufferReaderService(WebhookConfigsDao webhookConfigsDao, WebhookBufferDao webhookBufferDao, PnDeliveryPushConfigs cfg) {
+    public WebhookBufferReaderService(WebhookConfigsDao webhookConfigsDao, WebhookBufferDao webhookBufferDao, WebhookClient client, PnDeliveryPushConfigs cfg) {
         this.webhookConfigsDao = webhookConfigsDao;
         this.webhookBufferDao = webhookBufferDao;
+        this.client = client;
         this.chunkSize = cfg.getWebhook().getMaxLength();
     }
 
@@ -94,9 +95,13 @@ public class WebhookBufferReaderService {
     }
 
     private WebhookOutputDto bufferRow2output( WebhookBufferRowDto row ) {
+        boolean refusedCondition = NotificationStatus.REFUSED.toString().equals(row.getNotificationElement()) 
+                || TimelineElementCategory.REQUEST_REFUSED.toString().equals(row.getNotificationElement());
+
         WebhookOutputDto out = WebhookOutputDto.builder()
                 .notificationElement(row.getNotificationElement())
-                .iun(row.getIun())
+                .iun(refusedCondition ? null : row.getIun())
+                .notificationId(EncodingUtils.base64Encoding(row.getIun()))
                 .senderId(row.getSenderId())
                 .statusChangeTime(DateFormatUtils.formatInstantToString(row.getStatusChangeTime(), DateFormatUtils.yyyyMMddHHmmssSSSZ))
                 .build();
