@@ -66,17 +66,17 @@ public class CompletionWorkFlowHandler {
         Notification notification = notificationService.getNotificationByIun(iun);
         NotificationRecipient recipient = notificationService.getRecipientFromNotification(notification, taxId);
         
-        generatePecDeliveryWorkflowLegalFact(taxId, iun, notification, recipient);
+        String legalFactId = generatePecDeliveryWorkflowLegalFact(taxId, iun, notification, recipient);
 
         if (status != null) {
             switch (status) {
                 case SUCCESS:
-                    addTimelineElement(timelineUtils.buildSuccessDigitalWorkflowTimelineElement(taxId, iun, address));
+                    addTimelineElement(timelineUtils.buildSuccessDigitalWorkflowTimelineElement(taxId, iun, address, legalFactId));
                     scheduleRefinement(iun, taxId, notificationDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysSuccessDigitalRefinement());
                     break;
                 case FAILURE:
                     sendSimpleRegisteredLetter(notification, recipient);
-                    addTimelineElement(timelineUtils.buildFailureDigitalWorkflowTimelineElement(taxId, iun));
+                    addTimelineElement(timelineUtils.buildFailureDigitalWorkflowTimelineElement(taxId, iun, legalFactId));
                     scheduleRefinement(iun, taxId, notificationDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysFailureDigitalRefinement());
                     break;
                 default:
@@ -87,14 +87,14 @@ public class CompletionWorkFlowHandler {
         }
     }
 
-    private void generatePecDeliveryWorkflowLegalFact(String taxId, String iun, Notification notification, NotificationRecipient recipient) {
+    private String generatePecDeliveryWorkflowLegalFact(String taxId, String iun, Notification notification, NotificationRecipient recipient) {
         Set<TimelineElement> timeline = timelineService.getTimeline(iun);
         List<SendDigitalFeedback> listFeedbackFromExtChannel = timeline.stream()
                 .filter(timelineElement -> filterTimelineForTaxId(timelineElement, taxId))
                 .map(timelineElement -> (SendDigitalFeedback) timelineElement.getDetails())
                 .collect(Collectors.toList());
 
-        legalFactUtils.savePecDeliveryWorkflowLegalFact(listFeedbackFromExtChannel, notification, recipient);
+        return legalFactUtils.savePecDeliveryWorkflowLegalFact(listFeedbackFromExtChannel, notification, recipient);
     }
 
     private boolean filterTimelineForTaxId(TimelineElement el, String taxId) {

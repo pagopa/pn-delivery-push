@@ -54,10 +54,10 @@ public class StartWorkflowHandler {
         try{
             //Validazione degli allegati della notifica
             checkAttachmentUtils.validateAttachment(notification);
-            
-            addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification));
-            
-            legalFactUtils.saveNotificationReceivedLegalFact(notification);
+
+            String legalFactId = legalFactUtils.saveNotificationReceivedLegalFact(notification);
+
+            addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification, legalFactId));
             
             //Start del workflow per ogni recipient della notifica
             for (NotificationRecipient recipient : notification.getRecipients()) {

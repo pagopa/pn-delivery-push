@@ -1,5 +1,7 @@
 package it.pagopa.pn.deliverypush.actions;
 
+import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
+import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntryId;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.timeline.ReceivedDetails;
@@ -14,6 +16,8 @@ import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -31,7 +35,7 @@ public class SenderAckActionHandler extends AbstractActionHandler {
     @Override
     public void handleAction(Action action, Notification notification) {
 
-        legalFactStore.saveNotificationReceivedLegalFact(action, notification);
+        String legalFactKey = legalFactStore.saveNotificationReceivedLegalFact(action, notification);
 
         // - GENERATE NEXT ACTIONS
         int numberOfRecipients = notification.getRecipients().size();
@@ -57,6 +61,7 @@ public class SenderAckActionHandler extends AbstractActionHandler {
                         )
                         .build()
                 )
+                .legalFactsIds( singleLegalFactId( legalFactKey, LegalFactType.SENDER_ACK ) )
                 .build()
         );
     }

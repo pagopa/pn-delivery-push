@@ -1,6 +1,8 @@
 package it.pagopa.pn.deliverypush.action2.utils;
 
 import it.pagopa.pn.api.dto.extchannel.ExtChannelResponse;
+import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
+import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntryId;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
@@ -14,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,16 +31,22 @@ public class TimelineUtils {
     }
 
     public TimelineElement buildTimeline(String iun, TimelineElementCategory category, String elementId, TimelineElementDetails details) {
+        return buildTimeline( iun, category, elementId, details, Collections.emptyList() );
+    }
+
+    public TimelineElement buildTimeline(String iun, TimelineElementCategory category, String elementId,
+                                         TimelineElementDetails details, List<LegalFactsListEntryId> legalFactsListEntryIds) {
         return TimelineElement.builder()
                 .category(category)
                 .timestamp(instantNowSupplier.get())
                 .iun(iun)
                 .elementId(elementId)
                 .details(details)
+                .legalFactsIds( legalFactsListEntryIds )
                 .build();
     }
     
-    public TimelineElement buildAcceptedRequestTimelineElement(Notification notification) {
+    public TimelineElement buildAcceptedRequestTimelineElement(Notification notification, String legalFactId) {
         log.debug("buildAcceptedRequestTimelineElement - iun {}", notification.getIun());
 
         String elementId = TimelineEventId.REQUEST_ACCEPTED.buildEventId(
@@ -45,16 +54,20 @@ public class TimelineUtils {
                         .iun(notification.getIun())
                         .build());
 
-        ReceivedDetails details = ReceivedDetails.builder()
-                .recipients(notification.getRecipients())
-                .documentsDigests(notification.getDocuments()
-                        .stream()
-                        .map(NotificationAttachment::getDigests)
-                        .collect(Collectors.toList())
-                )
-                .build();
-
-        return buildTimeline(notification.getIun(), TimelineElementCategory.REQUEST_ACCEPTED, elementId, details);
+        return buildTimeline(
+                notification.getIun(),
+                TimelineElementCategory.REQUEST_ACCEPTED,
+                elementId,
+                ReceivedDetails.builder()
+                        .recipients(notification.getRecipients())
+                        .documentsDigests(notification.getDocuments()
+                                .stream()
+                                .map(NotificationAttachment::getDigests)
+                                .collect(Collectors.toList())
+                        )
+                        .build(),
+                singleLegalFactId( legalFactId, LegalFactType.SENDER_ACK )
+            );
     }
 
     public TimelineElement buildAvailabilitySourceTimelineElement(String taxId, String iun, DigitalAddressSource source, boolean isAvailable, int sentAttemptMade) {
@@ -157,7 +170,7 @@ public class TimelineUtils {
     }
 
 
-    public TimelineElement buildSuccessDigitalWorkflowTimelineElement(String taxId, String iun, DigitalAddress address) {
+    public TimelineElement buildSuccessDigitalWorkflowTimelineElement(String taxId, String iun, DigitalAddress address, String legalFactId) {
         log.debug("buildSuccessDigitalWorkflowTimelineElement - IUN {} and id {}", iun, taxId);
 
         String elementId = TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.buildEventId(
@@ -170,11 +183,12 @@ public class TimelineUtils {
                 .address(address)
                 .build();
 
-        return buildTimeline(iun, TimelineElementCategory.DIGITAL_SUCCESS_WORKFLOW, elementId, details);
+        List<LegalFactsListEntryId> legalFactIds = singleLegalFactId(legalFactId, LegalFactType.DIGITAL_DELIVERY);
+        return buildTimeline(iun, TimelineElementCategory.DIGITAL_SUCCESS_WORKFLOW, elementId, details, legalFactIds);
     }
 
 
-    public TimelineElement buildFailureDigitalWorkflowTimelineElement(String taxId, String iun) {
+    public TimelineElement buildFailureDigitalWorkflowTimelineElement(String taxId, String iun, String legalFactId) {
         log.debug("buildFailureDigitalWorkflowTimelineElement - IUN {} and id {}", iun, taxId);
 
         String elementId = TimelineEventId.DIGITAL_FAILURE_WORKFLOW.buildEventId(
@@ -186,8 +200,8 @@ public class TimelineUtils {
                 .taxId(taxId)
                 .build();
 
-        return buildTimeline(iun, TimelineElementCategory.DIGITAL_FAILURE_WORKFLOW, elementId, details);
-
+        List<LegalFactsListEntryId> legalFactIds = singleLegalFactId(legalFactId, LegalFactType.DIGITAL_DELIVERY);
+        return buildTimeline(iun, TimelineElementCategory.DIGITAL_FAILURE_WORKFLOW, elementId, details, legalFactIds);
     }
 
 
@@ -275,15 +289,26 @@ public class TimelineUtils {
                         .serviceLevel(sendPaperDetails.getServiceLevel())
                         .build(),
                 response.getAnalogNewAddressFromInvestigation(),
-                response.getAttachmentKeys(),
                 response.getErrorList()
         );
 
-        return buildTimeline(iun, TimelineElementCategory.SEND_PAPER_FEEDBACK, elementId, details);
-
+        final List<String> attachmentKeys = response.getAttachmentKeys();
+        List<LegalFactsListEntryId> legalFactsListEntryIds;
+        if ( attachmentKeys != null ) {
+            legalFactsListEntryIds = attachmentKeys.stream()
+                    .map( k -> LegalFactsListEntryId.builder()
+                            .key( k )
+                            .type( LegalFactType.ANALOG_DELIVERY )
+                            .build()
+                    ).collect(Collectors.toList());
+        } else {
+            legalFactsListEntryIds = Collections.emptyList();
+        }
+        return buildTimeline( iun, TimelineElementCategory.SEND_PAPER_FEEDBACK,
+                                                                            elementId, details, legalFactsListEntryIds );
     }
 
-    public TimelineElement buildNotificationViewedTimelineElement(String iun, String taxId) {
+    public TimelineElement buildNotificationViewedTimelineElement(String iun, String taxId, String legalFactId) {
         log.debug("buildNotificationViewedTimelineElement - iun {} and id {}", iun, taxId);
 
         String elementId = TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
@@ -295,7 +320,8 @@ public class TimelineUtils {
                 .taxId(taxId)
                 .build();
 
-        return buildTimeline(iun, TimelineElementCategory.NOTIFICATION_VIEWED, elementId, details);
+        List<LegalFactsListEntryId> legalFactIds = singleLegalFactId( legalFactId, LegalFactType.RECIPIENT_ACCESS );
+        return buildTimeline(iun, TimelineElementCategory.NOTIFICATION_VIEWED, elementId, details, legalFactIds);
     }
 
     public TimelineElement buildCompletelyUnreachableTimelineElement(String iun, String taxId) {
@@ -384,5 +410,12 @@ public class TimelineUtils {
                 .build();
 
         return buildTimeline(notification.getIun(), TimelineElementCategory.REQUEST_REFUSED, elementId, details);
+    }
+
+    public List<LegalFactsListEntryId> singleLegalFactId(String legalFactKey, LegalFactType type) {
+        return Collections.singletonList( LegalFactsListEntryId.builder()
+                .key( legalFactKey )
+                .type( type )
+                .build() );
     }
 }

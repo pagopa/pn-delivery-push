@@ -1,6 +1,8 @@
 package it.pagopa.pn.deliverypush.actions;
 
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
+import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
+import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntryId;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
@@ -14,10 +16,13 @@ import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 public class ReceivePaperActionHandler extends AbstractActionHandler {
@@ -75,9 +80,9 @@ public class ReceivePaperActionHandler extends AbstractActionHandler {
                                 .serviceLevel(sendDetails.get().getServiceLevel())
                                 .build(),
                         action.getNewPhysicalAddress(),
-                        action.getAttachmentKeys(),
                         Collections.singletonList(status.name())
                 ))
+                .legalFactsIds( extractLegalFactsIds(action, LegalFactType.ANALOG_DELIVERY) )
                 .build()
         );
     }
