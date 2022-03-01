@@ -2,7 +2,6 @@ package it.pagopa.pn.deliverypush.actions;
 
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
 import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
-import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntryId;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.timeline.SendPaperDetails;
@@ -17,7 +16,6 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
-import java.util.stream.Collectors;
 
 @Component
 public class PecFailReceivePaperFeedbackActionHandler extends AbstractActionHandler {

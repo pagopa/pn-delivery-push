@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.actions;
 
 import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
-import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntryId;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.timeline.ReceivedDetails;
@@ -16,8 +15,6 @@ import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Component

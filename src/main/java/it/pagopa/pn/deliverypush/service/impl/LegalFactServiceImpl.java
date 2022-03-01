@@ -10,6 +10,7 @@ import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
+import it.pagopa.pn.deliverypush.pnclient.externalchannel.ExternalChannelClient;
 import it.pagopa.pn.deliverypush.service.LegalFactService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -34,9 +35,23 @@ import java.util.stream.Collectors;
 @Slf4j
 public class LegalFactServiceImpl implements LegalFactService {
 
-    private TimelineDao timelineDao;
+    public static final String MISSING_EXT_CHA_LEGAL_FACT_MESSAGE = "Unable to retrieve paper feedback for iun=%s with id=%s from external channel API";
 
-    public LegalFactServiceImpl(TimelineDao timelineDao) {  this.timelineDao = timelineDao; }
+    private TimelineDao timelineDao;
+    private FileStorage fileStorage;
+    private LegalfactsMetadataUtils legalfactsUtils;
+    private ExternalChannelClient externalChannelClient;
+
+    public LegalFactServiceImpl(TimelineDao timelineDao,
+                                FileStorage fileStorage,
+                                LegalfactsMetadataUtils legalFactsUtils,
+                                ExternalChannelClient externalChannelClient) {
+        this.timelineDao = timelineDao;
+        this.fileStorage = fileStorage;
+        this.legalfactsUtils = legalFactsUtils;
+        this.externalChannelClient = externalChannelClient;
+    }
+
     @Override
     @NotNull
     public List<LegalFactsListEntry> getLegalFacts(String iun) {
@@ -62,55 +77,20 @@ public class LegalFactServiceImpl implements LegalFactService {
         String recipientId = null;
         if (timelineElement != null) {
             TimelineElementDetails details = timelineElement.getDetails();
-            if ( details != null && details instanceof RecipientRelatedTimelineElementDetails ) {
+            if ( details instanceof RecipientRelatedTimelineElementDetails ) {
                 recipientId = ((RecipientRelatedTimelineElementDetails) details).getTaxId();
             }
         }
         return recipientId;
     }
 
-    // FIXME: Marco comincia da qua
-    private final FileStorage fileStorage = null;
-    private final LegalfactsMetadataUtils legalfactMetadataUtils = null;
-
-    public static final String MISSING_EXT_CHA_ATTACHMENT_MESSAGE = "Unable to retrieve paper feedback for iun=%s with id=%s from external channel API";
-
-    public ResponseEntity<Resource> loadAttachment(NotificationAttachment.Ref attachmentRef) {
-        String attachmentKey = attachmentRef.getKey();
-        String savedVersionId = attachmentRef.getVersionToken();
-
-        FileData fileData = fileStorage.getFileVersion( attachmentKey, savedVersionId );
-
-        ResponseEntity<Resource> response = ResponseEntity.ok()
-                .headers( headers() )
-                .contentLength( fileData.getContentLength() )
-                .contentType( extractMediaType( fileData.getContentType() ) )
-                .body( new InputStreamResource(fileData.getContent() ) );
-
-        log.debug("AttachmentKey: response={}", response);
-        return response;
-    }
-
-    private MediaType extractMediaType(String contentType ) {
-        MediaType mediaType = MediaType.APPLICATION_OCTET_STREAM;
-
-        try {
-            if ( StringUtils.isNotBlank( contentType ) ) {
-                mediaType = MediaType.parseMediaType( contentType );
-            }
-        } catch (InvalidMediaTypeException exc)  {
-            // using default
-        }
-        return mediaType;
-    }
-
-    public ResponseEntity<Resource> loadLegalfact(String iun, LegalFactType type, String legalfactId ) {
+    public ResponseEntity<Resource> getLegalfact(String iun, LegalFactType type, String legalfactId ) {
         if ( LegalFactType.ANALOG_DELIVERY.equals( type ) ) {
             return getPaperFeedbackLegalFact(iun, legalfactId);
         } else {
             log.debug( "Retrieve notification attachment Ref for iun={} and legalfactId={}", iun, legalfactId );
-            NotificationAttachment.Ref ref = legalfactMetadataUtils.fromIunAndLegalFactId( iun, legalfactId );
-            return loadAttachment( ref );
+            NotificationAttachment.Ref ref = legalfactsUtils.fromIunAndLegalFactId( iun, legalfactId );
+            return fileStorage.loadAttachment( ref );
         }
     }
 
@@ -118,13 +98,13 @@ public class LegalFactServiceImpl implements LegalFactService {
     private ResponseEntity<Resource> getPaperFeedbackLegalFact(String iun, String legalfactId) {
         final String attachmentId = legalfactId.replace("~","/");
         log.debug( "Retrieve attachment url from External Channel with attachmentId={}", attachmentId );
-        String[] response = null; // this.externalChannelClient.getResponseAttachmentUrl( new String[] {attachmentId} );
+        String[] response = this.externalChannelClient.getResponseAttachmentUrl( new String[] {attachmentId} );
 
         if ( response != null && response.length > 0 ) {
             try {
                 final UrlResource urlResource = new UrlResource(URI.create(response[0]));
                 return ResponseEntity.ok()
-                        .headers( headers() )
+                        .headers( fileStorage.headers() )
                         .contentType(MediaType.APPLICATION_PDF)
                         .body( urlResource );
 
@@ -136,17 +116,10 @@ public class LegalFactServiceImpl implements LegalFactService {
             }
 
         } else {
-            final String message = String.format(MISSING_EXT_CHA_ATTACHMENT_MESSAGE, iun, legalfactId);
+            final String message = String.format(MISSING_EXT_CHA_LEGAL_FACT_MESSAGE, iun, legalfactId);
             log.error(message);
             throw new PnInternalException(message);
         }
     }
 
-    private HttpHeaders headers() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add( "Cache-Control", "no-cache, no-store, must-revalidate" );
-        headers.add( "Pragma", "no-cache" );
-        headers.add( "Expires", "0" );
-        return headers;
-    }
 }
