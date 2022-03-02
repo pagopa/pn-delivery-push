@@ -4,6 +4,7 @@ import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
 import it.pagopa.pn.api.dto.status.ResponseUpdateStatusDto;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class PnDeliveryClientImpl implements PnDeliveryClient {
     
     private static final String UPDATE_STATUS_URL ="/notifications/update-status";
 
-    public PnDeliveryClientImpl(RestTemplate restTemplate, PnDeliveryPushConfigs cfg) {
+    public PnDeliveryClientImpl( @Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryPushConfigs cfg) {
         this.restTemplate = restTemplate;
         this.cfg = cfg;
     }
