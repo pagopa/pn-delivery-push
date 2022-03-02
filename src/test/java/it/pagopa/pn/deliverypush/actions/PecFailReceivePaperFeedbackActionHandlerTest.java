@@ -73,7 +73,6 @@ class PecFailReceivePaperFeedbackActionHandlerTest {
                         .category(TimelineElementCategory.SEND_PAPER_FEEDBACK)
                         .details(new SendPaperFeedbackDetails(
                                 recipient.getPhysicalAddress(),
-                                //action.getAttachmentKeys(),
                                 Collections.singletonList(action.getResponseStatus().name())
                         ))
                         .build()));
