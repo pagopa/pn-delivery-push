@@ -61,7 +61,8 @@ class WebhookClientCertImplTestIT {
     }
 
     private RestTemplate initialize() {
-        restTemplate = new WebhookRestTemplateFactory( this.certCfg, sslContextFactory).restTemplate();
+        restTemplate = new WebhookRestTemplateFactory( this.certCfg, sslContextFactory)
+                                                               .restTemplateWithClientCertificate();
         RestTemplate rt = Mockito.spy( restTemplate );
         clientCert = new WebhookClientCertImpl(rt);
         return rt;
