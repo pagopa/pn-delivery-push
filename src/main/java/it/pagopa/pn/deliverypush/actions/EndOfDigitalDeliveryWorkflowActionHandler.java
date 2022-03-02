@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.actions;
 
+import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.timeline.EndOfDigitalDeliveryWorkflowDetails;
@@ -57,7 +58,7 @@ public class EndOfDigitalDeliveryWorkflowActionHandler extends AbstractActionHan
 
             //FIXME recuperare se presente la timeline dell'azione di PEC_FAIL_RECEIVE_PAPER con iun e recipientId recuperati dall'action
 
-            legalFactStore.savePecDeliveryWorkflowLegalFact( receivePecActions, notification, addresses );
+            String legalFactKey = legalFactStore.savePecDeliveryWorkflowLegalFact( receivePecActions, notification, addresses );
 
             // - GENERATE NEXT ACTIONS
             Action nextAction = buildWaitRecipientTimeoutActionForDigital(action);
@@ -71,6 +72,7 @@ public class EndOfDigitalDeliveryWorkflowActionHandler extends AbstractActionHan
                             .taxId(recipient.getTaxId())
                             .build()
                     )
+                    .legalFactsIds( singleLegalFactId( legalFactKey, LegalFactType.DIGITAL_DELIVERY ) )
                     .build()
             );
         }

@@ -158,7 +158,6 @@ class AnalogWorkflowHandlerTest {
                 PhysicalAddress.builder()
                         .address("test address 3")
                         .build(),
-                null,
                 null
         );
         
@@ -195,7 +194,6 @@ class AnalogWorkflowHandlerTest {
                         .serviceLevel(PecFailSendPaperActionHandler.DIGITAL_FAILURE_PAPER_FALLBACK_SERVICE_LEVEL)
                         .build(),
                 null,
-                null,
                 null
         );
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
@@ -230,7 +228,6 @@ class AnalogWorkflowHandlerTest {
                         .sentAttemptMade(0)
                         .serviceLevel(PecFailSendPaperActionHandler.DIGITAL_FAILURE_PAPER_FALLBACK_SERVICE_LEVEL)
                         .build(),
-                null,
                 null,
                 null
         );

@@ -155,7 +155,6 @@ class SendPaperActionHandlerTest {
                                 SendPaperDetails.builder()
                                         .build(),
                                 inputAction.getNewPhysicalAddress(),
-                                inputAction.getAttachmentKeys(),
                                 Collections.singletonList("")
                         )).build()));
 

@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.actions;
 
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
+import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
@@ -75,9 +76,9 @@ public class ReceivePaperActionHandler extends AbstractActionHandler {
                                 .serviceLevel(sendDetails.get().getServiceLevel())
                                 .build(),
                         action.getNewPhysicalAddress(),
-                        action.getAttachmentKeys(),
                         Collections.singletonList(status.name())
                 ))
+                .legalFactsIds( extractLegalFactsIds(action, LegalFactType.ANALOG_DELIVERY) )
                 .build()
         );
     }

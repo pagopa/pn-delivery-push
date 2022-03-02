@@ -44,7 +44,7 @@ public class PnEventInboundService {
     @Bean
     public MessageRoutingCallback customRouter() {
        return message -> {
-           System.out.println("messaggio ricevuto da customRouter "+message);
+           log.info("messaggio ricevuto da customRouter "+message);
            String eventType = (String) message.getHeaders().get("eventType");
            log.debug("Event received, eventType {}",eventType);
            return eventHandler.getHandler().get(eventType);
@@ -53,7 +53,7 @@ public class PnEventInboundService {
 
     @Bean
     public Consumer<Message<PnDeliveryNewNotificationEvent.Payload>> pnDeliveryNewNotificationEventConsumer() {
-        return (message) -> {
+        return message -> {
             log.info("New notification event received, message {}", message);
 
             PnDeliveryNewNotificationEvent pnDeliveryNewNotificationEvent = PnDeliveryNewNotificationEvent.builder()
@@ -69,7 +69,7 @@ public class PnEventInboundService {
 
     @Bean
     public Consumer<Message<PnDeliveryNotificationViewedEvent.Payload>> pnDeliveryNotificationViewedEventConsumer() {
-        return (message) -> {
+        return message -> {
             log.info("Notification viewed event received, message {}", message);
 
             PnDeliveryNotificationViewedEvent pnDeliveryNewNotificationEvent = PnDeliveryNotificationViewedEvent.builder()
@@ -87,7 +87,7 @@ public class PnEventInboundService {
 
     @Bean
     public Consumer<Message<PnExtChnProgressStatusEventPayload>>  pnExtChannelEventInboundConsumer() {
-        return (message) -> {
+        return message -> {
             log.info("External channel event received, message {}", message);
             
             PnExtChnProgressStatusEvent evt = PnExtChnProgressStatusEvent.builder()

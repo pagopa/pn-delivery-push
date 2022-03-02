@@ -41,9 +41,10 @@ public class NotificationViewedHandler {
         NotificationRecipient recipient = notification.getRecipients().get(recipientIndex);
         String taxId = recipient.getTaxId();
         log.debug("handleViewNotification get recipient ok- iun {} taxId {}", iun, taxId);
-        
-        addTimelineElement(timelineUtils.buildNotificationViewedTimelineElement(iun, taxId));
-        legalFactStore.saveNotificationViewedLegalFact(notification, recipient, instantNowSupplier.get());
+
+        String legalFactId = legalFactStore.saveNotificationViewedLegalFact(notification, recipient, instantNowSupplier.get());
+        addTimelineElement(timelineUtils.buildNotificationViewedTimelineElement(iun, taxId, legalFactId));
+
         paperNotificationFailedDao.deleteNotificationFailed(taxId, iun); //Viene eliminata l'istanza di notifica fallita dal momento che la stessa è stata letta
 
         log.debug("End HandleViewNotification - iun {} id {}", iun, taxId);

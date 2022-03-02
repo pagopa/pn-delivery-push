@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.actions;
 
+import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.commons_delivery.middleware.failednotification.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import org.springframework.stereotype.Component;
@@ -32,17 +33,18 @@ public class NotificationViewedActionHandler extends AbstractActionHandler {
     @Override
     public void handleAction(Action action, Notification notification) {
     	NotificationRecipient recipient = notification.getRecipients().get( action.getRecipientIndex() );
+        String legalFactKey = legalFactStore.saveNotificationViewedLegalFact( action, notification );
     	
-    	 addTimelineElement(action, TimelineElement.builder()
-                 .category( TimelineElementCategory.NOTIFICATION_VIEWED )
-                 .details( NotificationViewedDetails.builder()
-                         .taxId( recipient.getTaxId() )
-                         .build()
-                 )
-                 .build()
-         );
-    	 legalFactStore.saveNotificationViewedLegalFact( action, notification );
-         paperNotificationFailedDao.deleteNotificationFailed(recipient.getTaxId(),action.getIun() ); //Viene eliminata l'istanza di notifica fallita dal momento che la stessa è stata letta
+        addTimelineElement(action, TimelineElement.builder()
+                .category( TimelineElementCategory.NOTIFICATION_VIEWED )
+                .details( NotificationViewedDetails.builder()
+                        .taxId( recipient.getTaxId() )
+                        .build()
+                )
+                .legalFactsIds( singleLegalFactId( legalFactKey, LegalFactType.RECIPIENT_ACCESS  ) )
+                .build()
+        );
+        paperNotificationFailedDao.deleteNotificationFailed(recipient.getTaxId(),action.getIun() ); //Viene eliminata l'istanza di notifica fallita dal momento che la stessa è stata letta
     }
 
     @Override

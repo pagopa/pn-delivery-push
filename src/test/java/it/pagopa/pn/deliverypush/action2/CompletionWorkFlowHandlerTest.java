@@ -71,10 +71,15 @@ class CompletionWorkFlowHandlerTest {
         times.setSchedulingDaysSuccessDigitalRefinement(Duration.ofSeconds(1));
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
 
+        Mockito.when( legalFactUtils.savePecDeliveryWorkflowLegalFact(
+                Mockito.anyList(), Mockito.any( Notification.class ), Mockito.any( NotificationRecipient.class )
+        )).thenReturn( "" );
+
         Instant notificationDate = Instant.now();
         handler.completionDigitalWorkflow(recipient.getTaxId(), notification.getIun(), notificationDate, recipient.getDigitalDomicile(), EndWorkflowStatus.SUCCESS);
 
-        Mockito.verify(timelineUtils).buildSuccessDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyString(), Mockito.any(DigitalAddress.class));
+        Mockito.verify(timelineUtils).buildSuccessDigitalWorkflowTimelineElement(
+                Mockito.anyString(), Mockito.anyString(), Mockito.any(DigitalAddress.class), Mockito.anyString());
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
         Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyString(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
@@ -99,12 +104,17 @@ class CompletionWorkFlowHandlerTest {
         times.setSchedulingDaysFailureDigitalRefinement(Duration.ofSeconds(1));
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
 
+        Mockito.when( legalFactUtils.savePecDeliveryWorkflowLegalFact(
+                    Mockito.anyList(), Mockito.any( Notification.class ), Mockito.any( NotificationRecipient.class )
+                )).thenReturn( "" );
+
         Instant notificationDate = Instant.now();
         handler.completionDigitalWorkflow(recipient.getTaxId(), notification.getIun(), notificationDate, recipient.getDigitalDomicile(), EndWorkflowStatus.FAILURE);
 
         Mockito.verify(externalChannelSendHandler).sendNotificationForRegisteredLetter(Mockito.any(Notification.class), Mockito.any(PhysicalAddress.class), Mockito.any(NotificationRecipient.class));
 
-        Mockito.verify(timelineUtils).buildFailureDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(timelineUtils).buildFailureDigitalWorkflowTimelineElement(Mockito.anyString(),
+                Mockito.anyString(), Mockito.anyString());
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
         Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyString(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
