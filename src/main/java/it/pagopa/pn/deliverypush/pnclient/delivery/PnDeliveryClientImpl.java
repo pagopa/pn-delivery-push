@@ -15,7 +15,7 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class PnDeliveryClientImpl implements PnDeliveryClient {
 
-    private static final String UPDATE_STATUS_URL ="/notifications/update-status";
+    private static final String UPDATE_STATUS_URL ="delivery-private/notifications/update-status";
 
     private final RestTemplate restTemplate;
     private final PnDeliveryPushConfigs cfg;

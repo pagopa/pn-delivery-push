@@ -179,7 +179,7 @@ Resources:
 #            - - CLIENT_KEY_PEM
 #              - '{{resolve:secretsmanager:pa_webhook_client_cert:SecretString:client_key_pem}}'
         ContainerEnvEntry22: 'PN_DELIVERYPUSH_FEATUREFLAGS_WORKFLOW=v1'
-        ContainerEnvEntry23: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080/delivery'
+        ContainerEnvEntry23: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
