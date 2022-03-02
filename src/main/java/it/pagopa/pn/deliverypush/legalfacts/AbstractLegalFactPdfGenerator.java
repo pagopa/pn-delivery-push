@@ -4,8 +4,8 @@ import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
+import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;

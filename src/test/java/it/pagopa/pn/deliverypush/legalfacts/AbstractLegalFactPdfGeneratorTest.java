@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.legalfacts;
 import java.time.Instant;
 import java.util.Collections;
 
+import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,6 @@ import org.mockito.Mockito;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
-import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 
 class AbstractLegalFactPdfGeneratorTest {
 	private AbstractLegalFactPdfGenerator pdfUtils;
