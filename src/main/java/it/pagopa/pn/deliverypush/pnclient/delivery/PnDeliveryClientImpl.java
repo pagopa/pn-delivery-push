@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.pnclient.delivery;
 
 import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
 import it.pagopa.pn.api.dto.status.ResponseUpdateStatusDto;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -13,17 +14,19 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class PnDeliveryClientImpl implements PnDeliveryClient {
     private final RestTemplate restTemplate;
-    private final String PN_DELIVERY_BASE_URL ="http://localhost:8080/delivery-private"; //TODO Portare nel file di property di pn-delivery-push
-    private final String UPDATE_STATUS_URL ="/notifications/update-status";
+    private final PnDeliveryPushConfigs cfg;
+    
+    private static final String UPDATE_STATUS_URL ="/notifications/update-status";
 
-    public PnDeliveryClientImpl(RestTemplate restTemplate) {
+    public PnDeliveryClientImpl(RestTemplate restTemplate, PnDeliveryPushConfigs cfg) {
         this.restTemplate = restTemplate;
+        this.cfg = cfg;
     }
 
     public ResponseEntity<ResponseUpdateStatusDto> updateState(RequestUpdateStatusDto dto) {
         log.debug("Start update status call for iun {}", dto.getIun());
 
-        final String baseUrl = PN_DELIVERY_BASE_URL + UPDATE_STATUS_URL;
+        final String baseUrl = cfg.getDeliveryBaseUrl() + UPDATE_STATUS_URL;
         HttpEntity<RequestUpdateStatusDto> entity = new HttpEntity<>(dto, null);
 
         ResponseEntity<ResponseUpdateStatusDto> resp = restTemplate.exchange(baseUrl, HttpMethod.POST, entity, ResponseUpdateStatusDto.class);
