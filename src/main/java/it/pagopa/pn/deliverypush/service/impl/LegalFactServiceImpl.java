@@ -22,6 +22,8 @@ import org.springframework.stereotype.Service;
 
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -55,7 +57,7 @@ public class LegalFactServiceImpl implements LegalFactService {
         List<LegalFactsListEntry> legalFacts = timelineElements
                 .stream()
                 .filter( timeEl -> timeEl.getLegalFactsIds() != null )
-                .sorted(  )
+                .sorted( Comparator.comparing( TimelineElement::getTimestamp ))
                 .flatMap( timeEl -> timeEl.getLegalFactsIds().stream().map(
                         lfId -> LegalFactsListEntry.builder()
                                 .taxId( readRecipientId( timeEl ) )
