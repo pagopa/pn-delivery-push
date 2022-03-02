@@ -32,7 +32,7 @@ public class WebhookRestTemplateFactory {
 
     @Bean
     @Qualifier(REST_TEMPLATE_WITH_CLIENT_CERTIFICATE)
-    public RestTemplate restTemplate() {
+    public RestTemplate restTemplateWithClientCertificate() {
         RestTemplate result = new RestTemplate();
 
         String clientCertificatePem = certCfg.getClientCertificatePem();
