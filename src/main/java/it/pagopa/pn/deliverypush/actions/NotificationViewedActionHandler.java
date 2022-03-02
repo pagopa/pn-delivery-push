@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.actions;
 import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.commons_delivery.middleware.failednotification.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
+import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import org.springframework.stereotype.Component;
 
 import it.pagopa.pn.api.dto.notification.Notification;
@@ -10,7 +11,6 @@ import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.timeline.NotificationViewedDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
-import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
@@ -23,8 +23,8 @@ public class NotificationViewedActionHandler extends AbstractActionHandler {
     private PaperNotificationFailedDao paperNotificationFailedDao;
 
     public NotificationViewedActionHandler(TimelineDao timelineDao, ActionsPool actionsPool,
-                      LegalFactUtils legalFactStore, PnDeliveryPushConfigs pnDeliveryPushConfigs,
-                      PaperNotificationFailedDao paperNotificationFailedDao) {
+                                           LegalFactUtils legalFactStore, PnDeliveryPushConfigs pnDeliveryPushConfigs,
+                                           PaperNotificationFailedDao paperNotificationFailedDao) {
         super(timelineDao, actionsPool, pnDeliveryPushConfigs);
         this.legalFactStore = legalFactStore;
         this.paperNotificationFailedDao = paperNotificationFailedDao;

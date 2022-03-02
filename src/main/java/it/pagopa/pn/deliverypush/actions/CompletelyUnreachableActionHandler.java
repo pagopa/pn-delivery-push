@@ -6,12 +6,12 @@ import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFai
 import it.pagopa.pn.api.dto.notification.timeline.CompletlyUnreachableDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
-import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.commons_delivery.middleware.failednotification.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
+import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

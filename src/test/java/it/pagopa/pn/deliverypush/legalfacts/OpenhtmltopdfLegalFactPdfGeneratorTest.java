@@ -1,6 +1,8 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
 import java.util.Arrays;
+
+import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,7 +11,6 @@ import org.mockito.Mockito;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationPaymentInfo;
-import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 
 class OpenhtmltopdfLegalFactPdfGeneratorTest {
 	private OpenhtmltopdfLegalFactPdfGenerator pdfUtils;

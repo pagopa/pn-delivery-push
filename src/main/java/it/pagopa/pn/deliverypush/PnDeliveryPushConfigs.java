@@ -11,6 +11,9 @@ import java.time.Instant;
 @ConfigurationProperties( prefix = "pn.delivery-push")
 @Data
 public class PnDeliveryPushConfigs {
+
+    private String deliveryBaseUrl;
+
     private String externalChannelBaseUrl;
 
     private TimeParams timeParams;
