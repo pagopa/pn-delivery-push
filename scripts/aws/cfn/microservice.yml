@@ -149,9 +149,7 @@ Resources:
         MemoryAmount: 2GB
         ContainerImageURI: !Sub '${ContainerImageUri}'
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
-        # Ripristinare l'uso di bucket separati alla chiusura di https://pagopa.atlassian.net/browse/PN-727
-        #ContainerEnvEntry2: !Sub 'AWS_BUCKETNAME=${LegalFactsBucketName}'
-        ContainerEnvEntry2: !Sub 'AWS_BUCKETNAME=${ProjectName}-notifications-documents-${AWS::AccountId}'
+        ContainerEnvEntry2: !Sub 'AWS_BUCKETNAME=${LegalFactsBucketName}'
         ContainerEnvEntry3: !Sub 'PN_CLIENTS_ADDRESSBOOKBASEURL=${AddressBookUrl}'
         ContainerEnvEntry4: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNELBASEURL=http://${ApplicationLoadBalancerDomain}:8080/external-channel'
         ContainerEnvEntry5: !Sub 'PN_DELIVERYPUSH_TOPICS_NEWNOTIFICATIONS=${DeliveryPushInputsQueueName}'
@@ -236,15 +234,11 @@ Resources:
               - s3:PutObjectVersionTagging
             Resource:
               - !Sub '${LegalFactsBucketArn}/*'
-              # Eliminare alla chiusura di https://pagopa.atlassian.net/browse/PN-727
-              - '*'
           - Effect: Allow
             Action:
               - s3:ListBucket
             Resource:
               - !Ref LegalFactsBucketArn
-              # Eliminare alla chiusura di https://pagopa.atlassian.net/browse/PN-727
-              - '*'
           - Effect: Allow
             Action:
               - cassandra:Modify
