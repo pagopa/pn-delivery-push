@@ -19,7 +19,7 @@ import java.util.Optional;
 public class PnDeliveryClientImpl implements PnDeliveryClient {
 
     private static final String UPDATE_STATUS_URL ="/delivery-private/notifications/update-status";
-    private static final String GET_NOTIFICATION_URL = "/delivery/notifications/sent";
+    private static final String GET_NOTIFICATION_URL = "/delivery-private/notifications";
 
     private final RestTemplate restTemplate;
     private final PnDeliveryPushConfigs cfg;
