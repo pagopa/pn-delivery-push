@@ -105,7 +105,7 @@ class DigitalTest {
     private FileStorage fileStorage;
     
     @Autowired
-    private NotificationDaoMock notificationDaoMock;
+    private PnDeliveryClientMock pnDeliveryClientMock;
 
     @Autowired
     private AddressBookMock addressBookMock;
@@ -143,7 +143,7 @@ class DigitalTest {
         Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
                 .thenReturn( fileData );
 
-        notificationDaoMock.clear();
+        pnDeliveryClientMock.clear();
         addressBookMock.clear();
         publicRegistryMock.clear();
         timelineDaoMock.clear();
@@ -188,8 +188,8 @@ class DigitalTest {
                 .withTaxId(recipient.getTaxId())
                 .withPlatformAddress(platformAddress)
                 .build();
-        
-        notificationDaoMock.addNotification(notification);
+
+        pnDeliveryClientMock.addNotification(notification);
         addressBookMock.add(addressBookEntry);
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
         
@@ -261,8 +261,8 @@ class DigitalTest {
         AddressBookEntry addressBookEntry = AddressBookEntryTestBuilder.builder()
                 .withTaxId(recipient.getTaxId())
                 .build();
-        
-        notificationDaoMock.addNotification(notification);
+
+        pnDeliveryClientMock.addNotification(notification);
         addressBookMock.add(addressBookEntry);
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
@@ -321,7 +321,7 @@ class DigitalTest {
                 .build();
 
 
-        notificationDaoMock.addNotification(notification);
+        pnDeliveryClientMock.addNotification(notification);
         addressBookMock.add(addressBookEntry);
 
         String iun = notification.getIun();
@@ -388,7 +388,7 @@ class DigitalTest {
                 .withPlatformAddress(platformAddress)
                 .build();
 
-        notificationDaoMock.addNotification(notification);
+        pnDeliveryClientMock.addNotification(notification);
         addressBookMock.add(addressBookEntry);
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
@@ -448,7 +448,7 @@ class DigitalTest {
                 .withPlatformAddress(platformAddress)
                 .build();
 
-        notificationDaoMock.addNotification(notification);
+        pnDeliveryClientMock.addNotification(notification);
         addressBookMock.add(addressBookEntry);
 
         String iun = notification.getIun();
@@ -500,8 +500,8 @@ class DigitalTest {
                 .withTaxId(recipient.getTaxId())
                 .withPlatformAddress(platformAddress)
                 .build();
-        
-        notificationDaoMock.addNotification(notification);
+
+        pnDeliveryClientMock.addNotification(notification);
         addressBookMock.add(addressBookEntry);
 
         String iun = notification.getIun();
@@ -569,8 +569,8 @@ class DigitalTest {
                 .withTaxId(recipient.getTaxId())
                 .withPlatformAddress(platformAddress)
                 .build();
-        
-        notificationDaoMock.addNotification(notification);
+
+        pnDeliveryClientMock.addNotification(notification);
         addressBookMock.add(addressBookEntry);
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
@@ -618,7 +618,7 @@ class DigitalTest {
     @Test
     void secondSuccessPlatform() throws IdConflictException {
 
-        notificationDaoMock.clear();
+        pnDeliveryClientMock.clear();
         addressBookMock.clear();
         publicRegistryMock.clear();
 
@@ -658,7 +658,7 @@ class DigitalTest {
                 .withPlatformAddress(platformAddress)
                 .build();
 
-        notificationDaoMock.addNotification(notification);
+        pnDeliveryClientMock.addNotification(notification);
         addressBookMock.add(addressBookEntry);
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
@@ -735,7 +735,7 @@ class DigitalTest {
                 .withPlatformAddress(platformAddress)
                 .build();
 
-        notificationDaoMock.addNotification(notification);
+        pnDeliveryClientMock.addNotification(notification);
         addressBookMock.add(addressBookEntry);
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
@@ -844,7 +844,7 @@ class DigitalTest {
                 .withNotificationRecipients(recipients)
                 .build();
 
-        notificationDaoMock.addNotification(notification);
+        pnDeliveryClientMock.addNotification(notification);
         addressBookMock.add(addressBookEntry1);
         addressBookMock.add(addressBookEntry2);
 

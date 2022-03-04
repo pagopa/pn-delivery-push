@@ -101,7 +101,7 @@ class AnalogTest {
     private CompletionWorkFlowHandler completionWorkflow;
 
     @Autowired
-    private NotificationDaoMock notificationDaoMock;
+    private PnDeliveryClientMock pnDeliveryClientMock;
 
     @Autowired
     private AddressBookMock addressBookMock;
@@ -139,7 +139,7 @@ class AnalogTest {
         Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
                 .thenReturn( fileData );
 
-        notificationDaoMock.clear();
+        pnDeliveryClientMock.clear();
         addressBookMock.clear();
         publicRegistryMock.clear();
         timelineDaoMock.clear();
@@ -178,7 +178,7 @@ class AnalogTest {
                 .withCourtesyAddress("test@mail.it")
                 .build();
 
-        notificationDaoMock.addNotification(notification);
+        pnDeliveryClientMock.addNotification(notification);
         addressBookMock.add(addressBookEntry);
 
         String iun = notification.getIun();
@@ -261,7 +261,7 @@ class AnalogTest {
                 .withTaxId(recipient.getTaxId())
                 .build();
         
-        notificationDaoMock.addNotification(notification);
+        pnDeliveryClientMock.addNotification(notification);
         addressBookMock.add(addressBookEntry);
         publicRegistryMock.addPhysical(recipient.getTaxId(), publicRegistryAddress);
 

@@ -109,7 +109,7 @@ class ValidationDocumentErrorTest {
     private NotificationReceiverValidator notificationReceiverValidator;
 
     @Autowired
-    private NotificationDaoMock notificationDaoMock;
+    private PnDeliveryClientMock pnDeliveryClientMock;
 
     @Autowired
     private AddressBookMock addressBookMock;
@@ -151,7 +151,7 @@ class ValidationDocumentErrorTest {
                 .thenReturn( fileData );
         
         //Clear mock
-        notificationDaoMock.clear();
+        pnDeliveryClientMock.clear();
         addressBookMock.clear();
         publicRegistryMock.clear();
         timelineDaoMock.clear();
@@ -197,7 +197,7 @@ class ValidationDocumentErrorTest {
                 .withPlatformAddress(platformAddress)
                 .build();
 
-        notificationDaoMock.addNotification(notification);
+        pnDeliveryClientMock.addNotification(notification);
         addressBookMock.add(addressBookEntry);
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 

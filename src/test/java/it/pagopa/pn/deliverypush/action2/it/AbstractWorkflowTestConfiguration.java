@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.action2.it;
 
 import it.pagopa.pn.commons.abstractions.FileStorage;
-import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
 import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action2.AnalogWorkflowHandler;
@@ -14,6 +13,7 @@ import it.pagopa.pn.deliverypush.external.AddressBook;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactPdfGenerator;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import it.pagopa.pn.deliverypush.legalfacts.OpenhtmltopdfLegalFactPdfGenerator;
+import it.pagopa.pn.deliverypush.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
@@ -22,8 +22,8 @@ import org.springframework.context.annotation.Lazy;
 public class AbstractWorkflowTestConfiguration {
 
     @Bean
-    public NotificationDao testNotificationDao() {
-        return new NotificationDaoMock();
+    public PnDeliveryClient testPnDeliveryClient() {
+        return new PnDeliveryClientMock();
     }
 
     @Bean
@@ -80,7 +80,5 @@ public class AbstractWorkflowTestConfiguration {
     public NotificationReceiverValidator notificationReceiverValidatorTest() {
         return Mockito.mock(NotificationReceiverValidator.class);
     }
-
-    
 
 }
