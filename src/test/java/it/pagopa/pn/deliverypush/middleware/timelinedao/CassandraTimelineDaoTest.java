@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.timelinedao;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
 import it.pagopa.pn.api.dto.notification.timeline.ReceivedDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
@@ -8,10 +9,10 @@ import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
 import it.pagopa.pn.api.dto.status.ResponseUpdateStatusDto;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
-import it.pagopa.pn.commons_delivery.middleware.notificationdao.CassandraNotificationEntityDao;
 import it.pagopa.pn.commons_delivery.model.notification.cassandra.NotificationEntity;
 import it.pagopa.pn.commons_delivery.model.notification.cassandra.TimelineElementEntity;
 import it.pagopa.pn.commons_delivery.model.notification.cassandra.TimelineElementEntityId;
+import it.pagopa.pn.deliverypush.action2.it.mockbean.PnDeliveryClientMock;
 import it.pagopa.pn.deliverypush.pnclient.delivery.PnDeliveryClient;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +31,6 @@ import java.util.stream.Collectors;
 class CassandraTimelineDaoTest {
 
     private TimelineDao dao;
-    private CassandraNotificationEntityDao notificationEntityDao;
     private PnDeliveryClient client;
     
     @BeforeEach
@@ -40,7 +40,6 @@ class CassandraTimelineDaoTest {
         EntityToDtoTimelineMapper entity2dto = new EntityToDtoTimelineMapper(objMapper);
 
         TimelineEntityDao entityDao = new TestMyTimelineEntityDao();
-        notificationEntityDao = Mockito.mock(CassandraNotificationEntityDao.class);
         client = Mockito.mock(PnDeliveryClient.class);
         
         this.dao = new CassandraTimelineDao(entityDao, dto2Entity, entity2dto,  client);
@@ -74,12 +73,11 @@ class CassandraTimelineDaoTest {
         ResponseEntity<ResponseUpdateStatusDto> respEntity = ResponseEntity.ok(dto);
         Mockito.when(client.updateState(Mockito.any(RequestUpdateStatusDto.class))).thenReturn(respEntity);
 
-        Optional<NotificationEntity> notification = Optional.ofNullable(NotificationEntity.builder()
+        Optional<Notification> notification = Optional.ofNullable(Notification.builder()
                 .iun(iun)
-                .recipientsOrder(Arrays.asList("CodiceFiscale"))
                 .build());
-        Mockito.when(notificationEntityDao.get(iun)).thenReturn(notification);
-        
+        Mockito.when(client.getNotificationInfo( iun, false)).thenReturn( notification );
+
         dao.addTimelineElement(row1);
         dao.addTimelineElement(row2);
         
@@ -128,11 +126,10 @@ class CassandraTimelineDaoTest {
         ResponseEntity<ResponseUpdateStatusDto> respEntity = ResponseEntity.ok(dto);
         Mockito.when(client.updateState(Mockito.any(RequestUpdateStatusDto.class))).thenReturn(respEntity);
 
-        Optional<NotificationEntity> notification = Optional.ofNullable(NotificationEntity.builder()
+        Optional<Notification> notification = Optional.ofNullable(Notification.builder()
                 .iun(iun)
-                .recipientsOrder(Arrays.asList("CodiceFiscale"))
                 .build());
-        Mockito.when(notificationEntityDao.get(iun)).thenReturn(notification);
+        Mockito.when(client.getNotificationInfo( iun, true )).thenReturn(notification);
         dao.addTimelineElement(row1);
         dao.addTimelineElement(row2);
         dao.deleteTimeline(iun);
