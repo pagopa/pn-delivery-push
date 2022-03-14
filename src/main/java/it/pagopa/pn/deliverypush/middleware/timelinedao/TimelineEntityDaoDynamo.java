@@ -1,12 +1,16 @@
 package it.pagopa.pn.deliverypush.middleware.timelinedao;
 
+import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
 import it.pagopa.pn.deliverypush.middleware.model.notification.TimelineElementEntity;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
+import software.amazon.awssdk.enhanced.dynamodb.Expression;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
+import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
+import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -39,5 +43,22 @@ public class TimelineEntityDaoDynamo  extends AbstractDynamoKeyValueStore<Timeli
                     .build();
             delete(keyToDelete);
         });
+    }
+
+    @Override
+    public void putIfAbsent(TimelineElementEntity value) throws IdConflictException {
+        Expression conditionExpressionPut = Expression.builder()
+                .expression("attribute_not_exists(iun) AND attribute_not_exists(timeline_id)")
+                .build();
+        
+        PutItemEnhancedRequest<TimelineElementEntity> request = PutItemEnhancedRequest.builder( TimelineElementEntity.class )
+                .item(value )
+                .conditionExpression( conditionExpressionPut )
+                .build();
+        try {
+            table.putItem(request);
+        }catch (ConditionalCheckFailedException ex){
+            throw new IdConflictException(value);
+        }
     }
 }

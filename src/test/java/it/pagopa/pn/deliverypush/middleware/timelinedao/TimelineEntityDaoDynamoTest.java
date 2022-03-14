@@ -62,7 +62,7 @@ class TimelineEntityDaoDynamoTest {
     }
 
     @Test
-    void putIfAbsent() {
+    void putIfAbsentKo() {
         
         //GIVEN
         TimelineElementEntity elementToInsert = TimelineElementEntity.builder()
@@ -74,7 +74,7 @@ class TimelineEntityDaoDynamoTest {
                 .build();
 
         TimelineElementEntity elementNotToBeInserted = TimelineElementEntity.builder()
-                .iun("pa1-2022030218194")
+                .iun("pa1-1")
                 .timelineElementId("elementId1")
                 .category(TimelineElementCategory.SEND_ANALOG_DOMICILE)
                 .details("{\"category\":\"END_OF_DIGITAL_DELIVERY_WORKFLOW\",\"taxId\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
@@ -90,11 +90,12 @@ class TimelineEntityDaoDynamoTest {
         removeElementFromDb(elementNotToBeInserted);
 
         
-        assertDoesNotThrow(() -> timelineEntityDao.putIfAbsent(elementToInsert, elementsKey));
+        assertDoesNotThrow(() -> timelineEntityDao.putIfAbsent(elementToInsert));
 
         //WHEN
+        
         assertThrows(IdConflictException.class, () -> {
-            timelineEntityDao.putIfAbsent(elementNotToBeInserted, elementsKey);
+            timelineEntityDao.putIfAbsent(elementNotToBeInserted);
         });
         
         //THEN
@@ -104,6 +105,55 @@ class TimelineEntityDaoDynamoTest {
         TimelineElementEntity elementFromDb = elementFromDbOpt.get();
         Assertions.assertEquals(elementToInsert, elementFromDb);
         Assertions.assertNotEquals(elementNotToBeInserted, elementFromDb);
+    }
+
+    @Test
+    void putIfAbsentOk() {
+
+        //GIVEN
+        TimelineElementEntity firstElementToInsert = TimelineElementEntity.builder()
+                .iun("pa1-1")
+                .timelineElementId("elementId1")
+                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW)
+                .details("{\"category\":\"END_OF_DIGITAL_DELIVERY_WORKFLOW\",\"taxId\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
+                .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
+                .build();
+
+        Key firstElementsKey = Key.builder()
+                .partitionValue(firstElementToInsert.getIun())
+                .sortValue(firstElementToInsert.getTimelineElementId())
+                .build();
+
+        TimelineElementEntity secondElementToInsert = TimelineElementEntity.builder()
+                .iun("pa1-1")
+                .timelineElementId("elementId2")
+                .category(TimelineElementCategory.SEND_ANALOG_DOMICILE)
+                .details("{\"category\":\"END_OF_DIGITAL_DELIVERY_WORKFLOW\",\"taxId\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
+                .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
+                .build();
+
+        Key secondElementsKey = Key.builder()
+                .partitionValue(secondElementToInsert.getIun())
+                .sortValue(secondElementToInsert.getTimelineElementId())
+                .build();
+        
+        removeElementFromDb(firstElementToInsert);
+        removeElementFromDb(secondElementToInsert);
+
+        //WHEN
+        assertDoesNotThrow(() -> timelineEntityDao.putIfAbsent(firstElementToInsert));
+        assertDoesNotThrow(() -> timelineEntityDao.putIfAbsent(secondElementToInsert));
+
+        //THEN
+        Optional<TimelineElementEntity> firstElementFromDbOpt =  timelineEntityDao.get(firstElementsKey);
+        Assertions.assertTrue(firstElementFromDbOpt.isPresent());
+        TimelineElementEntity firstElementFromDb = firstElementFromDbOpt.get();
+        Assertions.assertEquals(firstElementToInsert, firstElementFromDb);
+
+        Optional<TimelineElementEntity> secondElementFromDbOpt =  timelineEntityDao.get(secondElementsKey);
+        Assertions.assertTrue(secondElementFromDbOpt.isPresent());
+        TimelineElementEntity secondElementFromDb = secondElementFromDbOpt.get();
+        Assertions.assertEquals(secondElementToInsert, secondElementFromDb);
     }
     
     @Test

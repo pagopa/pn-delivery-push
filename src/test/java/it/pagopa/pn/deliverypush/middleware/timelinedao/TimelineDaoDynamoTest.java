@@ -168,8 +168,13 @@ class TimelineDaoDynamoTest {
         }
 
         @Override
-        public void putIfAbsent(TimelineElementEntity timelineElementEntity, Key key) throws IdConflictException {
-            if (this.store.putIfAbsent(key, timelineElementEntity) != null) {
+        public void putIfAbsent(TimelineElementEntity timelineElementEntity) throws IdConflictException {
+            Key key = Key.builder()
+                    .partitionValue(timelineElementEntity.getIun())
+                    .sortValue(timelineElementEntity.getTimelineElementId())
+                    .build();
+            
+            if (this.store.put(key, timelineElementEntity) != null) {
                 throw new IdConflictException(key);
             }
         }
