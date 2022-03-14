@@ -20,7 +20,7 @@ import java.time.Instant;
 @DynamoDbBean
 public class TimelineElementEntity {
 
-    public static final String TIMELINE_TABLE_NAME = "timelines";
+    public static final String TIMELINE_TABLE_NAME = "Timelines";
 
     private String iun;
     private String timelineElementId;
@@ -30,6 +30,7 @@ public class TimelineElementEntity {
     private String details;
     
     @DynamoDbPartitionKey
+    @DynamoDbAttribute(value = "iun")
     public String getIun() {
         return iun;
     }
@@ -38,7 +39,7 @@ public class TimelineElementEntity {
     }
 
     @DynamoDbSortKey
-    @DynamoDbAttribute(value = "timeline_element_id") //column name
+    @DynamoDbAttribute(value = "timelineElementId")
     public String getTimelineElementId() {
         return timelineElementId;
     }
@@ -46,34 +47,34 @@ public class TimelineElementEntity {
         this.timelineElementId = timelineElementId;
     }
 
+    @DynamoDbAttribute(value = "timestamp")
     public Instant getTimestamp() {
         return timestamp;
     }
-
     public void setTimestamp(Instant timestamp) {
         this.timestamp = timestamp;
     }
 
+    @DynamoDbAttribute(value = "category")
     public TimelineElementCategory getCategory() {
         return category;
     }
-
     public void setCategory(TimelineElementCategory category) {
         this.category = category;
     }
 
+    @DynamoDbAttribute(value = "legalFactId")
     public String getLegalFactId() {
         return legalFactId;
     }
-
     public void setLegalFactId(String legalFactId) {
         this.legalFactId = legalFactId;
     }
 
+    @DynamoDbAttribute(value = "details")
     public String getDetails() {
         return details;
     }
-
     public void setDetails(String details) {
         this.details = details;
     }
