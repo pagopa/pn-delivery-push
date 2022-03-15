@@ -3,8 +3,7 @@ package it.pagopa.pn.deliverypush.middleware.timelinedao;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
-import it.pagopa.pn.commons_delivery.middleware.DirectAccessTokenDao;
-import it.pagopa.pn.deliverypush.middleware.model.notification.TimelineElementEntity;
+import it.pagopa.pn.deliverypush.middleware.model.entity.timeline.TimelineElementEntity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,13 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = {
-        DirectAccessTokenDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
+        TimelineDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
         "aws.region-code=us-east-1",
         "aws.profile-name=default",
         "aws.endpoint-url=http://localhost:4566",
 })
 @SpringBootTest
-class TimelineEntityDaoDynamoTest {
+class TimelineEntityDaoDynamoTestIT {
     @Autowired
     private TimelineEntityDao<TimelineElementEntity,Key> timelineEntityDao;
     

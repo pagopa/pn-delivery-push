@@ -6,7 +6,7 @@ import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
 import it.pagopa.pn.api.dto.status.ResponseUpdateStatusDto;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.middleware.model.notification.TimelineElementEntity;
+import it.pagopa.pn.deliverypush.middleware.model.entity.timeline.TimelineElementEntity;
 import it.pagopa.pn.deliverypush.pnclient.delivery.PnDeliveryClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
