@@ -20,7 +20,9 @@ import java.time.Instant;
 @DynamoDbBean
 public class TimelineElementEntity {
 
-    public static final String TIMELINE_TABLE_NAME = "Timelines";
+    public static final String TABLE_NAME = "Timelines";
+    public static final String FIELD_IUN = "iun";
+    public static final String FIELD_TIMELINE_ELEMENT_ID = "timelineElementId";
 
     private String iun;
     private String timelineElementId;

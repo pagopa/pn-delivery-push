@@ -21,7 +21,7 @@ import static software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional.ke
 public class TimelineEntityDaoDynamo  extends AbstractDynamoKeyValueStore<TimelineElementEntity> implements TimelineEntityDao<TimelineElementEntity,Key>{
     
     public TimelineEntityDaoDynamo(DynamoDbEnhancedClient dynamoDbEnhancedClient) {
-        super(dynamoDbEnhancedClient.table(TimelineElementEntity.TIMELINE_TABLE_NAME, TableSchema.fromClass(TimelineElementEntity.class)));
+        super(dynamoDbEnhancedClient.table(TimelineElementEntity.TABLE_NAME, TableSchema.fromClass(TimelineElementEntity.class)));
     }
 
     @Override
@@ -47,8 +47,11 @@ public class TimelineEntityDaoDynamo  extends AbstractDynamoKeyValueStore<Timeli
 
     @Override
     public void putIfAbsent(TimelineElementEntity value) throws IdConflictException {
+        String expression = "attribute_not_exists(" + TimelineElementEntity.FIELD_IUN 
+                +") AND attribute_not_exists("+ TimelineElementEntity.FIELD_TIMELINE_ELEMENT_ID +")";
+                
         Expression conditionExpressionPut = Expression.builder()
-                .expression("attribute_not_exists(iun) AND attribute_not_exists(timeline_id)")
+                .expression(expression)
                 .build();
         
         PutItemEnhancedRequest<TimelineElementEntity> request = PutItemEnhancedRequest.builder( TimelineElementEntity.class )
