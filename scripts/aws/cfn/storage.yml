@@ -161,23 +161,19 @@ Resources:
         QueueName: !Sub '${ProjectName}-delivery_push_actions_done'
         DelaySeconds: 1
 
-  #DynammoDB Table
+  # Notification Timeline DynamoDB Table
   TimelinesTable:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
-        -
-          AttributeName: "iun"
+        - AttributeName: "iun"
           AttributeType: "S"
-        -
-          AttributeName: "timelineElementId"
+        - AttributeName: "timelineElementId"
           AttributeType: "S"
       KeySchema:
-        -
-          AttributeName: "iun"
+        - AttributeName: "iun"
           KeyType: "HASH"
-        -
-          AttributeName: "timelineElementId"
+        - AttributeName: "timelineElementId"
           KeyType: "RANGE"
       BillingMode: "PAY_PER_REQUEST"
       TableName: "Timelines"
