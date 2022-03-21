@@ -4,6 +4,7 @@ import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.deliverypush.middleware.model.entity.PaperNotificationFailedEntity;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
@@ -19,6 +20,7 @@ import java.util.Set;
 
 import static software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional.keyEqualTo;
 
+@Slf4j
 @Component
 @ConditionalOnProperty(name = PaperNotificationFailedDao.IMPLEMENTATION_TYPE_PROPERTY_NAME, havingValue = MiddlewareTypes.DYNAMO)
 public class PaperNotificationFailedEntityDaoDynamo extends AbstractDynamoKeyValueStore<PaperNotificationFailedEntity> implements PaperNotificationFailedEntityDao<Key, PaperNotificationFailedEntity> {
@@ -53,6 +55,7 @@ public class PaperNotificationFailedEntityDaoDynamo extends AbstractDynamoKeyVal
         try {
             table.putItem(request);
         }catch (ConditionalCheckFailedException ex){
+            log.error("Conditional check exception on PaperNotificationFailedEntityDaoDynamo putIfAbsent ex= {}", ex.getMessage());
             throw new IdConflictException(value);
         }
     }

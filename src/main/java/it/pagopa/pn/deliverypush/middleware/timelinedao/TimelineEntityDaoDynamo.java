@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.middleware.timelinedao;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
 import it.pagopa.pn.deliverypush.middleware.model.entity.TimelineElementEntity;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;
@@ -17,6 +18,7 @@ import java.util.Set;
 
 import static software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional.keyEqualTo;
 
+@Slf4j
 @Component
 public class TimelineEntityDaoDynamo  extends AbstractDynamoKeyValueStore<TimelineElementEntity> implements TimelineEntityDao<TimelineElementEntity,Key>{
     
@@ -61,6 +63,7 @@ public class TimelineEntityDaoDynamo  extends AbstractDynamoKeyValueStore<Timeli
         try {
             table.putItem(request);
         }catch (ConditionalCheckFailedException ex){
+            log.error("Conditional check exception on PaperNotificationFailedEntityDaoDynamo putIfAbsent ex= {}", ex.getMessage());
             throw new IdConflictException(value);
         }
     }
