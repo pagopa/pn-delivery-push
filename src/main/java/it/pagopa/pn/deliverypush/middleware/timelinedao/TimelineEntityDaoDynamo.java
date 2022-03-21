@@ -2,7 +2,7 @@ package it.pagopa.pn.deliverypush.middleware.timelinedao;
 
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
-import it.pagopa.pn.deliverypush.middleware.model.entity.timeline.TimelineElementEntity;
+import it.pagopa.pn.deliverypush.middleware.model.entity.TimelineElementEntity;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;

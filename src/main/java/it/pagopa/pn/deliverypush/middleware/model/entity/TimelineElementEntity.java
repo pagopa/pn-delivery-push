@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.middleware.model.entity.timeline;
+package it.pagopa.pn.deliverypush.middleware.model.entity;
 
 
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;

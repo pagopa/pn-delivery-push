@@ -7,7 +7,7 @@ import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementDetails;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.middleware.model.entity.timeline.TimelineElementEntity;
+import it.pagopa.pn.deliverypush.middleware.model.entity.TimelineElementEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;

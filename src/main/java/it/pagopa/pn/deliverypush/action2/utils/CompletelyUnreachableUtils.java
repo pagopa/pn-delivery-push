@@ -3,7 +3,7 @@ package it.pagopa.pn.deliverypush.action2.utils;
 import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFailed;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineEventId;
-import it.pagopa.pn.commons_delivery.middleware.failednotification.PaperNotificationFailedDao;
+import it.pagopa.pn.deliverypush.middleware.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
