@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.middleware.model.entity.timeline;
+package it.pagopa.pn.deliverypush.middleware.timelinedao;
 
 
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
@@ -20,7 +20,6 @@ import java.time.Instant;
 @DynamoDbBean
 public class TimelineElementEntity {
 
-    public static final String TABLE_NAME = "Timelines";
     public static final String FIELD_IUN = "iun";
     public static final String FIELD_TIMELINE_ELEMENT_ID = "timelineElementId";
 
@@ -32,7 +31,7 @@ public class TimelineElementEntity {
     private String details;
     
     @DynamoDbPartitionKey
-    @DynamoDbAttribute(value = "iun")
+    @DynamoDbAttribute(value = FIELD_IUN )
     public String getIun() {
         return iun;
     }
@@ -41,7 +40,7 @@ public class TimelineElementEntity {
     }
 
     @DynamoDbSortKey
-    @DynamoDbAttribute(value = "timelineElementId")
+    @DynamoDbAttribute(value = FIELD_TIMELINE_ELEMENT_ID )
     public String getTimelineElementId() {
         return timelineElementId;
     }

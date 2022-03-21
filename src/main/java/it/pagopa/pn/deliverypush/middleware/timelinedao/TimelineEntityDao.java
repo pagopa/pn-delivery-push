@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.timelinedao;
 
 import it.pagopa.pn.commons.abstractions.KeyValueStore;
-import it.pagopa.pn.deliverypush.middleware.model.entity.timeline.TimelineElementEntity;
 
 import java.util.Set;
 

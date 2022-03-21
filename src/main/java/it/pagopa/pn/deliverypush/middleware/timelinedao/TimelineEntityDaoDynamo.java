@@ -2,7 +2,6 @@ package it.pagopa.pn.deliverypush.middleware.timelinedao;
 
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
-import it.pagopa.pn.deliverypush.middleware.model.entity.timeline.TimelineElementEntity;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;
@@ -19,9 +18,12 @@ import static software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional.ke
 
 @Component
 public class TimelineEntityDaoDynamo  extends AbstractDynamoKeyValueStore<TimelineElementEntity> implements TimelineEntityDao<TimelineElementEntity,Key>{
-    
+
+    private static final String TABLE_NAME = "Timelines";
+
+
     public TimelineEntityDaoDynamo(DynamoDbEnhancedClient dynamoDbEnhancedClient) {
-        super(dynamoDbEnhancedClient.table(TimelineElementEntity.TABLE_NAME, TableSchema.fromClass(TimelineElementEntity.class)));
+        super(dynamoDbEnhancedClient.table( TABLE_NAME, TableSchema.fromClass(TimelineElementEntity.class)));
     }
 
     @Override
