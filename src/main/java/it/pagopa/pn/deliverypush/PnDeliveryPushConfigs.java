@@ -29,6 +29,8 @@ public class PnDeliveryPushConfigs {
 
     private TimelineDao timelineDao;
 
+    private FailedNotificationDao failedNotificationDao;
+
     @Data
     public static class Topics {
 
@@ -61,6 +63,11 @@ public class PnDeliveryPushConfigs {
 
     @Data
     public static class TimelineDao {
+        private String tableName;
+    }
+
+    @Data
+    public static class FailedNotificationDao {
         private String tableName;
     }
 
