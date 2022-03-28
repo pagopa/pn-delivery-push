@@ -2,7 +2,6 @@ package it.pagopa.pn.deliverypush.middleware.failednotificationdao;
 
 import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFailed;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
-import it.pagopa.pn.deliverypush.middleware.model.entity.PaperNotificationFailedEntity;
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,11 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
         TimelineDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
         PaperNotificationFailedDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
         "aws.region-code=us-east-1",
-        "aws.profile-name=default",
+        "aws.profile-name=${PN_AWS_PROFILE_NAME:default}",
         "aws.endpoint-url=http://localhost:4566",
-        "aws.region-code=us-east-1",
-        "aws.profile-name=default",
-        "aws.endpoint-url=http://localhost:4566",
+        "aws.region-code=us-east-1"
 })
 @SpringBootTest
 class PaperNotificationFailedDaoDynamoTestIT {
@@ -35,7 +32,7 @@ class PaperNotificationFailedDaoDynamoTestIT {
     @Autowired
     private PaperNotificationFailedDao specificDao;
     @Autowired
-    private PaperNotificationFailedEntityDao<Key, PaperNotificationFailedEntity> daoEntity;
+    private PaperNotificationFailedEntityDao daoEntity;
 
     @Test
     void addPaperNotificationOk() {

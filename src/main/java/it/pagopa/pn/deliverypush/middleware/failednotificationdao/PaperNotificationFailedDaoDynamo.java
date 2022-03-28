@@ -2,7 +2,6 @@ package it.pagopa.pn.deliverypush.middleware.failednotificationdao;
 
 import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFailed;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
-import it.pagopa.pn.deliverypush.middleware.model.entity.PaperNotificationFailedEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -16,11 +15,11 @@ import java.util.stream.Collectors;
 @Slf4j
 public class PaperNotificationFailedDaoDynamo implements PaperNotificationFailedDao{
 
-    private final PaperNotificationFailedEntityDao<Key, PaperNotificationFailedEntity> dao;
+    private final PaperNotificationFailedEntityDao dao;
     private final DtoToEntityNotificationFailedMapper dtoToEntity;
     private final EntityToDtoNotificationFailedMapper entityToDto;
 
-    public PaperNotificationFailedDaoDynamo(PaperNotificationFailedEntityDao<Key, PaperNotificationFailedEntity> dao,
+    public PaperNotificationFailedDaoDynamo(PaperNotificationFailedEntityDao dao,
                                             DtoToEntityNotificationFailedMapper dtoToEntity, EntityToDtoNotificationFailedMapper entityToDto) {
         this.dao = dao;
         this.dtoToEntity = dtoToEntity;

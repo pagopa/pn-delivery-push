@@ -6,7 +6,6 @@ import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
 import it.pagopa.pn.api.dto.status.ResponseUpdateStatusDto;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.middleware.model.entity.TimelineElementEntity;
 import it.pagopa.pn.deliverypush.pnclient.delivery.PnDeliveryClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -22,12 +21,12 @@ import java.util.stream.Collectors;
 @ConditionalOnProperty(name = TimelineDao.IMPLEMENTATION_TYPE_PROPERTY_NAME, havingValue = MiddlewareTypes.DYNAMO)
 @Slf4j
 public class TimelineDaoDynamo implements TimelineDao {
-    private final TimelineEntityDao<TimelineElementEntity, Key> entityDao;
+    private final TimelineEntityDao entityDao;
     private final DtoToEntityTimelineMapper dto2entity;
     private final EntityToDtoTimelineMapper entity2dto;
     private final PnDeliveryClient client;
 
-    public TimelineDaoDynamo(TimelineEntityDao<TimelineElementEntity, Key> entityDao, DtoToEntityTimelineMapper dto2entity, EntityToDtoTimelineMapper entity2dto, PnDeliveryClient client) {
+    public TimelineDaoDynamo(TimelineEntityDao entityDao, DtoToEntityTimelineMapper dto2entity, EntityToDtoTimelineMapper entity2dto, PnDeliveryClient client) {
         this.entityDao = entityDao;
         this.dto2entity = dto2entity;
         this.entity2dto = entity2dto;

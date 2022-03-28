@@ -21,19 +21,14 @@ import java.util.Optional;
 @Component
 public class EndOfAnalogDeliveryWorkflowActionHandler extends AbstractActionHandler {
 
-    private final LegalFactUtils legalFactStore;
-
     public EndOfAnalogDeliveryWorkflowActionHandler(TimelineDao timelineDao, ActionsPool actionsPool,
-                                                    LegalFactUtils legalFactStore, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
+                                                    PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         super(timelineDao, actionsPool, pnDeliveryPushConfigs);
-        this.legalFactStore = legalFactStore;
     }
 
     @Override
     public void handleAction(Action action, Notification notification) {
 
-        List<SendPaperFeedbackDetails> paperTrail = loadPaperTrail(action);
-        
         // - GENERATE NEXT ACTIONS
         Action nextAction = buildWaitRecipientTimeoutActionForAnalog(action);
         scheduleAction(nextAction);

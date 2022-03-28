@@ -9,7 +9,6 @@ import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
 import it.pagopa.pn.api.dto.status.ResponseUpdateStatusDto;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.middleware.model.entity.TimelineElementEntity;
 import it.pagopa.pn.deliverypush.pnclient.delivery.PnDeliveryClient;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,7 +41,7 @@ class TimelineDaoDynamoTest {
         ObjectMapper objMapper = new ObjectMapper();
         DtoToEntityTimelineMapper dto2Entity = new DtoToEntityTimelineMapper(objMapper);
         EntityToDtoTimelineMapper entity2dto = new EntityToDtoTimelineMapper(objMapper);
-        TimelineEntityDao<TimelineElementEntity,Key> entityDao = new TestMyTimelineEntityDao();
+        TimelineEntityDao entityDao = new TestMyTimelineEntityDao();
 
         dao = new TimelineDaoDynamo(entityDao, dto2Entity, entity2dto,  client);
     }
@@ -154,7 +153,7 @@ class TimelineDaoDynamoTest {
         Assertions.assertTrue(dao.getTimeline(iun).isEmpty());
     }
 
-    private static class TestMyTimelineEntityDao implements TimelineEntityDao<TimelineElementEntity, Key> {
+    private static class TestMyTimelineEntityDao implements TimelineEntityDao {
 
         private final Map<Key,TimelineElementEntity> store = new ConcurrentHashMap<>();
 

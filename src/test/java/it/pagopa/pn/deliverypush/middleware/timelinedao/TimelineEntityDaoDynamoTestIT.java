@@ -4,7 +4,6 @@ import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.deliverypush.middleware.failednotificationdao.PaperNotificationFailedDao;
-import it.pagopa.pn.deliverypush.middleware.model.entity.TimelineElementEntity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,13 +24,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
         TimelineDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
         PaperNotificationFailedDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
         "aws.region-code=us-east-1",
-        "aws.profile-name=default",
+        "aws.profile-name=${PN_AWS_PROFILE_NAME:default}",
         "aws.endpoint-url=http://localhost:4566",
 })
 @SpringBootTest
 class TimelineEntityDaoDynamoTestIT {
     @Autowired
-    private TimelineEntityDao<TimelineElementEntity,Key> timelineEntityDao;
+    private TimelineEntityDao timelineEntityDao;
     
     @Test
     void put() {

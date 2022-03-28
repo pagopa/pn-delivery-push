@@ -2,7 +2,7 @@ package it.pagopa.pn.deliverypush.middleware.timelinedao;
 
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
-import it.pagopa.pn.deliverypush.middleware.model.entity.TimelineElementEntity;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
@@ -11,6 +11,7 @@ import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
 
 import java.util.HashSet;
@@ -18,17 +19,23 @@ import java.util.Set;
 
 import static software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional.keyEqualTo;
 
-@Slf4j
 @Component
-public class TimelineEntityDaoDynamo  extends AbstractDynamoKeyValueStore<TimelineElementEntity> implements TimelineEntityDao<TimelineElementEntity,Key>{
-    
-    public TimelineEntityDaoDynamo(DynamoDbEnhancedClient dynamoDbEnhancedClient) {
-        super(dynamoDbEnhancedClient.table(TimelineElementEntity.TABLE_NAME, TableSchema.fromClass(TimelineElementEntity.class)));
+@Slf4j
+public class TimelineEntityDaoDynamo  extends AbstractDynamoKeyValueStore<TimelineElementEntity> implements TimelineEntityDao {
+
+    public TimelineEntityDaoDynamo(DynamoDbEnhancedClient dynamoDbEnhancedClient, PnDeliveryPushConfigs cfg) {
+        super(dynamoDbEnhancedClient.table( tableName(cfg), TableSchema.fromClass(TimelineElementEntity.class)));
+    }
+
+    private static String tableName( PnDeliveryPushConfigs cfg ) {
+        return cfg.getTimelineDao().getTableName();
     }
 
     @Override
     public Set<TimelineElementEntity> findByIun(String iun) {
-        PageIterable<TimelineElementEntity> timelineElementPages = table.query(keyEqualTo(k -> k.partitionValue(iun)));
+        Key hashKey = Key.builder().partitionValue(iun).build();
+        QueryConditional queryByHashKey = keyEqualTo( hashKey );
+        PageIterable<TimelineElementEntity> timelineElementPages = table.query( queryByHashKey );
 
         Set<TimelineElementEntity> set = new HashSet<>();
         timelineElementPages.stream().forEach(pages -> set.addAll(pages.items()));
@@ -63,7 +70,7 @@ public class TimelineEntityDaoDynamo  extends AbstractDynamoKeyValueStore<Timeli
         try {
             table.putItem(request);
         }catch (ConditionalCheckFailedException ex){
-            log.error("Conditional check exception on PaperNotificationFailedEntityDaoDynamo putIfAbsent ex= {}", ex.getMessage());
+            log.error("Conditional check exception on PaperNotificationFailedEntityDaoDynamo putIfAbsent ", ex);
             throw new IdConflictException(value);
         }
     }

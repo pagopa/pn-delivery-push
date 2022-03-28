@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush;
 
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -25,6 +26,10 @@ public class PnDeliveryPushConfigs {
     private Webhook webhook;
     
     private Webapp webapp;
+
+    private TimelineDao timelineDao;
+
+    private FailedNotificationDao failedNotificationDao;
 
     @Data
     public static class Topics {
@@ -55,4 +60,15 @@ public class PnDeliveryPushConfigs {
    public static class Webapp {
         private String directAccessUrlTemplate;
    }
+
+    @Data
+    public static class TimelineDao {
+        private String tableName;
+    }
+
+    @Data
+    public static class FailedNotificationDao {
+        private String tableName;
+    }
+
 }

@@ -8,7 +8,7 @@ import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementDetails;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
+import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.pnclient.externalchannel.ExternalChannelClient;
 import it.pagopa.pn.deliverypush.service.LegalFactService;
@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;

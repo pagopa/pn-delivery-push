@@ -7,7 +7,6 @@ import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
 import it.pagopa.pn.api.dto.notification.timeline.SendDigitalFeedback;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

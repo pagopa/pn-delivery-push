@@ -161,6 +161,38 @@ Resources:
         QueueName: !Sub '${ProjectName}-delivery_push_actions_done'
         DelaySeconds: 1
 
+  # Notification Timeline DynamoDB Table
+  TimelinesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${ProjectName}-Timelines'
+      AttributeDefinitions:
+        - AttributeName: "iun"
+          AttributeType: "S"
+        - AttributeName: "timelineElementId"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "iun"
+          KeyType: "HASH"
+        - AttributeName: "timelineElementId"
+          KeyType: "RANGE"
+      BillingMode: "PAY_PER_REQUEST"
+
+  PaperNotificationFailedTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${ProjectName}-PaperNotificationFailed'
+      AttributeDefinitions:
+        - AttributeName: "recipientId"
+          AttributeType: "S"
+        - AttributeName: "iun"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "recipientId"
+          KeyType: "HASH"
+        - AttributeName: "iun"
+          KeyType: "RANGE"
+      BillingMode: "PAY_PER_REQUEST"
 
 Outputs:
 
@@ -201,3 +233,18 @@ Outputs:
   DoneActionsQueueARN:
     Value: !GetAtt DoneActionsQueue.Outputs.QueueARN
     Description: pn-delivery-push input queue ARN
+
+  # Dynamo tables
+  TimelinesDynamoTableName:
+    Description: Name of dynamodb table containing timelines
+    Value: !Ref TimelinesTable
+  TimelinesDynamoTableArn:
+    Description: ARN of dynamodb table containing timelines
+    Value: !Sub '${TimelinesTable.Arn}'
+
+  PaperNotificationFailedDynamoTableName:
+    Description: Name of dynamodb table containing unreacheble notifications recipients
+    Value: !Ref PaperNotificationFailedTable
+  PaperNotificationFailedDynamoTableArn:
+    Description: ARN of dynamodb table containing unreacheble notifications recipients
+    Value: !Sub '${PaperNotificationFailedTable.Arn}'
