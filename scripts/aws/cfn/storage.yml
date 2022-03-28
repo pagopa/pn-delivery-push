@@ -165,7 +165,7 @@ Resources:
   TimelinesTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: "Timelines"
+      TableName: !Sub '${ProjectName}-Timelines'
       AttributeDefinitions:
         - AttributeName: "iun"
           AttributeType: "S"

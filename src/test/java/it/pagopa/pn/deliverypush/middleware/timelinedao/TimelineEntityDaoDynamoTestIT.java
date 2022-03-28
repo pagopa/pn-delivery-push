@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @SpringBootTest
 class TimelineEntityDaoDynamoTestIT {
     @Autowired
-    private TimelineEntityDao<TimelineElementEntity,Key> timelineEntityDao;
+    private TimelineEntityDao timelineEntityDao;
     
     @Test
     void put() {

@@ -41,7 +41,7 @@ class TimelineDaoDynamoTest {
         ObjectMapper objMapper = new ObjectMapper();
         DtoToEntityTimelineMapper dto2Entity = new DtoToEntityTimelineMapper(objMapper);
         EntityToDtoTimelineMapper entity2dto = new EntityToDtoTimelineMapper(objMapper);
-        TimelineEntityDao<TimelineElementEntity,Key> entityDao = new TestMyTimelineEntityDao();
+        TimelineEntityDao entityDao = new TestMyTimelineEntityDao();
 
         dao = new TimelineDaoDynamo(entityDao, dto2Entity, entity2dto,  client);
     }
@@ -153,7 +153,7 @@ class TimelineDaoDynamoTest {
         Assertions.assertTrue(dao.getTimeline(iun).isEmpty());
     }
 
-    private static class TestMyTimelineEntityDao implements TimelineEntityDao<TimelineElementEntity, Key> {
+    private static class TestMyTimelineEntityDao implements TimelineEntityDao {
 
         private final Map<Key,TimelineElementEntity> store = new ConcurrentHashMap<>();
 

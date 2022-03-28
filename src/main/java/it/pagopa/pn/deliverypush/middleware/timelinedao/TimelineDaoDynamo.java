@@ -21,12 +21,12 @@ import java.util.stream.Collectors;
 @ConditionalOnProperty(name = TimelineDao.IMPLEMENTATION_TYPE_PROPERTY_NAME, havingValue = MiddlewareTypes.DYNAMO)
 @Slf4j
 public class TimelineDaoDynamo implements TimelineDao {
-    private final TimelineEntityDao<TimelineElementEntity, Key> entityDao;
+    private final TimelineEntityDao entityDao;
     private final DtoToEntityTimelineMapper dto2entity;
     private final EntityToDtoTimelineMapper entity2dto;
     private final PnDeliveryClient client;
 
-    public TimelineDaoDynamo(TimelineEntityDao<TimelineElementEntity, Key> entityDao, DtoToEntityTimelineMapper dto2entity, EntityToDtoTimelineMapper entity2dto, PnDeliveryClient client) {
+    public TimelineDaoDynamo(TimelineEntityDao entityDao, DtoToEntityTimelineMapper dto2entity, EntityToDtoTimelineMapper entity2dto, PnDeliveryClient client) {
         this.entityDao = entityDao;
         this.dto2entity = dto2entity;
         this.entity2dto = entity2dto;
