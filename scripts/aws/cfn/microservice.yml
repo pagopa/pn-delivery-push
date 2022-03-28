@@ -136,6 +136,14 @@ Parameters:
     Type: String
     Description: 'network load balancer link for API-GW'
 
+  TimelinesDynamoTableName:
+    Type: String
+    Description: Name of dynamodb table containing timelines
+
+  TimelinesDynamoTableArn:
+    Type: String
+    Description: ARN of dynamodb table containing timelines
+
 Resources:
 
   # PN-Delivery-push microservice
