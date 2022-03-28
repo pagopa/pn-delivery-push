@@ -161,7 +161,23 @@ Resources:
         QueueName: !Sub '${ProjectName}-delivery_push_actions_done'
         DelaySeconds: 1
 
-
+  # Notification Timeline DynamoDB Table
+  TimelinesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${ProjectName}-Timelines'
+      AttributeDefinitions:
+        - AttributeName: "iun"
+          AttributeType: "S"
+        - AttributeName: "timelineElementId"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "iun"
+          KeyType: "HASH"
+        - AttributeName: "timelineElementId"
+          KeyType: "RANGE"
+      BillingMode: "PAY_PER_REQUEST"
+    
 Outputs:
 
   # Keyvalue store
@@ -201,3 +217,11 @@ Outputs:
   DoneActionsQueueARN:
     Value: !GetAtt DoneActionsQueue.Outputs.QueueARN
     Description: pn-delivery-push input queue ARN
+
+  # Dynamo table
+  TimelinesDynamoTableName:
+    Description: Name of dynamodb table containing timelines
+    Value: !Ref TimelinesTable
+  TimelinesDynamoTableArn:
+    Description: ARN of dynamodb table containing timelines
+    Value: !Sub '${TimelinesTable.Arn}'

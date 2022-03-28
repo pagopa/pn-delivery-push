@@ -2,7 +2,6 @@ package it.pagopa.pn.deliverypush.middleware.failednotificationdao;
 
 import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFailed;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
-import it.pagopa.pn.deliverypush.middleware.model.entity.PaperNotificationFailedEntity;
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

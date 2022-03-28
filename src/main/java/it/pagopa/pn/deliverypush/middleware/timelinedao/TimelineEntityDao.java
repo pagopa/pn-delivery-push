@@ -1,11 +1,11 @@
 package it.pagopa.pn.deliverypush.middleware.timelinedao;
 
 import it.pagopa.pn.commons.abstractions.KeyValueStore;
-import it.pagopa.pn.deliverypush.middleware.model.entity.TimelineElementEntity;
+import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.util.Set;
 
-public interface TimelineEntityDao <E,K> extends KeyValueStore<K,E> {
+public interface TimelineEntityDao extends KeyValueStore<Key, TimelineElementEntity> {
 
     Set<TimelineElementEntity> findByIun(String iun );
 

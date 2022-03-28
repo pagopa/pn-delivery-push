@@ -136,6 +136,14 @@ Parameters:
     Type: String
     Description: 'network load balancer link for API-GW'
 
+  TimelinesDynamoTableName:
+    Type: String
+    Description: Name of dynamodb table containing timelines
+
+  TimelinesDynamoTableArn:
+    Type: String
+    Description: ARN of dynamodb table containing timelines
+
 Resources:
 
   # PN-Delivery-push microservice
@@ -183,6 +191,7 @@ Resources:
         ContainerEnvEntry22: 'PN_DELIVERYPUSH_FEATUREFLAGS_WORKFLOW=v1'
         ContainerEnvEntry23: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry24: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
+        ContainerEnvEntry25: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
@@ -245,8 +254,14 @@ Resources:
               - cassandra:Select
             Resource:
               - !Sub "arn:aws:cassandra:*:${AWS::AccountId}:/keyspace/*/table/*"
-
-
+          - Effect: Allow
+            Action:
+              - 'dynamodb:GetItem'
+              - 'dynamodb:Query'
+              - 'dynamodb:PutItem'
+            Resource:
+              - !Sub "${TimelinesDynamoTableArn}"
+  
   # Expose PN-Delivery-push microservice public API with API-GW for B2B usage
   DeliveryPushMicroservicePublicAPI:
     Type: AWS::CloudFormation::Stack

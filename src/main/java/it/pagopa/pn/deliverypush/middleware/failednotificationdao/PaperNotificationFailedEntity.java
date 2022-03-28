@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.middleware.model.entity;
+package it.pagopa.pn.deliverypush.middleware.failednotificationdao;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

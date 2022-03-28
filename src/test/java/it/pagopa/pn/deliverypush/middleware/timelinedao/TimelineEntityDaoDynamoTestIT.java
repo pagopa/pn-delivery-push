@@ -4,7 +4,6 @@ import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.deliverypush.middleware.failednotificationdao.PaperNotificationFailedDao;
-import it.pagopa.pn.deliverypush.middleware.model.entity.TimelineElementEntity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @SpringBootTest
 class TimelineEntityDaoDynamoTestIT {
     @Autowired
-    private TimelineEntityDao<TimelineElementEntity,Key> timelineEntityDao;
+    private TimelineEntityDao timelineEntityDao;
     
     @Test
     void put() {
