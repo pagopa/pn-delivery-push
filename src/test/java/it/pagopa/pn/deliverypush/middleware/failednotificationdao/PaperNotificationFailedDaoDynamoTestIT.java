@@ -34,7 +34,7 @@ class PaperNotificationFailedDaoDynamoTestIT {
     @Autowired
     private PaperNotificationFailedDao specificDao;
     @Autowired
-    private PaperNotificationFailedEntityDao<Key, PaperNotificationFailedEntity> daoEntity;
+    private PaperNotificationFailedEntityDao daoEntity;
 
     @Test
     void addPaperNotificationOk() {

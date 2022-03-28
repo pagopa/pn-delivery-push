@@ -15,7 +15,6 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortK
 @EqualsAndHashCode
 @DynamoDbBean
 public class PaperNotificationFailedEntity {
-    public static final String TABLE_NAME = "PaperNotificationFailed";
     public static final String FIELD_RECIPIENT_ID = "recipientId";
     public static final String FIELD_IUN = "iun";
 
@@ -23,7 +22,7 @@ public class PaperNotificationFailedEntity {
     private String iun;
 
     @DynamoDbPartitionKey
-    @DynamoDbAttribute(value = "recipientId")
+    @DynamoDbAttribute(value = FIELD_RECIPIENT_ID)
     public String getRecipientId() {
         return recipientId;
     }
@@ -32,7 +31,7 @@ public class PaperNotificationFailedEntity {
     }
 
     @DynamoDbSortKey
-    @DynamoDbAttribute(value = "iun")
+    @DynamoDbAttribute(value = FIELD_IUN)
     public String getIun() {
         return iun;
     }

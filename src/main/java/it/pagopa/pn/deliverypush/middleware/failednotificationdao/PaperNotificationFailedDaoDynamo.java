@@ -15,11 +15,11 @@ import java.util.stream.Collectors;
 @Slf4j
 public class PaperNotificationFailedDaoDynamo implements PaperNotificationFailedDao{
 
-    private final PaperNotificationFailedEntityDao<Key, PaperNotificationFailedEntity> dao;
+    private final PaperNotificationFailedEntityDao dao;
     private final DtoToEntityNotificationFailedMapper dtoToEntity;
     private final EntityToDtoNotificationFailedMapper entityToDto;
 
-    public PaperNotificationFailedDaoDynamo(PaperNotificationFailedEntityDao<Key, PaperNotificationFailedEntity> dao,
+    public PaperNotificationFailedDaoDynamo(PaperNotificationFailedEntityDao dao,
                                             DtoToEntityNotificationFailedMapper dtoToEntity, EntityToDtoNotificationFailedMapper entityToDto) {
         this.dao = dao;
         this.dtoToEntity = dtoToEntity;
