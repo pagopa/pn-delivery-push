@@ -217,3 +217,11 @@ Outputs:
   DoneActionsQueueARN:
     Value: !GetAtt DoneActionsQueue.Outputs.QueueARN
     Description: pn-delivery-push input queue ARN
+
+  # Dynamo table
+  TimelinesDynamoTableName:
+    Description: Name of dynamodb table containing timelines
+    Value: !Ref TimelinesTable
+  TimelinesDynamoTableArn:
+    Description: ARN of dynamodb table containing timelines
+    Value: !Sub '${TimelinesTable.Arn}'
