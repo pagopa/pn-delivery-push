@@ -1,12 +1,11 @@
 package it.pagopa.pn.deliverypush.middleware.timelinedao;
 
 import it.pagopa.pn.commons.abstractions.KeyValueStore;
-import it.pagopa.pn.commons_delivery.model.notification.cassandra.TimelineElementEntity;
-import it.pagopa.pn.commons_delivery.model.notification.cassandra.TimelineElementEntityId;
+import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.util.Set;
 
-public interface TimelineEntityDao extends KeyValueStore<TimelineElementEntityId, TimelineElementEntity> {
+public interface TimelineEntityDao extends KeyValueStore<Key, TimelineElementEntity> {
 
     Set<TimelineElementEntity> findByIun(String iun );
 

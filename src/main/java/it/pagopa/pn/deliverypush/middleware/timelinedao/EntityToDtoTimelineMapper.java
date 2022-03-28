@@ -8,7 +8,6 @@ import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementDetails;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons_delivery.model.notification.cassandra.TimelineElementEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -29,8 +28,8 @@ public class EntityToDtoTimelineMapper {
 
     public TimelineElement entityToDto( TimelineElementEntity entity ) {
         return TimelineElement.builder()
-                .iun( entity.getId().getIun() )
-                .elementId( entity.getId().getTimelineElementId() )
+                .iun( entity.getIun() )
+                .elementId( entity.getTimelineElementId() )
                 .category( entity.getCategory() )
                 .timestamp( entity.getTimestamp() )
                 .details( parseDetailsFromJson( entity ))
