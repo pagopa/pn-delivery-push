@@ -46,7 +46,7 @@ public class InitConfWebhookFromFile {
         ObjectMapper mapper = setObjectMapper();
 
         try {
-            return mapper.readValue(resource.getFile(), new TypeReference<>() { });
+            return mapper.readValue(resource.getInputStream(), new TypeReference<>() { });
         } catch (IOException e) {
             log.error("Cannot read webhook config file", e);
             throw new PnInternalException("Cannot read webhook config file", e);

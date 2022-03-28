@@ -22,11 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
         TimelineDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
         PaperNotificationFailedDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
         "aws.region-code=us-east-1",
-        "aws.profile-name=default",
+        "aws.profile-name=${PN_AWS_PROFILE_NAME:default}",
         "aws.endpoint-url=http://localhost:4566",
-        "aws.region-code=us-east-1",
-        "aws.profile-name=default",
-        "aws.endpoint-url=http://localhost:4566",
+        "aws.region-code=us-east-1"
 })
 @SpringBootTest
 class PaperNotificationFailedDaoDynamoTestIT {
