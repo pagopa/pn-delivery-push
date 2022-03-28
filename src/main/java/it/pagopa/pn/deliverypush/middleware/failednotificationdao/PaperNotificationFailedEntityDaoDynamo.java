@@ -58,7 +58,7 @@ public class PaperNotificationFailedEntityDaoDynamo extends AbstractDynamoKeyVal
         try {
             table.putItem(request);
         }catch (ConditionalCheckFailedException ex){
-            log.error("Conditional check exception on PaperNotificationFailedEntityDaoDynamo putIfAbsent ex= {}", ex.getMessage());
+            log.error("Conditional check exception on PaperNotificationFailedEntityDaoDynamo putIfAbsent", ex);
             throw new IdConflictException(value);
         }
     }
