@@ -88,6 +88,7 @@ public class LegalFactUtils {
         return this.saveLegalFact(notification.getIun(), "digital_delivery_info_" + recipient.getTaxId(), pdfBytes, metadata);
     }
 
+
     public String saveNotificationViewedLegalFact(Action action, Notification notification) {
 
         String taxId = notification.getRecipients().get(action.getRecipientIndex()).getTaxId();

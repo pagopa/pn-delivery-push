@@ -16,6 +16,8 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 
+import java.time.Instant;
+
 @Component
 public class NotificationViewedActionHandler extends AbstractActionHandler {
 
@@ -33,7 +35,7 @@ public class NotificationViewedActionHandler extends AbstractActionHandler {
     @Override
     public void handleAction(Action action, Notification notification) {
     	NotificationRecipient recipient = notification.getRecipients().get( action.getRecipientIndex() );
-        String legalFactKey = legalFactStore.saveNotificationViewedLegalFact( action, notification );
+        String legalFactKey = legalFactStore.saveNotificationViewedLegalFact( notification, recipient, Instant.now() );
     	
         addTimelineElement(action, TimelineElement.builder()
                 .category( TimelineElementCategory.NOTIFICATION_VIEWED )
