@@ -63,7 +63,6 @@ class NotificationViewedActionHandlerTest {
         handler.handleAction(action, notification);
 
         //Then
-        Mockito.verify(legalFactUtils).saveNotificationViewedLegalFact(action, notification);
         Mockito.verify(timelineDao).addTimelineElement(Mockito.any(TimelineElement.class));
     }
 
