@@ -88,16 +88,6 @@ public class LegalFactUtils {
         return this.saveLegalFact(notification.getIun(), "digital_delivery_info_" + recipient.getTaxId(), pdfBytes, metadata);
     }
 
-
-    public String saveNotificationViewedLegalFact(Action action, Notification notification) {
-
-        String taxId = notification.getRecipients().get(action.getRecipientIndex()).getTaxId();
-        Map<String, String> metadata = legalfactMetadataUtils.buildMetadata(LegalFactType.RECIPIENT_ACCESS, taxId);
-
-        byte[] pdfBytes = pdfUtils.generateNotificationViewedLegalFact(action, notification);
-        return this.saveLegalFact(notification.getIun(), "notification_viewed_" + taxId, pdfBytes, metadata);
-    }
-
     public String saveNotificationViewedLegalFact(Notification notification, NotificationRecipient recipient, Instant timeStamp) {
         String taxId = recipient.getTaxId();
         Map<String, String> metadata = legalfactMetadataUtils.buildMetadata(LegalFactType.RECIPIENT_ACCESS, taxId);
