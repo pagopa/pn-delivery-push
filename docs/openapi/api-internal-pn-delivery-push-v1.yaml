@@ -105,6 +105,10 @@ paths:
       responses:
         '200':
           description: OK
+          content:  
+            application/json:
+              schema:
+                $ref: "./schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactDownloadMetadataResponse"          
         '400':
           description: Bad request
   
