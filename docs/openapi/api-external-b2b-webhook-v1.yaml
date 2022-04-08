@@ -1,0 +1,279 @@
+openapi: 3.0.3
+info:
+  title: 'API B2B avanzamento notifiche'
+  version: v1.0
+  description: >- 
+    Da fare
+
+  contact:
+    email: pn@pagopa.it
+  license:
+    name: Licenza di PN
+    url: 'https://da-definire/'
+servers:
+- url: https://api.pn.pagopa.it
+  description: Ambiente di produzione
+- url: https://api.uat.pn.pagopa.it
+  description: Ambiente di test
+- url: https://api.dev.pn.pagopa.it
+  description: Ambiente di sviluppo
+tags:
+  - name: Webhook
+    description: >-
+      Gestione degli stream di eventi che PN mette a disposizione
+  - name: WebhookEvents
+    description: Metodi per la lettura degli eventi dagli stream
+paths:
+    ############################################################################################
+    ###                        CREAZIONE E CANCELLAZIONE STREAM EVENTI                       ###
+    ############################################################################################
+
+  '/delivery-progresses/streams':
+    post:
+      summary: Crea nuovo stream di eventi
+      description: >-
+        
+      tags:
+        - Webhook
+      operationId: createEventStream
+      requestBody:
+        required: true
+        content:
+          application/json:
+              schema:
+                $ref: "#/components/schemas/StreamCreationRequest"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StreamMetadataResponse"
+        '400':
+          description: Bad request
+    get:
+      summary: Elenca stream di eventi
+      description: >-
+        
+      tags:
+        - Webhook
+      operationId: listEventStreams
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StreamListResponse"
+        '400':
+          description: Bad request
+
+  '/delivery-progresses/streams/{streamId}':
+    parameters:
+      - $ref: '#/components/parameters/pathStreamId'        
+    get:
+      summary: Leggi metadati dell stream
+      description: >-
+        
+      tags:
+        - Webhook
+      operationId: getEventStream
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StreamMetadataResponse"
+        '400':
+          description: Bad request
+    put:
+      summary: Update Stream metadata
+      description: >-
+        
+      tags:
+        - Webhook
+      operationId: updateEventStream
+      requestBody:
+        required: true
+        content:
+          application/json:
+              schema:
+                $ref: "#/components/schemas/StreamCreationRequest"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StreamMetadataResponse"
+        '400':
+          description: Bad request
+    delete: 
+      summary: Remove Event Stream
+      description: >-
+        
+      tags:
+        - Webhook
+      operationId: deleteEventStream
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Bad request
+
+
+    ############################################################################################
+    ###                             LETTURA EVENTI DA UNO STREAM                             ###
+    ############################################################################################
+
+  '/delivery-progresses/streams/{streamId}/events':
+    get:
+      summary: Leggi progressi notifiche
+      description: >-
+        
+      tags:
+        - WebhookEvents
+      operationId: consumeEventStream
+      parameters:
+        - $ref: '#/components/parameters/pathStreamId'
+        - $ref: '#/components/parameters/queryLastEventId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgressResponse"
+        '400':
+          description: Bad request
+  
+components:
+  
+  parameters:
+    ############################################################################################
+    ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
+    ############################################################################################
+    cxTypeAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTypeAuthFleet'
+    cxIdAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet'
+    uidAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/uidAuthFleet'
+
+
+    ############################################################################################
+    ###                                   PARAMETRI STREAMS                                  ###
+    ############################################################################################
+    queryLastEventId:
+      description: >-
+        Identificativo dell'ultimo evento memorizzato dal chiamante
+      name: lastEventId
+      in: query
+      required: true
+      schema:
+        type: string
+    pathStreamId:
+      description: >-
+        Identificativo dello stream di eventi
+      name: streamId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    
+    ############################################################################################
+    ###                          CREAZIONE E GESTIONE EVENT STREAM                           ###
+    ############################################################################################
+    StreamCreationRequest:
+      type: object
+      required:
+        - title
+        - eventTYpe
+      properties:
+        title: 
+          type: string
+        eventType:
+          type: string
+          enum:
+            - STATUS
+            - TIMELINE
+        onlyValues:
+          type: array
+          items:
+            type: string
+    
+    StreamMetadataResponse:
+      allOf:
+        - $ref: '#/components/schemas/StreamCreationRequest'
+        - type: object
+          required:
+            - streamId
+          properties:
+            streamId:
+              type: string
+              format: uuid
+    
+    StreamListResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/StreamListElement'
+
+    StreamListElement:
+      type: object
+      required:
+        - title
+        - streamId
+      properties:
+        title: 
+          type: string
+        streamId:
+          type: string
+          format: uuid
+        
+    
+
+    ############################################################################################
+    ###                                  DEFINIZIONI EVENTI                                  ###
+    ############################################################################################
+
+    ProgressResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/ProgressResponseElement'
+
+    ProgressResponseElement:
+      type: object
+      required:
+        - eventId
+        - timestamp
+      properties:
+        eventId:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+        notificationRequestId:
+          type: string
+        iun:
+          type: string
+
+        newStatus:
+          $ref: './schemas-pn-status-v1.yaml#/components/schemas/NotificationStatus'
+        timelineEventCategory:
+          $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/TimelineElementCategory'
+
+  
+  securitySchemes:        # ONLY EXTERNAL
+    ApiKeyAuth:           # ONLY EXTERNAL
+      type: apiKey        # ONLY EXTERNAL
+      in: header          # ONLY EXTERNAL
+      name: x-api-key     # ONLY EXTERNAL
+
+security:                 # ONLY EXTERNAL
+  - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
+              
