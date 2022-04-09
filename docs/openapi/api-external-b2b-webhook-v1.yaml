@@ -3,7 +3,17 @@ info:
   title: 'API B2B avanzamento notifiche'
   version: v1.0
   description: >- 
-    Da fare
+    Ogni Pubblica amministrazione può definire fino a __*5 flussi*__ di eventi, ogni flusso 
+    di eventi può:
+      - informare su cambiamenti di stato o inserimento di nuovi elementi di timeline
+      - ed essere filtrato in modo da notificare i cambiamenti di stato o eventi di 
+        timeline ritenuti utili dalla Pubblica Amministrazione.
+    
+    Le operazioni con il __tag Streams__ riguardano la creazione di uno stream(POST), 
+    cancellazione (DELETE) e modifica delle configurazioni dei filtri (PUT).
+
+
+    Il __tag Events__ indica l'operazione utilizzata per leggere gli eventi dallo stream.
 
   contact:
     email: pn@pagopa.it
@@ -18,10 +28,10 @@ servers:
 - url: https://api.dev.pn.pagopa.it
   description: Ambiente di sviluppo
 tags:
-  - name: Webhook
+  - name: Streams
     description: >-
       Gestione degli stream di eventi che PN mette a disposizione
-  - name: WebhookEvents
+  - name: Events
     description: Metodi per la lettura degli eventi dagli stream
 paths:
     ############################################################################################
@@ -32,9 +42,13 @@ paths:
     post:
       summary: Crea nuovo stream di eventi
       description: >-
-        
+        Viene richiesta la creazione di un flusso di eventi specificando se gli eventi saranno 
+        relativi ai cambi di stato o agli eventi di timeline. <br/>
+        In risposta, Piattaforma Notifiche, comunicherà un identificativo dello stream e il 
+        timestamp di effettiva attivazione del flusso, tipicamente pochi secondi dopo che è stata 
+        invocata l'operazione.
       tags:
-        - Webhook
+        - Streams
       operationId: createEventStream
       requestBody:
         required: true
@@ -51,12 +65,16 @@ paths:
                 $ref: "#/components/schemas/StreamMetadataResponse"
         '400':
           description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
     get:
       summary: Elenca stream di eventi
       description: >-
         
       tags:
-        - Webhook
+        - Streams
       operationId: listEventStreams
       responses:
         '200':
@@ -67,16 +85,20 @@ paths:
                 $ref: "#/components/schemas/StreamListResponse"
         '400':
           description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
   '/delivery-progresses/streams/{streamId}':
     parameters:
       - $ref: '#/components/parameters/pathStreamId'        
     get:
-      summary: Leggi metadati dell stream
+      summary: Leggi metadati dello stream
       description: >-
         
       tags:
-        - Webhook
+        - Streams
       operationId: getEventStream
       responses:
         '200':
@@ -92,7 +114,7 @@ paths:
       description: >-
         
       tags:
-        - Webhook
+        - Streams
       operationId: updateEventStream
       requestBody:
         required: true
@@ -109,18 +131,26 @@ paths:
                 $ref: "#/components/schemas/StreamMetadataResponse"
         '400':
           description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
     delete: 
       summary: Remove Event Stream
       description: >-
         
       tags:
-        - Webhook
+        - Streams
       operationId: deleteEventStream
       responses:
         '204':
           description: OK
         '400':
           description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
 
     ############################################################################################
@@ -133,7 +163,7 @@ paths:
       description: >-
         
       tags:
-        - WebhookEvents
+        - Events
       operationId: consumeEventStream
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
@@ -147,6 +177,10 @@ paths:
                 $ref: "#/components/schemas/ProgressResponse"
         '400':
           description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
   
 components:
   
@@ -189,35 +223,52 @@ components:
     ###                          CREAZIONE E GESTIONE EVENT STREAM                           ###
     ############################################################################################
     StreamCreationRequest:
+      description: Richiesta di creazione di uno stream di eventi di avanzamento delle notifiche.
       type: object
       required:
         - title
         - eventTYpe
       properties:
         title: 
+          description: Nome sisntetico dello stream
           type: string
         eventType:
+          description: >-
+            Tipo di eventi presenti nel flusso:
+              - _STATUS_: cambiamenti di stato delle notifiche
+              - _TIMELINE_: eventi a granularità fine
           type: string
           enum:
             - STATUS
             - TIMELINE
         onlyValues:
+          description: >-
+            Se non _null_ indica l'elenco degli stati o elementi di timeline che 
+            si vogliono ricevere.
           type: array
           items:
             type: string
     
     StreamMetadataResponse:
+      description: Configiurazioni di un flusso di eventi
       allOf:
         - $ref: '#/components/schemas/StreamCreationRequest'
         - type: object
           required:
             - streamId
+            - activationDate
           properties:
             streamId:
+              description: Nome del flusso di eventi
               type: string
               format: uuid
+            activationDate:
+              description: Timestamp in cui il flusso di eventi è stato attivato
+              type: string
+              format: date-time
     
     StreamListResponse:
+      description: Elenco di flussi di eventi
       type: array
       items:
         $ref: '#/components/schemas/StreamListElement'
@@ -228,11 +279,11 @@ components:
         - title
         - streamId
       properties:
-        title: 
-          type: string
         streamId:
           type: string
           format: uuid
+        title: 
+          type: string
         
     
 
@@ -252,20 +303,28 @@ components:
         - timestamp
       properties:
         eventId:
+          description: >-
+            Elemento che garantisce univocità e ordinamento temporale all'interno dello stream
           type: string
         timestamp:
+          description: Istante a cui è avvenuto l'evento
           type: string
           format: date-time
 
         notificationRequestId:
+          description: Identificativo della richiesta di notifica
           type: string
         iun:
+          description: >-
+            Identificativo della notifica, presente solo le la richiesta di notifica è 
+            stata accettata.
           type: string
 
         newStatus:
           $ref: './schemas-pn-status-v1.yaml#/components/schemas/NotificationStatus'
         timelineEventCategory:
           $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/TimelineElementCategory'
+        
 
   
   securitySchemes:        # ONLY EXTERNAL
