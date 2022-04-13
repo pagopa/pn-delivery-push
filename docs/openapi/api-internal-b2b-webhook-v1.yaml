@@ -240,7 +240,7 @@ components:
         - eventTYpe
       properties:
         title: 
-          description: Nome sisntetico dello stream
+          description: Nome sintetico dello stream
           type: string
         eventType:
           description: >-
