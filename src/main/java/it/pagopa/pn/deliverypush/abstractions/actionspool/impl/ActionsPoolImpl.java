@@ -5,8 +5,9 @@ import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
+import it.pagopa.pn.deliverypush.middleware.actiondao.ActionDao;
+import it.pagopa.pn.deliverypush.middleware.actiondao.LastPollForFutureActionsDao;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
@@ -15,7 +16,6 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -76,16 +76,9 @@ public class ActionsPoolImpl implements ActionsPool {
         int minute = nowUtc.get( ChronoField.MINUTE_OF_HOUR );
         return String.format("%04d-%02d-%02dT%02d:%02d", year, month, day, hour, minute);
     }
-
-
-
-
-    @Scheduled( fixedDelay = 2 * 1000 )
-    protected void pollForFutureActions() {
-        // FIXME re-implement scheduling polling in a cluster-aware way.
-        // Evaluate:
-        // - TTLs + C.D.D.
-        // - Separate microservice runned with a scheduled tast
+    
+    @Override
+    public void pollForFutureActions() {
 
         Optional<Instant> savedLastPollTime = lastFutureActionPoolExecutionTimeDao.getLastPollTime();
 

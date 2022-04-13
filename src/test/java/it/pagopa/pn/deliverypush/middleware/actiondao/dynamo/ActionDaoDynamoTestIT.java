@@ -1,0 +1,205 @@
+package it.pagopa.pn.deliverypush.middleware.actiondao.dynamo;
+
+import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
+import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
+import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
+import it.pagopa.pn.deliverypush.middleware.actiondao.ActionDao;
+import it.pagopa.pn.deliverypush.middleware.failednotificationdao.PaperNotificationFailedDao;
+import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+
+@ExtendWith(SpringExtension.class)
+@TestPropertySource(properties = {
+        TimelineDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
+        PaperNotificationFailedDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
+        ActionDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
+        "aws.region-code=us-east-1",
+        "aws.profile-name=${PN_AWS_PROFILE_NAME:default}",
+        "aws.endpoint-url=http://localhost:4566",
+})
+@SpringBootTest
+class ActionDaoDynamoTestIT {
+    @Autowired
+    private ActionDao actionDao;
+    
+    @Test
+    void addAndCheckAction() {
+        //GIVEN
+        
+        String timeSlot = "2022-04-12T09:26";
+
+        Action.ActionBuilder actionBuilder = Action.builder()
+                .iun("Test_iun01")
+                .recipientIndex(1)
+                .type(ActionType.SEND_PEC);
+        String actionId = ActionType.SEND_PEC.buildActionId(
+                actionBuilder.build());
+        
+        Action action = actionBuilder.actionId(actionId).build();
+        
+        Action.ActionBuilder actionBuilder2 = Action.builder()
+                .iun("Test_iun02")
+                .recipientIndex(0)
+                .type(ActionType.RECEIVE_PAPER)
+                .newPhysicalAddress(PhysicalAddress.builder()
+                        .at("Presso")
+                        .address("address")
+                        .zip("00100")
+                        .municipality("Roma")
+                        .province("RM")
+                        .foreignState("IT")
+                        .addressDetails("Scala A")
+                        .build())
+                .retryNumber(1)
+                .notBefore(Instant.now())
+                .digitalAddressSource(DigitalAddressSource.GENERAL);
+        
+        String actionId2 =  ActionType.SEND_PEC.buildActionId(
+                actionBuilder2.build()
+        );
+
+        Action action2 = actionBuilder2.actionId(actionId2).build();
+        
+        //WHEN
+        actionDao.addAction(action, timeSlot);
+        actionDao.addAction(action2, timeSlot);
+        
+        //THEN
+        Optional<Action> actionOpt =  actionDao.getActionById(actionId);
+        Assertions.assertTrue(actionOpt.isPresent());
+        Assertions.assertEquals(actionOpt.get(),action);
+        
+        Optional<Action> actionOpt2 =  actionDao.getActionById(actionId2);
+        Assertions.assertTrue(actionOpt2.isPresent());
+        Assertions.assertEquals(actionOpt2.get(),action2);
+
+    }
+
+    @Test
+    void addAndCheckFutureActionSameTimeSlot() {
+        //GIVEN
+        String timeSlot = "2022-04-12T09:26";
+
+        Action.ActionBuilder actionBuilder = Action.builder()
+                .iun("Test_iun01")
+                .recipientIndex(1)
+                .type(ActionType.SEND_PEC);
+        String actionId = ActionType.SEND_PEC.buildActionId(
+                actionBuilder.build());
+
+        Action action = actionBuilder.actionId(actionId).build();
+
+        Action.ActionBuilder actionBuilder2 = Action.builder()
+                .iun("Test_iun02")
+                .recipientIndex(0)
+                .type(ActionType.RECEIVE_PAPER)
+                .newPhysicalAddress(PhysicalAddress.builder()
+                        .at("Presso")
+                        .address("address")
+                        .zip("00100")
+                        .municipality("Roma")
+                        .province("RM")
+                        .foreignState("IT")
+                        .addressDetails("Scala A")
+                        .build())
+                .retryNumber(1)
+                .notBefore(Instant.now())
+                .digitalAddressSource(DigitalAddressSource.GENERAL);
+
+        String actionId2 =  ActionType.SEND_PEC.buildActionId(
+                actionBuilder2.build()
+        );
+
+        Action action2 = actionBuilder2.actionId(actionId2).build();
+
+        actionDao.unSchedule(action, timeSlot);
+        actionDao.unSchedule(action2, timeSlot);
+
+        //WHEN
+        actionDao.addAction(action, timeSlot);
+        actionDao.addAction(action2, timeSlot);
+
+        //THEN
+        List<Action> actions =  actionDao.findActionsByTimeSlot( timeSlot );
+        Assertions.assertEquals(2, actions.size());
+        Assertions.assertTrue(actions.contains(action));
+        Assertions.assertTrue(actions.contains(action2));
+
+    }
+
+    @Test
+    void addAndCheckFutureActionDifferentTimeSlot() {
+        //GIVEN
+
+        Action.ActionBuilder actionBuilder = Action.builder()
+                .iun("Test_iun01")
+                .recipientIndex(1)
+                .type(ActionType.SEND_PEC);
+        String actionId = ActionType.SEND_PEC.buildActionId(
+                actionBuilder.build());
+
+        Action action = actionBuilder.actionId(actionId).build();
+
+        Action.ActionBuilder actionBuilder2 = Action.builder()
+                .iun("Test_iun02")
+                .recipientIndex(0)
+                .type(ActionType.RECEIVE_PAPER)
+                .newPhysicalAddress(PhysicalAddress.builder()
+                        .at("Presso")
+                        .address("address")
+                        .zip("00100")
+                        .municipality("Roma")
+                        .province("RM")
+                        .foreignState("IT")
+                        .addressDetails("Scala A")
+                        .build())
+                .retryNumber(1)
+                .notBefore(Instant.now())
+                .digitalAddressSource(DigitalAddressSource.GENERAL);
+
+        String actionId2 =  ActionType.SEND_PEC.buildActionId(
+                actionBuilder2.build()
+        );
+
+        Action action2 = actionBuilder2.actionId(actionId2).build();
+
+        String timeSlot1 = "2022-04-12T09:26";
+        String timeSlot2 = "2022-04-12T09:27";
+
+        actionDao.unSchedule(action, timeSlot1);
+        actionDao.unSchedule(action2, timeSlot1);
+        actionDao.unSchedule(action2, timeSlot2);
+
+        //WHEN
+        actionDao.addAction(action, timeSlot1);
+        actionDao.addAction(action2, timeSlot2);
+
+        //THEN
+        List<Action> actions =  actionDao.findActionsByTimeSlot( timeSlot1 );
+        Assertions.assertEquals(1, actions.size());
+        Assertions.assertTrue(actions.contains(action));
+        Assertions.assertFalse(actions.contains(action2));
+
+        List<Action> actions2 =  actionDao.findActionsByTimeSlot( timeSlot2 );
+        Assertions.assertEquals(1, actions2.size());
+        Assertions.assertTrue(actions2.contains(action2));
+        Assertions.assertFalse(actions2.contains(action));
+        
+    }
+    
+    @Test
+    void unSchedule() {
+    }
+}

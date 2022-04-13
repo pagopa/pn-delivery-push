@@ -13,6 +13,7 @@ import java.util.List;
 @Getter
 @Builder(toBuilder = true)
 @ToString
+@EqualsAndHashCode
 public class Action {
 
     private String iun;
