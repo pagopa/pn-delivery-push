@@ -194,6 +194,58 @@ Resources:
           KeyType: "RANGE"
       BillingMode: "PAY_PER_REQUEST"
 
+  ActionTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${ProjectName}-Action'
+      AttributeDefinitions:
+        - AttributeName: "actionId"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "actionId"
+          KeyType: "HASH"
+      BillingMode: "PAY_PER_REQUEST"
+      
+  FutureActionTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${ProjectName}-FutureAction'
+      AttributeDefinitions:
+        - AttributeName: "timeSlot"
+          AttributeType: "S"
+        - AttributeName: "actionId"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "timeSlot"
+          KeyType: "HASH"
+        - AttributeName: "actionId"
+          KeyType: "RANGE"
+      BillingMode: "PAY_PER_REQUEST"
+      
+  LastPollForFutureActionTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${ProjectName}-LastPollForFutureActionTable'
+      AttributeDefinitions:
+        - AttributeName: "lastPoolKey"
+          AttributeType: "N"
+      KeySchema:
+        - AttributeName: "lastPoolKey"
+          KeyType: "HASH"
+      BillingMode: "PAY_PER_REQUEST"
+      
+  PnDeliveryPushShedLockTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${ProjectName}-PnDeliveryPushShedLock'
+      AttributeDefinitions:
+        - AttributeName: "_id"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "_id"
+          KeyType: "HASH"
+      BillingMode: "PAY_PER_REQUEST"
+      
 Outputs:
 
   # Keyvalue store
