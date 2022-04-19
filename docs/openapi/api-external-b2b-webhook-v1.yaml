@@ -3,18 +3,22 @@ info:
   title: 'API B2B avanzamento notifiche'
   version: v1.0
   description: >- 
-    Ogni Pubblica amministrazione può definire fino a __*5 flussi*__ di eventi, ogni flusso 
-    di eventi può:
-      - informare su cambiamenti di stato o inserimento di nuovi elementi di timeline
-      - ed essere filtrato in modo da notificare i cambiamenti di stato o eventi di 
-        timeline ritenuti utili dalla Pubblica Amministrazione.
+    I mittenti di notifica possono seguire il flusso di avanzamento delle notifiche in modo 
+    automatico. E' possibile definire fino ad un massimo di 5 configurazioni di flussi per 
+    informazioni relative a: <br/>
+      - cambiamento di stato della notifica;  <br/>
+      - inserimento di elementi nella timeline. <br/>
     
-    Le operazioni con il __tag Streams__ riguardano la creazione di uno stream(POST), 
-    cancellazione (DELETE) e modifica delle configurazioni dei filtri (PUT).
+    Per ognuno di questi elementi è possibile definire un filtro per ricevere solo alcuni 
+    cambiamenti di stato o determinati eventi di timeline.
 
+    Le operazioni con il tag __Streams__ gestiscono la configurazione: <br/>
+      - Creazione; <br/>
+      - Modifica; <br/>
+      - Cancellazione. <br/>
 
-    Il __tag Events__ indica l'operazione utilizzata per leggere gli eventi dallo stream.
-
+    Le operazioni con il tag __Events__ sono quelle utilizzate per la lettura degli eventi 
+    filtrati in base alla configurazione impostata negli streams.
   contact:
     email: pn@pagopa.it
   license:
@@ -241,7 +245,7 @@ components:
           enum:
             - STATUS
             - TIMELINE
-        onlyValues:
+        filterValues:
           description: >-
             Se non _null_ indica l'elenco degli stati o elementi di timeline che 
             si vogliono ricevere.
@@ -259,7 +263,7 @@ components:
             - activationDate
           properties:
             streamId:
-              description: Nome del flusso di eventi
+              description: Identificativo del flusso di eventi
               type: string
               format: uuid
             activationDate:
