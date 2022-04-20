@@ -85,7 +85,7 @@ public class ActionsPoolImpl implements ActionsPool {
 //    (more than one process will effectively hold the lock).
 //    lockAtLeastFor specifies minimum amount of time for which the lock should be kept. is to prevent execution from multiple nodes 
 //    in case of really short tasks and clock difference between the nodes. Setting lockAtLeastFor we make sure it's not executed more than once in 1 minute
-    @Scheduled( fixedDelay = 30000 )
+    @Scheduled( fixedDelay = 60000 )
     @SchedulerLock(name = "actionPoll", lockAtMostFor = "1m", lockAtLeastFor = "30s")
     protected void pollForFutureActions() {
 
