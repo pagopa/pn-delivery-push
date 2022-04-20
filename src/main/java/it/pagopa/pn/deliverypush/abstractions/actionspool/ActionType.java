@@ -42,24 +42,24 @@ public enum ActionType {
         }
     },
 
-    ANALOG_WORKFLOW() {
+    ANALOG_WORKFLOW() { //NEW
         @Override
         public String buildActionId(Action action) {
             return String.format(
-                    "%s_analog_workflow_e_%d",
+                    "%s_analog_workflow_e_%s",
                     action.getIun(),
-                    action.getRecipientIndex()
+                    action.getTaxId()
             );
         }
     },
 
-    DIGITAL_WORKFLOW_NEXT_ACTION() {
+    DIGITAL_WORKFLOW_NEXT_ACTION() { //NEW
         @Override
         public String buildActionId(Action action) {
             return String.format(
-                    "%s_digital_workflow_e_%d",
+                    "%s_digital_workflow_e_%s",
                     action.getIun(),
-                    action.getRecipientIndex()
+                    action.getTaxId()
             );
         }
     },
@@ -160,13 +160,13 @@ public enum ActionType {
         }
     },
 
-    REFINEMENT_NOTIFICATION() {
+    REFINEMENT_NOTIFICATION() { //NEW
         @Override
         public String buildActionId(Action action) {
             return String.format(
-                    "%s_refinement_notification_%d",
+                    "%s_refinement_notification_%s",
                     action.getIun(),
-                    action.getRecipientIndex()
+                    action.getTaxId()
             );
         }
     };

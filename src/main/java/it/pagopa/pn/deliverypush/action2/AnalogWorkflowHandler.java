@@ -43,7 +43,6 @@ public class AnalogWorkflowHandler {
      * @param iun   Notification unique identifier
      * @param taxId User identifier
      */
-    //@StreamListener(condition = "ANALOG_WORKFLOW")
     public void nextWorkflowStep(String iun, String taxId, int sentAttemptMade) {
         log.info("Start Analog next workflow action - iun {} id {}", iun, taxId);
 

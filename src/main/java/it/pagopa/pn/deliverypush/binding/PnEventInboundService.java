@@ -5,9 +5,14 @@
  */
 package it.pagopa.pn.deliverypush.binding;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.api.dto.events.*;
 import it.pagopa.pn.api.dto.extchannel.ExtChannelResponse;
 import it.pagopa.pn.api.dto.extchannel.ExtChannelResponseStatus;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.ActionEventType;
 import it.pagopa.pn.deliverypush.action2.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action2.NotificationViewedHandler;
 import it.pagopa.pn.deliverypush.action2.StartWorkflowHandler;
@@ -21,6 +26,8 @@ import org.springframework.messaging.MessageHeaders;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import static it.pagopa.pn.api.dto.events.StandardEventHeader.*;
@@ -40,13 +47,34 @@ public class PnEventInboundService {
         this.notificationViewedHandler = notificationViewedHandler;
         this.eventHandler = eventHandler;
     }
-    
+
     @Bean
     public MessageRoutingCallback customRouter() {
        return message -> {
            log.info("messaggio ricevuto da customRouter "+message);
            String eventType = (String) message.getHeaders().get("eventType");
-           log.debug("Event received, eventType {}",eventType);
+           if(eventType != null){
+               if(ActionEventType.ACTION_GENERIC.name().equals(eventType)){
+                   String payload = (String) message.getPayload();
+                   try {
+                       Map<String,String> action = new ObjectMapper().readValue(payload, HashMap.class);
+                       String actionType = action.get("type");
+                       if(actionType != null){
+                           return eventHandler.getHandler().get(actionType);
+                       }else {
+                           log.error("actionType not present, cannot start scheduled action");
+                           throw new PnInternalException("actionType not present, cannot start scheduled action");
+                       }
+                   } catch (JsonProcessingException ex) {
+                       log.error("Exception during json mapping ex={}", ex);
+                       throw new PnInternalException("Exception during json mapping ex="+ ex);
+                   }
+               }
+           }else {
+               log.error("eventType not present, cannot start scheduled action");
+               throw new PnInternalException("eventType not present, cannot start scheduled action");
+           }
+           
            return eventHandler.getHandler().get(eventType);
        };
     }
@@ -112,6 +140,27 @@ public class PnEventInboundService {
         };
     }
 
+    @Bean
+    public Consumer<Message<Action>> pnDeliveryPushAnalogWorkflowConsumer() {
+        return message -> {
+            log.info("pnDeliveryPushAnalogWorkflowConsumer, message {}", message);
+        };
+    }
+
+    @Bean
+    public Consumer<Message<Action>> pnDeliveryPushRefinementConsumer() {
+        return message -> {
+            log.info("pnDeliveryPushRefinementConsumer, message {}", message);
+        };
+    }
+
+    @Bean
+    public Consumer<Message<Action>> pnDeliveryPushDigitalNextActionConsumer() {
+        return message -> {
+            log.info("pnDeliveryPushDigitalNextActionConsumer, message {}", message);
+        };
+    }
+    
     private StandardEventHeader mapStandardEventHeader(MessageHeaders headers) {
         return StandardEventHeader.builder()
                 .eventId((String) headers.get(PN_EVENT_HEADER_EVENT_ID))

@@ -27,6 +27,9 @@ public class Action {
     // Required and used for SEND_PEC and RECEIVE_PEC ActionType
     private Integer recipientIndex;
 
+    // TaxId Recipient
+    private String taxId;
+
     // Required and used for SEND_PEC and RECEIVE_PEC ActionType
     private DigitalAddressSource digitalAddressSource;
 
