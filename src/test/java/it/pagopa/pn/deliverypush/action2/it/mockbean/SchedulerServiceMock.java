@@ -27,18 +27,18 @@ public class SchedulerServiceMock implements SchedulerService {
     }
 
     @Override
-    public void scheduleEvent(String iun, String taxId, Instant dateToSchedule, ActionType actionType) {
+    public void scheduleEvent(String iun, int recIndex, Instant dateToSchedule, ActionType actionType) {
         mockSchedulingDate(dateToSchedule);
 
         switch (actionType) {
             case ANALOG_WORKFLOW:
-                analogWorkflowHandler.nextWorkflowStep(iun, taxId, 0);
+                analogWorkflowHandler.nextWorkflowStep(iun, recIndex, 0);
                 break;
             case REFINEMENT_NOTIFICATION:
-                refinementHandler.handleRefinement(iun, taxId);
+                refinementHandler.handleRefinement(iun, recIndex);
                 break;
             case DIGITAL_WORKFLOW_NEXT_ACTION:
-                digitalWorkFlowHandler.startScheduledNextWorkflow(iun, taxId);
+                digitalWorkFlowHandler.startScheduledNextWorkflow(iun, recIndex);
                 break;
         }
     }

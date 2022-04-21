@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ExternalChannelImpl implements ExternalChannel {
-    //TODO IMPLEMENTARE CON SPRING STREAM
     
     private final MomProducer<PnExtChnPaperEvent> paperRequestProducer;
     private final MomProducer<PnExtChnPecEvent> pecRequestProducer;

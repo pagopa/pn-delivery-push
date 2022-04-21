@@ -41,8 +41,8 @@ class StartWorkflowHandlerTest {
     @BeforeEach
     public void setup() {
         handler = new StartWorkflowHandler(legalFactUtils, notificationService, courtesyMessageUtils,
-                chooseDeliveryType, timelineService, timelineUtils, attachmentService
-        );
+                chooseDeliveryType, timelineService, timelineUtils, attachmentService,
+                notificationUtils);
     }
 
     @ExtendWith(MockitoExtension.class)

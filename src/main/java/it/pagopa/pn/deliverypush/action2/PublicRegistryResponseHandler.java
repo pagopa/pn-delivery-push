@@ -39,11 +39,11 @@ public class PublicRegistryResponseHandler {
 
         //Viene ottenuto l'oggetto di timeline creato in fase d'invio notifica al public registry
         PublicRegistryCallDetails publicRegistryCallDetails = publicRegistryUtils.getPublicRegistryCallDetail(iun, correlationId);
-        String taxId = publicRegistryCallDetails.getTaxId();
+        int recIndex = publicRegistryCallDetails.getRecIndex();
 
-        publicRegistryUtils.addPublicRegistryResponseToTimeline(iun, taxId, response);
+        publicRegistryUtils.addPublicRegistryResponseToTimeline(iun, recIndex, response);
 
-        log.info("public registry response is in contactPhase {} iun {} id {} ", publicRegistryCallDetails.getContactPhase(), iun, taxId);
+        log.info("public registry response is in contactPhase {} iun {} id {} ", publicRegistryCallDetails.getContactPhase(), iun, recIndex);
 
         ContactPhase contactPhase = publicRegistryCallDetails.getContactPhase();
         //In base alla fase di contatto, inserita in timeline al momento dell'invio, viene scelto il percorso da prendere
@@ -51,7 +51,7 @@ public class PublicRegistryResponseHandler {
             switch (contactPhase) {
                 case CHOOSE_DELIVERY:
                     //request has been sent during choose delivery
-                    chooseDeliveryHandler.handleGeneralAddressResponse(response, iun, taxId);
+                    chooseDeliveryHandler.handleGeneralAddressResponse(response, iun, recIndex);
                     break;
                 case SEND_ATTEMPT:
                     //request has been sent in digital or analog workflow
@@ -72,9 +72,9 @@ public class PublicRegistryResponseHandler {
     }
 
     private void handleResponseForSendAttempt(PublicRegistryResponse response, String iun, PublicRegistryCallDetails publicRegistryCallDetails) {
-        String taxId = publicRegistryCallDetails.getTaxId();
+        int recIndex = publicRegistryCallDetails.getRecIndex();
 
-        log.info("Start handleResponseForSendAttempt iun {} id {} deliveryMode {}", iun, taxId, publicRegistryCallDetails.getDeliveryMode());
+        log.info("Start handleResponseForSendAttempt iun {} id {} deliveryMode {}", iun, recIndex, publicRegistryCallDetails.getDeliveryMode());
 
         if (publicRegistryCallDetails.getDeliveryMode() != null) {
 
@@ -83,18 +83,18 @@ public class PublicRegistryResponseHandler {
                     digitalWorkFlowHandler.handleGeneralAddressResponse(response, iun, publicRegistryCallDetails);
                     break;
                 case ANALOG:
-                    analogWorkflowHandler.handlePublicRegistryResponse(iun, taxId, response, publicRegistryCallDetails.getSentAttemptMade());
+                    analogWorkflowHandler.handlePublicRegistryResponse(iun, recIndex, response, publicRegistryCallDetails.getSentAttemptMade());
                     break;
                 default:
-                    handleDeliveryModeError(iun, publicRegistryCallDetails.getDeliveryMode(), taxId);
+                    handleDeliveryModeError(iun, publicRegistryCallDetails.getDeliveryMode(), recIndex);
             }
         } else {
-            handleDeliveryModeError(iun, publicRegistryCallDetails.getDeliveryMode(), taxId);
+            handleDeliveryModeError(iun, publicRegistryCallDetails.getDeliveryMode(), recIndex);
         }
     }
 
-    private void handleDeliveryModeError(String iun, DeliveryMode deliveryMode, String taxId) {
-        log.error("Specified deliveryMode {} does not exist - iun {} id {}", deliveryMode, iun, taxId);
-        throw new PnInternalException("Specified deliveryMode " + deliveryMode + " does not exist - iun " + iun + " id " + taxId);
+    private void handleDeliveryModeError(String iun, DeliveryMode deliveryMode, int recIndex) {
+        log.error("Specified deliveryMode {} does not exist - iun {} id {}", deliveryMode, iun, recIndex);
+        throw new PnInternalException("Specified deliveryMode " + deliveryMode + " does not exist - iun " + iun + " id " + recIndex);
     }
 }

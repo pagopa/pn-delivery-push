@@ -167,7 +167,7 @@ public class PnEventInboundService {
             log.info("pnDeliveryPushAnalogWorkflowConsumer, message {}", message);
             Action action = message.getPayload();
 
-            analogWorkflowHandler.nextWorkflowStep(action.getIun(), action.getTaxId(), 0);
+            analogWorkflowHandler.nextWorkflowStep(action.getIun(), action.getRecipientIndex(), 0);
         };
     }
 
@@ -176,7 +176,7 @@ public class PnEventInboundService {
         return message -> {
             log.info("pnDeliveryPushRefinementConsumer, message {}", message);
             Action action = message.getPayload();
-            refinementHandler.handleRefinement(action.getIun(), action.getTaxId());
+            refinementHandler.handleRefinement(action.getIun(), action.getRecipientIndex());
         };
     }
 
@@ -186,7 +186,7 @@ public class PnEventInboundService {
             log.info("pnDeliveryPushDigitalNextActionConsumer, message {}", message);
             Action action = message.getPayload();
             
-            digitalWorkFlowHandler.startScheduledNextWorkflow(action.getIun(), action.getTaxId());
+            digitalWorkFlowHandler.startScheduledNextWorkflow(action.getIun(), action.getRecipientIndex());
         };
     }
     

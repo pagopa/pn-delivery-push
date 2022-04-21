@@ -18,10 +18,10 @@ public class SchedulerServiceImpl implements SchedulerService {
     }
 
     @Override
-    public void scheduleEvent(String iun, String taxId, Instant dateToSchedule, ActionType actionType) {
+    public void scheduleEvent(String iun, int recIndex, Instant dateToSchedule, ActionType actionType) {
         Action action = Action.builder()
                 .iun(iun)
-                .taxId(taxId)
+                .recipientIndex(recIndex)
                 .notBefore(dateToSchedule)
                 .type(actionType)
                 .build();

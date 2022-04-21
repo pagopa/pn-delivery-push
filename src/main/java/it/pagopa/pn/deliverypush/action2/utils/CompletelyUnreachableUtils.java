@@ -6,11 +6,11 @@ import it.pagopa.pn.api.dto.notification.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.middleware.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
+@Component
 @Slf4j
-public class CompletelyUnreachableUtils {
+public class CompletelyUnreachableUtils extends  {
     private final PaperNotificationFailedDao paperNotificationFailedDao;
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
@@ -22,13 +22,13 @@ public class CompletelyUnreachableUtils {
         this.timelineUtils = timelineUtils;
     }
 
-    public void handleCompletelyUnreachable(String iun, String taxId) {
-        log.info("HandleCompletelyUnreachable - iun {} id {} ", iun, taxId);
+    public void handleCompletelyUnreachable(String iun, int recIndex) {
+        log.info("HandleCompletelyUnreachable - iun {} id {} ", iun, recIndex);
 
-        if (!isNotificationAlreadyViewed(iun, taxId)) {
-            addPaperNotificationFailed(iun, taxId);
+        if (!isNotificationAlreadyViewed(iun, recIndex)) {
+            addPaperNotificationFailed(iun, recIndex);
         }
-        addTimelineElement(timelineUtils.buildCompletelyUnreachableTimelineElement(iun, taxId));
+        addTimelineElement(timelineUtils.buildCompletelyUnreachableTimelineElement(iun, recIndex));
     }
 
     private boolean isNotificationAlreadyViewed(String iun, String taxId) {

@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.action2;
 
 import it.pagopa.pn.deliverypush.external.AddressBookEntry;
-import it.pagopa.pn.api.dto.addressbook.DigitalAddresses;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
@@ -156,7 +155,7 @@ class ChooseDeliveryModeHandlerTest {
         Assertions.assertEquals(DigitalAddressSource.SPECIAL, listDigitalAddressSourceCaptorValues.get(1));
         Assertions.assertFalse(listIsAvailableCaptorValues.get(1));
 
-        Mockito.verify(publicRegistrySendHandler).sendRequestForGetDigitalAddress(Mockito.anyString(), Mockito.anyString(),
+        Mockito.verify(publicRegistrySendHandler).sendRequestForGetDigitalGeneralAddress(Mockito.anyString(), Mockito.anyString(),
                 Mockito.any(ContactPhase.class), Mockito.anyInt());
     }
 

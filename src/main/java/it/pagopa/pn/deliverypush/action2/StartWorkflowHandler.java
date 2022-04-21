@@ -7,6 +7,7 @@ import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.deliverypush.action2.utils.CheckAttachmentUtils;
 import it.pagopa.pn.deliverypush.action2.utils.CourtesyMessageUtils;
+import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -28,10 +29,12 @@ public class StartWorkflowHandler {
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
     private final CheckAttachmentUtils checkAttachmentUtils;
+    private final NotificationUtils notificationUtils;
     
     public StartWorkflowHandler(LegalFactUtils legalFactUtils, NotificationService notificationService,
                                 CourtesyMessageUtils courtesyMessageUtils, ChooseDeliveryModeHandler chooseDeliveryType,
-                                TimelineService timelineService, TimelineUtils timelineUtils, CheckAttachmentUtils checkAttachmentUtils) {
+                                TimelineService timelineService, TimelineUtils timelineUtils, CheckAttachmentUtils checkAttachmentUtils, 
+                                NotificationUtils notificationUtils) {
         this.legalFactUtils = legalFactUtils;
         this.notificationService = notificationService;
         this.courtesyMessageUtils = courtesyMessageUtils;
@@ -39,6 +42,7 @@ public class StartWorkflowHandler {
         this.timelineService = timelineService;
         this.timelineUtils = timelineUtils;
         this.checkAttachmentUtils = checkAttachmentUtils;
+        this.notificationUtils = notificationUtils;
     }
     
     /**
@@ -61,19 +65,20 @@ public class StartWorkflowHandler {
             
             //Start del workflow per ogni recipient della notifica
             for (NotificationRecipient recipient : notification.getRecipients()) {
-                startNotificationWorkflowForRecipient(iun, notification, recipient);
+                int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+                startNotificationWorkflowForRecipient(notification, recIndex);
             }
         }catch (PnValidationException ex){
             handleValidationError(notification, ex);
         }
     }
 
-    private void startNotificationWorkflowForRecipient(String iun, Notification notificationWithAttachment, NotificationRecipient recipient) {
-        log.info("Start notification workflow - iun {} id {}", iun, recipient.getTaxId());
+    private void startNotificationWorkflowForRecipient(Notification notification, int recIndex) {
+        log.info("Start notification workflow - iun {} id {}", notification.getIun(), recIndex);
         //... Invio messaggio di cortesia ...
-        courtesyMessageUtils.checkAddressesForSendCourtesyMessage(notificationWithAttachment, recipient);
+        courtesyMessageUtils.checkAddressesForSendCourtesyMessage(notification, recIndex);
         //... e inizializzato il processo di scelta della tipologia di notificazione
-        chooseDeliveryType.chooseDeliveryTypeAndStartWorkflow(notificationWithAttachment, recipient);
+        chooseDeliveryType.chooseDeliveryTypeAndStartWorkflow(notification, recIndex);
     }
 
     private void handleValidationError(Notification notification, PnValidationException ex) {

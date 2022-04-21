@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -30,14 +29,4 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
-    @Override
-    public NotificationRecipient getRecipientFromNotification(Notification notification, String taxId) {
-        Optional<NotificationRecipient> optRec = notification.getRecipients().stream().filter(recipient -> taxId.equals(recipient.getTaxId())).findFirst();
-        if (optRec.isPresent()) {
-            return optRec.get();
-        } else {
-            log.error("There isn't recipient in notification - iun {} id {}", notification.getIun(), taxId);
-            throw new PnInternalException("There isn't notification - iun " + notification.getIun() + " id " + taxId);
-        }
-    }
 }

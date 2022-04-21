@@ -93,7 +93,7 @@ class DigitalWorkFlowHandlerTest {
 
         handler.nextWorkFlowAction("iun", "text_rec", lastAttemptMade);
 
-        Mockito.verify(publicRegistrySendHandler).sendRequestForGetDigitalAddress(Mockito.anyString(), Mockito.anyString(),
+        Mockito.verify(publicRegistrySendHandler).sendRequestForGetDigitalGeneralAddress(Mockito.anyString(), Mockito.anyString(),
                 Mockito.any(ContactPhase.class), Mockito.anyInt());
     }
 
@@ -269,7 +269,7 @@ class DigitalWorkFlowHandlerTest {
 
         handler.nextWorkFlowAction("iun", "text_rec", lastAttemptMade);
 
-        Mockito.verify(publicRegistrySendHandler).sendRequestForGetDigitalAddress(Mockito.anyString(), Mockito.anyString(),
+        Mockito.verify(publicRegistrySendHandler).sendRequestForGetDigitalGeneralAddress(Mockito.anyString(), Mockito.anyString(),
                 Mockito.any(ContactPhase.class), Mockito.anyInt());
     }
 

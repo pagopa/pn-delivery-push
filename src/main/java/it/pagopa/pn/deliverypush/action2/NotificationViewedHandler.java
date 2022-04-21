@@ -35,7 +35,7 @@ public class NotificationViewedHandler {
     }
     
     public void handleViewNotification(String iun, int recipientIndex) {
-        log.info("Start HandleViewNotification - iun ", iun);
+        log.info("Start HandleViewNotification - iun {}", iun);
 
         Notification notification = notificationService.getNotificationByIun(iun);
         NotificationRecipient recipient = notification.getRecipients().get(recipientIndex);

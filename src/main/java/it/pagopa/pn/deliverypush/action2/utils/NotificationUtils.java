@@ -1,0 +1,26 @@
+package it.pagopa.pn.deliverypush.action2.utils;
+
+import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
+
+public class NotificationUtils {
+
+    public int getRecipientIndex(Notification notification, String taxId){
+        int index = 1;
+
+        for(NotificationRecipient recipientNot : notification.getRecipients()){
+            if(recipientNot.getTaxId().equals(taxId)){
+                return index;
+            }
+            index ++;
+        }
+
+        throw new PnInternalException("There isn't recipient in Notification");
+    }
+
+    public NotificationRecipient getRecipientFromIndex(Notification notification, int index){
+        return notification.getRecipients().get(index);
+    }
+    
+}
