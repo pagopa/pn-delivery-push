@@ -12,7 +12,6 @@ import it.pagopa.pn.api.dto.extchannel.ExtChannelResponse;
 import it.pagopa.pn.api.dto.extchannel.ExtChannelResponseStatus;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.ActionEvent;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.ActionEventType;
 import it.pagopa.pn.deliverypush.action2.*;
 import lombok.extern.slf4j.Slf4j;
@@ -161,7 +160,7 @@ public class PnEventInboundService {
             
         };
     }
-ActionEvent
+
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushAnalogWorkflowConsumer() {
         return message -> {
