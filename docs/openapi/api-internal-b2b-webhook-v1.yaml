@@ -409,7 +409,7 @@ components:
     ExternalEventsRequest:
       title: Invio eventi da P.A. a P.N.
       description: >- 
-        Richiesta contenente un arrai di eventi di cui una Pubblica Amministrazione
+        Richiesta contenente un array di eventi di cui una Pubblica Amministrazione
         deve avvisare Piattaforma Notifiche.
       type: object
       required:

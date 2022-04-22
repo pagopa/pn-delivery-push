@@ -183,10 +183,10 @@ paths:
               schema:
                 type: integer
               description: >-
-                Numero di secondi di attesa prima di effettuare una nuova lettura di eventi. <br/>
-                Sarà valorizzato a zero se ci sono eventi in coda che non sono stati forniti per 
-                raggiunta dimensione massima della risposta. <br/>
-                Sarà maggiore di zero se gli eventi in coda sono stati tutti inviati.
+                Numero di secondi da attendere prima di effettuare una nuova richiesta di eventi. <br/>
+                Sarà valorizzato a zero se ci sono eventi in coda che non sono stati forniti nella 
+                richiesta corrente per raggiunta dimensione massima della risposta. <br/>
+                Sarà maggiore di zero se non ci solo ulteriori eventi in coda.
           content:
             application/json:
               schema:
@@ -198,7 +198,7 @@ paths:
               schema:
                 type: integer
               description: >-
-                Numero di secondi di attesa prima di effettuare una nuova lettura di eventi.
+                Numero di secondi da attendere prima di effettuare una nuova richiesta di eventi.
         '400':
           description: Bad request
           content:
@@ -228,7 +228,6 @@ paths:
       tags:
         - Events
       operationId: informOnExternalEvent
-      parameters:
       requestBody:
         required: true
         content:
@@ -396,7 +395,7 @@ components:
     ExternalEventsRequest:
       title: Invio eventi da P.A. a P.N.
       description: >- 
-        Richiesta contenente un arrai di eventi di cui una Pubblica Amministrazione
+        Richiesta contenente un array di eventi di cui una Pubblica Amministrazione
         deve avvisare Piattaforma Notifiche.
       type: object
       required:
