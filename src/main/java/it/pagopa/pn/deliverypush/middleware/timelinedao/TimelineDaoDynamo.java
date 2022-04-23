@@ -42,6 +42,12 @@ public class TimelineDaoDynamo implements TimelineDao {
         ResponseEntity<ResponseUpdateStatusDto> resp = client.updateState(requestDto);
 
         if (resp.getStatusCode().is2xxSuccessful()) {
+            ResponseUpdateStatusDto resStatusDto = resp.getBody();
+            
+            if(resStatusDto != null && !(resStatusDto.getCurrentStatus().equals(resStatusDto.getNextStatus()))){
+                log.info("Status changed From {} to {} for iun {}", resStatusDto.getCurrentStatus(), resStatusDto.getNextStatus(), dto.getIun());
+            }
+            
             TimelineElementEntity entity = dto2entity.dtoToEntity(dto);
             entityDao.put(entity);
         }else {

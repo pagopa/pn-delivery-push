@@ -83,21 +83,21 @@ public class CompletionWorkFlowHandler {
     private String generatePecDeliveryWorkflowLegalFact(Notification notification, int recIndex) {
         Set<TimelineElement> timeline = timelineService.getTimeline(notification.getIun());
 
-        NotificationRecipient recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
 
         List<SendDigitalFeedback> listFeedbackFromExtChannel = timeline.stream()
-                .filter(timelineElement -> filterTimelineForTaxId(timelineElement, recipient.getTaxId()))
+                .filter(timelineElement -> filterTimelineForTaxId(timelineElement, recIndex))
                 .map(timelineElement -> (SendDigitalFeedback) timelineElement.getDetails())
                 .collect(Collectors.toList());
-
+        
+        NotificationRecipient recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         return legalFactUtils.savePecDeliveryWorkflowLegalFact(listFeedbackFromExtChannel, notification, recipient);
     }
 
-    private boolean filterTimelineForTaxId(TimelineElement el, String taxId) {
+    private boolean filterTimelineForTaxId(TimelineElement el, int recIndex) {
         boolean availableCategory = TimelineElementCategory.SEND_DIGITAL_FEEDBACK.equals(el.getCategory());
         if (availableCategory) {
             SendDigitalFeedback details = (SendDigitalFeedback) el.getDetails();
-            return taxId.equalsIgnoreCase(details.getTaxId());
+            return recIndex == details.getRecIndex();
         }
         return false;
     }
@@ -122,9 +122,10 @@ public class CompletionWorkFlowHandler {
     /**
      * Handle necessary steps to complete analog workflow.
      */
-    public void completionAnalogWorkflow(String iun, int recIndex, Instant notificationDate, PhysicalAddress usedAddress, EndWorkflowStatus status) {
-        log.info("Analog workflow completed with status {} IUN {} id {}", status, iun, recIndex);
-
+    public void completionAnalogWorkflow(Notification notification, int recIndex, Instant notificationDate, PhysicalAddress usedAddress, EndWorkflowStatus status) {
+        log.info("Analog workflow completed with status {} IUN {} id {}", status, notification.getIun(), recIndex);
+        String iun = notification.getIun();
+        
         if (status != null) {
             switch (status) {
                 case SUCCESS:
@@ -133,7 +134,7 @@ public class CompletionWorkFlowHandler {
                     break;
                 case FAILURE:
                     addTimelineElement(timelineUtils.buildFailureAnalogWorkflowTimelineElement(iun, recIndex));
-                    completelyUnreachableService.handleCompletelyUnreachable(iun, recIndex);
+                    completelyUnreachableService.handleCompletelyUnreachable(notification, recIndex);
                     scheduleRefinement(iun, recIndex, notificationDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysFailureAnalogRefinement());
                     break;
                 default:

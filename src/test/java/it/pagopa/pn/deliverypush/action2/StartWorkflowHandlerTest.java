@@ -7,6 +7,7 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.deliverypush.action2.utils.CheckAttachmentUtils;
 import it.pagopa.pn.deliverypush.action2.utils.CourtesyMessageUtils;
+import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -37,9 +38,11 @@ class StartWorkflowHandlerTest {
     private CheckAttachmentUtils attachmentService;
     
     private StartWorkflowHandler handler;
+    private NotificationUtils notificationUtils;
 
     @BeforeEach
     public void setup() {
+        notificationUtils= new NotificationUtils();
         handler = new StartWorkflowHandler(legalFactUtils, notificationService, courtesyMessageUtils,
                 chooseDeliveryType, timelineService, timelineUtils, attachmentService,
                 notificationUtils);
@@ -48,18 +51,20 @@ class StartWorkflowHandlerTest {
     @ExtendWith(MockitoExtension.class)
     @Test
     void startWorkflow() {
-
+        //GIVEN
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(getNotification());
 
         Mockito.when( legalFactUtils.saveNotificationReceivedLegalFact(Mockito.any( Notification.class ))).thenReturn( "" );
-
+        
+        //WHEN
         handler.startWorkflow("IUN_01");
-
+        
+        //THEN
         Mockito.verify(legalFactUtils).saveNotificationReceivedLegalFact(Mockito.any(Notification.class));
         Mockito.verify(timelineUtils).buildAcceptedRequestTimelineElement(Mockito.any(Notification.class), Mockito.anyString());
-        Mockito.verify(courtesyMessageUtils).checkAddressesForSendCourtesyMessage(Mockito.any(Notification.class), Mockito.any(NotificationRecipient.class));
-        Mockito.verify(chooseDeliveryType).chooseDeliveryTypeAndStartWorkflow(Mockito.any(Notification.class), Mockito.any(NotificationRecipient.class));
+        Mockito.verify(courtesyMessageUtils).checkAddressesForSendCourtesyMessage(Mockito.any(Notification.class), Mockito.anyInt());
+        Mockito.verify(chooseDeliveryType).chooseDeliveryTypeAndStartWorkflow(Mockito.any(Notification.class), Mockito.anyInt());
     }
 
     private Notification getNotification() {

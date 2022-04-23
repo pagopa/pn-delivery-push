@@ -27,7 +27,6 @@ public class DtoToEntityActionMapper {
                 .digitalAddressSource(dto.getDigitalAddressSource())
                 .notBefore(dto.getNotBefore())
                 .recipientIndex(dto.getRecipientIndex())
-                .taxId(dto.getTaxId())
                 .responseStatus(dto.getResponseStatus())
                 .retryNumber(dto.getRetryNumber())
                 .type(dto.getType())

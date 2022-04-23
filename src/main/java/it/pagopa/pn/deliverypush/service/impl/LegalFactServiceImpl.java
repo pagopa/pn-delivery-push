@@ -3,9 +3,7 @@ package it.pagopa.pn.deliverypush.service.impl;
 import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.notification.timeline.RecipientRelatedTimelineElementDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElementDetails;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
@@ -71,12 +69,14 @@ public class LegalFactServiceImpl implements LegalFactService {
 
     private String readRecipientId( TimelineElement  timelineElement ) {
         String recipientId = null;
+        //TODO Gli elementi di Timeline non hanno più il recipient Id capire come gestirlo
+        /*
         if (timelineElement != null) {
             TimelineElementDetails details = timelineElement.getDetails();
             if ( details instanceof RecipientRelatedTimelineElementDetails ) {
                 recipientId = ((RecipientRelatedTimelineElementDetails) details).getTaxId();
             }
-        }
+        }*/
         return recipientId;
     }
 

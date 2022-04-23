@@ -59,7 +59,7 @@ public class DigitalWorkFlowHandler {
     /**
      * Handle digital notification Workflow based on already made attempt
      */
-    public void nextWorkFlowAction(Notification notification, int recIndex, DigitalAddressInfo lastAttemptMade) {
+    private void nextWorkFlowAction(Notification notification, int recIndex, DigitalAddressInfo lastAttemptMade) {
         log.info("Start Next Digital workflow action - iun {} id {}", notification.getIun(), recIndex);
         
         String iun = notification.getIun();
@@ -84,13 +84,13 @@ public class DigitalWorkFlowHandler {
             }
         } else {
             //Sono stati già effettuati tutti i tentativi possibili, la notificazione è quindi fallita
-            log.info("Digital workflow is failed because all planned attempt have failed  - iun {} id {}", iun, recIndex);
+            log.info("All attempts were unsuccessful. Digital workflow is failed.  - iun {} id {}", iun, recIndex);
             completionWorkflow.completionDigitalWorkflow(notification, recIndex, instantNowSupplier.get(), null, EndWorkflowStatus.FAILURE);
         }
     }
 
     private void checkAndSendNotification(Notification notification, int recIndex, DigitalAddressInfo nextAddressInfo) {
-        log.info("CheckAndSendNotification  - iun {} id {}", notification.getIun(), recIndex);
+        log.debug("CheckAndSendNotification  - iun {} id {}", notification.getIun(), recIndex);
         
         String iun = notification.getIun();
         log.debug("Get notification and recipient completed - iun {} id {}", iun, recIndex);

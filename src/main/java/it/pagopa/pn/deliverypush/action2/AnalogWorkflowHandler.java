@@ -36,15 +36,18 @@ public class AnalogWorkflowHandler {
         this.instantNowSupplier = instantNowSupplier;
     }
 
+    public void startAnalogWorkflow(String iun, int recIndex) {
+        Notification notification = notificationService.getNotificationByIun(iun);
+        nextWorkflowStep(notification, recIndex, 0);
+    }
+
     /**
      * Handle analog notification Workflow based on already made attempt
      */
-    public void nextWorkflowStep(String iun, int recIndex, int sentAttemptMade) {
-        log.info("Start Analog next workflow action - iun {} id {}", iun, recIndex);
-
-        Notification notification = notificationService.getNotificationByIun(iun);
-        log.debug("Get notification and recipient completed - iun {} id {}", iun, recIndex);
-
+    public void nextWorkflowStep(Notification notification, int recIndex, int sentAttemptMade) {
+        log.info("Start Analog next workflow action - iun {} id {}", notification.getIun(), recIndex);
+        
+        String iun = notification.getIun();
         log.debug("Sent attempt made is {} - iun {} id {}", sentAttemptMade, iun, recIndex);
 
         switch (sentAttemptMade) {
@@ -71,7 +74,7 @@ public class AnalogWorkflowHandler {
             case 2:
                 // All sent attempts have been made. The user is not reachable
                 log.info("User with iun {} and id {} is unreachable, all attempt was failed", iun, recIndex);
-                completionWorkFlow.completionAnalogWorkflow(iun, recIndex, instantNowSupplier.get(), null, EndWorkflowStatus.FAILURE);
+                completionWorkFlow.completionAnalogWorkflow(notification, recIndex, instantNowSupplier.get(), null, EndWorkflowStatus.FAILURE);
                 break;
             default:
                 handleAttemptError(iun, recIndex, sentAttemptMade);
@@ -147,7 +150,7 @@ public class AnalogWorkflowHandler {
         } else {
             //... se l'indirizzo non è presente non è possibile raggiungere il destinatario che risulta irreperibile 
             log.info("Address isn't valid, user is unreachable  - iun {} id {}", notification.getIun(), recIndex);
-            completionWorkFlow.completionAnalogWorkflow(notification.getIun(), recIndex, instantNowSupplier.get(), null, EndWorkflowStatus.FAILURE);
+            completionWorkFlow.completionAnalogWorkflow(notification, recIndex, instantNowSupplier.get(), null, EndWorkflowStatus.FAILURE);
         }
     }
 
@@ -155,6 +158,7 @@ public class AnalogWorkflowHandler {
         SendPaperDetails sendPaperDetails = (SendPaperDetails) notificationTimelineElement.getDetails();
 
         String iun = response.getIun();
+        Notification notification = notificationService.getNotificationByIun(iun);
         int recIndex = sendPaperDetails.getRecIndex();
         
         log.info("Analog workflow Ext channel response  - iun {} id {} with status {}", iun, recIndex, response.getResponseStatus());
@@ -163,13 +167,13 @@ public class AnalogWorkflowHandler {
             switch (response.getResponseStatus()) {
                 case OK:
                     // La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
-                    completionWorkFlow.completionAnalogWorkflow(iun, recIndex, response.getNotificationDate(), sendPaperDetails.getAddress(), EndWorkflowStatus.SUCCESS);
+                    completionWorkFlow.completionAnalogWorkflow(notification, recIndex, response.getNotificationDate(), sendPaperDetails.getAddress(), EndWorkflowStatus.SUCCESS);
                     break;
                 case KO:
                     // External channel non è riuscito a effettuare la notificazione, si passa al prossimo step del workflow
                     int sentAttemptMade = sendPaperDetails.getSentAttemptMade() + 1;
                     analogWorkflowUtils.addAnalogFailureAttemptToTimeline(response, sentAttemptMade, sendPaperDetails);
-                    nextWorkflowStep(iun, recIndex, sentAttemptMade);
+                    nextWorkflowStep(notification, recIndex, sentAttemptMade);
                     break;
                 default:
                     handleStatusError(response, iun, recIndex);

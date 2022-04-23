@@ -31,10 +31,7 @@ public class AnalogWorkflowUtils {
 
     /**
      * Get external channel last feedback information from timeline
-     *
-     * @param iun   Notification unique identifier
-     * @param taxId User identifier
-     * @return last sent feedback information
+     ** @return last sent feedback information
      */
     public SendPaperFeedbackDetails getLastTimelineSentFeedback(String iun, int recIndex) {
         Set<TimelineElement> timeline = timelineService.getTimeline(iun);

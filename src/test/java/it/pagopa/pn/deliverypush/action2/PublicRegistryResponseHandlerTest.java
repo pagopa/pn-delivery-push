@@ -40,8 +40,11 @@ class PublicRegistryResponseHandlerTest {
     @ExtendWith(MockitoExtension.class)
     @Test
     void handleResponse_Choose() {
+        //GIVEN
         String iun = "iun01";
         String taxId = "taxId01";
+        int recIndex = 0;
+        
         PublicRegistryResponse response =
                 PublicRegistryResponse.builder()
                         .correlationId(iun + "_" + taxId + "1121")
@@ -54,28 +57,33 @@ class PublicRegistryResponseHandlerTest {
         PublicRegistryCallDetails publicRegistryCallDetails = PublicRegistryCallDetails.builder()
                 .contactPhase(ContactPhase.CHOOSE_DELIVERY)
                 .deliveryMode(null)
-                .taxId(taxId).build();
+                .recIndex(recIndex)
+                .build();
 
         Mockito.when(publicRegistryUtils.getPublicRegistryCallDetail(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(publicRegistryCallDetails);
-
+        
+        //WHEN
         handler.handleResponse(response);
-
-        Mockito.verify(publicRegistryUtils).addPublicRegistryResponseToTimeline(Mockito.anyString(), Mockito.anyString(), Mockito.any(PublicRegistryResponse.class));
+        
+        //THEN
+        Mockito.verify(publicRegistryUtils).addPublicRegistryResponseToTimeline(Mockito.anyString(), Mockito.anyInt(), Mockito.any(PublicRegistryResponse.class));
 
         ArgumentCaptor<String> iunCaptor = ArgumentCaptor.forClass(String.class);
 
-        Mockito.verify(chooseDeliveryHandler).handleGeneralAddressResponse(Mockito.any(PublicRegistryResponse.class), iunCaptor.capture(), Mockito.anyString());
+        Mockito.verify(chooseDeliveryHandler).handleGeneralAddressResponse(Mockito.any(PublicRegistryResponse.class), iunCaptor.capture(), Mockito.anyInt());
 
         Assertions.assertEquals(iun, iunCaptor.getValue());
-
     }
 
     @ExtendWith(MockitoExtension.class)
     @Test
     void handleResponse_Sent_digital() {
+        //GIVEN
         String iun = "iun01";
         String taxId = "taxId01";
+        int recIndex = 0;
+
         PublicRegistryResponse response =
                 PublicRegistryResponse.builder()
                         .correlationId(iun + "_" + taxId + "1121")
@@ -89,14 +97,17 @@ class PublicRegistryResponseHandlerTest {
                 .contactPhase(ContactPhase.SEND_ATTEMPT)
                 .deliveryMode(DeliveryMode.DIGITAL)
                 .sentAttemptMade(1)
-                .taxId(taxId).build();
+                .recIndex(recIndex)
+                .build();
 
         Mockito.when(publicRegistryUtils.getPublicRegistryCallDetail(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(publicRegistryCallDetails);
-
+        
+        //WHEN
         handler.handleResponse(response);
-
-        Mockito.verify(publicRegistryUtils).addPublicRegistryResponseToTimeline(Mockito.anyString(), Mockito.anyString(), Mockito.any(PublicRegistryResponse.class));
+        
+        //THEN
+        Mockito.verify(publicRegistryUtils).addPublicRegistryResponseToTimeline(Mockito.anyString(), Mockito.anyInt(), Mockito.any(PublicRegistryResponse.class));
 
         ArgumentCaptor<String> iunCaptor = ArgumentCaptor.forClass(String.class);
 
@@ -109,8 +120,11 @@ class PublicRegistryResponseHandlerTest {
     @ExtendWith(MockitoExtension.class)
     @Test
     void handleResponse_Sent_Analog() {
+        //GIVEN
         String iun = "iun01";
         String taxId = "taxId01";
+        int recIndex = 0;
+        
         PublicRegistryResponse response =
                 PublicRegistryResponse.builder()
                         .correlationId(iun + "_" + taxId + "1121")
@@ -125,46 +139,23 @@ class PublicRegistryResponseHandlerTest {
                 .contactPhase(ContactPhase.SEND_ATTEMPT)
                 .deliveryMode(DeliveryMode.ANALOG)
                 .sentAttemptMade(1)
-                .taxId(taxId).build();
+                .recIndex(recIndex)
+                .build();
 
         Mockito.when(publicRegistryUtils.getPublicRegistryCallDetail(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(publicRegistryCallDetails);
 
+        //WHEN
         handler.handleResponse(response);
-
-        Mockito.verify(publicRegistryUtils).addPublicRegistryResponseToTimeline(Mockito.anyString(), Mockito.anyString(), Mockito.any(PublicRegistryResponse.class));
+        
+        //THEN
+        Mockito.verify(publicRegistryUtils).addPublicRegistryResponseToTimeline(Mockito.anyString(), Mockito.anyInt(), Mockito.any(PublicRegistryResponse.class));
 
         ArgumentCaptor<String> iunCaptor = ArgumentCaptor.forClass(String.class);
 
-        Mockito.verify(analogWorkflowHandler).handlePublicRegistryResponse(iunCaptor.capture(), Mockito.anyString(), Mockito.any(PublicRegistryResponse.class), Mockito.anyInt());
+        Mockito.verify(analogWorkflowHandler).handlePublicRegistryResponse(iunCaptor.capture(), Mockito.anyInt(), Mockito.any(PublicRegistryResponse.class), Mockito.anyInt());
 
         Assertions.assertEquals(iun, iunCaptor.getValue());
 
     }
-
-    /*
-    @ExtendWith(MockitoExtension.class)
-    @Test
-    void handleResponse_contactPhase_Error() {
-        String iun = "iun01";
-        String taxId = "taxId01";
-        PublicRegistryResponse response =
-                PublicRegistryResponse.builder()
-                        .correlationId(iun + "_" + taxId + "1121")
-                        .digitalAddress(DigitalAddress.builder()
-                                .type(DigitalAddressType.PEC)
-                                .address("account@dominio.it")
-                                .build()).build();
-
-        Mockito.when(publicRegistryUtils.getPublicRegistryCallDetail(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Optional.empty());
-        
-
-        PnInternalException thrown = assertThrows(
-                PnInternalException.class,
-                () -> handler.handleResponse(response));
-
-        Assertions.assertTrue(thrown.getMessage().contains("There isn't timelineElement"));
-
-    }*/
 }

@@ -5,7 +5,6 @@ import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntryId;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressInfo;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
@@ -70,7 +69,8 @@ public class TimelineUtils {
             );
     }
 
-    public TimelineElement buildAvailabilitySourceTimelineElement(int recIndex, String iun, DigitalAddressSource source, boolean isAvailable, int sentAttemptMade) {
+    public TimelineElement buildAvailabilitySourceTimelineElement(int recIndex, String iun, DigitalAddressSource source, boolean isAvailable, 
+                                                                  int sentAttemptMade) {
         log.debug("buildAvailabilitySourceTimelineElement - IUN {} and id {}", iun, recIndex);
 
         String elementId = TimelineEventId.GET_ADDRESS.buildEventId(
@@ -94,12 +94,12 @@ public class TimelineUtils {
 
 
     public TimelineElement buildDigitaFeedbackTimelineElement(ExtChannelResponse response, SendDigitalDetails sendDigitalDetails) {
-        log.debug("buildDigitaFeedbackTimelineElement - IUN {} and id {}", response.getIun(), sendDigitalDetails.getTaxId());
+        log.debug("buildDigitaFeedbackTimelineElement - IUN {} and id {}", response.getIun(), sendDigitalDetails.getRecIndex());
 
         String elementId = TimelineEventId.SEND_DIGITAL_FEEDBACK.buildEventId(
                 EventId.builder()
                         .iun(response.getIun())
-                        .recipientId(sendDigitalDetails.getTaxId())
+                        .recIndex(sendDigitalDetails.getRecIndex())
                         .index(sendDigitalDetails.getRetryNumber())
                         .build()
         );
@@ -108,7 +108,7 @@ public class TimelineUtils {
                 .errors(response.getErrorList())
                 .address(sendDigitalDetails.getAddress())
                 .responseStatus(response.getResponseStatus())
-                .taxId(sendDigitalDetails.getTaxId())
+                .recIndex(sendDigitalDetails.getRecIndex())
                 .notificationDate(response.getNotificationDate())
                 .build();
 
@@ -272,20 +272,20 @@ public class TimelineUtils {
 
 
     public TimelineElement buildAnalogFailureAttemptTimelineElement(ExtChannelResponse response, int sentAttemptMade, SendPaperDetails sendPaperDetails) {
-        log.debug("buildAnalogFailureAttemptTimelineElement - iun {} and id {}", response.getIun(), sendPaperDetails.getTaxId());
+        log.debug("buildAnalogFailureAttemptTimelineElement - iun {} and id {}", response.getIun(), sendPaperDetails.getRecIndex());
 
         String iun = response.getIun();
 
         String elementId = TimelineEventId.SEND_PAPER_FEEDBACK.buildEventId(
                 EventId.builder()
                         .iun(iun)
-                        .recipientId(sendPaperDetails.getTaxId())
+                        .recIndex(sendPaperDetails.getRecIndex())
                         .index(sentAttemptMade)
                         .build()
         );
         SendPaperFeedbackDetails details = new SendPaperFeedbackDetails(
                 SendPaperDetails.builder()
-                        .taxId(sendPaperDetails.getTaxId())
+                        .recIndex(sendPaperDetails.getRecIndex())
                         .address(sendPaperDetails.getAddress())
                         .sentAttemptMade(sentAttemptMade)
                         .serviceLevel(sendPaperDetails.getServiceLevel())
@@ -310,32 +310,32 @@ public class TimelineUtils {
                                                                             elementId, details, legalFactsListEntryIds );
     }
 
-    public TimelineElement buildNotificationViewedTimelineElement(String iun, String taxId, String legalFactId) {
-        log.debug("buildNotificationViewedTimelineElement - iun {} and id {}", iun, taxId);
+    public TimelineElement buildNotificationViewedTimelineElement(String iun, int recIndex, String legalFactId) {
+        log.debug("buildNotificationViewedTimelineElement - iun {} and id {}", iun, recIndex);
 
         String elementId = TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
                 EventId.builder()
                         .iun(iun)
-                        .recipientId(taxId)
+                        .recIndex(recIndex)
                         .build());
         NotificationViewedDetails details = NotificationViewedDetails.builder()
-                .taxId(taxId)
+                .recIndex(recIndex)
                 .build();
 
         List<LegalFactsListEntryId> legalFactIds = singleLegalFactId( legalFactId, LegalFactType.RECIPIENT_ACCESS );
         return buildTimeline(iun, TimelineElementCategory.NOTIFICATION_VIEWED, elementId, details, legalFactIds);
     }
 
-    public TimelineElement buildCompletelyUnreachableTimelineElement(String iun, String taxId) {
-        log.debug("buildCompletelyUnreachableTimelineElement - iun {} and id {}", iun, taxId);
+    public TimelineElement buildCompletelyUnreachableTimelineElement(String iun, int recIndex) {
+        log.debug("buildCompletelyUnreachableTimelineElement - iun {} and id {}", iun, recIndex);
 
         String elementId = TimelineEventId.COMPLETELY_UNREACHABLE.buildEventId(
                 EventId.builder()
                         .iun(iun)
-                        .recipientId(taxId)
+                        .recIndex(recIndex)
                         .build());
-        CompletlyUnreachableDetails details = CompletlyUnreachableDetails.builder()
-                .taxId(taxId)
+        CompletelyUnreachableDetails details = CompletelyUnreachableDetails.builder()
+                .recIndex(recIndex)
                 .build();
 
         return buildTimeline(iun, TimelineElementCategory.COMPLETELY_UNREACHABLE, elementId, details);

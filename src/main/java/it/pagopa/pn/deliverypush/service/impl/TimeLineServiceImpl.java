@@ -47,10 +47,10 @@ public class TimeLineServiceImpl implements TimelineService {
     }
 
     @Override
-    public boolean isPresentTimeLineElement(String iun, String taxId, TimelineEventId timelineEventId) {
+    public boolean isPresentTimeLineElement(String iun, int recIndex, TimelineEventId timelineEventId) {
         EventId eventId = EventId.builder()
                 .iun(iun)
-                .recipientId(taxId)
+                .recIndex(recIndex)
                 .build();
         return this.timelineDao.getTimelineElement(iun, timelineEventId.buildEventId(eventId)).isPresent();
     }

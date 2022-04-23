@@ -43,7 +43,7 @@ public class CourtesyMessageUtils {
                     int courtesyAddrIndex = 0;
                     if (addressBookItem.getCourtesyAddresses() != null) {
                         for (DigitalAddress courtesyAddress : addressBookItem.getCourtesyAddresses()) {
-                            sendCourtesyMessage(notification, recipient, courtesyAddrIndex, courtesyAddress);
+                            sendCourtesyMessage(notification, recIndex, courtesyAddrIndex, courtesyAddress);
                             courtesyAddrIndex++;
                         }
                     }

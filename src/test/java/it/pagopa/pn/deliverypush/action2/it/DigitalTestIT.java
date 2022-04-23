@@ -67,13 +67,14 @@ import java.util.List;
         NotificationServiceImpl.class,
         TimeLineServiceImpl.class,
         CheckAttachmentUtils.class,
+        NotificationUtils.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
         ExternalChannelMock.class,
         PaperNotificationFailedDaoMock.class,
-        DigitalTest.SpringTestConfiguration.class
+        DigitalTestIT.SpringTestConfiguration.class
 })
-class DigitalTest {
+class DigitalTestIT {
     
     
     @TestConfiguration
@@ -118,6 +119,9 @@ class DigitalTest {
 
     @Autowired
     private PaperNotificationFailedDaoMock paperNotificationFailedDaoMock;
+
+    @Autowired
+    private NotificationUtils notificationUtils;
 
     @BeforeEach
     public void setup() {
@@ -194,19 +198,19 @@ class DigitalTest {
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
         
         String iun = notification.getIun();
-        String taxId = recipient.getTaxId();
+        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         //Viene verificata la disponibilità degli indirizzi per il secondo tentativo
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<PnExtChnPecEvent> pnExtChnPecEventCaptor = ArgumentCaptor.forClass(PnExtChnPecEvent.class);
@@ -215,24 +219,24 @@ class DigitalTest {
         List<PnExtChnPecEvent> sendPecEvent = pnExtChnPecEventCaptor.getAllValues();
 
         //Viene verificato che il primo tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 0, platformAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 0, platformAddress.getAddress());
         //Viene verificato che il secondo tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 1, digitalDomicile.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 1, digitalDomicile.getAddress());
         //Viene verificato che il secondo tentativo sia avvenuto con l'indirizzo fornito dai registri pubblici
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 2, pbDigitalAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 2, pbDigitalAddress.getAddress());
 
         //Viene verificato che il quarto tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 3, platformAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 3, platformAddress.getAddress());
         //Viene verificato che il quinto tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 4, digitalDomicile.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 4, digitalDomicile.getAddress());
         //Viene verificato che il sesto tentativo sia avvenuto con l'indirizzo fornito dai registri pubblici
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 5, pbDigitalAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 5, pbDigitalAddress.getAddress());
 
         //Viene verificato che il workflow abbia avuto successo
-        TestUtils.checkFailDigitalWorkflow(iun, taxId, timelineService, completionWorkflow);
+        TestUtils.checkFailDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow);
 
         //Viene verificato che sia avvenuto il perfezionamento
-        TestUtils.checkRefinement(iun, taxId, timelineService);
+        TestUtils.checkRefinement(iun, recIndex, timelineService);
 
     }
 
@@ -267,28 +271,28 @@ class DigitalTest {
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
-        String taxId = recipient.getTaxId();
+        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
-        TestUtils.checkGetAddress(iun, taxId, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, false, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<PnExtChnPecEvent> pnExtChnPecEventCaptor = ArgumentCaptor.forClass(PnExtChnPecEvent.class);
         Mockito.verify(externalChannelMock, Mockito.times(1)).sendNotification(pnExtChnPecEventCaptor.capture());
         List<PnExtChnPecEvent> sendPecEvent = pnExtChnPecEventCaptor.getAllValues();
 
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 0, pbDigitalAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 0, pbDigitalAddress.getAddress());
 
         //Viene verificato che il workflow abbia avuto successo
-        TestUtils.checkSuccessDigitalWorkflow(iun, taxId, timelineService, completionWorkflow, pbDigitalAddress, 1, 0);
+        TestUtils.checkSuccessDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow, pbDigitalAddress, 1, 0);
 
         //Viene verificato che sia avvenuto il perfezionamento
-        TestUtils.checkRefinement(iun, taxId, timelineService);
+        TestUtils.checkRefinement(iun, recIndex, timelineService);
 
     }
 
@@ -325,14 +329,14 @@ class DigitalTest {
         addressBookMock.add(addressBookEntry);
 
         String iun = notification.getIun();
-        String taxId = recipient.getTaxId();
+        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
-        TestUtils.checkGetAddress(iun, taxId, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<PnExtChnPecEvent> pnExtChnPecEventCaptor = ArgumentCaptor.forClass(PnExtChnPecEvent.class);
@@ -341,13 +345,13 @@ class DigitalTest {
         List<PnExtChnPecEvent> sendPecEvent = pnExtChnPecEventCaptor.getAllValues();
 
         //Viene verificato che il primo tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 0, digitalDomicile.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 0, digitalDomicile.getAddress());
 
         //Viene verificato che il workflow abbia avuto successo
-        TestUtils.checkSuccessDigitalWorkflow(iun, taxId, timelineService, completionWorkflow, digitalDomicile, 1, 0);
+        TestUtils.checkSuccessDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow, digitalDomicile, 1, 0);
 
         //Viene verificato che sia avvenuto il perfezionamento
-        TestUtils.checkRefinement(iun, taxId, timelineService);
+        TestUtils.checkRefinement(iun, recIndex, timelineService);
     }
 
 
@@ -393,15 +397,15 @@ class DigitalTest {
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
-        String taxId = recipient.getTaxId();
+        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<PnExtChnPecEvent> pnExtChnPecEventCaptor = ArgumentCaptor.forClass(PnExtChnPecEvent.class);
@@ -410,16 +414,16 @@ class DigitalTest {
         List<PnExtChnPecEvent> sendPecEvent = pnExtChnPecEventCaptor.getAllValues();
 
         //Viene verificato che il primo tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 0, platformAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 0, platformAddress.getAddress());
         //Viene verificato che il secondo tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 1, digitalDomicile.getAddress());
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 2, pbDigitalAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 1, digitalDomicile.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 2, pbDigitalAddress.getAddress());
 
         //Viene verificato che il workflow abbia avuto successo
-        TestUtils.checkSuccessDigitalWorkflow(iun, taxId, timelineService, completionWorkflow, pbDigitalAddress, 1, 0);
+        TestUtils.checkSuccessDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow, pbDigitalAddress, 1, 0);
 
         //Viene verificato che sia avvenuto il perfezionamento
-        TestUtils.checkRefinement(iun, taxId, timelineService);
+        TestUtils.checkRefinement(iun, recIndex, timelineService);
     }
 
     @Test
@@ -452,21 +456,21 @@ class DigitalTest {
         addressBookMock.add(addressBookEntry);
 
         String iun = notification.getIun();
-        String taxId = recipient.getTaxId();
+        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
         //Viene verificata la presenza dell'indirizzo di piattaforma
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         //Viene verificato che sia stata effettuata una sola chiamata ad external channel
         Mockito.verify(externalChannelMock, Mockito.times(1)).sendNotification(Mockito.any(PnExtChnPecEvent.class));
 
         //Viene verificato che il workflow abbia avuto successo
-        TestUtils.checkSuccessDigitalWorkflow(iun, taxId, timelineService, completionWorkflow, platformAddress, 1, 0);
+        TestUtils.checkSuccessDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow, platformAddress, 1, 0);
 
         //Viene verificato che sia avvenuto il perfezionamento
-        TestUtils.checkRefinement(iun, taxId, timelineService);
+        TestUtils.checkRefinement(iun, recIndex, timelineService);
     }
 
     @Test
@@ -505,14 +509,14 @@ class DigitalTest {
         addressBookMock.add(addressBookEntry);
 
         String iun = notification.getIun();
-        String taxId = recipient.getTaxId();
+        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<PnExtChnPecEvent> pnExtChnPecEventCaptor = ArgumentCaptor.forClass(PnExtChnPecEvent.class);
@@ -521,15 +525,15 @@ class DigitalTest {
         List<PnExtChnPecEvent> sendPecEvent = pnExtChnPecEventCaptor.getAllValues();
 
         //Viene verificato che il primo tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 0, platformAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 0, platformAddress.getAddress());
         //Viene verificato che il secondo tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 1, digitalDomicile.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 1, digitalDomicile.getAddress());
 
         //Viene verificato che il workflow abbia avuto successo
-        TestUtils.checkSuccessDigitalWorkflow(iun, taxId, timelineService, completionWorkflow, digitalDomicile, 1, 0);
+        TestUtils.checkSuccessDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow, digitalDomicile, 1, 0);
 
         //Viene verificato che sia avvenuto il perfezionamento
-        TestUtils.checkRefinement(iun, taxId, timelineService);
+        TestUtils.checkRefinement(iun, recIndex, timelineService);
     }
 
     @Test
@@ -575,19 +579,19 @@ class DigitalTest {
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
-        String taxId = recipient.getTaxId();
+        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         //Viene verificata la disponibilità degli indirizzi per il secondo tentativo
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<PnExtChnPecEvent> pnExtChnPecEventCaptor = ArgumentCaptor.forClass(PnExtChnPecEvent.class);
@@ -596,27 +600,27 @@ class DigitalTest {
         List<PnExtChnPecEvent> sendPecEvent = pnExtChnPecEventCaptor.getAllValues();
 
         //Viene verificato che il primo tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 0, platformAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 0, platformAddress.getAddress());
         //Viene verificato che il secondo tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 1, digitalDomicile.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 1, digitalDomicile.getAddress());
         //Viene verificato che il secondo tentativo sia avvenuto con l'indirizzo fornito dai registri pubblici
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 2, pbDigitalAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 2, pbDigitalAddress.getAddress());
         //Viene verificato che il quarto tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 3, platformAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 3, platformAddress.getAddress());
         //Viene verificato che il quinto tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 4, digitalDomicile.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 4, digitalDomicile.getAddress());
         //Viene verificato che il sesto tentativo sia avvenuto con l'indirizzo fornito dai registri pubblici
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 5, pbDigitalAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 5, pbDigitalAddress.getAddress());
 
         //Viene verificato che il workflow abbia avuto successo
-        TestUtils.checkSuccessDigitalWorkflow(iun, taxId, timelineService, completionWorkflow, pbDigitalAddress, 1, 0);
+        TestUtils.checkSuccessDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow, pbDigitalAddress, 1, 0);
 
         //Viene verificato che sia avvenuto il perfezionamento
-        TestUtils.checkRefinement(iun, taxId, timelineService);
+        TestUtils.checkRefinement(iun, recIndex, timelineService);
     }
 
     @Test
-    void secondSuccessPlatform() throws IdConflictException {
+    void secondSuccessPlatform() {
 
         pnDeliveryClientMock.clear();
         addressBookMock.clear();
@@ -663,17 +667,17 @@ class DigitalTest {
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
-        String taxId = recipient.getTaxId();
+        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         //Viene verificata la disponibilità degli indirizzi per il secondo tentativo
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<PnExtChnPecEvent> pnExtChnPecEventCaptor = ArgumentCaptor.forClass(PnExtChnPecEvent.class);
@@ -682,23 +686,23 @@ class DigitalTest {
         List<PnExtChnPecEvent> sendPecEvent = pnExtChnPecEventCaptor.getAllValues();
 
         //Viene verificato che il primo tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 0, platformAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 0, platformAddress.getAddress());
         //Viene verificato che il secondo tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 1, digitalDomicile.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 1, digitalDomicile.getAddress());
         //Viene verificato che il secondo tentativo sia avvenuto con l'indirizzo fornito dai registri pubblici
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 2, pbDigitalAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 2, pbDigitalAddress.getAddress());
         //Viene verificato che il quarto tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 3, platformAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 3, platformAddress.getAddress());
 
         //Viene verificato che il workflow abbia avuto successo
-        TestUtils.checkSuccessDigitalWorkflow(iun, taxId, timelineService, completionWorkflow, platformAddress, 1, 0);
+        TestUtils.checkSuccessDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow, platformAddress, 1, 0);
 
         //Viene verificato che sia avvenuto il perfezionamento
-        TestUtils.checkRefinement(iun, taxId, timelineService);
+        TestUtils.checkRefinement(iun, recIndex, timelineService);
     }
 
     @Test
-    void secondSuccessSpecial() throws IdConflictException {
+    void secondSuccessSpecial() {
       /*
        - Platform address presente sia primo che secondo tentativo (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
        - Special address presente fallimento primo tentativo successo secondo tentativo (Ottenuto valorizzando il digitaldomicile con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
@@ -740,18 +744,18 @@ class DigitalTest {
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
-        String taxId = recipient.getTaxId();
+        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         //Viene verificata la disponibilità degli indirizzi per il secondo tentativo
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<PnExtChnPecEvent> pnExtChnPecEventCaptor = ArgumentCaptor.forClass(PnExtChnPecEvent.class);
@@ -760,21 +764,21 @@ class DigitalTest {
         List<PnExtChnPecEvent> sendPecEvent = pnExtChnPecEventCaptor.getAllValues();
 
         //Viene verificato che il primo tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 0, platformAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 0, platformAddress.getAddress());
         //Viene verificato che il secondo tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 1, digitalDomicile.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 1, digitalDomicile.getAddress());
         //Viene verificato che il secondo tentativo sia avvenuto con l'indirizzo fornito dai registri pubblici
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 2, pbDigitalAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 2, pbDigitalAddress.getAddress());
         //Viene verificato che il quarto tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 3, platformAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 3, platformAddress.getAddress());
         //Viene verificato che il quinto tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, taxId, sendPecEvent, 4, digitalDomicile.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 4, digitalDomicile.getAddress());
 
         //Viene verificato che il workflow abbia avuto successo
-        TestUtils.checkSuccessDigitalWorkflow(iun, taxId, timelineService, completionWorkflow, digitalDomicile, 1, 0);
+        TestUtils.checkSuccessDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow, digitalDomicile, 1, 0);
 
         //Viene verificato che sia avvenuto il perfezionamento
-        TestUtils.checkRefinement(iun, taxId, timelineService);
+        TestUtils.checkRefinement(iun, recIndex, timelineService);
     }
 
 
@@ -849,15 +853,16 @@ class DigitalTest {
         addressBookMock.add(addressBookEntry2);
 
         String iun = notification.getIun();
-        String taxIdRecipient1 = recipient1.getTaxId();
-        String taxIdRecipient2 = recipient2.getTaxId();
+        int recIndex1 = notificationUtils.getRecipientIndex(notification, recipient1.getTaxId());
+        int recIndex2 = notificationUtils.getRecipientIndex(notification, recipient2.getTaxId());
+        
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo per il primo recipient
-        TestUtils.checkGetAddress(iun, taxIdRecipient1, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxIdRecipient1, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex1, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex2, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<PnExtChnPecEvent> pnExtChnPecEventCaptor = ArgumentCaptor.forClass(PnExtChnPecEvent.class);
@@ -866,29 +871,29 @@ class DigitalTest {
         List<PnExtChnPecEvent> sendPecEvent = pnExtChnPecEventCaptor.getAllValues();
 
         //Viene verificato per il primo recipient che il primo tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, taxIdRecipient1, sendPecEvent, 0, platformAddress1.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient1.getTaxId(), sendPecEvent, 0, platformAddress1.getAddress());
         //Viene verificato per il primo recipient che il secondo tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, taxIdRecipient1, sendPecEvent, 1, digitalDomicile1.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient1.getTaxId(), sendPecEvent, 1, digitalDomicile1.getAddress());
 
         //Viene verificato per il primo recipient che il workflow abbia avuto successo
-        TestUtils.checkSuccessDigitalWorkflow(iun, taxIdRecipient1, timelineService, completionWorkflow, digitalDomicile1, 2, 0);
+        TestUtils.checkSuccessDigitalWorkflow(iun, recIndex1, timelineService, completionWorkflow, digitalDomicile1, 2, 0);
 
         //Viene verificato per il primo recipient che sia avvenuto il perfezionamento
-        TestUtils.checkRefinement(iun, taxIdRecipient1, timelineService);
+        TestUtils.checkRefinement(iun, recIndex1, timelineService);
 
         //Viene verificato per il secondo recipient che il primo tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, taxIdRecipient2, sendPecEvent, 2, platformAddress2.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient2.getTaxId(), sendPecEvent, 2, platformAddress2.getAddress());
         //Viene verificato per il secondo recipient che il secondo tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, taxIdRecipient2, sendPecEvent, 3, digitalDomicile2.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient2.getTaxId(), sendPecEvent, 3, digitalDomicile2.getAddress());
         //Viene verificato per il secondo recipient che il terzo tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, taxIdRecipient2, sendPecEvent, 2, platformAddress2.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient2.getTaxId(), sendPecEvent, 2, platformAddress2.getAddress());
         //Viene verificato per il secondo recipient che il quarto tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, taxIdRecipient2, sendPecEvent, 3, digitalDomicile2.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, recipient2.getTaxId(), sendPecEvent, 3, digitalDomicile2.getAddress());
 
         //Viene verificato per il secondo recipient che il workflow abbia avuto successo
-        TestUtils.checkSuccessDigitalWorkflow(iun, taxIdRecipient2, timelineService, completionWorkflow, digitalDomicile2, 2, 1);
+        TestUtils.checkSuccessDigitalWorkflow(iun, recIndex2, timelineService, completionWorkflow, digitalDomicile2, 2, 1);
 
         //Viene verificato per il secondo recipient che sia avvenuto il perfezionamento
-        TestUtils.checkRefinement(iun, taxIdRecipient2, timelineService);
+        TestUtils.checkRefinement(iun, recIndex2, timelineService);
     }
 }

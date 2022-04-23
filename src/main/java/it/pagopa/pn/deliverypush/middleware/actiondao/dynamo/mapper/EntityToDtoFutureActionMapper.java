@@ -28,7 +28,6 @@ public class EntityToDtoFutureActionMapper {
                 .digitalAddressSource(entity.getDigitalAddressSource())
                 .notBefore(entity.getNotBefore())
                 .recipientIndex(entity.getRecipientIndex())
-                .taxId(entity.getTaxId())
                 .responseStatus(entity.getResponseStatus())
                 .retryNumber(entity.getRetryNumber())
                 .type(entity.getType())

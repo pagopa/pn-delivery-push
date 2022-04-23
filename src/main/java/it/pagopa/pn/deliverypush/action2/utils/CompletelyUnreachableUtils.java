@@ -1,5 +1,7 @@
 package it.pagopa.pn.deliverypush.action2.utils;
 
+import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFailed;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineEventId;
@@ -10,39 +12,43 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class CompletelyUnreachableUtils extends  {
+public class CompletelyUnreachableUtils  {
     private final PaperNotificationFailedDao paperNotificationFailedDao;
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
-
+    private final NotificationUtils notificationUtils;
+    
     public CompletelyUnreachableUtils(PaperNotificationFailedDao paperNotificationFailedDao, TimelineService timelineService,
-                                      TimelineUtils timelineUtils) {
+                                      TimelineUtils timelineUtils, NotificationUtils notificationUtils) {
         this.paperNotificationFailedDao = paperNotificationFailedDao;
         this.timelineService = timelineService;
         this.timelineUtils = timelineUtils;
+        this.notificationUtils = notificationUtils;
     }
 
-    public void handleCompletelyUnreachable(String iun, int recIndex) {
-        log.info("HandleCompletelyUnreachable - iun {} id {} ", iun, recIndex);
+    public void handleCompletelyUnreachable(Notification notification, int recIndex) {
+        log.info("HandleCompletelyUnreachable - iun {} id {} ", notification.getIun(), recIndex);
 
-        if (!isNotificationAlreadyViewed(iun, recIndex)) {
-            addPaperNotificationFailed(iun, recIndex);
+        if (!isNotificationAlreadyViewed(notification.getIun(), recIndex)) {
+            addPaperNotificationFailed(notification, recIndex);
         }
-        addTimelineElement(timelineUtils.buildCompletelyUnreachableTimelineElement(iun, recIndex));
+        addTimelineElement(timelineUtils.buildCompletelyUnreachableTimelineElement(notification.getIun(), recIndex));
     }
 
-    private boolean isNotificationAlreadyViewed(String iun, String taxId) {
+    private boolean isNotificationAlreadyViewed(String iun, int recIndex) {
         //Lo user potrebbe aver visualizzato la notifica tramite canali differenti anche se non raggiunto dai canali 'legali'
-        return timelineService.isPresentTimeLineElement(iun, taxId, TimelineEventId.NOTIFICATION_VIEWED);
+        return timelineService.isPresentTimeLineElement(iun, recIndex, TimelineEventId.NOTIFICATION_VIEWED);
     }
 
-    private void addPaperNotificationFailed(String iun, String taxId) {
-        log.info("AddPaperNotificationFailed - iun {} id {} ", iun, taxId);
-
+    private void addPaperNotificationFailed(Notification notification, int recIndex) {
+        log.info("AddPaperNotificationFailed - iun {} id {} ", notification.getIun(), recIndex);
+        
+        NotificationRecipient recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
+        
         paperNotificationFailedDao.addPaperNotificationFailed(
                 PaperNotificationFailed.builder()
-                        .iun(iun)
-                        .recipientId(taxId)
+                        .iun(notification.getIun())
+                        .recipientId(recipient.getTaxId())
                         .build()
         );
     }

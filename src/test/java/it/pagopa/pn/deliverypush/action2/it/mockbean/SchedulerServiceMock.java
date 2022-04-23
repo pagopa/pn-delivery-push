@@ -32,7 +32,7 @@ public class SchedulerServiceMock implements SchedulerService {
 
         switch (actionType) {
             case ANALOG_WORKFLOW:
-                analogWorkflowHandler.nextWorkflowStep(iun, recIndex, 0);
+                analogWorkflowHandler.startAnalogWorkflow(iun, recIndex);
                 break;
             case REFINEMENT_NOTIFICATION:
                 refinementHandler.handleRefinement(iun, recIndex);

@@ -72,6 +72,7 @@ import static org.mockito.Mockito.doThrow;
         ChooseDeliveryModeUtils.class,
         TimelineUtils.class,
         PublicRegistryUtils.class,
+        NotificationUtils.class,
         NotificationServiceImpl.class,
         TimeLineServiceImpl.class,
         CheckAttachmentUtils.class,
@@ -79,9 +80,9 @@ import static org.mockito.Mockito.doThrow;
         TimelineDaoMock.class,
         ExternalChannelMock.class,
         PaperNotificationFailedDaoMock.class,
-        ValidationDocumentErrorTest.SpringTestConfiguration.class
+        ValidationDocumentErrorTestIT.SpringTestConfiguration.class
 })
-class ValidationDocumentErrorTest {
+class ValidationDocumentErrorTestIT {
     
     @TestConfiguration
     static class SpringTestConfiguration extends AbstractWorkflowTestConfiguration {
@@ -122,7 +123,10 @@ class ValidationDocumentErrorTest {
 
     @Autowired
     private PaperNotificationFailedDaoMock paperNotificationFailedDaoMock;
-    
+
+    @Autowired
+    private NotificationUtils notificationUtils;
+
     @BeforeEach
     public void setup() {
         //Waiting time for action
@@ -205,7 +209,7 @@ class ValidationDocumentErrorTest {
         doThrow(new PnValidationException("key", errors )).when(notificationReceiverValidator).checkPreloadedDigests(Mockito.any(),Mockito.any(),Mockito.any());
 
         String iun = notification.getIun();
-        String taxId = recipient.getTaxId();
+        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //WHEN the workflow start
         startWorkflowHandler.startWorkflow(iun);
@@ -218,7 +222,7 @@ class ValidationDocumentErrorTest {
                 TimelineEventId.REQUEST_REFUSED.buildEventId(
                         EventId.builder()
                                 .iun(iun)
-                                .recipientId(taxId)
+                                .recIndex(recIndex)
                                 .build())).isPresent());
         
         Mockito.verify(externalChannelMock, Mockito.times(0)).sendNotification(Mockito.any(PnExtChnEmailEvent.class));

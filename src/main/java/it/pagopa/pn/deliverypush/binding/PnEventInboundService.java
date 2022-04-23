@@ -167,7 +167,7 @@ public class PnEventInboundService {
             log.info("pnDeliveryPushAnalogWorkflowConsumer, message {}", message);
             Action action = message.getPayload();
 
-            analogWorkflowHandler.nextWorkflowStep(action.getIun(), action.getRecipientIndex(), 0);
+            analogWorkflowHandler.startAnalogWorkflow(action.getIun(), action.getRecipientIndex());
         };
     }
 
