@@ -107,7 +107,7 @@ paths:
     get:
       summary: Leggi metadati dello stream
       description: >-
-        
+        Permette di leggere le configurazioni di uno stream di eventi.
       tags:
         - Streams
       operationId: getEventStream
@@ -123,7 +123,7 @@ paths:
     put:
       summary: Update Stream metadata
       description: >-
-        
+        Permette di cambiare le configurazioni dei filtri associati a uno stream di eventi
       tags:
         - Streams
       operationId: updateEventStream
@@ -149,7 +149,8 @@ paths:
     delete: 
       summary: Remove Event Stream
       description: >-
-        
+        Elimina uno steam di eventi: elimina sia le configurazioni sia tutti gli eventi 
+        associati allo stream e non ancora consumati.
       tags:
         - Streams
       operationId: deleteEventStream
@@ -172,7 +173,9 @@ paths:
     get:
       summary: Leggi progressi notifiche
       description: >-
-        
+        Permette di leggere gli eventi presenti nello stream di aggiornamenti e indica che 
+        la P.A. ha ricevuto e memorizzato l'evento identificato dal parametro _lastEventId_
+        e tutti gli eventi precedenti. Tali eventi potranno essere cancellati dallo stream.
       tags:
         - Events
       operationId: consumeEventStream
@@ -185,10 +188,69 @@ paths:
       responses:
         '200':
           description: OK
+          headers:
+            retry-after:
+              schema:
+                type: integer
+              description: >-
+                Numero di secondi di attesa prima di effettuare una nuova lettura di eventi. <br/>
+                Sarà valorizzato a zero se ci sono eventi in coda che non sono stati forniti per 
+                raggiunta dimensione massima della risposta. <br/>
+                Sarà maggiore di zero se gli eventi in coda sono stati tutti inviati.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ProgressResponse"
+        '419':
+          description: Too Many Requests
+          headers:
+            retry-after:
+              schema:
+                type: integer
+              description: >-
+                Numero di secondi di attesa prima di effettuare una nuova lettura di eventi.
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+    
+
+    ############################################################################################
+    ###                INVIO DI EVENTI DA PARTE DELLA PUBBLICA AMMNISTRAZIONE                ###
+    ############################################################################################
+
+  '/delivery-progresses/events':
+    post:
+      summary: Invio eventi da parte della PA
+      description: >-
+        Questa API è a disposizione della Pubblica Amministrazione per inviare eventi, come 
+        quello di chiusura di una posizione debitoria con pagamento tramite F24, che possono 
+        avvenire fuori dal controllo di PagoPA. <br/>
+
+        La processazione può avvenire in maniera parziale, quindi ogni evento deve avere un 
+        identificativo univoco (generato dalla PA). In caso di fallimento vanno ritrasmessi
+        gli eventi con lo stesso identificativo. Sarà Piattaforma Notifica ad identificare 
+        quelli già elaborati ed evitare duplicazioni. <br/>
+
+        Allo stato attuale gli unici eventi sono quelli di pagamento
+      tags:
+        - Events
+      operationId: informOnExternalEvent
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL
+      requestBody:
+        required: true
+        content:
+          application/json:
+              schema:
+                $ref: "#/components/schemas/ExternalEventsRequest"
+      responses:
+        '204':
+          description: OK
         '400':
           description: Bad request
           content:
@@ -305,6 +367,9 @@ components:
     ###                                  DEFINIZIONI EVENTI                                  ###
     ############################################################################################
 
+    ###  - EVENTI GENERATI DA PN
+    ###################################
+
     ProgressResponse:
       type: array
       items:
@@ -338,8 +403,71 @@ components:
           $ref: './schemas-pn-status-v1.yaml#/components/schemas/NotificationStatus'
         timelineEventCategory:
           $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/TimelineElementCategory'
-        
+    
+    ###  - EVENTI GENERATI DALLA P.A.
+    ###################################
+    ExternalEventsRequest:
+      title: Invio eventi da P.A. a P.N.
+      description: >- 
+        Richiesta contenente un array di eventi di cui una Pubblica Amministrazione
+        deve avvisare Piattaforma Notifiche.
+      type: object
+      required:
+        - events
+      properties:
+        events:
+          description: Elenco degli eventi
+          type: array
+          items:
+            $ref: '#/components/schemas/ExternalEvent'
+    
+    ExternalEvent:
+      title: Un evento generato all'esterno di PN.
+      description: >-
+        Un evento riguardante la notifica generato all'esterno di Piattaforma Notifiche come,
+        ad esempio, il pagamento che può avvenire anche tramite F24. <br/>
 
+        Deve essere valorizzata una solo campo, quello specifico del tipo di evento.
+      type: object
+      properties:
+        payment:
+          $ref: '#/components/schemas/PaymentEvent'
+    
+    PaymentEvent:
+      title: Evento di pagamento
+      description: >-
+        Comprende: <br/>
+          - data e ora del pagamento, <br/>
+          - modalità di pagamento (PAGOPA / F24), <br/>
+          - lo _IUN_ della notifica pagata, <br/>
+          - il codice fiscale del destinatario pagatore, <br/>
+          - e la tipologia del destinatario pagatore (PF / PG). <br/>
+      type: object
+      required:
+        - iun
+        - recipientTaxId
+        - recipientType
+        - paymentType
+        - timestamp
+      properties:
+        iun:
+          type: string
+        recipientTaxId:
+          type: string
+        recipientType:
+          type: string
+          enum:
+            - PF
+            - PG
+        paymentType:
+          type: string
+          enum:
+            - F24
+            - PAGOPA
+        timestamp:
+          type: string
+          format: date-time
+        
   
 #  securitySchemes:        # ONLY EXTERNAL
 #    ApiKeyAuth:           # ONLY EXTERNAL
