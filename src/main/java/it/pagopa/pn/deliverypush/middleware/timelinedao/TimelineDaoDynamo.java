@@ -44,7 +44,7 @@ public class TimelineDaoDynamo implements TimelineDao {
         if (resp.getStatusCode().is2xxSuccessful()) {
             ResponseUpdateStatusDto resStatusDto = resp.getBody();
             
-            if(resStatusDto != null && !(resStatusDto.getCurrentStatus().equals(resStatusDto.getNextStatus()))){
+            if(resStatusDto != null && resStatusDto.getCurrentStatus() != null && !(resStatusDto.getCurrentStatus().equals(resStatusDto.getNextStatus()))){
                 log.info("Status changed From {} to {} for iun {}", resStatusDto.getCurrentStatus(), resStatusDto.getNextStatus(), dto.getIun());
             }
             

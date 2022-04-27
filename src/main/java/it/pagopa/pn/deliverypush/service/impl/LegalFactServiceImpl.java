@@ -2,14 +2,20 @@ package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
+import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
+import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import it.pagopa.pn.api.dto.notification.timeline.RecipientRelatedTimelineElementDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElementDetails;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.pnclient.externalchannel.ExternalChannelClient;
 import it.pagopa.pn.deliverypush.service.LegalFactService;
+import it.pagopa.pn.deliverypush.service.NotificationService;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.Resource;
@@ -31,19 +37,25 @@ public class LegalFactServiceImpl implements LegalFactService {
 
     public static final String MISSING_EXT_CHA_LEGAL_FACT_MESSAGE = "Unable to retrieve paper feedback for iun=%s with id=%s from external channel API";
 
-    private TimelineDao timelineDao;
-    private FileStorage fileStorage;
-    private LegalfactsMetadataUtils legalfactsUtils;
-    private ExternalChannelClient externalChannelClient;
+    private final TimelineDao timelineDao;
+    private final FileStorage fileStorage;
+    private final LegalfactsMetadataUtils legalfactsUtils;
+    private final ExternalChannelClient externalChannelClient;
+    private final NotificationService notificationService;
+    private final NotificationUtils notificationUtils;
 
     public LegalFactServiceImpl(TimelineDao timelineDao,
                                 FileStorage fileStorage,
                                 LegalfactsMetadataUtils legalFactsUtils,
-                                ExternalChannelClient externalChannelClient) {
+                                ExternalChannelClient externalChannelClient,
+                                NotificationService notificationService, 
+                                NotificationUtils notificationUtils) {
         this.timelineDao = timelineDao;
         this.fileStorage = fileStorage;
         this.legalfactsUtils = legalFactsUtils;
         this.externalChannelClient = externalChannelClient;
+        this.notificationService = notificationService;
+        this.notificationUtils = notificationUtils;
     }
 
     @Override
@@ -51,13 +63,14 @@ public class LegalFactServiceImpl implements LegalFactService {
     public List<LegalFactsListEntry> getLegalFacts(String iun) {
         log.debug( "Retrieve timeline elements for iun={}", iun );
         Set<TimelineElement> timelineElements = timelineDao.getTimeline(iun);
+        Notification notification = notificationService.getNotificationByIun(iun);
         List<LegalFactsListEntry> legalFacts = timelineElements
                 .stream()
                 .filter( timeEl -> timeEl.getLegalFactsIds() != null )
                 .sorted( Comparator.comparing( TimelineElement::getTimestamp ))
                 .flatMap( timeEl -> timeEl.getLegalFactsIds().stream().map(
                         lfId -> LegalFactsListEntry.builder()
-                                .taxId( readRecipientId( timeEl ) )
+                                .taxId( readRecipientId( timeEl, notification ) )
                                 .iun( iun )
                                 .legalFactsId( lfId )
                                 .build()
@@ -67,16 +80,19 @@ public class LegalFactServiceImpl implements LegalFactService {
         return legalFacts;
     }
 
-    private String readRecipientId( TimelineElement  timelineElement ) {
+    private String readRecipientId( TimelineElement  timelineElement, Notification notification ) {
         String recipientId = null;
-        //TODO Gli elementi di Timeline non hanno più il recipient Id capire come gestirlo
-        /*
+        //TODO Verificare se è necessario restituire il taxId o se può bastare il recIndex
+        
         if (timelineElement != null) {
             TimelineElementDetails details = timelineElement.getDetails();
-            if ( details instanceof RecipientRelatedTimelineElementDetails ) {
-                recipientId = ((RecipientRelatedTimelineElementDetails) details).getTaxId();
+            if ( details instanceof RecipientRelatedTimelineElementDetails) {
+                
+                int recIndex = ((RecipientRelatedTimelineElementDetails) details).getRecIndex();
+                NotificationRecipient recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
+                recipientId = recipient.getTaxId();
             }
-        }*/
+        }
         return recipientId;
     }
 
