@@ -85,10 +85,10 @@ public class ActionsPoolImpl implements ActionsPool {
 //    (more than one process will effectively hold the lock).
 //    lockAtLeastFor specifies minimum amount of time for which the lock should be kept. is to prevent execution from multiple nodes 
 //    in case of really short tasks and clock difference between the nodes. Setting lockAtLeastFor we make sure it's not executed more than once in 1 minute
-    @Scheduled( fixedDelay = 60000 )
+    @Scheduled( fixedDelay = 10 * 1000L )
     @SchedulerLock(name = "actionPoll", lockAtMostFor = "1m", lockAtLeastFor = "30s")
     protected void pollForFutureActions() {
-
+        log.debug("Start action scheduling");
         // To assert that the lock is held (prevents misconfiguration errors)
         LockAssert.assertLocked();
 
@@ -103,6 +103,7 @@ public class ActionsPoolImpl implements ActionsPool {
                 lastPollExecuted = clock.instant().minus(2, ChronoUnit.HOURS);
             }
         }
+        log.debug("Action pool start poll {}", lastPollExecuted);
 
         Instant now = clock.instant();
         List<String> uncheckedTimeSlots = computeTimeSlots(lastPollExecuted, now);

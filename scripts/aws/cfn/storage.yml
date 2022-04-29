@@ -48,57 +48,6 @@ Resources:
             ExposedHeaders:
               - "x-amz-version-id"
 
-  # Actions database
-  ActionsTable:
-    Type: AWS::Cassandra::Table
-    Properties:
-      TableName: actions
-      KeyspaceName: !Sub '${ProjectName}_delivery'
-      PointInTimeRecoveryEnabled: true
-      PartitionKeyColumns:
-        - ColumnName: actionid
-          ColumnType: text
-      RegularColumns:
-        - ColumnName: actionjson
-          ColumnType: text
-
-  FutureActionsTable:
-    Type: AWS::Cassandra::Table
-    Properties:
-      TableName: future_actions
-      KeyspaceName: !Sub '${ProjectName}_delivery'
-      PointInTimeRecoveryEnabled: true
-      PartitionKeyColumns:
-        - ColumnName: time_slot
-          ColumnType: text
-      ClusteringKeyColumns:
-        - Column:
-            ColumnName: iun
-            ColumnType: text
-          OrderBy: ASC
-        - Column:
-            ColumnName: action_id
-            ColumnType: text
-          OrderBy: ASC
-      RegularColumns:
-        - ColumnName: notbefore
-          ColumnType: timestamp
-        - ColumnName: actionjson
-          ColumnType: text
-
-  LastActionPollTable:
-    Type: AWS::Cassandra::Table
-    Properties:
-      TableName: last_poll_for_future_actions
-      KeyspaceName: !Sub '${ProjectName}_delivery'
-      PointInTimeRecoveryEnabled: true
-      PartitionKeyColumns:
-        - ColumnName: lastpollkey
-          ColumnType: bigint
-      RegularColumns:
-        - ColumnName: lastpollexecuted
-          ColumnType: timestamp
-
   WebhookBufferTable:
     Type: AWS::Cassandra::Table
     Properties:
@@ -178,6 +127,7 @@ Resources:
           KeyType: "RANGE"
       BillingMode: "PAY_PER_REQUEST"
 
+  # Failed Paper Notification
   PaperNotificationFailedTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -194,6 +144,7 @@ Resources:
           KeyType: "RANGE"
       BillingMode: "PAY_PER_REQUEST"
 
+  # Action Table
   ActionTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -205,7 +156,8 @@ Resources:
         - AttributeName: "actionId"
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
-      
+
+  # Future Action Table
   FutureActionTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -221,7 +173,8 @@ Resources:
         - AttributeName: "actionId"
           KeyType: "RANGE"
       BillingMode: "PAY_PER_REQUEST"
-      
+
+  # Last scheduled poll time
   LastPollForFutureActionTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -233,7 +186,8 @@ Resources:
         - AttributeName: "lastPoolKey"
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
-      
+
+  # Shared lock handling table
   PnDeliveryPushShedLockTable:
     Type: AWS::DynamoDB::Table
     Properties:
