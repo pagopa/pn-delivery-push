@@ -304,11 +304,18 @@ Resources:
               - 'dynamodb:GetItem'
               - 'dynamodb:Query'
               - 'dynamodb:PutItem'
-              - 'dynamodb:*'
             Resource:
               - !Sub "${TimelinesDynamoTableArn}"
               - !Sub "${PaperNotificationFailedDynamoTableArn}"
               - !Sub "${ActionDynamoTableArn}"
+          - Effect: Allow
+            Action:
+              - 'dynamodb:GetItem'
+              - 'dynamodb:Query'
+              - 'dynamodb:PutItem'
+              - 'dynamodb:DeleteItem'
+              - 'dynamodb:UpdateItem'
+            Resource:
               - !Sub "${FutureActionDynamoTableArn}"
               - !Sub "${LastPollForFutureActionDynamoTableArn}"
               - !Sub "${PnDeliveryPushShedLockDynamoTableArn}"
