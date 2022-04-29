@@ -2,7 +2,6 @@ package it.pagopa.pn.deliverypush;
 
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -31,6 +30,12 @@ public class PnDeliveryPushConfigs {
 
     private FailedNotificationDao failedNotificationDao;
 
+    private ActionDao actionDao;
+
+    private FutureActionDao futureActionDao;
+    
+    private LastPollForFutureActionDao lastPollForFutureActionDao;
+    
     @Data
     public static class Topics {
 
@@ -71,4 +76,19 @@ public class PnDeliveryPushConfigs {
         private String tableName;
     }
 
+    @Data
+    public static class ActionDao {
+        private String tableName;
+    }
+
+    @Data
+    public static class FutureActionDao {
+        private String tableName;
+    }
+
+    @Data
+    public static class LastPollForFutureActionDao {
+        private String tableName;
+    }
+    
 }

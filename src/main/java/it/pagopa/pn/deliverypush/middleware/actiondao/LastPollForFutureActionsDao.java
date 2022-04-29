@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.abstractions.actionspool.impl;
+package it.pagopa.pn.deliverypush.middleware.actiondao;
 
 
 
@@ -10,7 +10,5 @@ public interface LastPollForFutureActionsDao {
     void updateLastPollTime(Instant lastPollExecuted);
 
     Optional<Instant> getLastPollTime();
-
-
-
+    
 }

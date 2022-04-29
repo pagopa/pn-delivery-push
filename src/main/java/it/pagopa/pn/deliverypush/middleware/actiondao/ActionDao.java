@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.abstractions.actionspool.impl;
+package it.pagopa.pn.deliverypush.middleware.actiondao;
 
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 
@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ActionDao {
+    String IMPLEMENTATION_TYPE_PROPERTY_NAME = "pn.middleware.impl.action-dao";
 
     void addAction( Action action, String timeSlot );
 

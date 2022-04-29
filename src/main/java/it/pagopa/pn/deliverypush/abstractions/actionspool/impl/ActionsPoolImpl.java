@@ -5,7 +5,11 @@ import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
+import it.pagopa.pn.deliverypush.middleware.actiondao.ActionDao;
+import it.pagopa.pn.deliverypush.middleware.actiondao.LastPollForFutureActionsDao;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.core.LockAssert;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +19,6 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -77,15 +80,17 @@ public class ActionsPoolImpl implements ActionsPool {
         return String.format("%04d-%02d-%02dT%02d:%02d", year, month, day, hour, minute);
     }
 
-
-
-
-    @Scheduled( fixedDelay = 2 * 1000 )
+//    lockAtMostFor specifies how long the lock should be kept in case the executing node dies. You have to set lockAtMostFor to a value which 
+//    is much longer than normal execution time  If the task takes longer than lockAtMostFor the resulting behavior may be unpredictable
+//    (more than one process will effectively hold the lock).
+//    lockAtLeastFor specifies minimum amount of time for which the lock should be kept. is to prevent execution from multiple nodes 
+//    in case of really short tasks and clock difference between the nodes. Setting lockAtLeastFor we make sure it's not executed more than once in 1 minute
+    @Scheduled( fixedDelay = 60000 )
+    @SchedulerLock(name = "actionPoll", lockAtMostFor = "1m", lockAtLeastFor = "30s")
     protected void pollForFutureActions() {
-        // FIXME re-implement scheduling polling in a cluster-aware way.
-        // Evaluate:
-        // - TTLs + C.D.D.
-        // - Separate microservice runned with a scheduled tast
+
+        // To assert that the lock is held (prevents misconfiguration errors)
+        LockAssert.assertLocked();
 
         Optional<Instant> savedLastPollTime = lastFutureActionPoolExecutionTimeDao.getLastPollTime();
 
