@@ -1,0 +1,186 @@
+openapi: 3.0.3
+info:
+  title: 'API di pn-delivery-push esposte ad altri microservizi'
+  version: v1.0
+  description: >- 
+    Da fare
+
+  contact:
+    email: pn@pagopa.it
+  license:
+    name: Licenza di PN
+    url: 'https://da-definire/'
+servers:
+- url: https://api.pn.pagopa.it
+  description: Ambiente di produzione
+- url: https://api.uat.pn.pagopa.it
+  description: Ambiente di test
+- url: https://api.dev.pn.pagopa.it
+  description: Ambiente di sviluppo
+tags:
+  - name: TimelineAndStatus
+    description: >-
+      Recupera le informazioni storiche di una notifica
+  - name: LegalFacts
+    description: >-
+      Recuper degli atti oponibili a terzi generati per una notifica
+
+
+paths:
+  
+
+  '/delivery-push/{iun}/history':
+    get:
+      summary: Storico eventi notifica
+      description: >-
+        Legge e restituisce la timeline di una notifica, il suo stato e la storia dei 
+        suoi cambiamenti di stato.
+        <br/>
+        L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
+      tags:
+        - TimelineAndStatus
+      operationId: getNotificationHistory
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'
+        - $ref: '#/components/parameters/cxTypeAuthFleet'
+        - $ref: '#/components/parameters/cxIdAuthFleet'
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'
+        - $ref: '#/components/parameters/pathIun'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationHistoryResponse"
+        '400':
+          description: Bad request
+  
+      
+  '/delivery-push/{iun}/legal-facts':
+    get:
+      summary: Elenco atti opponibili a terzi
+      description: >-
+        Elenca le informazione di categorizzazione di tutti gli atti opponibili a terzi 
+        registrati durante il processo di notifica.
+        <br/>
+        L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
+      tags:
+        - LegalFacts
+      operationId: getNotificationLegalFacts
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'
+        - $ref: '#/components/parameters/cxTypeAuthFleet'
+        - $ref: '#/components/parameters/cxIdAuthFleet'
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'
+        - $ref: '#/components/parameters/pathIun'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactList"
+        '400':
+          description: Bad request
+
+  '/delivery-push/{iun}/legal-facts/{legalFactType}/{legalFactId}':
+    get:
+      summary: Singolo atto opponibile a terzi
+      description: >-
+        Permette di scaricare un atto opponibile a terzi
+        <br/>
+        L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
+      tags:
+        - LegalFacts
+      operationId: getLegalFact
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'
+        - $ref: '#/components/parameters/cxTypeAuthFleet'
+        - $ref: '#/components/parameters/cxIdAuthFleet'
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathLegalFactType'
+        - $ref: '#/components/parameters/pathLegalFactId'
+      responses:
+        '200':
+          description: OK
+          content:  
+            application/json:
+              schema:
+                $ref: "./schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactDownloadMetadataResponse"          
+        '400':
+          description: Bad request
+  
+
+components:
+  
+  parameters:
+    ############################################################################################
+    ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
+    ############################################################################################
+    cxTypeAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTypeAuthFleet'
+    cxIdAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet'
+    cxGroupsAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxGroups'      
+    uidAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/uidAuthFleet'
+
+
+    ############################################################################################
+    ###                        PARAMETRI RICERCA NOTIFICA ACCETTATA                         ###
+    ############################################################################################
+    pathIun:
+      description: >-
+        Identificativo Univoco Notifica
+      name: iun
+      in: path
+      required: true
+      schema:
+        type: string
+
+    ############################################################################################
+    ###                      PARAMETRI RICERCA ATTI OPPONIBILI A TERZI                       ###
+    ############################################################################################
+    pathLegalFactType:
+      description: >-
+        Categoria dell'atto opponbile a terzi
+      name: legalFactType
+      in: path
+      required: true
+      schema:
+        $ref: './schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactCategory'
+    
+    pathLegalFactId:
+      description: >-
+        Identificativo dell'atto opponbile a terzi
+      name: legalFactId
+      in: path
+      required: true
+      schema:
+        type: string
+  
+  schemas:
+    
+    ############################################################################################
+    ###                        INFORMAZIONI STORICHE DI UNA NOTIFICA                         ###
+    ############################################################################################
+    
+    NotificationHistoryResponse:
+      type: object
+      properties:
+        notificationStatus:
+          $ref: './schemas-pn-status-v1.yaml#/components/schemas/NotificationStatus'
+        notificationStatusHistory:
+          $ref: './schemas-pn-status-v1.yaml#/components/schemas/NotificationStatusHistory'
+        timeline:
+          description: >-
+            elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
+          type: array
+          items:
+            $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/TimelineElement'
+
+
+
