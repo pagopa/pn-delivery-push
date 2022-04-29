@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.action2;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.middleware.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
@@ -22,32 +23,35 @@ public class NotificationViewedHandler {
     private final NotificationService notificationService;
     private final TimelineUtils timelineUtils;
     private final InstantNowSupplier instantNowSupplier;
-
+    private final NotificationUtils notificationUtils;
+    
     public NotificationViewedHandler(TimelineService timelineService, LegalFactUtils legalFactStore,
                                      PaperNotificationFailedDao paperNotificationFailedDao, NotificationService notificationService,
-                                     TimelineUtils timelineUtils, InstantNowSupplier instantNowSupplier) {
+                                     TimelineUtils timelineUtils, InstantNowSupplier instantNowSupplier, NotificationUtils notificationUtils) {
         this.legalFactStore = legalFactStore;
         this.paperNotificationFailedDao = paperNotificationFailedDao;
         this.timelineService = timelineService;
         this.notificationService = notificationService;
         this.timelineUtils = timelineUtils;
         this.instantNowSupplier = instantNowSupplier;
+        this.notificationUtils = notificationUtils;
     }
     
-    public void handleViewNotification(String iun, int recipientIndex) {
-        log.info("Start HandleViewNotification - iun ", iun);
+    public void handleViewNotification(String iun, int recIndex) {
+        log.info("Start HandleViewNotification - iun {}", iun);
 
         Notification notification = notificationService.getNotificationByIun(iun);
-        NotificationRecipient recipient = notification.getRecipients().get(recipientIndex);
-        String taxId = recipient.getTaxId();
-        log.debug("handleViewNotification get recipient ok- iun {} taxId {}", iun, taxId);
+        
+        log.debug("handleViewNotification get recipient ok- iun {} taxId {}", iun, recIndex);
 
+        NotificationRecipient recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
         String legalFactId = legalFactStore.saveNotificationViewedLegalFact(notification, recipient, instantNowSupplier.get());
-        addTimelineElement(timelineUtils.buildNotificationViewedTimelineElement(iun, taxId, legalFactId));
+        
+        addTimelineElement(timelineUtils.buildNotificationViewedTimelineElement(iun, recIndex, legalFactId));
 
-        paperNotificationFailedDao.deleteNotificationFailed(taxId, iun); //Viene eliminata l'istanza di notifica fallita dal momento che la stessa è stata letta
+        paperNotificationFailedDao.deleteNotificationFailed(recipient.getTaxId(), iun); //Viene eliminata l'istanza di notifica fallita dal momento che la stessa è stata letta
 
-        log.debug("End HandleViewNotification - iun {} id {}", iun, taxId);
+        log.debug("End HandleViewNotification - iun {} id {}", iun, recIndex);
     }
 
     private void addTimelineElement(TimelineElement element) {

@@ -8,7 +8,7 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFailed;
-import it.pagopa.pn.api.dto.notification.timeline.CompletlyUnreachableDetails;
+import it.pagopa.pn.api.dto.notification.timeline.CompletelyUnreachableDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.deliverypush.middleware.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
@@ -84,7 +84,7 @@ class CompletelyUnreachableActionHandlerTest {
     void handleActionNotificationViewed() {
         Mockito.when(timelineDao.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Optional.of(TimelineElement.builder()
-                        .details(CompletlyUnreachableDetails.builder()
+                        .details(CompletelyUnreachableDetails.builder()
                                 .taxId("testIdRecipient")
                                 .build())
                         .build()));

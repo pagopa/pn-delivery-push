@@ -3,7 +3,7 @@ package it.pagopa.pn.deliverypush.actions;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFailed;
-import it.pagopa.pn.api.dto.notification.timeline.CompletlyUnreachableDetails;
+import it.pagopa.pn.api.dto.notification.timeline.CompletelyUnreachableDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.middleware.failednotificationdao.PaperNotificationFailedDao;
@@ -59,7 +59,7 @@ public class CompletelyUnreachableActionHandler extends AbstractActionHandler {
     private void buildAndAddTimeLineElement(Action action, NotificationRecipient recipient) {
         addTimelineElement(action, TimelineElement.builder()
                 .category(TimelineElementCategory.COMPLETELY_UNREACHABLE)
-                .details(CompletlyUnreachableDetails.builder()
+                .details(CompletelyUnreachableDetails.builder()
                         .taxId(recipient.getTaxId())
                         .build()
                 )

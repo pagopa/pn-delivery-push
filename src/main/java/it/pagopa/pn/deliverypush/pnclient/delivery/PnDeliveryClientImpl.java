@@ -35,7 +35,7 @@ public class PnDeliveryClientImpl implements PnDeliveryClient {
     public ResponseEntity<ResponseUpdateStatusDto> updateState(RequestUpdateStatusDto dto) {
         String url = baseUrl + UPDATE_STATUS_URL;
 
-        log.info("Start update status call for iun {}, url: {}", dto.getIun(), url);
+        log.debug("Start update status call for iun {}, url: {}", dto.getIun(), url);
 
         HttpEntity<RequestUpdateStatusDto> entity = new HttpEntity<>(dto, null);
 
@@ -53,7 +53,7 @@ public class PnDeliveryClientImpl implements PnDeliveryClient {
         if (!withTimeline) {
             url += "?with_timeline=false";
         }
-        log.info( "Start get notification info for iun {}, url {} ", iun, url );
+        log.debug( "Start get notification info for iun {}, url {} ", iun, url );
         return Optional.ofNullable( restTemplate.getForObject( url, Notification.class ) );
     }
 }

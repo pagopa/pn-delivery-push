@@ -29,6 +29,7 @@ public class ActionEntity {
     private Instant notBefore;
     private ActionType type;
     private Integer recipientIndex;
+    private String taxId;
     private DigitalAddressSource digitalAddressSource;
     private Integer retryNumber;
     private PnExtChnProgressStatus responseStatus;
@@ -114,5 +115,13 @@ public class ActionEntity {
 
     public void setAttachmentKeys(List<String> attachmentKeys) {
         this.attachmentKeys = attachmentKeys;
+    }
+
+    public String getTaxId() {
+        return taxId;
+    }
+
+    public void setTaxId(String taxId) {
+        this.taxId = taxId;
     }
 }

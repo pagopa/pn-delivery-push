@@ -24,42 +24,47 @@ public class ExternalChannelUtils {
     private final PnDeliveryPushConfigs cfg;
     private final TimelineUtils timelineUtils;
     private final InstantNowSupplier instantNowSupplier;
-
+    private final NotificationUtils notificationUtils;
+    
     public ExternalChannelUtils(TimelineService timelineService, PnDeliveryPushConfigs cfg,
-                                TimelineUtils timelineUtils, InstantNowSupplier instantNowSupplier) {
+                                TimelineUtils timelineUtils, InstantNowSupplier instantNowSupplier, NotificationUtils notificationUtils) {
         this.timelineService = timelineService;
         this.cfg = cfg;
         this.timelineUtils = timelineUtils;
         this.instantNowSupplier = instantNowSupplier;
+        this.notificationUtils = notificationUtils;
     }
 
     /**
      * Generate and send pec notification request to external channel
      */
-    public PnExtChnPecEvent getExtChannelPecEvent(Notification notification, DigitalAddress digitalAddress, DigitalAddressSource addressSource, NotificationRecipient recipient,
+    public PnExtChnPecEvent getExtChannelPecEvent(Notification notification, DigitalAddress digitalAddress, DigitalAddressSource addressSource, int recIndex,
                                                   int sentAttemptMade) {
         String eventId = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())
-                        .recipientId(recipient.getTaxId())
+                        .recIndex(recIndex)
                         .source(addressSource)
                         .index(sentAttemptMade)
                         .build()
         );
-        log.info("SendDigitalNotification to external channel - iun {} id {} eventId{}", notification.getIun(), recipient.getTaxId(), eventId);
-
+        log.info("SendDigitalNotification to external channel - iun {} id {} eventId{}", notification.getIun(), recIndex, eventId);
+        NotificationRecipient recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
+        
         return buildSendPecRequest(eventId, notification, recipient, digitalAddress);
     }
 
-    public void addSendDigitalNotificationToTimeline(Notification notification, DigitalAddress digitalAddress, DigitalAddressSource addressSource, NotificationRecipient recipient, int sentAttemptMade, String eventId) {
-        addTimelineElement(timelineUtils.buildSendDigitalNotificationTimelineElement(digitalAddress, addressSource, recipient, notification, sentAttemptMade, eventId));
+    public void addSendDigitalNotificationToTimeline(Notification notification, DigitalAddress digitalAddress, DigitalAddressSource addressSource, int recIndex, int sentAttemptMade, String eventId) {
+        addTimelineElement(timelineUtils.buildSendDigitalNotificationTimelineElement(digitalAddress, addressSource, recIndex, notification, sentAttemptMade, eventId));
     }
 
     /**
      * Generate and send email notification request to external channel
      */
-    public PnExtChnEmailEvent getExtChannelEmailRequest(Notification notification, DigitalAddress courtesyAddress, NotificationRecipient recipient, String eventId) {
-        log.info("SendCourtesyMessage to external channel eventId{} - iun {} id {}", eventId, notification.getIun(), recipient.getTaxId());
+    public PnExtChnEmailEvent getExtChannelEmailRequest(Notification notification, DigitalAddress courtesyAddress, int recIndex, String eventId) {
+        log.info("SendCourtesyMessage to external channel eventId{} - iun {} id {}", eventId, notification.getIun(), recIndex);
+
+        NotificationRecipient recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
 
         return buildSendEmailRequest(eventId,
                 notification,
@@ -67,22 +72,24 @@ public class ExternalChannelUtils {
                 courtesyAddress);
     }
 
-    public void addSendCourtesyMessageToTimeline(Notification notification, DigitalAddress courtesyAddress, NotificationRecipient recipient, String eventId) {
-        addTimelineElement(timelineUtils.buildSendCourtesyMessageTimelineElement(recipient.getTaxId(), notification.getIun(), courtesyAddress, instantNowSupplier.get(), eventId));
+    public void addSendCourtesyMessageToTimeline(Notification notification, DigitalAddress courtesyAddress, int recIndex, String eventId) {
+        addTimelineElement(timelineUtils.buildSendCourtesyMessageTimelineElement(recIndex, notification.getIun(), courtesyAddress, instantNowSupplier.get(), eventId));
     }
 
     /**
      * Generate and send simple registered letter notification request to external channel
      */
-    public PnExtChnPaperEvent getExtChannelPaperRequest(Notification notification, PhysicalAddress physicalAddress, NotificationRecipient recipient) {
+    public PnExtChnPaperEvent getExtChannelPaperRequest(Notification notification, PhysicalAddress physicalAddress, int recIndex) {
         String eventId = TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())
-                        .recipientId(recipient.getTaxId())
+                        .recIndex(recIndex)
                         .build()
         );
 
-        log.info("SendNotificationForRegisteredLetter to external channel for iun {} id {} eventId{} ", notification.getIun(), recipient.getTaxId(), eventId);
+        log.info("SendNotificationForRegisteredLetter to external channel for iun {} id {} eventId{} ", notification.getIun(), recIndex, eventId);
+
+        NotificationRecipient recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
 
         return buildSendPaperRequest(
                 eventId,
@@ -95,22 +102,24 @@ public class ExternalChannelUtils {
         );
     }
 
-    public void addSendSimpleRegisteredLetterToTimeline(Notification notification, PhysicalAddress physicalAddress, NotificationRecipient recipient, String eventId) {
-        addTimelineElement(timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recipient.getTaxId(), notification.getIun(), physicalAddress, eventId));
+    public void addSendSimpleRegisteredLetterToTimeline(Notification notification, PhysicalAddress physicalAddress, int recIndex, String eventId) {
+        addTimelineElement(timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification.getIun(), physicalAddress, eventId));
     }
 
     /**
      * Generate and send analog notification request to external channel
      */
-    public PnExtChnPaperEvent getExtChannelPaperRequest(Notification notification, PhysicalAddress physicalAddress, NotificationRecipient recipient, boolean investigation, int sentAttemptMade) {
+    public PnExtChnPaperEvent getExtChannelPaperRequest(Notification notification, PhysicalAddress physicalAddress, int recIndex, boolean investigation, int sentAttemptMade) {
         String eventId = TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())
-                        .recipientId(recipient.getTaxId())
+                        .recIndex(recIndex)
                         .index(sentAttemptMade)
                         .build()
         );
-        log.info("SendAnalogNotification to external channel eventId{} - iun {} id {}", eventId, notification.getIun(), recipient.getTaxId());
+        log.info("SendAnalogNotification to external channel eventId{} - iun {} id {}", eventId, notification.getIun(), recIndex);
+
+        NotificationRecipient recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
 
         return buildSendPaperRequest(
                 eventId,
@@ -122,8 +131,8 @@ public class ExternalChannelUtils {
                 physicalAddress);
     }
 
-    public void addSendAnalogNotificationToTimeline(Notification notification, PhysicalAddress physicalAddress, NotificationRecipient recipient, boolean investigation, int sentAttemptMade, String eventId) {
-        addTimelineElement(timelineUtils.buildSendAnalogNotificationTimelineElement(physicalAddress, recipient, notification, investigation, sentAttemptMade, eventId));
+    public void addSendAnalogNotificationToTimeline(Notification notification, PhysicalAddress physicalAddress, int recIndex, boolean investigation, int sentAttemptMade, String eventId) {
+        addTimelineElement(timelineUtils.buildSendAnalogNotificationTimelineElement(physicalAddress, recIndex, notification, investigation, sentAttemptMade, eventId));
     }
 
     public PnExtChnPecEvent buildSendPecRequest(String eventId, Notification notification,

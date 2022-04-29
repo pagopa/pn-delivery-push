@@ -16,6 +16,6 @@ public interface TimelineService {
 
     Set<TimelineElement> getTimeline(String iun);
 
-    boolean isPresentTimeLineElement(String iun, String taxId, TimelineEventId timelineEventId);
+    boolean isPresentTimeLineElement(String iun, int recIndex, TimelineEventId timelineEventId);
 
 }

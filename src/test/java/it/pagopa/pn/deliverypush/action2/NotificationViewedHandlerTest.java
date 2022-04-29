@@ -5,10 +5,11 @@ import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
-import it.pagopa.pn.deliverypush.middleware.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
+import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
+import it.pagopa.pn.deliverypush.middleware.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,14 +37,16 @@ class NotificationViewedHandlerTest {
     private InstantNowSupplier instantNowSupplier;
     @Mock
     private TimelineService timelineService;
-
+    
     private NotificationViewedHandler handler;
+    private NotificationUtils notificationUtils;
 
     @BeforeEach
     public void setup() {
+        notificationUtils = new NotificationUtils();
         handler = new NotificationViewedHandler(timelineService, legalFactStore,
                 paperNotificationFailedDao, notificationService,
-                timelineUtils, instantNowSupplier);
+                timelineUtils, instantNowSupplier, notificationUtils);
     }
     
     @ExtendWith(MockitoExtension.class)

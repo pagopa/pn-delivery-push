@@ -60,6 +60,7 @@ import java.time.Instant;
         TimelineUtils.class,
         PublicRegistryUtils.class,
         ChooseDeliveryModeUtils.class,
+        NotificationUtils.class,
         NotificationServiceImpl.class,
         TimeLineServiceImpl.class,
         CheckAttachmentUtils.class,
@@ -67,9 +68,9 @@ import java.time.Instant;
         TimelineDaoMock.class,
         ExternalChannelMock.class,
         PaperNotificationFailedDaoMock.class,
-        AnalogTest.SpringTestConfiguration.class
+        AnalogTestIT.SpringTestConfiguration.class
 })
-class AnalogTest {
+class AnalogTestIT {
     
 
     @TestConfiguration
@@ -111,6 +112,9 @@ class AnalogTest {
     
     @Autowired
     private TimelineDaoMock timelineDaoMock;
+
+    @Autowired
+    private NotificationUtils notificationUtils;
 
     @Autowired
     private PaperNotificationFailedDaoMock paperNotificationFailedDaoMock;
@@ -182,21 +186,21 @@ class AnalogTest {
         addressBookMock.add(addressBookEntry);
 
         String iun = notification.getIun();
-        String taxId = recipient.getTaxId();
-    
+        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
         //Viene verificato che sia stato inviato un messaggio ad ogni indirizzo presente nei courtesyaddress
-        TestUtils.checkSendCourtesyAddresses(iun, taxId, addressBookEntry.getCourtesyAddresses(), timelineService, externalChannelMock);
+        TestUtils.checkSendCourtesyAddresses(iun, recIndex, addressBookEntry.getCourtesyAddresses(), timelineService, externalChannelMock);
 
         //Viene verificato che gli indirizzi PLATFORM SPECIAL E GENERAL non siano presenti
-        TestUtils.checkGetAddress(iun, taxId, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, false, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, false, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito dalla PA
-        TestUtils.checkSendPaperToExtChannel(iun, taxId, paPhysicalAddress, 0, timelineService);
+        TestUtils.checkSendPaperToExtChannel(iun, recIndex, paPhysicalAddress, 0, timelineService);
         //Viene verificata la presenza del secondo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito dal postino
         //checkSendToExtChannel(iun, TestUtils.PHYSICAL_ADDRESS_FAILURE_BOTH, 1);
 
@@ -209,7 +213,7 @@ class AnalogTest {
                 TimelineEventId.ANALOG_FAILURE_WORKFLOW.buildEventId(
                         EventId.builder()
                                 .iun(iun)
-                                .recipientId(taxId)
+                                .recIndex(recIndex)
                                 .build())).isPresent());
 
         //Viene verificato che il destinatario risulti completamente irraggiungibile
@@ -218,7 +222,7 @@ class AnalogTest {
                 TimelineEventId.COMPLETELY_UNREACHABLE.buildEventId(
                         EventId.builder()
                                 .iun(iun)
-                                .recipientId(taxId)
+                                .recIndex(recIndex)
                                 .build())).isPresent());
 
         //Viene verificato che sia avvenuto il perfezionamento
@@ -227,9 +231,8 @@ class AnalogTest {
                 TimelineEventId.REFINEMENT.buildEventId(
                         EventId.builder()
                                 .iun(iun)
-                                .recipientId(taxId)
+                                .recIndex(recIndex)
                                 .build())).isPresent());
-
     }
 
     @Test
@@ -266,21 +269,21 @@ class AnalogTest {
         publicRegistryMock.addPhysical(recipient.getTaxId(), publicRegistryAddress);
 
         String iun = notification.getIun();
-        String taxId = recipient.getTaxId();
+        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(notification.getIun());
 
         //Viene verificato che non sia stato inviato alcun messaggio di cortesia
-        TestUtils.checkSendCourtesyAddresses(iun, taxId, addressBookEntry.getCourtesyAddresses(), timelineService, externalChannelMock);
+        TestUtils.checkSendCourtesyAddresses(iun, recIndex, addressBookEntry.getCourtesyAddresses(), timelineService, externalChannelMock);
 
         //Viene verificato che gli indirizzi PLATFORM SPECIAL E GENERAL non siano presenti
-        TestUtils.checkGetAddress(iun, taxId, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, false, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, taxId, false, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito da publicRegistry
-        TestUtils.checkSendPaperToExtChannel(iun, taxId, publicRegistryAddress, 0, timelineService);
+        TestUtils.checkSendPaperToExtChannel(iun, recIndex, publicRegistryAddress, 0, timelineService);
 
         /*
         Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito dall'investigazione
@@ -290,10 +293,10 @@ class AnalogTest {
         //Vengono verificati il numero di send verso external channel
         Mockito.verify(externalChannelMock, Mockito.times(2)).sendNotification(Mockito.any(PnExtChnPaperEvent.class));
 
-        TestUtils.checkSuccessAnalogWorkflow(iun, taxId, timelineService, completionWorkflow);
+        TestUtils.checkSuccessAnalogWorkflow(iun, recIndex, timelineService, completionWorkflow);
 
         //Viene verificato che sia avvenuto il perfezionamento
-        TestUtils.checkRefinement(iun, taxId, timelineService);
+        TestUtils.checkRefinement(iun, recIndex, timelineService);
     }
 
 }

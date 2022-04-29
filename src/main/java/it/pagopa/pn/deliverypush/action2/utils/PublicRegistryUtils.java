@@ -8,11 +8,11 @@ import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
-@Service
+@Component
 @Slf4j
 public class PublicRegistryUtils {
     private final TimelineService timelineService;
@@ -24,19 +24,19 @@ public class PublicRegistryUtils {
         this.timelineUtils = timelineUtils;
     }
 
-    public String generateCorrelationId(String iun, String taxId, ContactPhase contactPhase, int sentAttemptMade, DeliveryMode deliveryMode) {
+    public String generateCorrelationId(String iun, int recIndex, ContactPhase contactPhase, int sentAttemptMade, DeliveryMode deliveryMode) {
         return String.format(
-                "%s_%s_%s_%s_%d",
+                "%s_%d_%s_%s_%d",
                 iun,
-                taxId,
+                recIndex,
                 deliveryMode,
                 contactPhase,
                 sentAttemptMade
         );
     }
 
-    public void addPublicRegistryCallToTimeline(String iun, String taxId, ContactPhase contactPhase, int sentAttemptMade, String correlationId, DeliveryMode digital) {
-        addTimelineElement(timelineUtils.buildPublicRegistryCallTimelineElement(iun, taxId, correlationId, digital, contactPhase, sentAttemptMade));
+    public void addPublicRegistryCallToTimeline(String iun, int recIndex, ContactPhase contactPhase, int sentAttemptMade, String correlationId, DeliveryMode digital) {
+        addTimelineElement(timelineUtils.buildPublicRegistryCallTimelineElement(iun, recIndex, correlationId, digital, contactPhase, sentAttemptMade));
     }
 
     public PublicRegistryCallDetails getPublicRegistryCallDetail(String iun, String correlationId) {
@@ -51,8 +51,8 @@ public class PublicRegistryUtils {
         }
     }
 
-    public void addPublicRegistryResponseToTimeline(String iun, String taxId, PublicRegistryResponse response) {
-        addTimelineElement(timelineUtils.buildPublicRegistryResponseCallTimelineElement(iun, taxId, response));
+    public void addPublicRegistryResponseToTimeline(String iun,int recIndex, PublicRegistryResponse response) {
+        addTimelineElement(timelineUtils.buildPublicRegistryResponseCallTimelineElement(iun, recIndex, response));
     }
 
     private void addTimelineElement(TimelineElement element) {
