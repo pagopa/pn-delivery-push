@@ -6,6 +6,7 @@ import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 @EnableScheduling
 @EnableSchedulerLock(defaultLockAtMostFor = "10m")
@@ -13,7 +14,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class PnDeliveryPushSchedulingConfiguration {
 
     @Bean
-    public LockProvider lockProvider(software.amazon.awssdk.services.dynamodb.DynamoDbClient dynamoDB) {
-        return new DynamoDBLockProvider(dynamoDB, "PnDeliveryPushShedLock");
+    public LockProvider lockProvider(DynamoDbClient dynamoDB, PnDeliveryPushConfigs cfg) {
+        String lockTableName = cfg.getLastPollForFutureActionDao().getLockTableName();
+        return new DynamoDBLockProvider(dynamoDB, lockTableName);
     }
 }

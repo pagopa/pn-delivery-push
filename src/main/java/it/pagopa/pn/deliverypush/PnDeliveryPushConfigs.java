@@ -89,6 +89,7 @@ public class PnDeliveryPushConfigs {
     @Data
     public static class LastPollForFutureActionDao {
         private String tableName;
+        private String lockTableName;
     }
     
 }

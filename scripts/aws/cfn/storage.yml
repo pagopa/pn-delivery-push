@@ -300,3 +300,32 @@ Outputs:
   PaperNotificationFailedDynamoTableArn:
     Description: ARN of dynamodb table containing unreacheble notifications recipients
     Value: !Sub '${PaperNotificationFailedTable.Arn}'
+
+  ActionDynamoTableName:
+    Description: Name of dynamodb table containing
+    Value: !Ref ActionTable
+  ActionDynamoTableArn:
+    Description: ARN of dynamodb table containing
+    Value: !Sub '${ActionTable.Arn}'
+
+  FutureActionDynamoTableName:
+    Description: Name of dynamodb table containing
+    Value: !Ref FutureActionTable
+  FutureActionDynamoTableArn:
+    Description: ARN of dynamodb table containing
+    Value: !Sub '${FutureActionTable.Arn}'
+
+  LastPollForFutureActionDynamoTableName:
+    Description: Name of dynamodb table containing
+    Value: !Ref LastPollForFutureActionTable
+  LastPollForFutureActionDynamoTableArn:
+    Description: ARN of dynamodb table containing
+    Value: !Sub '${LastPollForFutureActionTable.Arn}'
+
+  PnDeliveryPushShedLockDynamoTableName:
+    Description: Name of dynamodb table containing
+    Value: !Ref PnDeliveryPushShedLockTable
+  PnDeliveryPushShedLockDynamoTableArn:
+    Description: ARN of dynamodb table containing
+    Value: !Sub '${PnDeliveryPushShedLockTable.Arn}'
+

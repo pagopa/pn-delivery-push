@@ -152,6 +152,37 @@ Parameters:
     Type: String
     Description: ARN of dynamodb table containing unreacheble notifications recipients
 
+  ActionDynamoTableName:
+    Type: String
+    Description: Name of dynamodb table containing
+
+  ActionDynamoTableArn:
+    Type: String
+    Description: ARN of dynamodb table containing
+
+  FutureActionDynamoTableName:
+    Type: String
+    Description: Name of dynamodb table containing
+
+  FutureActionDynamoTableArn:
+    Type: String
+    Description: ARN of dynamodb table containing
+
+  LastPollForFutureActionDynamoTableName:
+    Type: String
+    Description: Name of dynamodb table containing
+
+  LastPollForFutureActionDynamoTableArn:
+    Type: String
+    Description: ARN of dynamodb table containing
+
+  PnDeliveryPushShedLockDynamoTableName:
+    Type: String
+    Description: Name of dynamodb table containing
+
+  PnDeliveryPushShedLockDynamoTableArn:
+    Type: String
+    Description: ARN of dynamodb table containing
 
 Resources:
 
@@ -202,6 +233,10 @@ Resources:
         ContainerEnvEntry24: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
         ContainerEnvEntry25: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
         ContainerEnvEntry26: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
+        ContainerEnvEntry27: !Sub 'PN_DELIVERYPUSH_ACTIONDAO_TABLENAME=${ActionDynamoTableName}'
+        ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_FUTUREACTIONDAO_TABLENAME=${FutureActionDynamoTableName}'
+        ContainerEnvEntry29: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_TABLENAME=${LastPollForFutureActionDynamoTableName}'
+        ContainerEnvEntry30: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_LOCKTABLENAME=${PnDeliveryPushShedLockDynamoTableName}'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
@@ -269,9 +304,14 @@ Resources:
               - 'dynamodb:GetItem'
               - 'dynamodb:Query'
               - 'dynamodb:PutItem'
+              - 'dynamodb:DeleteItem'
             Resource:
               - !Sub "${TimelinesDynamoTableArn}"
               - !Sub "${PaperNotificationFailedDynamoTableArn}"
+              - !Sub "${ActionDynamoTableArn}"
+              - !Sub "${FutureActionDynamoTableArn}"
+              - !Sub "${LastPollForFutureActionDynamoTableArn}"
+              - !Sub "${PnDeliveryPushShedLockDynamoTableArn}"
 
   # Expose PN-Delivery-push microservice public API with API-GW for B2B usage
   DeliveryPushMicroservicePublicAPI:
