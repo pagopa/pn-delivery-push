@@ -48,6 +48,7 @@ components:
     
     TimelineElement:
       type: object
+      additionalProperties: false
       properties:
         elementId:
           type: string
@@ -69,42 +70,80 @@ components:
         category:
           $ref: '#/components/schemas/TimelineElementCategory'
         details:
-          oneOf:
-            - "$ref": "#/components/schemas/AnalogFailureWorkflow"
-            - "$ref": "#/components/schemas/AnalogSuccessWorkflow"
-            - "$ref": "#/components/schemas/CompletelyUnreachableDetails"
-            - "$ref": "#/components/schemas/DigitalFailureWorkflow"
-            - "$ref": "#/components/schemas/DigitalSuccessWorkflow"
-            - "$ref": "#/components/schemas/EndOfAnalogDeliveryWorkflowDetails"
-            - "$ref": "#/components/schemas/EndOfDigitalDeliveryWorkflowDetails"
-            - "$ref": "#/components/schemas/GetAddressInfo"
-            - "$ref": "#/components/schemas/NotificationPathChooseDetails"
-            - "$ref": "#/components/schemas/NotificationViewedDetails"
-            - "$ref": "#/components/schemas/PublicRegistryCallDetails"
-            - "$ref": "#/components/schemas/PublicRegistryResponseDetails"
-            - "$ref": "#/components/schemas/RefinementDetails"
-            - "$ref": "#/components/schemas/RequestRefusedDetails"
-            - "$ref": "#/components/schemas/ScheduleAnalogWorkflow"
-            - "$ref": "#/components/schemas/ScheduleDigitalWorkflow"
-            - "$ref": "#/components/schemas/ScheduleRefinement"
-            - "$ref": "#/components/schemas/SendCourtesyMessageDetails"
-            - "$ref": "#/components/schemas/SendDigitalDetails"
-            - "$ref": "#/components/schemas/SendDigitalFailureDetails"
-            - "$ref": "#/components/schemas/SendDigitalFeedback"
-            - "$ref": "#/components/schemas/SendDigitalFeedbackDetails"
-            - "$ref": "#/components/schemas/SendPaperDetails"
-            - "$ref": "#/components/schemas/SendPaperFeedbackDetails"
-            - "$ref": "#/components/schemas/SimpleRegisteredLetterDetails"
+          $ref: '#/components/schemas/TimelineElementDetails'
 
+    TimelineElementDetails:
+      description: The raw event payload that will be different based on the event.
+      discriminator:
+        propertyName: kind
+        mapping:
+          AnalogFailureWorkflow: "#/components/schemas/AnalogFailureWorkflow"
+          AnalogSuccessWorkflow: "#/components/schemas/AnalogSuccessWorkflow"
+          CompletelyUnreachableDetails: "#/components/schemas/CompletelyUnreachableDetails"
+          DigitalFailureWorkflow: "#/components/schemas/DigitalFailureWorkflow"
+          DigitalSuccessWorkflow: "#/components/schemas/DigitalSuccessWorkflow"
+          EndOfAnalogDeliveryWorkflowDetails: "#/components/schemas/EndOfAnalogDeliveryWorkflowDetails"
+          EndOfDigitalDeliveryWorkflowDetails: "#/components/schemas/EndOfDigitalDeliveryWorkflowDetails"
+          GetAddressInfo: "#/components/schemas/GetAddressInfo"
+          NotificationPathChooseDetails: "#/components/schemas/NotificationPathChooseDetails"
+          NotificationViewedDetails: "#/components/schemas/NotificationViewedDetails"
+          PublicRegistryCallDetails: "#/components/schemas/PublicRegistryCallDetails"
+          PublicRegistryResponseDetails: "#/components/schemas/PublicRegistryResponseDetails"
+          RefinementDetails: "#/components/schemas/RefinementDetails"
+          RequestRefusedDetails: "#/components/schemas/RequestRefusedDetails"
+          ScheduleAnalogWorkflow: "#/components/schemas/ScheduleAnalogWorkflow"
+          ScheduleDigitalWorkflow: "#/components/schemas/ScheduleDigitalWorkflow"
+          ScheduleRefinement: "#/components/schemas/ScheduleRefinement"
+          SendCourtesyMessageDetails: "#/components/schemas/SendCourtesyMessageDetails"
+          SendDigitalDetails: "#/components/schemas/SendDigitalDetails"
+          SendDigitalFailureDetails: "#/components/schemas/SendDigitalFailureDetails"
+          SendDigitalFeedback: "#/components/schemas/SendDigitalFeedback"
+          SendDigitalFeedbackDetails: "#/components/schemas/SendDigitalFeedbackDetails"
+          SendPaperDetails: "#/components/schemas/SendPaperDetails"
+          SendPaperFeedbackDetails: "#/components/schemas/SendPaperFeedbackDetails"
+          SimpleRegisteredLetterDetails: "#/components/schemas/SimpleRegisteredLetterDetails"
+      oneOf:
+        - "$ref": "#/components/schemas/AnalogFailureWorkflow"
+        - "$ref": "#/components/schemas/AnalogSuccessWorkflow"
+        - "$ref": "#/components/schemas/CompletelyUnreachableDetails"
+        - "$ref": "#/components/schemas/DigitalFailureWorkflow"
+        - "$ref": "#/components/schemas/DigitalSuccessWorkflow"
+        - "$ref": "#/components/schemas/EndOfAnalogDeliveryWorkflowDetails"
+        - "$ref": "#/components/schemas/EndOfDigitalDeliveryWorkflowDetails"
+        - "$ref": "#/components/schemas/GetAddressInfo"
+        - "$ref": "#/components/schemas/NotificationPathChooseDetails"
+        - "$ref": "#/components/schemas/NotificationViewedDetails"
+        - "$ref": "#/components/schemas/PublicRegistryCallDetails"
+        - "$ref": "#/components/schemas/PublicRegistryResponseDetails"
+        - "$ref": "#/components/schemas/RefinementDetails"
+        - "$ref": "#/components/schemas/RequestRefusedDetails"
+        - "$ref": "#/components/schemas/ScheduleAnalogWorkflow"
+        - "$ref": "#/components/schemas/ScheduleDigitalWorkflow"
+        - "$ref": "#/components/schemas/ScheduleRefinement"
+        - "$ref": "#/components/schemas/SendCourtesyMessageDetails"
+        - "$ref": "#/components/schemas/SendDigitalDetails"
+        - "$ref": "#/components/schemas/SendDigitalFailureDetails"
+        - "$ref": "#/components/schemas/SendDigitalFeedback"
+        - "$ref": "#/components/schemas/SendDigitalFeedbackDetails"
+        - "$ref": "#/components/schemas/SendPaperDetails"
+        - "$ref": "#/components/schemas/SendPaperFeedbackDetails"
+        - "$ref": "#/components/schemas/SimpleRegisteredLetterDetails"
+          
     AnalogFailureWorkflow:
       type: object
       properties:
+        kind:
+          type: string
+          default: "AnalogFailureWorkflow"
         taxId:
           type: string
           description: Codice Fiscale destinatario notifica digitale
     AnalogSuccessWorkflow:
       type: object
       properties:
+        kind:
+          type: string
+          default: "AnalogSuccessWorkflow"
         taxId:
           type: string
           description: Codice Fiscale destinatario notifica digitale
@@ -113,12 +152,18 @@ components:
     DigitalFailureWorkflow:
       type: object
       properties:
+        kind:
+          type: string
+          default: "DigitalFailureWorkflow"
         taxId:
           type: string
           description: Codice Fiscale destinatario notifica digitale
     DigitalSuccessWorkflow:
       type: object
       properties:
+        kind:
+          type: string
+          default: "DigitalSuccessWorkflow"
         taxId:
           type: string
           description: Codice Fiscale destinatario notifica digitale
@@ -127,24 +172,36 @@ components:
     CompletelyUnreachableDetails:
       type: object
       properties:
+        kind:
+          type: string
+          default: "CompletelyUnreachableDetails"
         taxId:
           type: string
           description: Codice Fiscale destinatario notifica digitale
     EndOfAnalogDeliveryWorkflowDetails:
       type: object
       properties:
+        kind:
+          type: string
+          default: "EndOfAnalogDeliveryWorkflowDetails"
         taxId:
           type: string
           description: Codice Fiscale destinatario notifica digitale
     EndOfDigitalDeliveryWorkflowDetails:
       type: object
       properties:
+        kind:
+          type: string
+          default: "EndOfDigitalDeliveryWorkflowDetails"
         taxId:
           type: string
           description: Codice Fiscale destinatario notifica digitale
     GetAddressInfo:
       type: object
       properties:
+        kind:
+          type: string
+          default: "GetAddressInfo"
         taxId:
           type: string
           description: Codice Fiscale destinatario notifica digitale
@@ -167,6 +224,9 @@ components:
     NotificationPathChooseDetails:
       type: object
       properties:
+        kind:
+          type: string
+          default: "NotificationPathChooseDetails"
         taxId:
           type: string
           description: Codice fiscale destinatario
@@ -194,12 +254,18 @@ components:
     NotificationViewedDetails:
       type: object
       properties:
+        kind:
+          type: string
+          default: "NotificationViewedDetails"
         taxId:
           type: string
           description: Codice Fiscale destinatario notifica digitale
     PublicRegistryCallDetails:
       type: object
       properties:
+        kind:
+          type: string
+          default: "PublicRegistryCallDetails"
         taxId:
           type: string
           description: Codice Fiscale destinatario notifica digitale
@@ -226,6 +292,9 @@ components:
     PublicRegistryResponseDetails:
       type: object
       properties:
+        kind:
+          type: string
+          default: "PublicRegistryResponseDetails"
         taxId:
           type: string
           description: Codice Fiscale destinatario notifica digitale
@@ -236,12 +305,18 @@ components:
     RefinementDetails:
       type: object
       properties:
+        kind:
+          type: string
+          default: "RefinementDetails"
         taxId:
           type: string
           description: Codice Fiscale destinatario notifica digitale
     RequestRefusedDetails:
       type: object
       properties:
+        kind:
+          type: string
+          default: "RequestRefusedDetails"
         errors:
           type: array
           description: Motivazioni che hanno portato al rifiuto della notifica
@@ -251,24 +326,36 @@ components:
     ScheduleAnalogWorkflow:
       type: object
       properties:
+        kind:
+          type: string
+          default: "ScheduleAnalogWorkflow"
         taxId:
           type: string
           description: Codice Fiscale destinatario notifica digitale
     ScheduleDigitalWorkflow:
       type: object
       properties:
+        kind:
+          type: string
+          default: "ScheduleDigitalWorkflow"
         taxId:
           type: string
           description: Codice Fiscale destinatario notifica digitale
     ScheduleRefinement:
       type: object
       properties:
+        kind:
+          type: string
+          default: "ScheduleRefinement"
         taxId:
           type: string
           description: Codice Fiscale destinatario notifica digitale
     SendCourtesyMessageDetails:
       type: object
       properties:
+        kind:
+          type: string
+          default: "SendCourtesyMessageDetails"
         taxId:
           type: string
           description: Codice Fiscale destinatario notifica digitale
@@ -281,6 +368,9 @@ components:
     SendDigitalDetails:
       type: object
       properties:
+        kind:
+          type: string
+          default: "SendDigitalDetails"
         taxId:
           type: string
           description: Codice Fiscale destinatario notifica digitale
@@ -302,12 +392,18 @@ components:
     SendDigitalFailureDetails:
       type: object
       properties:
+        kind:
+          type: string
+          default: "SendDigitalFailureDetails"
         taxId:
           type: string
           description: Codice Fiscale destinatario notifica digitale
     SendDigitalFeedback:
       type: object
       properties:
+        kind:
+          type: string
+          default: "SendDigitalFeedback"
         taxId:
           type: string
           description: Codice Fiscale destinatario notifica digitale
@@ -332,6 +428,9 @@ components:
     SendDigitalFeedbackDetails:
       type: object
       properties:
+        kind:
+          type: string
+          default: "SendDigitalFeedbackDetails"
         taxId:
           type: string
           description: Codice Fiscale destinatario notifica digitale
@@ -359,6 +458,9 @@ components:
     SendPaperDetails:
       type: object
       properties:
+        kind:
+          type: string
+          default: "SendPaperDetails"
         taxId:
           type: string
           description: Codice Fiscale destinatario notifica digitale
@@ -380,6 +482,9 @@ components:
     SendPaperFeedbackDetails:
       type: object
       properties:
+        kind:
+          type: string
+          default: "SendPaperFeedbackDetails"
         taxId:
           type: string
           description: Codice Fiscale destinatario notifica digitale
@@ -409,6 +514,9 @@ components:
     SimpleRegisteredLetterDetails:
       type: object
       properties:
+        kind:
+          type: string
+          default: "SimpleRegisteredLetterDetails"
         taxId:
           type: string
           description: Codice Fiscale destinatario notifica digitale
