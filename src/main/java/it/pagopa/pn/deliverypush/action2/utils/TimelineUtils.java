@@ -9,8 +9,12 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressInfo;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
-import it.pagopa.pn.api.dto.notification.timeline.*;
+import it.pagopa.pn.api.dto.notification.timeline.ContactPhase;
+import it.pagopa.pn.api.dto.notification.timeline.ReceivedDetails;
+import it.pagopa.pn.api.dto.notification.timeline.SendDigitalDetails;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.webhook;
 
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.api.dto.webhook.WebhookConfigDto;
 import it.pagopa.pn.commons.utils.DateFormatUtils;
 import it.pagopa.pn.commons_delivery.utils.EncodingUtils;

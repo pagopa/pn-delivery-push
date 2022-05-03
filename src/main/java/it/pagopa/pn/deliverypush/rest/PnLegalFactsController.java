@@ -2,32 +2,71 @@ package it.pagopa.pn.deliverypush.rest;
 
 import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
-import it.pagopa.pn.api.rest.PnDeliveryPushRestApi_methodGetLegalFacts;
 import it.pagopa.pn.api.rest.PnDeliveryPushRestConstants;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.LegalFactsApi;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.LegalFactService;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
 @RestController
-public class PnLegalFactsController implements PnDeliveryPushRestApi_methodGetLegalFacts {
+public class PnLegalFactsController implements LegalFactsApi {
 
     private LegalFactService legalFactService;
 
     public PnLegalFactsController(LegalFactService legalFactService) { this.legalFactService = legalFactService; }
 
     @Override
-    @GetMapping(PnDeliveryPushRestConstants.LEGAL_FACTS_BY_IUN)
-    public List<LegalFactsListEntry> getLegalFacts(String iun) {
-        return legalFactService.getLegalFacts( iun );
+    public Mono<ResponseEntity<LegalFactDownloadMetadataResponse>> getLegalFact(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String iun, LegalFactCategory legalFactType, String legalFactId, ServerWebExchange exchange) {
+        return Mono.fromSupplier(()-> {
+            //TODO Da implementare quando disponibile safeStorage
+            return ResponseEntity.ok(new LegalFactDownloadMetadataResponse());
+        });
     }
 
     @Override
+    public Mono<ResponseEntity<Flux<LegalFactListElement>>> getNotificationLegalFacts(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String iun, ServerWebExchange exchange) {
+        List<LegalFactsListEntry> legalFacts = legalFactService.getLegalFacts(iun);
+        Flux<LegalFactListElement> fluxFacts = Flux.fromStream(legalFacts.stream().map(this::convert));
+        return Mono.just(ResponseEntity.ok(fluxFacts));
+    }
+    
+    private LegalFactListElement convert(LegalFactsListEntry element){
+        LegalFactListElement legalFactListElement = new LegalFactListElement();
+        
+        LegalFactsId legalFactsId = getLegalFactsId(element);
+        legalFactListElement.setLegalFactsId(legalFactsId);
+        legalFactListElement.setIun(element.getIun());
+        legalFactListElement.setTaxId(element.getTaxId());
+        
+        return legalFactListElement;
+    }
+
+    @NotNull
+    private LegalFactsId getLegalFactsId(LegalFactsListEntry element) {
+        LegalFactsId legalFactsId = new LegalFactsId();
+        if (element.getLegalFactsId() != null) {
+            legalFactsId.setKey(element.getLegalFactsId().getKey());
+            LegalFactType legalFactType = element.getLegalFactsId().getType();
+            if ( legalFactType != null){
+                LegalFactCategory category = LegalFactCategory.valueOf(legalFactType.toString());
+                legalFactsId.setCategory(category);
+            }
+        }
+        return legalFactsId;
+    }
+
     @GetMapping(PnDeliveryPushRestConstants.LEGAL_FACT_BY_ID)
     public ResponseEntity<Resource> getLegalFact(String iun, LegalFactType legalFactType, String legalfactId) {
         return legalFactService.getLegalfact( iun, legalFactType, legalfactId );
     }
+    
 }

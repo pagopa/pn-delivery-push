@@ -1,0 +1,18 @@
+package it.pagopa.pn.deliverypush.dto.timeline;
+
+import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
+import lombok.*;
+
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Builder(toBuilder = true)
+@EqualsAndHashCode
+@ToString
+public class EventId {//NEW
+    private String iun;
+    private int recIndex;
+    private DigitalAddressSource source;
+    private int index;
+}

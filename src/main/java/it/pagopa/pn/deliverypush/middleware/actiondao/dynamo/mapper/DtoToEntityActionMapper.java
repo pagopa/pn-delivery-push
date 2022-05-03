@@ -2,7 +2,7 @@ package it.pagopa.pn.deliverypush.middleware.actiondao.dynamo.mapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.actiondao.dynamo.ActionEntity;
 import it.pagopa.pn.deliverypush.middleware.actiondao.dynamo.PhysicalAddressConv;

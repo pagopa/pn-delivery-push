@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.timelinedao;
 
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 
 import java.util.Optional;
 import java.util.Set;

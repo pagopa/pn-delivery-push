@@ -1,0 +1,17 @@
+components:
+
+  schemas:
+    
+    ############################################################################################
+    ###                          STRUTTURE DATI DI PN-DELIVERY                               ###
+    ############################################################################################
+    RequestUpdateStatusDto:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-private-v1.yaml#/components/schemas/RequestUpdateStatusDto'
+    ResponseUpdateStatusDto:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-private-v1.yaml#/components/schemas/ResponseUpdateStatusDto'
+    Notification:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/schemas-pn-notification-v1.yaml#/components/schemas/SentNotification'
+
+
+    pn-delivery-private-api:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-private-v1.yaml'

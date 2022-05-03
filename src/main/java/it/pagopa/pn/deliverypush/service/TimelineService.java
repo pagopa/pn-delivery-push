@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.service;
 
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 
 import java.util.Optional;
 import java.util.Set;
