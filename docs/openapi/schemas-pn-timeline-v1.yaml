@@ -135,18 +135,18 @@ components:
         kind:
           type: string
           default: "AnalogFailureWorkflow"
-        taxId:
-          type: string
-          description: Codice Fiscale destinatario notifica digitale
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
     AnalogSuccessWorkflow:
       type: object
       properties:
         kind:
           type: string
           default: "AnalogSuccessWorkflow"
-        taxId:
-          type: string
-          description: Codice Fiscale destinatario notifica digitale
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
         address:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
     DigitalFailureWorkflow:
@@ -155,18 +155,18 @@ components:
         kind:
           type: string
           default: "DigitalFailureWorkflow"
-        taxId:
-          type: string
-          description: Codice Fiscale destinatario notifica digitale
+        recIndex: 
+          type: integer
+          description: Index destinatario notifica digitale
     DigitalSuccessWorkflow:
       type: object
       properties:
         kind:
           type: string
           default: "DigitalSuccessWorkflow"
-        taxId:
-          type: string
-          description: Codice Fiscale destinatario notifica digitale
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
         address:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
     CompletelyUnreachableDetails:
@@ -175,10 +175,13 @@ components:
         kind:
           type: string
           default: "CompletelyUnreachableDetails"
-        taxId:
+        taxId: #TODO Da eliminare quando si passa alla v2
           type: string
           description: Codice Fiscale destinatario notifica digitale
-    EndOfAnalogDeliveryWorkflowDetails:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+    EndOfAnalogDeliveryWorkflowDetails: #TODO Da eliminare quando si passa alla v2
       type: object
       properties:
         kind:
@@ -187,7 +190,7 @@ components:
         taxId:
           type: string
           description: Codice Fiscale destinatario notifica digitale
-    EndOfDigitalDeliveryWorkflowDetails:
+    EndOfDigitalDeliveryWorkflowDetails: #TODO Da eliminare quando si passa alla v2
       type: object
       properties:
         kind:
@@ -196,15 +199,15 @@ components:
         taxId:
           type: string
           description: Codice Fiscale destinatario notifica digitale
-    GetAddressInfo:
+    GetAddressInfo: 
       type: object
       properties:
         kind:
           type: string
           default: "GetAddressInfo"
-        taxId:
-          type: string
-          description: Codice Fiscale destinatario notifica digitale
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
         source:
           type: string
           description: Sorgente indirizzo
@@ -221,7 +224,7 @@ components:
           format: date-time
         available:
           type: boolean
-    NotificationPathChooseDetails:
+    NotificationPathChooseDetails: #TODO Da eliminare quando si passa alla v2
       type: object
       properties:
         kind:
@@ -257,18 +260,21 @@ components:
         kind:
           type: string
           default: "NotificationViewedDetails"
-        taxId:
+        taxId: #TODO Da eliminare quando si passa alla v2
           type: string
           description: Codice Fiscale destinatario notifica digitale
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
     PublicRegistryCallDetails:
       type: object
       properties:
         kind:
           type: string
           default: "PublicRegistryCallDetails"
-        taxId:
-          type: string
-          description: Codice Fiscale destinatario notifica digitale
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
         deliveryMode:
           type: string
           description: Tipologia Domiciliazione
@@ -295,9 +301,9 @@ components:
         kind:
           type: string
           default: "PublicRegistryResponseDetails"
-        taxId:
-          type: string
-          description: Codice Fiscale destinatario notifica digitale
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
         digitalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
         physicalAddress:
@@ -308,9 +314,12 @@ components:
         kind:
           type: string
           default: "RefinementDetails"
-        taxId:
+        taxId: #TODO Da eliminare quando si passa alla v2
           type: string
           description: Codice Fiscale destinatario notifica digitale
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
     RequestRefusedDetails:
       type: object
       properties:
@@ -329,36 +338,36 @@ components:
         kind:
           type: string
           default: "ScheduleAnalogWorkflow"
-        taxId:
-          type: string
-          description: Codice Fiscale destinatario notifica digitale
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
     ScheduleDigitalWorkflow:
       type: object
       properties:
         kind:
           type: string
           default: "ScheduleDigitalWorkflow"
-        taxId:
-          type: string
-          description: Codice Fiscale destinatario notifica digitale
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
     ScheduleRefinement:
       type: object
       properties:
         kind:
           type: string
           default: "ScheduleRefinement"
-        taxId:
-          type: string
-          description: Codice Fiscale destinatario notifica digitale
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
     SendCourtesyMessageDetails:
       type: object
       properties:
         kind:
           type: string
           default: "SendCourtesyMessageDetails"
-        taxId:
-          type: string
-          description: Codice Fiscale destinatario notifica digitale
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
         address:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
         sendDate:
@@ -371,9 +380,12 @@ components:
         kind:
           type: string
           default: "SendDigitalDetails"
-        taxId:
+        taxId: #TODO Da eliminare quando si passa alla v2
           type: string
           description: Codice Fiscale destinatario notifica digitale
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
         address:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
         addressSource:
@@ -389,7 +401,7 @@ components:
           format: int32
         downstreamId:
           "$ref": "#/components/schemas/DownstreamId"
-    SendDigitalFailureDetails:
+    SendDigitalFailureDetails: #TODO Da eliminare quando si passa alla v2
       type: object
       properties:
         kind:
@@ -404,9 +416,9 @@ components:
         kind:
           type: string
           default: "SendDigitalFeedback"
-        taxId:
-          type: string
-          description: Codice Fiscale destinatario notifica digitale
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
         address:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
         responseStatus:
@@ -425,7 +437,7 @@ components:
           items:
             type: string
             description: Lista errori, vuota in caso di successo
-    SendDigitalFeedbackDetails:
+    SendDigitalFeedbackDetails: #TODO Da eliminare quando si passa alla v2
       type: object
       properties:
         kind:
@@ -461,9 +473,12 @@ components:
         kind:
           type: string
           default: "SendPaperDetails"
-        taxId:
+        taxId: #TODO Da eliminare quando si passa alla v2
           type: string
           description: Codice Fiscale destinatario notifica digitale
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
         address:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
         serviceLevel:
@@ -485,9 +500,12 @@ components:
         kind:
           type: string
           default: "SendPaperFeedbackDetails"
-        taxId:
+        taxId: #TODO Da eliminare quando si passa alla v2
           type: string
           description: Codice Fiscale destinatario notifica digitale
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
         address:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
         serviceLevel:
@@ -517,9 +535,9 @@ components:
         kind:
           type: string
           default: "SimpleRegisteredLetterDetails"
-        taxId:
-          type: string
-          description: Codice Fiscale destinatario notifica digitale
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
         address:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
 
