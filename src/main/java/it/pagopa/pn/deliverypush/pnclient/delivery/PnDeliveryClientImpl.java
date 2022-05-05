@@ -2,7 +2,6 @@ package it.pagopa.pn.deliverypush.pnclient.delivery;
 
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
-import it.pagopa.pn.api.dto.status.ResponseUpdateStatusDto;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -32,14 +31,14 @@ public class PnDeliveryClientImpl implements PnDeliveryClient {
         this.baseUrl = cfg.getDeliveryBaseUrl();
     }
 
-    public ResponseEntity<ResponseUpdateStatusDto> updateState(RequestUpdateStatusDto dto) {
+    public ResponseEntity<Void> updateState(RequestUpdateStatusDto dto) {
         String url = baseUrl + UPDATE_STATUS_URL;
 
         log.debug("Start update status call for iun {}, url: {}", dto.getIun(), url);
 
         HttpEntity<RequestUpdateStatusDto> entity = new HttpEntity<>(dto, null);
 
-        ResponseEntity<ResponseUpdateStatusDto> resp = restTemplate.exchange(url, HttpMethod.POST, entity, ResponseUpdateStatusDto.class);
+        ResponseEntity<Void> resp = restTemplate.exchange(url, HttpMethod.POST, entity, Void.class);
 
         log.debug("Response update state for iun {} is {}", dto.getIun(), resp);
 

@@ -3,14 +3,13 @@ package it.pagopa.pn.deliverypush.webhook;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineInfoDto;
 import it.pagopa.pn.api.dto.webhook.WebhookConfigDto;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons_delivery.utils.StatusUtils;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.ActionEvent;
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.temp.mom.consumer.AbstractEventHandler;
+import it.pagopa.pn.deliverypush.util.StatusUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -82,15 +81,15 @@ public class WebhookBufferWriterService extends AbstractEventHandler<ActionEvent
 
         Set<TimelineElement> rawTimeline = timelineDao.getTimeline(iun);
 
-        Set<TimelineInfoDto> timelineInfoDto = rawTimeline.stream().map(elem ->
-                TimelineInfoDto.builder()
+        Set<TimelineElement> timelineElements = rawTimeline.stream().map(elem ->
+                TimelineElement.builder()
                         .category(elem.getCategory())
                         .timestamp(elem.getTimestamp())
                         .build()
         ).collect(Collectors.toSet());
 
         List<NotificationStatusHistoryElement> statusHistory = statusUtils
-                .getStatusHistory(timelineInfoDto, numberOfRecipients, notificationCreationDate);
+                .getStatusHistory(timelineElements, numberOfRecipients, notificationCreationDate);
 
         int statusHistoryLength = statusHistory.size();
         if (statusHistoryLength >= 1) {
