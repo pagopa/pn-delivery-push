@@ -2,7 +2,7 @@ package it.pagopa.pn.deliverypush.service;
 
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineEventId;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineStatusHistoryDto;
+import it.pagopa.pn.api.dto.notification.timeline.NotificationHistoryResponse;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -18,7 +18,7 @@ public interface TimelineService {
 
     Set<TimelineElement> getTimeline(String iun);
 
-    TimelineStatusHistoryDto getTimelineAndStatusHistory(String iun, int numberOfRecipients, Instant createdAt);
+    NotificationHistoryResponse getTimelineAndStatusHistory(String iun, int numberOfRecipients, Instant createdAt);
 
     boolean isPresentTimeLineElement(String iun, int recIndex, TimelineEventId timelineEventId);
 

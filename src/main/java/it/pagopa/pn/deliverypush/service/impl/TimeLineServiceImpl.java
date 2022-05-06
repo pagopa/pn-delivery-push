@@ -1,10 +1,11 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
 import it.pagopa.pn.api.dto.notification.timeline.EventId;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineEventId;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineStatusHistoryDto;
+import it.pagopa.pn.api.dto.notification.timeline.NotificationHistoryResponse;
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.util.StatusUtils;
@@ -54,16 +55,22 @@ public class TimeLineServiceImpl implements TimelineService {
     }
 
     @Override
-    public TimelineStatusHistoryDto getTimelineAndStatusHistory(String iun, int numberOfRecipients, Instant createdAt) {
-        log.debug("getTimelineAndStatusHistory - iun {} ", iun);
+    public NotificationHistoryResponse getTimelineAndStatusHistory(String iun, int numberOfRecipients, Instant createdAt) {
+        log.debug("getTimelineAndStatusHistory Start - iun {} ", iun);
+        
         Set<TimelineElement> timelineElements = this.timelineDao.getTimeline(iun);
 
         List<NotificationStatusHistoryElement> statusHistory = statusUtils
                 .getStatusHistory( timelineElements, numberOfRecipients, createdAt );
 
-        return TimelineStatusHistoryDto.builder()
+        NotificationStatus currentStatus = statusUtils.getCurrentStatus( statusHistory );
+        
+        log.debug("getTimelineAndStatusHistory Ok - iun {} ", iun);
+
+        return NotificationHistoryResponse.builder()
                 .timelineElements(timelineElements)
                 .statusHistory(statusHistory)
+                .notificationStatus(currentStatus)
                 .build();
     }
     

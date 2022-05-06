@@ -20,6 +20,14 @@ public class StatusUtils {
     ));
     private final StateMap stateMap = new StateMap();
 
+    public NotificationStatus getCurrentStatus(List<NotificationStatusHistoryElement> statusHistory) {
+        if (!statusHistory.isEmpty()) {
+            return statusHistory.get(statusHistory.size() - 1).getStatus();
+        } else {
+            return INITIAL_STATUS;
+        }
+    }
+    
     public List<NotificationStatusHistoryElement> getStatusHistory( //
                                                                     Set<TimelineElement> timelineElementList, //
                                                                     int numberOfRecipients, //
