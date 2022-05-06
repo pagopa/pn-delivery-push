@@ -344,7 +344,9 @@ components:
           default: "ScheduleDigitalWorkflow"
         recIndex:
           type: integer
-          description: Index destinatario notifica digitale
+          description: Informazioni ultimo tentativo effettuato
+        lastAttemptInfo:
+          $ref: '#/components/schemas/DigitalAddressInfo'
     ScheduleRefinement:
       type: object
       properties:
@@ -533,7 +535,17 @@ components:
         - PLATFORM
         - SPECIAL
         - GENERAL
-
-
-
+    
+    DigitalAddressInfo:
+      type: object
+      description: wrapper informazione indirizzo
+      properties:
+        address:
+          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+        source:
+          $ref: '#/components/schemas/AddressSource'
+        sentAttemptMade:
+          type: integer
+        lastAttemptDate:
+          type: string
 
