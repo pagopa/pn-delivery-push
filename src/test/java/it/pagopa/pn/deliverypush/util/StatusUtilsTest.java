@@ -9,9 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 class StatusUtilsTest {
 
@@ -299,6 +297,29 @@ class StatusUtilsTest {
         );
         // verificare che è risultato atteso
         Assertions.assertEquals(historyElementList, resHistoryElementList);
+    }
+
+    @Test
+    void emptyTimelineInitialStateTest() {
+        //
+        Assertions.assertEquals(NotificationStatus.IN_VALIDATION, statusUtils.getCurrentStatus(Collections.emptyList()));
+    }
+
+    @Test
+    void getCurrentStatusTest() {
+        List<NotificationStatusHistoryElement>  statusHistory = new ArrayList<>();
+        NotificationStatusHistoryElement statusHistoryDelivering = NotificationStatusHistoryElement.builder()
+                .activeFrom(Instant.now())
+                .status(NotificationStatus.DELIVERING)
+                .build();
+        NotificationStatusHistoryElement statusHistoryAccepted = NotificationStatusHistoryElement.builder()
+                .activeFrom(Instant.now())
+                .status(NotificationStatus.ACCEPTED)
+                .build();
+        statusHistory.add(statusHistoryDelivering);
+        statusHistory.add(statusHistoryAccepted);
+
+        Assertions.assertEquals(NotificationStatus.ACCEPTED, statusUtils.getCurrentStatus(statusHistory));
     }
 
 }

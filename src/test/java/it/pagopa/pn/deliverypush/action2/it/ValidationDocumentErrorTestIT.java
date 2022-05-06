@@ -27,6 +27,7 @@ import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.NotificationServiceImpl;
 import it.pagopa.pn.deliverypush.service.impl.TimeLineServiceImpl;
+import it.pagopa.pn.deliverypush.util.StatusUtils;
 import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
 import it.pagopa.pn.deliverypush.validator.preloaded_digest_error.DigestEqualityBean;
 import org.junit.jupiter.api.Assertions;
@@ -71,6 +72,7 @@ import static org.mockito.Mockito.doThrow;
         AnalogWorkflowUtils.class,
         ChooseDeliveryModeUtils.class,
         TimelineUtils.class,
+        StatusUtils.class,
         PublicRegistryUtils.class,
         NotificationUtils.class,
         NotificationServiceImpl.class,
