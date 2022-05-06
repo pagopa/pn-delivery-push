@@ -209,12 +209,7 @@ components:
           type: integer
           description: Index destinatario notifica digitale
         source:
-          type: string
-          description: Sorgente indirizzo
-          enum:
-          - PLATFORM
-          - SPECIAL
-          - GENERAL
+          $ref: '#/components/schemas/AddressSource'
         isAvailable:
           type: boolean
           description: Disponibilità indirizzo
@@ -389,12 +384,7 @@ components:
         address:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
         addressSource:
-          type: string
-          description: sorgente indirizzo di invio della notifica
-          enum:
-          - PLATFORM
-          - SPECIAL
-          - GENERAL
+          $ref: '#/components/schemas/AddressSource'
         retryNumber:
           type: integer
           description: numero dei tentativi effettuati
@@ -449,12 +439,7 @@ components:
         address:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
         addressSource:
-          type: string
-          description: sorgente indirizzo di invio della notifica
-          enum:
-          - PLATFORM
-          - SPECIAL
-          - GENERAL
+          $ref: '#/components/schemas/AddressSource'
         retryNumber:
           type: integer
           description: numero dei tentativi effettuati
@@ -541,7 +526,13 @@ components:
         address:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
 
-    
+    AddressSource:
+      type: string
+      description: sorgente indirizzo di invio della notifica
+      enum:
+        - PLATFORM
+        - SPECIAL
+        - GENERAL
 
 
 
