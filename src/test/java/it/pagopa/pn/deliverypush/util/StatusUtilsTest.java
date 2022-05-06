@@ -2,8 +2,8 @@ package it.pagopa.pn.deliverypush.util;
 
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

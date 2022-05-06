@@ -1,9 +1,9 @@
 package it.pagopa.pn.deliverypush.rest;
 
 import it.pagopa.pn.api.dto.notification.timeline.ReceivedDetails;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
-import it.pagopa.pn.api.dto.notification.timeline.NotificationHistoryResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -16,6 +16,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 @WebFluxTest(PnTimelineController.class)
@@ -31,7 +32,7 @@ class PnTimelineControllerTest {
 
     @Test
     void getTimelineSuccess() {
-        Set<TimelineElement> timelineElements = Collections.singleton(TimelineElement.builder()
+        List<TimelineElement> timelineElements = Collections.singleton(TimelineElement.builder()
                 .iun(IUN)
                 .timestamp( Instant.now() )
                 .elementId( "element_id" )
@@ -40,7 +41,7 @@ class PnTimelineControllerTest {
                 .build()
         );
         NotificationHistoryResponse dto = NotificationHistoryResponse.builder()
-                .timelineElements(timelineElements)
+                .timeline(timelineElements)
                 .build();
 
         Mockito.when(service.getTimelineAndStatusHistory(Mockito.anyString(), Mockito.anyInt(), Mockito.any()))

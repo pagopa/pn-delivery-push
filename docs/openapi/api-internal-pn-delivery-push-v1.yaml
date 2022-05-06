@@ -46,6 +46,8 @@ paths:
         - $ref: '#/components/parameters/cxIdAuthFleet'
         - $ref: '#/components/parameters/cxGroupsAuthFleet'
         - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathNumberOfRecipients'
+        - $ref: '#/components/parameters/pathCreatedAt'
       responses:
         '200':
           description: OK
@@ -141,6 +143,24 @@ components:
       schema:
         type: string
 
+    pathNumberOfRecipients:
+      description: >-
+        Numero recipient notifica
+      name: numberOfRecipients
+      in: path
+      required: true
+      schema:
+        type: integer
+
+    pathCreatedAt:
+      description: >-
+        Data creazione notifica
+      name: createdAt
+      in: path
+      required: true
+      schema:
+        type: string
+        
     ############################################################################################
     ###                      PARAMETRI RICERCA ATTI OPPONIBILI A TERZI                       ###
     ############################################################################################

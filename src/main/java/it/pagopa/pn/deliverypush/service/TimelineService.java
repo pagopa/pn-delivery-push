@@ -1,8 +1,8 @@
 package it.pagopa.pn.deliverypush.service;
 
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineEventId;
-import it.pagopa.pn.api.dto.notification.timeline.NotificationHistoryResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
 
 import java.time.Instant;
 import java.util.Optional;
