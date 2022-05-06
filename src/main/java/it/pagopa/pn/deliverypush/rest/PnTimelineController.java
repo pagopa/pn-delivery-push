@@ -1,21 +1,27 @@
 package it.pagopa.pn.deliverypush.rest;
 
+import it.pagopa.pn.api.dto.notification.timeline.NotificationHistoryResponse;
+import it.pagopa.pn.api.rest.PnDeliveryPushRestApi_methodGetTimeline;
+import it.pagopa.pn.api.rest.PnDeliveryPushRestConstants;
 import it.pagopa.pn.deliverypush.dto.TimelineElementDto;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.TimelineAndStatusApi;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @RestController
 public class PnTimelineController implements TimelineAndStatusApi {
 
-    private TimelineService timelineService;
+    private final TimelineService timelineService;
 
     public PnTimelineController(TimelineService timelineService) { this.timelineService = timelineService; }
 
@@ -59,8 +65,10 @@ public class PnTimelineController implements TimelineAndStatusApi {
     
     /*
     @Override
-    @GetMapping(PnDeliveryPushRestConstants.TIMELINE_BY_IUN)
-    public ResponseEntity<Set<TimelineElement>> getTimelineElements(String iun) {
-        return ResponseEntity.ok().body(timelineService.getTimeline( iun ));
-    }*/
+    @GetMapping(PnDeliveryPushRestConstants.TIMELINE_AND_STATUS_HISTORY_BY_IUN)
+    public ResponseEntity<NotificationHistoryResponse> getTimelineAndStatusHistory(String iun, int numberOfRecipients, Instant createdAt) {
+        log.debug("Received request getTimelineAndStatusHistory - iun {} numberOfRecipients {} createdAt {}", iun, numberOfRecipients, createdAt);
+        return ResponseEntity.ok().body(timelineService.getTimelineAndStatusHistory( iun, numberOfRecipients, createdAt));
+    }
+    
 }

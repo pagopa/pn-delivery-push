@@ -1,13 +1,19 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.deliverypush.dto.timeline.EventId;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
+import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
+import it.pagopa.pn.api.dto.notification.timeline.EventId;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineEventId;
+import it.pagopa.pn.api.dto.notification.timeline.NotificationHistoryResponse;
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.util.StatusUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -15,9 +21,11 @@ import java.util.Set;
 @Slf4j
 public class TimeLineServiceImpl implements TimelineService {
     private final TimelineDao timelineDao;
-
-    public TimeLineServiceImpl(TimelineDao timelineDao) {
+    private final StatusUtils statusUtils;
+    
+    public TimeLineServiceImpl(TimelineDao timelineDao, StatusUtils statusUtils) {
         this.timelineDao = timelineDao;
+        this.statusUtils = statusUtils;
     }
 
     @Override
@@ -46,6 +54,26 @@ public class TimeLineServiceImpl implements TimelineService {
         return this.timelineDao.getTimeline(iun);
     }
 
+    @Override
+    public NotificationHistoryResponse getTimelineAndStatusHistory(String iun, int numberOfRecipients, Instant createdAt) {
+        log.debug("getTimelineAndStatusHistory Start - iun {} ", iun);
+        
+        Set<TimelineElement> timelineElements = this.timelineDao.getTimeline(iun);
+
+        List<NotificationStatusHistoryElement> statusHistory = statusUtils
+                .getStatusHistory( timelineElements, numberOfRecipients, createdAt );
+
+        NotificationStatus currentStatus = statusUtils.getCurrentStatus( statusHistory );
+        
+        log.debug("getTimelineAndStatusHistory Ok - iun {} ", iun);
+
+        return NotificationHistoryResponse.builder()
+                .timelineElements(timelineElements)
+                .statusHistory(statusHistory)
+                .notificationStatus(currentStatus)
+                .build();
+    }
+    
     @Override
     public boolean isPresentTimeLineElement(String iun, int recIndex, TimelineEventId timelineEventId) {
         EventId eventId = EventId.builder()

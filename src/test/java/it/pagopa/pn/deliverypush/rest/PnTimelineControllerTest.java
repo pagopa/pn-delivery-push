@@ -1,8 +1,9 @@
 package it.pagopa.pn.deliverypush.rest;
 
 import it.pagopa.pn.api.dto.notification.timeline.ReceivedDetails;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
+import it.pagopa.pn.api.dto.notification.timeline.NotificationHistoryResponse;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -20,7 +21,7 @@ import java.util.Set;
 @WebFluxTest(PnTimelineController.class)
 class PnTimelineControllerTest {
 
-    private static final String IUN = "iun_di_ricerca";
+    private static final String IUN = "test";
 
     @Autowired
     WebTestClient webTestClient;
@@ -38,12 +39,17 @@ class PnTimelineControllerTest {
                 .details(ReceivedDetails.builder().build())
                 .build()
         );
+        NotificationHistoryResponse dto = NotificationHistoryResponse.builder()
+                .timelineElements(timelineElements)
+                .build();
 
-        Mockito.when(service.getTimeline(Mockito.anyString()))
-                .thenReturn( timelineElements );
-
+        Mockito.when(service.getTimelineAndStatusHistory(Mockito.anyString(), Mockito.anyInt(), Mockito.any()))
+        .thenReturn( dto );
+        String createdAt = "2022-05-05T15%3A02%3A21.013Z";
+        int numberOfRecipients = 1;
+        
         webTestClient.get()
-                .uri("/delivery-push/timelines/" + IUN)
+                .uri("/delivery-push/timeline-and-history/" + IUN + "/" + numberOfRecipients + "/"+ createdAt )
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .exchange()
@@ -51,7 +57,6 @@ class PnTimelineControllerTest {
                 .isOk()
                 .expectBody(Set.class);
 
-        Mockito.verify(service).getTimeline(Mockito.anyString());
-
+        Mockito.verify(service).getTimelineAndStatusHistory(Mockito.anyString(), Mockito.anyInt(), Mockito.any());
     }
 }

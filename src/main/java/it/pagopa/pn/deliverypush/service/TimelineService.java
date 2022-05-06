@@ -1,8 +1,10 @@
 package it.pagopa.pn.deliverypush.service;
 
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineEventId;
+import it.pagopa.pn.api.dto.notification.timeline.NotificationHistoryResponse;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.Set;
 
@@ -15,6 +17,8 @@ public interface TimelineService {
     <T> Optional<T> getTimelineElement(String iun, String timelineId, Class<T> timelineDetailsClass);
 
     Set<TimelineElement> getTimeline(String iun);
+
+    NotificationHistoryResponse getTimelineAndStatusHistory(String iun, int numberOfRecipients, Instant createdAt);
 
     boolean isPresentTimeLineElement(String iun, int recIndex, TimelineEventId timelineEventId);
 
