@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.action2.it.mockbean;
 
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
+import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,12 +10,16 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class TimelineDaoMock implements TimelineDao {
-    Collection<TimelineElement> timelineList;
+    private Collection<TimelineElement> timelineList;
 
     public TimelineDaoMock() {
         timelineList = new ArrayList<>();
     }
 
+    public void clear() {
+        this.timelineList = new ArrayList<>();
+    }
+    
     @Override
     public void addTimelineElement(TimelineElement row) {
         timelineList.add(row);

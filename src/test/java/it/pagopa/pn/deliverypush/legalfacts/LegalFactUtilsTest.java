@@ -6,15 +6,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.util.StringUtils;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import it.pagopa.pn.commons.abstractions.FileStorage;
 

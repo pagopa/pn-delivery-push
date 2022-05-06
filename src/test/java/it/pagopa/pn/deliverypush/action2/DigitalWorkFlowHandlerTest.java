@@ -9,10 +9,7 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressInfo;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
-import it.pagopa.pn.api.dto.notification.timeline.ContactPhase;
-import it.pagopa.pn.api.dto.notification.timeline.PublicRegistryCallDetails;
-import it.pagopa.pn.api.dto.notification.timeline.SendDigitalDetails;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.api.dto.notification.timeline.*;
 import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
@@ -67,6 +64,7 @@ class DigitalWorkFlowHandlerTest {
     @ExtendWith(MockitoExtension.class)
     @Test
     void nextWorkFlowAction_0_General() {
+        //GIVEN
         DigitalAddressInfo lastAttemptMade = DigitalAddressInfo.builder()
                 .lastAttemptDate(Instant.now())
                 .sentAttemptMade(0)
@@ -76,7 +74,13 @@ class DigitalWorkFlowHandlerTest {
                         .type(DigitalAddressType.PEC).build())
                 .build();
 
-        Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyString(), Mockito.any(DigitalAddressInfo.class)))
+        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt()))
+                .thenReturn(ScheduleDigitalWorkflow.builder()
+                        .recIndex(0)
+                        .lastAttemptInfo(lastAttemptMade)
+                        .build());
+        
+        Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfo.class)))
                 .thenReturn(DigitalAddressInfo.builder()
                         .addressSource(lastAttemptMade.getAddressSource().next())
                         .sentAttemptMade(0)
@@ -87,19 +91,19 @@ class DigitalWorkFlowHandlerTest {
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
-        Mockito.when(notificationService.getRecipientFromNotification(Mockito.any(Notification.class), Mockito.anyString()))
-                .thenReturn(notification.getRecipients().get(0));
 
+        //WHEN
+        handler.startScheduledNextWorkflow(notification.getIun(), 0);
 
-        handler.nextWorkFlowAction("iun", "text_rec", lastAttemptMade);
-
-        Mockito.verify(publicRegistrySendHandler).sendRequestForGetDigitalAddress(Mockito.anyString(), Mockito.anyString(),
+        //THEN
+        Mockito.verify(publicRegistrySendHandler).sendRequestForGetDigitalGeneralAddress(Mockito.any(Notification.class), Mockito.anyInt(),
                 Mockito.any(ContactPhase.class), Mockito.anyInt());
     }
 
     @ExtendWith(MockitoExtension.class)
     @Test
     void nextWorkFlowAction_0_NotGeneral_WithAddress() {
+        //GIVEN
         DigitalAddressInfo lastAttemptMade = DigitalAddressInfo.builder()
                 .lastAttemptDate(Instant.now())
                 .sentAttemptMade(0)
@@ -109,7 +113,14 @@ class DigitalWorkFlowHandlerTest {
                         .type(DigitalAddressType.PEC).build())
                 .build();
 
-        Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyString(), Mockito.any(DigitalAddressInfo.class)))
+
+        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt()))
+                .thenReturn(ScheduleDigitalWorkflow.builder()
+                        .recIndex(0)
+                        .lastAttemptInfo(lastAttemptMade)
+                        .build());
+                
+        Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfo.class)))
                 .thenReturn(DigitalAddressInfo.builder()
                         .addressSource(DigitalAddressSource.PLATFORM)
                         .sentAttemptMade(0)
@@ -125,31 +136,31 @@ class DigitalWorkFlowHandlerTest {
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
-        Mockito.when(notificationService.getRecipientFromNotification(Mockito.any(Notification.class), Mockito.anyString()))
-                .thenReturn(notification.getRecipients().get(0));
-        Mockito.when(digitalWorkFlowUtils.getAddressFromSource(Mockito.any(DigitalAddressSource.class), Mockito.any(NotificationRecipient.class), Mockito.any(Notification.class)))
+        Mockito.when(digitalWorkFlowUtils.getAddressFromSource(Mockito.any(DigitalAddressSource.class), Mockito.anyInt(), Mockito.any(Notification.class)))
                 .thenReturn(DigitalAddress.builder()
                         .address("testAddress")
                         .type(DigitalAddressType.PEC)
                         .build());
 
-        handler.nextWorkFlowAction("iun", "text_rec", lastAttemptMade);
+        //WHEN        
+        handler.startScheduledNextWorkflow(notification.getIun(), 0);
 
+        //THEN
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);
 
-        Mockito.verify(digitalWorkFlowUtils).addAvailabilitySourceToTimeline(Mockito.anyString(), Mockito.anyString(),
+        Mockito.verify(digitalWorkFlowUtils).addAvailabilitySourceToTimeline(Mockito.anyInt(), Mockito.anyString(),
                 Mockito.any(DigitalAddressSource.class), isAvailableCaptor.capture(), Mockito.anyInt());
 
         Mockito.verify(externalChannelSendHandler).sendDigitalNotification(Mockito.any(Notification.class), Mockito.any(DigitalAddress.class),
-                Mockito.any(DigitalAddressSource.class), Mockito.any(NotificationRecipient.class), Mockito.anyInt());
+                Mockito.any(DigitalAddressSource.class), Mockito.anyInt(), Mockito.anyInt());
 
         Assertions.assertTrue(isAvailableCaptor.getValue());
-
     }
 
     @ExtendWith(MockitoExtension.class)
     @Test
     void nextWorkFlowAction_0_NotGeneral_WithoutAddress() {
+        //GIVEN
         DigitalAddressInfo lastAttemptMade = DigitalAddressInfo.builder()
                 .lastAttemptDate(Instant.now())
                 .sentAttemptMade(0)
@@ -159,6 +170,12 @@ class DigitalWorkFlowHandlerTest {
                         .type(DigitalAddressType.PEC).build())
                 .build();
 
+        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt()))
+                .thenReturn(ScheduleDigitalWorkflow.builder()
+                        .recIndex(0)
+                        .lastAttemptInfo(lastAttemptMade)
+                        .build());
+        
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
         TimeParams times = new TimeParams();
         times.setSecondNotificationWorkflowWaitingTime(Duration.ofSeconds(1));
@@ -166,7 +183,7 @@ class DigitalWorkFlowHandlerTest {
 
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
-        Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyString(), Mockito.any(DigitalAddressInfo.class)))
+        Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfo.class)))
                 .thenReturn(DigitalAddressInfo.builder()
                         .addressSource(DigitalAddressSource.PLATFORM)
                         .sentAttemptMade(0)
@@ -182,25 +199,26 @@ class DigitalWorkFlowHandlerTest {
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
-        Mockito.when(notificationService.getRecipientFromNotification(Mockito.any(Notification.class), Mockito.anyString()))
-                .thenReturn(notification.getRecipients().get(0));
-        Mockito.when(digitalWorkFlowUtils.getAddressFromSource(Mockito.any(DigitalAddressSource.class), Mockito.any(NotificationRecipient.class), Mockito.any(Notification.class)))
+        Mockito.when(digitalWorkFlowUtils.getAddressFromSource(Mockito.any(DigitalAddressSource.class), Mockito.anyInt(), Mockito.any(Notification.class)))
                 .thenReturn(null);
 
-        handler.nextWorkFlowAction("iun", "text_rec", lastAttemptMade);
+        //WHEN
+        handler.startScheduledNextWorkflow("iun",0);
 
+        //THEN
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);
 
-        Mockito.verify(digitalWorkFlowUtils).addAvailabilitySourceToTimeline(Mockito.anyString(), Mockito.anyString(),
+        Mockito.verify(digitalWorkFlowUtils).addAvailabilitySourceToTimeline(Mockito.anyInt(), Mockito.anyString(),
                 Mockito.any(DigitalAddressSource.class), isAvailableCaptor.capture(), Mockito.anyInt());
 
         Assertions.assertFalse(isAvailableCaptor.getValue());
-
     }
 
     @ExtendWith(MockitoExtension.class)
     @Test
     void nextWorkFlowAction_1_General() {
+        //GIVEN
+        Notification notification = getNotification();
         DigitalAddressInfo lastAttemptMade = DigitalAddressInfo.builder()
                 .lastAttemptDate(Instant.now())
                 .sentAttemptMade(1)
@@ -210,6 +228,12 @@ class DigitalWorkFlowHandlerTest {
                         .type(DigitalAddressType.PEC).build())
                 .build();
 
+        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt()))
+                .thenReturn(ScheduleDigitalWorkflow.builder()
+                        .recIndex(0)
+                        .lastAttemptInfo(lastAttemptMade)
+                        .build());
+        
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
         TimeParams times = new TimeParams();
         times.setSecondNotificationWorkflowWaitingTime(Duration.ofSeconds(1));
@@ -217,19 +241,22 @@ class DigitalWorkFlowHandlerTest {
 
         Instant lastAttemptDate = Instant.now();
 
-        Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyString(), Mockito.any(DigitalAddressInfo.class)))
+        Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfo.class)))
                 .thenReturn(DigitalAddressInfo.builder()
                         .addressSource(DigitalAddressSource.GENERAL)
                         .sentAttemptMade(1)
                         .lastAttemptDate(lastAttemptDate)
                         .build());
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+                .thenReturn(notification);
 
-
-        handler.nextWorkFlowAction("iun", "text_rec", lastAttemptMade);
-
+        //WHEN
+        handler.startScheduledNextWorkflow("iun",0);
+        
+        //THEN
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
 
-        Mockito.verify(schedulerService).scheduleEvent(Mockito.anyString(), Mockito.anyString(),
+        Mockito.verify(schedulerService).scheduleEvent(Mockito.anyString(), Mockito.anyInt(),
                 schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
 
 
@@ -240,6 +267,8 @@ class DigitalWorkFlowHandlerTest {
     @ExtendWith(MockitoExtension.class)
     @Test
     void nextWorkFlowAction_1_General_Not_Schedule() {
+        //GIVEN
+        Notification notification = getNotification();
         DigitalAddressInfo lastAttemptMade = DigitalAddressInfo.builder()
                 .lastAttemptDate(Instant.now())
                 .sentAttemptMade(0)
@@ -249,6 +278,12 @@ class DigitalWorkFlowHandlerTest {
                         .type(DigitalAddressType.PEC).build())
                 .build();
 
+        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt()))
+                .thenReturn(ScheduleDigitalWorkflow.builder()
+                        .recIndex(0)
+                        .lastAttemptInfo(lastAttemptMade)
+                        .build());
+        
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
         TimeParams times = new TimeParams();
@@ -259,23 +294,28 @@ class DigitalWorkFlowHandlerTest {
 
         Instant lastAttemptDate = Instant.now().minus(times.getSecondNotificationWorkflowWaitingTime().plus(Duration.ofSeconds(10)));
 
-        Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyString(), Mockito.any(DigitalAddressInfo.class)))
+        Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfo.class)))
                 .thenReturn(DigitalAddressInfo.builder()
                         .addressSource(DigitalAddressSource.GENERAL)
                         .sentAttemptMade(1)
                         .lastAttemptDate(lastAttemptDate)
                         .build());
 
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+                .thenReturn(notification);
 
-        handler.nextWorkFlowAction("iun", "text_rec", lastAttemptMade);
+        //WHEN
+        handler.startScheduledNextWorkflow("iun", 0);
 
-        Mockito.verify(publicRegistrySendHandler).sendRequestForGetDigitalAddress(Mockito.anyString(), Mockito.anyString(),
+        //THEN
+        Mockito.verify(publicRegistrySendHandler).sendRequestForGetDigitalGeneralAddress(Mockito.any(Notification.class), Mockito.anyInt(),
                 Mockito.any(ContactPhase.class), Mockito.anyInt());
     }
 
     @ExtendWith(MockitoExtension.class)
     @Test
     void nextWorkFlowAction_1_NotGeneral() {
+        //GIVEN
         DigitalAddressInfo lastAttemptMade = DigitalAddressInfo.builder()
                 .lastAttemptDate(Instant.now())
                 .sentAttemptMade(0)
@@ -285,6 +325,12 @@ class DigitalWorkFlowHandlerTest {
                         .type(DigitalAddressType.PEC).build())
                 .build();
 
+        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt()))
+                .thenReturn(ScheduleDigitalWorkflow.builder()
+                        .recIndex(0)
+                        .lastAttemptInfo(lastAttemptMade)
+                        .build());
+        
         TimeParams times = new TimeParams();
         times.setSecondNotificationWorkflowWaitingTime(Duration.ofSeconds(1));
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
@@ -295,7 +341,7 @@ class DigitalWorkFlowHandlerTest {
 
         DigitalAddressSource addressSource = DigitalAddressSource.PLATFORM;
 
-        Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyString(), Mockito.any(DigitalAddressInfo.class)))
+        Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfo.class)))
                 .thenReturn(DigitalAddressInfo.builder()
                         .addressSource(addressSource)
                         .sentAttemptMade(1)
@@ -304,34 +350,34 @@ class DigitalWorkFlowHandlerTest {
         Notification notification = getNotification();
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
-        Mockito.when(notificationService.getRecipientFromNotification(Mockito.any(Notification.class), Mockito.anyString()))
-                .thenReturn(notification.getRecipients().get(0));
-        Mockito.when(digitalWorkFlowUtils.getAddressFromSource(Mockito.any(DigitalAddressSource.class), Mockito.any(NotificationRecipient.class), Mockito.any(Notification.class)))
+
+        Mockito.when(digitalWorkFlowUtils.getAddressFromSource(Mockito.any(DigitalAddressSource.class), Mockito.anyInt(), Mockito.any(Notification.class)))
                 .thenReturn(DigitalAddress.builder()
                         .address("testAddress")
                         .type(DigitalAddressType.PEC)
                         .build());
 
+        //WHEN
+        handler.startScheduledNextWorkflow(notification.getIun(), 0);
 
-        handler.nextWorkFlowAction("iun", "text_rec", lastAttemptMade);
-
+        //THEN
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);
         ArgumentCaptor<DigitalAddressSource> addressSourceCaptor = ArgumentCaptor.forClass(DigitalAddressSource.class);
 
-        Mockito.verify(digitalWorkFlowUtils).addAvailabilitySourceToTimeline(Mockito.anyString(), Mockito.anyString(),
+        Mockito.verify(digitalWorkFlowUtils).addAvailabilitySourceToTimeline(Mockito.anyInt(), Mockito.anyString(),
                 addressSourceCaptor.capture(), isAvailableCaptor.capture(), Mockito.anyInt());
         Assertions.assertEquals(addressSource, addressSourceCaptor.getValue());
         Assertions.assertTrue(isAvailableCaptor.getValue());
 
         Mockito.verify(externalChannelSendHandler).sendDigitalNotification(Mockito.any(Notification.class), Mockito.any(DigitalAddress.class),
-                Mockito.any(DigitalAddressSource.class), Mockito.any(NotificationRecipient.class), Mockito.anyInt());
+                Mockito.any(DigitalAddressSource.class), Mockito.anyInt(), Mockito.anyInt());
 
     }
 
     @ExtendWith(MockitoExtension.class)
     @Test
     void handleGeneralAddressResponse() {
-
+        //GIVEN
         PublicRegistryResponse response = PublicRegistryResponse.builder()
                 .digitalAddress(DigitalAddress.builder()
                         .type(DigitalAddressType.PEC)
@@ -342,7 +388,7 @@ class DigitalWorkFlowHandlerTest {
                 .build();
 
         PublicRegistryCallDetails details = PublicRegistryCallDetails.builder()
-                .taxId("testTaxid")
+                .recIndex(0)
                 .sendDate(Instant.now())
                 .sentAttemptMade(0)
                 .build();
@@ -350,18 +396,18 @@ class DigitalWorkFlowHandlerTest {
         Notification notification = getNotification();
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
-        Mockito.when(notificationService.getRecipientFromNotification(Mockito.any(Notification.class), Mockito.anyString()))
-                .thenReturn(notification.getRecipients().get(0));
 
+        //WHEN
         handler.handleGeneralAddressResponse(response, "iun", details);
 
+        //THEN
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);
 
-        Mockito.verify(digitalWorkFlowUtils).addAvailabilitySourceToTimeline(Mockito.anyString(), Mockito.anyString(),
+        Mockito.verify(digitalWorkFlowUtils).addAvailabilitySourceToTimeline(Mockito.anyInt(), Mockito.anyString(),
                 Mockito.any(DigitalAddressSource.class), isAvailableCaptor.capture(), Mockito.anyInt());
 
         Mockito.verify(externalChannelSendHandler).sendDigitalNotification(Mockito.any(Notification.class), Mockito.any(DigitalAddress.class),
-                Mockito.any(DigitalAddressSource.class), Mockito.any(NotificationRecipient.class), Mockito.anyInt());
+                Mockito.any(DigitalAddressSource.class), Mockito.anyInt(), Mockito.anyInt());
 
         Assertions.assertTrue(isAvailableCaptor.getValue());
 
@@ -370,19 +416,14 @@ class DigitalWorkFlowHandlerTest {
     @ExtendWith(MockitoExtension.class)
     @Test
     void handleExternalChannelResponseKO() {
+        //GIVEN
+        Notification notification = getNotification();
 
         ExtChannelResponse extChannelResponse = ExtChannelResponse.builder()
                 .responseStatus(ExtChannelResponseStatus.KO)
                 .iun("IUN")
                 .notificationDate(Instant.now())
                 .build();
-
-        Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyString(), Mockito.any(DigitalAddressInfo.class)))
-                .thenReturn(DigitalAddressInfo.builder()
-                        .addressSource(DigitalAddressSource.GENERAL)
-                        .sentAttemptMade(0)
-                        .lastAttemptDate(Instant.now())
-                        .build());
 
         TimelineElement element = TimelineElement.builder()
                 .timestamp(Instant.now())
@@ -394,9 +435,21 @@ class DigitalWorkFlowHandlerTest {
                                 .address("test")
                                 .build()).build())
                 .build();
+        
+        Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfo.class)))
+                .thenReturn(DigitalAddressInfo.builder()
+                        .addressSource(DigitalAddressSource.GENERAL)
+                        .sentAttemptMade(0)
+                        .lastAttemptDate(Instant.now())
+                        .build());
 
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+                .thenReturn(notification);
+
+        //WHEN
         handler.handleExternalChannelResponse(extChannelResponse, element);
 
+        //THEN
         Mockito.verify(digitalWorkFlowUtils).addDigitalFeedbackTimelineElement(Mockito.any(ExtChannelResponse.class), Mockito.any(SendDigitalDetails.class));
     }
 

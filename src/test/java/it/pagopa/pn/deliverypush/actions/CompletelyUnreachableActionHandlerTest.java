@@ -8,15 +8,15 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFailed;
-import it.pagopa.pn.api.dto.notification.timeline.CompletlyUnreachableDetails;
+import it.pagopa.pn.api.dto.notification.timeline.CompletelyUnreachableDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
-import it.pagopa.pn.commons_delivery.middleware.failednotification.PaperNotificationFailedDao;
+import it.pagopa.pn.deliverypush.middleware.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
+import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -84,7 +84,7 @@ class CompletelyUnreachableActionHandlerTest {
     void handleActionNotificationViewed() {
         Mockito.when(timelineDao.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Optional.of(TimelineElement.builder()
-                        .details(CompletlyUnreachableDetails.builder()
+                        .details(CompletelyUnreachableDetails.builder()
                                 .taxId("testIdRecipient")
                                 .build())
                         .build()));

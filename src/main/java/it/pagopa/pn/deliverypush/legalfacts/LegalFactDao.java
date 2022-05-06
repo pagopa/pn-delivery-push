@@ -7,7 +7,6 @@ import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
 import it.pagopa.pn.api.dto.notification.timeline.SendDigitalFeedback;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import org.springframework.stereotype.Component;
 
@@ -38,25 +37,26 @@ public class LegalFactDao {
         this.legalFactMetadataUtils = legalFactMetadataUtils;
     }
 
-    void saveLegalFact(String iun, String name, byte[] legalFact, Map<String, String> metadata) throws IOException {
+    String saveLegalFact(String iun, String name, byte[] legalFact, Map<String, String> metadata) throws IOException {
         String key = legalFactMetadataUtils.fullKey(iun, name);
         try (InputStream bodyStream = new ByteArrayInputStream(legalFact)) {
             fileStorage.putFileVersion(key, bodyStream, legalFact.length, LEGALFACTS_MEDIATYPE_STRING, metadata);
         }
+        return key;
     }
 
     @Deprecated
-    public void saveNotificationReceivedLegalFact(Action action, Notification notification) {
-        saveNotificationReceivedLegalFact( notification );
+    public String saveNotificationReceivedLegalFact(Action action, Notification notification) {
+        return saveNotificationReceivedLegalFact( notification );
     }
     
-    public void saveNotificationReceivedLegalFact(Notification notification) {
+    public String saveNotificationReceivedLegalFact(Notification notification) {
         try {
             Map<String, String> metadata = legalFactMetadataUtils.buildMetadata(
                     LegalFactType.SENDER_ACK, null
                 );
             byte[] pdfBytes = legalFactBuilder.generateNotificationReceivedLegalFact(notification);
-            this.saveLegalFact(notification.getIun(), "sender_ack", pdfBytes, metadata);
+            return this.saveLegalFact(notification.getIun(), "sender_ack", pdfBytes, metadata);
         }
         catch ( IOException exc ) {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "REQUEST_ACCEPTED",  notification.getIun(), "N/A");
@@ -65,7 +65,7 @@ public class LegalFactDao {
     }
 
     @Deprecated
-    public void savePecDeliveryWorkflowLegalFact(List<Action> actions, Notification notification, NotificationPathChooseDetails addresses) {
+    public String savePecDeliveryWorkflowLegalFact(List<Action> actions, Notification notification, NotificationPathChooseDetails addresses) {
         Set<Integer> recipientIdx = actions.stream()
                 .map(Action::getRecipientIndex)
                 .collect(Collectors.toSet());
@@ -85,7 +85,7 @@ public class LegalFactDao {
                     notification,
                     addresses
                 );
-            this.saveLegalFact(notification.getIun(), "digital_delivery_info_" + taxId, pdfBytes, metadata);
+            return this.saveLegalFact(notification.getIun(), "digital_delivery_info_" + taxId, pdfBytes, metadata);
         }
         catch ( IOException exc ) {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "DIGITAL_DELIVERY",  notification.getIun(), taxId);
@@ -93,7 +93,7 @@ public class LegalFactDao {
         }
     }
 
-    public void savePecDeliveryWorkflowLegalFact(
+    public String savePecDeliveryWorkflowLegalFact(
             List<SendDigitalFeedback> listFeedbackFromExtChannel,
             Notification notification,
             NotificationRecipient recipient
@@ -106,7 +106,7 @@ public class LegalFactDao {
 
             byte[] pdfBytes = legalFactBuilder.generatePecDeliveryWorkflowLegalFact(
                                         listFeedbackFromExtChannel, notification, recipient);
-            this.saveLegalFact(notification.getIun(), "digital_delivery_info_" + recipient.getTaxId(), pdfBytes, metadata);
+            return this.saveLegalFact(notification.getIun(), "digital_delivery_info_" + recipient.getTaxId(), pdfBytes, metadata);
         }
         catch ( IOException exc ) {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "DIGITAL_DELIVERY",  notification.getIun(), recipient.getTaxId());
@@ -115,14 +115,14 @@ public class LegalFactDao {
     }
 
     @Deprecated
-    public void saveNotificationViewedLegalFact(Action action, Notification notification) {
+    public String saveNotificationViewedLegalFact(Action action, Notification notification) {
         Integer recipientIndex = action.getRecipientIndex();
         NotificationRecipient recipient = notification.getRecipients().get( recipientIndex );
 
-        saveNotificationViewedLegalFact( notification, recipient, action.getNotBefore() );
+        return saveNotificationViewedLegalFact( notification, recipient, action.getNotBefore() );
     }
 
-    public void saveNotificationViewedLegalFact(
+    public String saveNotificationViewedLegalFact(
             Notification notification,
             NotificationRecipient recipient,
             Instant timeStamp
@@ -134,7 +134,7 @@ public class LegalFactDao {
                 );
             byte[] pdfBytes = legalFactBuilder.generateNotificationViewedLegalFact(
                                                    notification.getIun(), recipient, timeStamp);
-            this.saveLegalFact(notification.getIun(), "notification_viewed_" + taxId, pdfBytes, metadata);
+            return this.saveLegalFact(notification.getIun(), "notification_viewed_" + taxId, pdfBytes, metadata);
         }
         catch ( IOException exc ) {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "NOTIFICATION_VIEWED",  notification.getIun(), recipient.getTaxId());

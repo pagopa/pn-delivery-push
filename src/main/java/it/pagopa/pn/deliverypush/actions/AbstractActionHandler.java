@@ -1,21 +1,22 @@
 package it.pagopa.pn.deliverypush.actions;
 
+import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
+import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntryId;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionHandler;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
+import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class AbstractActionHandler implements ActionHandler {
 
@@ -225,5 +226,22 @@ public abstract class AbstractActionHandler implements ActionHandler {
             }
         }
         return result;
+    }
+
+    @NotNull
+    protected List<LegalFactsListEntryId> extractLegalFactsIds(Action action, LegalFactType type) {
+        return action.getAttachmentKeys() == null ? Collections.emptyList() : action.getAttachmentKeys().stream()
+                .map( k -> LegalFactsListEntryId.builder()
+                        .type( type )
+                        .key( k )
+                        .build()
+                ).collect(Collectors.toList());
+    }
+
+    protected List<LegalFactsListEntryId> singleLegalFactId(String legalFactKey, LegalFactType type) {
+        return Collections.singletonList( LegalFactsListEntryId.builder()
+                .key( legalFactKey )
+                .type( type )
+                .build() );
     }
 }

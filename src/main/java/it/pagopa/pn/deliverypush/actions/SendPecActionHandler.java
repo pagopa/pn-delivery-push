@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.actions;
 
 import java.util.Optional;
 
+import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import org.springframework.stereotype.Component;
 
 import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
@@ -14,7 +15,6 @@ import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
@@ -27,9 +27,9 @@ public class SendPecActionHandler extends AbstractActionHandler {
     private final ExtChnEventUtils extChnEventUtils;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     
-    public SendPecActionHandler(TimelineDao timelineDao, ActionsPool actionsPool, 
-    		MomProducer<PnExtChnPecEvent> pecRequestProducer, PnDeliveryPushConfigs pnDeliveryPushConfigs,
-    		ExtChnEventUtils extChnEventUtils) {
+    public SendPecActionHandler(TimelineDao timelineDao, ActionsPool actionsPool,
+                                MomProducer<PnExtChnPecEvent> pecRequestProducer, PnDeliveryPushConfigs pnDeliveryPushConfigs,
+                                ExtChnEventUtils extChnEventUtils) {
         super( timelineDao, actionsPool , pnDeliveryPushConfigs);
         this.pecRequestProducer = pecRequestProducer;
         this.extChnEventUtils = extChnEventUtils;

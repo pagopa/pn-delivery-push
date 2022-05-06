@@ -6,12 +6,11 @@ import it.pagopa.pn.api.dto.notification.timeline.EndOfAnalogDeliveryWorkflowDet
 import it.pagopa.pn.api.dto.notification.timeline.SendPaperFeedbackDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
-import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
-import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
+import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -21,19 +20,14 @@ import java.util.Optional;
 @Component
 public class EndOfAnalogDeliveryWorkflowActionHandler extends AbstractActionHandler {
 
-    private final LegalFactDao legalFactStore;
-
     public EndOfAnalogDeliveryWorkflowActionHandler(TimelineDao timelineDao, ActionsPool actionsPool,
-                                                    LegalFactDao legalFactStore, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
+                                                    PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         super(timelineDao, actionsPool, pnDeliveryPushConfigs);
-        this.legalFactStore = legalFactStore;
     }
 
     @Override
     public void handleAction(Action action, Notification notification) {
 
-        List<SendPaperFeedbackDetails> paperTrail = loadPaperTrail(action);
-        
         // - GENERATE NEXT ACTIONS
         Action nextAction = buildWaitRecipientTimeoutActionForAnalog(action);
         scheduleAction(nextAction);

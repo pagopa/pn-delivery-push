@@ -1,16 +1,17 @@
 package it.pagopa.pn.deliverypush.actions;
 
+import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.timeline.ReceivedDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
-import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
+import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -31,7 +32,7 @@ public class SenderAckActionHandler extends AbstractActionHandler {
     @Override
     public void handleAction(Action action, Notification notification) {
 
-        legalFactStore.saveNotificationReceivedLegalFact(action, notification);
+        String legalFactKey = legalFactStore.saveNotificationReceivedLegalFact(action, notification);
 
         // - GENERATE NEXT ACTIONS
         int numberOfRecipients = notification.getRecipients().size();
@@ -57,6 +58,7 @@ public class SenderAckActionHandler extends AbstractActionHandler {
                         )
                         .build()
                 )
+                .legalFactsIds( singleLegalFactId( legalFactKey, LegalFactType.SENDER_ACK ) )
                 .build()
         );
     }

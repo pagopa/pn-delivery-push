@@ -12,6 +12,10 @@ import java.time.Instant;
 @Data
 public class PnDeliveryPushConfigs {
 
+    private String deliveryBaseUrl;
+
+    private String externalChannelBaseUrl;
+
     private TimeParams timeParams;
 
     private Topics topics;
@@ -22,6 +26,16 @@ public class PnDeliveryPushConfigs {
     
     private Webapp webapp;
 
+    private TimelineDao timelineDao;
+
+    private FailedNotificationDao failedNotificationDao;
+
+    private ActionDao actionDao;
+
+    private FutureActionDao futureActionDao;
+    
+    private LastPollForFutureActionDao lastPollForFutureActionDao;
+    
     @Data
     public static class Topics {
 
@@ -51,4 +65,31 @@ public class PnDeliveryPushConfigs {
    public static class Webapp {
         private String directAccessUrlTemplate;
    }
+
+    @Data
+    public static class TimelineDao {
+        private String tableName;
+    }
+
+    @Data
+    public static class FailedNotificationDao {
+        private String tableName;
+    }
+
+    @Data
+    public static class ActionDao {
+        private String tableName;
+    }
+
+    @Data
+    public static class FutureActionDao {
+        private String tableName;
+    }
+
+    @Data
+    public static class LastPollForFutureActionDao {
+        private String tableName;
+        private String lockTableName;
+    }
+    
 }

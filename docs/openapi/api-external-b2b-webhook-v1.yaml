@@ -1,0 +1,466 @@
+openapi: 3.0.3
+info:
+  title: 'API B2B avanzamento notifiche'
+  version: v1.0
+  description: >- 
+    I mittenti di notifica possono seguire il flusso di avanzamento delle notifiche in modo 
+    automatico. E' possibile definire fino ad un massimo di 5 configurazioni di flussi per 
+    informazioni relative a: <br/>
+      - cambiamento di stato della notifica;  <br/>
+      - inserimento di elementi nella timeline. <br/>
+    
+    Per ognuno di questi elementi è possibile definire un filtro per ricevere solo alcuni 
+    cambiamenti di stato o determinati eventi di timeline.
+
+    Le operazioni con il tag __Streams__ gestiscono la configurazione: <br/>
+      - Creazione; <br/>
+      - Modifica; <br/>
+      - Cancellazione. <br/>
+
+    Le operazioni con il tag __Events__ sono quelle utilizzate per la lettura degli eventi 
+    filtrati in base alla configurazione impostata negli streams.
+  contact:
+    email: pn@pagopa.it
+  license:
+    name: Licenza di PN
+    url: 'https://da-definire/'
+servers:
+- url: https://api.pn.pagopa.it
+  description: Ambiente di produzione
+- url: https://api.uat.pn.pagopa.it
+  description: Ambiente di test
+- url: https://api.dev.pn.pagopa.it
+  description: Ambiente di sviluppo
+tags:
+  - name: Streams
+    description: >-
+      Gestione degli stream di eventi che PN mette a disposizione
+  - name: Events
+    description: Metodi per la lettura degli eventi dagli stream
+paths:
+    ############################################################################################
+    ###                        CREAZIONE E CANCELLAZIONE STREAM EVENTI                       ###
+    ############################################################################################
+
+  '/delivery-progresses/streams':
+    post:
+      summary: Crea nuovo stream di eventi
+      description: >-
+        Viene richiesta la creazione di un flusso di eventi specificando se gli eventi saranno 
+        relativi ai cambi di stato o agli eventi di timeline. <br/>
+        In risposta, Piattaforma Notifiche, comunicherà un identificativo dello stream e il 
+        timestamp di effettiva attivazione del flusso, tipicamente pochi secondi dopo che è stata 
+        invocata l'operazione.
+      tags:
+        - Streams
+      operationId: createEventStream
+      requestBody:
+        required: true
+        content:
+          application/json:
+              schema:
+                $ref: "#/components/schemas/StreamCreationRequest"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StreamMetadataResponse"
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+    get:
+      summary: Elenca stream di eventi
+      description: >-
+        
+      tags:
+        - Streams
+      operationId: listEventStreams
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StreamListResponse"
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+
+  '/delivery-progresses/streams/{streamId}':
+    parameters:
+      - $ref: '#/components/parameters/pathStreamId'        
+    get:
+      summary: Leggi metadati dello stream
+      description: >-
+        Permette di leggere le configurazioni di uno stream di eventi.
+      tags:
+        - Streams
+      operationId: getEventStream
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StreamMetadataResponse"
+        '400':
+          description: Bad request
+    put:
+      summary: Update Stream metadata
+      description: >-
+        Permette di cambiare le configurazioni dei filtri associati a uno stream di eventi
+      tags:
+        - Streams
+      operationId: updateEventStream
+      requestBody:
+        required: true
+        content:
+          application/json:
+              schema:
+                $ref: "#/components/schemas/StreamCreationRequest"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StreamMetadataResponse"
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+    delete: 
+      summary: Remove Event Stream
+      description: >-
+        Elimina uno steam di eventi: elimina sia le configurazioni sia tutti gli eventi 
+        associati allo stream e non ancora consumati.
+      tags:
+        - Streams
+      operationId: deleteEventStream
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+
+
+    ############################################################################################
+    ###                             LETTURA EVENTI DA UNO STREAM                             ###
+    ############################################################################################
+
+  '/delivery-progresses/streams/{streamId}/events':
+    get:
+      summary: Leggi progressi notifiche
+      description: >-
+        Permette di leggere gli eventi presenti nello stream di aggiornamenti e indica che 
+        la P.A. ha ricevuto e memorizzato l'evento identificato dal parametro _lastEventId_
+        e tutti gli eventi precedenti. Tali eventi potranno essere cancellati dallo stream.
+      tags:
+        - Events
+      operationId: consumeEventStream
+      parameters:
+        - $ref: '#/components/parameters/pathStreamId'
+        - $ref: '#/components/parameters/queryLastEventId'
+      responses:
+        '200':
+          description: OK
+          headers:
+            retry-after:
+              schema:
+                type: integer
+              description: >-
+                Numero di secondi da attendere prima di effettuare una nuova richiesta di eventi. <br/>
+                Sarà valorizzato a zero se ci sono eventi in coda che non sono stati forniti nella 
+                richiesta corrente per raggiunta dimensione massima della risposta. <br/>
+                Sarà maggiore di zero se non ci solo ulteriori eventi in coda.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgressResponse"
+        '419':
+          description: Too Many Requests
+          headers:
+            retry-after:
+              schema:
+                type: integer
+              description: >-
+                Numero di secondi da attendere prima di effettuare una nuova richiesta di eventi.
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+    
+
+    ############################################################################################
+    ###                INVIO DI EVENTI DA PARTE DELLA PUBBLICA AMMNISTRAZIONE                ###
+    ############################################################################################
+
+  '/delivery-progresses/events':
+    post:
+      summary: Invio eventi da parte della PA
+      description: >-
+        Questa API è a disposizione della Pubblica Amministrazione per inviare eventi, come 
+        quello di chiusura di una posizione debitoria con pagamento tramite F24, che possono 
+        avvenire fuori dal controllo di PagoPA. <br/>
+
+        La processazione può avvenire in maniera parziale, quindi ogni evento deve avere un 
+        identificativo univoco (generato dalla PA). In caso di fallimento vanno ritrasmessi
+        gli eventi con lo stesso identificativo. Sarà Piattaforma Notifica ad identificare 
+        quelli già elaborati ed evitare duplicazioni. <br/>
+
+        Allo stato attuale gli unici eventi sono quelli di pagamento
+      tags:
+        - Events
+      operationId: informOnExternalEvent
+      requestBody:
+        required: true
+        content:
+          application/json:
+              schema:
+                $ref: "#/components/schemas/ExternalEventsRequest"
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+  
+components:
+  
+  parameters:
+    ############################################################################################
+    ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
+    ############################################################################################
+    cxTypeAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTypeAuthFleet'
+    cxIdAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet'
+    uidAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/uidAuthFleet'
+
+
+    ############################################################################################
+    ###                                   PARAMETRI STREAMS                                  ###
+    ############################################################################################
+    queryLastEventId:
+      description: >-
+        Identificativo dell'ultimo evento memorizzato dal chiamante
+      name: lastEventId
+      in: query
+      required: true
+      schema:
+        type: string
+    pathStreamId:
+      description: >-
+        Identificativo dello stream di eventi
+      name: streamId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    
+    ############################################################################################
+    ###                          CREAZIONE E GESTIONE EVENT STREAM                           ###
+    ############################################################################################
+    StreamCreationRequest:
+      description: Richiesta di creazione di uno stream di eventi di avanzamento delle notifiche.
+      type: object
+      required:
+        - title
+        - eventTYpe
+      properties:
+        title: 
+          description: Nome sintetico dello stream
+          type: string
+        eventType:
+          description: >-
+            Tipo di eventi presenti nel flusso:
+              - _STATUS_: cambiamenti di stato delle notifiche
+              - _TIMELINE_: eventi a granularità fine
+          type: string
+          enum:
+            - STATUS
+            - TIMELINE
+        filterValues:
+          description: >-
+            Se non _null_ indica l'elenco degli stati o elementi di timeline che 
+            si vogliono ricevere.
+          type: array
+          items:
+            type: string
+    
+    StreamMetadataResponse:
+      description: Configiurazioni di un flusso di eventi
+      allOf:
+        - $ref: '#/components/schemas/StreamCreationRequest'
+        - type: object
+          required:
+            - streamId
+            - activationDate
+          properties:
+            streamId:
+              description: Identificativo del flusso di eventi
+              type: string
+              format: uuid
+            activationDate:
+              description: Timestamp in cui il flusso di eventi è stato attivato
+              type: string
+              format: date-time
+    
+    StreamListResponse:
+      description: Elenco di flussi di eventi
+      type: array
+      items:
+        $ref: '#/components/schemas/StreamListElement'
+
+    StreamListElement:
+      type: object
+      required:
+        - title
+        - streamId
+      properties:
+        streamId:
+          type: string
+          format: uuid
+        title: 
+          type: string
+        
+    
+
+    ############################################################################################
+    ###                                  DEFINIZIONI EVENTI                                  ###
+    ############################################################################################
+
+    ###  - EVENTI GENERATI DA PN
+    ###################################
+
+    ProgressResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/ProgressResponseElement'
+
+    ProgressResponseElement:
+      type: object
+      required:
+        - eventId
+        - timestamp
+      properties:
+        eventId:
+          description: >-
+            Elemento che garantisce univocità e ordinamento temporale all'interno dello stream
+          type: string
+        timestamp:
+          description: Istante a cui è avvenuto l'evento
+          type: string
+          format: date-time
+
+        notificationRequestId:
+          description: Identificativo della richiesta di notifica
+          type: string
+        iun:
+          description: >-
+            Identificativo della notifica, presente solo le la richiesta di notifica è 
+            stata accettata.
+          type: string
+
+        newStatus:
+          $ref: './schemas-pn-status-v1.yaml#/components/schemas/NotificationStatus'
+        timelineEventCategory:
+          $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/TimelineElementCategory'
+    
+    ###  - EVENTI GENERATI DALLA P.A.
+    ###################################
+    ExternalEventsRequest:
+      title: Invio eventi da P.A. a P.N.
+      description: >- 
+        Richiesta contenente un array di eventi di cui una Pubblica Amministrazione
+        deve avvisare Piattaforma Notifiche.
+      type: object
+      required:
+        - events
+      properties:
+        events:
+          description: Elenco degli eventi
+          type: array
+          items:
+            $ref: '#/components/schemas/ExternalEvent'
+    
+    ExternalEvent:
+      title: Un evento generato all'esterno di PN.
+      description: >-
+        Un evento riguardante la notifica generato all'esterno di Piattaforma Notifiche come,
+        ad esempio, il pagamento che può avvenire anche tramite F24. <br/>
+
+        Deve essere valorizzata una solo campo, quello specifico del tipo di evento.
+      type: object
+      properties:
+        payment:
+          $ref: '#/components/schemas/PaymentEvent'
+    
+    PaymentEvent:
+      title: Evento di pagamento
+      description: >-
+        Comprende: <br/>
+          - data e ora del pagamento, <br/>
+          - modalità di pagamento (PAGOPA / F24), <br/>
+          - lo _IUN_ della notifica pagata, <br/>
+          - il codice fiscale del destinatario pagatore, <br/>
+          - e la tipologia del destinatario pagatore (PF / PG). <br/>
+      type: object
+      required:
+        - iun
+        - recipientTaxId
+        - recipientType
+        - paymentType
+        - timestamp
+      properties:
+        iun:
+          type: string
+        recipientTaxId:
+          type: string
+        recipientType:
+          type: string
+          enum:
+            - PF
+            - PG
+        paymentType:
+          type: string
+          enum:
+            - F24
+            - PAGOPA
+        timestamp:
+          type: string
+          format: date-time
+        
+  
+  securitySchemes:        # ONLY EXTERNAL
+    ApiKeyAuth:           # ONLY EXTERNAL
+      type: apiKey        # ONLY EXTERNAL
+      in: header          # ONLY EXTERNAL
+      name: x-api-key     # ONLY EXTERNAL
+
+security:                 # ONLY EXTERNAL
+  - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
+              

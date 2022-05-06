@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.action2;
 
-import it.pagopa.pn.deliverypush.action2.utils.EndWorkflowStatus;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
@@ -11,6 +10,8 @@ import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action2.utils.CompletelyUnreachableUtils;
+import it.pagopa.pn.deliverypush.action2.utils.EndWorkflowStatus;
+import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -48,10 +49,13 @@ class CompletionWorkFlowHandlerTest {
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
     
     private CompletionWorkFlowHandler handler;
+    
+    private NotificationUtils notificationUtils;
 
     @BeforeEach
     public void setup() {
-        handler = new CompletionWorkFlowHandler(notificationService, scheduler,
+        notificationUtils= new NotificationUtils();
+        handler = new CompletionWorkFlowHandler(notificationUtils, scheduler,
                 externalChannelSendHandler, timelineService, completelyUnreachableUtils, timelineUtils, legalFactDao
                 ,pnDeliveryPushConfigs);
     }
@@ -59,55 +63,64 @@ class CompletionWorkFlowHandlerTest {
     @ExtendWith(MockitoExtension.class)
     @Test
     void completionDigitalWorkflowSuccess() {
+        //GIVEN
         Notification notification = getNotification();
         NotificationRecipient recipient = notification.getRecipients().get(0);
-
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
-                .thenReturn(notification);
-        Mockito.when(notificationService.getRecipientFromNotification(Mockito.any(Notification.class), Mockito.anyString()))
-                .thenReturn(notification.getRecipients().get(0));
-
+        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        
         TimeParams times = new TimeParams();
         times.setSchedulingDaysSuccessDigitalRefinement(Duration.ofSeconds(1));
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
 
-        Instant notificationDate = Instant.now();
-        handler.completionDigitalWorkflow(recipient.getTaxId(), notification.getIun(), notificationDate, recipient.getDigitalDomicile(), EndWorkflowStatus.SUCCESS);
+        Mockito.when( legalFactDao.savePecDeliveryWorkflowLegalFact(
+                Mockito.anyList(), Mockito.any( Notification.class ), Mockito.any( NotificationRecipient.class )
+        )).thenReturn( "" );
 
-        Mockito.verify(timelineUtils).buildSuccessDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyString(), Mockito.any(DigitalAddress.class));
+        Instant notificationDate = Instant.now();
+        
+        //WHEN
+        handler.completionDigitalWorkflow(notification, recIndex, notificationDate, recipient.getDigitalDomicile(), EndWorkflowStatus.SUCCESS);
+        
+        //THEN
+        Mockito.verify(timelineUtils).buildSuccessDigitalWorkflowTimelineElement(
+                Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddress.class), Mockito.anyString());
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
-        Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyString(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
+        Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyInt(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
 
         Instant schedulingDateOk = notificationDate.plus(times.getSchedulingDaysSuccessDigitalRefinement());
         Assertions.assertEquals(schedulingDateOk, schedulingDateCaptor.getValue());
-
     }
 
     @ExtendWith(MockitoExtension.class)
     @Test
     void completionDigitalWorkflowFailure() {
+        //GIVEN
         Notification notification = getNotification();
         NotificationRecipient recipient = notification.getRecipients().get(0);
-
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
-                .thenReturn(notification);
-        Mockito.when(notificationService.getRecipientFromNotification(Mockito.any(Notification.class), Mockito.anyString()))
-                .thenReturn(notification.getRecipients().get(0));
-
+        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        
         TimeParams times = new TimeParams();
         times.setSchedulingDaysFailureDigitalRefinement(Duration.ofSeconds(1));
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
 
+        Mockito.when( legalFactDao.savePecDeliveryWorkflowLegalFact(
+                    Mockito.anyList(), Mockito.any( Notification.class ), Mockito.any( NotificationRecipient.class )
+                )).thenReturn( "" );
+
         Instant notificationDate = Instant.now();
-        handler.completionDigitalWorkflow(recipient.getTaxId(), notification.getIun(), notificationDate, recipient.getDigitalDomicile(), EndWorkflowStatus.FAILURE);
+        
+        //WHEN
+        handler.completionDigitalWorkflow(notification, recIndex, notificationDate, recipient.getDigitalDomicile(), EndWorkflowStatus.FAILURE);
 
-        Mockito.verify(externalChannelSendHandler).sendNotificationForRegisteredLetter(Mockito.any(Notification.class), Mockito.any(PhysicalAddress.class), Mockito.any(NotificationRecipient.class));
+        //THEN
+        Mockito.verify(externalChannelSendHandler).sendNotificationForRegisteredLetter(Mockito.any(Notification.class), Mockito.any(PhysicalAddress.class), Mockito.anyInt());
 
-        Mockito.verify(timelineUtils).buildFailureDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(timelineUtils).buildFailureDigitalWorkflowTimelineElement(Mockito.anyString(),
+                Mockito.anyInt(), Mockito.anyString());
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
-        Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyString(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
+        Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyInt(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
 
         Instant schedulingDateOk = notificationDate.plus(times.getSchedulingDaysFailureDigitalRefinement());
         Assertions.assertEquals(schedulingDateOk, schedulingDateCaptor.getValue());
@@ -117,49 +130,55 @@ class CompletionWorkFlowHandlerTest {
     @ExtendWith(MockitoExtension.class)
     @Test
     void completionAnalogWorkflowSuccess() {
+        //GIVEN
         Notification notification = getNotification();
         NotificationRecipient recipient = notification.getRecipients().get(0);
+        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         Instant notificationDate = Instant.now();
 
         TimeParams times = new TimeParams();
         times.setSchedulingDaysSuccessAnalogRefinement(Duration.ofSeconds(1));
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
-
-        handler.completionAnalogWorkflow(recipient.getTaxId(), notification.getIun(), notificationDate, recipient.getPhysicalAddress(), EndWorkflowStatus.SUCCESS);
-
-        Mockito.verify(timelineUtils).buildSuccessAnalogWorkflowTimelineElement(Mockito.anyString(), Mockito.anyString(), Mockito.any(PhysicalAddress.class));
+        
+        //WHEN
+        handler.completionAnalogWorkflow(notification, recIndex, notificationDate, recipient.getPhysicalAddress(), EndWorkflowStatus.SUCCESS);
+        
+        //THEN
+        Mockito.verify(timelineUtils).buildSuccessAnalogWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt(), Mockito.any(PhysicalAddress.class));
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
-        Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyString(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
+        Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyInt(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
 
         Instant schedulingDateOk = notificationDate.plus(times.getSchedulingDaysSuccessAnalogRefinement());
         Assertions.assertEquals(schedulingDateOk, schedulingDateCaptor.getValue());
-
     }
 
     @ExtendWith(MockitoExtension.class)
     @Test
     void completionAnalogWorkflowFailure() {
+        //GIVEN
         Notification notification = getNotification();
         NotificationRecipient recipient = notification.getRecipients().get(0);
+        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         Instant notificationDate = Instant.now();
 
         TimeParams times = new TimeParams();
         times.setSchedulingDaysFailureAnalogRefinement(Duration.ofSeconds(1));
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
-
-        handler.completionAnalogWorkflow(recipient.getTaxId(), notification.getIun(), notificationDate, recipient.getPhysicalAddress(), EndWorkflowStatus.FAILURE);
-
-        Mockito.verify(timelineUtils).buildFailureAnalogWorkflowTimelineElement(Mockito.anyString(), Mockito.anyString());
+        
+        //WHEN
+        handler.completionAnalogWorkflow(notification, recIndex, notificationDate, recipient.getPhysicalAddress(), EndWorkflowStatus.FAILURE);
+    
+        //THEN
+        Mockito.verify(timelineUtils).buildFailureAnalogWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt());
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
-        Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyString(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
+        Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyInt(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
 
         Instant schedulingDateOk = notificationDate.plus(times.getSchedulingDaysFailureAnalogRefinement());
         Assertions.assertEquals(schedulingDateOk, schedulingDateCaptor.getValue());
-
     }
 
     private Notification getNotification() {

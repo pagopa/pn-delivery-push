@@ -10,56 +10,60 @@ import it.pagopa.pn.deliverypush.action2.ExternalChannelSendHandler;
 import it.pagopa.pn.deliverypush.external.AddressBook;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
-@Service
+@Component
 @Slf4j
 public class CourtesyMessageUtils {
     private final AddressBook addressBook;
     private final ExternalChannelSendHandler externalChannelSendHandler;
     private final TimelineService timelineService;
-
-    public CourtesyMessageUtils(AddressBook addressBook, ExternalChannelSendHandler externalChannelSendHandler, TimelineService timelineService) {
+    private final NotificationUtils notificationUtils;
+    
+    public CourtesyMessageUtils(AddressBook addressBook, ExternalChannelSendHandler externalChannelSendHandler, TimelineService timelineService, NotificationUtils notificationUtils) {
         this.addressBook = addressBook;
         this.externalChannelSendHandler = externalChannelSendHandler;
         this.timelineService = timelineService;
+        this.notificationUtils = notificationUtils;
     }
 
     /**
      * Get recipient addresses and send courtesy messages.
      */
-    public void checkAddressesForSendCourtesyMessage(Notification notification, NotificationRecipient recipient) {
-        log.info("CheckAddressesForSendCourtesyMessage - iun {} id {} ", notification.getIun(), recipient.getTaxId());
-
+    public void checkAddressesForSendCourtesyMessage(Notification notification, int recIndex) {
+        log.info("CheckAddressesForSendCourtesyMessage - iun {} id {} ", notification.getIun(), recIndex);
+        
+        NotificationRecipient recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
+        
         //Vengono ottenuti tutti gli indirizzi di cortesia per il recipient ...
         addressBook.getAddresses(recipient.getTaxId(), notification.getSender())
                 .ifPresent(addressBookItem -> {
-                    int index = 0;
+                    int courtesyAddrIndex = 0;
                     if (addressBookItem.getCourtesyAddresses() != null) {
                         for (DigitalAddress courtesyAddress : addressBookItem.getCourtesyAddresses()) {
-                            sendCourtesyMessage(notification, recipient, index, courtesyAddress);
-                            index++;
+                            sendCourtesyMessage(notification, recIndex, courtesyAddrIndex, courtesyAddress);
+                            courtesyAddrIndex++;
                         }
                     }
                 });
 
-        log.debug("End sendCourtesyMessage - IUN {} id {}", notification.getIun(), recipient.getTaxId());
+        log.debug("End sendCourtesyMessage - IUN {} id {}", notification.getIun(),recIndex);
     }
 
-    private void sendCourtesyMessage(Notification notification, NotificationRecipient recipient, int index, DigitalAddress courtesyAddress) {
-        log.debug("Send courtesy message address index {} - iun {} id {} ", index, notification.getIun(), recipient.getTaxId());
+    private void sendCourtesyMessage(Notification notification, int recIndex, int courtesyAddrIndex, DigitalAddress courtesyAddress) {
+        log.debug("Send courtesy message address index {} - iun {} id {} ", courtesyAddrIndex, notification.getIun(), recIndex);
 
         //... Per ogni indirizzo di cortesia ottenuto viene inviata la notifica del messaggio di cortesia tramite external channel
-        String eventId = getTimelineElementId(recipient.getTaxId(), notification.getIun(), index);
-        externalChannelSendHandler.sendCourtesyNotification(notification, courtesyAddress, recipient, eventId);
+        String eventId = getTimelineElementId(recIndex, notification.getIun(), courtesyAddrIndex);
+        externalChannelSendHandler.sendCourtesyNotification(notification, courtesyAddress, recIndex, eventId);
     }
 
-    private String getTimelineElementId(String taxId, String iun, int index) {
+    private String getTimelineElementId(int recIndex, String iun, int index) {
         return TimelineEventId.SEND_COURTESY_MESSAGE.buildEventId(EventId.builder()
                 .iun(iun)
-                .recipientId(taxId)
+                .recIndex(recIndex)
                 .index(index)
                 .build()
         );
@@ -71,9 +75,9 @@ public class CourtesyMessageUtils {
      * @param iun   Notification unique identifier
      * @param taxId User identifier
      */
-    public Optional<SendCourtesyMessageDetails> getFirstSentCourtesyMessage(String iun, String taxId) {
-        String timeLineCourtesyId = getTimelineElementId(taxId, iun, 0);
-        log.debug("Get courtesy message for timelineCourtesyId {} - IUN {} id {}", timeLineCourtesyId, iun, taxId);
+    public Optional<SendCourtesyMessageDetails> getFirstSentCourtesyMessage(String iun, int recIndex) {
+        String timeLineCourtesyId = getTimelineElementId(recIndex, iun, 0);
+        log.debug("Get courtesy message for timelineCourtesyId {} - IUN {} id {}", timeLineCourtesyId, iun, recIndex);
 
         return timelineService.getTimelineElement(iun, timeLineCourtesyId, SendCourtesyMessageDetails.class);
     }

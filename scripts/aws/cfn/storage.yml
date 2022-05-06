@@ -1,0 +1,285 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Actions storage
+
+Parameters:
+  ProjectName:
+    Type: String
+    Description: Nome dell'ambiente destinazione
+
+  # Unused but required by CD pipeline
+  MicroserviceNumber:
+    Type: Number
+    Description: unused
+
+  TemplateBucketBaseUrl:
+    Type: String
+    Description: URL da cui caricare i frammenti di template di infrastruttura
+
+Resources:
+
+  # Legal Facts S3 Storage
+  LegalFactsBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      # No default retention neither legal hold.
+      # Can define retention period or legal hold when upload new object or version
+      ObjectLockEnabled: true
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - GET
+              - PUT
+              - POST
+              - DELETE
+              - HEAD
+            AllowedOrigins:
+              - "*"
+            ExposedHeaders:
+              - "x-amz-version-id"
+
+  WebhookBufferTable:
+    Type: AWS::Cassandra::Table
+    Properties:
+      TableName: webhook_buffer
+      KeyspaceName: !Sub '${ProjectName}_delivery'
+      PointInTimeRecoveryEnabled: true
+      PartitionKeyColumns:
+        - ColumnName: senderid
+          ColumnType: text
+      ClusteringKeyColumns:
+        - Column:
+            ColumnName: statuschangetime
+            ColumnType: timestamp
+          OrderBy: ASC
+        - Column:
+            ColumnName: iun
+            ColumnType: text
+          OrderBy: ASC
+      RegularColumns:
+        - ColumnName: notificationelement
+          ColumnType: text
+
+  WebhookConfigsTable:
+    Type: AWS::Cassandra::Table
+    Properties:
+      TableName: webhook_configs
+      KeyspaceName: !Sub '${ProjectName}_delivery'
+      PointInTimeRecoveryEnabled: true
+      PartitionKeyColumns:
+        - ColumnName: paid
+          ColumnType: text
+      RegularColumns:
+        - ColumnName: url
+          ColumnType: text
+        - ColumnName: since
+          ColumnType: timestamp
+        - ColumnName: active
+          ColumnType: boolean
+        - ColumnName: type
+          ColumnType: text
+        - ColumnName: allnotifications
+          ColumnType: boolean
+        - ColumnName: notificationselement
+          ColumnType: set<text>
+
+  # Internal queues
+  ScheduledActionsQueue:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
+      Parameters:
+        QueueName: !Sub '${ProjectName}-delivery_push_actions'
+        DelaySeconds: 1
+
+  DoneActionsQueue:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
+      Parameters:
+        QueueName: !Sub '${ProjectName}-delivery_push_actions_done'
+        DelaySeconds: 1
+
+  # Notification Timeline DynamoDB Table
+  TimelinesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${ProjectName}-Timelines'
+      AttributeDefinitions:
+        - AttributeName: "iun"
+          AttributeType: "S"
+        - AttributeName: "timelineElementId"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "iun"
+          KeyType: "HASH"
+        - AttributeName: "timelineElementId"
+          KeyType: "RANGE"
+      BillingMode: "PAY_PER_REQUEST"
+
+  # Failed Paper Notification
+  PaperNotificationFailedTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${ProjectName}-PaperNotificationFailed'
+      AttributeDefinitions:
+        - AttributeName: "recipientId"
+          AttributeType: "S"
+        - AttributeName: "iun"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "recipientId"
+          KeyType: "HASH"
+        - AttributeName: "iun"
+          KeyType: "RANGE"
+      BillingMode: "PAY_PER_REQUEST"
+
+  # Action Table
+  ActionTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${ProjectName}-Action'
+      AttributeDefinitions:
+        - AttributeName: "actionId"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "actionId"
+          KeyType: "HASH"
+      BillingMode: "PAY_PER_REQUEST"
+
+  # Future Action Table
+  FutureActionTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${ProjectName}-FutureAction'
+      AttributeDefinitions:
+        - AttributeName: "timeSlot"
+          AttributeType: "S"
+        - AttributeName: "actionId"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "timeSlot"
+          KeyType: "HASH"
+        - AttributeName: "actionId"
+          KeyType: "RANGE"
+      BillingMode: "PAY_PER_REQUEST"
+
+  # Last scheduled poll time
+  LastPollForFutureActionTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${ProjectName}-LastPollForFutureActionTable'
+      AttributeDefinitions:
+        - AttributeName: "lastPoolKey"
+          AttributeType: "N"
+      KeySchema:
+        - AttributeName: "lastPoolKey"
+          KeyType: "HASH"
+      BillingMode: "PAY_PER_REQUEST"
+
+  # Shared lock handling table
+  PnDeliveryPushShedLockTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${ProjectName}-PnDeliveryPushShedLock'
+      AttributeDefinitions:
+        - AttributeName: "_id"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "_id"
+          KeyType: "HASH"
+      BillingMode: "PAY_PER_REQUEST"
+      
+Outputs:
+
+  # Keyvalue store
+  KeyspaceName:
+    Description: Keyspace Name used by application to access the key-value store
+    Value: !Sub '${ProjectName}_delivery'
+
+
+  # Legal facts S3 bucket
+  LegalFactsBucketName:
+    Description: name of bucket going to contains notification documents
+    Value: !Ref LegalFactsBucket
+
+  LegalFactsBucketArn:
+    Description: ARN of bucket going to contains notification documents
+    Value: !Sub '${LegalFactsBucket.Arn}'
+
+
+  # Scheduled Actions
+  ScheduledActionsQueueName:
+    Value: !GetAtt ScheduledActionsQueue.Outputs.QueueName
+    Description: pn-delivery-push input queue name
+  ScheduledActionsQueueURL:
+    Value: !GetAtt ScheduledActionsQueue.Outputs.QueueURL
+    Description: pn-delivery-push input queue URL
+  ScheduledActionsQueueARN:
+    Value: !GetAtt ScheduledActionsQueue.Outputs.QueueARN
+    Description: pn-delivery-push input queue ARN
+
+  # Already Done Actions
+  DoneActionsQueueName:
+    Value: !GetAtt DoneActionsQueue.Outputs.QueueName
+    Description: pn-delivery-push input queue name
+  DoneActionsQueueURL:
+    Value: !GetAtt DoneActionsQueue.Outputs.QueueURL
+    Description: pn-delivery-push input queue URL
+  DoneActionsQueueARN:
+    Value: !GetAtt DoneActionsQueue.Outputs.QueueARN
+    Description: pn-delivery-push input queue ARN
+
+  # Dynamo tables
+  TimelinesDynamoTableName:
+    Description: Name of dynamodb table containing timelines
+    Value: !Ref TimelinesTable
+  TimelinesDynamoTableArn:
+    Description: ARN of dynamodb table containing timelines
+    Value: !Sub '${TimelinesTable.Arn}'
+
+  PaperNotificationFailedDynamoTableName:
+    Description: Name of dynamodb table containing unreacheble notifications recipients
+    Value: !Ref PaperNotificationFailedTable
+  PaperNotificationFailedDynamoTableArn:
+    Description: ARN of dynamodb table containing unreacheble notifications recipients
+    Value: !Sub '${PaperNotificationFailedTable.Arn}'
+
+  ActionDynamoTableName:
+    Description: Name of dynamodb table containing
+    Value: !Ref ActionTable
+  ActionDynamoTableArn:
+    Description: ARN of dynamodb table containing
+    Value: !Sub '${ActionTable.Arn}'
+
+  FutureActionDynamoTableName:
+    Description: Name of dynamodb table containing
+    Value: !Ref FutureActionTable
+  FutureActionDynamoTableArn:
+    Description: ARN of dynamodb table containing
+    Value: !Sub '${FutureActionTable.Arn}'
+
+  LastPollForFutureActionDynamoTableName:
+    Description: Name of dynamodb table containing
+    Value: !Ref LastPollForFutureActionTable
+  LastPollForFutureActionDynamoTableArn:
+    Description: ARN of dynamodb table containing
+    Value: !Sub '${LastPollForFutureActionTable.Arn}'
+
+  PnDeliveryPushShedLockDynamoTableName:
+    Description: Name of dynamodb table containing
+    Value: !Ref PnDeliveryPushShedLockTable
+  PnDeliveryPushShedLockDynamoTableArn:
+    Description: ARN of dynamodb table containing
+    Value: !Sub '${PnDeliveryPushShedLockTable.Arn}'
+

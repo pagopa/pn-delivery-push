@@ -43,6 +43,7 @@ public class ExternalChannelResponseHandler {
                     break;
                 case SEND_SIMPLE_REGISTERED_LETTER:
                     //Non richiede azioni specifiche
+                    log.info("Received SEND_SIMPLE_REGISTERED_LETTER response for response status {} - iun {} eventId {} ", response.getResponseStatus(), response.getIun(), response.getEventId());
                     break;
                 default:
                     handleError(response, notificationTimelineElement);

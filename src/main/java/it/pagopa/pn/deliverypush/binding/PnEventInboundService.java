@@ -5,12 +5,15 @@
  */
 package it.pagopa.pn.deliverypush.binding;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.api.dto.events.*;
 import it.pagopa.pn.api.dto.extchannel.ExtChannelResponse;
 import it.pagopa.pn.api.dto.extchannel.ExtChannelResponseStatus;
-import it.pagopa.pn.deliverypush.action2.ExternalChannelResponseHandler;
-import it.pagopa.pn.deliverypush.action2.NotificationViewedHandler;
-import it.pagopa.pn.deliverypush.action2.StartWorkflowHandler;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.ActionEventType;
+import it.pagopa.pn.deliverypush.action2.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.function.context.MessageRoutingCallback;
@@ -21,6 +24,8 @@ import org.springframework.messaging.MessageHeaders;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import static it.pagopa.pn.api.dto.events.StandardEventHeader.*;
@@ -32,30 +37,73 @@ public class PnEventInboundService {
     private final StartWorkflowHandler startWorkflowHandler;
     private final ExternalChannelResponseHandler externalChannelResponseHandler;
     private final NotificationViewedHandler notificationViewedHandler;
+    private final DigitalWorkFlowHandler digitalWorkFlowHandler;
+    private final AnalogWorkflowHandler analogWorkflowHandler;
+    private final RefinementHandler refinementHandler;
     private final EventHandler eventHandler;
 
-    public PnEventInboundService(StartWorkflowHandler startWorkflowHandler, ExternalChannelResponseHandler externalChannelResponseHandler, NotificationViewedHandler notificationViewedHandler, EventHandler eventHandler) {
+    public PnEventInboundService(StartWorkflowHandler startWorkflowHandler, ExternalChannelResponseHandler externalChannelResponseHandler, 
+                                 NotificationViewedHandler notificationViewedHandler, DigitalWorkFlowHandler digitalWorkFlowHandler, 
+                                 AnalogWorkflowHandler analogWorkflowHandler, RefinementHandler refinementHandler, EventHandler eventHandler) {
         this.startWorkflowHandler = startWorkflowHandler;
         this.externalChannelResponseHandler = externalChannelResponseHandler;
         this.notificationViewedHandler = notificationViewedHandler;
+        this.digitalWorkFlowHandler = digitalWorkFlowHandler;
+        this.analogWorkflowHandler = analogWorkflowHandler;
+        this.refinementHandler = refinementHandler;
         this.eventHandler = eventHandler;
     }
-    
+
     @Bean
     public MessageRoutingCallback customRouter() {
        return message -> {
-           System.out.println("messaggio ricevuto da customRouter "+message);
+           log.info("messaggio ricevuto da customRouter "+message);
            String eventType = (String) message.getHeaders().get("eventType");
-           log.debug("New notification event received, eventType {}",eventType);
+           if(eventType != null){
+               if(ActionEventType.ACTION_GENERIC.name().equals(eventType)) 
+                   return handleAction(message);
+           }else {
+               log.error("eventType not present, cannot start scheduled action");
+               throw new PnInternalException("eventType not present, cannot start scheduled action");
+           }
            return eventHandler.getHandler().get(eventType);
        };
-         
+    }
+
+    private String handleAction(Message<?> message) {
+        /*TODO Quando verrà utilizzata la sola versione v2 verificare se si può evitare di dover gestire la action in modo separato, valorizzando direttamente in fase
+            di scheduling l'eventType con il valore del type della action (ActionPoolImpl -> addToActionsQueue)
+         */
+            Map<String, String> actionMap = getActionMapFromMessage(message);
+            String actionType = actionMap.get("type");
+            if(actionType != null){
+                return eventHandler.getHandler().get(actionType);
+            }else {
+                log.error("actionType not present, cannot start scheduled action");
+                throw new PnInternalException("actionType not present, cannot start scheduled action");
+            }
+    }
+
+    private Map<String, String> getActionMapFromMessage(Message<?> message) {
+        try {
+            String payload = (String) message.getPayload();
+            Map<String,String> action = new ObjectMapper().readValue(payload, HashMap.class);
+            
+            if(action == null){
+                log.error("Action is not valid, cannot start scheduled action");
+                throw new PnInternalException("Action is not valid, cannot start scheduled action");
+            }
+            return action;
+        } catch (JsonProcessingException ex) {
+            log.error("Exception during json mapping ex={}", ex);
+            throw new PnInternalException("Exception during json mapping ex="+ ex);
+        }
     }
 
     @Bean
     public Consumer<Message<PnDeliveryNewNotificationEvent.Payload>> pnDeliveryNewNotificationEventConsumer() {
-        return (message) -> {
-            log.info("pnDeliveryNewNotificationEventConsumer {}", message);
+        return message -> {
+            log.info("New notification event received, message {}", message);
 
             PnDeliveryNewNotificationEvent pnDeliveryNewNotificationEvent = PnDeliveryNewNotificationEvent.builder()
                     .payload(message.getPayload())
@@ -63,7 +111,6 @@ public class PnEventInboundService {
                     .build();
 
             String iun = pnDeliveryNewNotificationEvent.getHeader().getIun();
-            log.info("pnDeliveryNewNotificationEventConsumer - iun {}", iun);
 
             startWorkflowHandler.startWorkflow(iun);
         };
@@ -71,8 +118,8 @@ public class PnEventInboundService {
 
     @Bean
     public Consumer<Message<PnDeliveryNotificationViewedEvent.Payload>> pnDeliveryNotificationViewedEventConsumer() {
-        return (message) -> {
-            log.info("pnDeliveryNewNotificationEventConsumer {}", message);
+        return message -> {
+            log.info("Notification viewed event received, message {}", message);
 
             PnDeliveryNotificationViewedEvent pnDeliveryNewNotificationEvent = PnDeliveryNotificationViewedEvent.builder()
                     .payload(message.getPayload())
@@ -89,16 +136,14 @@ public class PnEventInboundService {
 
     @Bean
     public Consumer<Message<PnExtChnProgressStatusEventPayload>>  pnExtChannelEventInboundConsumer() {
-        return (message) -> {
-            System.out.println("pnExtChannelEventInboundConsumer");
+        return message -> {
+            log.info("External channel event received, message {}", message);
             
             PnExtChnProgressStatusEvent evt = PnExtChnProgressStatusEvent.builder()
                     .payload(message.getPayload())
                     .header(mapStandardEventHeader(message.getHeaders()))
                     .build();
-
-            log.info("EXT_CHANNEL RESPONSE iun {} eventId {} correlationId {}", evt.getHeader().getIun(), evt.getHeader().getEventId(), evt.getPayload().getRequestCorrelationId());
-
+            
             ExtChannelResponseStatus status = PnExtChnProgressStatus.OK.equals(evt.getPayload().getStatusCode()) ? ExtChannelResponseStatus.OK : ExtChannelResponseStatus.KO;
 
             ExtChannelResponse response = ExtChannelResponse.builder()
@@ -116,6 +161,35 @@ public class PnEventInboundService {
         };
     }
 
+    @Bean
+    public Consumer<Message<Action>> pnDeliveryPushAnalogWorkflowConsumer() {
+        return message -> {
+            log.info("pnDeliveryPushAnalogWorkflowConsumer, message {}", message);
+            Action action = message.getPayload();
+
+            analogWorkflowHandler.startAnalogWorkflow(action.getIun(), action.getRecipientIndex());
+        };
+    }
+
+    @Bean
+    public Consumer<Message<Action>> pnDeliveryPushRefinementConsumer() {
+        return message -> {
+            log.info("pnDeliveryPushRefinementConsumer, message {}", message);
+            Action action = message.getPayload();
+            refinementHandler.handleRefinement(action.getIun(), action.getRecipientIndex());
+        };
+    }
+
+    @Bean
+    public Consumer<Message<Action>> pnDeliveryPushDigitalNextActionConsumer() {
+        return message -> {
+            log.info("pnDeliveryPushDigitalNextActionConsumer, message {}", message);
+            Action action = message.getPayload();
+            
+            digitalWorkFlowHandler.startScheduledNextWorkflow(action.getIun(), action.getRecipientIndex());
+        };
+    }
+    
     private StandardEventHeader mapStandardEventHeader(MessageHeaders headers) {
         return StandardEventHeader.builder()
                 .eventId((String) headers.get(PN_EVENT_HEADER_EVENT_ID))

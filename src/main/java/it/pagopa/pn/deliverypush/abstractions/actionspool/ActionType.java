@@ -42,7 +42,7 @@ public enum ActionType {
         }
     },
 
-    ANALOG_WORKFLOW() {
+    ANALOG_WORKFLOW() { //NEW
         @Override
         public String buildActionId(Action action) {
             return String.format(
@@ -53,7 +53,7 @@ public enum ActionType {
         }
     },
 
-    DIGITAL_WORKFLOW_NEXT_ACTION() {
+    DIGITAL_WORKFLOW_NEXT_ACTION() { //NEW
         @Override
         public String buildActionId(Action action) {
             return String.format(
@@ -160,7 +160,7 @@ public enum ActionType {
         }
     },
 
-    REFINEMENT_NOTIFICATION() {
+    REFINEMENT_NOTIFICATION() { //NEW
         @Override
         public String buildActionId(Action action) {
             return String.format(

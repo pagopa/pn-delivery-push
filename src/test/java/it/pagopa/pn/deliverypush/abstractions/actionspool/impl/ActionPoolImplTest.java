@@ -3,6 +3,9 @@ package it.pagopa.pn.deliverypush.abstractions.actionspool.impl;
 import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
+import it.pagopa.pn.deliverypush.middleware.actiondao.ActionDao;
+import it.pagopa.pn.deliverypush.middleware.actiondao.LastPollForFutureActionsDao;
+import net.javacrumbs.shedlock.core.LockAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -24,6 +27,8 @@ class ActionPoolImplTest {
 
     @BeforeEach
     void setup() {
+        LockAssert.TestHelper.makeAllAssertsPass(true);
+        
         MomProducer<ActionEvent> actionsQueue = Mockito.mock(MomProducer.class);
         actionDao = Mockito.mock(ActionDao.class);
         clock = Mockito.mock(Clock.class);

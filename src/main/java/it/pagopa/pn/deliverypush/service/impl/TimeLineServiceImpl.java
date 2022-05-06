@@ -3,7 +3,7 @@ package it.pagopa.pn.deliverypush.service.impl;
 import it.pagopa.pn.api.dto.notification.timeline.EventId;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineEventId;
-import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
+import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -47,10 +47,10 @@ public class TimeLineServiceImpl implements TimelineService {
     }
 
     @Override
-    public boolean isPresentTimeLineElement(String iun, String taxId, TimelineEventId timelineEventId) {
+    public boolean isPresentTimeLineElement(String iun, int recIndex, TimelineEventId timelineEventId) {
         EventId eventId = EventId.builder()
                 .iun(iun)
-                .recipientId(taxId)
+                .recIndex(recIndex)
                 .build();
         return this.timelineDao.getTimelineElement(iun, timelineEventId.buildEventId(eventId)).isPresent();
     }

@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.actions;
 
+import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.timeline.EndOfDigitalDeliveryWorkflowDetails;
@@ -7,12 +8,12 @@ import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
+import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -26,7 +27,8 @@ public class EndOfDigitalDeliveryWorkflowActionHandler extends AbstractActionHan
     private final LegalFactDao legalFactStore;
 
     public EndOfDigitalDeliveryWorkflowActionHandler(TimelineDao timelineDao, ActionsPool actionsPool,
-                                                     LegalFactDao legalFactStore, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
+                        LegalFactDao legalFactStore, PnDeliveryPushConfigs pnDeliveryPushConfigs)
+    {
         super(timelineDao, actionsPool, pnDeliveryPushConfigs);
         this.actionsPool = actionsPool;
         this.legalFactStore = legalFactStore;
@@ -57,7 +59,7 @@ public class EndOfDigitalDeliveryWorkflowActionHandler extends AbstractActionHan
 
             //FIXME recuperare se presente la timeline dell'azione di PEC_FAIL_RECEIVE_PAPER con iun e recipientId recuperati dall'action
 
-            legalFactStore.savePecDeliveryWorkflowLegalFact( receivePecActions, notification, addresses );
+            String legalFactKey = legalFactStore.savePecDeliveryWorkflowLegalFact( receivePecActions, notification, addresses );
 
             // - GENERATE NEXT ACTIONS
             Action nextAction = buildWaitRecipientTimeoutActionForDigital(action);
@@ -71,6 +73,7 @@ public class EndOfDigitalDeliveryWorkflowActionHandler extends AbstractActionHan
                             .taxId(recipient.getTaxId())
                             .build()
                     )
+                    .legalFactsIds( singleLegalFactId( legalFactKey, LegalFactType.DIGITAL_DELIVERY ) )
                     .build()
             );
         }

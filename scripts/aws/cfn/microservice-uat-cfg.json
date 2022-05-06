@@ -1,0 +1,13 @@
+{
+  "Parameters" : {
+    "CorsAllowedDomains" : "http://localhost:8090,https://portale-pa-main.fe.dev.pn.pagopa.it/,https://portale-pf-main.fe.dev.pn.pagopa.it/,https://www.uat.pn.pagopa.it",
+    "AddressBookUrl": "https://zkkwwk0v41.execute-api.eu-central-1.amazonaws.com/mock/demo/addresses/",
+    "PhysicalPersonPortalUrl": "https://portale-demo.fe.dev.pn.pagopa.it/",
+    "PecSecondAttemptWaitTime": "70s",
+    "RecipientTimeoutDelayAnalog": "3m",
+    "RecipientTimeoutDelayDigital": "2m",
+    "RefinementTimeCompletelyUnreachable": "4m",
+    "WebhookScanInterval": "60000",
+    "WebhookMaxLength": "10"
+  }
+}

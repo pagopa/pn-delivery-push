@@ -3,12 +3,13 @@ package it.pagopa.pn.deliverypush.webhook;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineInfoDto;
 import it.pagopa.pn.api.dto.webhook.WebhookConfigDto;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
-import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.commons_delivery.utils.StatusUtils;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.ActionEvent;
+import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
+import it.pagopa.pn.deliverypush.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.temp.mom.consumer.AbstractEventHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,21 +17,22 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class WebhookBufferWriterService extends AbstractEventHandler<ActionEvent> {
 
-    private final NotificationDao notificationDao;
+    private final PnDeliveryClient pnDeliveryClient;
     private final TimelineDao timelineDao;
     private final StatusUtils statusUtils;
     private final WebhookBufferDao webhookBufferDao;
     private final WebhookConfigsDao webhookConfigsDao;
 
-    public WebhookBufferWriterService(NotificationDao notificationDao, TimelineDao timelineDao, StatusUtils statusUtils, WebhookBufferDao webhookBufferDao,
+    public WebhookBufferWriterService(PnDeliveryClient pnDeliveryClient, TimelineDao timelineDao, StatusUtils statusUtils, WebhookBufferDao webhookBufferDao,
                                       WebhookConfigsDao webhookConfigsDao) {
         super(ActionEvent.class);
-        this.notificationDao = notificationDao;
+        this.pnDeliveryClient = pnDeliveryClient;
         this.timelineDao = timelineDao;
         this.statusUtils = statusUtils;
         this.webhookBufferDao = webhookBufferDao;
@@ -43,7 +45,7 @@ public class WebhookBufferWriterService extends AbstractEventHandler<ActionEvent
 
         String iun = evt.getHeader().getIun();
 
-        notificationDao.getNotificationByIun(iun).ifPresent(notification -> {
+        pnDeliveryClient.getNotificationInfo(iun, false).ifPresent(notification -> {
             String paId = notification.getSender().getPaId();
 
             webhookConfigsDao.getWebhookInfo(paId).ifPresent(webhookConfigDto -> {
@@ -80,8 +82,15 @@ public class WebhookBufferWriterService extends AbstractEventHandler<ActionEvent
 
         Set<TimelineElement> rawTimeline = timelineDao.getTimeline(iun);
 
+        Set<TimelineInfoDto> timelineInfoDto = rawTimeline.stream().map(elem ->
+                TimelineInfoDto.builder()
+                        .category(elem.getCategory())
+                        .timestamp(elem.getTimestamp())
+                        .build()
+        ).collect(Collectors.toSet());
+
         List<NotificationStatusHistoryElement> statusHistory = statusUtils
-                .getStatusHistory(rawTimeline, numberOfRecipients, notificationCreationDate);
+                .getStatusHistory(timelineInfoDto, numberOfRecipients, notificationCreationDate);
 
         int statusHistoryLength = statusHistory.size();
         if (statusHistoryLength >= 1) {

@@ -17,10 +17,9 @@ public class RefinementHandler {
         this.timelineUtils = timelineUtils;
     }
 
-    //@StreamListener(condition = "REFINEMENT")
-    public void handleRefinement(String iun, String taxId) {
-        log.info("Start HandleRefinement - iun {} id {}", iun, taxId);
-        addTimelineElement(timelineUtils.buildRefinementTimelineElement(iun, taxId));
+    public void handleRefinement(String iun, int recIndex) {
+        log.info("Start HandleRefinement - iun {} id {}", iun, recIndex);
+        addTimelineElement(timelineUtils.buildRefinementTimelineElement(iun, recIndex));
     }
 
     private void addTimelineElement(TimelineElement element) {
