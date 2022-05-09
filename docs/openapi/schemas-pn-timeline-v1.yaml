@@ -209,7 +209,7 @@ components:
           type: integer
           description: Index destinatario notifica digitale
         source:
-          $ref: '#/components/schemas/AddressSource'
+          $ref: '#/components/schemas/DigitalAddressSource'
         isAvailable:
           type: boolean
           description: Disponibilità indirizzo
@@ -229,13 +229,7 @@ components:
           type: string
           description: Codice fiscale destinatario
         deliveryMode:
-          type: string
-          description: >-
-            Specifica se la notifica al destinatario segue il percorso
-            analogico o quello digitale
-          enum:
-          - DIGITAL
-          - ANALOG
+          $ref: '#/components/schemas/DeliveryMode'
         physicalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
         platform:
@@ -271,17 +265,9 @@ components:
           type: integer
           description: Index destinatario notifica digitale
         deliveryMode:
-          type: string
-          description: Tipologia Domiciliazione
-          enum:
-          - DIGITAL
-          - ANALOG
+          $ref: '#/components/schemas/DeliveryMode'
         contactPhase:
-          type: string
-          description: Fase in cui è avvenuta la richiesta
-          enum:
-          - CHOOSE_DELIVERY
-          - SEND_ATTEMPT
+          $ref: '#/components/schemas/ContactPhase'
         sentAttemptMade:
           type: integer
           description: Numero di tentativi di notificazione già effettuati
@@ -386,7 +372,7 @@ components:
         address:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
         addressSource:
-          $ref: '#/components/schemas/AddressSource'
+          $ref: '#/components/schemas/DigitalAddressSource'
         retryNumber:
           type: integer
           description: numero dei tentativi effettuati
@@ -414,11 +400,7 @@ components:
         address:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
         responseStatus:
-          type: string
-          description: stato risposta ricevuta da externalChannel
-          enum:
-          - OK
-          - KO
+          $ref: '#/components/schemas/ResponseStatus'
         notificationDate:
           type: string
           description: data notifica
@@ -441,7 +423,7 @@ components:
         address:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
         addressSource:
-          $ref: '#/components/schemas/AddressSource'
+          $ref: '#/components/schemas/DigitalAddressSource'
         retryNumber:
           type: integer
           description: numero dei tentativi effettuati
@@ -469,11 +451,7 @@ components:
         address:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
         serviceLevel:
-          type: string
-          description: Livello Servizio
-          enum:
-          - SIMPLE_REGISTERED_LETTER
-          - REGISTERED_LETTER_890
+          "$ref": "#/components/schemas/ServiceLevel"
         sentAttemptMade:
           type: integer
           description: numero dei tentativi effettuati
@@ -496,11 +474,7 @@ components:
         address:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
         serviceLevel:
-          type: string
-          description: Livello Servizio
-          enum:
-          - SIMPLE_REGISTERED_LETTER
-          - REGISTERED_LETTER_890
+          "$ref": "#/components/schemas/ServiceLevel"
         sentAttemptMade:
           type: integer
           description: numero dei tentativi effettuati
@@ -528,7 +502,7 @@ components:
         address:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
 
-    AddressSource:
+    DigitalAddressSource:
       type: string
       description: sorgente indirizzo di invio della notifica
       enum:
@@ -543,9 +517,37 @@ components:
         address:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
         source:
-          $ref: '#/components/schemas/AddressSource'
+          $ref: '#/components/schemas/DigitalAddressSource'
         sentAttemptMade:
           type: integer
         lastAttemptDate:
           type: string
+          format: date-time
 
+    ServiceLevel:
+      type: string
+      description: Livello Servizio
+      enum:
+        - SIMPLE_REGISTERED_LETTER
+        - REGISTERED_LETTER_890
+          
+    ResponseStatus:
+      type: string
+      description: stato risposta ricevuta da externalChannel
+      enum:
+        - OK
+        - KO
+    
+    ContactPhase:
+      type: string
+      description: Fase in cui è avvenuta la richiesta
+      enum:
+        - CHOOSE_DELIVERY
+        - SEND_ATTEMPT
+
+    DeliveryMode:
+      type: string
+      description: Tipologia Domiciliazione
+      enum:
+        - DIGITAL
+        - ANALOG

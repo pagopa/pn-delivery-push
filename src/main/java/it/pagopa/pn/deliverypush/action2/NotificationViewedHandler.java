@@ -1,13 +1,13 @@
 package it.pagopa.pn.deliverypush.action2;
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
-import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
-import it.pagopa.pn.deliverypush.middleware.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
+import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
+import it.pagopa.pn.deliverypush.middleware.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +37,7 @@ public class NotificationViewedHandler {
         this.notificationUtils = notificationUtils;
     }
     
-    public void handleViewNotification(String iun, int recIndex) {
+    public void handleViewNotification(String iun, Integer recIndex) {
         log.info("Start HandleViewNotification - iun {}", iun);
 
         Notification notification = notificationService.getNotificationByIun(iun);
@@ -54,7 +54,7 @@ public class NotificationViewedHandler {
         log.debug("End HandleViewNotification - iun {} id {}", iun, recIndex);
     }
 
-    private void addTimelineElement(TimelineElement element) {
+    private void addTimelineElement(TimelineElementInternal element) {
         timelineService.addTimelineElement(element);
     }
 }

@@ -1,21 +1,21 @@
 package it.pagopa.pn.deliverypush.action2;
 
-import it.pagopa.pn.api.dto.extchannel.ExtChannelResponse;
-import it.pagopa.pn.api.dto.extchannel.ExtChannelResponseStatus;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressInfo;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
-import it.pagopa.pn.api.dto.notification.timeline.*;
-import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
+
+
+import it.pagopa.pn.api.dto.notification.timeline.SendDigitalDetails;
+import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action2.utils.DigitalWorkFlowUtils;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import org.junit.jupiter.api.Assertions;
@@ -58,7 +58,7 @@ class DigitalWorkFlowHandlerTest {
     public void setup() {
         handler = new DigitalWorkFlowHandler(externalChannelSendHandler, notificationService,
                 schedulerService, digitalWorkFlowUtils, completionWorkflow, publicRegistrySendHandler, instantNowSupplier,
-                pnDeliveryPushConfigs);
+                pnDeliveryPushConfigs, timelineUtils);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -425,7 +425,7 @@ class DigitalWorkFlowHandlerTest {
                 .notificationDate(Instant.now())
                 .build();
 
-        TimelineElement element = TimelineElement.builder()
+        TimelineElementInternal element = TimelineElement.builder()
                 .timestamp(Instant.now())
                 .details(SendDigitalDetails.sendBuilder()
                         .addressSource(DigitalAddressSource.SPECIAL)

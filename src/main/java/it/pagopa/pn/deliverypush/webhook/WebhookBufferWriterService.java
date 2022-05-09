@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.webhook;
 
-import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.api.dto.webhook.WebhookConfigDto;
@@ -79,9 +79,9 @@ public class WebhookBufferWriterService extends AbstractEventHandler<ActionEvent
         int numberOfRecipients = notification.getRecipients().size();
         Instant notificationCreationDate = notification.getSentAt();
 
-        Set<TimelineElement> rawTimeline = timelineDao.getTimeline(iun);
+        Set<TimelineElementInternal> rawTimeline = timelineDao.getTimeline(iun);
 
-        Set<TimelineElement> timelineElements = rawTimeline.stream().map(elem ->
+        Set<TimelineElementInternal> timelineElements = rawTimeline.stream().map(elem ->
                 TimelineElement.builder()
                         .category(elem.getCategory())
                         .timestamp(elem.getTimestamp())

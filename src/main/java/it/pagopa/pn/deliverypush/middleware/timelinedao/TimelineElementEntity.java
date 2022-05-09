@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.timelinedao;
 
 
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -26,7 +25,7 @@ public class TimelineElementEntity {
     private String iun;
     private String timelineElementId;
     private Instant timestamp;
-    private TimelineElementCategory category;
+    private String category;
     private String legalFactId;
     private String details;
     
@@ -57,10 +56,10 @@ public class TimelineElementEntity {
     }
 
     @DynamoDbAttribute(value = "category")
-    public TimelineElementCategory getCategory() {
+    public String getCategory() {
         return category;
     }
-    public void setCategory(TimelineElementCategory category) {
+    public void setCategory(String category) {
         this.category = category;
     }
 

@@ -1,12 +1,12 @@
 package it.pagopa.pn.deliverypush.middleware.timelinedao;
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
-import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
-import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.RequestUpdateStatusDto;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElement;
 import it.pagopa.pn.deliverypush.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.util.StatusUtils;
@@ -45,7 +45,7 @@ public class TimelineDaoDynamo implements TimelineDao {
     }
 
     @Override
-    public void addTimelineElement(TimelineElement dto) {
+    public void addTimelineElement(TimelineElementInternal dto) {
         //TODO Quando si passa alla versione v2 ristrutturando utilizzando il service che richiama l'addTimelineElement e non il dao come ora.
         // Verificare inoltre se possibile ristrutturare il codice per ricevere la Notification in ingresso, invece di effettuare la chiamata a delivery
         
@@ -54,7 +54,7 @@ public class TimelineDaoDynamo implements TimelineDao {
         if (notification != null) {
             log.debug("Notification is present {} for iun {}", notification.getPaNotificationId(), dto.getIun());
 
-            Set<TimelineElement> currentTimeline = this.getTimeline(dto.getIun());
+            Set<TimelineElementInternal> currentTimeline = this.getTimeline(dto.getIun());
 
             // - Calcolare lo stato corrente
             NotificationStatus currentState = computeLastStatusHistoryElement(notification, currentTimeline).getStatus();
@@ -79,7 +79,7 @@ public class TimelineDaoDynamo implements TimelineDao {
         }
     }
 
-    private void updateStatus(TimelineElement dto, NotificationStatus currentState, NotificationStatusHistoryElement nextState) {
+    private void updateStatus(TimelineElementInternal dto, NotificationStatus currentState, NotificationStatusHistoryElement nextState) {
         RequestUpdateStatusDto requestDto = getRequestUpdateStatusDto(dto, nextState.getStatus());
 
         ResponseEntity<Void> resp = pnDeliveryClient.updateState(requestDto);
@@ -92,7 +92,7 @@ public class TimelineDaoDynamo implements TimelineDao {
         }
     }
 
-    private NotificationStatusHistoryElement computeLastStatusHistoryElement(Notification notification, Set<TimelineElement> currentTimeline) {
+    private NotificationStatusHistoryElement computeLastStatusHistoryElement(Notification notification, Set<TimelineElementInternal> currentTimeline) {
         int numberOfRecipient = notification.getRecipients().size();
         Instant notificationCreatedAt = notification.getSentAt();
 
@@ -105,7 +105,7 @@ public class TimelineDaoDynamo implements TimelineDao {
     }
 
     @Override
-    public Optional<TimelineElement> getTimelineElement(String iun, String timelineId) {
+    public Optional<TimelineElementInternal> getTimelineElement(String iun, String timelineId) {
         Key keyToSearch = Key.builder()
                 .partitionValue(iun)
                 .sortValue(timelineId)
@@ -115,7 +115,7 @@ public class TimelineDaoDynamo implements TimelineDao {
     }
 
     @Override
-    public Set<TimelineElement> getTimeline(String iun) {
+    public Set<TimelineElementInternal> getTimeline(String iun) {
         return entityDao.findByIun(iun)
                 .stream()
                 .map(entity2dto::entityToDto)
@@ -127,7 +127,7 @@ public class TimelineDaoDynamo implements TimelineDao {
         entityDao.deleteByIun(iun);
     }
 
-    private RequestUpdateStatusDto getRequestUpdateStatusDto(TimelineElement dto, NotificationStatus nextState) {
+    private RequestUpdateStatusDto getRequestUpdateStatusDto(TimelineElementInternal dto, NotificationStatus nextState) {
         return RequestUpdateStatusDto.builder()
                 .iun(dto.getIun())
                 .nextState(nextState)

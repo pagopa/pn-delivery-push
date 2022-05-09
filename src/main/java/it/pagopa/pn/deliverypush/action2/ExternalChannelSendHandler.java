@@ -1,14 +1,12 @@
 package it.pagopa.pn.deliverypush.action2;
 
-import it.pagopa.pn.api.dto.events.PnExtChnEmailEvent;
-import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
-import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.*;
 import it.pagopa.pn.deliverypush.external.ExternalChannel;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +24,7 @@ public class ExternalChannelSendHandler {
     /**
      * Send pec notification to external channel
      */
-    public void sendDigitalNotification(Notification notification, DigitalAddress digitalAddress, DigitalAddressSource addressSource, int recIndex,
+    public void sendDigitalNotification(Notification notification, DigitalAddress digitalAddress, DigitalAddressSource addressSource, Integer recIndex,
                                         int sentAttemptMade) {
         PnExtChnPecEvent pnExtChnPecEvent = externalChannelUtils.getExtChannelPecEvent(notification, digitalAddress, addressSource, recIndex, sentAttemptMade);
 
@@ -37,7 +35,7 @@ public class ExternalChannelSendHandler {
     /**
      * Send courtesy message to external channel
      */
-    public void sendCourtesyNotification(Notification notification, DigitalAddress courtesyAddress, int recIndex, String eventId) {
+    public void sendCourtesyNotification(Notification notification, DigitalAddress courtesyAddress, Integer recIndex, String eventId) {
         PnExtChnEmailEvent pnExtChnEmailEvent = externalChannelUtils.getExtChannelEmailRequest(notification, courtesyAddress, recIndex, eventId);
 
         externalChannelUtils.addSendCourtesyMessageToTimeline(notification, courtesyAddress, recIndex, eventId);
@@ -47,7 +45,7 @@ public class ExternalChannelSendHandler {
     /**
      * Send registered letter to external channel
      */
-    public void sendNotificationForRegisteredLetter(Notification notification, PhysicalAddress physicalAddress, int recIndex) {
+    public void sendNotificationForRegisteredLetter(Notification notification, PhysicalAddress physicalAddress, Integer recIndex) {
         PnExtChnPaperEvent pnExtChnPaperEvent = externalChannelUtils.getExtChannelPaperRequest(notification, physicalAddress, recIndex);
         externalChannelUtils.addSendSimpleRegisteredLetterToTimeline(notification, physicalAddress, recIndex, pnExtChnPaperEvent.getHeader().getEventId());
         externalChannel.sendNotification(pnExtChnPaperEvent);
@@ -56,7 +54,7 @@ public class ExternalChannelSendHandler {
     /**
      * Send paper notification to external channel
      */
-    public void sendAnalogNotification(Notification notification, PhysicalAddress physicalAddress, int recIndex, boolean investigation, int sentAttemptMade) {
+    public void sendAnalogNotification(Notification notification, PhysicalAddress physicalAddress, Integer recIndex, boolean investigation, int sentAttemptMade) {
         PnExtChnPaperEvent pnExtChnPaperEvent = externalChannelUtils.getExtChannelPaperRequest(notification, physicalAddress, recIndex, investigation, sentAttemptMade);
         externalChannelUtils.addSendAnalogNotificationToTimeline(notification, physicalAddress, recIndex, investigation, sentAttemptMade, pnExtChnPaperEvent.getHeader().getEventId());
         externalChannel.sendNotification(pnExtChnPaperEvent);

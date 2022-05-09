@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.action2.it.utils;
 
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
+
 
 public class PhysicalAddressBuilder {
     String address;

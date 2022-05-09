@@ -9,8 +9,8 @@ import java.util.List;
 @Service
 public class WebhookConfigService {
 
-    private WebhookConfigsDao webhookConfigsDao;
-    private DtoToEntityConfigMapper dtoToEntityConfigMapper;
+    private final WebhookConfigsDao webhookConfigsDao;
+    private final DtoToEntityConfigMapper dtoToEntityConfigMapper;
 
     public WebhookConfigService(WebhookConfigsDao webhookConfigsDao, DtoToEntityConfigMapper dtoToEntityConfigMapper) {
         this.webhookConfigsDao = webhookConfigsDao;

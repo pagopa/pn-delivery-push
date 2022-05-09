@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.action2.utils;
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import org.springframework.stereotype.Component;
 

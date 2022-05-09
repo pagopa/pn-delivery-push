@@ -3,11 +3,11 @@ package it.pagopa.pn.deliverypush.actions;
 import it.pagopa.pn.api.dto.addressbook.AddressBookEntry;
 import it.pagopa.pn.api.dto.events.CommunicationType;
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
-import it.pagopa.pn.api.dto.notification.timeline.*;
+
+import *;
 import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
@@ -109,9 +109,9 @@ class SendPaperActionHandlerTest {
         Assertions.assertEquals(true, value.getPayload().isInvestigation());
         Assertions.assertEquals(physicalAddress, value.getPayload().getDestinationAddress());
 
-        ArgumentCaptor<TimelineElement> timeLineArg = ArgumentCaptor.forClass(TimelineElement.class);
+        ArgumentCaptor<TimelineElementInternal> timeLineArg = ArgumentCaptor.forClass(TimelineElement.class);
         Mockito.verify(timelineDao).addTimelineElement(timeLineArg.capture());
-        final TimelineElement timeLineArgValue = timeLineArg.getValue();
+        final TimelineElementInternal timeLineArgValue = timeLineArg.getValue();
         Assertions.assertEquals(TimelineElementCategory.SEND_ANALOG_DOMICILE, (timeLineArgValue.getCategory()));
         final SendPaperDetails details = (SendPaperDetails) timeLineArgValue.getDetails();
         Assertions.assertEquals(true, details.isInvestigation());
@@ -177,9 +177,9 @@ class SendPaperActionHandlerTest {
         Assertions.assertEquals(false, value.getPayload().isInvestigation());
         Assertions.assertEquals(physicalAddress, value.getPayload().getDestinationAddress());
 
-        ArgumentCaptor<TimelineElement> timeLineArg = ArgumentCaptor.forClass(TimelineElement.class);
+        ArgumentCaptor<TimelineElementInternal> timeLineArg = ArgumentCaptor.forClass(TimelineElement.class);
         Mockito.verify(timelineDao).addTimelineElement(timeLineArg.capture());
-        final TimelineElement timeLineArgValue = timeLineArg.getValue();
+        final TimelineElementInternal timeLineArgValue = timeLineArg.getValue();
         Assertions.assertEquals(TimelineElementCategory.SEND_ANALOG_DOMICILE, (timeLineArgValue.getCategory()));
         final SendPaperDetails details = (SendPaperDetails) timeLineArgValue.getDetails();
         Assertions.assertEquals(false, details.isInvestigation());

@@ -1,13 +1,13 @@
 package it.pagopa.pn.deliverypush.middleware.timelinedao;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
-import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
-import it.pagopa.pn.api.dto.notification.timeline.ReceivedDetails;
+import NotificationPathChooseDetails;
+import ReceivedDetails;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
@@ -63,7 +63,7 @@ class TimelineDaoDynamoTest {
         String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
 
         String id1 = "sender_ack";
-        TimelineElement row1 = TimelineElement.builder()
+        TimelineElementInternal row1 = TimelineElement.builder()
                 .iun(iun)
                 .elementId(id1)
                 .category(TimelineElementCategory.REQUEST_ACCEPTED)
@@ -109,7 +109,7 @@ class TimelineDaoDynamoTest {
         String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
 
         String id1 = "sender_ack";
-        TimelineElement row1 = TimelineElement.builder()
+        TimelineElementInternal row1 = TimelineElement.builder()
                 .iun(iun)
                 .elementId(id1)
                 .category(TimelineElementCategory.REQUEST_ACCEPTED)
@@ -117,7 +117,7 @@ class TimelineDaoDynamoTest {
                 .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
                 .build();
         String id2 = "path_choose";
-        TimelineElement row2 = TimelineElement.builder()
+        TimelineElementInternal row2 = TimelineElement.builder()
                 .iun(iun)
                 .elementId(id2)
                 .category(TimelineElementCategory.NOTIFICATION_PATH_CHOOSE)
@@ -156,17 +156,17 @@ class TimelineDaoDynamoTest {
 
         // THEN
         // check first row
-        Optional<TimelineElement> retrievedRow1 = dao.getTimelineElement(iun, id1);
+        Optional<TimelineElementInternal> retrievedRow1 = dao.getTimelineElement(iun, id1);
         Assertions.assertTrue(retrievedRow1.isPresent());
         Assertions.assertEquals(row1, retrievedRow1.get());
 
         // check second row
-        Optional<TimelineElement> retrievedRow2 = dao.getTimelineElement(iun, id2);
+        Optional<TimelineElementInternal> retrievedRow2 = dao.getTimelineElement(iun, id2);
         Assertions.assertTrue(retrievedRow2.isPresent());
         Assertions.assertEquals(row2, retrievedRow2.get());
 
         // check full retrieve
-        Set<TimelineElement> result = dao.getTimeline(iun);
+        Set<TimelineElementInternal> result = dao.getTimeline(iun);
         Assertions.assertEquals(Set.of(row1, row2), result);
     }
 

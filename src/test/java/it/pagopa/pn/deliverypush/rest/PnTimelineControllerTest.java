@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.rest;
 
-import it.pagopa.pn.api.dto.notification.timeline.ReceivedDetails;
+import ReceivedDetails;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
@@ -32,7 +32,7 @@ class PnTimelineControllerTest {
 
     @Test
     void getTimelineSuccess() {
-        List<TimelineElement> timelineElements = Collections.singleton(TimelineElement.builder()
+        List<TimelineElementInternal> timelineElements = Collections.singleton(TimelineElement.builder()
                 .iun(IUN)
                 .timestamp( Instant.now() )
                 .elementId( "element_id" )

@@ -14,7 +14,7 @@ import java.util.List;
 @RestController
 public class PnPaperNotificationFailedController implements PnDeliveryRestApi_methodSearchPaperNotificationFailed {
 
-    private PaperNotificationFailedService service;
+    private final PaperNotificationFailedService service;
 
     public PnPaperNotificationFailedController(PaperNotificationFailedService service) {
         this.service = service;

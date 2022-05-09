@@ -1,12 +1,12 @@
 package it.pagopa.pn.deliverypush.actions;
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
-import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+
+
+import NotificationPathChooseDetails;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
@@ -62,7 +62,7 @@ class EndOfAnalogDeliveryWorkflowActionHandlerTest {
 	    handler.handleAction( action, notification );
 	    
 		//Then
-		ArgumentCaptor<TimelineElement> timeLineArg = ArgumentCaptor.forClass(TimelineElement.class);
+		ArgumentCaptor<TimelineElementInternal> timeLineArg = ArgumentCaptor.forClass(TimelineElement.class);
 		Mockito.verify(timelineDao).addTimelineElement(timeLineArg.capture());
 		Assertions.assertEquals( TimelineElementCategory.END_OF_ANALOG_DELIVERY_WORKFLOW , timeLineArg.getValue().getCategory());
 
@@ -79,7 +79,7 @@ class EndOfAnalogDeliveryWorkflowActionHandlerTest {
 		Assertions.assertEquals(ActionType.END_OF_ANALOG_DELIVERY_WORKFLOW, actionType, "Different Action Type");
 	}
 
-	private TimelineElement newTimelineElement(List<DigitalAddress> addresses) {
+	private TimelineElementInternal newTimelineElement(List<DigitalAddress> addresses) {
 		return TimelineElement.builder()
 				.details( NotificationPathChooseDetails.builder()
 						.courtesyAddresses(addresses)

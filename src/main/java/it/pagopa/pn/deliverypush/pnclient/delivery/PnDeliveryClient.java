@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.pnclient.delivery;
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.RequestUpdateStatusDto;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Optional;

@@ -1,11 +1,11 @@
 package it.pagopa.pn.deliverypush.action2;
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+
+
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
@@ -66,7 +66,7 @@ class CompletionWorkFlowHandlerTest {
         //GIVEN
         Notification notification = getNotification();
         NotificationRecipient recipient = notification.getRecipients().get(0);
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
         
         TimeParams times = new TimeParams();
         times.setSchedulingDaysSuccessDigitalRefinement(Duration.ofSeconds(1));
@@ -98,7 +98,7 @@ class CompletionWorkFlowHandlerTest {
         //GIVEN
         Notification notification = getNotification();
         NotificationRecipient recipient = notification.getRecipients().get(0);
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
         
         TimeParams times = new TimeParams();
         times.setSchedulingDaysFailureDigitalRefinement(Duration.ofSeconds(1));
@@ -133,7 +133,7 @@ class CompletionWorkFlowHandlerTest {
         //GIVEN
         Notification notification = getNotification();
         NotificationRecipient recipient = notification.getRecipients().get(0);
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         Instant notificationDate = Instant.now();
 
@@ -160,7 +160,7 @@ class CompletionWorkFlowHandlerTest {
         //GIVEN
         Notification notification = getNotification();
         NotificationRecipient recipient = notification.getRecipients().get(0);
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         Instant notificationDate = Instant.now();
 

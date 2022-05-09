@@ -1,16 +1,17 @@
 package it.pagopa.pn.deliverypush.action2;
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
-import it.pagopa.pn.api.dto.notification.timeline.ContactPhase;
-import it.pagopa.pn.api.dto.notification.timeline.SendCourtesyMessageDetails;
-import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.commons.utils.DateUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.action2.utils.ChooseDeliveryModeUtils;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
+import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
 import it.pagopa.pn.deliverypush.external.AddressBookEntry;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ContactPhase;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendCourtesyMessageDetails;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import lombok.extern.slf4j.Slf4j;
@@ -49,9 +50,8 @@ public class ChooseDeliveryModeHandler {
      * Save availability information for all address in timeline
      *
      * @param notification Public Administration notification request
-     * @param recipient    Notification recipient
      */
-    public void chooseDeliveryTypeAndStartWorkflow(Notification notification, int recIndex) {
+    public void chooseDeliveryTypeAndStartWorkflow(Notification notification, Integer recIndex) {
         log.info("Start ChooseDeliveryTypeAndStartWorkflow process-IUN {} id {}", notification.getIun(), recIndex);
 
         String iun = notification.getIun();
@@ -91,9 +91,9 @@ public class ChooseDeliveryModeHandler {
      *
      * @param response Response for get general address
      * @param iun      Notification unique identifier
-     * @param taxId    User identifier
+     * @param recIndex    User identifier
      */
-    public void handleGeneralAddressResponse(PublicRegistryResponse response, String iun, int recIndex) {
+    public void handleGeneralAddressResponse(PublicRegistryResponse response, String iun, Integer recIndex) {
         log.info("HandleGeneralAddressResponse in choose phase  - iun {} id {}", iun, recIndex);
 
         if (response.getDigitalAddress() != null) {
@@ -117,9 +117,9 @@ public class ChooseDeliveryModeHandler {
      *
      * @param notification   Public Administration notification request
      * @param digitalAddress User address
-     * @param recipient      Notification recipient
+     * @param recIndex      User identifier
      */
-    public void startDigitalWorkflow(Notification notification, DigitalAddress digitalAddress, DigitalAddressSource addressSource, int recIndex) {
+    public void startDigitalWorkflow(Notification notification, DigitalAddress digitalAddress, DigitalAddressSource addressSource, Integer recIndex) {
         log.info("Starting digital workflow sending notification to external channel - iun {} id {} ", notification.getIun(), recIndex);
         externalChannelSendHandler.sendDigitalNotification(notification, digitalAddress, addressSource, recIndex, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER);
     }
@@ -128,9 +128,9 @@ public class ChooseDeliveryModeHandler {
      * Start analog workflow, if courtesy message has been sent to the user, it is necessary to wait 5 days (from sent message date) before start Analog workflow
      *
      * @param iun   Notification unique identifier
-     * @param taxId User identifier
+     * @param recIndex User identifier
      */
-    public void scheduleAnalogWorkflow(String iun, int recIndex) {
+    public void scheduleAnalogWorkflow(String iun, Integer recIndex) {
         log.debug("Scheduling analog workflow for iun {} id {} ", iun, recIndex);
 
         Optional<SendCourtesyMessageDetails> sendCourtesyMessageDetailsOpt = chooseDeliveryUtils.getFirstSentCourtesyMessage(iun, recIndex);
@@ -138,8 +138,9 @@ public class ChooseDeliveryModeHandler {
 
         if (sendCourtesyMessageDetailsOpt.isPresent()) {
             SendCourtesyMessageDetails sendCourtesyMessageDetails = sendCourtesyMessageDetailsOpt.get();
-
-            schedulingDate = sendCourtesyMessageDetails.getSendDate().plus(pnDeliveryPushConfigs.getTimeParams().getWaitingForReadCourtesyMessage());//5 Days
+            Instant sendDate = DateUtils.convertDateToInstant(sendCourtesyMessageDetails.getSendDate());
+            
+            schedulingDate = sendDate.plus(pnDeliveryPushConfigs.getTimeParams().getWaitingForReadCourtesyMessage());//5 Days
             log.info("Courtesy message is present, need to schedule analog workflow at {}  - iun {} id {} ", schedulingDate, iun, recIndex);
         } else {
             schedulingDate = instantNowSupplier.get();
@@ -150,7 +151,7 @@ public class ChooseDeliveryModeHandler {
     }
 
 
-    private DigitalAddress retrievePlatformAddress(Notification notification, int recIndex) {
+    private DigitalAddress retrievePlatformAddress(Notification notification, Integer recIndex) {
         log.debug("retrievePlatformAddress  for id {}", recIndex);
         
         Optional<AddressBookEntry> addressBookEntryOpt = chooseDeliveryUtils.getAddresses(notification, recIndex);

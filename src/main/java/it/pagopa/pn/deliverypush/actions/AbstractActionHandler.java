@@ -2,14 +2,15 @@ package it.pagopa.pn.deliverypush.actions;
 
 import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntryId;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionHandler;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,7 +38,7 @@ public abstract class AbstractActionHandler implements ActionHandler {
         );
     }
 
-    protected void addTimelineElement(Action action, TimelineElement row) {
+    protected void addTimelineElement(Action action, TimelineElementInternal row) {
         this.timelineDao.addTimelineElement(row.toBuilder()
                 .iun(action.getIun())
                 .timestamp(Instant.now())
@@ -47,7 +48,7 @@ public abstract class AbstractActionHandler implements ActionHandler {
     }
 
     protected <T> Optional<T> getTimelineElement(Action action, ActionType actionType, Class<T> timelineDetailsClass) {
-        Optional<TimelineElement> row;
+        Optional<TimelineElementInternal> row;
         row = this.timelineDao.getTimelineElement(action.getIun(), actionType.buildActionId(action));
 
         return row.map(el -> timelineDetailsClass.cast(el.getDetails()));
@@ -153,9 +154,9 @@ public abstract class AbstractActionHandler implements ActionHandler {
 
         // FIXME: se non c'è il risultato verificare che manchi anche la richiesta di invio: se c'è è un anomalia.
 
-        Set<TimelineElement> timeline = timelineDao.getTimeline(action.getIun());
+        Set<TimelineElementInternal> timeline = timelineDao.getTimeline(action.getIun());
 
-        Optional<TimelineElement> firstAttemptResult = timeline.stream()
+        Optional<TimelineElementInternal> firstAttemptResult = timeline.stream()
                 .filter(timelineElement -> firstAttemptResultActionId.equals(timelineElement.getElementId()))
                 .findFirst();
 

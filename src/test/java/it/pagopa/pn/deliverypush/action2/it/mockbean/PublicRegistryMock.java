@@ -1,8 +1,8 @@
 package it.pagopa.pn.deliverypush.action2.it.mockbean;
 
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
-import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+
+import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.action2.PublicRegistryResponseHandler;
 import it.pagopa.pn.deliverypush.external.PublicRegistry;
 

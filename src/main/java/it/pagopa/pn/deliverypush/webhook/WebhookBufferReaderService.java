@@ -3,7 +3,7 @@ package it.pagopa.pn.deliverypush.webhook;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.api.dto.webhook.WebhookConfigDto;
-import it.pagopa.pn.commons.utils.DateFormatUtils;
+import it.pagopa.pn.commons.utils.DateUtils;
 import it.pagopa.pn.commons_delivery.utils.EncodingUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.webhook.dto.WebhookBufferRowDto;
@@ -103,7 +103,7 @@ public class WebhookBufferReaderService {
                 .iun(refusedCondition ? null : row.getIun())
                 .notificationId(EncodingUtils.base64Encoding(row.getIun()))
                 .senderId(row.getSenderId())
-                .statusChangeTime(DateFormatUtils.formatInstantToString(row.getStatusChangeTime(), DateFormatUtils.yyyyMMddHHmmssSSSZ))
+                .statusChangeTime(DateUtils.formatInstantToString(row.getStatusChangeTime(), DateUtils.yyyyMMddHHmmssSSSZ))
                 .build();
         log.debug("webhook Buffer row " + row + " mapped to " + out );
         return out;

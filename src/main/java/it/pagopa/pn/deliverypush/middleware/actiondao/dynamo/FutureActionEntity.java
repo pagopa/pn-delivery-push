@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.actiondao.dynamo;
 
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

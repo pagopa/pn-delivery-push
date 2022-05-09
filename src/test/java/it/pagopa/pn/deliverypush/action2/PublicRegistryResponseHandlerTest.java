@@ -1,12 +1,12 @@
 package it.pagopa.pn.deliverypush.action2;
 
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
-import it.pagopa.pn.api.dto.notification.timeline.ContactPhase;
-import it.pagopa.pn.api.dto.notification.timeline.DeliveryMode;
-import it.pagopa.pn.api.dto.notification.timeline.PublicRegistryCallDetails;
-import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+
+
+import ContactPhase;
+import DeliveryMode;
+import PublicRegistryCallDetails;
+import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.action2.utils.PublicRegistryUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,7 +43,7 @@ class PublicRegistryResponseHandlerTest {
         //GIVEN
         String iun = "iun01";
         String taxId = "taxId01";
-        int recIndex = 0;
+        Integer recIndex = 0;
         
         PublicRegistryResponse response =
                 PublicRegistryResponse.builder()
@@ -82,7 +82,7 @@ class PublicRegistryResponseHandlerTest {
         //GIVEN
         String iun = "iun01";
         String taxId = "taxId01";
-        int recIndex = 0;
+        Integer recIndex = 0;
 
         PublicRegistryResponse response =
                 PublicRegistryResponse.builder()
@@ -123,7 +123,7 @@ class PublicRegistryResponseHandlerTest {
         //GIVEN
         String iun = "iun01";
         String taxId = "taxId01";
-        int recIndex = 0;
+        Integer recIndex = 0;
         
         PublicRegistryResponse response =
                 PublicRegistryResponse.builder()

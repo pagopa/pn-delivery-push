@@ -6,9 +6,9 @@ import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import org.springframework.stereotype.Component;
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.timeline.NotificationViewedDetails;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
+import NotificationViewedDetails;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
@@ -22,7 +22,7 @@ import java.time.Instant;
 public class NotificationViewedActionHandler extends AbstractActionHandler {
 
     private final LegalFactUtils legalFactStore;
-    private PaperNotificationFailedDao paperNotificationFailedDao;
+    private final PaperNotificationFailedDao paperNotificationFailedDao;
 
     public NotificationViewedActionHandler(TimelineDao timelineDao, ActionsPool actionsPool,
                                            LegalFactUtils legalFactStore, PnDeliveryPushConfigs pnDeliveryPushConfigs,

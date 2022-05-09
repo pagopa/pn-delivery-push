@@ -12,7 +12,7 @@ import java.util.List;
 @Slf4j
 @Service
 public class PaperNotificationFailedServiceImpl implements PaperNotificationFailedService {
-    private PaperNotificationFailedDao paperNotificationFailedDao;
+    private final PaperNotificationFailedDao paperNotificationFailedDao;
 
     public PaperNotificationFailedServiceImpl(PaperNotificationFailedDao paperNotificationFailedDao) {
         this.paperNotificationFailedDao = paperNotificationFailedDao;

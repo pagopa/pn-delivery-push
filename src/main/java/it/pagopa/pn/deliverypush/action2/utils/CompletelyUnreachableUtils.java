@@ -1,9 +1,9 @@
 package it.pagopa.pn.deliverypush.action2.utils;
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFailed;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.middleware.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -26,7 +26,7 @@ public class CompletelyUnreachableUtils  {
         this.notificationUtils = notificationUtils;
     }
 
-    public void handleCompletelyUnreachable(Notification notification, int recIndex) {
+    public void handleCompletelyUnreachable(Notification notification, Integer recIndex) {
         log.info("HandleCompletelyUnreachable - iun {} id {} ", notification.getIun(), recIndex);
 
         if (!isNotificationAlreadyViewed(notification.getIun(), recIndex)) {
@@ -35,12 +35,12 @@ public class CompletelyUnreachableUtils  {
         addTimelineElement(timelineUtils.buildCompletelyUnreachableTimelineElement(notification.getIun(), recIndex));
     }
 
-    private boolean isNotificationAlreadyViewed(String iun, int recIndex) {
+    private boolean isNotificationAlreadyViewed(String iun, Integer recIndex) {
         //Lo user potrebbe aver visualizzato la notifica tramite canali differenti anche se non raggiunto dai canali 'legali'
         return timelineService.isPresentTimeLineElement(iun, recIndex, TimelineEventId.NOTIFICATION_VIEWED);
     }
 
-    private void addPaperNotificationFailed(Notification notification, int recIndex) {
+    private void addPaperNotificationFailed(Notification notification, Integer recIndex) {
         log.info("AddPaperNotificationFailed - iun {} id {} ", notification.getIun(), recIndex);
         
         NotificationRecipient recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
@@ -53,7 +53,7 @@ public class CompletelyUnreachableUtils  {
         );
     }
 
-    private void addTimelineElement(TimelineElement element) {
+    private void addTimelineElement(TimelineElementInternal element) {
         timelineService.addTimelineElement(element);
     }
 }

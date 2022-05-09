@@ -1,8 +1,7 @@
 package it.pagopa.pn.deliverypush.abstractions.actionspool.impl;
 
 import it.pagopa.pn.api.dto.events.StandardEventHeader;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
 import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
@@ -83,7 +82,7 @@ public class ActionsEventHandler extends AbstractEventHandler<ActionEvent> {
     }
 
     public boolean checkAlreadyDone( StandardEventHeader header ) {
-        Optional<TimelineElement> timeline = timelineDao.getTimelineElement( header.getIun(), header.getEventId() );
+        Optional<TimelineElementInternal> timeline = timelineDao.getTimelineElement( header.getIun(), header.getEventId() );
         return timeline.isPresent();
     }
 

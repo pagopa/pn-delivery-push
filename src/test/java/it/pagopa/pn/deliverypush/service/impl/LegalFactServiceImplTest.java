@@ -3,13 +3,13 @@ package it.pagopa.pn.deliverypush.service.impl;
 import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
 import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntryId;
-import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
-import it.pagopa.pn.api.dto.notification.timeline.ScheduleAnalogWorkflow;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+
+import ScheduleAnalogWorkflow;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.commons.abstractions.FileData;
@@ -92,7 +92,7 @@ class LegalFactServiceImplTest {
                 ).build()
         );
 
-        Set<TimelineElement> timelineElementsResult = Collections.singleton( TimelineElement.builder()
+        Set<TimelineElementInternal> timelineElementsResult = Collections.singleton( TimelineElement.builder()
                 .iun( IUN )
                 .details( new ScheduleAnalogWorkflow( REC_INDEX ))
                 .category( TimelineElementCategory.REQUEST_ACCEPTED )

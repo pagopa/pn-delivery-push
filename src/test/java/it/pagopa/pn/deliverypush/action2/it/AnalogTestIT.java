@@ -1,10 +1,10 @@
 package it.pagopa.pn.deliverypush.action2.it;
 
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
+
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.commons.abstractions.FileData;
@@ -188,7 +188,7 @@ class AnalogTestIT {
         addressBookMock.add(addressBookEntry);
 
         String iun = notification.getIun();
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -271,7 +271,7 @@ class AnalogTestIT {
         publicRegistryMock.addPhysical(recipient.getTaxId(), publicRegistryAddress);
 
         String iun = notification.getIun();
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(notification.getIun());

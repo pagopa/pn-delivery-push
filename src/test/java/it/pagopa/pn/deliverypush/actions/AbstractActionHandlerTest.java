@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.actions;
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetails;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
@@ -95,7 +95,7 @@ class AbstractActionHandlerTest {
         abstractActionHandler.addTimelineElement(action, row);
 
         //Then
-        ArgumentCaptor<TimelineElement> timelineElementCapture = ArgumentCaptor.forClass(TimelineElement.class);
+        ArgumentCaptor<TimelineElementInternal> timelineElementCapture = ArgumentCaptor.forClass(TimelineElement.class);
         Mockito.verify(timelineDao).addTimelineElement(timelineElementCapture.capture());
 
         assertTrue(new ReflectionEquals(row, "timestamp").matches(timelineElementCapture.getValue()));

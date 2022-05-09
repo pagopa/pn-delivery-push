@@ -2,13 +2,11 @@ package it.pagopa.pn.deliverypush.legalfacts;
 
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
-import it.pagopa.pn.api.dto.extchannel.ExtChannelResponseStatus;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
-import it.pagopa.pn.api.dto.notification.timeline.SendDigitalFeedback;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import NotificationPathChooseDetails;
+import SendDigitalFeedback;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
@@ -261,7 +259,7 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
         }
 
         NotificationRecipient recipient = notification.getRecipients().get(action.getRecipientIndex());
-        TimelineElement row = timelineElement(action);
+        TimelineElementInternal row = timelineElement(action);
 
         String paragraph2 = DIV_PARAGRAPH
                 + "gli atti di cui alla notifica identificata con IUN %s sono stati gestiti come segue:</div>";
@@ -360,7 +358,7 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
                     address.getAddress()
             ));
 
-            TimelineElement row = timelineElement(action);
+            TimelineElementInternal  row = timelineElement(action);
             Instant timestamp = row.getTimestamp();
 
             if (PnExtChnProgressStatus.OK.equals(status)) {

@@ -124,14 +124,14 @@
 								<annotationLibrary>none</annotationLibrary>
 								<documentationProvider>source</documentationProvider>
 								<openApiNullable>false</openApiNullable>
-								<additionalModelTypeAnnotations>@lombok.Builder; @lombok.NoArgsConstructor; @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
+								<additionalModelTypeAnnotations>@lombok.Builder(toBuilder = true); @lombok.NoArgsConstructor; @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
 								<reactive>true</reactive>
 								<skipDefaultInterface>false</skipDefaultInterface>
 								<useTags>true</useTags>
 							</configOptions>
 						</configuration>
 					</execution>
-
+<!--
 					<execution>
 						<id>generate-client-pn-delivery</id>
 						<goals>
@@ -157,7 +157,8 @@
 							<modelPackage>${project.groupId}.pn-delivery.microservice.client.delivery.v1.dto</modelPackage>
 							<apiPackage>${project.groupId}.pn-delivery.microservice.client.delivery.v1.api</apiPackage>
 						</configuration>
-					</execution>
+					</execution> -->
+					
 				</executions>
 			</plugin>
 		</plugins>

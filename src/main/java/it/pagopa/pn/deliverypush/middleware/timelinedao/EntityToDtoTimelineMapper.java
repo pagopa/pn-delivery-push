@@ -3,11 +3,14 @@ package it.pagopa.pn.deliverypush.middleware.timelinedao;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntryId;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.utils.DateUtils;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsId;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetails;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.util.TimelineDetailMap;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -26,21 +29,22 @@ public class EntityToDtoTimelineMapper {
         this.objectReaders = new ConcurrentHashMap<>();
     }
 
-    public TimelineElement entityToDto( TimelineElementEntity entity ) {
-        return TimelineElement.builder()
-                .iun( entity.getIun() )
+    public TimelineElementInternal entityToDto(TimelineElementEntity entity ) {
+        return new TimelineElementInternal(
+                TimelineElement.builder()
                 .elementId( entity.getTimelineElementId() )
-                .category( entity.getCategory() )
-                .timestamp( entity.getTimestamp() )
+                .category( TimelineElementCategory.valueOf(entity.getCategory()) )
+                .timestamp( DateUtils.convertInstantToDate(entity.getTimestamp()) )
                 .details( parseDetailsFromJson( entity ))
                 .legalFactsIds( parseLegalFactIdsFromJson( entity ) )
-                .build();
+                .build(),
+                entity.getIun());
     }
 
-    private List<LegalFactsListEntryId> parseLegalFactIdsFromJson(TimelineElementEntity entity) {
+    private List<LegalFactsId> parseLegalFactIdsFromJson(TimelineElementEntity entity) {
         try {
-            LegalFactsListEntryId[] legalFactsListEntryIds;
-            legalFactsListEntryIds = objectMapper.readValue( entity.getLegalFactId(), LegalFactsListEntryId[].class );
+            LegalFactsId[] legalFactsListEntryIds;
+            legalFactsListEntryIds = objectMapper.readValue( entity.getLegalFactId(), LegalFactsId[].class );
             return legalFactsListEntryIds == null ? null : Arrays.asList( legalFactsListEntryIds );
         } catch (JsonProcessingException exc) {
             throw new PnInternalException( "Reading timeline detail from storage", exc );
@@ -51,7 +55,7 @@ public class EntityToDtoTimelineMapper {
     private TimelineElementDetails parseDetailsFromJson( TimelineElementEntity entity) {
         try {
 
-            TimelineElementCategory category = entity.getCategory();
+            TimelineElementCategory category = TimelineElementCategory.valueOf(entity.getCategory());
             ObjectReader objectReader = getObjectReader( category );
             return objectReader.readValue( entity.getDetails() );
 
@@ -66,7 +70,7 @@ public class EntityToDtoTimelineMapper {
                 // - generate reader of needed: objectReader is thread safe, object mapper don't
                 category -> {
                     synchronized ( this.objectMapper ) {
-                        return this.objectMapper.readerFor( category.getDetailsJavaClass() );
+                        return this.objectMapper.readerFor( TimelineDetailMap.getDetailJavaClass(category) );
                     }
                 }
             );

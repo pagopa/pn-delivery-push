@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.dto.timeline;
 
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
 import lombok.*;
 
 
@@ -12,7 +12,7 @@ import lombok.*;
 @ToString
 public class EventId {//NEW
     private String iun;
-    private int recIndex;
+    private Integer recIndex;
     private DigitalAddressSource source;
     private int index;
 }

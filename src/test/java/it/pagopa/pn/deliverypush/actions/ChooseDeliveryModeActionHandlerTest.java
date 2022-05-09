@@ -3,14 +3,14 @@ package it.pagopa.pn.deliverypush.actions;
 import it.pagopa.pn.api.dto.addressbook.AddressBookEntry;
 import it.pagopa.pn.api.dto.addressbook.DigitalAddresses;
 import it.pagopa.pn.api.dto.events.PnExtChnEmailEvent;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
-import it.pagopa.pn.api.dto.notification.timeline.DeliveryMode;
-import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+
+
+import DeliveryMode;
+import NotificationPathChooseDetails;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
@@ -179,7 +179,7 @@ class ChooseDeliveryModeActionHandlerTest {
         handler.handleAction(inputAction, notification);
 
         //Then
-        ArgumentCaptor<TimelineElement> timeLineArg = ArgumentCaptor.forClass(TimelineElement.class);
+        ArgumentCaptor<TimelineElementInternal> timeLineArg = ArgumentCaptor.forClass(TimelineElement.class);
         Mockito.verify(timelineDao).addTimelineElement(timeLineArg.capture());
         Assertions.assertEquals(DeliveryMode.ANALOG, ((NotificationPathChooseDetails) timeLineArg.getValue().getDetails()).getDeliveryMode());
 

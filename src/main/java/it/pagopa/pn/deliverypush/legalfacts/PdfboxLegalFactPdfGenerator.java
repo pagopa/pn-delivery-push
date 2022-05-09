@@ -1,12 +1,11 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
-import it.pagopa.pn.api.dto.notification.timeline.SendDigitalFeedback;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import NotificationPathChooseDetails;
+import SendDigitalFeedback;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
@@ -88,7 +87,7 @@ public class PdfboxLegalFactPdfGenerator extends AbstractLegalFactPdfGenerator i
             }
         }
 
-        paragraph2 = paragraph2 + bld.toString();
+        paragraph2 = paragraph2 + bld;
 
         String paragraph3 = "il soggetto mittente ha richiesto che la notificazione di tali documenti fosse eseguita nei "
                 + "confronti dei seguenti soggetti destinatari che in seguito alle verifiche di cui all’art. 7, commi "
@@ -140,7 +139,7 @@ public class PdfboxLegalFactPdfGenerator extends AbstractLegalFactPdfGenerator i
             }
         }
 
-        paragraph2 = paragraph2 + bld.toString();
+        paragraph2 = paragraph2 + bld;
 
         String paragraph3 = "il soggetto mittente ha richiesto che la notificazione di tali documenti fosse eseguita nei "
                 + "confronti dei seguenti soggetti destinatari che in seguito alle verifiche di cui all’art. 7, commi "
@@ -176,7 +175,7 @@ public class PdfboxLegalFactPdfGenerator extends AbstractLegalFactPdfGenerator i
         }
 
         NotificationRecipient recipient = notification.getRecipients().get(action.getRecipientIndex());
-        TimelineElement row = timelineElement(action);
+        TimelineElementInternal row = timelineElement(action);
 
         String paragraph2 = "gli atti di cui alla notifica identificata con IUN %s sono stati gestiti come segue:";
         paragraph2 = String.format(paragraph2, notification.getIun());
@@ -223,7 +222,7 @@ public class PdfboxLegalFactPdfGenerator extends AbstractLegalFactPdfGenerator i
                     address.getAddress()
             ));
 
-            TimelineElement row = timelineElement(action);
+            TimelineElementInternal row = timelineElement(action);
             Instant timestamp = row.getTimestamp();
 
             if (PnExtChnProgressStatus.OK.equals(status)) {

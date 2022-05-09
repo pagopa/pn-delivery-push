@@ -1,16 +1,17 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import RecipientRelatedTimelineElementDetails;
 import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
-import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.timeline.RecipientRelatedTimelineElementDetails;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetails;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetails;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.pnclient.externalchannel.ExternalChannelClient;
@@ -62,7 +63,7 @@ public class LegalFactServiceImpl implements LegalFactService {
     @NotNull
     public List<LegalFactsListEntry> getLegalFacts(String iun) {
         log.debug( "Retrieve timeline elements for iun={}", iun );
-        Set<TimelineElement> timelineElements = timelineDao.getTimeline(iun);
+        Set<TimelineElementInternal> timelineElements = timelineDao.getTimeline(iun);
         Notification notification = notificationService.getNotificationByIun(iun);
         List<LegalFactsListEntry> legalFacts = timelineElements
                 .stream()
@@ -80,15 +81,15 @@ public class LegalFactServiceImpl implements LegalFactService {
         return legalFacts;
     }
 
-    private String readRecipientId( TimelineElement  timelineElement, Notification notification ) {
+    private String readRecipientId( TimelineElementInternal   timelineElement, Notification notification ) {
         String recipientId = null;
         //TODO Verificare se è necessario restituire il taxId o se può bastare il recIndex
         
         if (timelineElement != null) {
-            TimelineElementDetails details = timelineElement.getDetails();
+            TimelineElementDetails details = TimelineElementInternal.getDetails();
             if ( details instanceof RecipientRelatedTimelineElementDetails) {
                 
-                int recIndex = ((RecipientRelatedTimelineElementDetails) details).getRecIndex();
+                Integer recIndex = ((RecipientRelatedTimelineElementDetails) details).getRecIndex();
                 NotificationRecipient recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
                 recipientId = recipient.getTaxId();
             }

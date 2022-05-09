@@ -1,14 +1,15 @@
 package it.pagopa.pn.deliverypush.action2.utils;
 
-import it.pagopa.pn.api.dto.extchannel.ExtChannelResponse;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
-import it.pagopa.pn.api.dto.notification.timeline.SendPaperDetails;
-import it.pagopa.pn.api.dto.notification.timeline.SendPaperFeedbackDetails;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
+
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendPaperDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendPaperFeedbackDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -33,12 +34,16 @@ public class AnalogWorkflowUtils {
      * Get external channel last feedback information from timeline
      ** @return last sent feedback information
      */
-    public SendPaperFeedbackDetails getLastTimelineSentFeedback(String iun, int recIndex) {
-        Set<TimelineElement> timeline = timelineService.getTimeline(iun);
+    public SendPaperFeedbackDetails getLastTimelineSentFeedback(String iun, Integer recIndex) {
+        Set<TimelineElementInternal> timeline = timelineService.getTimeline(iun);
 
         Optional<SendPaperFeedbackDetails> sendPaperFeedbackDetailsOpt = timeline.stream()
                 .filter(timelineElement -> filterLastAttemptDateInTimeline(timelineElement, recIndex))
-                .map(timelineElement -> (SendPaperFeedbackDetails) timelineElement.getDetails()).findFirst();
+                .map(timelineElement -> {
+                    SendPaperFeedbackDetails sendPaperFeedbackDetails = new SendPaperFeedbackDetails();
+                    timelineUtils.getSpecificDetails(timelineElement.getDetails(), sendPaperFeedbackDetails);
+                    return sendPaperFeedbackDetails;
+                }).findFirst();
 
         if (sendPaperFeedbackDetailsOpt.isPresent()) {
             return sendPaperFeedbackDetailsOpt.get();
@@ -48,11 +53,12 @@ public class AnalogWorkflowUtils {
         }
     }
 
-    private boolean filterLastAttemptDateInTimeline(TimelineElement el, int recIndex) {
+    private boolean filterLastAttemptDateInTimeline(TimelineElementInternal el, Integer recIndex) {
         boolean availableAddressCategory = TimelineElementCategory.SEND_PAPER_FEEDBACK.equals(el.getCategory());
         if (availableAddressCategory) {
-            SendPaperFeedbackDetails details = (SendPaperFeedbackDetails) el.getDetails();
-            return recIndex == details.getRecIndex();
+            SendPaperFeedbackDetails details = new SendPaperFeedbackDetails(); 
+            timelineUtils.getSpecificDetails(el.getDetails(), details );
+            return recIndex.equals(details.getRecIndex());
         }
         return false;
     }
@@ -61,11 +67,11 @@ public class AnalogWorkflowUtils {
         addTimelineElement(timelineUtils.buildAnalogFailureAttemptTimelineElement(response, sentAttemptMade, sendPaperDetails));
     }
 
-    private void addTimelineElement(TimelineElement element) {
+    private void addTimelineElement(TimelineElementInternal element) {
         timelineService.addTimelineElement(element);
     }
 
-    public PhysicalAddress getPhysicalAddress(Notification notification, int recIndex){
+    public PhysicalAddress getPhysicalAddress(Notification notification, Integer recIndex){
         NotificationRecipient notificationRecipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         return notificationRecipient.getPhysicalAddress();
     }

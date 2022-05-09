@@ -1,9 +1,9 @@
 package it.pagopa.pn.deliverypush.action2;
 
-import it.pagopa.pn.api.dto.extchannel.ExtChannelResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -29,7 +29,7 @@ public class ExternalChannelResponseHandler {
      */
     public void extChannelResponseReceiver(ExtChannelResponse response) {
         log.info("Get response from external channel with status {} - iun {} eventId {} ", response.getResponseStatus(), response.getIun(), response.getEventId());
-        TimelineElement notificationTimelineElement = externalChannelUtils.getExternalChannelNotificationTimelineElement(response.getIun(), response.getEventId());
+        TimelineElementInternal notificationTimelineElement = externalChannelUtils.getExternalChannelNotificationTimelineElement(response.getIun(), response.getEventId());
 
         log.debug("Get notification element ok, category {} - iun {} eventId {} ", notificationTimelineElement.getCategory(), response.getIun(), response.getEventId());
 
@@ -54,7 +54,7 @@ public class ExternalChannelResponseHandler {
         }
     }
 
-    private void handleError(ExtChannelResponse response, TimelineElement notificationTimelineElement) {
+    private void handleError(ExtChannelResponse response, TimelineElementInternal notificationTimelineElement) {
         log.error("Specified category {} is not possibile - iun {} eventId {}", notificationTimelineElement.getCategory(), response.getIun(), response.getEventId());
         throw new PnInternalException("Specified category " + notificationTimelineElement.getCategory() + " is not possibile");
     }

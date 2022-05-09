@@ -1,8 +1,9 @@
 package it.pagopa.pn.deliverypush.external;
 
-import it.pagopa.pn.api.dto.events.PnExtChnEmailEvent;
-import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
-import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
+
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.PnExtChnEmailEvent;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.PnExtChnPaperEvent;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.PnExtChnPecEvent;
 
 public interface ExternalChannel {
     void sendNotification(PnExtChnEmailEvent pnExtChnEmailEvent);

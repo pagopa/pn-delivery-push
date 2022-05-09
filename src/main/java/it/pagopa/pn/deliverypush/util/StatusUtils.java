@@ -1,7 +1,9 @@
 package it.pagopa.pn.deliverypush.util;
 
-import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
-import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
+import it.pagopa.pn.commons.utils.DateUtils;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import org.springframework.stereotype.Component;
@@ -29,23 +31,23 @@ public class StatusUtils {
     }
     
     public List<NotificationStatusHistoryElement> getStatusHistory( //
-                                                                    Set<TimelineElement> timelineElementList, //
+                                                                    Set<TimelineElementInternal> timelineElementList, //
                                                                     int numberOfRecipients, //
                                                                     Instant notificationCreatedAt //
     ) {
-        List<TimelineElement> timelineByTimestampSorted = timelineElementList.stream()
+        List<TimelineElementInternal> timelineByTimestampSorted = timelineElementList.stream()
                 .sorted(Comparator.comparing(TimelineElement::getTimestamp))
                 .collect(Collectors.toList());
 
         List<NotificationStatusHistoryElement> timelineHistory = new ArrayList<>();
 
         List<String> relatedTimelineElements = new ArrayList<>();
-        Instant currentStateStart = notificationCreatedAt;
+        Date currentStateStart = DateUtils.convertInstantToDate(notificationCreatedAt);
         NotificationStatus currentState = INITIAL_STATUS;
         int numberOfEndedDeliveryWorkflows = 0;
 
 
-        for (TimelineElement timelineElement : timelineByTimestampSorted) {
+        for (TimelineElementInternal timelineElement : timelineByTimestampSorted) {
             TimelineElementCategory category = timelineElement.getCategory();
             if( END_OF_DELIVERY_WORKFLOW.contains( category ) ) {
                 numberOfEndedDeliveryWorkflows += 1;

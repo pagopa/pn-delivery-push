@@ -1,12 +1,12 @@
 package it.pagopa.pn.deliverypush.actions;
 
 import it.pagopa.pn.api.dto.events.PnExtChnEmailEvent;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
-import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+
+import NotificationPathChooseDetails;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
@@ -59,7 +59,7 @@ class EndOfDigitalDeliveryWorkflowActionHandlerTest {
 
 		NotificationPathChooseDetails details = newNotificationPathChooseDetails();
 		List<DigitalAddress> addresses = details.getCourtesyAddresses();
-		TimelineElement timelineElement = newTimelineElement( addresses );
+		TimelineElementInternal timelineElement = newTimelineElement( addresses );
 	    Mockito.when( timelineDao.getTimelineElement( Mockito.anyString(), Mockito.anyString()) )
 				.thenReturn( Optional.of( timelineElement ) );
 	    
@@ -72,7 +72,7 @@ class EndOfDigitalDeliveryWorkflowActionHandlerTest {
 		verify( timelineDao ).addTimelineElement( Mockito.any(TimelineElement.class) );
 	}
 
-	private TimelineElement newTimelineElement(List<DigitalAddress> addresses) {
+	private TimelineElementInternal newTimelineElement(List<DigitalAddress> addresses) {
 		return TimelineElement.builder()
 				.details( NotificationPathChooseDetails.builder()
 						.courtesyAddresses(addresses)

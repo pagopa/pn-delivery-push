@@ -1,12 +1,5 @@
 package it.pagopa.pn.deliverypush.action2;
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
-import it.pagopa.pn.api.dto.notification.timeline.SendDigitalFeedback;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
@@ -14,6 +7,13 @@ import it.pagopa.pn.deliverypush.action2.utils.CompletelyUnreachableUtils;
 import it.pagopa.pn.deliverypush.action2.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendDigitalFeedback;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -55,7 +55,7 @@ public class CompletionWorkFlowHandler {
     /**
      * Handle necessary steps to complete the digital workflow
      */
-    public void completionDigitalWorkflow(Notification notification, int recIndex, Instant notificationDate, DigitalAddress address, EndWorkflowStatus status) {
+    public void completionDigitalWorkflow(Notification notification, Integer recIndex, Instant notificationDate, DigitalAddress address, EndWorkflowStatus status) {
         log.info("Digital workflow completed with status {} IUN {} id {}", status, notification.getIun(), recIndex);
 
         String legalFactId = generatePecDeliveryWorkflowLegalFact(notification, recIndex);
@@ -80,24 +80,29 @@ public class CompletionWorkFlowHandler {
         }
     }
 
-    private String generatePecDeliveryWorkflowLegalFact(Notification notification, int recIndex) {
-        Set<TimelineElement> timeline = timelineService.getTimeline(notification.getIun());
+    private String generatePecDeliveryWorkflowLegalFact(Notification notification, Integer recIndex) {
+        Set<TimelineElementInternal> timeline = timelineService.getTimeline(notification.getIun());
 
 
         List<SendDigitalFeedback> listFeedbackFromExtChannel = timeline.stream()
                 .filter(timelineElement -> filterTimelineForTaxId(timelineElement, recIndex))
-                .map(timelineElement -> (SendDigitalFeedback) timelineElement.getDetails())
+                .map(timelineElement -> {
+                    SendDigitalFeedback sendDigitalFeedback = new SendDigitalFeedback();
+                    timelineUtils.getSpecificDetails(timelineElement.getDetails(), sendDigitalFeedback);
+                    return sendDigitalFeedback;
+                })
                 .collect(Collectors.toList());
         
         NotificationRecipient recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         return legalFactUtils.savePecDeliveryWorkflowLegalFact(listFeedbackFromExtChannel, notification, recipient);
     }
 
-    private boolean filterTimelineForTaxId(TimelineElement el, int recIndex) {
+    private boolean filterTimelineForTaxId(TimelineElementInternal el, Integer recIndex) {
         boolean availableCategory = TimelineElementCategory.SEND_DIGITAL_FEEDBACK.equals(el.getCategory());
         if (availableCategory) {
-            SendDigitalFeedback details = (SendDigitalFeedback) el.getDetails();
-            return recIndex == details.getRecIndex();
+            SendDigitalFeedback details = new SendDigitalFeedback();
+            timelineUtils.getSpecificDetails(el.getDetails(), details ) ;
+            return recIndex.equals(details.getRecIndex());
         }
         return false;
     }
@@ -105,7 +110,7 @@ public class CompletionWorkFlowHandler {
     /**
      * Sent notification by simple registered letter
      */
-    private void sendSimpleRegisteredLetter(Notification notification, int recIndex) {
+    private void sendSimpleRegisteredLetter(Notification notification, Integer recIndex) {
         //Al termine del workflow digitale se non si è riusciti ad contattare in nessun modo il recipient, viene inviata una raccomanda semplice
 
         NotificationRecipient recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
@@ -122,7 +127,7 @@ public class CompletionWorkFlowHandler {
     /**
      * Handle necessary steps to complete analog workflow.
      */
-    public void completionAnalogWorkflow(Notification notification, int recIndex, Instant notificationDate, PhysicalAddress usedAddress, EndWorkflowStatus status) {
+    public void completionAnalogWorkflow(Notification notification, Integer recIndex, Instant notificationDate, PhysicalAddress usedAddress, EndWorkflowStatus status) {
         log.info("Analog workflow completed with status {} IUN {} id {}", status, notification.getIun(), recIndex);
         String iun = notification.getIun();
         
@@ -145,7 +150,7 @@ public class CompletionWorkFlowHandler {
         }
     }
 
-    private void scheduleRefinement(String iun, int recIndex, Instant notificationDate, Duration scheduleTime) {
+    private void scheduleRefinement(String iun, Integer recIndex, Instant notificationDate, Duration scheduleTime) {
         Instant schedulingDate = notificationDate.plus(scheduleTime);
         log.info("Schedule refinement in {}", schedulingDate);
         
@@ -154,12 +159,12 @@ public class CompletionWorkFlowHandler {
     }
 
 
-    private void handleError(String iun, int recIndex, EndWorkflowStatus status) {
+    private void handleError(String iun, Integer recIndex, EndWorkflowStatus status) {
         log.error("Specified status {} does not exist. Iun {}, id {}", status, iun, recIndex);
         throw new PnInternalException("Specified status " + status + " does not exist. Iun " + iun + " id" + recIndex);
     }
 
-    private void addTimelineElement(TimelineElement element) {
+    private void addTimelineElement(TimelineElementInternal  element) {
         timelineService.addTimelineElement(element);
     }
 

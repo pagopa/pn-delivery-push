@@ -1,8 +1,8 @@
 package it.pagopa.pn.deliverypush.external;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+
 import lombok.*;
 
 import java.util.List;

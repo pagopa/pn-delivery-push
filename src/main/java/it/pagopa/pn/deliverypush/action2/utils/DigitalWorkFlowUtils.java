@@ -1,16 +1,17 @@
 package it.pagopa.pn.deliverypush.action2.utils;
 
-import it.pagopa.pn.api.dto.extchannel.ExtChannelResponse;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressInfo;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.utils.DateUtils;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSender;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
+import it.pagopa.pn.deliverypush.dto.timeline.EventId;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.external.AddressBook;
 import it.pagopa.pn.deliverypush.external.AddressBookEntry;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
@@ -36,11 +37,11 @@ public class DigitalWorkFlowUtils {
         this.notificationUtils = notificationUtils;
     }
 
-    public DigitalAddressInfo getNextAddressInfo(String iun, int recIndex, DigitalAddressInfo lastAttemptMade) {
+    public DigitalAddressInfo getNextAddressInfo(String iun, Integer recIndex, DigitalAddressInfo lastAttemptMade) {
         log.debug("Start getNextAddressInfo - iun {} id {}", iun, recIndex);
 
         //Ottiene la source del prossimo indirizzo da utilizzare
-        DigitalAddressSource nextAddressSource = lastAttemptMade.getAddressSource().next();
+        DigitalAddressSource nextAddressSource = nextSource(lastAttemptMade.getSource()) ;
         log.debug("nextAddressSource {}", nextAddressSource);
 
         DigitalAddressInfo nextAddressInfo = getNextAddressInfo(iun, recIndex, nextAddressSource);
@@ -49,8 +50,8 @@ public class DigitalWorkFlowUtils {
         return nextAddressInfo;
     }
 
-    private DigitalAddressInfo getNextAddressInfo(String iun, int recIndex, DigitalAddressSource nextAddressSource) {
-        Set<TimelineElement> timeline = timelineService.getTimeline(iun);
+    private DigitalAddressInfo getNextAddressInfo(String iun, Integer recIndex, DigitalAddressSource nextAddressSource) {
+        Set<TimelineElementInternal> timeline = timelineService.getTimeline(iun);
 
         //Ottiene il numero di tentativi effettuati per tale indirizzo
         int nextSourceAttemptsMade = getAttemptsMadeForSource(recIndex, nextAddressSource, timeline);
@@ -65,22 +66,22 @@ public class DigitalWorkFlowUtils {
         }
 
         return DigitalAddressInfo.builder()
-                .addressSource(nextAddressSource)
+                .source(nextAddressSource)
                 .sentAttemptMade(nextSourceAttemptsMade)
-                .lastAttemptDate(lastAttemptMadeForSource)
+                .lastAttemptDate(DateUtils.convertInstantToDate(lastAttemptMadeForSource))
                 .build();
 
     }
 
-    private Instant getLastAttemptDateForSource(int recIndex, DigitalAddressSource nextAddressSource, Set<TimelineElement> timeline) {
+    private Instant getLastAttemptDateForSource(Integer recIndex, DigitalAddressSource nextAddressSource, Set<TimelineElementInternal> timeline) {
         Optional<GetAddressInfo> lastAddressAttemptOpt = timeline.stream()
                 .filter(timelineElement -> filterTimelineForRecIndexAndSource(timelineElement, recIndex, nextAddressSource))
-                .map(timelineElement -> (GetAddressInfo) timelineElement.getDetails())
+                .map(timelineElement -> timelineUtils.<GetAddressInfo>getSpecificDetails(timelineElement.getDetails()))
                 .max(Comparator.comparing(GetAddressInfo::getAttemptDate));
 
         if (lastAddressAttemptOpt.isPresent()) {
             log.debug("Get getLastAddressAttempt OK - id {}", recIndex);
-            return lastAddressAttemptOpt.get().getAttemptDate();
+            return DateUtils.convertDateToInstant(lastAddressAttemptOpt.get().getAttemptDate());
         } else {
             log.error("Last address attempt not found - id {}", recIndex);
             throw new PnInternalException("Last address attempt not found - id" + recIndex);
@@ -89,22 +90,22 @@ public class DigitalWorkFlowUtils {
     }
 
     // Get attempts number made for source
-    private int getAttemptsMadeForSource(int recIndex, DigitalAddressSource nextAddressSource, Set<TimelineElement> timeline) {
+    private int getAttemptsMadeForSource(Integer recIndex, DigitalAddressSource nextAddressSource, Set<TimelineElementInternal> timeline) {
         return (int) timeline.stream()
                 .filter(timelineElement -> filterTimelineForRecIndexAndSource(timelineElement, recIndex, nextAddressSource)).count();
     }
 
-    private boolean filterTimelineForRecIndexAndSource(TimelineElement el, int recIndex, DigitalAddressSource source) {
+    private boolean filterTimelineForRecIndexAndSource(TimelineElementInternal el, Integer recIndex, DigitalAddressSource source) {
         boolean availableAddressCategory = TimelineElementCategory.GET_ADDRESS.equals(el.getCategory());
         if (availableAddressCategory) {
-            GetAddressInfo details = (GetAddressInfo) el.getDetails();
-            return recIndex == details.getRecIndex() && source.equals(details.getSource());
+            GetAddressInfo details = timelineUtils.getSpecificDetails(el.getDetails());
+            return recIndex.equals(details.getRecIndex()) && source.equals(details.getSource());
         }
         return false;
     }
 
     @Nullable
-    public DigitalAddress getAddressFromSource(DigitalAddressSource addressSource, int recIndex, Notification notification) {
+    public DigitalAddress getAddressFromSource(DigitalAddressSource addressSource, Integer recIndex, Notification notification) {
         log.info("GetAddressFromSource for source {} - iun {} id {}", addressSource, notification.getIun(), recIndex);
         NotificationRecipient recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         
@@ -143,7 +144,7 @@ public class DigitalWorkFlowUtils {
         return null;
     }
 
-    public ScheduleDigitalWorkflow getScheduleDigitalWorkflowTimelineElement(String iun, int recIndex) {
+    public ScheduleDigitalWorkflow getScheduleDigitalWorkflowTimelineElement(String iun, Integer recIndex) {
         String eventId = TimelineEventId.SCHEDULE_DIGITAL_WORKFLOW.buildEventId(
                 EventId.builder()
                         .iun(iun)
@@ -160,11 +161,11 @@ public class DigitalWorkFlowUtils {
         }
     }
 
-    public void addScheduledDigitalWorkflowToTimeline(String iun, int recIndex, DigitalAddressInfo lastAttemptMade) {
+    public void addScheduledDigitalWorkflowToTimeline(String iun, Integer recIndex, DigitalAddressInfo lastAttemptMade) {
         addTimelineElement(timelineUtils.buildScheduleDigitalWorkflowTimeline(iun, recIndex, lastAttemptMade));
     }
 
-    public void addAvailabilitySourceToTimeline(int recIndex, String iun, DigitalAddressSource source, boolean isAvailable, int sentAttemptMade) {
+    public void addAvailabilitySourceToTimeline(Integer recIndex, String iun, DigitalAddressSource source, boolean isAvailable, int sentAttemptMade) {
         addTimelineElement(timelineUtils.buildAvailabilitySourceTimelineElement(recIndex, iun, source, isAvailable, sentAttemptMade));
     }
 
@@ -172,8 +173,20 @@ public class DigitalWorkFlowUtils {
         addTimelineElement(timelineUtils.buildDigitaFeedbackTimelineElement(response, sendDigitalDetails));
     }
 
-    private void addTimelineElement(TimelineElement element) {
+    private void addTimelineElement(TimelineElementInternal element) {
         timelineService.addTimelineElement(element);
     }
 
+    public DigitalAddressSource nextSource(DigitalAddressSource source) {
+        switch (source) {
+            case PLATFORM:
+                return DigitalAddressSource.SPECIAL;
+            case SPECIAL:
+                return DigitalAddressSource.GENERAL;
+            case GENERAL:
+                return DigitalAddressSource.PLATFORM;
+            default:
+                throw new PnInternalException(" BUG: add support to next for " + source.getClass() + "::" + source.name());
+        }
+    }
 }

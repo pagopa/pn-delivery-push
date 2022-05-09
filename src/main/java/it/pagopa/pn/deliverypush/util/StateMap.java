@@ -1,8 +1,8 @@
 package it.pagopa.pn.deliverypush.util;
 
-import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 

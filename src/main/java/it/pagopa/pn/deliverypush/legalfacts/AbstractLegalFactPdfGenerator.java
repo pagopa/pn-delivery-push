@@ -1,10 +1,10 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import lombok.extern.slf4j.Slf4j;
 
@@ -85,8 +85,8 @@ abstract class AbstractLegalFactPdfGenerator {
         return result;
     }
 
-    protected TimelineElement timelineElement(Action action) {
-        Optional<TimelineElement> row;
+    protected TimelineElementInternal timelineElement(Action action) {
+        Optional<TimelineElementInternal> row;
         row = this.timelineDao.getTimelineElement( action.getIun(), action.getActionId() );
         if ( !row.isPresent() ) {
             String msg = "Error while retrieving timeline for IUN %s and action %s";

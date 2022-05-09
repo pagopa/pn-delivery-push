@@ -3,9 +3,8 @@ package it.pagopa.pn.deliverypush.action2.it.mockbean;
 import it.pagopa.pn.api.dto.events.PnExtChnEmailEvent;
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
 import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
-import it.pagopa.pn.api.dto.extchannel.ExtChannelResponse;
-import it.pagopa.pn.api.dto.extchannel.ExtChannelResponseStatus;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
+
 import it.pagopa.pn.deliverypush.action2.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.external.ExternalChannel;
 import org.springframework.context.annotation.Lazy;

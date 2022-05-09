@@ -3,9 +3,9 @@ package it.pagopa.pn.deliverypush.actions;
 import it.pagopa.pn.api.dto.events.CommunicationType;
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
 import it.pagopa.pn.api.dto.events.ServiceLevelType;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.timeline.*;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
+import *;
 import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
@@ -74,7 +74,7 @@ public class PecFailSendPaperActionHandler extends AbstractActionHandler {
 
     }
 
-    private boolean selectPecTimeline(TimelineElement el, NotificationRecipient recipient) {
+    private boolean selectPecTimeline(TimelineElementInternalel, NotificationRecipient recipient) {
         boolean ok;
         boolean sendPecCategory = TimelineElementCategory.SEND_DIGITAL_DOMICILE_FEEDBACK.equals(el.getCategory());
         if ( sendPecCategory ) {

@@ -20,7 +20,7 @@ import java.util.List;
 @RestController
 public class PnLegalFactsController implements LegalFactsApi {
 
-    private LegalFactService legalFactService;
+    private final LegalFactService legalFactService;
 
     public PnLegalFactsController(LegalFactService legalFactService) { this.legalFactService = legalFactService; }
 

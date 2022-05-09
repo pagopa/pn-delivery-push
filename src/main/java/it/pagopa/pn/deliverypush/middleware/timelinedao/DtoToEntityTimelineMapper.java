@@ -23,7 +23,7 @@ public class DtoToEntityTimelineMapper {
         this.objectWriters = new ConcurrentHashMap<>();
     }
 
-    public TimelineElementEntity dtoToEntity(TimelineElement dto) {
+    public TimelineElementEntity dtoToEntity(TimelineElementInternal dto) {
         return TimelineElementEntity.builder()
                 .iun( dto.getIun() )
                 .timelineElementId( dto.getElementId() )
@@ -34,7 +34,7 @@ public class DtoToEntityTimelineMapper {
                 .build();
     }
 
-    private String legalFactIdsToJsonString(TimelineElement dto) {
+    private String legalFactIdsToJsonString(TimelineElementInternal dto) {
         try {
             return objectMapper.writeValueAsString( dto.getLegalFactsIds() );
         } catch (JsonProcessingException exc) {
@@ -43,7 +43,7 @@ public class DtoToEntityTimelineMapper {
     }
 
 
-    private String detailsToJsonString( TimelineElement dto) {
+    private String detailsToJsonString( TimelineElementInternal dto) {
         try {
             TimelineElementCategory category = dto.getCategory();
             ObjectWriter objWriter = getObjectWriter( category );

@@ -1,14 +1,14 @@
 package it.pagopa.pn.deliverypush.action2;
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
-import it.pagopa.pn.api.dto.notification.timeline.ContactPhase;
-import it.pagopa.pn.api.dto.notification.timeline.SendCourtesyMessageDetails;
-import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
+
+import ContactPhase;
+import SendCourtesyMessageDetails;
+import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action2.utils.ChooseDeliveryModeUtils;
@@ -71,7 +71,7 @@ class ChooseDeliveryModeHandlerTest {
         //GIVEN
         Notification notification = getNotification();
         NotificationRecipient recipient =notification.getRecipients().get(0);
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         AddressBookEntry entry = AddressBookEntry.builder()
                 .platformDigitalAddress(
@@ -108,7 +108,7 @@ class ChooseDeliveryModeHandlerTest {
         //GIVEN
         Notification notification = getNotification();
         NotificationRecipient recipient =notification.getRecipients().get(0);
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
         
         Mockito.when(chooseDeliveryUtils.getAddresses(Mockito.any(Notification.class), Mockito.anyInt()))
                 .thenReturn(Optional.empty());
@@ -149,7 +149,7 @@ class ChooseDeliveryModeHandlerTest {
         //GIVEN
         Notification notification = getNotificationWithoutDigitalDomicile();
         NotificationRecipient recipient =notification.getRecipients().get(0);
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         Mockito.when(chooseDeliveryUtils.getAddresses(Mockito.any(Notification.class), Mockito.anyInt()))
                 .thenReturn(Optional.empty());
@@ -192,7 +192,7 @@ class ChooseDeliveryModeHandlerTest {
 
         Notification notification = getNotification();
         NotificationRecipient recipient =notification.getRecipients().get(0);
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(getNotification());
@@ -221,7 +221,7 @@ class ChooseDeliveryModeHandlerTest {
         //GIVEN
         Notification notification = getNotification();
         NotificationRecipient recipient =notification.getRecipients().get(0);
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         PublicRegistryResponse response = PublicRegistryResponse.builder()
                 .digitalAddress(null).build();
@@ -263,7 +263,7 @@ class ChooseDeliveryModeHandlerTest {
         //GIVEN
         Notification notification = getNotification();
         NotificationRecipient recipient =notification.getRecipients().get(0);
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 

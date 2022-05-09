@@ -1,11 +1,12 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
-import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
-import it.pagopa.pn.api.dto.notification.timeline.EventId;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
+import it.pagopa.pn.deliverypush.dto.timeline.EventId;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.util.StatusUtils;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -29,13 +31,13 @@ public class TimeLineServiceImpl implements TimelineService {
     }
 
     @Override
-    public void addTimelineElement(TimelineElement element) {
+    public void addTimelineElement(TimelineElementInternal element) {
         log.debug("addTimelineElement - IUN {} and timelineId {}", element.getIun(), element.getElementId());
         timelineDao.addTimelineElement(element);
     }
 
     @Override
-    public Optional<TimelineElement> getTimelineElement(String iun, String timelineId) {
+    public Optional<TimelineElementInternal> getTimelineElement(String iun, String timelineId) {
         log.debug("GetTimelineElement - IUN {} and timelineId {}", iun, timelineId);
         return timelineDao.getTimelineElement(iun, timelineId);
     }
@@ -44,12 +46,12 @@ public class TimeLineServiceImpl implements TimelineService {
     public <T> Optional<T> getTimelineElement(String iun, String timelineId, Class<T> timelineDetailsClass) {
         log.debug("GetTimelineElement - IUN {} and timelineId {}", iun, timelineId);
 
-        Optional<TimelineElement> row = this.timelineDao.getTimelineElement(iun, timelineId);
+        Optional<TimelineElementInternal> row = this.timelineDao.getTimelineElement(iun, timelineId);
         return row.map(el -> timelineDetailsClass.cast(el.getDetails()));
     }
 
     @Override
-    public Set<TimelineElement> getTimeline(String iun) {
+    public Set<TimelineElementInternal> getTimeline(String iun) {
         log.debug("GetTimeline - iun {} ", iun);
         return this.timelineDao.getTimeline(iun);
     }
@@ -58,7 +60,7 @@ public class TimeLineServiceImpl implements TimelineService {
     public NotificationHistoryResponse getTimelineAndStatusHistory(String iun, int numberOfRecipients, Instant createdAt) {
         log.debug("getTimelineAndStatusHistory Start - iun {} ", iun);
         
-        Set<TimelineElement> timelineElements = this.timelineDao.getTimeline(iun);
+        Set<TimelineElementInternal> timelineElements = this.timelineDao.getTimeline(iun);
 
         List<NotificationStatusHistoryElement> statusHistory = statusUtils
                 .getStatusHistory( timelineElements, numberOfRecipients, createdAt );
@@ -67,15 +69,18 @@ public class TimeLineServiceImpl implements TimelineService {
         
         log.debug("getTimelineAndStatusHistory Ok - iun {} ", iun);
 
+        List<TimelineElementInternal> timelineList = new ArrayList<>(timelineElements);
+        List<NotificationStatusHistoryElement> historyList = new ArrayList<>(statusHistory);
+ 
         return NotificationHistoryResponse.builder()
-                .timelineElements(timelineElements)
-                .statusHistory(statusHistory)
+                .timeline(timelineList)
+                .notificationStatusHistory(historyList)
                 .notificationStatus(currentStatus)
                 .build();
     }
     
     @Override
-    public boolean isPresentTimeLineElement(String iun, int recIndex, TimelineEventId timelineEventId) {
+    public boolean isPresentTimeLineElement(String iun, Integer recIndex, TimelineEventId timelineEventId) {
         EventId eventId = EventId.builder()
                 .iun(iun)
                 .recIndex(recIndex)

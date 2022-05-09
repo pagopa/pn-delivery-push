@@ -27,7 +27,7 @@ public class SchedulerServiceMock implements SchedulerService {
     }
 
     @Override
-    public void scheduleEvent(String iun, int recIndex, Instant dateToSchedule, ActionType actionType) {
+    public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType) {
         mockSchedulingDate(dateToSchedule);
 
         switch (actionType) {

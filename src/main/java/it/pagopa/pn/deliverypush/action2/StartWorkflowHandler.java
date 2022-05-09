@@ -1,14 +1,14 @@
 package it.pagopa.pn.deliverypush.action2;
 
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.deliverypush.action2.utils.CheckAttachmentUtils;
 import it.pagopa.pn.deliverypush.action2.utils.CourtesyMessageUtils;
 import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -65,7 +65,7 @@ public class StartWorkflowHandler {
             
             //Start del workflow per ogni recipient della notifica
             for (NotificationRecipient recipient : notification.getRecipients()) {
-                int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+                Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
                 startNotificationWorkflowForRecipient(notification, recIndex);
             }
         }catch (PnValidationException ex){
@@ -73,9 +73,9 @@ public class StartWorkflowHandler {
         }
     }
 
-    private void startNotificationWorkflowForRecipient(Notification notification, int recIndex) {
+    private void startNotificationWorkflowForRecipient(Notification notification, Integer recIndex) {
         log.info("Start notification workflow - iun {} id {}", notification.getIun(), recIndex);
-        //... Invio messaggio di cortesia ...
+        //... Invio messaggio di cortxesia ...
         courtesyMessageUtils.checkAddressesForSendCourtesyMessage(notification, recIndex);
         //... e inizializzato il processo di scelta della tipologia di notificazione
         chooseDeliveryType.chooseDeliveryTypeAndStartWorkflow(notification, recIndex);
@@ -88,7 +88,7 @@ public class StartWorkflowHandler {
         addTimelineElement(timelineUtils.buildRefusedRequestTimelineElement(notification, errors));
     }
 
-    private void addTimelineElement(TimelineElement element) {
+    private void addTimelineElement(TimelineElementInternal element) {
         timelineService.addTimelineElement(element);
     }
 
