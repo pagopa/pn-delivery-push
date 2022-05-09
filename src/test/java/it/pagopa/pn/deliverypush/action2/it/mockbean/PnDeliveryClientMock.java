@@ -2,7 +2,6 @@ package it.pagopa.pn.deliverypush.action2.it.mockbean;
 
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
-import it.pagopa.pn.api.dto.status.ResponseUpdateStatusDto;
 import it.pagopa.pn.deliverypush.pnclient.delivery.PnDeliveryClient;
 import org.springframework.http.ResponseEntity;
 
@@ -18,7 +17,7 @@ public class PnDeliveryClientMock implements PnDeliveryClient {
     }
 
     @Override
-    public ResponseEntity<ResponseUpdateStatusDto> updateState(RequestUpdateStatusDto dto) {
+    public ResponseEntity<Void> updateState(RequestUpdateStatusDto dto) {
         return null;
     }
 

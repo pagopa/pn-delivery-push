@@ -1,15 +1,21 @@
 package it.pagopa.pn.deliverypush.middleware.timelinedao;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import it.pagopa.pn.api.dto.notification.NotificationSender;
+import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
+import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
 import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
 import it.pagopa.pn.api.dto.notification.timeline.ReceivedDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
-import it.pagopa.pn.api.dto.status.ResponseUpdateStatusDto;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.pnclient.delivery.PnDeliveryClient;
+import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.util.StatusUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,34 +27,38 @@ import org.springframework.http.ResponseEntity;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Instant;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class TimelineDaoDynamoTest {
-    
+
     private TimelineDao dao;
+    private TimelineEntityDao entityDao;
+    
+    @Mock
+    private NotificationService notificationService;
+    @Mock
+    private StatusUtils statusUtils;
 
     @Mock
     private PnDeliveryClient client;
-    
+
     @BeforeEach
-    void setup(){
+    void setup() {
         ObjectMapper objMapper = new ObjectMapper();
         DtoToEntityTimelineMapper dto2Entity = new DtoToEntityTimelineMapper(objMapper);
         EntityToDtoTimelineMapper entity2dto = new EntityToDtoTimelineMapper(objMapper);
-        TimelineEntityDao entityDao = new TestMyTimelineEntityDao();
+        entityDao = new TestMyTimelineEntityDao();
 
-        dao = new TimelineDaoDynamo(entityDao, dto2Entity, entity2dto,  client);
+        dao = new TimelineDaoDynamo(entityDao, dto2Entity, entity2dto, client, notificationService, statusUtils);
     }
 
     @ExtendWith(MockitoExtension.class)
     @Test
-    void addTimelineUpdateStatusFail(){
+    void addTimelineUpdateStatusFail() {
         // GIVEN
         String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
 
@@ -60,15 +70,38 @@ class TimelineDaoDynamoTest {
                 .details(new ReceivedDetails())
                 .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
                 .build();
+        
+        Notification notification = getNotification(iun);
 
-        // WHEN
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notification);
+        List<NotificationStatusHistoryElement> firstListReturn = new ArrayList<>();
+        NotificationStatusHistoryElement element = NotificationStatusHistoryElement.builder()
+                .status(NotificationStatus.DELIVERING)        
+                .build();
+        firstListReturn.add(element);
+
+        NotificationStatusHistoryElement element2 = NotificationStatusHistoryElement.builder()
+                .status(NotificationStatus.ACCEPTED)
+                .build();
+        List<NotificationStatusHistoryElement> secondListReturn = new ArrayList<>(firstListReturn);
+        secondListReturn.add(element2);
+
+        Mockito.when(statusUtils.getStatusHistory(Mockito.any(), Mockito.anyInt(), Mockito.any() ))
+                .thenReturn(firstListReturn)
+                .thenReturn(secondListReturn);
+
+        Mockito.when(statusUtils.getStatusHistory(Mockito.any(), Mockito.anyInt(), Mockito.any() ))
+                .thenReturn(firstListReturn)
+                .thenReturn(secondListReturn);
+        
         Mockito.when(client.updateState(Mockito.any(RequestUpdateStatusDto.class))).thenReturn(ResponseEntity.internalServerError().build());
 
+        // WHEN
         assertThrows(PnInternalException.class, () -> {
             dao.addTimelineElement(row1);
         });
     }
-    
+
     @ExtendWith(MockitoExtension.class)
     @Test
     void successfullyInsertAndRetrieve() {
@@ -93,13 +126,34 @@ class TimelineDaoDynamoTest {
                 .build();
 
         // WHEN
-        ResponseUpdateStatusDto dto = ResponseUpdateStatusDto.builder().build();
-        ResponseEntity<ResponseUpdateStatusDto> respEntity = ResponseEntity.ok(dto);
-        Mockito.when(client.updateState(Mockito.any(RequestUpdateStatusDto.class))).thenReturn(respEntity);
-        
+        Notification notification = getNotification(iun);
+
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notification);
+        List<NotificationStatusHistoryElement> firstListReturn = new ArrayList<>();
+        NotificationStatusHistoryElement element = NotificationStatusHistoryElement.builder()
+                .status(NotificationStatus.DELIVERING)
+                .build();
+        firstListReturn.add(element);
+
+        NotificationStatusHistoryElement element2 = NotificationStatusHistoryElement.builder()
+                .status(NotificationStatus.ACCEPTED)
+                .build();
+        List<NotificationStatusHistoryElement> secondListReturn = new ArrayList<>(firstListReturn);
+        secondListReturn.add(element2);
+
+        Mockito.when(statusUtils.getStatusHistory(Mockito.any(), Mockito.anyInt(), Mockito.any() ))
+                .thenReturn(firstListReturn)
+                .thenReturn(secondListReturn)
+                .thenReturn(firstListReturn)
+                .thenReturn(secondListReturn);
+
+
+        ResponseEntity<Void> respEntity = ResponseEntity.ok(null);
+        Mockito.when(client.updateState(Mockito.any(RequestUpdateStatusDto.class))).thenReturn( respEntity );
+
         dao.addTimelineElement(row1);
         dao.addTimelineElement(row2);
-        
+
         // THEN
         // check first row
         Optional<TimelineElement> retrievedRow1 = dao.getTimelineElement(iun, id1);
@@ -113,7 +167,7 @@ class TimelineDaoDynamoTest {
 
         // check full retrieve
         Set<TimelineElement> result = dao.getTimeline(iun);
-        Assertions.assertEquals(Set.of(row1, row2), result);        
+        Assertions.assertEquals(Set.of(row1, row2), result);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -140,13 +194,33 @@ class TimelineDaoDynamoTest {
                 .build();
 
         // WHEN
-        ResponseUpdateStatusDto dto = ResponseUpdateStatusDto.builder().build();
-        ResponseEntity<ResponseUpdateStatusDto> respEntity = ResponseEntity.ok(dto);
+        Notification notification = getNotification(iun);
+
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notification);
+        List<NotificationStatusHistoryElement> firstListReturn = new ArrayList<>();
+        NotificationStatusHistoryElement element = NotificationStatusHistoryElement.builder()
+                .status(NotificationStatus.DELIVERING)
+                .build();
+        firstListReturn.add(element);
+
+        NotificationStatusHistoryElement element2 = NotificationStatusHistoryElement.builder()
+                .status(NotificationStatus.ACCEPTED)
+                .build();
+        List<NotificationStatusHistoryElement> secondListReturn = new ArrayList<>(firstListReturn);
+        secondListReturn.add(element2);
+
+        Mockito.when(statusUtils.getStatusHistory(Mockito.any(), Mockito.anyInt(), Mockito.any() ))
+                .thenReturn(firstListReturn)
+                .thenReturn(secondListReturn)
+                .thenReturn(firstListReturn)
+                .thenReturn(secondListReturn);
+
+        ResponseEntity<Void> respEntity = ResponseEntity.ok(null);
         Mockito.when(client.updateState(Mockito.any(RequestUpdateStatusDto.class))).thenReturn(respEntity);
 
         dao.addTimelineElement(row1);
         dao.addTimelineElement(row2);
-        
+
         dao.deleteTimeline(iun);
 
         // THEN
@@ -155,7 +229,7 @@ class TimelineDaoDynamoTest {
 
     private static class TestMyTimelineEntityDao implements TimelineEntityDao {
 
-        private final Map<Key,TimelineElementEntity> store = new ConcurrentHashMap<>();
+        private final Map<Key, TimelineElementEntity> store = new ConcurrentHashMap<>();
 
         @Override
         public void put(TimelineElementEntity timelineElementEntity) {
@@ -172,7 +246,7 @@ class TimelineDaoDynamoTest {
                     .partitionValue(timelineElementEntity.getIun())
                     .sortValue(timelineElementEntity.getTimelineElementId())
                     .build();
-            
+
             if (this.store.put(key, timelineElementEntity) != null) {
                 throw new IdConflictException(key);
             }
@@ -209,4 +283,23 @@ class TimelineDaoDynamoTest {
 
     }
 
+    private Notification getNotification(String iun) {
+        return Notification.builder()
+                .iun(iun)
+                .paNotificationId("protocol_01")
+                .subject("Subject 01")
+                .cancelledByIun("IUN_05")
+                .cancelledIun("IUN_00")
+                .sender(NotificationSender.builder()
+                        .paId(" pa_02")
+                        .build()
+                )
+                .recipients(Collections.singletonList(
+                        NotificationRecipient.builder()
+                                .taxId("testIdRecipient")
+                                .denomination("Nome Cognome/Ragione Sociale")
+                                .build()
+                ))
+                .build();
+    }
 }
