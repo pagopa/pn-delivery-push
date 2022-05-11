@@ -2,9 +2,9 @@ package it.pagopa.pn.deliverypush.action2.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.utils.DateUtils;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSender;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -76,7 +76,11 @@ public class DigitalWorkFlowUtils {
     private Instant getLastAttemptDateForSource(Integer recIndex, DigitalAddressSource nextAddressSource, Set<TimelineElementInternal> timeline) {
         Optional<GetAddressInfo> lastAddressAttemptOpt = timeline.stream()
                 .filter(timelineElement -> filterTimelineForRecIndexAndSource(timelineElement, recIndex, nextAddressSource))
-                .map(timelineElement -> timelineUtils.<GetAddressInfo>getSpecificDetails(timelineElement.getDetails()))
+                .map(timelineElement ->
+                        {   GetAddressInfo getAddressInfo = new GetAddressInfo();
+                            timelineUtils.getSpecificDetails(timelineElement.getDetails(), getAddressInfo);
+                            return getAddressInfo;
+                        })
                 .max(Comparator.comparing(GetAddressInfo::getAttemptDate));
 
         if (lastAddressAttemptOpt.isPresent()) {
@@ -98,16 +102,17 @@ public class DigitalWorkFlowUtils {
     private boolean filterTimelineForRecIndexAndSource(TimelineElementInternal el, Integer recIndex, DigitalAddressSource source) {
         boolean availableAddressCategory = TimelineElementCategory.GET_ADDRESS.equals(el.getCategory());
         if (availableAddressCategory) {
-            GetAddressInfo details = timelineUtils.getSpecificDetails(el.getDetails());
-            return recIndex.equals(details.getRecIndex()) && source.equals(details.getSource());
+            GetAddressInfo getAddressInfo = new GetAddressInfo();
+            timelineUtils.getSpecificDetails(el.getDetails(), getAddressInfo);
+            return recIndex.equals(getAddressInfo.getRecIndex()) && source.equals(getAddressInfo.getSource());
         }
         return false;
     }
 
     @Nullable
-    public DigitalAddress getAddressFromSource(DigitalAddressSource addressSource, Integer recIndex, Notification notification) {
+    public DigitalAddress getAddressFromSource(DigitalAddressSource addressSource, Integer recIndex, NotificationInt notification) {
         log.info("GetAddressFromSource for source {} - iun {} id {}", addressSource, notification.getIun(), recIndex);
-        NotificationRecipient recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
+        NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         
         if (addressSource != null) {
             switch (addressSource) {
@@ -125,12 +130,12 @@ public class DigitalWorkFlowUtils {
         return null;
     }
 
-    private void handleAddressSourceError(DigitalAddressSource addressSource, NotificationRecipient recipient, Notification notification) {
+    private void handleAddressSourceError(DigitalAddressSource addressSource, NotificationRecipientInt recipient, NotificationInt notification) {
         log.error("Specified addressSource {} does not exist - iun {} id {}", addressSource, notification.getIun(), recipient.getTaxId());
         throw new PnInternalException("Specified addressSource " + addressSource + " does not exist - iun " + notification.getIun() + " id " + recipient.getTaxId());
     }
 
-    private DigitalAddress retrievePlatformAddress(NotificationRecipient recipient, NotificationSender sender) {
+    private DigitalAddress retrievePlatformAddress(NotificationRecipientInt recipient, NotificationSenderInt sender) {
         log.debug("RetrievePlatformAddress for recipient {} sender {}", recipient.getTaxId(), sender.getPaId());
 
         Optional<AddressBookEntry> addressBookEntryOpt = addressBook.getAddresses(recipient.getTaxId(), sender);

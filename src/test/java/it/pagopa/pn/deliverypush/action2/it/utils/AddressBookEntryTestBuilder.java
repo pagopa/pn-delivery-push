@@ -28,7 +28,7 @@ public class AddressBookEntryTestBuilder {
     public AddressBookEntryTestBuilder withCourtesyAddress(String courtesyAddress) {
         this.courtesyAddresses = Collections.singletonList((DigitalAddress.builder()
                 .address(courtesyAddress)
-                .type(DigitalAddressType.PEC)
+                .type(DigitalAddress.TypeEnum.PEC)
                 .build()));
         return this;
     }

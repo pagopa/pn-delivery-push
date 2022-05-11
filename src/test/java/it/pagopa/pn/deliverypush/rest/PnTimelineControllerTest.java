@@ -1,9 +1,9 @@
 package it.pagopa.pn.deliverypush.rest;
 
-import ReceivedDetails;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetails;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -14,8 +14,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import java.time.Instant;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -32,12 +32,11 @@ class PnTimelineControllerTest {
 
     @Test
     void getTimelineSuccess() {
-        List<TimelineElementInternal> timelineElements = Collections.singleton(TimelineElement.builder()
-                .iun(IUN)
-                .timestamp( Instant.now() )
+        List<TimelineElement> timelineElements = Collections.singletonList(TimelineElement.builder()
+                .timestamp( new Date() )
                 .elementId( "element_id" )
                 .category( TimelineElementCategory.REQUEST_ACCEPTED)
-                .details(ReceivedDetails.builder().build())
+                .details(TimelineElementDetails.builder().build())
                 .build()
         );
         NotificationHistoryResponse dto = NotificationHistoryResponse.builder()

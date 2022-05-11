@@ -4,9 +4,9 @@ import it.pagopa.pn.commons.abstractions.FileData;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationAttachment;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfo;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
 import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -26,33 +26,38 @@ public class CheckAttachmentUtils {
         this.fileStorage = fileStorage;
     }
     
-    public void validateAttachment(Notification notification ) throws PnValidationException {
+    public void validateAttachment(NotificationInt notification ) throws PnValidationException {
         log.debug( "Start check attachment for document" );
-        for(NotificationAttachment attachment : notification.getDocuments()) {
+        for(NotificationDocumentInt attachment : notification.getDocuments()) {
             checkAttachment(attachment);
         }
         log.debug( "End check attachment for document" );
-       
-       if(notification.getPayment() != null && notification.getPayment().getF24() != null){
-           log.debug( "Start check attachment for payment" );
 
-           NotificationPaymentInfo.F24 f24 = notification.getPayment().getF24();
-           if(f24.getAnalog() != null){
-               checkAttachment(f24.getAnalog());
+        notification.getRecipients().forEach(
+                recipient -> checkPayment(recipient.getPayment())
+        );
+    }
+
+    private void checkPayment(NotificationPaymentInfoInt payment) {
+        if(payment != null ){
+           log.debug( "Start check attachment for payment" );
+           
+           if(payment.getPagoPaForm() != null){
+               checkAttachment(payment.getPagoPaForm());
            }
-           if(f24.getDigital() != null){
-               checkAttachment(f24.getDigital());
+           if(payment.getF24flatRate() != null){
+               checkAttachment(payment.getF24flatRate());
            }
-           if(f24.getFlatRate() != null){
-               checkAttachment(f24.getFlatRate());
+           if(payment.getF24white() != null){
+               checkAttachment(payment.getF24white());
            }
            
            log.debug( "End check attachment for payment" );
        }
     }
 
-    private void checkAttachment(NotificationAttachment attachment) {
-        NotificationAttachment.Ref ref = attachment.getRef();
+    private void checkAttachment(NotificationDocumentInt attachment) {
+        NotificationDocumentInt.Ref ref = attachment.getRef();
 
         FileData fd = fileStorage.getFileVersion( ref.getKey(),ref.getVersionToken() );
 
@@ -71,7 +76,7 @@ public class CheckAttachmentUtils {
             validator.checkPreloadedDigests(
                     attachmentKey,
                     attachment.getDigests(),
-                    NotificationAttachment.Digests.builder()
+                    NotificationDocumentInt.Digests.builder()
                             .sha256( actualSha256 )
                             .build()
             );

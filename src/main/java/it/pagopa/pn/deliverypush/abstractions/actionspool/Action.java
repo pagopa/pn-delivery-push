@@ -2,7 +2,7 @@ package it.pagopa.pn.deliverypush.abstractions.actionspool;
 
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
-
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import lombok.*;
 
 import java.time.Instant;

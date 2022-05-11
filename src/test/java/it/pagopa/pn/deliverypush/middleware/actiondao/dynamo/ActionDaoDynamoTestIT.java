@@ -1,10 +1,10 @@
 package it.pagopa.pn.deliverypush.middleware.actiondao.dynamo;
 
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
-
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.middleware.actiondao.ActionDao;
 import it.pagopa.pn.deliverypush.middleware.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;

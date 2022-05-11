@@ -1,5 +1,5 @@
 package it.pagopa.pn.deliverypush.actions;
-
+/*
 import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.deliverypush.middleware.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
@@ -37,7 +37,7 @@ public class NotificationViewedActionHandler extends AbstractActionHandler {
     	NotificationRecipient recipient = notification.getRecipients().get( action.getRecipientIndex() );
         String legalFactKey = legalFactStore.saveNotificationViewedLegalFact( notification, recipient, Instant.now() );
     	
-        addTimelineElement(action, TimelineElement.builder()
+        addTimelineElement(action, TimelineElementInternal.timelineInternalBuilder()
                 .category( TimelineElementCategory.NOTIFICATION_VIEWED )
                 .details( NotificationViewedDetails.builder()
                         .taxId( recipient.getTaxId() )
@@ -54,3 +54,5 @@ public class NotificationViewedActionHandler extends AbstractActionHandler {
         return ActionType.NOTIFICATION_VIEWED;
     }
 }
+
+ */

@@ -1,13 +1,14 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.SentNotification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.mapper.NotificationMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -19,13 +20,22 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public Notification getNotificationByIun(String iun) {
-        Optional<Notification> optNotification = pnDeliveryClient.getNotificationInfo( iun, false );
-        if (optNotification.isPresent()) {
-            return optNotification.get();
+    public NotificationInt getNotificationByIun(String iun) {
+        ResponseEntity<SentNotification> resp = pnDeliveryClient.getSentNotification( iun );
+        
+        if (resp.getStatusCode().is2xxSuccessful()) {
+            log.error("Get notification OK for - iun {}", iun);
+            SentNotification sentNotification = resp.getBody();
+            
+            if(sentNotification != null){
+                return NotificationMapper.externalToInternal(sentNotification);
+            }else {
+                log.error("Get notification is not valid for - iun {}", iun);
+                throw new PnInternalException("Get notification is not valid for - iun " + iun);
+            }
         } else {
-            log.error("There isn't notification for iun {}", iun);
-            throw new PnInternalException("There isn't notification for iun " + iun);
+            log.error("Get notification Failed for - iun {}", iun);
+            throw new PnInternalException("Get notification Failed for - iun " + iun);
         }
     }
 

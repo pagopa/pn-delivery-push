@@ -1,19 +1,19 @@
 package it.pagopa.pn.deliverypush.actions;
-
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
-
-
+/*
 import NotificationPathChooseDetails;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
+import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,8 +25,6 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import static org.mockito.Mockito.verify;
 
 class EndOfAnalogDeliveryWorkflowActionHandlerTest {
 
@@ -80,7 +78,7 @@ class EndOfAnalogDeliveryWorkflowActionHandlerTest {
 	}
 
 	private TimelineElementInternal newTimelineElement(List<DigitalAddress> addresses) {
-		return TimelineElement.builder()
+		return TimelineElementInternal.timelineInternalBuilder()
 				.details( NotificationPathChooseDetails.builder()
 						.courtesyAddresses(addresses)
 						.build()
@@ -91,11 +89,11 @@ class EndOfAnalogDeliveryWorkflowActionHandlerTest {
 	private NotificationPathChooseDetails newNotificationPathChooseDetails() {
 		List<DigitalAddress> addresses = Arrays.asList(
 				DigitalAddress.builder()
-					.type( DigitalAddressType.EMAIL )
+					.type( DigitalAddress.TypeEnum.EMAIL )
 					.address( "nome1.cognome1@develop1.it" )
 					.build(),
 				DigitalAddress.builder()
-					.type( DigitalAddressType.EMAIL )
+					.type( DigitalAddress.TypeEnum.EMAIL )
 					.address( "nome2.cognome2@develop2.it" )
 					.build()
 			);
@@ -121,7 +119,7 @@ class EndOfAnalogDeliveryWorkflowActionHandlerTest {
 		        .cancelledIun( "string" )
 		        .paNotificationId( "proto01" )
 		        .subject( "Local Subject" )
-		        .sender(NotificationSender.builder()
+		        .sender(NotificationSenderInt.builder()
 		                .paId(" pa_02")
 		                .build() 
 		                )
@@ -144,3 +142,6 @@ class EndOfAnalogDeliveryWorkflowActionHandlerTest {
 		        .build();
 	}
 }
+
+ */
+

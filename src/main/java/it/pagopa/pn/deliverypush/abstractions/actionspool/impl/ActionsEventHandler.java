@@ -1,14 +1,15 @@
 package it.pagopa.pn.deliverypush.abstractions.actionspool.impl;
 
 import it.pagopa.pn.api.dto.events.StandardEventHeader;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
 import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionHandler;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
-import it.pagopa.pn.deliverypush.pnclient.delivery.PnDeliveryClient;
+import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.temp.mom.consumer.AbstractEventHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -23,14 +24,14 @@ import java.util.Optional;
 @Slf4j
 public class ActionsEventHandler extends AbstractEventHandler<ActionEvent> {
 
-    private final PnDeliveryClient pnDeliveryClient;
+    private final NotificationService notificationService;
     private final TimelineDao timelineDao;
     private final Map<ActionType, ActionHandler> actionHandlers;
     private final MomProducer<ActionEvent> actionsDoneQueue;
 
-    public ActionsEventHandler(PnDeliveryClient pnDeliveryClient, TimelineDao timelineDao, List<ActionHandler> actionHandlers, @Qualifier("action-done") MomProducer<ActionEvent> actionsDoneQueue) {
+    public ActionsEventHandler(NotificationService notificationService, TimelineDao timelineDao, List<ActionHandler> actionHandlers, @Qualifier("action-done") MomProducer<ActionEvent> actionsDoneQueue) {
         super( ActionEvent.class );
-        this.pnDeliveryClient = pnDeliveryClient;
+        this.notificationService = notificationService;
         this.timelineDao = timelineDao;
         this.actionHandlers = toMap( actionHandlers);
         this.actionsDoneQueue = actionsDoneQueue;
@@ -50,19 +51,15 @@ public class ActionsEventHandler extends AbstractEventHandler<ActionEvent> {
         Action action = evt.getPayload();
 
         log.info( "Received ACTION iun={} eventId={} actionType={}", header.getIun(), header.getEventId(), action.getType() );
-        Optional<Notification> notification = pnDeliveryClient.getNotificationInfo( header.getIun(), true );
-        if( notification.isPresent() ) {
-            if( ! checkAlreadyDone( header )) {
-                log.info("NOTIFICATION: {}", notification.get() );
-                doHandle( action, notification.get() );
-                notifyActionDone( evt );
-            }
-            else {
-                log.warn("Duplicated action event: {}", evt );
-            }
+        NotificationInt notification = notificationService.getNotificationByIun( header.getIun() );
+        
+        if( ! checkAlreadyDone( header )) {
+            log.info("NOTIFICATION: {}", notification );
+            doHandle( action, notification );
+            notifyActionDone( evt );
         }
         else {
-            log.warn("Notification metadata not found for iun {}", header.getIun() );
+            log.warn("Duplicated action event: {}", evt );
         }
     }
 
@@ -70,7 +67,7 @@ public class ActionsEventHandler extends AbstractEventHandler<ActionEvent> {
         actionsDoneQueue.push( evt );
     }
 
-    private void doHandle(Action action, Notification notification) {
+    private void doHandle(Action action, NotificationInt notification) {
 
         ActionHandler actionHandler = actionHandlers.get(action.getType());
         if (actionHandler == null) {

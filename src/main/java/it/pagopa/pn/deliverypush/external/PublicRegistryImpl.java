@@ -1,9 +1,9 @@
 package it.pagopa.pn.deliverypush.external;
 
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
-
-import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.action2.PublicRegistryResponseHandler;
+import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 

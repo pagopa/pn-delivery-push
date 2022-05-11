@@ -1,14 +1,13 @@
 package it.pagopa.pn.deliverypush.action2;
 
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
-
 import it.pagopa.pn.deliverypush.action2.utils.CheckAttachmentUtils;
 import it.pagopa.pn.deliverypush.action2.utils.CourtesyMessageUtils;
 import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -55,35 +54,32 @@ class StartWorkflowHandlerTest {
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(getNotification());
 
-        Mockito.when( legalFactUtils.saveNotificationReceivedLegalFact(Mockito.any( Notification.class ))).thenReturn( "" );
+        Mockito.when( legalFactUtils.saveNotificationReceivedLegalFact(Mockito.any( NotificationInt.class ))).thenReturn( "" );
         
         //WHEN
         handler.startWorkflow("IUN_01");
         
         //THEN
-        Mockito.verify(legalFactUtils).saveNotificationReceivedLegalFact(Mockito.any(Notification.class));
-        Mockito.verify(timelineUtils).buildAcceptedRequestTimelineElement(Mockito.any(Notification.class), Mockito.anyString());
-        Mockito.verify(courtesyMessageUtils).checkAddressesForSendCourtesyMessage(Mockito.any(Notification.class), Mockito.anyInt());
-        Mockito.verify(chooseDeliveryType).chooseDeliveryTypeAndStartWorkflow(Mockito.any(Notification.class), Mockito.anyInt());
+        Mockito.verify(legalFactUtils).saveNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
+        Mockito.verify(timelineUtils).buildAcceptedRequestTimelineElement(Mockito.any(NotificationInt.class), Mockito.anyString());
+        Mockito.verify(courtesyMessageUtils).checkAddressesForSendCourtesyMessage(Mockito.any(NotificationInt.class), Mockito.anyInt());
+        Mockito.verify(chooseDeliveryType).chooseDeliveryTypeAndStartWorkflow(Mockito.any(NotificationInt.class), Mockito.anyInt());
     }
 
-    private Notification getNotification() {
-        return Notification.builder()
+    private NotificationInt getNotification() {
+        return NotificationInt.builder()
                 .iun("IUN_01")
                 .paNotificationId("protocol_01")
-                .subject("Subject 01")
-                .cancelledByIun("IUN_05")
-                .cancelledIun("IUN_00")
-                .sender(NotificationSender.builder()
+                .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()
                 )
                 .recipients(Collections.singletonList(
-                        NotificationRecipient.builder()
+                        NotificationRecipientInt.builder()
                                 .taxId("testIdRecipient")
                                 .denomination("Nome Cognome/Ragione Sociale")
                                 .digitalDomicile(DigitalAddress.builder()
-                                        .type(DigitalAddressType.PEC)
+                                        .type(DigitalAddress.TypeEnum.PEC)
                                         .address("account@dominio.it")
                                         .build())
                                 .build()

@@ -1,13 +1,12 @@
 package it.pagopa.pn.deliverypush.action2;
 
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
-
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import it.pagopa.pn.deliverypush.middleware.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -52,7 +51,7 @@ class NotificationViewedHandlerTest {
     @ExtendWith(MockitoExtension.class)
     @Test
     void handleViewNotification() {
-        Notification notification = getNotification();
+        NotificationInt notification = getNotification();
 
         Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
@@ -61,27 +60,24 @@ class NotificationViewedHandlerTest {
 
         Mockito.verify(timelineService).addTimelineElement(Mockito.any());
      
-        Mockito.verify(legalFactStore).saveNotificationViewedLegalFact(eq(notification),Mockito.any(NotificationRecipient.class), Mockito.any(Instant.class));
+        Mockito.verify(legalFactStore).saveNotificationViewedLegalFact(eq(notification),Mockito.any(NotificationRecipientInt.class), Mockito.any(Instant.class));
 
     }
 
-    private Notification getNotification() {
-        return Notification.builder()
+    private NotificationInt getNotification() {
+        return NotificationInt.builder()
                 .iun("IUN_01")
                 .paNotificationId("protocol_01")
-                .subject("Subject 01")
-                .cancelledByIun("IUN_05")
-                .cancelledIun("IUN_00")
-                .sender(NotificationSender.builder()
+                .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()
                 )
                 .recipients(Collections.singletonList(
-                        NotificationRecipient.builder()
+                        NotificationRecipientInt.builder()
                                 .taxId("testIdRecipient")
                                 .denomination("Nome Cognome/Ragione Sociale")
                                 .digitalDomicile(DigitalAddress.builder()
-                                        .type(DigitalAddressType.PEC)
+                                        .type(DigitalAddress.TypeEnum.PEC)
                                         .address("account@dominio.it")
                                         .build())
                                 .build()

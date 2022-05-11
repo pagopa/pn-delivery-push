@@ -1,5 +1,5 @@
 package it.pagopa.pn.deliverypush.actions;
-
+/*
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
@@ -86,7 +86,7 @@ class AbstractActionHandlerTest {
                 .type(ActionType.SEND_PEC)
                 .build();
 
-        TimelineElement row = TimelineElement.builder()
+        TimelineElement row = TimelineElementInternal.timelineInternalBuilder()
                 .iun("Test_iun01")
                 .timestamp(Instant.now())
                 .elementId(action.getActionId())
@@ -292,3 +292,5 @@ class AbstractActionHandlerTest {
         }
     }
 }
+
+ */

@@ -1,8 +1,8 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
-import java.time.Instant;
-import java.util.Collections;
-
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,8 +11,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
+import java.time.Instant;
+import java.util.Collections;
 
 
 class AbstractLegalFactPdfGeneratorTest {
@@ -51,9 +51,9 @@ class AbstractLegalFactPdfGeneratorTest {
 	@Test 
 	void successNullSafePhysicalAddressToString() {
 		// GIVEN
-		Notification notification = Notification.builder()
+		NotificationInt notification = NotificationInt.builder()
 										.recipients( Collections.singletonList(
-											NotificationRecipient.builder()
+											NotificationRecipientInt.builder()
 												.denomination( "denomination" )
 												.physicalAddress(PhysicalAddress.builder()
 													.address( "address" )

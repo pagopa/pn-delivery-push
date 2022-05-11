@@ -1,13 +1,14 @@
 package it.pagopa.pn.deliverypush.webhook;
 
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
-import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.api.dto.webhook.WebhookConfigDto;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.utils.DateUtils;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.ActionEvent;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElement;
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
-import it.pagopa.pn.deliverypush.pnclient.delivery.PnDeliveryClient;
+import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.temp.mom.consumer.AbstractEventHandler;
 import it.pagopa.pn.deliverypush.util.StatusUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -16,22 +17,21 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class WebhookBufferWriterService extends AbstractEventHandler<ActionEvent> {
 
-    private final PnDeliveryClient pnDeliveryClient;
+    private final NotificationService notificationService;
     private final TimelineDao timelineDao;
     private final StatusUtils statusUtils;
     private final WebhookBufferDao webhookBufferDao;
     private final WebhookConfigsDao webhookConfigsDao;
 
-    public WebhookBufferWriterService(PnDeliveryClient pnDeliveryClient, TimelineDao timelineDao, StatusUtils statusUtils, WebhookBufferDao webhookBufferDao,
+    public WebhookBufferWriterService(NotificationService notificationService, TimelineDao timelineDao, StatusUtils statusUtils, WebhookBufferDao webhookBufferDao,
                                       WebhookConfigsDao webhookConfigsDao) {
         super(ActionEvent.class);
-        this.pnDeliveryClient = pnDeliveryClient;
+        this.notificationService = notificationService;
         this.timelineDao = timelineDao;
         this.statusUtils = statusUtils;
         this.webhookBufferDao = webhookBufferDao;
@@ -43,50 +43,43 @@ public class WebhookBufferWriterService extends AbstractEventHandler<ActionEvent
         log.info("Start WebhookBufferWriterService:handleEvent");
 
         String iun = evt.getHeader().getIun();
+        NotificationInt notification = notificationService.getNotificationByIun(iun);
+        
+        String paId = notification.getPaNotificationId();
 
-        pnDeliveryClient.getNotificationInfo(iun, false).ifPresent(notification -> {
-            String paId = notification.getSender().getPaId();
+        webhookConfigsDao.getWebhookInfo(paId).ifPresent(webhookConfigDto -> {
 
-            webhookConfigsDao.getWebhookInfo(paId).ifPresent(webhookConfigDto -> {
-
-                switch (webhookConfigDto.getType()) {
-                    case TIMELINE:
-                        handleTimeLineTypeNotification(evt, notification, webhookConfigDto);
-                        break;
-                    case STATUS:
-                        handleStatusTypeNotification(iun, notification, webhookConfigDto);
-                        break;
-                    default: {
-                        log.error("Start WebhookBufferWriterService:handleEvent");
-                        throw new PnInternalException("webhook type not supported");
-                    }
+            switch (webhookConfigDto.getType()) {
+                case TIMELINE:
+                    handleTimeLineTypeNotification(evt, notification, webhookConfigDto);
+                    break;
+                case STATUS:
+                    handleStatusTypeNotification(iun, notification, webhookConfigDto);
+                    break;
+                default: {
+                    log.error("Start WebhookBufferWriterService:handleEvent");
+                    throw new PnInternalException("webhook type not supported");
                 }
-            });
+            }
         });
+        
         log.info("End WebhookBufferWriterService:handleEvent");
     }
 
-    private void handleTimeLineTypeNotification(ActionEvent evt, Notification notification, WebhookConfigDto webhookConfigDto) {
+    private void handleTimeLineTypeNotification(ActionEvent evt, NotificationInt notification, WebhookConfigDto webhookConfigDto) {
         timelineDao.getTimelineElement(notification.getIun(), evt.getPayload().getActionId()).ifPresent(timelineElement -> {
             String notificationElement = timelineElement.getCategory().toString();
             if (checkWriteNotification(webhookConfigDto, notificationElement)) {
-                writeNewNotificationElement(notification, timelineElement.getTimestamp(), notificationElement);
+                writeNewNotificationElement(notification, DateUtils.convertDateToInstant(timelineElement.getTimestamp()), notificationElement);
             }
         });
     }
 
-    private void handleStatusTypeNotification(String iun, Notification notification, WebhookConfigDto webhookConfigDto) {
+    private void handleStatusTypeNotification(String iun, NotificationInt notification, WebhookConfigDto webhookConfigDto) {
         int numberOfRecipients = notification.getRecipients().size();
         Instant notificationCreationDate = notification.getSentAt();
 
-        Set<TimelineElementInternal> rawTimeline = timelineDao.getTimeline(iun);
-
-        Set<TimelineElementInternal> timelineElements = rawTimeline.stream().map(elem ->
-                TimelineElement.builder()
-                        .category(elem.getCategory())
-                        .timestamp(elem.getTimestamp())
-                        .build()
-        ).collect(Collectors.toSet());
+        Set<TimelineElementInternal> timelineElements = timelineDao.getTimeline(iun);
 
         List<NotificationStatusHistoryElement> statusHistory = statusUtils
                 .getStatusHistory(timelineElements, numberOfRecipients, notificationCreationDate);
@@ -96,7 +89,7 @@ public class WebhookBufferWriterService extends AbstractEventHandler<ActionEvent
             NotificationStatusHistoryElement statusHistoryElement = statusHistory.get(statusHistoryLength - 1);
             String notificationElement = statusHistoryElement.getStatus().toString();
             if (checkWriteNotification(webhookConfigDto, notificationElement)) {
-                writeNewNotificationElement(notification, statusHistoryElement.getActiveFrom(), notificationElement);
+                writeNewNotificationElement(notification, DateUtils.convertDateToInstant(statusHistoryElement.getActiveFrom()), notificationElement);
             }
         }
     }
@@ -105,7 +98,7 @@ public class WebhookBufferWriterService extends AbstractEventHandler<ActionEvent
         return webhookConfigDto.isAllNotifications() || webhookConfigDto.getNotificationsElement().contains(notificationElement);
     }
 
-    private void writeNewNotificationElement(Notification notification, Instant activeFrom, String notificationElement) {
+    private void writeNewNotificationElement(NotificationInt notification, Instant activeFrom, String notificationElement) {
         this.webhookBufferDao.put(
                 notification.getSender().getPaId(),
                 notification.getIun(),

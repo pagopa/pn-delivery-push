@@ -1,36 +1,6 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
-import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
-import NotificationPathChooseDetails;
-import SendDigitalFeedback;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
-import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.apache.pdfbox.pdmodel.font.PDFont;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
-import org.springframework.util.ResourceUtils;
-
-import java.awt.*;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
+/*
 @Component
 @Slf4j
 @ConditionalOnProperty(name = "pn.legalfacts.generator", havingValue = "PDFBOX")
@@ -62,7 +32,7 @@ public class PdfboxLegalFactPdfGenerator extends AbstractLegalFactPdfGenerator i
     }
 
     @Override
-    public byte[] generateNotificationReceivedLegalFact(Action action, Notification notification) {
+    public byte[] generateNotificationReceivedLegalFact(Action action, NotificationInt notification) {
         String paragraph2 = "in data %s il soggetto mittente %s, C.F. "
                 + "%s ha messo a disposizione del gestore i documenti informatici di "
                 + "cui allo IUN %s e identificati in modo univoco con i seguenti hash: ";
@@ -99,7 +69,7 @@ public class PdfboxLegalFactPdfGenerator extends AbstractLegalFactPdfGenerator i
         paragraphs.add( paragraph2 );
         paragraphs.add( paragraph3 );
 
-        for ( NotificationRecipient recipient : notification.getRecipients() ) {
+        for ( NotificationRecipientInt recipient : notification.getRecipients() ) {
             final DigitalAddress digitalDomicile = recipient.getDigitalDomicile();
             paragraphs.add( String.format(
                     "nome e cognome/ragione sociale %s, C.F. %s domicilio digitale %s, indirizzo fisico %s;",
@@ -114,7 +84,7 @@ public class PdfboxLegalFactPdfGenerator extends AbstractLegalFactPdfGenerator i
     }
     
     @Override
-    public byte[] generateNotificationReceivedLegalFact(Notification notification) {
+    public byte[] generateNotificationReceivedLegalFact(NotificationInt notification) {
         String paragraph2 = "in data %s il soggetto mittente %s, C.F. "
                 + "%s ha messo a disposizione del gestore i documenti informatici di "
                 + "cui allo IUN %s e identificati in modo univoco con i seguenti hash: ";
@@ -151,7 +121,7 @@ public class PdfboxLegalFactPdfGenerator extends AbstractLegalFactPdfGenerator i
         paragraphs.add(paragraph2);
         paragraphs.add(paragraph3);
 
-        for (NotificationRecipient recipient : notification.getRecipients()) {
+        for (NotificationRecipientInt recipient : notification.getRecipients()) {
             final DigitalAddress digitalDomicile = recipient.getDigitalDomicile();
             paragraphs.add(String.format(
                     "nome e cognome/ragione sociale %s, C.F. %s domicilio digitale %s, indirizzo fisico %s;",
@@ -166,7 +136,7 @@ public class PdfboxLegalFactPdfGenerator extends AbstractLegalFactPdfGenerator i
     }
 
     @Override
-    public byte[] generateNotificationViewedLegalFact(Action action, Notification notification) {
+    public byte[] generateNotificationViewedLegalFact(Action action, NotificationInt notification) {
         if (action.getRecipientIndex() == null) {
             String msg = "Error while retrieving RecipientIndex for IUN %s";
             msg = String.format(msg, action.getIun());
@@ -174,7 +144,7 @@ public class PdfboxLegalFactPdfGenerator extends AbstractLegalFactPdfGenerator i
             throw new PnInternalException(msg);
         }
 
-        NotificationRecipient recipient = notification.getRecipients().get(action.getRecipientIndex());
+        NotificationRecipientInt recipient = notification.getRecipients().get(action.getRecipientIndex());
         TimelineElementInternal row = timelineElement(action);
 
         String paragraph2 = "gli atti di cui alla notifica identificata con IUN %s sono stati gestiti come segue:";
@@ -195,12 +165,12 @@ public class PdfboxLegalFactPdfGenerator extends AbstractLegalFactPdfGenerator i
     }
 
     @Override
-    public byte[] generateNotificationViewedLegalFact(String iun, NotificationRecipient recipient, Instant timeStamp) {
+    public byte[] generateNotificationViewedLegalFact(String iun, NotificationRecipientInt recipient, Instant timeStamp) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public byte[] generatePecDeliveryWorkflowLegalFact(List<Action> actions, Notification notification, NotificationPathChooseDetails addresses) {
+    public byte[] generatePecDeliveryWorkflowLegalFact(List<Action> actions, NotificationInt notification, NotificationPathChooseDetails addresses) {
 
         List<String> paragraphs = new ArrayList<>();
         paragraphs.add(PARAGRAPH1);
@@ -212,7 +182,7 @@ public class PdfboxLegalFactPdfGenerator extends AbstractLegalFactPdfGenerator i
         StringBuilder paragraph3 = new StringBuilder();
         for (Action action : actions) {
             DigitalAddress address = action.getDigitalAddressSource().getAddressFrom(addresses);
-            NotificationRecipient recipient = notification.getRecipients().get(action.getRecipientIndex());
+            NotificationRecipientInt recipient = notification.getRecipients().get(action.getRecipientIndex());
             PnExtChnProgressStatus status = action.getResponseStatus();
 
             paragraph3.append(String.format(
@@ -242,7 +212,7 @@ public class PdfboxLegalFactPdfGenerator extends AbstractLegalFactPdfGenerator i
     }
 
     @Override
-    public byte[] generatePecDeliveryWorkflowLegalFact(List<SendDigitalFeedback> listFeedbackFromExtChannel, Notification notification, NotificationRecipient recipient) {
+    public byte[] generatePecDeliveryWorkflowLegalFact(List<SendDigitalFeedback> listFeedbackFromExtChannel, NotificationInt notification, NotificationRecipientInt recipient) {
         throw new UnsupportedOperationException();
     }
 
@@ -415,4 +385,6 @@ public class PdfboxLegalFactPdfGenerator extends AbstractLegalFactPdfGenerator i
     }
 
 }
+
+ */
 

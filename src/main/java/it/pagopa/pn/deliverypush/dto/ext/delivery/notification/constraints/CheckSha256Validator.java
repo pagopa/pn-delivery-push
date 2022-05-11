@@ -1,18 +1,19 @@
 package it.pagopa.pn.deliverypush.dto.ext.delivery.notification.constraints;
 
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.springframework.util.Base64Utils;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-public class CheckSha256Validator implements ConstraintValidator<CheckSha256, NotificationAttachment> {
+public class CheckSha256Validator implements ConstraintValidator<CheckSha256, NotificationDocumentInt> {
 
     @Override
-    public boolean isValid( NotificationAttachment attachment, ConstraintValidatorContext constraintValidatorContext) {
-        String base64 = attachment.getBody();
-        NotificationAttachment.Digests digests = attachment.getDigests();
+    public boolean isValid(NotificationDocumentInt attachment, ConstraintValidatorContext constraintValidatorContext) {
+        //TODO Cambiare una volta configurato safeStorages
+        
+        /*
+        String base64 = attachment.getBody(); 
+        NotificationDocumentInt.Digests digests = attachment.getDigests();
 
         boolean isValid = true;
         if( digests != null && base64 != null && !base64.isBlank() ) {
@@ -23,7 +24,8 @@ public class CheckSha256Validator implements ConstraintValidator<CheckSha256, No
                 isValid = expectedSha256Hex.equalsIgnoreCase(computedSha256);
             }
         }
-
         return isValid;
+         */
+        return true;
     }
 }

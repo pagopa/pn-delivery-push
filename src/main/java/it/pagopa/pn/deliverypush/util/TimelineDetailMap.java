@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.util;
 
 
-import ReceivedDetails;
+import it.pagopa.pn.api.dto.notification.timeline.ReceivedDetails;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 
 import java.util.HashMap;

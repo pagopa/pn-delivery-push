@@ -1,5 +1,5 @@
 package it.pagopa.pn.deliverypush.actions;
-
+/*
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
@@ -69,7 +69,7 @@ class PecFailReceivePaperFeedbackActionHandlerTest {
         NotificationRecipient recipient = notification.getRecipients().get(action.getRecipientIndex());
 
         Mockito.when(timelineDao.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Optional.of(TimelineElement.builder()
+                .thenReturn(Optional.of(TimelineElementInternal.timelineInternalBuilder()
                         .category(TimelineElementCategory.SEND_PAPER_FEEDBACK)
                         .details(new SendPaperFeedbackDetails(
                                 recipient.getPhysicalAddress(),
@@ -99,7 +99,7 @@ class PecFailReceivePaperFeedbackActionHandlerTest {
                 .subject("Subject 01")
                 .cancelledByIun("IUN_05")
                 .cancelledIun("IUN_00")
-                .sender(NotificationSender.builder()
+                .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()
                 )
@@ -116,3 +116,6 @@ class PecFailReceivePaperFeedbackActionHandlerTest {
                 .build();
     }
 }
+
+
+ */

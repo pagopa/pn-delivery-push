@@ -1,5 +1,5 @@
 package it.pagopa.pn.deliverypush.actions;
-
+/*
 import it.pagopa.pn.api.dto.events.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
@@ -141,3 +141,5 @@ public class ExtChnEventUtils {
 		        .build();
 	}
 }
+
+ */

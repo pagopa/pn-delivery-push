@@ -1,15 +1,14 @@
 package it.pagopa.pn.deliverypush.action2.it.utils;
 
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
-import it.pagopa.pn.deliverypush.action2.utils.EndWorkflowStatus;
 import it.pagopa.pn.api.dto.events.PnExtChnEmailEvent;
 import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
-
 import it.pagopa.pn.deliverypush.action2.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action2.it.mockbean.ExternalChannelMock;
+import it.pagopa.pn.deliverypush.action2.utils.EndWorkflowStatus;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Assertions;
 import org.mockito.ArgumentCaptor;
@@ -61,7 +60,7 @@ public class TestUtils {
 
         Optional<GetAddressInfo> getAddressInfoOpt = timelineService.getTimelineElement(iun, correlationId, GetAddressInfo.class);
         Assertions.assertTrue(getAddressInfoOpt.isPresent());
-        Assertions.assertEquals(isAvailable, getAddressInfoOpt.get().isAvailable());
+        Assertions.assertEquals(isAvailable, getAddressInfoOpt.get().getIsAvailable());
     }
 
     public static void checkSendPaperToExtChannel(String iun, Integer recIndex, PhysicalAddress physicalAddress, int sendAttempt, TimelineService timelineService) {
@@ -90,7 +89,7 @@ public class TestUtils {
 
         ArgumentCaptor<EndWorkflowStatus> endWorkflowStatusArgumentCaptor = ArgumentCaptor.forClass(EndWorkflowStatus.class);
         ArgumentCaptor<Integer> recIndexCaptor = ArgumentCaptor.forClass(Integer.class);
-        ArgumentCaptor<Notification> notificationCaptor = ArgumentCaptor.forClass(Notification.class);
+        ArgumentCaptor<NotificationInt> notificationCaptor = ArgumentCaptor.forClass(NotificationInt.class);
 
         Mockito.verify(completionWorkflow, Mockito.times(1)).completionAnalogWorkflow(
                 notificationCaptor.capture(), recIndexCaptor.capture(), Mockito.any(Instant.class), Mockito.any(PhysicalAddress.class), endWorkflowStatusArgumentCaptor.capture()
@@ -114,7 +113,7 @@ public class TestUtils {
 
         ArgumentCaptor<EndWorkflowStatus> endWorkflowStatusArgumentCaptor = ArgumentCaptor.forClass(EndWorkflowStatus.class);
         ArgumentCaptor<Integer> recIndexCaptor = ArgumentCaptor.forClass(Integer.class);
-        ArgumentCaptor<Notification> notificationCaptor = ArgumentCaptor.forClass(Notification.class);
+        ArgumentCaptor<NotificationInt> notificationCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<DigitalAddress> addressCaptor = ArgumentCaptor.forClass(DigitalAddress.class);
 
         Mockito.verify(completionWorkflow, Mockito.times(invocationsNumber)).completionDigitalWorkflow(
@@ -123,7 +122,7 @@ public class TestUtils {
 
         List<EndWorkflowStatus> endWorkflowStatusArgumentCaptorValue = endWorkflowStatusArgumentCaptor.getAllValues();
         List<Integer> recIndexCaptorValue = recIndexCaptor.getAllValues();
-        List<Notification> notificationCaptorValue = notificationCaptor.getAllValues();
+        List<NotificationInt> notificationCaptorValue = notificationCaptor.getAllValues();
         List<DigitalAddress> addressCaptorValue = addressCaptor.getAllValues();
 
         Assertions.assertEquals(recIndex, recIndexCaptorValue.get(invocation));
@@ -143,7 +142,7 @@ public class TestUtils {
                                 .build())).isPresent());
 
         ArgumentCaptor<EndWorkflowStatus> endWorkflowStatusArgumentCaptor = ArgumentCaptor.forClass(EndWorkflowStatus.class);
-        ArgumentCaptor<Notification> notificationCaptor = ArgumentCaptor.forClass(Notification.class);
+        ArgumentCaptor<NotificationInt> notificationCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<Integer> recIndexCaptor = ArgumentCaptor.forClass(Integer.class);
 
         Mockito.verify(completionWorkflow, Mockito.times(1)).completionDigitalWorkflow(

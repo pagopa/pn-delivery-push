@@ -1,20 +1,19 @@
 package it.pagopa.pn.deliverypush.action2;
 
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
-
-import ContactPhase;
-import SendCourtesyMessageDetails;
-import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action2.utils.ChooseDeliveryModeUtils;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.external.AddressBookEntry;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ContactPhase;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendCourtesyMessageDetails;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import org.junit.jupiter.api.Assertions;
@@ -30,6 +29,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -69,19 +69,19 @@ class ChooseDeliveryModeHandlerTest {
     @Test
     void chooseDeliveryTypeAndStartWorkflowPlatformAddress() {
         //GIVEN
-        Notification notification = getNotification();
-        NotificationRecipient recipient =notification.getRecipients().get(0);
+        NotificationInt notification = getNotification();
+        NotificationRecipientInt recipient =notification.getRecipients().get(0);
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         AddressBookEntry entry = AddressBookEntry.builder()
                 .platformDigitalAddress(
                         DigitalAddress.builder()
-                                .type(DigitalAddressType.PEC)
+                                .type(DigitalAddress.TypeEnum.PEC)
                                 .address("Via di test")
                                 .build()
                 ).build();
 
-        Mockito.when(chooseDeliveryUtils.getAddresses(Mockito.any(Notification.class), Mockito.anyInt()))
+        Mockito.when(chooseDeliveryUtils.getAddresses(Mockito.any(NotificationInt.class), Mockito.anyInt()))
                 .thenReturn(Optional.of(entry));
 
         //WHEN
@@ -91,7 +91,7 @@ class ChooseDeliveryModeHandlerTest {
         ArgumentCaptor<DigitalAddressSource> digitalAddressSourceCaptor = ArgumentCaptor.forClass(DigitalAddressSource.class);
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);
 
-        Mockito.verify(externalChannelSendHandler).sendDigitalNotification(Mockito.any(Notification.class), Mockito.any(DigitalAddress.class),
+        Mockito.verify(externalChannelSendHandler).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(DigitalAddress.class),
                 digitalAddressSourceCaptor.capture(), Mockito.anyInt(), Mockito.anyInt());
         Assertions.assertEquals(DigitalAddressSource.PLATFORM, digitalAddressSourceCaptor.getValue());
 
@@ -106,13 +106,13 @@ class ChooseDeliveryModeHandlerTest {
     @Test
     void chooseDeliveryTypeAndStartWorkflowSpecial() {
         //GIVEN
-        Notification notification = getNotification();
-        NotificationRecipient recipient =notification.getRecipients().get(0);
+        NotificationInt notification = getNotification();
+        NotificationRecipientInt recipient =notification.getRecipients().get(0);
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
         
-        Mockito.when(chooseDeliveryUtils.getAddresses(Mockito.any(Notification.class), Mockito.anyInt()))
+        Mockito.when(chooseDeliveryUtils.getAddresses(Mockito.any(NotificationInt.class), Mockito.anyInt()))
                 .thenReturn(Optional.empty());
-        Mockito.when(chooseDeliveryUtils.getDigitalDomicile(Mockito.any(Notification.class), Mockito.anyInt()))
+        Mockito.when(chooseDeliveryUtils.getDigitalDomicile(Mockito.any(NotificationInt.class), Mockito.anyInt()))
                 .thenReturn(recipient.getDigitalDomicile());
         
         //WHEN
@@ -137,7 +137,7 @@ class ChooseDeliveryModeHandlerTest {
         Assertions.assertEquals(DigitalAddressSource.SPECIAL, listDigitalAddressSourceCaptorValues.get(1));
         Assertions.assertTrue(listIsAvailableCaptorValues.get(1));
 
-        Mockito.verify(externalChannelSendHandler).sendDigitalNotification(Mockito.any(Notification.class), Mockito.any(DigitalAddress.class),
+        Mockito.verify(externalChannelSendHandler).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(DigitalAddress.class),
                 digitalAddressSourceCaptor.capture(), Mockito.anyInt(), Mockito.anyInt());
 
         Assertions.assertEquals(DigitalAddressSource.SPECIAL, digitalAddressSourceCaptor.getValue());
@@ -147,11 +147,11 @@ class ChooseDeliveryModeHandlerTest {
     @Test
     void chooseDeliveryTypeAndStartWorkflowGeneral() {
         //GIVEN
-        Notification notification = getNotificationWithoutDigitalDomicile();
-        NotificationRecipient recipient =notification.getRecipients().get(0);
+        NotificationInt notification = getNotificationWithoutDigitalDomicile();
+        NotificationRecipientInt recipient =notification.getRecipients().get(0);
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
-        Mockito.when(chooseDeliveryUtils.getAddresses(Mockito.any(Notification.class), Mockito.anyInt()))
+        Mockito.when(chooseDeliveryUtils.getAddresses(Mockito.any(NotificationInt.class), Mockito.anyInt()))
                 .thenReturn(Optional.empty());
 
         //WHEN
@@ -176,7 +176,7 @@ class ChooseDeliveryModeHandlerTest {
         Assertions.assertEquals(DigitalAddressSource.SPECIAL, listDigitalAddressSourceCaptorValues.get(1));
         Assertions.assertFalse(listIsAvailableCaptorValues.get(1));
 
-        Mockito.verify(publicRegistrySendHandler).sendRequestForGetDigitalGeneralAddress(Mockito.any(Notification.class), Mockito.anyInt(),
+        Mockito.verify(publicRegistrySendHandler).sendRequestForGetDigitalGeneralAddress(Mockito.any(NotificationInt.class), Mockito.anyInt(),
                 Mockito.any(ContactPhase.class), Mockito.anyInt());
     }
 
@@ -187,11 +187,11 @@ class ChooseDeliveryModeHandlerTest {
         PublicRegistryResponse response = PublicRegistryResponse.builder()
                 .digitalAddress(DigitalAddress.builder()
                         .address("Via nuova")
-                        .type(DigitalAddressType.PEC)
+                        .type(DigitalAddress.TypeEnum.PEC)
                         .build()).build();
 
-        Notification notification = getNotification();
-        NotificationRecipient recipient =notification.getRecipients().get(0);
+        NotificationInt notification = getNotification();
+        NotificationRecipientInt recipient =notification.getRecipients().get(0);
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
@@ -204,7 +204,7 @@ class ChooseDeliveryModeHandlerTest {
         ArgumentCaptor<DigitalAddressSource> digitalAddressSourceCaptor = ArgumentCaptor.forClass(DigitalAddressSource.class);
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);
 
-        Mockito.verify(externalChannelSendHandler).sendDigitalNotification(Mockito.any(Notification.class), Mockito.any(DigitalAddress.class),
+        Mockito.verify(externalChannelSendHandler).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(DigitalAddress.class),
                 digitalAddressSourceCaptor.capture(), Mockito.anyInt(), Mockito.anyInt());
         Assertions.assertEquals(DigitalAddressSource.GENERAL, digitalAddressSourceCaptor.getValue());
 
@@ -219,14 +219,14 @@ class ChooseDeliveryModeHandlerTest {
     @Test
     void handleGeneralAddressResponseAnalogWithCourtesyMessage() {
         //GIVEN
-        Notification notification = getNotification();
-        NotificationRecipient recipient =notification.getRecipients().get(0);
+        NotificationInt notification = getNotification();
+        NotificationRecipientInt recipient =notification.getRecipients().get(0);
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         PublicRegistryResponse response = PublicRegistryResponse.builder()
                 .digitalAddress(null).build();
 
-        Instant courtesyMessageDate = Instant.now();
+        Date courtesyMessageDate = new Date();
         SendCourtesyMessageDetails sendCourtesyMessageDetails = SendCourtesyMessageDetails.builder()
                 .sendDate(courtesyMessageDate)
                 .build();
@@ -261,8 +261,8 @@ class ChooseDeliveryModeHandlerTest {
     @Test
     void handleGeneralAddressResponseAnalogWithoutCourtesyMessage() {
         //GIVEN
-        Notification notification = getNotification();
-        NotificationRecipient recipient =notification.getRecipients().get(0);
+        NotificationInt notification = getNotification();
+        NotificationRecipientInt recipient =notification.getRecipients().get(0);
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
@@ -297,23 +297,19 @@ class ChooseDeliveryModeHandlerTest {
 
     }
 
-    private Notification getNotification() {
-        return Notification.builder()
+    private NotificationInt getNotification() {
+        return NotificationInt.builder()
                 .iun("IUN_01")
-                .paNotificationId("protocol_01")
-                .subject("Subject 01")
-                .cancelledByIun("IUN_05")
-                .cancelledIun("IUN_00")
-                .sender(NotificationSender.builder()
+                .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()
                 )
                 .recipients(Collections.singletonList(
-                        NotificationRecipient.builder()
+                        NotificationRecipientInt.builder()
                                 .taxId("testIdRecipient")
                                 .denomination("Nome Cognome/Ragione Sociale")
                                 .digitalDomicile(DigitalAddress.builder()
-                                        .type(DigitalAddressType.PEC)
+                                        .type(DigitalAddress.TypeEnum.PEC)
                                         .address("account@dominio.it")
                                         .build())
                                 .build()
@@ -321,19 +317,16 @@ class ChooseDeliveryModeHandlerTest {
                 .build();
     }
 
-    private Notification getNotificationWithoutDigitalDomicile() {
-        return Notification.builder()
+    private NotificationInt getNotificationWithoutDigitalDomicile() {
+        return NotificationInt.builder()
                 .iun("IUN_01")
                 .paNotificationId("protocol_01")
-                .subject("Subject 01")
-                .cancelledByIun("IUN_05")
-                .cancelledIun("IUN_00")
-                .sender(NotificationSender.builder()
+                .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()
                 )
                 .recipients(Collections.singletonList(
-                        NotificationRecipient.builder()
+                        NotificationRecipientInt.builder()
                                 .taxId("testIdRecipient")
                                 .denomination("Nome Cognome/Ragione Sociale")
                                 .build()

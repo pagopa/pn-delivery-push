@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action2.it.utils;
 
 
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 
 public class PhysicalAddressBuilder {
     String address;

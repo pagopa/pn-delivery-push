@@ -1,5 +1,5 @@
 package it.pagopa.pn.deliverypush.actions;
-
+/*
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
 import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
@@ -67,7 +67,7 @@ public class ReceivePaperActionHandler extends AbstractActionHandler {
         }
 
         // - Write timeline
-        addTimelineElement(action, TimelineElement.builder()
+        addTimelineElement(action, TimelineElementInternal.timelineInternalBuilder()
                 .category(TimelineElementCategory.SEND_PAPER_FEEDBACK)
                 .details(new SendPaperFeedbackDetails(
                         SendPaperDetails.builder()
@@ -97,3 +97,5 @@ public class ReceivePaperActionHandler extends AbstractActionHandler {
     }
 
 }
+
+ */

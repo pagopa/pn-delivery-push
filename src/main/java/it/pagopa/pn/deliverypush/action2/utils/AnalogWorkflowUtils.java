@@ -1,16 +1,16 @@
 package it.pagopa.pn.deliverypush.action2.utils;
 
 
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendPaperDetails;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendPaperFeedbackDetails;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendPaperFeedbackDetails;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -71,8 +71,8 @@ public class AnalogWorkflowUtils {
         timelineService.addTimelineElement(element);
     }
 
-    public PhysicalAddress getPhysicalAddress(Notification notification, Integer recIndex){
-        NotificationRecipient notificationRecipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
+    public PhysicalAddress getPhysicalAddress(NotificationInt notification, Integer recIndex){
+        NotificationRecipientInt notificationRecipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         return notificationRecipient.getPhysicalAddress();
     }
 }

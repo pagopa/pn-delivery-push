@@ -1,14 +1,12 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
-import SendDigitalFeedback;
-import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationPathChooseDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendDigitalFeedback;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -18,8 +16,6 @@ import java.io.InputStream;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -55,19 +51,20 @@ public class LegalFactUtils {
         return legalFactName + "~" + versionId;
     }
     
-    public String saveNotificationReceivedLegalFact(Action action, Notification notification) {
-        Map<String, String> metadata = legalfactMetadataUtils.buildMetadata( LegalFactType.SENDER_ACK, null );
+    public String saveNotificationReceivedLegalFact(Action action, NotificationInt notification) {
+        Map<String, String> metadata = legalfactMetadataUtils.buildMetadata( LegalFactCategory.SENDER_ACK, null );
         byte[] pdfBytes = pdfUtils.generateNotificationReceivedLegalFact( action, notification);
         return this.saveLegalFact(action.getIun(), "sender_ack", pdfBytes, metadata);
     }
     
-    public String saveNotificationReceivedLegalFact(Notification notification) {
+    public String saveNotificationReceivedLegalFact(NotificationInt notification) {
         Map<String, String> metadata = legalfactMetadataUtils.buildMetadata(LegalFactCategory.SENDER_ACK, null);
         byte[] pdfBytes = pdfUtils.generateNotificationReceivedLegalFact(notification);
         return this.saveLegalFact(notification.getIun(), "sender_ack", pdfBytes, metadata);
     }
-
-    public String savePecDeliveryWorkflowLegalFact(List<Action> actions, Notification notification, NotificationPathChooseDetails addresses) {
+    
+    /*
+    public String savePecDeliveryWorkflowLegalFact(List<Action> actions, NotificationInt notification, NotificationPathChooseDetails addresses) {
         Set<Integer> recipientIdx = actions.stream()
                 .map(Action::getRecipientIndex)
                 .collect(Collectors.toSet());
@@ -80,9 +77,9 @@ public class LegalFactUtils {
 
         byte[] pdfBytes = pdfUtils.generatePecDeliveryWorkflowLegalFact(actions, notification, addresses);
         return this.saveLegalFact(notification.getIun(), "digital_delivery_info_" + taxId, pdfBytes, metadata);
-    }
+    }*/
 
-    public String savePecDeliveryWorkflowLegalFact(List<SendDigitalFeedback> listFeedbackFromExtChannel, Notification notification, NotificationRecipient recipient) {
+    public String savePecDeliveryWorkflowLegalFact(List<SendDigitalFeedback> listFeedbackFromExtChannel, NotificationInt notification, NotificationRecipientInt recipient) {
         Map<String, String> metadata = legalfactMetadataUtils.buildMetadata(LegalFactCategory.DIGITAL_DELIVERY, recipient.getTaxId());
 
         byte[] pdfBytes = pdfUtils.generatePecDeliveryWorkflowLegalFact(listFeedbackFromExtChannel, notification, recipient);
@@ -90,7 +87,7 @@ public class LegalFactUtils {
     }
 
 
-    public String saveNotificationViewedLegalFact(Notification notification, NotificationRecipient recipient, Instant timeStamp) {
+    public String saveNotificationViewedLegalFact(NotificationInt notification, NotificationRecipientInt recipient, Instant timeStamp) {
         String taxId = recipient.getTaxId();
         Map<String, String> metadata = legalfactMetadataUtils.buildMetadata(LegalFactCategory.RECIPIENT_ACCESS, taxId);
         byte[] pdfBytes = pdfUtils.generateNotificationViewedLegalFact(notification.getIun(), recipient, timeStamp);

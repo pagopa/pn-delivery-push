@@ -1,8 +1,9 @@
 package it.pagopa.pn.deliverypush.rest;
 
 import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
-import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
-import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntryId;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsId;
 import it.pagopa.pn.deliverypush.service.LegalFactService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -34,11 +35,11 @@ class PnLegalFactsControllerTest {
 
     @Test
     void getLegalFactsSuccess() {
-        List<LegalFactsListEntry> legalFactsList = Collections.singletonList( LegalFactsListEntry.builder()
+        List<LegalFactListElement> legalFactsList = Collections.singletonList( LegalFactListElement.builder()
                         .iun( IUN )
                         .taxId( "taxId" )
-                        .legalFactsId( LegalFactsListEntryId.builder()
-                                .type( LegalFactType.SENDER_ACK )
+                        .legalFactsId( LegalFactsId.builder()
+                                .category( LegalFactCategory.SENDER_ACK )
                                 .key( "key" )
                                 .build()
                         ).build()

@@ -2,9 +2,9 @@ package it.pagopa.pn.deliverypush.middleware.actiondao.dynamo.mapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.middleware.actiondao.dynamo.ActionEntity;
 import org.springframework.stereotype.Component;
 

@@ -1,5 +1,5 @@
 package it.pagopa.pn.deliverypush.actions;
-
+/*
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
 import RefinementDetails;
@@ -24,7 +24,7 @@ public class WaitForRecipientTimeoutActionHandler extends AbstractActionHandler 
 
         NotificationRecipient recipient = notification.getRecipients().get(action.getRecipientIndex());
 
-        addTimelineElement(action, TimelineElement.builder()
+        addTimelineElement(action, TimelineElementInternal.timelineInternalBuilder()
                 .category(TimelineElementCategory.REFINEMENT)
                 .details(RefinementDetails.builder()
                         .taxId(recipient.getTaxId())
@@ -40,3 +40,5 @@ public class WaitForRecipientTimeoutActionHandler extends AbstractActionHandler 
         return ActionType.WAIT_FOR_RECIPIENT_TIMEOUT;
     }
 }
+
+ */

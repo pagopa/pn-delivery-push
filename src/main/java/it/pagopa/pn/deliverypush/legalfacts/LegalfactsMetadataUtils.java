@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
+import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.commons.abstractions.FileData;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationAttachment;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsId;
@@ -64,7 +64,7 @@ public class LegalfactsMetadataUtils {
                 .build();
     }
 
-    public NotificationAttachment.Ref fromIunAndLegalFactId( String iun, String legalFactId ) {
+    public NotificationAttachment.Ref fromIunAndLegalFactId(String iun, String legalFactId ) {
         String[] parts = legalFactId.split(LEGAL_FACT_ID_SEPARATOR, 2);
         String legalFactkey = parts[0];
         String versionId = parts[1];

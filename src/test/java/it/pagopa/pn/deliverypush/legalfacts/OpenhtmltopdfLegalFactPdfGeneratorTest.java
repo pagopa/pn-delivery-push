@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.legalfacts;
-
+//TODO Da decommentare
+/*
 import java.util.Arrays;
 
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
@@ -8,8 +9,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.api.dto.notification.NotificationPaymentInfo;
 
 class OpenhtmltopdfLegalFactPdfGeneratorTest {
@@ -27,15 +28,15 @@ class OpenhtmltopdfLegalFactPdfGeneratorTest {
 	@Test 
 	void successHashUnorderedList() {
 		// GIVEN
-		Notification notification = Notification.builder()
+		NotificationInt notification = NotificationInt.builder()
 					.documents(Arrays.asList(
-                        NotificationAttachment.builder()
-                                .ref( NotificationAttachment.Ref.builder()
+                        NotificationDocumentInt.builder()
+                                .ref( NotificationDocumentInt.Ref.builder()
                                         .key("doc00")
                                         .versionToken("v01_doc00")
                                         .build()
                                 )
-                                .digests(NotificationAttachment.Digests.builder()
+                                .digests(NotificationDocumentInt.Digests.builder()
                                         .sha256("sha256_doc01")
                                         .build()
                                 )
@@ -46,24 +47,24 @@ class OpenhtmltopdfLegalFactPdfGeneratorTest {
 					)
 					.payment( NotificationPaymentInfo.builder()
 								.f24( NotificationPaymentInfo.F24.builder()
-										.digital( NotificationAttachment.builder()
+										.digital( NotificationDocumentInt.builder()
 												.body("Ym9keV8wMQ==")
 												.contentType("Content/Type")
-												.digests(NotificationAttachment.Digests.builder()
+												.digests(NotificationDocumentInt.Digests.builder()
 														.sha256("sha256_doc02")
 														.build() )
 												.build() )
-										.analog( NotificationAttachment.builder()
+										.analog( NotificationDocumentInt.builder()
 												.body("Ym9keV8wMQ==")
 												.contentType("Content/Type")
-												.digests(NotificationAttachment.Digests.builder()
+												.digests(NotificationDocumentInt.Digests.builder()
 														.sha256("sha256_doc03")
 														.build() )
 												.build() )
-										.flatRate( NotificationAttachment.builder()
+										.flatRate( NotificationDocumentInt.builder()
 												.body("Ym9keV8wMQ==")
 												.contentType("Content/Type")
-												.digests(NotificationAttachment.Digests.builder()
+												.digests(NotificationDocumentInt.Digests.builder()
 														.sha256("sha256_doc04")
 														.build() )
 												.build() )
@@ -85,3 +86,5 @@ class OpenhtmltopdfLegalFactPdfGeneratorTest {
 	}
 
 }
+
+ */

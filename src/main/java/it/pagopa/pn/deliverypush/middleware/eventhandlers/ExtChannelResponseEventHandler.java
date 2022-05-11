@@ -1,17 +1,17 @@
 package it.pagopa.pn.deliverypush.middleware.eventhandlers;
 
-import it.pagopa.pn.api.dto.events.*;
+import it.pagopa.pn.api.dto.events.PnExtChnProgressStatusEvent;
+import it.pagopa.pn.api.dto.events.StandardEventHeader;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
+import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.temp.mom.consumer.AbstractEventHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 @Service
@@ -37,12 +37,27 @@ public class ExtChannelResponseEventHandler extends AbstractEventHandler<PnExtCh
         Optional<Action> sendAction = actionsPool.loadActionById( sendActionId );
 
         if( sendAction.isPresent() ) {
+            PhysicalAddress newPhysicalAddress = null;
+            
+            it.pagopa.pn.api.dto.notification.address.PhysicalAddress newPhysicalAddressExt = evt.getPayload().getNewPhysicalAddress();
+            if( newPhysicalAddressExt != null){
+                newPhysicalAddress = PhysicalAddress.builder()
+                        .foreignState(newPhysicalAddressExt.getForeignState())
+                        .at(newPhysicalAddressExt.getAt())
+                        .addressDetails(newPhysicalAddressExt.getAddressDetails())
+                        .zip(newPhysicalAddressExt.getZip())
+                        .municipality(newPhysicalAddressExt.getMunicipality())
+                        .province(newPhysicalAddressExt.getProvince())
+                        .address(newPhysicalAddressExt.getAddress())
+                        .build();
+            }
+
             ActionType receiveActionType = sendToReceiveActionType( sendAction.get() );
             Action extChResponseAction = sendAction.get().toBuilder()
                     .type( receiveActionType )
                     .notBefore( header.getCreatedAt().plus( pnDeliveryPushConfigs.getTimeParams().getTimeBetweenExtChReceptionAndMessageProcessed() ) )
                     .responseStatus( evt.getPayload().getStatusCode() )
-                    .newPhysicalAddress( evt.getPayload().getNewPhysicalAddress() )
+                    .newPhysicalAddress(newPhysicalAddress)
                     .attachmentKeys( evt.getPayload().getAttachmentKeys() )
                     .build();
 

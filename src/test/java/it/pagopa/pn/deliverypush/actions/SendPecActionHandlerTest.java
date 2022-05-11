@@ -1,5 +1,5 @@
 package it.pagopa.pn.deliverypush.actions;
-
+/*
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
 import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
@@ -79,7 +79,7 @@ class SendPecActionHandlerTest {
         Notification notification = newNotificationWithoutPayments();
 
         Mockito.when(timelineDao.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Optional.of(TimelineElement.builder()
+                .thenReturn(Optional.of(TimelineElementInternal.timelineInternalBuilder()
                         .details(NotificationPathChooseDetails.builder()
                                 .general(DigitalAddress.builder()
                                         .address("account@dominio.it")
@@ -113,7 +113,7 @@ class SendPecActionHandlerTest {
                 .subject("Subject 01")
                 .cancelledByIun("IUN_05")
                 .cancelledIun("IUN_00")
-                .sender(NotificationSender.builder()
+                .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()
                 )
@@ -130,3 +130,6 @@ class SendPecActionHandlerTest {
                 .build();
     }
 }
+
+
+ */

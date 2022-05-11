@@ -1,5 +1,5 @@
 package it.pagopa.pn.deliverypush.actions;
-
+/*
 import java.util.Optional;
 
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
@@ -63,7 +63,7 @@ public class SendPecActionHandler extends AbstractActionHandler {
             }
   
             // - Write timeline
-            addTimelineElement( action, TimelineElement.builder()
+            addTimelineElement( action, TimelineElementInternal.timelineInternalBuilder()
                 .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE )
                 .details( SendDigitalDetails.sendBuilder()
                             .taxId( recipient.getTaxId() )
@@ -85,3 +85,5 @@ public class SendPecActionHandler extends AbstractActionHandler {
         return ActionType.SEND_PEC;
     }
 }
+
+ */

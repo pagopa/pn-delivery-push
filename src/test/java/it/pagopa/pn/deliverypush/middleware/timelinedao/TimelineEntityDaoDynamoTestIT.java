@@ -38,7 +38,7 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity elementToInsert = TimelineElementEntity.builder()
                 .iun("pa1-1")
                 .timelineElementId("elementId1")
-                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW)
+                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW.getValue())
                 .details("{\"category\":\"END_OF_DIGITAL_DELIVERY_WORKFLOW\",\"taxId\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
                 .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
                 .build();
@@ -68,7 +68,7 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity elementToInsert = TimelineElementEntity.builder()
                 .iun("pa1-1")
                 .timelineElementId("elementId1")
-                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW)
+                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW.getValue())
                 .details("{\"category\":\"END_OF_DIGITAL_DELIVERY_WORKFLOW\",\"taxId\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
                 .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
                 .build();
@@ -76,7 +76,7 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity elementNotToBeInserted = TimelineElementEntity.builder()
                 .iun("pa1-1")
                 .timelineElementId("elementId1")
-                .category(TimelineElementCategory.SEND_ANALOG_DOMICILE)
+                .category(TimelineElementCategory.SEND_ANALOG_DOMICILE.getValue())
                 .details("{\"category\":\"END_OF_DIGITAL_DELIVERY_WORKFLOW\",\"taxId\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
                 .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
                 .build();
@@ -114,7 +114,7 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity firstElementToInsert = TimelineElementEntity.builder()
                 .iun("pa1-1")
                 .timelineElementId("elementId1")
-                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW)
+                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW.getValue())
                 .details("{\"category\":\"END_OF_DIGITAL_DELIVERY_WORKFLOW\",\"taxId\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
                 .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
                 .build();
@@ -127,7 +127,7 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity secondElementToInsert = TimelineElementEntity.builder()
                 .iun("pa1-1")
                 .timelineElementId("elementId2")
-                .category(TimelineElementCategory.SEND_ANALOG_DOMICILE)
+                .category(TimelineElementCategory.SEND_ANALOG_DOMICILE.getValue())
                 .details("{\"category\":\"END_OF_DIGITAL_DELIVERY_WORKFLOW\",\"taxId\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
                 .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
                 .build();
@@ -163,7 +163,7 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity firstElementToInsert = TimelineElementEntity.builder()
                 .iun("pa1-1")
                 .timelineElementId("elementId1")
-                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW)
+                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW.getValue())
                 .details("{\"category\":\"END_OF_DIGITAL_DELIVERY_WORKFLOW\",\"taxId\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
                 .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
                 .build();
@@ -175,7 +175,7 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity secondElementToInsert = TimelineElementEntity.builder()
                 .iun("pa1-2")
                 .timelineElementId("elementId1")
-                .category(TimelineElementCategory.SEND_ANALOG_DOMICILE)
+                .category(TimelineElementCategory.SEND_ANALOG_DOMICILE.getValue())
                 .details("{\"category\":\"SEND_ANALOG_DOMICILE\",\"taxId\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
                 .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
                 .build();
@@ -216,7 +216,7 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity element = TimelineElementEntity.builder()
                 .iun("pa1-1")
                 .timelineElementId("elementId1")
-                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW)
+                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW.getValue())
                 .details("{\"category\":\"END_OF_DIGITAL_DELIVERY_WORKFLOW\",\"taxId\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
                 .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
                 .build();
@@ -241,7 +241,7 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity elementToInsert = TimelineElementEntity.builder()
                 .iun("pa1-delete")
                 .timelineElementId("elementId1")
-                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW)
+                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW.getValue())
                 .details("{\"category\":\"END_OF_DIGITAL_DELIVERY_WORKFLOW\",\"taxId\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
                 .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
                 .build();
@@ -271,7 +271,7 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity firstElementToInsert = TimelineElementEntity.builder()
                 .iun(iun)
                 .timelineElementId("elementId1")
-                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW)
+                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW.getValue())
                 .details("{\"category\":\"END_OF_DIGITAL_DELIVERY_WORKFLOW\",\"taxId\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
                 .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
                 .build();
@@ -279,7 +279,7 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity secondElementToInsert = TimelineElementEntity.builder()
                 .iun(iun)
                 .timelineElementId("elementId2")
-                .category(TimelineElementCategory.SEND_ANALOG_DOMICILE)
+                .category(TimelineElementCategory.SEND_ANALOG_DOMICILE.getValue())
                 .details("{\"category\":\"SEND_ANALOG_DOMICILE\",\"taxId\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
                 .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
                 .build();
@@ -318,7 +318,7 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity firstElementToInsert = TimelineElementEntity.builder()
                 .iun(iun)
                 .timelineElementId("elementId1")
-                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW)
+                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW.getValue())
                 .details("{\"category\":\"END_OF_DIGITAL_DELIVERY_WORKFLOW\",\"taxId\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
                 .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
                 .build();
@@ -326,7 +326,7 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity secondElementToInsert = TimelineElementEntity.builder()
                 .iun(iun)
                 .timelineElementId("elementId2")
-                .category(TimelineElementCategory.SEND_ANALOG_DOMICILE)
+                .category(TimelineElementCategory.SEND_ANALOG_DOMICILE.getValue())
                 .details("{\"category\":\"SEND_ANALOG_DOMICILE\",\"taxId\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
                 .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
                 .build();

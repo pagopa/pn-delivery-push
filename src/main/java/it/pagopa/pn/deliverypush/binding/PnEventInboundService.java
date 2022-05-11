@@ -8,11 +8,13 @@ package it.pagopa.pn.deliverypush.binding;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.api.dto.events.*;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.ActionEventType;
 import it.pagopa.pn.deliverypush.action2.*;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.function.context.MessageRoutingCallback;
@@ -142,17 +144,30 @@ public class PnEventInboundService {
                     .payload(message.getPayload())
                     .header(mapStandardEventHeader(message.getHeaders()))
                     .build();
-            
-            ExtChannelResponseStatus status = PnExtChnProgressStatus.OK.equals(evt.getPayload().getStatusCode()) ? ExtChannelResponseStatus.OK : ExtChannelResponseStatus.KO;
 
+            ResponseStatus status = PnExtChnProgressStatus.OK.equals(evt.getPayload().getStatusCode()) ? ResponseStatus.OK : ResponseStatus.KO;
+
+            it.pagopa.pn.api.dto.notification.address.PhysicalAddress newPhysicalAddressExt = evt.getPayload().getNewPhysicalAddress();
+            PhysicalAddress newPhysicalAddress = null;
+            if(newPhysicalAddressExt != null){
+                newPhysicalAddress = PhysicalAddress.builder()
+                        .address(newPhysicalAddressExt.getAddress())
+                        .province(newPhysicalAddressExt.getProvince())
+                        .addressDetails(newPhysicalAddressExt.getAddressDetails())
+                        .municipality(newPhysicalAddressExt.getMunicipality())
+                        .at(newPhysicalAddressExt.getAt())
+                        .zip(newPhysicalAddressExt.getZip())
+                        .foreignState(newPhysicalAddressExt.getForeignState())
+                        .build();
+            }
             ExtChannelResponse response = ExtChannelResponse.builder()
                     .responseStatus(status)
                     .eventId(evt.getPayload().getRequestCorrelationId())
-                    .analogNewAddressFromInvestigation(evt.getPayload().getNewPhysicalAddress())
+                    .analogNewAddressFromInvestigation(newPhysicalAddress)
                     .notificationDate(evt.getPayload().getStatusDate())
                     .iun(evt.getPayload().getIun())
                     .attachmentKeys(evt.getPayload().getAttachmentKeys())
-                    .errorList(Collections.singletonList(status.name()))
+                    .errorList(Collections.singletonList(status.getValue()))
                     .build();
 
             externalChannelResponseHandler.extChannelResponseReceiver(response);

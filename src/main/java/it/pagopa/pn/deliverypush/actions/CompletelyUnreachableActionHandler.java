@@ -1,5 +1,5 @@
 package it.pagopa.pn.deliverypush.actions;
-
+/*
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFailed;
@@ -57,7 +57,7 @@ public class CompletelyUnreachableActionHandler extends AbstractActionHandler {
     }
 
     private void buildAndAddTimeLineElement(Action action, NotificationRecipient recipient) {
-        addTimelineElement(action, TimelineElement.builder()
+        addTimelineElement(action, TimelineElementInternal.timelineInternalBuilder()
                 .category(TimelineElementCategory.COMPLETELY_UNREACHABLE)
                 .details(CompletelyUnreachableDetails.builder()
                         .taxId(recipient.getTaxId())
@@ -72,3 +72,5 @@ public class CompletelyUnreachableActionHandler extends AbstractActionHandler {
         return ActionType.COMPLETELY_UNREACHABLE;
     }
 }
+
+ */

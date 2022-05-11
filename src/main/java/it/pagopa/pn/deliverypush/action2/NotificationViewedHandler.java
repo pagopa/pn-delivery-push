@@ -3,8 +3,8 @@ package it.pagopa.pn.deliverypush.action2;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import it.pagopa.pn.deliverypush.middleware.failednotificationdao.PaperNotificationFailedDao;
@@ -40,11 +40,11 @@ public class NotificationViewedHandler {
     public void handleViewNotification(String iun, Integer recIndex) {
         log.info("Start HandleViewNotification - iun {}", iun);
 
-        Notification notification = notificationService.getNotificationByIun(iun);
+        NotificationInt notification = notificationService.getNotificationByIun(iun);
         
         log.debug("handleViewNotification get recipient ok- iun {} taxId {}", iun, recIndex);
 
-        NotificationRecipient recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
+        NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
         String legalFactId = legalFactStore.saveNotificationViewedLegalFact(notification, recipient, instantNowSupplier.get());
         
         addTimelineElement(timelineUtils.buildNotificationViewedTimelineElement(iun, recIndex, legalFactId));

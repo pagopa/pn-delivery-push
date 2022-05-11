@@ -1,5 +1,5 @@
 package it.pagopa.pn.deliverypush.actions;
-
+/*
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
@@ -78,7 +78,7 @@ class ReceivePaperActionHandlerTest {
         Mockito.when(timelineDao.getTimelineElement(
                         Mockito.anyString(),
                         Mockito.anyString()))
-                .thenReturn(Optional.of(TimelineElement.builder()
+                .thenReturn(Optional.of(TimelineElementInternal.timelineInternalBuilder()
                         .details(SendPaperDetails.builder()
                                 .address(PhysicalAddress.builder()
                                         .at("presso")
@@ -135,7 +135,7 @@ class ReceivePaperActionHandlerTest {
         Mockito.when(timelineDao.getTimelineElement(
                         Mockito.anyString(),
                         Mockito.anyString()))
-                .thenReturn(Optional.of(TimelineElement.builder()
+                .thenReturn(Optional.of(TimelineElementInternal.timelineInternalBuilder()
                         .details(SendPaperDetails.builder()
                                 .address(PhysicalAddress.builder()
                                         .at("presso")
@@ -176,7 +176,7 @@ class ReceivePaperActionHandlerTest {
                 .iun("test_iun")
                 .paNotificationId("protocol_01")
                 .subject("Subject 01")
-                .sender(NotificationSender.builder()
+                .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()
                 )
@@ -198,3 +198,6 @@ class ReceivePaperActionHandlerTest {
                 .build();
     }
 }
+
+
+ */

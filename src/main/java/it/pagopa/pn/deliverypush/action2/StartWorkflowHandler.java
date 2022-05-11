@@ -6,8 +6,8 @@ import it.pagopa.pn.deliverypush.action2.utils.CheckAttachmentUtils;
 import it.pagopa.pn.deliverypush.action2.utils.CourtesyMessageUtils;
 import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -53,7 +53,7 @@ public class StartWorkflowHandler {
     public void startWorkflow(String iun) {
         log.info("Start notification process - iun {}", iun);
         
-        Notification notification = notificationService.getNotificationByIun(iun);
+        NotificationInt notification = notificationService.getNotificationByIun(iun);
 
         try{
             //Validazione degli allegati della notifica
@@ -64,7 +64,7 @@ public class StartWorkflowHandler {
             addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification, legalFactId));
             
             //Start del workflow per ogni recipient della notifica
-            for (NotificationRecipient recipient : notification.getRecipients()) {
+            for (NotificationRecipientInt recipient : notification.getRecipients()) {
                 Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
                 startNotificationWorkflowForRecipient(notification, recIndex);
             }
@@ -73,7 +73,7 @@ public class StartWorkflowHandler {
         }
     }
 
-    private void startNotificationWorkflowForRecipient(Notification notification, Integer recIndex) {
+    private void startNotificationWorkflowForRecipient(NotificationInt notification, Integer recIndex) {
         log.info("Start notification workflow - iun {} id {}", notification.getIun(), recIndex);
         //... Invio messaggio di cortxesia ...
         courtesyMessageUtils.checkAddressesForSendCourtesyMessage(notification, recIndex);
@@ -81,7 +81,7 @@ public class StartWorkflowHandler {
         chooseDeliveryType.chooseDeliveryTypeAndStartWorkflow(notification, recIndex);
     }
 
-    private void handleValidationError(Notification notification, PnValidationException ex) {
+    private void handleValidationError(NotificationInt notification, PnValidationException ex) {
         List<String> errors =  ex.getValidationErrors().stream()
                 .map(ConstraintViolation::getMessage).collect(Collectors.toList());
         log.info("Notification refused, errors {} - iun {}", errors, notification.getIun());

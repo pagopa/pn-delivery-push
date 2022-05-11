@@ -1,5 +1,5 @@
 package it.pagopa.pn.deliverypush.actions;
-
+/*
 import java.util.Collections;
 import java.util.Optional;
 
@@ -50,7 +50,7 @@ public class ReceivePecActionHandler extends AbstractActionHandler {
                 getTimelineElement( action, ActionType.CHOOSE_DELIVERY_MODE, NotificationPathChooseDetails.class );
         if( addresses.isPresent() ) {
             DigitalAddress address = action.getDigitalAddressSource().getAddressFrom(addresses.get());
-            addTimelineElement(action, TimelineElement.builder()
+            addTimelineElement(action, TimelineElementInternal.timelineInternalBuilder()
                     .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE_FEEDBACK)
                     .details(new SendDigitalFeedbackDetails(SendDigitalDetails.sendBuilder()
                             .taxId(recipient.getTaxId())
@@ -72,3 +72,6 @@ public class ReceivePecActionHandler extends AbstractActionHandler {
         return ActionType.RECEIVE_PEC;
     }
 }
+
+
+ */

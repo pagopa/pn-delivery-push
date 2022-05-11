@@ -3,10 +3,12 @@ package it.pagopa.pn.deliverypush.middleware.timelinedao;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.utils.DateUtils;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetails;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.util.TimelineDetailMap;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -27,8 +29,8 @@ public class DtoToEntityTimelineMapper {
         return TimelineElementEntity.builder()
                 .iun( dto.getIun() )
                 .timelineElementId( dto.getElementId() )
-                .category( dto.getCategory() )
-                .timestamp( dto.getTimestamp() )
+                .category( dto.getCategory().getValue())
+                .timestamp( DateUtils.convertDateToInstant(dto.getTimestamp()) )
                 .details( detailsToJsonString( dto ) )
                 .legalFactId( legalFactIdsToJsonString ( dto ) )
                 .build();
@@ -61,7 +63,7 @@ public class DtoToEntityTimelineMapper {
                 // - generate reader of needed: objectWriter is thread safe, objectMapper isn't
                 category -> {
                     synchronized ( this.objectMapper ) {
-                        return this.objectMapper.writerFor( category.getDetailsJavaClass() );
+                        return this.objectMapper.writerFor( TimelineDetailMap.getDetailJavaClass(category) );
                     }
                 }
             );

@@ -3,10 +3,11 @@ package it.pagopa.pn.deliverypush.action2.it.mockbean;
 import it.pagopa.pn.api.dto.events.PnExtChnEmailEvent;
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
 import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
-
+import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.deliverypush.action2.ExternalChannelResponseHandler;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
 import it.pagopa.pn.deliverypush.external.ExternalChannel;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseStatus;
 import org.springframework.context.annotation.Lazy;
 
 import java.time.Instant;
@@ -38,7 +39,7 @@ public class ExternalChannelMock implements ExternalChannel {
 
     @Override
     public void sendNotification(PnExtChnPecEvent event) {
-        ExtChannelResponseStatus status;
+        ResponseStatus status;
 
         String pecAddress = event.getPayload().getPecAddress();
 
@@ -50,9 +51,9 @@ public class ExternalChannelMock implements ExternalChannel {
 
             if (domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_BOTH)
                     || (domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_FIRST) && "1".equals(retryNumberPart))) {
-                status = ExtChannelResponseStatus.KO;
+                status = ResponseStatus.KO;
             } else if (domainPart.startsWith(EXT_CHANNEL_WORKS) || domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_FIRST)) {
-                status = ExtChannelResponseStatus.OK;
+                status = ResponseStatus.OK;
             } else {
                 throw new IllegalArgumentException("PecAddress " + pecAddress + " do not match test rule for mocks");
             }
@@ -73,7 +74,7 @@ public class ExternalChannelMock implements ExternalChannel {
 
     @Override
     public void sendNotification(PnExtChnPaperEvent event) {
-        ExtChannelResponseStatus status;
+        ResponseStatus status;
         String newAddress;
 
         PhysicalAddress destinationAddress = event.getPayload().getDestinationAddress();
@@ -81,13 +82,13 @@ public class ExternalChannelMock implements ExternalChannel {
 
         Matcher matcher = NEW_ADDRESS_INPUT_PATTERN.matcher(street);
         if (matcher.find()) {
-            status = ExtChannelResponseStatus.KO;
+            status = ResponseStatus.KO;
             newAddress = matcher.group(1).trim();
         } else if (street.startsWith(EXTCHANNEL_SEND_FAIL)) {
-            status = ExtChannelResponseStatus.KO;
+            status = ResponseStatus.KO;
             newAddress = null;
         } else if (street.startsWith(EXTCHANNEL_SEND_SUCCESS)) {
-            status = ExtChannelResponseStatus.OK;
+            status = ResponseStatus.OK;
             newAddress = null;
         } else {
             throw new IllegalArgumentException("Address " + street + " do not match test rule for mocks");
@@ -101,7 +102,14 @@ public class ExternalChannelMock implements ExternalChannel {
                 .eventId(event.getHeader().getEventId());
 
         if (newAddress != null) {
-            PhysicalAddress newDestinationAddress = destinationAddress.toBuilder()
+
+            it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress newDestinationAddress = it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress.builder()
+                    .foreignState(destinationAddress.getForeignState())
+                    .zip(destinationAddress.getZip())
+                    .at(destinationAddress.getAt())
+                    .addressDetails(destinationAddress.getAddressDetails())
+                    .municipality(destinationAddress.getMunicipality())
+                    .province(destinationAddress.getProvince())
                     .address(newAddress)
                     .build();
             responseBuilder.analogNewAddressFromInvestigation(newDestinationAddress);

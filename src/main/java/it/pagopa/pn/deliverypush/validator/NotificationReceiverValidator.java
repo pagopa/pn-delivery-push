@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.validator;
 
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.validator.preloaded_digest_error.DigestEqualityBean;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +18,7 @@ public class NotificationReceiverValidator {
         this.validator = validator;
     }
 
-    public void checkPreloadedDigests(String key, NotificationAttachment.Digests expected, NotificationAttachment.Digests actual) throws PnValidationException {
+    public void checkPreloadedDigests(String key, NotificationDocumentInt.Digests expected, NotificationDocumentInt.Digests actual) throws PnValidationException {
         Set<ConstraintViolation<DigestEqualityBean>> errors = validator.validate( DigestEqualityBean.builder()
                 .key( key )
                 .expected( expected )

@@ -1,12 +1,13 @@
 package it.pagopa.pn.deliverypush.action2;
 
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
-
-import SendDigitalDetails;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
+import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseStatus;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendDigitalDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,28 +36,29 @@ class ExternalChannelHandlerTest {
     @Test
     void extChannelResponseReceiverForDigital() {
         ExtChannelResponse extChannelResponse = ExtChannelResponse.builder()
-                .responseStatus(ExtChannelResponseStatus.OK)
+                .responseStatus(ResponseStatus.OK)
                 .iun("IUN")
                 .notificationDate(Instant.now())
                 .eventId("Test event id")
                 .build();
 
+        SendDigitalDetails details = SendDigitalDetails.builder()
+                .recIndex(0)
+                .address(
+                        DigitalAddress.builder()
+                                .address("TEST")
+                                .type(DigitalAddress.TypeEnum.PEC).build())
+                .build();
+        
         Mockito.when(externalChannelUtils.getExternalChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(TimelineElement.builder()
+                .thenReturn(TimelineElementInternal.timelineInternalBuilder()
                         .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE)
-                        .details(
-                                SendDigitalDetails.sendBuilder()
-                                        .taxId("TAXID")
-                                        .address(DigitalAddress.builder()
-                                                .address("TEST")
-                                                .type(DigitalAddressType.PEC).build())
-                                        .build()
-                        )
+                        .details(TimelineUtils.getGenericDetails(details))
                         .build());
 
         handler.extChannelResponseReceiver(extChannelResponse);
 
-        Mockito.verify(digitalWorkFlowHandler).handleExternalChannelResponse(Mockito.any(ExtChannelResponse.class), Mockito.any(TimelineElement.class));
+        Mockito.verify(digitalWorkFlowHandler).handleExternalChannelResponse(Mockito.any(ExtChannelResponse.class), Mockito.any(TimelineElementInternal.class));
 
     }
 
@@ -64,19 +66,19 @@ class ExternalChannelHandlerTest {
     @Test
     void extChannelResponseReceiverForAnalog() {
         ExtChannelResponse extChannelResponse = ExtChannelResponse.builder()
-                .responseStatus(ExtChannelResponseStatus.OK)
+                .responseStatus(ResponseStatus.OK)
                 .iun("IUN")
                 .eventId("test event id")
                 .notificationDate(Instant.now())
                 .build();
 
         Mockito.when(externalChannelUtils.getExternalChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(TimelineElement.builder()
+                .thenReturn(TimelineElementInternal.timelineInternalBuilder()
                         .category(TimelineElementCategory.SEND_ANALOG_DOMICILE)
                         .build());
 
         handler.extChannelResponseReceiver(extChannelResponse);
 
-        Mockito.verify(analogWorkflowHandler).extChannelResponseHandler(Mockito.any(ExtChannelResponse.class), Mockito.any(TimelineElement.class));
+        Mockito.verify(analogWorkflowHandler).extChannelResponseHandler(Mockito.any(ExtChannelResponse.class), Mockito.any(TimelineElementInternal.class));
     }
 }

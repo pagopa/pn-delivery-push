@@ -7,7 +7,7 @@ import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendPaperDetails;
@@ -40,14 +40,14 @@ public class AnalogWorkflowHandler {
     }
 
     public void startAnalogWorkflow(String iun, Integer recIndex) {
-        Notification notification = notificationService.getNotificationByIun(iun);
+        NotificationInt notification = notificationService.getNotificationByIun(iun);
         nextWorkflowStep(notification, recIndex, 0);
     }
 
     /**
      * Handle analog notification Workflow based on already made attempt
      */
-    public void nextWorkflowStep(Notification notification, Integer recIndex, int sentAttemptMade) {
+    public void nextWorkflowStep(NotificationInt notification, Integer recIndex, int sentAttemptMade) {
         log.info("Start Analog next workflow action - iun {} id {}", notification.getIun(), recIndex);
         
         String iun = notification.getIun();
@@ -90,7 +90,7 @@ public class AnalogWorkflowHandler {
     public void handlePublicRegistryResponse(String iun, Integer recIndex, PublicRegistryResponse response, int sentAttemptMade) {
         log.info("Handle analog public registry response sentAttemptMade {} - iun {} id {} ", sentAttemptMade, iun, recIndex);
 
-        Notification notification = notificationService.getNotificationByIun(iun);
+        NotificationInt notification = notificationService.getNotificationByIun(iun);
 
         switch (sentAttemptMade) {
             case 0:
@@ -111,7 +111,7 @@ public class AnalogWorkflowHandler {
         throw new PnInternalException("Specified attempt " + sentAttemptMade + " is not possibile");
     }
 
-    private void publicRegistrySecondSendResponse(PublicRegistryResponse response, Notification notification, Integer recIndex, int sentAttemptMade) {
+    private void publicRegistrySecondSendResponse(PublicRegistryResponse response, NotificationInt notification, Integer recIndex, int sentAttemptMade) {
         String iun = notification.getIun();
         log.info("Start publicRegistrySecondSendResponse  - iun {} id {}", iun, recIndex);
 
@@ -140,12 +140,12 @@ public class AnalogWorkflowHandler {
         }
     }
 
-    private void sendWithInvestigationAddress(Notification notification, Integer recIndex, int sentAttemptMade, PhysicalAddress newAddress) {
+    private void sendWithInvestigationAddress(NotificationInt notification, Integer recIndex, int sentAttemptMade, PhysicalAddress newAddress) {
         log.info("Check address from investigation");
         checkAddressAndSend(notification, recIndex, newAddress, false, sentAttemptMade);
     }
 
-    private void checkAddressAndSend(Notification notification, Integer recIndex, PhysicalAddress address, boolean investigation, int sentAttemptMade) {
+    private void checkAddressAndSend(NotificationInt notification, Integer recIndex, PhysicalAddress address, boolean investigation, int sentAttemptMade) {
         //Se l'indirizzo passato è valorizzato viene inviata la notifica ad externalChannel...
         if (address != null && address.getAddress() != null) {
             log.info("Have a valid address, send notification to external channel  - iun {} id {}", notification.getIun(), recIndex);
@@ -158,11 +158,11 @@ public class AnalogWorkflowHandler {
     }
 
     public void extChannelResponseHandler(ExtChannelResponse response, TimelineElementInternal notificationTimelineElement) {
-        SendPaperDetails sendPaperDetails = new SendPaperDetails()
+        SendPaperDetails sendPaperDetails = new SendPaperDetails();
         timelineUtils.getSpecificDetails(notificationTimelineElement.getDetails(), sendPaperDetails );
 
         String iun = response.getIun();
-        Notification notification = notificationService.getNotificationByIun(iun);
+        NotificationInt notification = notificationService.getNotificationByIun(iun);
         Integer recIndex = sendPaperDetails.getRecIndex();
         
         log.info("Analog workflow Ext channel response  - iun {} id {} with status {}", iun, recIndex, response.getResponseStatus());

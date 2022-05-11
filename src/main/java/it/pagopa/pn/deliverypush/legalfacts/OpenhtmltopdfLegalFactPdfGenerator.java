@@ -1,14 +1,16 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
+
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
-import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
-import NotificationPathChooseDetails;
-import SendDigitalFeedback;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.utils.DateUtils;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseStatus;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendDigitalFeedback;
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,7 +132,7 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
     }
 
     @Override
-    public byte[] generateNotificationReceivedLegalFact(Action action, Notification notification) {
+    public byte[] generateNotificationReceivedLegalFact(Action action, NotificationInt notification) {
         String paragraph2 = DIV_PARAGRAPH
                 + "in data %s il soggetto mittente <i>Denominazione IPA della PA con ID:</i> %s,"
                 + " <i>Codice Fiscale della PA con ID:</i> %s "
@@ -160,7 +162,7 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
         paragraphs.add( paragraph2 );
         paragraphs.add( paragraph3 );
 
-        for ( NotificationRecipient recipient : notification.getRecipients() ) {
+        for ( NotificationRecipientInt recipient : notification.getRecipients() ) {
             final DigitalAddress digitalDomicile = recipient.getDigitalDomicile();
 
             StringBuilder sb = new StringBuilder();
@@ -190,7 +192,7 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
     }
     
     @Override
-    public byte[] generateNotificationReceivedLegalFact(Notification notification) {
+    public byte[] generateNotificationReceivedLegalFact(NotificationInt notification) {
         String paragraph2 = DIV_PARAGRAPH
                 + "in data %s il soggetto mittente <i>Denominazione IPA della PA con ID:</i> %s,"
                 + " <i>Codice Fiscale della PA con ID:</i> %s "
@@ -220,7 +222,7 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
         paragraphs.add(paragraph2);
         paragraphs.add(paragraph3);
 
-        for (NotificationRecipient recipient : notification.getRecipients()) {
+        for (NotificationRecipientInt recipient : notification.getRecipients()) {
             final DigitalAddress digitalDomicile = recipient.getDigitalDomicile();
 
             StringBuilder sb = new StringBuilder();
@@ -250,7 +252,7 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
     }
 
     @Override
-    public byte[] generateNotificationViewedLegalFact(Action action, Notification notification) {
+    public byte[] generateNotificationViewedLegalFact(Action action, NotificationInt notification) {
         if (action.getRecipientIndex() == null) {
             String msg = "Error while retrieving RecipientIndex for IUN %s";
             msg = String.format(msg, action.getIun());
@@ -258,7 +260,7 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
             throw new PnInternalException(msg);
         }
 
-        NotificationRecipient recipient = notification.getRecipients().get(action.getRecipientIndex());
+        NotificationRecipientInt recipient = notification.getRecipients().get(action.getRecipientIndex());
         TimelineElementInternal row = timelineElement(action);
 
         String paragraph2 = DIV_PARAGRAPH
@@ -276,7 +278,7 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
             paragraph3 = String.format(paragraph3, recipient.getDenomination(),
                     recipient.getTaxId(),
                     digitalDomicile.getAddress(),
-                    this.instantToDate(row.getTimestamp()));
+                    row.getTimestamp());
         } else {
             paragraph3 = DIV_PARAGRAPH
                     + "nome e cognome/ragione sociale %s, C.F. %s "
@@ -286,7 +288,7 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
             paragraph3 = String.format(paragraph3, recipient.getDenomination(),
                     recipient.getTaxId(),
                     recipient.getPhysicalAddress().getAddress(),
-                    this.instantToDate(row.getTimestamp()));
+                    row.getTimestamp());
         }
 
         String paragraph4 = DIV_PARAGRAPH
@@ -298,7 +300,7 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
     }
 
     @Override
-    public byte[] generateNotificationViewedLegalFact(String iun, NotificationRecipient recipient, Instant timeStamp) {
+    public byte[] generateNotificationViewedLegalFact(String iun, NotificationRecipientInt recipient, Instant timeStamp) {
             String paragraph2 = DIV_PARAGRAPH
                     + "gli atti di cui alla notifica identificata con IUN %s sono stati gestiti come segue:</div>";
             paragraph2 = String.format(paragraph2, iun);
@@ -335,9 +337,10 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
             return toPdfBytes(Arrays.asList(PARAGRAPH1, paragraph2, paragraph3, paragraph4));
         
     }
-
+    
+    /*
     @Override
-    public byte[] generatePecDeliveryWorkflowLegalFact(List<Action> actions, Notification notification, NotificationPathChooseDetails addresses) {
+    public byte[] generatePecDeliveryWorkflowLegalFact(List<Action> actions, NotificationInt notification, NotificationPathChooseDetails addresses) {
         List<String> paragraphs = new ArrayList<>();
         paragraphs.add(PARAGRAPH1);
         String paragraph2 = String.format(
@@ -347,8 +350,9 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
 
         StringBuilder paragraph3 = new StringBuilder();
         for (Action action : actions) {
+            //TODO Capire bene cosa vada valorizzato qui
             DigitalAddress address = action.getDigitalAddressSource().getAddressFrom(addresses);
-            NotificationRecipient recipient = notification.getRecipients().get(action.getRecipientIndex());
+            NotificationRecipientInt recipient = notification.getRecipients().get(action.getRecipientIndex());
             PnExtChnProgressStatus status = action.getResponseStatus();
 
             paragraph3.append(String.format(
@@ -377,10 +381,10 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
         paragraph3.append("</ul>");
 
         return toPdfBytes(Arrays.asList(PARAGRAPH1, paragraph2, paragraph3.toString()));
-    }
+    }*/
 
     @Override
-    public byte[] generatePecDeliveryWorkflowLegalFact(List<SendDigitalFeedback> listFeedbackFromExtChannel, Notification notification, NotificationRecipient recipient) {
+    public byte[] generatePecDeliveryWorkflowLegalFact(List<SendDigitalFeedback> listFeedbackFromExtChannel, NotificationInt notification, NotificationRecipientInt recipient) {
         List<String> paragraphs = new ArrayList<>();
         paragraphs.add(PARAGRAPH1);
         String paragraph2 = String.format(
@@ -391,7 +395,7 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
         StringBuilder paragraph3 = new StringBuilder();
         for (SendDigitalFeedback digitalFeedback : listFeedbackFromExtChannel) {
             DigitalAddress address = digitalFeedback.getAddress();
-            ExtChannelResponseStatus status = digitalFeedback.getResponseStatus();
+            ResponseStatus status = digitalFeedback.getResponseStatus();
 
             paragraph3.append(String.format(
                     DIV_PARAGRAPH + "<li> nome e cognome/ragione sociale %s, C.F. %s con domicilio digitale %s: ",
@@ -400,9 +404,9 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
                     address.getAddress()
             ));
 
-            Instant timestamp = digitalFeedback.getNotificationDate();
+            Instant timestamp = DateUtils.convertDateToInstant(digitalFeedback.getNotificationDate());
 
-            if (ExtChannelResponseStatus.OK.equals(status)) {
+            if (ResponseStatus.OK.equals(status)) {
                 paragraph3.append(String.format(
                         "il relativo avviso di avvenuta ricezione in formato elettronico è stato consegnato in data %s </li>",
                         this.instantToDate(timestamp)
@@ -461,24 +465,31 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
         return baseUri;
     }
 
-    protected StringBuilder hashUnorderedList(Notification notification) {
+    protected StringBuilder hashUnorderedList(NotificationInt notification) {
         StringBuilder bld = new StringBuilder();
         bld.append("<ul>");
         for (int idx = 0; idx < notification.getDocuments().size(); idx++) {
             bld.append(unorderedListItem(notification.getDocuments().get(idx).getDigests().getSha256()));
         }
 
-        if (notification.getPayment() != null && notification.getPayment().getF24() != null) {
-            if (notification.getPayment().getF24().getFlatRate() != null) {
-                bld.append(unorderedListItem(notification.getPayment().getF24().getFlatRate().getDigests().getSha256()));
-            }
-            if (notification.getPayment().getF24().getDigital() != null) {
-                bld.append(unorderedListItem(notification.getPayment().getF24().getDigital().getDigests().getSha256()));
-            }
-            if (notification.getPayment().getF24().getAnalog() != null) {
-                bld.append(unorderedListItem(notification.getPayment().getF24().getAnalog().getDigests().getSha256()));
-            }
-        }
+        //TODO Verificare è corretto che qui vengano inserite le informazioni di pagamento di tutti i recipient
+        notification.getRecipients().forEach(
+                recipient -> {
+                    if (recipient.getPayment() != null) {
+                        if (recipient.getPayment().getF24flatRate() != null) {
+                            bld.append(unorderedListItem(recipient.getPayment().getF24flatRate().getDigests().getSha256()));
+                        }
+                        if (recipient.getPayment().getF24white() != null) {
+                            bld.append(unorderedListItem(recipient.getPayment().getF24white().getDigests().getSha256()));
+                        }
+                        if (recipient.getPayment().getPagoPaForm() != null) {
+                            bld.append(unorderedListItem(recipient.getPayment().getPagoPaForm().getDigests().getSha256()));
+                        }
+                    }
+                }
+        );
+        
+        
         bld.append("</ul>");
 
         return bld;

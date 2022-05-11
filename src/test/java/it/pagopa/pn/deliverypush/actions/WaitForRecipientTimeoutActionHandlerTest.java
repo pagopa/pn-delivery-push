@@ -1,5 +1,5 @@
 package it.pagopa.pn.deliverypush.actions;
-
+/*
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
@@ -89,7 +89,7 @@ class WaitForRecipientTimeoutActionHandlerTest {
                 .subject("Subject 01")
                 .cancelledByIun("IUN_05")
                 .cancelledIun("IUN_00")
-                .sender(NotificationSender.builder()
+                .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()
                 )
@@ -98,7 +98,7 @@ class WaitForRecipientTimeoutActionHandlerTest {
                                 .taxId("Codice Fiscale 01")
                                 .denomination("Nome Cognome/Ragione Sociale")
                                 .digitalDomicile(DigitalAddress.builder()
-                                        .type(DigitalAddressType.PEC)
+                                        .type(DigitalAddress.TypeEnum.PEC)
                                         .address("account@dominio.it")
                                         .build())
                                 .build()
@@ -106,3 +106,6 @@ class WaitForRecipientTimeoutActionHandlerTest {
                 .build();
     }
 }
+
+
+ */

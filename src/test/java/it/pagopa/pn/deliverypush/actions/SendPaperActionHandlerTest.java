@@ -1,5 +1,5 @@
 package it.pagopa.pn.deliverypush.actions;
-
+/*
 import it.pagopa.pn.api.dto.addressbook.AddressBookEntry;
 import it.pagopa.pn.api.dto.events.CommunicationType;
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
@@ -90,7 +90,7 @@ class SendPaperActionHandlerTest {
         Mockito.when(timelineDao.getTimelineElement(
                         Mockito.anyString(),
                         Mockito.anyString()))
-                .thenReturn(Optional.of(TimelineElement.builder()
+                .thenReturn(Optional.of(TimelineElementInternal.timelineInternalBuilder()
                         .details(NotificationPathChooseDetails.builder()
                                 .physicalAddress(physicalAddress)
                                 .build())
@@ -150,7 +150,7 @@ class SendPaperActionHandlerTest {
         Mockito.when(timelineDao.getTimelineElement(
                         Mockito.anyString(),
                         Mockito.anyString()))
-                .thenReturn(Optional.of(TimelineElement.builder()
+                .thenReturn(Optional.of(TimelineElementInternal.timelineInternalBuilder()
                         .details(new SendPaperFeedbackDetails(
                                 SendPaperDetails.builder()
                                         .build(),
@@ -191,7 +191,7 @@ class SendPaperActionHandlerTest {
                 .iun("test_iun")
                 .paNotificationId("protocol_01")
                 .subject("Subject 01")
-                .sender(NotificationSender.builder()
+                .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()
                 )
@@ -221,3 +221,6 @@ class SendPaperActionHandlerTest {
         Assertions.assertEquals(ActionType.SEND_PAPER, actionType, "Different Action Type");
     }
 }
+
+
+ */

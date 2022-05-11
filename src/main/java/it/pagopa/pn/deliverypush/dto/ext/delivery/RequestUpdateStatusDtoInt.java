@@ -11,10 +11,8 @@ import javax.validation.constraints.Pattern;
 @Builder(toBuilder = true)
 @EqualsAndHashCode
 @ToString
-public class RequestUpdateStatusDto {
-
+public class RequestUpdateStatusDtoInt {
     @Pattern( regexp = "[A-Za-z0-9-_]+")
     private String iun;
-
     private NotificationStatus nextState;
 }

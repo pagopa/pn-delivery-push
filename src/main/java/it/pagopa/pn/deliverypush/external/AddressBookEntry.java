@@ -2,7 +2,7 @@ package it.pagopa.pn.deliverypush.external;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
-
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import lombok.*;
 
 import java.util.List;

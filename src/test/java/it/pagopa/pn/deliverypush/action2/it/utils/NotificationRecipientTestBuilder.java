@@ -1,7 +1,8 @@
 package it.pagopa.pn.deliverypush.action2.it.utils;
 
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 
 
 public class NotificationRecipientTestBuilder {
@@ -28,8 +29,8 @@ public class NotificationRecipientTestBuilder {
         return this;
     }
 
-    public NotificationRecipient build() {
-        return NotificationRecipient.builder()
+    public NotificationRecipientInt build() {
+        return NotificationRecipientInt.builder()
                 .taxId(taxId)
                 .physicalAddress(physicalAddress)
                 .digitalDomicile(digitalDomicile)

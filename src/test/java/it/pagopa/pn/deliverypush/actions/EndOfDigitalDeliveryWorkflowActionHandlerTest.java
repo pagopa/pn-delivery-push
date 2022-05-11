@@ -1,5 +1,5 @@
 package it.pagopa.pn.deliverypush.actions;
-
+/*
 import it.pagopa.pn.api.dto.events.PnExtChnEmailEvent;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
@@ -73,7 +73,7 @@ class EndOfDigitalDeliveryWorkflowActionHandlerTest {
 	}
 
 	private TimelineElementInternal newTimelineElement(List<DigitalAddress> addresses) {
-		return TimelineElement.builder()
+		return TimelineElementInternal.timelineInternalBuilder()
 				.details( NotificationPathChooseDetails.builder()
 						.courtesyAddresses(addresses)
 						.build()
@@ -84,11 +84,11 @@ class EndOfDigitalDeliveryWorkflowActionHandlerTest {
 	private NotificationPathChooseDetails newNotificationPathChooseDetails() {
 		List<DigitalAddress> addresses = Arrays.asList(
 				DigitalAddress.builder()
-					.type( DigitalAddressType.EMAIL )
+					.type( DigitalAddress.TypeEnum.EMAIL )
 					.address( "nome1.cognome1@develop1.it" )
 					.build(),
 				DigitalAddress.builder()
-					.type( DigitalAddressType.EMAIL )
+					.type( DigitalAddress.TypeEnum.EMAIL )
 					.address( "nome2.cognome2@develop2.it" )
 					.build()
 			);
@@ -114,7 +114,7 @@ class EndOfDigitalDeliveryWorkflowActionHandlerTest {
 		        .cancelledIun( "string" )
 		        .paNotificationId( "proto01" )
 		        .subject( "Local Subject" )
-		        .sender(NotificationSender.builder()
+		        .sender(NotificationSenderInt.builder()
 		                .paId(" pa_02")
 		                .build() 
 		                )
@@ -123,7 +123,7 @@ class EndOfDigitalDeliveryWorkflowActionHandlerTest {
 		                        .taxId( "CGNNMO80A01H501M" )
 		                        .denomination( "Nome1 Cognome1" )
 		                        .digitalDomicile(DigitalAddress.builder()
-		                                .type( DigitalAddressType.PEC )
+		                                .type( DigitalAddress.TypeEnum.PEC )
 		                                .address( "nome1.cognome1@develop.it" )
 		                                .build())
 		                        .build()
@@ -132,3 +132,5 @@ class EndOfDigitalDeliveryWorkflowActionHandlerTest {
 		        .build();
 	}
 }
+
+ */

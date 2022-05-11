@@ -7,7 +7,6 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.utils.DateUtils;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsId;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetails;
 import it.pagopa.pn.deliverypush.util.TimelineDetailMap;
@@ -30,15 +29,14 @@ public class EntityToDtoTimelineMapper {
     }
 
     public TimelineElementInternal entityToDto(TimelineElementEntity entity ) {
-        return new TimelineElementInternal(
-                TimelineElement.builder()
+        return TimelineElementInternal.timelineInternalBuilder()
+                .iun(entity.getIun())
                 .elementId( entity.getTimelineElementId() )
                 .category( TimelineElementCategory.valueOf(entity.getCategory()) )
                 .timestamp( DateUtils.convertInstantToDate(entity.getTimestamp()) )
                 .details( parseDetailsFromJson( entity ))
                 .legalFactsIds( parseLegalFactIdsFromJson( entity ) )
-                .build(),
-                entity.getIun());
+                .build();
     }
 
     private List<LegalFactsId> parseLegalFactIdsFromJson(TimelineElementEntity entity) {

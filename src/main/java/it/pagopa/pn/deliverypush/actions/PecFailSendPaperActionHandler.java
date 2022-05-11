@@ -1,5 +1,5 @@
 package it.pagopa.pn.deliverypush.actions;
-
+/*
 import it.pagopa.pn.api.dto.events.CommunicationType;
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
 import it.pagopa.pn.api.dto.events.ServiceLevelType;
@@ -62,7 +62,7 @@ public class PecFailSendPaperActionHandler extends AbstractActionHandler {
 
 
         // - Write timeline
-        addTimelineElement( action, TimelineElement.builder()
+        addTimelineElement( action, TimelineElementInternal.timelineInternalBuilder()
                 .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE_FAILURE )
                 .details( SendDigitalFailureDetails.builder()
                         .taxId( recipient.getTaxId() )
@@ -93,3 +93,6 @@ public class PecFailSendPaperActionHandler extends AbstractActionHandler {
     }
 
 }
+
+
+ */

@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.action2.utils;
 
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.action2.ExternalChannelSendHandler;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
@@ -32,10 +32,10 @@ public class CourtesyMessageUtils {
     /**
      * Get recipient addresses and send courtesy messages.
      */
-    public void checkAddressesForSendCourtesyMessage(Notification notification, Integer recIndex) {
+    public void checkAddressesForSendCourtesyMessage(NotificationInt notification, Integer recIndex) {
         log.info("CheckAddressesForSendCourtesyMessage - iun {} id {} ", notification.getIun(), recIndex);
         
-        NotificationRecipient recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
+        NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         
         //Vengono ottenuti tutti gli indirizzi di cortesia per il recipient ...
         addressBook.getAddresses(recipient.getTaxId(), notification.getSender())
@@ -52,7 +52,7 @@ public class CourtesyMessageUtils {
         log.debug("End sendCourtesyMessage - IUN {} id {}", notification.getIun(),recIndex);
     }
 
-    private void sendCourtesyMessage(Notification notification, Integer recIndex, int courtesyAddrIndex, DigitalAddress courtesyAddress) {
+    private void sendCourtesyMessage(NotificationInt notification, Integer recIndex, int courtesyAddrIndex, DigitalAddress courtesyAddress) {
         log.debug("Send courtesy message address index {} - iun {} id {} ", courtesyAddrIndex, notification.getIun(), recIndex);
 
         //... Per ogni indirizzo di cortesia ottenuto viene inviata la notifica del messaggio di cortesia tramite external channel

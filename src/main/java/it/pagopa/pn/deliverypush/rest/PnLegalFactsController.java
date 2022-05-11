@@ -1,12 +1,10 @@
 package it.pagopa.pn.deliverypush.rest;
 
 import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
-import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
 import it.pagopa.pn.api.rest.PnDeliveryPushRestConstants;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.LegalFactsApi;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.LegalFactService;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,12 +32,12 @@ public class PnLegalFactsController implements LegalFactsApi {
 
     @Override
     public Mono<ResponseEntity<Flux<LegalFactListElement>>> getNotificationLegalFacts(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String iun, ServerWebExchange exchange) {
-        List<LegalFactsListEntry> legalFacts = legalFactService.getLegalFacts(iun);
+        List<LegalFactListElement> legalFacts = legalFactService.getLegalFacts(iun);
         Flux<LegalFactListElement> fluxFacts = Flux.fromStream(legalFacts.stream().map(this::convert));
         return Mono.just(ResponseEntity.ok(fluxFacts));
     }
     
-    private LegalFactListElement convert(LegalFactsListEntry element){
+    private LegalFactListElement convert(LegalFactListElement element){
         LegalFactListElement legalFactListElement = new LegalFactListElement();
         
         LegalFactsId legalFactsId = getLegalFactsId(element);
@@ -50,16 +48,14 @@ public class PnLegalFactsController implements LegalFactsApi {
         return legalFactListElement;
     }
 
-    @NotNull
-    private LegalFactsId getLegalFactsId(LegalFactsListEntry element) {
+    private LegalFactsId getLegalFactsId(LegalFactListElement element) {
         LegalFactsId legalFactsId = new LegalFactsId();
-        if (element.getLegalFactsId() != null) {
-            legalFactsId.setKey(element.getLegalFactsId().getKey());
-            LegalFactType legalFactType = element.getLegalFactsId().getType();
-            if ( legalFactType != null){
-                LegalFactCategory category = LegalFactCategory.valueOf(legalFactType.toString());
-                legalFactsId.setCategory(category);
-            }
+        legalFactsId.setKey(element.getLegalFactsId().getKey());
+        LegalFactCategory legalFactType = element.getLegalFactsId().getCategory();
+        
+        if ( legalFactType != null){
+            LegalFactCategory category = LegalFactCategory.valueOf(legalFactType.toString());
+            legalFactsId.setCategory(category);
         }
         return legalFactsId;
     }

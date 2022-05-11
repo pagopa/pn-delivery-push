@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
@@ -11,6 +12,7 @@ import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.util.StatusUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -18,16 +20,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class TimeLineServiceImpl implements TimelineService {
     private final TimelineDao timelineDao;
     private final StatusUtils statusUtils;
+    private final TimelineUtils timelineUtils;
     
-    public TimeLineServiceImpl(TimelineDao timelineDao, StatusUtils statusUtils) {
+    public TimeLineServiceImpl(TimelineDao timelineDao, StatusUtils statusUtils, TimelineUtils timelineUtils) {
         this.timelineDao = timelineDao;
         this.statusUtils = statusUtils;
+        this.timelineUtils = timelineUtils;
     }
 
     @Override
@@ -69,16 +74,31 @@ public class TimeLineServiceImpl implements TimelineService {
         
         log.debug("getTimelineAndStatusHistory Ok - iun {} ", iun);
 
-        List<TimelineElementInternal> timelineList = new ArrayList<>(timelineElements);
+        return createResponse(timelineElements, statusHistory, currentStatus);
+    }
+
+    private NotificationHistoryResponse createResponse(Set<TimelineElementInternal> timelineElements, List<NotificationStatusHistoryElement> statusHistory,
+                                                       NotificationStatus currentStatus) {
+         new ArrayList<>(timelineElements);
         List<NotificationStatusHistoryElement> historyList = new ArrayList<>(statusHistory);
- 
+
+        List<TimelineElement> timelineList = timelineElements.stream().map(
+                element ->  {
+                    TimelineElementInternal timelineElement = TimelineElementInternal.timelineInternalBuilder().build();
+                    BeanUtils.copyProperties(element, timelineElement,
+                            "iun");
+                    return timelineElement;
+                }
+        ).collect(Collectors.toList());
+        
+        
         return NotificationHistoryResponse.builder()
                 .timeline(timelineList)
                 .notificationStatusHistory(historyList)
                 .notificationStatus(currentStatus)
                 .build();
     }
-    
+
     @Override
     public boolean isPresentTimeLineElement(String iun, Integer recIndex, TimelineEventId timelineEventId) {
         EventId eventId = EventId.builder()

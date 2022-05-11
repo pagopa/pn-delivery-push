@@ -7,8 +7,8 @@ import it.pagopa.pn.deliverypush.action2.utils.CompletelyUnreachableUtils;
 import it.pagopa.pn.deliverypush.action2.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
@@ -55,7 +55,7 @@ public class CompletionWorkFlowHandler {
     /**
      * Handle necessary steps to complete the digital workflow
      */
-    public void completionDigitalWorkflow(Notification notification, Integer recIndex, Instant notificationDate, DigitalAddress address, EndWorkflowStatus status) {
+    public void completionDigitalWorkflow(NotificationInt notification, Integer recIndex, Instant notificationDate, DigitalAddress address, EndWorkflowStatus status) {
         log.info("Digital workflow completed with status {} IUN {} id {}", status, notification.getIun(), recIndex);
 
         String legalFactId = generatePecDeliveryWorkflowLegalFact(notification, recIndex);
@@ -80,7 +80,7 @@ public class CompletionWorkFlowHandler {
         }
     }
 
-    private String generatePecDeliveryWorkflowLegalFact(Notification notification, Integer recIndex) {
+    private String generatePecDeliveryWorkflowLegalFact(NotificationInt notification, Integer recIndex) {
         Set<TimelineElementInternal> timeline = timelineService.getTimeline(notification.getIun());
 
 
@@ -93,7 +93,7 @@ public class CompletionWorkFlowHandler {
                 })
                 .collect(Collectors.toList());
         
-        NotificationRecipient recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
+        NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         return legalFactUtils.savePecDeliveryWorkflowLegalFact(listFeedbackFromExtChannel, notification, recipient);
     }
 
@@ -110,10 +110,10 @@ public class CompletionWorkFlowHandler {
     /**
      * Sent notification by simple registered letter
      */
-    private void sendSimpleRegisteredLetter(Notification notification, Integer recIndex) {
+    private void sendSimpleRegisteredLetter(NotificationInt notification, Integer recIndex) {
         //Al termine del workflow digitale se non si è riusciti ad contattare in nessun modo il recipient, viene inviata una raccomanda semplice
 
-        NotificationRecipient recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
+        NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         PhysicalAddress physicalAddress = recipient.getPhysicalAddress();
 
         if (physicalAddress != null) {
@@ -127,7 +127,7 @@ public class CompletionWorkFlowHandler {
     /**
      * Handle necessary steps to complete analog workflow.
      */
-    public void completionAnalogWorkflow(Notification notification, Integer recIndex, Instant notificationDate, PhysicalAddress usedAddress, EndWorkflowStatus status) {
+    public void completionAnalogWorkflow(NotificationInt notification, Integer recIndex, Instant notificationDate, PhysicalAddress usedAddress, EndWorkflowStatus status) {
         log.info("Analog workflow completed with status {} IUN {} id {}", status, notification.getIun(), recIndex);
         String iun = notification.getIun();
         

@@ -1,5 +1,5 @@
 package it.pagopa.pn.deliverypush.actions;
-
+/*
 import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
@@ -66,7 +66,7 @@ public class EndOfDigitalDeliveryWorkflowActionHandler extends AbstractActionHan
 
             // - WRITE TIMELINE
             NotificationRecipient recipient = notification.getRecipients().get(action.getRecipientIndex());
-            addTimelineElement(action, TimelineElement.builder()
+            addTimelineElement(action, TimelineElementInternal.timelineInternalBuilder()
                     .category( TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW )
                     .details( EndOfDigitalDeliveryWorkflowDetails.builder()
                             .taxId(recipient.getTaxId())
@@ -86,3 +86,5 @@ public class EndOfDigitalDeliveryWorkflowActionHandler extends AbstractActionHan
         return ActionType.END_OF_DIGITAL_DELIVERY_WORKFLOW;
     }
 }
+
+ */

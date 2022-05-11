@@ -2,7 +2,7 @@ package it.pagopa.pn.deliverypush.legalfacts;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -69,13 +70,13 @@ abstract class AbstractLegalFactPdfGenerator {
         return ONE_HOUR.compareTo(timeInterval) >= 0;
     }
 
-    protected String nullSafePhysicalAddressToString( NotificationRecipient recipient, String separator ) {
+    protected String nullSafePhysicalAddressToString(NotificationRecipientInt recipient, String separator ) {
         String result = null;
 
         if ( recipient != null ) {
             PhysicalAddress physicalAddress = recipient.getPhysicalAddress();
             if ( physicalAddress != null ) {
-                List<String> standardAddressString = physicalAddress.toStandardAddressString( recipient.getDenomination() );
+                List<String> standardAddressString = toStandardAddressString( recipient.getDenomination(), physicalAddress );
                 if ( standardAddressString != null ) {
                     result = String.join( separator, standardAddressString );
                 }
@@ -95,6 +96,33 @@ abstract class AbstractLegalFactPdfGenerator {
             throw new PnInternalException( msg );
         }
         return row.get();
+    }
+
+    public List<String> toStandardAddressString( String recipientDenomination , PhysicalAddress physicalAddress) {
+        List<String> standardAddressString = new ArrayList<>();
+
+        standardAddressString.add( recipientDenomination );
+
+        if ( isNotBlank( physicalAddress.getAt() ) ) {
+            standardAddressString.add( physicalAddress.getAt() );
+        }
+
+        if ( isNotBlank( physicalAddress.getAddressDetails() ) ) {
+            standardAddressString.add( physicalAddress.getAddressDetails() );
+        }
+
+        standardAddressString.add( physicalAddress.getAddress() );
+        standardAddressString.add( physicalAddress.getZip() + " " + physicalAddress.getMunicipality() + " " + physicalAddress.getProvince() );
+
+        if ( isNotBlank( physicalAddress.getForeignState() ) ) {
+            standardAddressString.add( physicalAddress.getForeignState() );
+        }
+
+        return standardAddressString;
+    }
+
+    private boolean isNotBlank( String str) {
+        return str != null && !str.isBlank();
     }
 
 

@@ -1,5 +1,5 @@
 package it.pagopa.pn.deliverypush.actions;
-
+/*
 import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
@@ -99,7 +99,7 @@ public class SendPaperActionHandler extends AbstractActionHandler {
             this.paperRequestProducer.push(event);
 
             // - Write timeline
-            addTimelineElement(action, TimelineElement.builder()
+            addTimelineElement(action, TimelineElementInternal.timelineInternalBuilder()
                     .category(TimelineElementCategory.SEND_ANALOG_DOMICILE)
                     .details(SendPaperDetails.builder()
                             .taxId(recipient.getTaxId())
@@ -177,3 +177,5 @@ public class SendPaperActionHandler extends AbstractActionHandler {
     }
 
 }
+
+ */

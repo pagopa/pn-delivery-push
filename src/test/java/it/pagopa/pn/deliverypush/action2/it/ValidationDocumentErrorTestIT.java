@@ -3,12 +3,7 @@ package it.pagopa.pn.deliverypush.action2.it;
 import it.pagopa.pn.api.dto.events.PnExtChnEmailEvent;
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
 import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
-
-import it.pagopa.pn.deliverypush.dto.timeline.EventId;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.commons.abstractions.FileData;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
@@ -21,8 +16,12 @@ import it.pagopa.pn.deliverypush.action2.it.utils.AddressBookEntryTestBuilder;
 import it.pagopa.pn.deliverypush.action2.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action2.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action2.utils.*;
-import it.pagopa.pn.deliverypush.actions.ExtChnEventUtils;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.timeline.EventId;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.external.AddressBookEntry;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.NotificationServiceImpl;
@@ -67,7 +66,6 @@ import static org.mockito.Mockito.doThrow;
         DigitalWorkFlowUtils.class,
         CourtesyMessageUtils.class,
         CompletelyUnreachableUtils.class,
-        ExtChnEventUtils.class,
         ExternalChannelUtils.class,
         AnalogWorkflowUtils.class,
         ChooseDeliveryModeUtils.class,
@@ -173,27 +171,27 @@ class ValidationDocumentErrorTestIT {
         // Platform address is present and all sending attempts fail
         DigitalAddress platformAddress = DigitalAddress.builder()
                 .address("platformAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddressType.PEC)
+                .type(DigitalAddress.TypeEnum.PEC)
                 .build();
         
         //Special address is present and all sending attempts fail
         DigitalAddress digitalDomicile = DigitalAddress.builder()
                 .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddressType.PEC)
+                .type(DigitalAddress.TypeEnum.PEC)
                 .build();
         
         //General address is present and all sending attempts fail
         DigitalAddress pbDigitalAddress = DigitalAddress.builder()
                 .address("pbDigitalAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddressType.PEC)
+                .type(DigitalAddress.TypeEnum.PEC)
                 .build();
 
-        NotificationRecipient recipient = NotificationRecipientTestBuilder.builder()
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId("TAXID01")
                 .withDigitalDomicile(digitalDomicile)
                 .build();
 
-        Notification notification = NotificationTestBuilder.builder()
+        NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun("IUN01")
                 .withNotificationRecipient(recipient)
                 .build();

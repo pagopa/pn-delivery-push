@@ -1,5 +1,5 @@
 package it.pagopa.pn.deliverypush.actions;
-
+/*
 import it.pagopa.pn.api.dto.addressbook.AddressBookEntry;
 import it.pagopa.pn.api.dto.addressbook.DigitalAddresses;
 import it.pagopa.pn.api.dto.events.PnExtChnEmailEvent;
@@ -95,11 +95,11 @@ class ChooseDeliveryModeActionHandlerTest {
 
         List<DigitalAddress> courtesyAddresses = Arrays.asList(
                 DigitalAddress.builder()
-                        .type(DigitalAddressType.EMAIL)
+                        .type(DigitalAddress.TypeEnum.EMAIL)
                         .address("nome1.cognome1@develop1.it")
                         .build(),
                 DigitalAddress.builder()
-                        .type(DigitalAddressType.EMAIL)
+                        .type(DigitalAddress.TypeEnum.EMAIL)
                         .address("nome2.cognome2@develop2.it")
                         .build()
         );
@@ -107,11 +107,11 @@ class ChooseDeliveryModeActionHandlerTest {
                 AddressBookEntry.builder()
                         .digitalAddresses(DigitalAddresses.builder()
                         .general( DigitalAddress.builder()
-                                .type( DigitalAddressType.PEC )
+                                .type( DigitalAddress.TypeEnum.PEC )
                                 .address( "a@pec")
                                 .build())
                                 .platform(DigitalAddress.builder()
-                                        .type(DigitalAddressType.PEC)
+                                        .type(DigitalAddress.TypeEnum.PEC)
                                         .address("b@pec")
                                         .build())
                                 .build()
@@ -204,7 +204,7 @@ class ChooseDeliveryModeActionHandlerTest {
                 .subject("Subject 01")
                 .cancelledByIun("IUN_05")
                 .cancelledIun("IUN_00")
-                .sender(NotificationSender.builder()
+                .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()
                 )
@@ -213,7 +213,7 @@ class ChooseDeliveryModeActionHandlerTest {
                                 .taxId("Codice Fiscale 01")
                                 .denomination("Nome Cognome/Ragione Sociale")
                                 .digitalDomicile(DigitalAddress.builder()
-                                        .type(DigitalAddressType.PEC)
+                                        .type(DigitalAddress.TypeEnum.PEC)
                                         .address("account@dominio.it")
                                         .build())
                                 .build()
@@ -228,7 +228,7 @@ class ChooseDeliveryModeActionHandlerTest {
                 .subject("Subject 01")
                 .cancelledByIun("IUN_05")
                 .cancelledIun("IUN_00")
-                .sender(NotificationSender.builder()
+                .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()
                 )
@@ -249,5 +249,8 @@ class ChooseDeliveryModeActionHandlerTest {
                 ))
                 .build();
     }
+    
+
 
 }
+ */

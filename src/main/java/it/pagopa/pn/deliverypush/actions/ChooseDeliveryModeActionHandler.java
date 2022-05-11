@@ -1,5 +1,5 @@
 package it.pagopa.pn.deliverypush.actions;
-
+/*
 import it.pagopa.pn.api.dto.addressbook.AddressBookEntry;
 import it.pagopa.pn.api.dto.events.PnExtChnEmailEvent;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
@@ -108,7 +108,7 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
 
 
         // - WRITE TIMELINE
-        super.addTimelineElement(action, TimelineElement.builder()
+        super.addTimelineElement(action, TimelineElementInternal.timelineInternalBuilder()
                 .category(TimelineElementCategory.NOTIFICATION_PATH_CHOOSE)
                 .details(timelineDetails.toBuilder()
                         .deliveryMode(deliveryMode)
@@ -150,3 +150,5 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
         return ActionType.CHOOSE_DELIVERY_MODE;
     }
 }
+
+ */
