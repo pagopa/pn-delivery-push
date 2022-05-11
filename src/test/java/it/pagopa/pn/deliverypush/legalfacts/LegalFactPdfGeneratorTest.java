@@ -28,11 +28,10 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.api.dto.notification.timeline.SendDigitalFeedback;
-import it.pagopa.pn.deliverypush.action2.it.utils.NotificationRecipientTestBuilder;
 
 class LegalFactPdfGeneratorTest {
-	private static final String TARGET_GENERATED_TEST_PDF = "target\\generated-test-PDF";
-	private static final Path dirPath = Paths.get(TARGET_GENERATED_TEST_PDF);
+	private static final String TEST_DIR_NAME = "target\\generated-test-PDF";
+	private static final Path TEST_DIR_PATH = Paths.get(TEST_DIR_NAME);
 
 	private DocumentComposition documentComposition;
 	private CustomInstantWriter instantWriter;
@@ -46,48 +45,41 @@ class LegalFactPdfGeneratorTest {
 		
 		instantWriter = new CustomInstantWriter();
 		
-		physicalAddressWriter = Mockito.mock(PhysicalAddressWriter.class);
+//		physicalAddressWriter = Mockito.mock(PhysicalAddressWriter.class);
+		physicalAddressWriter = new PhysicalAddressWriter();
 
 		pdfUtils = new LegalFactGenerator(documentComposition, instantWriter, physicalAddressWriter);
 
 		//create target test folder, if not exists
-		if (Files.notExists(dirPath)) { 
-			try { Files.createDirectory(dirPath); }
+		if (Files.notExists(TEST_DIR_PATH)) { 
+			try { Files.createDirectory(TEST_DIR_PATH); }
 			catch (Exception e ) { e.printStackTrace(); }
 		}
 	}
 
 	@Test 
 	void generateNotificationReceivedLegalFactTest() throws IOException {	
-		Path filePath = Paths.get(TARGET_GENERATED_TEST_PDF + "\\test_ReceivedLegalFact.pdf");
-
+		Path filePath = Paths.get(TEST_DIR_NAME + "\\test_ReceivedLegalFact.pdf");
 		Files.write(filePath, pdfUtils.generateNotificationReceivedLegalFact(buildNotification()));		
-
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
 	
 	@Test 
 	void generateNotificationViewedLegalFactTest() throws IOException {
-		Path filePath = Paths.get(TARGET_GENERATED_TEST_PDF + "\\test_ViewedLegalFact.pdf");
-
+		Path filePath = Paths.get(TEST_DIR_NAME + "\\test_ViewedLegalFact.pdf");
 		String iun = "iun1234Test_Viewed";
-		NotificationRecipient recipient = buildRecipients().get(0);
-		
+		NotificationRecipient recipient = buildRecipients().get(0);		
 		Files.write(filePath, pdfUtils.generateNotificationViewedLegalFact(iun, recipient, Instant.now()));		
-
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
 	
 	@Test 
 	void generatePecDeliveryWorkflowLegalFactTest() throws IOException {
-		Path filePath = Paths.get(TARGET_GENERATED_TEST_PDF + "\\test_PecDeliveryWorkflowLegalFact.pdf");
-
+		Path filePath = Paths.get(TEST_DIR_NAME + "\\test_PecDeliveryWorkflowLegalFact.pdf");
 		List<SendDigitalFeedback> feedbackFromExtChannelList = buildFeedbackFromECList();
 		Notification notification = buildNotification();
 		NotificationRecipient recipient = buildRecipients().get(0);
-
-		Files.write(filePath, pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification, recipient));		
-
+		Files.write(filePath, pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification, recipient));
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
 
@@ -133,11 +125,16 @@ class LegalFactPdfGeneratorTest {
 	}
 
 	private List<NotificationRecipient> buildRecipients() {
-		NotificationRecipient rec1 = NotificationRecipientTestBuilder.builder()
-				.withTaxId("taxIdTest1234")
-				.withPhysicalAddress(new PhysicalAddress("atTest", "addressTest", "addDetailTest", "ziptest", "munTest", "provTest", "NO"))
+		NotificationRecipient rec1 = NotificationRecipient.builder()
+				.taxId("CDCFSC11R99X001Z")
+				.denomination("Galileo Bruno")
+				.digitalDomicile(DigitalAddress.builder()
+						.address("test@dominioPec.it")
+						.type(DigitalAddressType.PEC)
+						.build())
+				.physicalAddress(new PhysicalAddress("Palazzo dell'Inquisizione", "corso Italia 666", "Piano Terra (piatta)", "00100", "Roma", "RM", "IT"))
 				.build();
-
+		
 		List<@NotNull(groups = New.class) @Valid NotificationRecipient> list = new ArrayList<NotificationRecipient>();
 		list.add(rec1);
 		return list;
