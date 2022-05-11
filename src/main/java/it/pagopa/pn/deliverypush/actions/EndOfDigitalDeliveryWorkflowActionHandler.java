@@ -12,7 +12,7 @@ import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
-import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import org.springframework.stereotype.Component;
 
@@ -24,10 +24,11 @@ import java.util.stream.Collectors;
 public class EndOfDigitalDeliveryWorkflowActionHandler extends AbstractActionHandler {
 
     private final ActionsPool actionsPool;
-    private final LegalFactUtils legalFactStore;
+    private final LegalFactDao legalFactStore;
 
     public EndOfDigitalDeliveryWorkflowActionHandler(TimelineDao timelineDao, ActionsPool actionsPool,
-                                                     LegalFactUtils legalFactStore, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
+                        LegalFactDao legalFactStore, PnDeliveryPushConfigs pnDeliveryPushConfigs)
+    {
         super(timelineDao, actionsPool, pnDeliveryPushConfigs);
         this.actionsPool = actionsPool;
         this.legalFactStore = legalFactStore;

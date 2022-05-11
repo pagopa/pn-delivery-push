@@ -9,7 +9,7 @@ import it.pagopa.pn.deliverypush.action2.utils.CheckAttachmentUtils;
 import it.pagopa.pn.deliverypush.action2.utils.CourtesyMessageUtils;
 import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
-import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class StartWorkflowHandler {
-    private final LegalFactUtils legalFactUtils;
+    private final LegalFactDao legalFactDao;
     private final NotificationService notificationService;
     private final CourtesyMessageUtils courtesyMessageUtils;
     private final ChooseDeliveryModeHandler chooseDeliveryType;
@@ -30,12 +30,12 @@ public class StartWorkflowHandler {
     private final TimelineUtils timelineUtils;
     private final CheckAttachmentUtils checkAttachmentUtils;
     private final NotificationUtils notificationUtils;
-    
-    public StartWorkflowHandler(LegalFactUtils legalFactUtils, NotificationService notificationService,
+
+    public StartWorkflowHandler(LegalFactDao legalFactDao, NotificationService notificationService,
                                 CourtesyMessageUtils courtesyMessageUtils, ChooseDeliveryModeHandler chooseDeliveryType,
                                 TimelineService timelineService, TimelineUtils timelineUtils, CheckAttachmentUtils checkAttachmentUtils, 
                                 NotificationUtils notificationUtils) {
-        this.legalFactUtils = legalFactUtils;
+        this.legalFactDao = legalFactDao;
         this.notificationService = notificationService;
         this.courtesyMessageUtils = courtesyMessageUtils;
         this.chooseDeliveryType = chooseDeliveryType;
@@ -54,12 +54,11 @@ public class StartWorkflowHandler {
         log.info("Start notification process - iun {}", iun);
         
         Notification notification = notificationService.getNotificationByIun(iun);
-
         try{
             //Validazione degli allegati della notifica
             checkAttachmentUtils.validateAttachment(notification);
 
-            String legalFactId = legalFactUtils.saveNotificationReceivedLegalFact(notification);
+            String legalFactId = legalFactDao.saveNotificationReceivedLegalFact(notification);
 
             addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification, legalFactId));
             

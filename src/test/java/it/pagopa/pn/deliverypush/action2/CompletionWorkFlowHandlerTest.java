@@ -13,7 +13,7 @@ import it.pagopa.pn.deliverypush.action2.utils.CompletelyUnreachableUtils;
 import it.pagopa.pn.deliverypush.action2.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
-import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -44,7 +44,7 @@ class CompletionWorkFlowHandlerTest {
     @Mock
     private TimelineUtils timelineUtils;
     @Mock
-    private LegalFactUtils legalFactUtils;
+    private LegalFactDao legalFactDao;
     @Mock
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
     
@@ -56,7 +56,7 @@ class CompletionWorkFlowHandlerTest {
     public void setup() {
         notificationUtils= new NotificationUtils();
         handler = new CompletionWorkFlowHandler(notificationUtils, scheduler,
-                externalChannelSendHandler, timelineService, completelyUnreachableUtils, timelineUtils, legalFactUtils
+                externalChannelSendHandler, timelineService, completelyUnreachableUtils, timelineUtils, legalFactDao
                 ,pnDeliveryPushConfigs);
     }
 
@@ -72,7 +72,7 @@ class CompletionWorkFlowHandlerTest {
         times.setSchedulingDaysSuccessDigitalRefinement(Duration.ofSeconds(1));
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
 
-        Mockito.when( legalFactUtils.savePecDeliveryWorkflowLegalFact(
+        Mockito.when( legalFactDao.savePecDeliveryWorkflowLegalFact(
                 Mockito.anyList(), Mockito.any( Notification.class ), Mockito.any( NotificationRecipient.class )
         )).thenReturn( "" );
 
@@ -104,7 +104,7 @@ class CompletionWorkFlowHandlerTest {
         times.setSchedulingDaysFailureDigitalRefinement(Duration.ofSeconds(1));
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
 
-        Mockito.when( legalFactUtils.savePecDeliveryWorkflowLegalFact(
+        Mockito.when( legalFactDao.savePecDeliveryWorkflowLegalFact(
                     Mockito.anyList(), Mockito.any( Notification.class ), Mockito.any( NotificationRecipient.class )
                 )).thenReturn( "" );
 

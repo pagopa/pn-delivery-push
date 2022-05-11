@@ -1,8 +1,9 @@
 package it.pagopa.pn.deliverypush.actions;
 
+import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
 import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.deliverypush.middleware.failednotificationdao.PaperNotificationFailedDao;
-import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import org.springframework.stereotype.Component;
 
@@ -21,21 +22,24 @@ import java.time.Instant;
 @Component
 public class NotificationViewedActionHandler extends AbstractActionHandler {
 
-    private final LegalFactUtils legalFactStore;
-    private PaperNotificationFailedDao paperNotificationFailedDao;
+    private final LegalFactDao legalFactStore;
+    private final PaperNotificationFailedDao paperNotificationFailedDao;
+    private final InstantNowSupplier instantSupplier;
 
     public NotificationViewedActionHandler(TimelineDao timelineDao, ActionsPool actionsPool,
-                                           LegalFactUtils legalFactStore, PnDeliveryPushConfigs pnDeliveryPushConfigs,
-                                           PaperNotificationFailedDao paperNotificationFailedDao) {
+                                           LegalFactDao legalFactStore, PnDeliveryPushConfigs pnDeliveryPushConfigs,
+                                           PaperNotificationFailedDao paperNotificationFailedDao,
+                                           InstantNowSupplier instantSupplier) {
         super(timelineDao, actionsPool, pnDeliveryPushConfigs);
         this.legalFactStore = legalFactStore;
         this.paperNotificationFailedDao = paperNotificationFailedDao;
+        this.instantSupplier = instantSupplier;
     }
 
     @Override
     public void handleAction(Action action, Notification notification) {
     	NotificationRecipient recipient = notification.getRecipients().get( action.getRecipientIndex() );
-        String legalFactKey = legalFactStore.saveNotificationViewedLegalFact( notification, recipient, Instant.now() );
+        String legalFactKey = legalFactStore.saveNotificationViewedLegalFact( notification, recipient, instantSupplier.get() );
     	
         addTimelineElement(action, TimelineElement.builder()
                 .category( TimelineElementCategory.NOTIFICATION_VIEWED )
