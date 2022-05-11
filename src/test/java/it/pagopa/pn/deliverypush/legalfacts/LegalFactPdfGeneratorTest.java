@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,7 +31,7 @@ import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.api.dto.notification.timeline.SendDigitalFeedback;
 
 class LegalFactPdfGeneratorTest {
-	private static final String TEST_DIR_NAME = "target\\generated-test-PDF";
+	private static final String TEST_DIR_NAME = "target" + File.separator + "generated-test-PDF";
 	private static final Path TEST_DIR_PATH = Paths.get(TEST_DIR_NAME);
 
 	private DocumentComposition documentComposition;
@@ -44,29 +45,26 @@ class LegalFactPdfGeneratorTest {
 		documentComposition = new DocumentComposition(freemarker);
 		
 		instantWriter = new CustomInstantWriter();
-		
-//		physicalAddressWriter = Mockito.mock(PhysicalAddressWriter.class);
 		physicalAddressWriter = new PhysicalAddressWriter();
 
 		pdfUtils = new LegalFactGenerator(documentComposition, instantWriter, physicalAddressWriter);
 
 		//create target test folder, if not exists
 		if (Files.notExists(TEST_DIR_PATH)) { 
-			try { Files.createDirectory(TEST_DIR_PATH); }
-			catch (Exception e ) { e.printStackTrace(); }
+			Files.createDirectory(TEST_DIR_PATH);
 		}
 	}
 
 	@Test 
 	void generateNotificationReceivedLegalFactTest() throws IOException {	
-		Path filePath = Paths.get(TEST_DIR_NAME + "\\test_ReceivedLegalFact.pdf");
+		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ReceivedLegalFact.pdf");
 		Files.write(filePath, pdfUtils.generateNotificationReceivedLegalFact(buildNotification()));		
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
 	
 	@Test 
 	void generateNotificationViewedLegalFactTest() throws IOException {
-		Path filePath = Paths.get(TEST_DIR_NAME + "\\test_ViewedLegalFact.pdf");
+		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ViewedLegalFact.pdf");
 		String iun = "iun1234Test_Viewed";
 		NotificationRecipient recipient = buildRecipients().get(0);		
 		Files.write(filePath, pdfUtils.generateNotificationViewedLegalFact(iun, recipient, Instant.now()));		
@@ -75,7 +73,7 @@ class LegalFactPdfGeneratorTest {
 	
 	@Test 
 	void generatePecDeliveryWorkflowLegalFactTest() throws IOException {
-		Path filePath = Paths.get(TEST_DIR_NAME + "\\test_PecDeliveryWorkflowLegalFact.pdf");
+		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact.pdf");
 		List<SendDigitalFeedback> feedbackFromExtChannelList = buildFeedbackFromECList();
 		Notification notification = buildNotification();
 		NotificationRecipient recipient = buildRecipients().get(0);
@@ -85,7 +83,7 @@ class LegalFactPdfGeneratorTest {
 
 	private List<SendDigitalFeedback> buildFeedbackFromECList() {
 		SendDigitalFeedback sdf = SendDigitalFeedback.builder()
-				.taxId("taxIdTestFeedbackEC")
+				.recIndex( 0 )
 				.address(DigitalAddress.builder()
 						.type(DigitalAddressType.PEC)
 						.address("indirizzo di prova test")
