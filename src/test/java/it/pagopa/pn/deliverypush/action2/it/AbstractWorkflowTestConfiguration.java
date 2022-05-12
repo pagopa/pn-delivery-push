@@ -1,23 +1,28 @@
 package it.pagopa.pn.deliverypush.action2.it;
 
+import freemarker.template.Configuration;
+import freemarker.template.Version;
+import freemarker.template._TemplateAPI;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action2.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action2.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action2.PublicRegistryResponseHandler;
 import it.pagopa.pn.deliverypush.action2.RefinementHandler;
-import it.pagopa.pn.deliverypush.action2.it.mockbean.*;
+import it.pagopa.pn.deliverypush.action2.it.mockbean.AddressBookMock;
+import it.pagopa.pn.deliverypush.action2.it.mockbean.PnDeliveryClientMock;
+import it.pagopa.pn.deliverypush.action2.it.mockbean.PublicRegistryMock;
+import it.pagopa.pn.deliverypush.action2.it.mockbean.SchedulerServiceMock;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.external.AddressBook;
-import it.pagopa.pn.deliverypush.legalfacts.LegalFactPdfGenerator;
-import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
-import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
-import it.pagopa.pn.deliverypush.legalfacts.OpenhtmltopdfLegalFactPdfGenerator;
+import it.pagopa.pn.deliverypush.legalfacts.*;
 import it.pagopa.pn.deliverypush.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
+
+import java.io.IOException;
 
 public class AbstractWorkflowTestConfiguration {
 
@@ -35,24 +40,33 @@ public class AbstractWorkflowTestConfiguration {
     public FileStorage fileStorageTest() {
         return Mockito.mock(FileStorage.class);
     }
-    
+
     @Bean
-    public LegalFactPdfGenerator legalFactPdfGeneratorTest(TimelineDaoMock timelineDaoMock) {
-        return new OpenhtmltopdfLegalFactPdfGenerator(timelineDaoMock);
+    public DocumentComposition documentCompositionTest() throws IOException {
+        Configuration freemarker = new Configuration( new Version(_TemplateAPI.VERSION_INT_2_3_0));
+        return new DocumentComposition(  freemarker );
     }
     
     @Bean
-    public LegalFactUtils LegalFactsTest(FileStorage fileStorage,
-                                         LegalFactPdfGenerator pdfUtils,
-                                         LegalfactsMetadataUtils legalfactMetadataUtils) {
-        return new LegalFactUtils(fileStorage, pdfUtils, legalfactMetadataUtils);
+    public LegalFactGenerator legalFactPdfGeneratorTest( DocumentComposition dc ) {
+        CustomInstantWriter instantWriter = new CustomInstantWriter();
+        PhysicalAddressWriter physicalAddressWriter = new PhysicalAddressWriter();
+
+        return new LegalFactGenerator( dc, instantWriter, physicalAddressWriter );
+    }
+    
+    @Bean
+    public LegalFactDao LegalFactsTest(FileStorage fileStorage,
+                                       LegalFactGenerator pdfUtils,
+                                       LegalfactsMetadataUtils legalfactMetadataUtils) {
+        return new LegalFactDao(fileStorage, pdfUtils, legalfactMetadataUtils);
     }
 
     @Bean
     public PublicRegistryMock publicRegistriesMapMock(@Lazy PublicRegistryResponseHandler publicRegistryResponseHandler) {
         return new PublicRegistryMock(
                 publicRegistryResponseHandler
-        );
+            );
     }
 
     @Bean

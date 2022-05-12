@@ -7,6 +7,7 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
+<<<<<<< HEAD
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -14,6 +15,9 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
+=======
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
+>>>>>>> develop
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,12 +36,14 @@ class EndOfAnalogDeliveryWorkflowActionHandlerTest {
 	private TimelineDao timelineDao;
 	private ActionsPool actionsPool;
 	private PnDeliveryPushConfigs pnDeliveryPushConfigs;
-
+	private LegalFactDao legalFactStore;
+	
 	@SuppressWarnings("unchecked")
 	@BeforeEach
 	public void setup() {
 		timelineDao = Mockito.mock( TimelineDao.class );
 		actionsPool = Mockito.mock( ActionsPool.class );
+		legalFactStore = Mockito.mock( LegalFactDao.class );
 		pnDeliveryPushConfigs = Mockito.mock( PnDeliveryPushConfigs.class );
 		TimeParams times = new TimeParams();
 		times.setRecipientViewMaxTimeForAnalog( Duration.ZERO );

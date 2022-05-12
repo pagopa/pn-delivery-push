@@ -8,7 +8,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
-import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,7 +22,7 @@ import java.util.Collections;
 
 class StartWorkflowHandlerTest {
     @Mock
-    private LegalFactUtils legalFactUtils;
+    private LegalFactDao legalFactDao;
     @Mock
     private NotificationService notificationService;
     @Mock
@@ -42,7 +42,7 @@ class StartWorkflowHandlerTest {
     @BeforeEach
     public void setup() {
         notificationUtils= new NotificationUtils();
-        handler = new StartWorkflowHandler(legalFactUtils, notificationService, courtesyMessageUtils,
+        handler = new StartWorkflowHandler(legalFactDao, notificationService, courtesyMessageUtils,
                 chooseDeliveryType, timelineService, timelineUtils, attachmentService,
                 notificationUtils);
     }
@@ -54,13 +54,13 @@ class StartWorkflowHandlerTest {
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(getNotification());
 
-        Mockito.when( legalFactUtils.saveNotificationReceivedLegalFact(Mockito.any( NotificationInt.class ))).thenReturn( "" );
-        
+        Mockito.when( legalFactDao.saveNotificationReceivedLegalFact(Mockito.any( NotificationInt.class ))).thenReturn( "" );
+
         //WHEN
         handler.startWorkflow("IUN_01");
-        
+
         //THEN
-        Mockito.verify(legalFactUtils).saveNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
+        Mockito.verify(legalFactDao).saveNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
         Mockito.verify(timelineUtils).buildAcceptedRequestTimelineElement(Mockito.any(NotificationInt.class), Mockito.anyString());
         Mockito.verify(courtesyMessageUtils).checkAddressesForSendCourtesyMessage(Mockito.any(NotificationInt.class), Mockito.anyInt());
         Mockito.verify(chooseDeliveryType).chooseDeliveryTypeAndStartWorkflow(Mockito.any(NotificationInt.class), Mockito.anyInt());

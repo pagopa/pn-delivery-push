@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import javax.validation.Valid;
+import java.sql.Time;
 import java.util.Date;
 import java.util.List;
 
@@ -21,4 +22,8 @@ public class TimelineElementInternal extends TimelineElement {
         this.iun = iun;
     }
 
+    public TimelineElementInternal(String iun, TimelineElement el) {
+        super(el.getElementId(), el.getTimestamp(), el.getLegalFactsIds(), el.getCategory(), el.getDetails());
+        this.iun = iun;
+    }
 }

@@ -11,4 +11,5 @@ import lombok.*;
 public class NotificationSenderInt {
     private String paId;
     private String paDenomination;
+    private String paTaxId;
 }

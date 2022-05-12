@@ -1,16 +1,13 @@
+
 package it.pagopa.pn.deliverypush.actions;
 /*
 import it.pagopa.pn.api.dto.addressbook.AddressBookEntry;
 import it.pagopa.pn.api.dto.events.PnExtChnEmailEvent;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 
-import DeliveryMode;
-import NotificationPathChooseDetails;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
@@ -19,6 +16,7 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
+import it.pagopa.pn.deliverypush.util.TimelineDetailMap;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -45,10 +43,10 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
     }
 
     @Override
-    public void handleAction(Action action, Notification notification) {
+    public void handleAction(Action action, NotificationInt notification) {
         // - GET RECIPIENT
         int index = action.getRecipientIndex();
-        NotificationRecipient recipient = notification.getRecipients().get(index);
+        NotificationRecipientInt recipient = notification.getRecipients().get(index);
 
         PhysicalAddress physicalAddress = recipient.getPhysicalAddress();
 
@@ -105,14 +103,13 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
             default:
                 throw new PnInternalException("Delivery mode not supported: " + deliveryMode);
         }
+        timelineDetailsBuilder.deliveryMode( deliveryMode );
 
 
         // - WRITE TIMELINE
         super.addTimelineElement(action, TimelineElementInternal.timelineInternalBuilder()
                 .category(TimelineElementCategory.NOTIFICATION_PATH_CHOOSE)
-                .details(timelineDetails.toBuilder()
-                        .deliveryMode(deliveryMode)
-                        .build())
+                .details(TimelineDetailMap. timelineDetailsBuilder.build())
                 .build()
         );
     }
@@ -150,5 +147,4 @@ public class ChooseDeliveryModeActionHandler extends AbstractActionHandler {
         return ActionType.CHOOSE_DELIVERY_MODE;
     }
 }
-
- */
+*/

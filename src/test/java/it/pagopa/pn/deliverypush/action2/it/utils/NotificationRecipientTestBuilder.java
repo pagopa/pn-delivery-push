@@ -32,6 +32,7 @@ public class NotificationRecipientTestBuilder {
     public NotificationRecipientInt build() {
         return NotificationRecipientInt.builder()
                 .taxId(taxId)
+                .denomination("Name_and_surname_of_" + taxId)
                 .physicalAddress(physicalAddress)
                 .digitalDomicile(digitalDomicile)
                 .build();

@@ -1,7 +1,5 @@
 package it.pagopa.pn.deliverypush.actions;
-/*
-import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
-import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntryId;
+
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
@@ -10,6 +8,8 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionHandler;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsId;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import org.jetbrains.annotations.NotNull;
@@ -39,12 +39,13 @@ public abstract class AbstractActionHandler implements ActionHandler {
     }
 
     protected void addTimelineElement(Action action, TimelineElementInternal row) {
-        this.timelineDao.addTimelineElement(row.toBuilder()
-                .iun(action.getIun())
-                .timestamp(Instant.now())
-                .elementId(action.getActionId())
-                .build()
-        );
+        this.timelineDao.addTimelineElement( new TimelineElementInternal(
+                action.getIun(),
+                row.toBuilder()
+                    .timestamp( new Date())
+                    .elementId(action.getActionId())
+                    .build()
+        ));
     }
 
     protected <T> Optional<T> getTimelineElement(Action action, ActionType actionType, Class<T> timelineDetailsClass) {
@@ -174,6 +175,7 @@ public abstract class AbstractActionHandler implements ActionHandler {
 
         return firstAttemptResult
                 .map(TimelineElement::getTimestamp)
+                .map( Date::toInstant )
                 .orElse(Instant.now()); // - If first attempt is absent can retry immediately
     }
 
@@ -199,9 +201,22 @@ public abstract class AbstractActionHandler implements ActionHandler {
                 .recipientIndex(action.getRecipientIndex())
                 .notBefore(actionTime)
                 .type(ActionType.SEND_PEC)
-                .digitalAddressSource(action.getDigitalAddressSource().next())
+                .digitalAddressSource( nextSource( action.getDigitalAddressSource() ))
                 .retryNumber(roundNumber)
                 .build();
+    }
+
+    private DigitalAddressSource nextSource( DigitalAddressSource das ) {
+        switch (das) {
+            case PLATFORM:
+                return DigitalAddressSource.SPECIAL;
+            case SPECIAL:
+                return DigitalAddressSource.GENERAL;
+            case GENERAL:
+                return DigitalAddressSource.PLATFORM;
+            default:
+                throw new PnInternalException(" BUG: add support to next for " + DigitalAddressSource.class + "::" + das.name());
+        }
     }
 
     protected static final Integer FIRST_ROUND = 1;
@@ -230,21 +245,21 @@ public abstract class AbstractActionHandler implements ActionHandler {
     }
 
     @NotNull
-    protected List<LegalFactsListEntryId> extractLegalFactsIds(Action action, LegalFactType type) {
+    protected List<LegalFactsId> extractLegalFactsIds(Action action, LegalFactCategory category) {
         return action.getAttachmentKeys() == null ? Collections.emptyList() : action.getAttachmentKeys().stream()
-                .map( k -> LegalFactsListEntryId.builder()
-                        .type( type )
+                .map( k -> LegalFactsId.builder()
+                        .category( category )
                         .key( k )
                         .build()
                 ).collect(Collectors.toList());
     }
 
-    protected List<LegalFactsListEntryId> singleLegalFactId(String legalFactKey, LegalFactType type) {
-        return Collections.singletonList( LegalFactsListEntryId.builder()
+    protected List<LegalFactsId> singleLegalFactId(String legalFactKey, LegalFactCategory category) {
+        return Collections.singletonList( LegalFactsId.builder()
                 .key( legalFactKey )
-                .type( type )
+                .category( category )
                 .build() );
     }
 }
 
- */
+

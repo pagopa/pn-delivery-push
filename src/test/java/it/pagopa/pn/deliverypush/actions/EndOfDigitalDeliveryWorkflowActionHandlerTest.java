@@ -1,5 +1,20 @@
 package it.pagopa.pn.deliverypush.actions;
 /*
+
+import static org.mockito.Mockito.verify;
+
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+
 import it.pagopa.pn.api.dto.events.PnExtChnEmailEvent;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
@@ -34,14 +49,14 @@ class EndOfDigitalDeliveryWorkflowActionHandlerTest {
 	private TimelineDao timelineDao;
 	private ActionsPool actionsPool;
 	private PnDeliveryPushConfigs pnDeliveryPushConfigs;
-	private LegalFactUtils legalFactStore;
+	private LegalFactDao legalFactStore;
 	
 	@SuppressWarnings("unchecked")
 	@BeforeEach
 	public void setup() {
 		timelineDao = Mockito.mock( TimelineDao.class );
 		actionsPool = Mockito.mock( ActionsPool.class );
-		legalFactStore = Mockito.mock( LegalFactUtils.class );
+		legalFactStore = Mockito.mock( LegalFactDao.class );
 		pnDeliveryPushConfigs = Mockito.mock( PnDeliveryPushConfigs.class );
 		TimeParams times = new TimeParams();
 		times.setRecipientViewMaxTimeForDigital( Duration.ZERO );

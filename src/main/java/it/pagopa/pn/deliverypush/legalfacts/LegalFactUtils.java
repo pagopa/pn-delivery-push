@@ -6,6 +6,7 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationPathChooseDetails;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendDigitalFeedback;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,8 @@ import java.io.InputStream;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -23,12 +26,12 @@ public class LegalFactUtils {
 
     public static final String LEGALFACTS_MEDIATYPE_STRING = "application/pdf";
     private final FileStorage fileStorage;
-    private final LegalFactPdfGenerator pdfUtils;
+    private final LegalFactGenerator pdfUtils;
     private final LegalfactsMetadataUtils legalfactMetadataUtils;
 
 
     public LegalFactUtils(FileStorage fileStorage,
-                          LegalFactPdfGenerator pdfUtils,
+                          LegalFactGenerator pdfUtils,
                           LegalfactsMetadataUtils legalfactMetadataUtils
     ) {
         this.fileStorage = fileStorage;
@@ -53,17 +56,27 @@ public class LegalFactUtils {
     
     public String saveNotificationReceivedLegalFact(Action action, NotificationInt notification) {
         Map<String, String> metadata = legalfactMetadataUtils.buildMetadata( LegalFactCategory.SENDER_ACK, null );
-        byte[] pdfBytes = pdfUtils.generateNotificationReceivedLegalFact( action, notification);
-        return this.saveLegalFact(action.getIun(), "sender_ack", pdfBytes, metadata);
+        try {
+            byte[] pdfBytes = pdfUtils.generateNotificationReceivedLegalFact( notification);
+            return this.saveLegalFact(action.getIun(), "sender_ack", pdfBytes, metadata);
+        }
+        catch (IOException exc) {
+            throw new PnInternalException("", exc);
+        }
     }
     
     public String saveNotificationReceivedLegalFact(NotificationInt notification) {
         Map<String, String> metadata = legalfactMetadataUtils.buildMetadata(LegalFactCategory.SENDER_ACK, null);
-        byte[] pdfBytes = pdfUtils.generateNotificationReceivedLegalFact(notification);
-        return this.saveLegalFact(notification.getIun(), "sender_ack", pdfBytes, metadata);
+        try {
+            byte[] pdfBytes = pdfUtils.generateNotificationReceivedLegalFact(notification);
+            return this.saveLegalFact(notification.getIun(), "sender_ack", pdfBytes, metadata);
+        }
+        catch ( IOException exc ) {
+            throw new PnInternalException( "", exc );
+        }
     }
     
-    /*
+
     public String savePecDeliveryWorkflowLegalFact(List<Action> actions, NotificationInt notification, NotificationPathChooseDetails addresses) {
         Set<Integer> recipientIdx = actions.stream()
                 .map(Action::getRecipientIndex)
@@ -75,23 +88,36 @@ public class LegalFactUtils {
         String taxId = notification.getRecipients().get(recipientIdx.iterator().next()).getTaxId();
         Map<String, String> metadata = legalfactMetadataUtils.buildMetadata(LegalFactCategory.DIGITAL_DELIVERY, taxId);
 
-        byte[] pdfBytes = pdfUtils.generatePecDeliveryWorkflowLegalFact(actions, notification, addresses);
-        return this.saveLegalFact(notification.getIun(), "digital_delivery_info_" + taxId, pdfBytes, metadata);
-    }*/
+        try {
+            byte[] pdfBytes = pdfUtils.generatePecDeliveryWorkflowLegalFact(actions, notification, addresses);
+            return this.saveLegalFact(notification.getIun(), "digital_delivery_info_" + taxId, pdfBytes, metadata);
+        }
+        catch(IOException exc) {
+            throw new PnInternalException( "", exc );
+        }
+    }
 
     public String savePecDeliveryWorkflowLegalFact(List<SendDigitalFeedback> listFeedbackFromExtChannel, NotificationInt notification, NotificationRecipientInt recipient) {
         Map<String, String> metadata = legalfactMetadataUtils.buildMetadata(LegalFactCategory.DIGITAL_DELIVERY, recipient.getTaxId());
 
-        byte[] pdfBytes = pdfUtils.generatePecDeliveryWorkflowLegalFact(listFeedbackFromExtChannel, notification, recipient);
-        return this.saveLegalFact(notification.getIun(), "digital_delivery_info_" + recipient.getTaxId(), pdfBytes, metadata);
+        try {
+            byte[] pdfBytes = pdfUtils.generatePecDeliveryWorkflowLegalFact(listFeedbackFromExtChannel, notification, recipient);
+            return this.saveLegalFact(notification.getIun(), "digital_delivery_info_" + recipient.getTaxId(), pdfBytes, metadata);
+        } catch ( IOException exc) {
+            throw new PnInternalException( "", exc );
+        }
     }
 
 
     public String saveNotificationViewedLegalFact(NotificationInt notification, NotificationRecipientInt recipient, Instant timeStamp) {
         String taxId = recipient.getTaxId();
         Map<String, String> metadata = legalfactMetadataUtils.buildMetadata(LegalFactCategory.RECIPIENT_ACCESS, taxId);
-        byte[] pdfBytes = pdfUtils.generateNotificationViewedLegalFact(notification.getIun(), recipient, timeStamp);
-        return this.saveLegalFact(notification.getIun(), "notification_viewed_" + taxId, pdfBytes, metadata);
+        try {
+            byte[] pdfBytes = pdfUtils.generateNotificationViewedLegalFact(notification.getIun(), recipient, timeStamp);
+            return this.saveLegalFact(notification.getIun(), "notification_viewed_" + taxId, pdfBytes, metadata);
+        } catch (IOException exc) {
+            throw new PnInternalException( "", exc );
+        }
     }
     
 }

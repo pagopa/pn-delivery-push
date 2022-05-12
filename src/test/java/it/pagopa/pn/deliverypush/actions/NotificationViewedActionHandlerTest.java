@@ -2,46 +2,76 @@ package it.pagopa.pn.deliverypush.actions;
 /*
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
+<<<<<<< HEAD
+=======
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
+import it.pagopa.pn.deliverypush.middleware.failednotificationdao.PaperNotificationFailedDao;
+>>>>>>> develop
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
+<<<<<<< HEAD
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
 import it.pagopa.pn.deliverypush.middleware.failednotificationdao.PaperNotificationFailedDao;
+=======
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
+>>>>>>> develop
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.time.Instant;
 import java.util.Collections;
 
 class NotificationViewedActionHandlerTest {
-    private LegalFactUtils legalFactUtils;
+    private LegalFactDao legalFactDao;
     private TimelineDao timelineDao;
     private ActionsPool actionsPool;
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private NotificationViewedActionHandler handler;
     private PaperNotificationFailedDao paperNotificationFailedDao;
+    private Instant instant;
+
+
+    private static class TestInstantSupplier extends InstantNowSupplier {
+        private final Instant value;
+
+        TestInstantSupplier( Instant instant) {
+            this.value = instant;
+        }
+
+        @Override
+        public Instant get() {
+            return this.value;
+        }
+    }
 
     @BeforeEach
     public void setup() {
         pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
-        legalFactUtils = Mockito.mock(LegalFactUtils.class);
+        legalFactDao = Mockito.mock(LegalFactDao.class);
         timelineDao = Mockito.mock(TimelineDao.class);
         actionsPool = Mockito.mock(ActionsPool.class);
         paperNotificationFailedDao = Mockito.mock(PaperNotificationFailedDao.class);
+
+        this.instant = Instant.now();
+
         handler = new NotificationViewedActionHandler(
                 timelineDao,
                 actionsPool,
-                legalFactUtils,
+                legalFactDao,
                 pnDeliveryPushConfigs,
-                paperNotificationFailedDao
-        );
+                paperNotificationFailedDao,
+                new TestInstantSupplier( this.instant )
+            );
     }
 
     @Test
@@ -63,6 +93,8 @@ class NotificationViewedActionHandlerTest {
         handler.handleAction(action, notification);
 
         //Then
+        Mockito.verify(legalFactDao).saveNotificationViewedLegalFact( notification,
+                                   notification.getRecipients().get(0), this.instant );
         Mockito.verify(timelineDao).addTimelineElement(Mockito.any(TimelineElement.class));
     }
 
