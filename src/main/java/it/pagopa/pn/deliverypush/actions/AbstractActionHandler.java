@@ -11,7 +11,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsId;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
-import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
@@ -42,7 +42,7 @@ public abstract class AbstractActionHandler implements ActionHandler {
         this.timelineDao.addTimelineElement( new TimelineElementInternal(
                 action.getIun(),
                 row.toBuilder()
-                    .timestamp( new Date())
+                    .timestamp( Instant.now())
                     .elementId(action.getActionId())
                     .build()
         ));
@@ -175,7 +175,6 @@ public abstract class AbstractActionHandler implements ActionHandler {
 
         return firstAttemptResult
                 .map(TimelineElement::getTimestamp)
-                .map( Date::toInstant )
                 .orElse(Instant.now()); // - If first attempt is absent can retry immediately
     }
 

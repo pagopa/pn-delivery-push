@@ -1,17 +1,18 @@
 package it.pagopa.pn.deliverypush.legalfacts;
-//TODO Da decommentare
-/*
-import java.util.Arrays;
 
-import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
-import it.pagopa.pn.api.dto.notification.NotificationPaymentInfo;
+import java.util.Arrays;
+import java.util.Collections;
 
 class OpenhtmltopdfLegalFactPdfGeneratorTest {
 	private OpenhtmltopdfLegalFactPdfGenerator pdfUtils;
@@ -23,11 +24,23 @@ class OpenhtmltopdfLegalFactPdfGeneratorTest {
 		pdfUtils = new OpenhtmltopdfLegalFactPdfGenerator( timelineDao );
     }
 	
-
-
 	@Test 
 	void successHashUnorderedList() {
 		// GIVEN
+		NotificationInt notification = getNotificationInt();
+		
+		// WHEN
+		StringBuilder list = pdfUtils.hashUnorderedList( notification );
+		String output = list.toString();
+		
+		// THEN
+		Assertions.assertTrue(output.contains("<li>sha256_doc01;</li>"), "Different unordered list item");
+		Assertions.assertTrue(output.contains("<li>sha256_doc02;</li>"), "Different unordered list item");
+		Assertions.assertTrue(output.contains("<li>sha256_doc03;</li>"), "Different unordered list item");
+		Assertions.assertTrue(output.contains("<li>sha256_doc04;</li>"), "Different unordered list item");
+	}
+
+	private NotificationInt getNotificationInt() {
 		NotificationInt notification = NotificationInt.builder()
 					.documents(Arrays.asList(
                         NotificationDocumentInt.builder()
@@ -40,51 +53,51 @@ class OpenhtmltopdfLegalFactPdfGeneratorTest {
                                         .sha256("sha256_doc01")
                                         .build()
                                 )
-                                .contentType("application/pdf")
-                                .body("Ym9keV8wMQ==")
                                 .build()
 							)
 					)
-					.payment( NotificationPaymentInfo.builder()
-								.f24( NotificationPaymentInfo.F24.builder()
-										.digital( NotificationDocumentInt.builder()
-												.body("Ym9keV8wMQ==")
-												.contentType("Content/Type")
-												.digests(NotificationDocumentInt.Digests.builder()
-														.sha256("sha256_doc02")
-														.build() )
-												.build() )
-										.analog( NotificationDocumentInt.builder()
-												.body("Ym9keV8wMQ==")
-												.contentType("Content/Type")
-												.digests(NotificationDocumentInt.Digests.builder()
-														.sha256("sha256_doc03")
-														.build() )
-												.build() )
-										.flatRate( NotificationDocumentInt.builder()
-												.body("Ym9keV8wMQ==")
-												.contentType("Content/Type")
-												.digests(NotificationDocumentInt.Digests.builder()
-														.sha256("sha256_doc04")
-														.build() )
-												.build() )
-										.build() 
-								)
-								.build()
-					)
-					.build();
-					
-		// WHEN
-		StringBuilder list = pdfUtils.hashUnorderedList( notification );
-		String output = list.toString();
-		
-		// THEN
-		Assertions.assertTrue(output.contains("<li>sha256_doc01;</li>"), "Different unordered list item");
-		Assertions.assertTrue(output.contains("<li>sha256_doc02;</li>"), "Different unordered list item");
-		Assertions.assertTrue(output.contains("<li>sha256_doc03;</li>"), "Different unordered list item");
-		Assertions.assertTrue(output.contains("<li>sha256_doc04;</li>"), "Different unordered list item");
+					.recipients(Collections.singletonList(
+							NotificationRecipientInt.builder()
+									.taxId("testIdRecipient")
+									.denomination("Nome Cognome/Ragione Sociale")
+									.digitalDomicile(DigitalAddress.builder()
+											.type(DigitalAddress.TypeEnum.PEC)
+											.address("account@dominio.it")
+											.build())
+									.payment(
+											NotificationPaymentInfoInt.builder()
+													.f24flatRate(
+															NotificationDocumentInt.builder()
+																	.digests(
+																			NotificationDocumentInt.Digests.builder()
+																					.sha256("sha256_doc02")
+																					.build()	
+																	)
+																	.build()
+													)
+													.pagoPaForm(
+															NotificationDocumentInt.builder()
+																	.digests(
+																			NotificationDocumentInt.Digests.builder()
+																					.sha256("sha256_doc03")
+																					.build()
+																	)
+																	.build()
+													)
+													.f24white(
+															NotificationDocumentInt.builder()
+																	.digests(
+																			NotificationDocumentInt.Digests.builder()
+																					.sha256("sha256_doc04")
+																					.build()
+																	)
+																	.build()
+													)
+													.build()	
+									)
+									.build()
+					)).build();
+		return notification;
 	}
 
 }
-
- */

@@ -2,7 +2,6 @@ package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.notification.timeline.RecipientRelatedTimelineElementDetails;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
@@ -13,8 +12,8 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListEl
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetails;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
-import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
-import it.pagopa.pn.deliverypush.pnclient.externalchannel.ExternalChannelClient;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
+import it.pagopa.pn.deliverypush.externalclient.pnclient.externalchannel.ExternalChannelGetClient;
 import it.pagopa.pn.deliverypush.service.LegalFactService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import lombok.extern.slf4j.Slf4j;
@@ -41,14 +40,14 @@ public class LegalFactServiceImpl implements LegalFactService {
     private final TimelineDao timelineDao;
     private final FileStorage fileStorage;
     private final LegalfactsMetadataUtils legalfactsUtils;
-    private final ExternalChannelClient externalChannelClient;
+    private final ExternalChannelGetClient externalChannelClient;
     private final NotificationService notificationService;
     private final NotificationUtils notificationUtils;
 
     public LegalFactServiceImpl(TimelineDao timelineDao,
                                 FileStorage fileStorage,
                                 LegalfactsMetadataUtils legalFactsUtils,
-                                ExternalChannelClient externalChannelClient,
+                                ExternalChannelGetClient externalChannelClient,
                                 NotificationService notificationService, 
                                 NotificationUtils notificationUtils) {
         this.timelineDao = timelineDao;
@@ -86,10 +85,10 @@ public class LegalFactServiceImpl implements LegalFactService {
         //TODO Verificare se è necessario restituire il taxId o se può bastare il recIndex
         
         if (timelineElement != null) {
-            TimelineElementDetails details = timelineElement.getDetails();
-            if ( details instanceof RecipientRelatedTimelineElementDetails) {
-                
-                Integer recIndex = ((RecipientRelatedTimelineElementDetails) details).getRecIndex();
+            TimelineElementDetails details = timelineElement.getDetails();             
+            Integer recIndex = details.getRecIndex();
+            
+            if(recIndex != null){
                 NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
                 recipientId = recipient.getTaxId();
             }

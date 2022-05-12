@@ -3,7 +3,6 @@ package it.pagopa.pn.deliverypush.legalfacts;
 
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.utils.DateUtils;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -11,7 +10,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseStatus;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendDigitalFeedback;
-import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -404,7 +403,7 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
                     address.getAddress()
             ));
 
-            Instant timestamp = DateUtils.convertDateToInstant(digitalFeedback.getNotificationDate());
+            Instant timestamp = digitalFeedback.getNotificationDate();
 
             if (ResponseStatus.OK.equals(status)) {
                 paragraph3.append(String.format(

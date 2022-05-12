@@ -106,14 +106,16 @@
 				<artifactId>openapi-generator-maven-plugin</artifactId>
 				<version>5.4.0</version>
 				<executions>
-					<!-- OPEN API PN-DELIVERY-PUSH-->
+					<!-- OPEN API PRIVATE PN-DELIVERY-PUSH-->
 					<execution>
-						<id>pn-internal-delivery-push</id>
+						<id>pn-internal-delivery-push-private</id>
 						<goals>
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>${project.basedir}/docs/openapi/api-internal-pn-delivery-push-v1.yaml</inputSpec>
+							<typeMappings><typeMapping>Date=Instant</typeMapping></typeMappings>
+							<importMappings><importMapping>java.util.Date=java.time.Instant</importMapping></importMappings>
+							<inputSpec>${project.basedir}/docs/openapi/api-private-v1.yaml</inputSpec>
 							<generatorName>spring</generatorName>
 							<library>spring-boot</library>
 							<modelNameSuffix></modelNameSuffix>
@@ -137,20 +139,22 @@
 							</configOptions>
 						</configuration>
 					</execution>
-
-					<!-- OPEN API PRIVATE PN-DELIVERY-PUSH-->
+					
+					<!-- OPEN API PN-DELIVERY-PUSH-->
 					<execution>
-						<id>pn-internal-delivery-push-private</id>
+						<id>pn-internal-delivery-push</id>
 						<goals>
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>${project.basedir}/docs/openapi/api-private-v1.yaml</inputSpec>
+							<inputSpec>${project.basedir}/docs/openapi/api-internal-pn-delivery-push-v1.yaml</inputSpec>
 							<generatorName>spring</generatorName>
 							<library>spring-boot</library>
 							<modelNameSuffix></modelNameSuffix>
 							<generateApiTests>false</generateApiTests>
 							<generateModelTests>false</generateModelTests>
+							<typeMappings><typeMapping>Date=Instant</typeMapping></typeMappings>
+							<importMappings><importMapping>java.util.Date=java.time.Instant</importMapping></importMappings>
 							<configOptions>
 								<basePackage>it.pagopa.pn.deliverypush.generated.openapi.server.v1</basePackage>
 								<modelPackage>it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto</modelPackage>
@@ -183,6 +187,8 @@
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
 							<generateModelTests>false</generateModelTests>
+							<typeMappings><typeMapping>OffsetDateTime=Instant</typeMapping></typeMappings>
+							<importMappings><importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping></importMappings>
 							<configOptions>
 								<apiPackage>it.pagopa.pn.delivery.generated.openapi.clients.delivery.api</apiPackage>
 								<modelPackage>it.pagopa.pn.delivery.generated.openapi.clients.delivery.model</modelPackage>

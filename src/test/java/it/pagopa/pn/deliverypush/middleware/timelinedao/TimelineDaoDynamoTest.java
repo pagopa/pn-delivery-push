@@ -3,15 +3,14 @@ package it.pagopa.pn.deliverypush.middleware.timelinedao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.RequestUpdateStatusDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.*;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.StatusService;
 import it.pagopa.pn.deliverypush.util.StatusUtils;
@@ -24,6 +23,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -66,7 +66,7 @@ class TimelineDaoDynamoTest {
                 .elementId(id1)
                 .category(TimelineElementCategory.REQUEST_ACCEPTED)
                 .details(new TimelineElementDetails())
-                .timestamp(new Date())
+                .timestamp( Instant.now() )
                 .build();
         
         NotificationInt notification = getNotification(iun);
@@ -107,22 +107,24 @@ class TimelineDaoDynamoTest {
         String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
 
         String id1 = "sender_ack";
+        
         TimelineElementInternal row1 = TimelineElementInternal.timelineInternalBuilder()
                 .iun(iun)
                 .elementId(id1)
                 .category(TimelineElementCategory.REQUEST_ACCEPTED)
-                .details(new TimelineElementDetails())
-                .timestamp(new Date())
+                .details(TimelineUtils.getGenericDetails(new NotificationRequestAccepted()))
+                .timestamp(Instant.now())
                 .build();
         String id2 = "path_choose";
         TimelineElementInternal row2 = TimelineElementInternal.timelineInternalBuilder()
                 .iun(iun)
                 .elementId(id2)
                 .category(TimelineElementCategory.NOTIFICATION_PATH_CHOOSE)
-                .details(new TimelineElementDetails())
-                .timestamp(new Date())
+                .details(TimelineUtils.getGenericDetails(new NotificationPathChooseDetails()))
+                .timestamp(Instant.now())
                 .build();
 
+        
         // WHEN
         NotificationInt notification = getNotification(iun);
 
@@ -176,7 +178,7 @@ class TimelineDaoDynamoTest {
                 .elementId(id1)
                 .category(TimelineElementCategory.REQUEST_ACCEPTED)
                 .details(new TimelineElementDetails())
-                .timestamp(new Date())
+                .timestamp(Instant.now())
                 .build();
         String id2 = "path_choose";
         TimelineElementInternal row2 = TimelineElementInternal.timelineInternalBuilder()
@@ -184,7 +186,7 @@ class TimelineDaoDynamoTest {
                 .elementId(id2)
                 .category(TimelineElementCategory.NOTIFICATION_PATH_CHOOSE)
                 .details(new TimelineElementDetails())
-                .timestamp(new Date())
+                .timestamp(Instant.now())
                 .build();
 
         // WHEN

@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.util;
 
-import it.pagopa.pn.commons.utils.DateUtils;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElement;
@@ -42,7 +41,7 @@ public class StatusUtils {
         List<NotificationStatusHistoryElement> timelineHistory = new ArrayList<>();
 
         List<String> relatedTimelineElements = new ArrayList<>();
-        Date currentStateStart = DateUtils.convertInstantToDate(notificationCreatedAt);
+        Instant currentStateStart = notificationCreatedAt;
         NotificationStatus currentState = INITIAL_STATUS;
         int numberOfEndedDeliveryWorkflows = 0;
 

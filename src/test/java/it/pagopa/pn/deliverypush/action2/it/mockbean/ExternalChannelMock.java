@@ -6,7 +6,7 @@ import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.deliverypush.action2.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
-import it.pagopa.pn.deliverypush.external.ExternalChannel;
+import it.pagopa.pn.deliverypush.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseStatus;
 import org.springframework.context.annotation.Lazy;
 
@@ -14,7 +14,7 @@ import java.time.Instant;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ExternalChannelMock implements ExternalChannel {
+public class ExternalChannelMock implements ExternalChannelSendClient {
     //DIGITAL
     public static final String EXT_CHANNEL_SEND_FAIL_BOTH = "fail-both";
     public static final String EXT_CHANNEL_SEND_FAIL_FIRST = "fail-first";

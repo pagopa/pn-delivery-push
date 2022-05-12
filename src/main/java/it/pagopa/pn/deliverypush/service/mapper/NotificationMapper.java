@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
-import it.pagopa.pn.commons.utils.DateUtils;
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationDocument;
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationPhysicalAddress;
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationRecipient;
@@ -24,7 +23,7 @@ public class NotificationMapper {
         return NotificationInt.builder()
                 .iun(sentNotification.getIun())
                 .paNotificationId(sentNotification.getPaProtocolNumber())
-                .sentAt(DateUtils.convertOffsetDateTimeToInstant(sentNotification.getSentAt()))
+                .sentAt(sentNotification.getSentAt())
                 .sender(
                         NotificationSenderInt.builder()
                                 .paId(sentNotification.getSenderPaId())

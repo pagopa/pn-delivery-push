@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.action2.it.mockbean;
 
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 
 import java.util.ArrayList;
 import java.util.Collection;

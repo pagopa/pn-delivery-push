@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.util;
 
 
-import it.pagopa.pn.api.dto.notification.timeline.ReceivedDetails;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 
 import java.util.HashMap;
@@ -12,7 +11,7 @@ public class TimelineDetailMap {
     private static final Map<TimelineElementCategory, Class<?>> detailsMap = new HashMap<>();
     
     static {
-        detailsMap.put( TimelineElementCategory.REQUEST_ACCEPTED, ReceivedDetails.class);//TODO Da analizzare ReceivedDetails
+        detailsMap.put( TimelineElementCategory.REQUEST_ACCEPTED, NotificationRequestAccepted.class);
         detailsMap.put( TimelineElementCategory.SEND_COURTESY_MESSAGE, SendCourtesyMessageDetails.class );
         detailsMap.put( TimelineElementCategory.NOTIFICATION_PATH_CHOOSE, NotificationPathChooseDetails.class );
         detailsMap.put( TimelineElementCategory.GET_ADDRESS, GetAddressInfo.class );

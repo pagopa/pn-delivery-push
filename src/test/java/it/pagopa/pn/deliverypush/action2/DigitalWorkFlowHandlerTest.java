@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.action2;
 
-import it.pagopa.pn.commons.utils.DateUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
@@ -27,7 +26,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
-import java.util.Date;
 
 class DigitalWorkFlowHandlerTest {
     @Mock
@@ -65,7 +63,7 @@ class DigitalWorkFlowHandlerTest {
     void nextWorkFlowAction_0_General() {
         //GIVEN
         DigitalAddressInfo lastAttemptMade = DigitalAddressInfo.builder()
-                .lastAttemptDate(new Date())
+                .lastAttemptDate(Instant.now())
                 .sentAttemptMade(0)
                 .source(DigitalAddressSource.SPECIAL)
                 .address(DigitalAddress.builder()
@@ -75,9 +73,9 @@ class DigitalWorkFlowHandlerTest {
         
         Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfo.class)))
                 .thenReturn(DigitalAddressInfo.builder()
-                        .source(lastAttemptMade.getSource())
+                        .source(DigitalWorkFlowUtils.nextSource(lastAttemptMade.getSource()))
                         .sentAttemptMade(0)
-                        .lastAttemptDate(new Date())
+                        .lastAttemptDate(Instant.now())
                         .build());
         
         Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt()))
@@ -105,7 +103,7 @@ class DigitalWorkFlowHandlerTest {
     void nextWorkFlowAction_0_NotGeneral_WithAddress() {
         //GIVEN
         DigitalAddressInfo lastAttemptMade = DigitalAddressInfo.builder()
-                .lastAttemptDate(new Date())
+                .lastAttemptDate(Instant.now())
                 .sentAttemptMade(0)
                 .source(DigitalAddressSource.GENERAL)
                 .address(DigitalAddress.builder()
@@ -124,12 +122,12 @@ class DigitalWorkFlowHandlerTest {
                 .thenReturn(DigitalAddressInfo.builder()
                         .source(DigitalAddressSource.PLATFORM)
                         .sentAttemptMade(0)
-                        .lastAttemptDate(new Date())
+                        .lastAttemptDate(Instant.now())
                         .build())
                 .thenReturn(DigitalAddressInfo.builder()
                         .source(DigitalAddressSource.PLATFORM)
                         .sentAttemptMade(1)
-                        .lastAttemptDate(new Date())
+                        .lastAttemptDate(Instant.now())
                         .build());
 
         NotificationInt notification = getNotification();
@@ -162,7 +160,7 @@ class DigitalWorkFlowHandlerTest {
     void nextWorkFlowAction_0_NotGeneral_WithoutAddress() {
         //GIVEN
         DigitalAddressInfo lastAttemptMade = DigitalAddressInfo.builder()
-                .lastAttemptDate(new Date())
+                .lastAttemptDate(Instant.now())
                 .sentAttemptMade(0)
                 .source(DigitalAddressSource.GENERAL)
                 .address(DigitalAddress.builder()
@@ -187,12 +185,12 @@ class DigitalWorkFlowHandlerTest {
                 .thenReturn(DigitalAddressInfo.builder()
                         .source(DigitalAddressSource.PLATFORM)
                         .sentAttemptMade(0)
-                        .lastAttemptDate(new Date())
+                        .lastAttemptDate(Instant.now())
                         .build())
                 .thenReturn(DigitalAddressInfo.builder()
                         .source(DigitalAddressSource.PLATFORM)
                         .sentAttemptMade(1)
-                        .lastAttemptDate(new Date())
+                        .lastAttemptDate(Instant.now())
                         .build());
 
         NotificationInt notification = getNotification();
@@ -220,7 +218,7 @@ class DigitalWorkFlowHandlerTest {
         //GIVEN
         NotificationInt notification = getNotification();
         DigitalAddressInfo lastAttemptMade = DigitalAddressInfo.builder()
-                .lastAttemptDate(new Date())
+                .lastAttemptDate(Instant.now())
                 .sentAttemptMade(1)
                 .source(DigitalAddressSource.SPECIAL)
                 .address(DigitalAddress.builder()
@@ -245,7 +243,7 @@ class DigitalWorkFlowHandlerTest {
                 .thenReturn(DigitalAddressInfo.builder()
                         .source(DigitalAddressSource.GENERAL)
                         .sentAttemptMade(1)
-                        .lastAttemptDate(DateUtils.convertInstantToDate(lastAttemptDate))
+                        .lastAttemptDate(lastAttemptDate)
                         .build());
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
@@ -270,7 +268,7 @@ class DigitalWorkFlowHandlerTest {
         //GIVEN
         NotificationInt notification = getNotification();
         DigitalAddressInfo lastAttemptMade = DigitalAddressInfo.builder()
-                .lastAttemptDate(new Date())
+                .lastAttemptDate(Instant.now())
                 .sentAttemptMade(0)
                 .source(DigitalAddressSource.SPECIAL)
                 .address(DigitalAddress.builder()
@@ -298,7 +296,7 @@ class DigitalWorkFlowHandlerTest {
                 .thenReturn(DigitalAddressInfo.builder()
                         .source(DigitalAddressSource.GENERAL)
                         .sentAttemptMade(1)
-                        .lastAttemptDate(DateUtils.convertInstantToDate(lastAttemptDate))
+                        .lastAttemptDate(lastAttemptDate)
                         .build());
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
@@ -317,7 +315,7 @@ class DigitalWorkFlowHandlerTest {
     void nextWorkFlowAction_1_NotGeneral() {
         //GIVEN
         DigitalAddressInfo lastAttemptMade = DigitalAddressInfo.builder()
-                .lastAttemptDate(new Date())
+                .lastAttemptDate(Instant.now())
                 .sentAttemptMade(0)
                 .source(DigitalAddressSource.SPECIAL)
                 .address(DigitalAddress.builder()
@@ -345,7 +343,7 @@ class DigitalWorkFlowHandlerTest {
                 .thenReturn(DigitalAddressInfo.builder()
                         .source(addressSource)
                         .sentAttemptMade(1)
-                        .lastAttemptDate(DateUtils.convertInstantToDate(lastAttemptDate))
+                        .lastAttemptDate(lastAttemptDate)
                         .build());
         NotificationInt notification = getNotification();
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
@@ -389,7 +387,7 @@ class DigitalWorkFlowHandlerTest {
 
         PublicRegistryCallDetails details = PublicRegistryCallDetails.builder()
                 .recIndex(0)
-                .sendDate(new Date())
+                .sendDate(Instant.now())
                 .sentAttemptMade(0)
                 .build();
 
@@ -428,7 +426,7 @@ class DigitalWorkFlowHandlerTest {
                 .build();
         
         TimelineElementInternal element = TimelineElementInternal.timelineInternalBuilder()
-                .timestamp(new Date())
+                .timestamp(Instant.now())
                 .details(SendDigitalDetails.sendBuilder()
                         .addressSource(it.pagopa.pn.api.dto.notification.address.DigitalAddressSource.SPECIAL)
                         .taxId("TAXID")
@@ -443,7 +441,7 @@ class DigitalWorkFlowHandlerTest {
                 .thenReturn(DigitalAddressInfo.builder()
                         .source(DigitalAddressSource.GENERAL)
                         .sentAttemptMade(0)
-                        .lastAttemptDate(new Date())
+                        .lastAttemptDate(Instant.now())
                         .build());
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))

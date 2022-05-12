@@ -8,8 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import javax.validation.Valid;
-import java.sql.Time;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 @Getter
@@ -17,7 +16,7 @@ public class TimelineElementInternal extends TimelineElement {
     private final String iun;
 
     @Builder(builderMethodName = "timelineInternalBuilder")
-    public TimelineElementInternal(String elementId, Date timestamp, @Valid List<LegalFactsId> legalFactsIds, TimelineElementCategory category, TimelineElementDetails details, String iun) {
+    public TimelineElementInternal(String elementId, Instant timestamp, @Valid List<LegalFactsId> legalFactsIds, TimelineElementCategory category, TimelineElementDetails details, String iun) {
         super(elementId, timestamp, legalFactsIds, category, details);
         this.iun = iun;
     }

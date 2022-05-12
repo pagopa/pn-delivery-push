@@ -59,7 +59,7 @@ components:
       description: >-
         Numero recipient notifica
       name: numberOfRecipients
-      in: path
+      in: query
       required: true
       schema:
         type: integer
@@ -68,11 +68,11 @@ components:
       description: >-
         Data creazione notifica
       name: createdAt
-      in: path
+      in: query
       required: true
       schema:
         type: string
-
+    
   schemas:
 
     ############################################################################################

@@ -11,8 +11,8 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSende
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
-import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
-import it.pagopa.pn.deliverypush.pnclient.externalchannel.ExternalChannelClient;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
+import it.pagopa.pn.deliverypush.externalclient.pnclient.externalchannel.ExternalChannelGetClient;
 import it.pagopa.pn.deliverypush.service.LegalFactService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,7 +49,7 @@ class LegalFactServiceImplTest {
     private TimelineDao timelineDao;
     private FileStorage fileStorage;
     private LegalfactsMetadataUtils legalfactsUtils;
-    private ExternalChannelClient externalChannelClient;
+    private ExternalChannelGetClient externalChannelClient;
     private NotificationService notificationService;
     private NotificationUtils notificationUtils;
 
@@ -60,9 +60,9 @@ class LegalFactServiceImplTest {
         timelineDao = Mockito.mock( TimelineDao.class );
         fileStorage = Mockito.mock( FileStorage.class );
         legalfactsUtils = Mockito.mock( LegalfactsMetadataUtils.class );
-        externalChannelClient = Mockito.mock( ExternalChannelClient.class );
+        externalChannelClient = Mockito.mock( ExternalChannelGetClient.class );
         notificationService = Mockito.mock(NotificationService.class);
-        notificationUtils = new NotificationUtils();
+        notificationUtils = Mockito.mock(NotificationUtils.class);
         
         legalFactService = new LegalFactServiceImpl(
                 timelineDao,
@@ -105,6 +105,13 @@ class LegalFactServiceImplTest {
                 .thenReturn( timelineElementsResult );
         Mockito.when( notificationService.getNotificationByIun( Mockito.anyString() ) )
                 .thenReturn( newNotification() );
+
+        NotificationRecipientInt recipientInt = NotificationRecipientInt.builder()
+                .taxId(TAX_ID)
+                .build();
+        
+        Mockito.when( notificationUtils.getRecipientFromIndex( Mockito.any(NotificationInt.class), Mockito.anyInt() ) )
+                .thenReturn( recipientInt );
         
 
         List<LegalFactListElement> result = legalFactService.getLegalFacts( IUN );

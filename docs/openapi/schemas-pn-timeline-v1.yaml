@@ -74,35 +74,6 @@ components:
 
     TimelineElementDetails:
       description: The raw event payload that will be different based on the event.
-      discriminator:
-        propertyName: kind
-        mapping:
-          NotificationRequestAccepted: "#/components/schemas/NotificationRequestAccepted"
-          AnalogFailureWorkflow: "#/components/schemas/AnalogFailureWorkflow"
-          AnalogSuccessWorkflow: "#/components/schemas/AnalogSuccessWorkflow"
-          CompletelyUnreachableDetails: "#/components/schemas/CompletelyUnreachableDetails"
-          DigitalFailureWorkflow: "#/components/schemas/DigitalFailureWorkflow"
-          DigitalSuccessWorkflow: "#/components/schemas/DigitalSuccessWorkflow"
-          EndOfAnalogDeliveryWorkflowDetails: "#/components/schemas/EndOfAnalogDeliveryWorkflowDetails"
-          EndOfDigitalDeliveryWorkflowDetails: "#/components/schemas/EndOfDigitalDeliveryWorkflowDetails"
-          GetAddressInfo: "#/components/schemas/GetAddressInfo"
-          NotificationPathChooseDetails: "#/components/schemas/NotificationPathChooseDetails"
-          NotificationViewedDetails: "#/components/schemas/NotificationViewedDetails"
-          PublicRegistryCallDetails: "#/components/schemas/PublicRegistryCallDetails"
-          PublicRegistryResponseDetails: "#/components/schemas/PublicRegistryResponseDetails"
-          RefinementDetails: "#/components/schemas/RefinementDetails"
-          RequestRefusedDetails: "#/components/schemas/RequestRefusedDetails"
-          ScheduleAnalogWorkflow: "#/components/schemas/ScheduleAnalogWorkflow"
-          ScheduleDigitalWorkflow: "#/components/schemas/ScheduleDigitalWorkflow"
-          ScheduleRefinement: "#/components/schemas/ScheduleRefinement"
-          SendCourtesyMessageDetails: "#/components/schemas/SendCourtesyMessageDetails"
-          SendDigitalDetails: "#/components/schemas/SendDigitalDetails"
-          SendDigitalFailureDetails: "#/components/schemas/SendDigitalFailureDetails"
-          SendDigitalFeedback: "#/components/schemas/SendDigitalFeedback"
-          SendDigitalFeedbackDetails: "#/components/schemas/SendDigitalFeedbackDetails"
-          SendPaperDetails: "#/components/schemas/SendPaperDetails"
-          SendPaperFeedbackDetails: "#/components/schemas/SendPaperFeedbackDetails"
-          SimpleRegisteredLetterDetails: "#/components/schemas/SimpleRegisteredLetterDetails"
       oneOf:
         - "$ref": "#/components/schemas/NotificationRequestAccepted"
         - "$ref": "#/components/schemas/AnalogFailureWorkflow"
@@ -134,25 +105,19 @@ components:
     NotificationRequestAccepted:
       type: object
       properties:
-        kind:
-          type: string
-          default: "NotificationRequestAccepted"
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
 
     AnalogFailureWorkflow:
       type: object
       properties:
-        kind:
-          type: string
-          default: "AnalogFailureWorkflow"
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
     AnalogSuccessWorkflow:
       type: object
       properties:
-        kind:
-          type: string
-          default: "AnalogSuccessWorkflow"
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -161,18 +126,12 @@ components:
     DigitalFailureWorkflow:
       type: object
       properties:
-        kind:
-          type: string
-          default: "DigitalFailureWorkflow"
         recIndex: 
           type: integer
           description: Index destinatario notifica digitale
     DigitalSuccessWorkflow:
       type: object
       properties:
-        kind:
-          type: string
-          default: "DigitalSuccessWorkflow"
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -181,9 +140,6 @@ components:
     CompletelyUnreachableDetails:
       type: object
       properties:
-        kind:
-          type: string
-          default: "CompletelyUnreachableDetails"
         taxId: #TODO Da eliminare quando si passa alla v2
           type: string
           description: Codice Fiscale destinatario notifica digitale
@@ -193,27 +149,18 @@ components:
     EndOfAnalogDeliveryWorkflowDetails: #TODO Da eliminare quando si passa alla v2
       type: object
       properties:
-        kind:
-          type: string
-          default: "EndOfAnalogDeliveryWorkflowDetails"
         taxId:
           type: string
           description: Codice Fiscale destinatario notifica digitale
     EndOfDigitalDeliveryWorkflowDetails: #TODO Da eliminare quando si passa alla v2
       type: object
       properties:
-        kind:
-          type: string
-          default: "EndOfDigitalDeliveryWorkflowDetails"
         taxId:
           type: string
           description: Codice Fiscale destinatario notifica digitale
     GetAddressInfo: 
       type: object
       properties:
-        kind:
-          type: string
-          default: "GetAddressInfo"
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -231,9 +178,6 @@ components:
     NotificationPathChooseDetails: #TODO Da eliminare quando si passa alla v2
       type: object
       properties:
-        kind:
-          type: string
-          default: "NotificationPathChooseDetails"
         taxId:
           type: string
           description: Codice fiscale destinatario
@@ -255,9 +199,6 @@ components:
     NotificationViewedDetails:
       type: object
       properties:
-        kind:
-          type: string
-          default: "NotificationViewedDetails"
         taxId: #TODO Da eliminare quando si passa alla v2
           type: string
           description: Codice Fiscale destinatario notifica digitale
@@ -267,9 +208,6 @@ components:
     PublicRegistryCallDetails:
       type: object
       properties:
-        kind:
-          type: string
-          default: "PublicRegistryCallDetails"
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -288,9 +226,6 @@ components:
     PublicRegistryResponseDetails:
       type: object
       properties:
-        kind:
-          type: string
-          default: "PublicRegistryResponseDetails"
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -301,9 +236,6 @@ components:
     RefinementDetails:
       type: object
       properties:
-        kind:
-          type: string
-          default: "RefinementDetails"
         taxId: #TODO Da eliminare quando si passa alla v2
           type: string
           description: Codice Fiscale destinatario notifica digitale
@@ -313,9 +245,6 @@ components:
     RequestRefusedDetails:
       type: object
       properties:
-        kind:
-          type: string
-          default: "RequestRefusedDetails"
         errors:
           type: array
           description: Motivazioni che hanno portato al rifiuto della notifica
@@ -325,18 +254,12 @@ components:
     ScheduleAnalogWorkflow:
       type: object
       properties:
-        kind:
-          type: string
-          default: "ScheduleAnalogWorkflow"
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
     ScheduleDigitalWorkflow:
       type: object
       properties:
-        kind:
-          type: string
-          default: "ScheduleDigitalWorkflow"
         recIndex:
           type: integer
           description: Informazioni ultimo tentativo effettuato
@@ -345,18 +268,12 @@ components:
     ScheduleRefinement:
       type: object
       properties:
-        kind:
-          type: string
-          default: "ScheduleRefinement"
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
     SendCourtesyMessageDetails:
       type: object
       properties:
-        kind:
-          type: string
-          default: "SendCourtesyMessageDetails"
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -369,9 +286,6 @@ components:
     SendDigitalDetails:
       type: object
       properties:
-        kind:
-          type: string
-          default: "SendDigitalDetails"
         taxId: #TODO Da eliminare quando si passa alla v2
           type: string
           description: Codice Fiscale destinatario notifica digitale
@@ -391,18 +305,12 @@ components:
     SendDigitalFailureDetails: #TODO Da eliminare quando si passa alla v2
       type: object
       properties:
-        kind:
-          type: string
-          default: "SendDigitalFailureDetails"
         taxId:
           type: string
           description: Codice Fiscale destinatario notifica digitale
     SendDigitalFeedback:
       type: object
       properties:
-        kind:
-          type: string
-          default: "SendDigitalFeedback"
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -423,9 +331,6 @@ components:
     SendDigitalFeedbackDetails: #TODO Da eliminare quando si passa alla v2
       type: object
       properties:
-        kind:
-          type: string
-          default: "SendDigitalFeedbackDetails"
         taxId:
           type: string
           description: Codice Fiscale destinatario notifica digitale
@@ -448,9 +353,6 @@ components:
     SendPaperDetails:
       type: object
       properties:
-        kind:
-          type: string
-          default: "SendPaperDetails"
         taxId: #TODO Da eliminare quando si passa alla v2
           type: string
           description: Codice Fiscale destinatario notifica digitale
@@ -471,9 +373,6 @@ components:
     SendPaperFeedbackDetails:
       type: object
       properties:
-        kind:
-          type: string
-          default: "SendPaperFeedbackDetails"
         taxId: #TODO Da eliminare quando si passa alla v2
           type: string
           description: Codice Fiscale destinatario notifica digitale
@@ -502,9 +401,6 @@ components:
     SimpleRegisteredLetterDetails:
       type: object
       properties:
-        kind:
-          type: string
-          default: "SimpleRegisteredLetterDetails"
         recIndex:
           type: integer
           description: Index destinatario notifica digitale

@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.action2.utils;
 
-import it.pagopa.pn.commons.utils.DateUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
@@ -41,7 +40,7 @@ public class TimelineUtils {
         return TimelineElementInternal.timelineInternalBuilder()
                 .iun(iun)
                 .category(category)
-                .timestamp(DateUtils.convertInstantToDate(instantNowSupplier.get()))
+                .timestamp(instantNowSupplier.get())
                 .elementId(elementId)
                 .details(details)
                 .legalFactsIds( legalFactsListEntryIds )
@@ -106,7 +105,7 @@ public class TimelineUtils {
                 .recIndex(recIndex)
                 .source(source)
                 .isAvailable(isAvailable)
-                .attemptDate(DateUtils.convertInstantToDate(instantNowSupplier.get()))
+                .attemptDate(instantNowSupplier.get())
                 .build();
         
         return buildTimeline(iun, TimelineElementCategory.GET_ADDRESS, elementId, getGenericDetails(details));
@@ -129,7 +128,7 @@ public class TimelineUtils {
                 .address(sendDigitalDetails.getAddress())
                 .responseStatus(response.getResponseStatus())
                 .recIndex(sendDigitalDetails.getRecIndex())
-                .notificationDate(DateUtils.convertInstantToDate(instantNowSupplier.get()))
+                .notificationDate(instantNowSupplier.get())
                 .build();
 
         return buildTimeline(response.getIun(), TimelineElementCategory.SEND_DIGITAL_FEEDBACK, elementId, getGenericDetails(details));
@@ -141,7 +140,7 @@ public class TimelineUtils {
         SendCourtesyMessageDetails details = SendCourtesyMessageDetails.builder()
                 .recIndex(recIndex)
                 .address(address)
-                .sendDate(DateUtils.convertInstantToDate(sendDate))
+                .sendDate(sendDate)
                 .build();
 
         return buildTimeline(iun, TimelineElementCategory.SEND_COURTESY_MESSAGE, eventId, getGenericDetails(details));
@@ -284,7 +283,7 @@ public class TimelineUtils {
                 .contactPhase(contactPhase)
                 .sentAttemptMade(sentAttemptMade)
                 .deliveryMode(deliveryMode)
-                .sendDate(DateUtils.convertInstantToDate(instantNowSupplier.get()))
+                .sendDate(instantNowSupplier.get())
                 .build();
 
         return buildTimeline(iun, TimelineElementCategory.PUBLIC_REGISTRY_CALL, eventId, getGenericDetails(details));

@@ -7,12 +7,10 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPayme
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
-import it.pagopa.pn.deliverypush.pnclient.delivery.PnDeliveryClient;
+import it.pagopa.pn.deliverypush.externalclient.pnclient.delivery.PnDeliveryClient;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
 
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -31,9 +29,7 @@ public class PnDeliveryClientMock implements PnDeliveryClient {
         
         sentNotification.setIun(notification.getIun());
         sentNotification.setPaProtocolNumber(notification.getPaNotificationId());
-        sentNotification.setSentAt(OffsetDateTime.ofInstant(
-                notification.getSentAt(),
-                ZoneId.systemDefault()));
+        sentNotification.setSentAt(notification.getSentAt());
 
         List<NotificationRecipient> recipients = notification.getRecipients().stream()
                 .map(this::getNotificationRecipient).collect(Collectors.toList());

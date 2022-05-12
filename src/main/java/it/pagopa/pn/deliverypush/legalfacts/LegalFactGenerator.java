@@ -166,7 +166,7 @@ public class LegalFactGenerator {
                 .map( feedbackFromExtChannel -> {
 
                     ResponseStatus status = feedbackFromExtChannel.getResponseStatus();
-                    Instant notificationDate = feedbackFromExtChannel.getNotificationDate().toInstant();
+                    Instant notificationDate = feedbackFromExtChannel.getNotificationDate();
 
                     return new PecDeliveryInfo(
                             recipient.getDenomination(),

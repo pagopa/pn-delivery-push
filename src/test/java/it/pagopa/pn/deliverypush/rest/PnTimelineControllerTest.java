@@ -14,8 +14,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import java.time.Instant;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -33,7 +33,7 @@ class PnTimelineControllerTest {
     @Test
     void getTimelineSuccess() {
         List<TimelineElement> timelineElements = Collections.singletonList(TimelineElement.builder()
-                .timestamp( new Date() )
+                .timestamp( Instant.now() )
                 .elementId( "element_id" )
                 .category( TimelineElementCategory.REQUEST_ACCEPTED)
                 .details(TimelineElementDetails.builder().build())
@@ -45,11 +45,18 @@ class PnTimelineControllerTest {
 
         Mockito.when(service.getTimelineAndStatusHistory(Mockito.anyString(), Mockito.anyInt(), Mockito.any()))
         .thenReturn( dto );
-        String createdAt = "2022-05-05T15%3A02%3A21.013Z";
+        String createdAt = "2022-05-12T12:34:28.385Z";
         int numberOfRecipients = 1;
         
+
         webTestClient.get()
-                .uri("/delivery-push/timeline-and-history/" + IUN + "/" + numberOfRecipients + "/"+ createdAt )
+                .uri(
+                        uriBuilder ->
+                                uriBuilder
+                                        .path( "/delivery-push-private/" + IUN + "/history" )
+                                        .queryParam("createdAt", createdAt)
+                                        .queryParam("numberOfRecipients", numberOfRecipients).build()
+                )
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .exchange()

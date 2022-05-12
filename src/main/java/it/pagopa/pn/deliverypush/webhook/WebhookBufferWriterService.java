@@ -2,12 +2,11 @@ package it.pagopa.pn.deliverypush.webhook;
 
 import it.pagopa.pn.api.dto.webhook.WebhookConfigDto;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.utils.DateUtils;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.ActionEvent;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElement;
-import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.temp.mom.consumer.AbstractEventHandler;
 import it.pagopa.pn.deliverypush.util.StatusUtils;
@@ -70,7 +69,7 @@ public class WebhookBufferWriterService extends AbstractEventHandler<ActionEvent
         timelineDao.getTimelineElement(notification.getIun(), evt.getPayload().getActionId()).ifPresent(timelineElement -> {
             String notificationElement = timelineElement.getCategory().toString();
             if (checkWriteNotification(webhookConfigDto, notificationElement)) {
-                writeNewNotificationElement(notification, DateUtils.convertDateToInstant(timelineElement.getTimestamp()), notificationElement);
+                writeNewNotificationElement(notification, timelineElement.getTimestamp(), notificationElement);
             }
         });
     }
@@ -89,7 +88,7 @@ public class WebhookBufferWriterService extends AbstractEventHandler<ActionEvent
             NotificationStatusHistoryElement statusHistoryElement = statusHistory.get(statusHistoryLength - 1);
             String notificationElement = statusHistoryElement.getStatus().toString();
             if (checkWriteNotification(webhookConfigDto, notificationElement)) {
-                writeNewNotificationElement(notification, DateUtils.convertDateToInstant(statusHistoryElement.getActiveFrom()), notificationElement);
+                writeNewNotificationElement(notification, statusHistoryElement.getActiveFrom(), notificationElement);
             }
         }
     }

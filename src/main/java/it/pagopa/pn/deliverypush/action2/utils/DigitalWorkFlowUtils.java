@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.action2.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.utils.DateUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
@@ -9,8 +8,8 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.external.AddressBook;
-import it.pagopa.pn.deliverypush.external.AddressBookEntry;
+import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBook;
+import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBookEntry;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
@@ -68,7 +67,7 @@ public class DigitalWorkFlowUtils {
         return DigitalAddressInfo.builder()
                 .source(nextAddressSource)
                 .sentAttemptMade(nextSourceAttemptsMade)
-                .lastAttemptDate(DateUtils.convertInstantToDate(lastAttemptMadeForSource))
+                .lastAttemptDate(lastAttemptMadeForSource)
                 .build();
 
     }
@@ -85,7 +84,7 @@ public class DigitalWorkFlowUtils {
 
         if (lastAddressAttemptOpt.isPresent()) {
             log.debug("Get getLastAddressAttempt OK - id {}", recIndex);
-            return DateUtils.convertDateToInstant(lastAddressAttemptOpt.get().getAttemptDate());
+            return lastAddressAttemptOpt.get().getAttemptDate();
         } else {
             log.error("Last address attempt not found - id {}", recIndex);
             throw new PnInternalException("Last address attempt not found - id" + recIndex);
@@ -182,7 +181,7 @@ public class DigitalWorkFlowUtils {
         timelineService.addTimelineElement(element);
     }
 
-    public DigitalAddressSource nextSource(DigitalAddressSource source) {
+    public static DigitalAddressSource nextSource(DigitalAddressSource source) {
         switch (source) {
             case PLATFORM:
                 return DigitalAddressSource.SPECIAL;

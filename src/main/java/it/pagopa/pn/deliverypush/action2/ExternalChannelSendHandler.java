@@ -5,7 +5,7 @@ import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
 import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
 import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.external.ExternalChannel;
+import it.pagopa.pn.deliverypush.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
@@ -16,9 +16,9 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class ExternalChannelSendHandler {
     private final ExternalChannelUtils externalChannelUtils;
-    private final ExternalChannel externalChannel;
+    private final ExternalChannelSendClient externalChannel;
 
-    public ExternalChannelSendHandler(ExternalChannelUtils externalChannelUtils, ExternalChannel externalChannel) {
+    public ExternalChannelSendHandler(ExternalChannelUtils externalChannelUtils, ExternalChannelSendClient externalChannel) {
         this.externalChannelUtils = externalChannelUtils;
         this.externalChannel = externalChannel;
     }

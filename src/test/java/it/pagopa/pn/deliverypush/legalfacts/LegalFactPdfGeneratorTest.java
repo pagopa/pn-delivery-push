@@ -80,7 +80,7 @@ class LegalFactPdfGeneratorTest {
 						.address("indirizzo di prova test")
 						.build())
 				.responseStatus(ResponseStatus.OK)
-				.notificationDate( new Date())
+				.notificationDate( Instant.now() )
 				.build();
 	
 		
