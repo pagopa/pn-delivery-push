@@ -1,9 +1,7 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
-import it.pagopa.pn.api.dto.extchannel.ExtChannelResponseStatus;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationRecipient;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -176,7 +174,7 @@ public class LegalFactGenerator {
                             feedbackFromExtChannel.getAddress().getAddress(),
                             notificationDate,
                             instantWriter.instantToDate(notificationDate),
-                            ExtChannelResponseStatus.OK.equals( status )
+                            ResponseStatus.OK.equals( status )
                     );
                 })
                 .sorted( Comparator.comparing( PecDeliveryInfo::getOrderBy ))

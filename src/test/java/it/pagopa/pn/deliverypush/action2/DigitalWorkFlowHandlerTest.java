@@ -72,12 +72,6 @@ class DigitalWorkFlowHandlerTest {
                         .address("test@mail.it")
                         .type(DigitalAddress.TypeEnum.PEC).build())
                 .build();
-
-        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt()))
-                .thenReturn(ScheduleDigitalWorkflow.builder()
-                        .recIndex(0)
-                        .lastAttemptInfo(lastAttemptMade)
-                        .build());
         
         Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfo.class)))
                 .thenReturn(DigitalAddressInfo.builder()
@@ -85,7 +79,14 @@ class DigitalWorkFlowHandlerTest {
                         .sentAttemptMade(0)
                         .lastAttemptDate(new Date())
                         .build());
-
+        
+        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt()))
+                .thenReturn(ScheduleDigitalWorkflow.builder()
+                        .recIndex(0)
+                        .lastAttemptInfo(lastAttemptMade)
+                        .build());
+        
+        
         NotificationInt notification = getNotification();
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))

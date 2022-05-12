@@ -1,19 +1,7 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.Instant;
-import java.util.*;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationAttachmentBodyRef;
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationAttachmentDigests;
+import freemarker.template.Configuration;
+import freemarker.template.Version;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -24,11 +12,14 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseStatus;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendDigitalFeedback;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
-import freemarker.template.Configuration;
-import freemarker.template.Version;
-import it.pagopa.pn.api.dto.extchannel.ExtChannelResponseStatus;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Instant;
+import java.util.*;
 
 class LegalFactPdfGeneratorTest {
 	private static final String TEST_DIR_NAME = "target" + File.separator + "generated-test-PDF";
