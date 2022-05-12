@@ -77,6 +77,7 @@ components:
       discriminator:
         propertyName: kind
         mapping:
+          NotificationRequestAccepted: "#/components/schemas/NotificationRequestAccepted"
           AnalogFailureWorkflow: "#/components/schemas/AnalogFailureWorkflow"
           AnalogSuccessWorkflow: "#/components/schemas/AnalogSuccessWorkflow"
           CompletelyUnreachableDetails: "#/components/schemas/CompletelyUnreachableDetails"
@@ -103,6 +104,7 @@ components:
           SendPaperFeedbackDetails: "#/components/schemas/SendPaperFeedbackDetails"
           SimpleRegisteredLetterDetails: "#/components/schemas/SimpleRegisteredLetterDetails"
       oneOf:
+        - "$ref": "#/components/schemas/NotificationRequestAccepted"
         - "$ref": "#/components/schemas/AnalogFailureWorkflow"
         - "$ref": "#/components/schemas/AnalogSuccessWorkflow"
         - "$ref": "#/components/schemas/CompletelyUnreachableDetails"
@@ -128,7 +130,14 @@ components:
         - "$ref": "#/components/schemas/SendPaperDetails"
         - "$ref": "#/components/schemas/SendPaperFeedbackDetails"
         - "$ref": "#/components/schemas/SimpleRegisteredLetterDetails"
-          
+
+    NotificationRequestAccepted:
+      type: object
+      properties:
+        kind:
+          type: string
+          default: "NotificationRequestAccepted"
+
     AnalogFailureWorkflow:
       type: object
       properties:

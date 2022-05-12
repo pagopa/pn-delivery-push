@@ -80,25 +80,13 @@ public class TimelineUtils {
                         .iun(notification.getIun())
                         .build());
         
-        //TODO Da valorizzare correttamente ReceivedDetails
-        /*                
-        
         return buildTimeline(
                 notification.getIun(),
                 TimelineElementCategory.REQUEST_ACCEPTED,
                 elementId,
-                ReceivedDetails.builder()
-                        .recipients(notification.getRecipients())
-                        .documentsDigests(notification.getDocuments()
-                                .stream()
-                                .map(NotificationDocumentInt::getDigests)
-                                .collect(Collectors.toList())
-                        )
-                        .build(),,
+                getGenericDetails( NotificationRequestAccepted.builder().build() ),
                 singleLegalFactId( legalFactId, LegalFactCategory.SENDER_ACK )
-            );*/
-        
-        return null;
+            );
     }
 
     public TimelineElementInternal buildAvailabilitySourceTimelineElement(Integer recIndex, String iun, DigitalAddressSource source, boolean isAvailable,
