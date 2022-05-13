@@ -199,7 +199,7 @@ public class ExternalChannelUtils {
                         )
                         .recipientDenomination(recipient.getDenomination())
                         .communicationType(communicationType)
-                        .serviceLevel(it.pagopa.pn.api.dto.events.ServiceLevelType.valueOf(serviceLevelType.name()))
+                        .serviceLevel(serviceLevelType != null ? it.pagopa.pn.api.dto.events.ServiceLevelType.valueOf(serviceLevelType.name()) : null)
                         .senderDenomination(notification.getSender().getPaId())
                         .investigation(investigation)
                         .accessUrl(accessUrl)

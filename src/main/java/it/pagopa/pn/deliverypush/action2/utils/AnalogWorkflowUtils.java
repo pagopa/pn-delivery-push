@@ -6,11 +6,9 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendPaperDetails;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.TimelineService;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendPaperFeedbackDetails;
+import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -39,11 +37,8 @@ public class AnalogWorkflowUtils {
 
         Optional<SendPaperFeedbackDetails> sendPaperFeedbackDetailsOpt = timeline.stream()
                 .filter(timelineElement -> filterLastAttemptDateInTimeline(timelineElement, recIndex))
-                .map(timelineElement -> {
-                    SendPaperFeedbackDetails sendPaperFeedbackDetails = new SendPaperFeedbackDetails();
-                    timelineUtils.getSpecificDetails(timelineElement.getDetails(), sendPaperFeedbackDetails);
-                    return sendPaperFeedbackDetails;
-                }).findFirst();
+                .map(timelineElement -> SmartMapper.mapToClass(timelineElement.getDetails(), SendPaperFeedbackDetails.class))
+                .findFirst();
 
         if (sendPaperFeedbackDetailsOpt.isPresent()) {
             return sendPaperFeedbackDetailsOpt.get();
@@ -56,8 +51,7 @@ public class AnalogWorkflowUtils {
     private boolean filterLastAttemptDateInTimeline(TimelineElementInternal el, Integer recIndex) {
         boolean availableAddressCategory = TimelineElementCategory.SEND_PAPER_FEEDBACK.equals(el.getCategory());
         if (availableAddressCategory) {
-            SendPaperFeedbackDetails details = new SendPaperFeedbackDetails(); 
-            timelineUtils.getSpecificDetails(el.getDetails(), details );
+            SendPaperFeedbackDetails details = SmartMapper.mapToClass(el.getDetails(), SendPaperFeedbackDetails.class);
             return recIndex.equals(details.getRecIndex());
         }
         return false;

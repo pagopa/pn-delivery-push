@@ -4,12 +4,10 @@ import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import it.pagopa.pn.deliverypush.util.StatusUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -52,7 +50,13 @@ public class TimeLineServiceImpl implements TimelineService {
         log.debug("GetTimelineElement - IUN {} and timelineId {}", iun, timelineId);
 
         Optional<TimelineElementInternal> row = this.timelineDao.getTimelineElement(iun, timelineId);
-        return row.map(el -> timelineDetailsClass.cast(el.getDetails()));
+        
+        if(row.isPresent()){
+            T details = SmartMapper.mapToClass(row.get().getDetails(), timelineDetailsClass);
+            return Optional.of(details);
+        }
+        
+        return Optional.empty();
     }
 
     @Override

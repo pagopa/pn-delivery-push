@@ -712,7 +712,6 @@ class DigitalTestIT {
                 .type(DigitalAddress.TypeEnum.PEC)
                 .build();
 
-
         DigitalAddress digitalDomicile = DigitalAddress.builder()
                 .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
                 .type(DigitalAddress.TypeEnum.PEC)

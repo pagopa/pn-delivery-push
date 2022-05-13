@@ -4,10 +4,8 @@ import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseStatus;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendDigitalDetails;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,16 +42,18 @@ class ExternalChannelHandlerTest {
 
         SendDigitalDetails details = SendDigitalDetails.builder()
                 .recIndex(0)
-                .address(
+                .digitalAddress(
                         DigitalAddress.builder()
                                 .address("TEST")
                                 .type(DigitalAddress.TypeEnum.PEC).build())
                 .build();
-        
+
+        TimelineElementDetails genericDetails = SmartMapper.mapToClass(details, TimelineElementDetails.class);
+
         Mockito.when(externalChannelUtils.getExternalChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(TimelineElementInternal.timelineInternalBuilder()
                         .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE)
-                        .details(TimelineUtils.getGenericDetails(details))
+                        .details(genericDetails)
                         .build());
 
         handler.extChannelResponseReceiver(extChannelResponse);

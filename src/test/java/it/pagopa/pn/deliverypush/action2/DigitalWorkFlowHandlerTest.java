@@ -65,15 +65,15 @@ class DigitalWorkFlowHandlerTest {
         DigitalAddressInfo lastAttemptMade = DigitalAddressInfo.builder()
                 .lastAttemptDate(Instant.now())
                 .sentAttemptMade(0)
-                .source(DigitalAddressSource.SPECIAL)
-                .address(DigitalAddress.builder()
+                .digitalAddressSource(DigitalAddressSource.SPECIAL)
+                .digitalAddress(DigitalAddress.builder()
                         .address("test@mail.it")
                         .type(DigitalAddress.TypeEnum.PEC).build())
                 .build();
         
         Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfo.class)))
                 .thenReturn(DigitalAddressInfo.builder()
-                        .source(DigitalWorkFlowUtils.nextSource(lastAttemptMade.getSource()))
+                        .digitalAddressSource(DigitalWorkFlowUtils.nextSource(lastAttemptMade.getDigitalAddressSource()))
                         .sentAttemptMade(0)
                         .lastAttemptDate(Instant.now())
                         .build());
@@ -105,8 +105,8 @@ class DigitalWorkFlowHandlerTest {
         DigitalAddressInfo lastAttemptMade = DigitalAddressInfo.builder()
                 .lastAttemptDate(Instant.now())
                 .sentAttemptMade(0)
-                .source(DigitalAddressSource.GENERAL)
-                .address(DigitalAddress.builder()
+                .digitalAddressSource(DigitalAddressSource.GENERAL)
+                .digitalAddress(DigitalAddress.builder()
                         .address("test@mail.it")
                         .type(DigitalAddress.TypeEnum.PEC).build())
                 .build();
@@ -120,12 +120,12 @@ class DigitalWorkFlowHandlerTest {
                 
         Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfo.class)))
                 .thenReturn(DigitalAddressInfo.builder()
-                        .source(DigitalAddressSource.PLATFORM)
+                        .digitalAddressSource(DigitalAddressSource.PLATFORM)
                         .sentAttemptMade(0)
                         .lastAttemptDate(Instant.now())
                         .build())
                 .thenReturn(DigitalAddressInfo.builder()
-                        .source(DigitalAddressSource.PLATFORM)
+                        .digitalAddressSource(DigitalAddressSource.PLATFORM)
                         .sentAttemptMade(1)
                         .lastAttemptDate(Instant.now())
                         .build());
@@ -162,8 +162,8 @@ class DigitalWorkFlowHandlerTest {
         DigitalAddressInfo lastAttemptMade = DigitalAddressInfo.builder()
                 .lastAttemptDate(Instant.now())
                 .sentAttemptMade(0)
-                .source(DigitalAddressSource.GENERAL)
-                .address(DigitalAddress.builder()
+                .digitalAddressSource(DigitalAddressSource.GENERAL)
+                .digitalAddress(DigitalAddress.builder()
                         .address("test@mail.it")
                         .type(DigitalAddress.TypeEnum.PEC).build())
                 .build();
@@ -183,12 +183,12 @@ class DigitalWorkFlowHandlerTest {
 
         Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfo.class)))
                 .thenReturn(DigitalAddressInfo.builder()
-                        .source(DigitalAddressSource.PLATFORM)
+                        .digitalAddressSource(DigitalAddressSource.PLATFORM)
                         .sentAttemptMade(0)
                         .lastAttemptDate(Instant.now())
                         .build())
                 .thenReturn(DigitalAddressInfo.builder()
-                        .source(DigitalAddressSource.PLATFORM)
+                        .digitalAddressSource(DigitalAddressSource.PLATFORM)
                         .sentAttemptMade(1)
                         .lastAttemptDate(Instant.now())
                         .build());
@@ -220,8 +220,8 @@ class DigitalWorkFlowHandlerTest {
         DigitalAddressInfo lastAttemptMade = DigitalAddressInfo.builder()
                 .lastAttemptDate(Instant.now())
                 .sentAttemptMade(1)
-                .source(DigitalAddressSource.SPECIAL)
-                .address(DigitalAddress.builder()
+                .digitalAddressSource(DigitalAddressSource.SPECIAL)
+                .digitalAddress(DigitalAddress.builder()
                         .address("test@mail.it")
                         .type(DigitalAddress.TypeEnum.PEC).build())
                 .build();
@@ -241,7 +241,7 @@ class DigitalWorkFlowHandlerTest {
 
         Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfo.class)))
                 .thenReturn(DigitalAddressInfo.builder()
-                        .source(DigitalAddressSource.GENERAL)
+                        .digitalAddressSource(DigitalAddressSource.GENERAL)
                         .sentAttemptMade(1)
                         .lastAttemptDate(lastAttemptDate)
                         .build());
@@ -270,8 +270,8 @@ class DigitalWorkFlowHandlerTest {
         DigitalAddressInfo lastAttemptMade = DigitalAddressInfo.builder()
                 .lastAttemptDate(Instant.now())
                 .sentAttemptMade(0)
-                .source(DigitalAddressSource.SPECIAL)
-                .address(DigitalAddress.builder()
+                .digitalAddressSource(DigitalAddressSource.SPECIAL)
+                .digitalAddress(DigitalAddress.builder()
                         .address("test@mail.it")
                         .type(DigitalAddress.TypeEnum.PEC).build())
                 .build();
@@ -294,7 +294,7 @@ class DigitalWorkFlowHandlerTest {
 
         Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfo.class)))
                 .thenReturn(DigitalAddressInfo.builder()
-                        .source(DigitalAddressSource.GENERAL)
+                        .digitalAddressSource(DigitalAddressSource.GENERAL)
                         .sentAttemptMade(1)
                         .lastAttemptDate(lastAttemptDate)
                         .build());
@@ -317,8 +317,8 @@ class DigitalWorkFlowHandlerTest {
         DigitalAddressInfo lastAttemptMade = DigitalAddressInfo.builder()
                 .lastAttemptDate(Instant.now())
                 .sentAttemptMade(0)
-                .source(DigitalAddressSource.SPECIAL)
-                .address(DigitalAddress.builder()
+                .digitalAddressSource(DigitalAddressSource.SPECIAL)
+                .digitalAddress(DigitalAddress.builder()
                         .address("test@mail.it")
                         .type(DigitalAddress.TypeEnum.PEC).build())
                 .build();
@@ -341,7 +341,7 @@ class DigitalWorkFlowHandlerTest {
 
         Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfo.class)))
                 .thenReturn(DigitalAddressInfo.builder()
-                        .source(addressSource)
+                        .digitalAddressSource(addressSource)
                         .sentAttemptMade(1)
                         .lastAttemptDate(lastAttemptDate)
                         .build());

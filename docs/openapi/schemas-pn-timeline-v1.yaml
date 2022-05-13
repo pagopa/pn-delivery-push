@@ -9,7 +9,6 @@ components:
       enum:
         - REQUEST_ACCEPTED
         - SEND_COURTESY_MESSAGE
-        - NOTIFICATION_PATH_CHOOSE
         - GET_ADDRESS
         - PUBLIC_REGISTRY_CALL
         - PUBLIC_REGISTRY_RESPONSE
@@ -18,7 +17,6 @@ components:
         - SEND_DIGITAL_DOMICILE
         - SEND_DIGITAL_DOMICILE_FEEDBACK
         - SEND_DIGITAL_FEEDBACK
-        - SEND_DIGITAL_DOMICILE_FAILURE
         - REFINEMENT
         - SCHEDULE_REFINEMENT
         - DIGITAL_SUCCESS_WORKFLOW
@@ -26,8 +24,6 @@ components:
         - ANALOG_SUCCESS_WORKFLOW
         - ANALOG_FAILURE_WORKFLOW
         - SEND_SIMPLE_REGISTERED_LETTER
-        - END_OF_DIGITAL_DELIVERY_WORKFLOW
-        - END_OF_ANALOG_DELIVERY_WORKFLOW
         - NOTIFICATION_VIEWED
         - SEND_ANALOG_DOMICILE
         - SEND_PAPER_FEEDBACK
@@ -81,10 +77,7 @@ components:
         - "$ref": "#/components/schemas/CompletelyUnreachableDetails"
         - "$ref": "#/components/schemas/DigitalFailureWorkflow"
         - "$ref": "#/components/schemas/DigitalSuccessWorkflow"
-        - "$ref": "#/components/schemas/EndOfAnalogDeliveryWorkflowDetails"
-        - "$ref": "#/components/schemas/EndOfDigitalDeliveryWorkflowDetails"
         - "$ref": "#/components/schemas/GetAddressInfo"
-        - "$ref": "#/components/schemas/NotificationPathChooseDetails"
         - "$ref": "#/components/schemas/NotificationViewedDetails"
         - "$ref": "#/components/schemas/PublicRegistryCallDetails"
         - "$ref": "#/components/schemas/PublicRegistryResponseDetails"
@@ -95,9 +88,7 @@ components:
         - "$ref": "#/components/schemas/ScheduleRefinement"
         - "$ref": "#/components/schemas/SendCourtesyMessageDetails"
         - "$ref": "#/components/schemas/SendDigitalDetails"
-        - "$ref": "#/components/schemas/SendDigitalFailureDetails"
         - "$ref": "#/components/schemas/SendDigitalFeedback"
-        - "$ref": "#/components/schemas/SendDigitalFeedbackDetails"
         - "$ref": "#/components/schemas/SendPaperDetails"
         - "$ref": "#/components/schemas/SendPaperFeedbackDetails"
         - "$ref": "#/components/schemas/SimpleRegisteredLetterDetails"
@@ -108,63 +99,53 @@ components:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
-
+          
     AnalogFailureWorkflow:
       type: object
       properties:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+          
     AnalogSuccessWorkflow:
       type: object
       properties:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
-        address:
+        physicalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
+          
     DigitalFailureWorkflow:
       type: object
       properties:
         recIndex: 
           type: integer
           description: Index destinatario notifica digitale
+          
     DigitalSuccessWorkflow:
       type: object
       properties:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
-        address:
+        digitalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+          
     CompletelyUnreachableDetails:
       type: object
       properties:
-        taxId: #TODO Da eliminare quando si passa alla v2
-          type: string
-          description: Codice Fiscale destinatario notifica digitale
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
-    EndOfAnalogDeliveryWorkflowDetails: #TODO Da eliminare quando si passa alla v2
-      type: object
-      properties:
-        taxId:
-          type: string
-          description: Codice Fiscale destinatario notifica digitale
-    EndOfDigitalDeliveryWorkflowDetails: #TODO Da eliminare quando si passa alla v2
-      type: object
-      properties:
-        taxId:
-          type: string
-          description: Codice Fiscale destinatario notifica digitale
+          
     GetAddressInfo: 
       type: object
       properties:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
-        source:
+        digitalAddressSource:
           $ref: '#/components/schemas/DigitalAddressSource'
         isAvailable:
           type: boolean
@@ -173,38 +154,14 @@ components:
           type: string
           description: Data tentativo
           format: date-time
-        available:
-          type: boolean
-    NotificationPathChooseDetails: #TODO Da eliminare quando si passa alla v2
-      type: object
-      properties:
-        taxId:
-          type: string
-          description: Codice fiscale destinatario
-        deliveryMode:
-          $ref: '#/components/schemas/DeliveryMode'
-        physicalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
-        platform:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
-        special:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
-        general:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
-        courtesyAddresses:
-          type: array
-          description: Elenco recapiti digitali del destinatario
-          items:
-            $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+
     NotificationViewedDetails:
       type: object
       properties:
-        taxId: #TODO Da eliminare quando si passa alla v2
-          type: string
-          description: Codice Fiscale destinatario notifica digitale
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+          
     PublicRegistryCallDetails:
       type: object
       properties:
@@ -218,11 +175,11 @@ components:
         sentAttemptMade:
           type: integer
           description: Numero di tentativi di notificazione già effettuati
-          format: int32
         sendDate:
           type: string
           description: Data invio richiesta ai public registry
           format: date-time
+          
     PublicRegistryResponseDetails:
       type: object
       properties:
@@ -233,15 +190,14 @@ components:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
         physicalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
+          
     RefinementDetails:
       type: object
       properties:
-        taxId: #TODO Da eliminare quando si passa alla v2
-          type: string
-          description: Codice Fiscale destinatario notifica digitale
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+          
     RequestRefusedDetails:
       type: object
       properties:
@@ -251,12 +207,14 @@ components:
           items:
             type: string
             description: Motivazioni che hanno portato al rifiuto della notifica
+            
     ScheduleAnalogWorkflow:
       type: object
       properties:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+          
     ScheduleDigitalWorkflow:
       type: object
       properties:
@@ -265,36 +223,36 @@ components:
           description: Informazioni ultimo tentativo effettuato
         lastAttemptInfo:
           $ref: '#/components/schemas/DigitalAddressInfo'
+          
     ScheduleRefinement:
       type: object
       properties:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+          
     SendCourtesyMessageDetails:
       type: object
       properties:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
-        address:
+        digitalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
         sendDate:
           type: string
           description: data invio messaggio di cortesia
           format: date-time
+          
     SendDigitalDetails:
       type: object
       properties:
-        taxId: #TODO Da eliminare quando si passa alla v2
-          type: string
-          description: Codice Fiscale destinatario notifica digitale
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
-        address:
+        digitalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
-        addressSource:
+        digitalAddressSource:
           $ref: '#/components/schemas/DigitalAddressSource'
         retryNumber:
           type: integer
@@ -302,19 +260,14 @@ components:
           format: int32
         downstreamId:
           "$ref": "#/components/schemas/DownstreamId"
-    SendDigitalFailureDetails: #TODO Da eliminare quando si passa alla v2
-      type: object
-      properties:
-        taxId:
-          type: string
-          description: Codice Fiscale destinatario notifica digitale
+          
     SendDigitalFeedback:
       type: object
       properties:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
-        address:
+        digitalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
         responseStatus:
           $ref: '#/components/schemas/ResponseStatus'
@@ -328,65 +281,37 @@ components:
           items:
             type: string
             description: Lista errori, vuota in caso di successo
-    SendDigitalFeedbackDetails: #TODO Da eliminare quando si passa alla v2
-      type: object
-      properties:
-        taxId:
-          type: string
-          description: Codice Fiscale destinatario notifica digitale
-        address:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
-        addressSource:
-          $ref: '#/components/schemas/DigitalAddressSource'
-        retryNumber:
-          type: integer
-          description: numero dei tentativi effettuati
-          format: int32
-        downstreamId:
-          "$ref": "#/components/schemas/DownstreamId"
-        errors:
-          type: array
-          description: Lista errori, vuota in caso di successo
-          items:
-            type: string
-            description: Lista errori, vuota in caso di successo
+            
     SendPaperDetails:
       type: object
       properties:
-        taxId: #TODO Da eliminare quando si passa alla v2
-          type: string
-          description: Codice Fiscale destinatario notifica digitale
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
-        address:
+        physicalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
         serviceLevel:
           "$ref": "#/components/schemas/ServiceLevel"
         sentAttemptMade:
           type: integer
           description: numero dei tentativi effettuati
-          format: int32
         investigation:
           type: boolean
           description: E' richiesta investigazione indirizzo fisico alternativo
+          
     SendPaperFeedbackDetails:
       type: object
       properties:
-        taxId: #TODO Da eliminare quando si passa alla v2
-          type: string
-          description: Codice Fiscale destinatario notifica digitale
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
-        address:
+        physicalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
         serviceLevel:
           "$ref": "#/components/schemas/ServiceLevel"
         sentAttemptMade:
           type: integer
           description: numero dei tentativi effettuati
-          format: int32
         investigation:
           type: boolean
           description: E' richiesta investigazione indirizzo fisico alternativo
@@ -398,13 +323,14 @@ components:
           items:
             type: string
             description: Lista errori, vuota in caso di successo
+            
     SimpleRegisteredLetterDetails:
       type: object
       properties:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
-        address:
+        physicalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
 
     DigitalAddressSource:
@@ -419,9 +345,9 @@ components:
       type: object
       description: wrapper informazione indirizzo
       properties:
-        address:
+        digitalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
-        source:
+        digitalAddressSource:
           $ref: '#/components/schemas/DigitalAddressSource'
         sentAttemptMade:
           type: integer

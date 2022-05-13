@@ -393,7 +393,7 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
 
         StringBuilder paragraph3 = new StringBuilder();
         for (SendDigitalFeedback digitalFeedback : listFeedbackFromExtChannel) {
-            DigitalAddress address = digitalFeedback.getAddress();
+            DigitalAddress address = digitalFeedback.getDigitalAddress();
             ResponseStatus status = digitalFeedback.getResponseStatus();
 
             paragraph3.append(String.format(

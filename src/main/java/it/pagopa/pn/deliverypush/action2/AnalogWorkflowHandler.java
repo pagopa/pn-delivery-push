@@ -13,6 +13,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendPaperDetails;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendPaperFeedbackDetails;
 import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -122,7 +123,7 @@ public class AnalogWorkflowHandler {
         //Se l'indirizzo fornito da public registry è presente ...
         if (response.getPhysicalAddress() != null && response.getPhysicalAddress().getAddress() != null) {
 
-            PhysicalAddress lastUsedAddress = lastSentFeedback.getAddress();
+            PhysicalAddress lastUsedAddress = lastSentFeedback.getPhysicalAddress();
 
             //... e risulta diverso da quello utilizzato nel primo tentativo, viene inviata seconda notifica ad external channel con questo indirizzo
             if (!response.getPhysicalAddress().equals(lastUsedAddress)) {
@@ -158,8 +159,7 @@ public class AnalogWorkflowHandler {
     }
 
     public void extChannelResponseHandler(ExtChannelResponse response, TimelineElementInternal notificationTimelineElement) {
-        SendPaperDetails sendPaperDetails = new SendPaperDetails();
-        timelineUtils.getSpecificDetails(notificationTimelineElement.getDetails(), sendPaperDetails );
+        SendPaperDetails sendPaperDetails = SmartMapper.mapToClass(notificationTimelineElement.getDetails(), SendPaperDetails.class);
 
         String iun = response.getIun();
         NotificationInt notification = notificationService.getNotificationByIun(iun);
@@ -171,7 +171,7 @@ public class AnalogWorkflowHandler {
             switch (response.getResponseStatus()) {
                 case OK:
                     // La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
-                    completionWorkFlow.completionAnalogWorkflow(notification, recIndex, response.getNotificationDate(), sendPaperDetails.getAddress(), EndWorkflowStatus.SUCCESS);
+                    completionWorkFlow.completionAnalogWorkflow(notification, recIndex, response.getNotificationDate(), sendPaperDetails.getPhysicalAddress(), EndWorkflowStatus.SUCCESS);
                     break;
                 case KO:
                     // External channel non è riuscito a effettuare la notificazione, si passa al prossimo step del workflow

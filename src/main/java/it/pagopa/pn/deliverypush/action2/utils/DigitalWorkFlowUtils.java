@@ -12,6 +12,7 @@ import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBook;
 import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBookEntry;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
@@ -40,7 +41,7 @@ public class DigitalWorkFlowUtils {
         log.debug("Start getNextAddressInfo - iun {} id {}", iun, recIndex);
 
         //Ottiene la source del prossimo indirizzo da utilizzare
-        DigitalAddressSource nextAddressSource = nextSource(lastAttemptMade.getSource()) ;
+        DigitalAddressSource nextAddressSource = nextSource(lastAttemptMade.getDigitalAddressSource()) ;
         log.debug("nextAddressSource {}", nextAddressSource);
 
         DigitalAddressInfo nextAddressInfo = getNextAddressInfo(iun, recIndex, nextAddressSource);
@@ -65,7 +66,7 @@ public class DigitalWorkFlowUtils {
         }
 
         return DigitalAddressInfo.builder()
-                .source(nextAddressSource)
+                .digitalAddressSource(nextAddressSource)
                 .sentAttemptMade(nextSourceAttemptsMade)
                 .lastAttemptDate(lastAttemptMadeForSource)
                 .build();
@@ -75,11 +76,7 @@ public class DigitalWorkFlowUtils {
     private Instant getLastAttemptDateForSource(Integer recIndex, DigitalAddressSource nextAddressSource, Set<TimelineElementInternal> timeline) {
         Optional<GetAddressInfo> lastAddressAttemptOpt = timeline.stream()
                 .filter(timelineElement -> filterTimelineForRecIndexAndSource(timelineElement, recIndex, nextAddressSource))
-                .map(timelineElement ->
-                        {   GetAddressInfo getAddressInfo = new GetAddressInfo();
-                            timelineUtils.getSpecificDetails(timelineElement.getDetails(), getAddressInfo);
-                            return getAddressInfo;
-                        })
+                .map(timelineElement -> SmartMapper.mapToClass(timelineElement.getDetails(), GetAddressInfo.class))
                 .max(Comparator.comparing(GetAddressInfo::getAttemptDate));
 
         if (lastAddressAttemptOpt.isPresent()) {
@@ -100,10 +97,10 @@ public class DigitalWorkFlowUtils {
 
     private boolean filterTimelineForRecIndexAndSource(TimelineElementInternal el, Integer recIndex, DigitalAddressSource source) {
         boolean availableAddressCategory = TimelineElementCategory.GET_ADDRESS.equals(el.getCategory());
+        
         if (availableAddressCategory) {
-            GetAddressInfo getAddressInfo = new GetAddressInfo();
-            timelineUtils.getSpecificDetails(el.getDetails(), getAddressInfo);
-            return recIndex.equals(getAddressInfo.getRecIndex()) && source.equals(getAddressInfo.getSource());
+            GetAddressInfo getAddressInfo = SmartMapper.mapToClass(el.getDetails(), GetAddressInfo.class);
+            return recIndex.equals(getAddressInfo.getRecIndex()) && source.equals(getAddressInfo.getDigitalAddressSource());
         }
         return false;
     }

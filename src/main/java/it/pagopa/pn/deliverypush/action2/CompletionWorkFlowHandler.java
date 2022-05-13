@@ -10,13 +10,11 @@ import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendDigitalFeedback;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -86,11 +84,8 @@ public class CompletionWorkFlowHandler {
 
         List<SendDigitalFeedback> listFeedbackFromExtChannel = timeline.stream()
                 .filter(timelineElement -> filterTimelineForTaxId(timelineElement, recIndex))
-                .map(timelineElement -> {
-                    SendDigitalFeedback sendDigitalFeedback = new SendDigitalFeedback();
-                    timelineUtils.getSpecificDetails(timelineElement.getDetails(), sendDigitalFeedback);
-                    return sendDigitalFeedback;
-                })
+                .map(timelineElement -> 
+                   SmartMapper.mapToClass(timelineElement.getDetails(), SendDigitalFeedback.class))
                 .collect(Collectors.toList());
 
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
@@ -101,8 +96,7 @@ public class CompletionWorkFlowHandler {
     private boolean filterTimelineForTaxId(TimelineElementInternal el, Integer recIndex) {
         boolean availableCategory = TimelineElementCategory.SEND_DIGITAL_FEEDBACK.equals(el.getCategory());
         if (availableCategory) {
-            SendDigitalFeedback details = new SendDigitalFeedback();
-            timelineUtils.getSpecificDetails(el.getDetails(), details ) ;
+            SendDigitalFeedback details = SmartMapper.mapToClass(el.getDetails(), SendDigitalFeedback.class);
             return recIndex.equals(details.getRecIndex());
         }
         return false;

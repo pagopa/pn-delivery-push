@@ -1,10 +1,8 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
 import it.pagopa.pn.commons.abstractions.FileStorage;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendDigitalFeedback;
 import org.springframework.stereotype.Component;
 
@@ -48,7 +46,7 @@ public class LegalFactDao {
     }*/
     
     public String saveNotificationReceivedLegalFact(NotificationInt notification) {
-        try {
+/*        try {
             Map<String, String> metadata = legalFactMetadataUtils.buildMetadata(
                     LegalFactCategory.SENDER_ACK, null
                 );
@@ -58,7 +56,9 @@ public class LegalFactDao {
         catch ( IOException exc ) {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "REQUEST_ACCEPTED",  notification.getIun(), "N/A");
             throw new PnInternalException( msg, exc);
-        }
+        }*/
+        
+        return "test";
     }
     
     /*
@@ -97,7 +97,7 @@ public class LegalFactDao {
             NotificationRecipientInt recipient
     ) {
 
-        try {
+       /* try {
             Map<String, String> metadata = legalFactMetadataUtils.buildMetadata(
                     LegalFactCategory.DIGITAL_DELIVERY, recipient.getTaxId()
                 );
@@ -109,7 +109,9 @@ public class LegalFactDao {
         catch ( IOException exc ) {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "DIGITAL_DELIVERY",  notification.getIun(), recipient.getTaxId());
             throw new PnInternalException( msg, exc);
-        }
+        }*/
+
+        return "test";
     }
     
     /*
@@ -126,7 +128,7 @@ public class LegalFactDao {
             NotificationRecipientInt recipient,
             Instant timeStamp
     ) {
-        try {
+/*        try {
             String taxId = recipient.getTaxId();
             Map<String, String> metadata = legalFactMetadataUtils.buildMetadata(
                     LegalFactCategory.RECIPIENT_ACCESS, taxId
@@ -138,7 +140,9 @@ public class LegalFactDao {
         catch ( IOException exc ) {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "NOTIFICATION_VIEWED",  notification.getIun(), recipient.getTaxId());
             throw new PnInternalException( msg, exc);
-        }
+        }*/
+
+        return "test";
     }
     
 }

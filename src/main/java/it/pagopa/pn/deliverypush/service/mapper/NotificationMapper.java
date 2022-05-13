@@ -1,15 +1,14 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationDocument;
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationPhysicalAddress;
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationRecipient;
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.SentNotification;
+import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class NotificationMapper {
@@ -63,28 +62,27 @@ public class NotificationMapper {
         List<NotificationRecipientInt> list = new ArrayList<>();
 
         for (NotificationRecipient recipient : recipients){
-            NotificationRecipientInt notificationRecInt = NotificationRecipientInt
+            NotificationRecipientInt.NotificationRecipientIntBuilder notificationRecIntBuilder = NotificationRecipientInt
                     .builder()
                     .taxId(recipient.getTaxId())
-                    .denomination(recipient.getDenomination())
-                    .build();
+                    .denomination(recipient.getDenomination());
 
             it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationDigitalAddress digitalDomicile = recipient.getDigitalDomicile();
             if(digitalDomicile != null){
                 DigitalAddress.TypeEnum typeEnum = DigitalAddress.TypeEnum.valueOf(digitalDomicile.getType().name());
 
-                notificationRecInt.toBuilder()
+                notificationRecIntBuilder
                         .digitalDomicile(
                                 DigitalAddress.builder()
                                         .address(digitalDomicile.getAddress())
                                         .type(typeEnum)
                                         .build()
-                        ).build();
+                        );
             }
 
             NotificationPhysicalAddress physicalAddress = recipient.getPhysicalAddress();
             if(physicalAddress != null){
-                notificationRecInt.toBuilder()
+                notificationRecIntBuilder
                         .physicalAddress(
                                 PhysicalAddress.builder()
                                         .at(physicalAddress.getAt())
@@ -96,13 +94,13 @@ public class NotificationMapper {
                                         .province(physicalAddress.getProvince())
                                         .zip(physicalAddress.getZip())
                                         .build()
-                        ).build();
+                        );
             }
 
             it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationPaymentInfo payment = recipient.getPayment();
 
             if(payment != null){
-                NotificationPaymentInfoInt paymentInfoInt = NotificationPaymentInfoInt.builder()
+                NotificationPaymentInfoInt.NotificationPaymentInfoIntBuilder paymentInfoBuilder = NotificationPaymentInfoInt.builder()
                         .pagoPaForm(
                                 NotificationDocumentInt.builder()
                                         .digests(
@@ -117,11 +115,10 @@ public class NotificationMapper {
                                                         .build()
                                         )
                                         .build()
-                        )
-                        .build();
+                        );
 
                 if(payment.getF24flatRate() != null){
-                    paymentInfoInt.toBuilder()
+                    paymentInfoBuilder
                             .f24flatRate(
                                     NotificationDocumentInt.builder()
                                             .digests(
@@ -136,11 +133,10 @@ public class NotificationMapper {
                                                             .build()
                                             )
                                             .build()
-                            )
-                            .build();
+                            );
                 }
                 if(payment.getF24white() != null){
-                    paymentInfoInt.toBuilder()
+                    paymentInfoBuilder
                             .f24white(
                                     NotificationDocumentInt.builder()
                                             .digests(
@@ -155,12 +151,146 @@ public class NotificationMapper {
                                                             .build()
                                             )
                                             .build()
-                            ).build();
+                            );
                 }
-
+                notificationRecIntBuilder.payment(paymentInfoBuilder.build());
             }
-            list.add(notificationRecInt);
+            list.add(notificationRecIntBuilder.build());
         }
         return list;
     }
+
+
+
+    public static SentNotification internalToExternal(NotificationInt notification) {
+        SentNotification sentNotification = new SentNotification();
+
+        sentNotification.setIun(notification.getIun());
+        sentNotification.setPaProtocolNumber(notification.getPaNotificationId());
+        sentNotification.setSentAt(notification.getSentAt());
+
+        List<NotificationRecipient> recipients = notification.getRecipients().stream()
+                .map(NotificationMapper::getNotificationRecipient).collect(Collectors.toList());
+
+        sentNotification.setRecipients(recipients);
+
+        List<NotificationDocument> documents = notification.getDocuments().stream().map(
+                NotificationMapper::getNotificationDocument).collect(Collectors.toList());
+
+        sentNotification.setDocuments(documents);
+
+        if(notification.getPhysicalCommunicationType() != null){
+            sentNotification.setPhysicalCommunicationType(SentNotification.PhysicalCommunicationTypeEnum.valueOf(notification.getPhysicalCommunicationType().name()));
+        }
+
+        return sentNotification;
+    }
+
+    @NotNull
+    private static NotificationDocument getNotificationDocument(NotificationDocumentInt documentInt) {
+        NotificationAttachmentDigests digests = new NotificationAttachmentDigests();
+        digests.setSha256(documentInt.getDigests().getSha256());
+
+        NotificationAttachmentBodyRef ref = new NotificationAttachmentBodyRef();
+        ref.setKey(documentInt.getRef().getKey());
+        ref.setVersionToken(documentInt.getRef().getVersionToken());
+
+        NotificationDocument document = new NotificationDocument();
+        document.setDigests(digests);
+        document.setRef(ref);
+        return document;
+    }
+
+    @NotNull
+    private static NotificationRecipient getNotificationRecipient(NotificationRecipientInt recipient) {
+        NotificationRecipient notificationRecipient = new NotificationRecipient();
+        NotificationDigitalAddress notificationDigitalAddress = null;
+
+        DigitalAddress internalDigitalDomicile = recipient.getDigitalDomicile();
+        if(internalDigitalDomicile != null){
+            notificationDigitalAddress = new NotificationDigitalAddress();
+            notificationDigitalAddress.setAddress(internalDigitalDomicile.getAddress());
+            if(internalDigitalDomicile.getType() != null){
+                notificationDigitalAddress.setType(NotificationDigitalAddress.TypeEnum.valueOf(internalDigitalDomicile.getType().getValue()));
+            }
+        }
+
+        NotificationPhysicalAddress physicalAddress = null;
+        PhysicalAddress internalPhysicalAddress = recipient.getPhysicalAddress();
+        if(internalPhysicalAddress != null){
+            physicalAddress = new NotificationPhysicalAddress();
+            physicalAddress.setAddress(internalPhysicalAddress.getAddress());
+            physicalAddress.setAddressDetails(internalPhysicalAddress.getAddressDetails());
+            physicalAddress.setAt(internalPhysicalAddress.getAt());
+            physicalAddress.setMunicipality(internalPhysicalAddress.getMunicipality());
+            physicalAddress.setForeignState(internalPhysicalAddress.getForeignState());
+            physicalAddress.setProvince(internalPhysicalAddress.getProvince());
+            physicalAddress.setZip(internalPhysicalAddress.getZip());
+        }
+
+        NotificationPaymentInfo payment = null;
+        NotificationPaymentInfoInt paymentInternal = recipient.getPayment();
+        if(paymentInternal != null){
+            payment = new NotificationPaymentInfo();
+
+            NotificationPaymentAttachment pagoPaForm = null;
+            if(paymentInternal.getPagoPaForm() != null){
+                NotificationDocumentInt pagoPaFormInternal = paymentInternal.getPagoPaForm();
+                pagoPaForm = new NotificationPaymentAttachment();
+
+                NotificationAttachmentDigests digests = new NotificationAttachmentDigests();
+                digests.setSha256(pagoPaFormInternal.getDigests().getSha256());
+                pagoPaForm.setDigests(digests);
+
+                NotificationAttachmentBodyRef ref = new NotificationAttachmentBodyRef();
+                ref.setKey(pagoPaFormInternal.getRef().getKey());
+                ref.setVersionToken(pagoPaFormInternal.getRef().getVersionToken());
+                pagoPaForm.setRef(ref);
+            }
+            payment.setPagoPaForm(pagoPaForm);
+
+            NotificationPaymentAttachment f24White = null;
+            if (paymentInternal.getF24white() != null) {
+                NotificationDocumentInt f24flatRateInternal = paymentInternal.getF24white();
+
+                f24White = new NotificationPaymentAttachment();
+
+                NotificationAttachmentDigests digests = new NotificationAttachmentDigests();
+                digests.setSha256(f24flatRateInternal.getDigests().getSha256());
+                f24White.setDigests(digests);
+
+                NotificationAttachmentBodyRef ref = new NotificationAttachmentBodyRef();
+                ref.setKey(f24flatRateInternal.getRef().getKey());
+                ref.setVersionToken(f24flatRateInternal.getRef().getVersionToken());
+                f24White.setRef(ref);
+            }
+            payment.setF24white(f24White);
+
+            NotificationPaymentAttachment f24flatRate = null;
+            if (paymentInternal.getF24flatRate() != null){
+                NotificationDocumentInt f24FlatRateInternal = paymentInternal.getF24flatRate();
+
+                f24flatRate = new NotificationPaymentAttachment();
+
+                NotificationAttachmentDigests digests = new NotificationAttachmentDigests();
+                digests.setSha256(f24FlatRateInternal.getDigests().getSha256());
+                f24flatRate.setDigests(digests);
+
+                NotificationAttachmentBodyRef ref = new NotificationAttachmentBodyRef();
+                ref.setKey(f24FlatRateInternal.getRef().getKey());
+                ref.setVersionToken(f24FlatRateInternal.getRef().getVersionToken());
+                f24flatRate.setRef(ref);
+            }
+            payment.setF24flatRate(f24flatRate);
+        }
+
+        notificationRecipient.setTaxId(recipient.getTaxId());
+        notificationRecipient.setDenomination(recipient.getDenomination());
+        notificationRecipient.setDigitalDomicile(notificationDigitalAddress);
+        notificationRecipient.setPhysicalAddress(physicalAddress);
+        notificationRecipient.setPayment(payment);
+
+        return notificationRecipient;
+    }
+    
 }

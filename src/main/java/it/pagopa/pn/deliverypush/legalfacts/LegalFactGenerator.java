@@ -169,7 +169,7 @@ public class LegalFactGenerator {
                     return new PecDeliveryInfo(
                             recipient.getDenomination(),
                             recipient.getTaxId(),
-                            feedbackFromExtChannel.getAddress().getAddress(),
+                            feedbackFromExtChannel.getDigitalAddress().getAddress(),
                             notificationDate,
                             instantWriter.instantToDate(notificationDate),
                             ResponseStatus.OK.equals( status )

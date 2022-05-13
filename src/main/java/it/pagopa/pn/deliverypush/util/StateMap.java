@@ -23,7 +23,6 @@ class StateMap {
         ;
                 
         this.fromState(NotificationStatus.ACCEPTED)
-                .withTimelineGoToState(TimelineElementCategory.NOTIFICATION_PATH_CHOOSE, NotificationStatus.DELIVERING)
                 .withTimelineGoToState(TimelineElementCategory.SEND_COURTESY_MESSAGE, NotificationStatus.ACCEPTED)
                 .withTimelineGoToState(TimelineElementCategory.GET_ADDRESS, NotificationStatus.ACCEPTED)
                 .withTimelineGoToState(TimelineElementCategory.PUBLIC_REGISTRY_CALL, NotificationStatus.ACCEPTED)
@@ -37,15 +36,11 @@ class StateMap {
 
         // Delivering state
         this.fromState(NotificationStatus.DELIVERING)
-                .withTimelineGoToState(TimelineElementCategory.SEND_DIGITAL_DOMICILE_FAILURE, NotificationStatus.DELIVERING)
                 .withTimelineGoToState(TimelineElementCategory.SEND_PAPER_FEEDBACK, NotificationStatus.DELIVERING)
                 .withTimelineGoToState(TimelineElementCategory.SEND_DIGITAL_DOMICILE, NotificationStatus.DELIVERING)
                 .withTimelineGoToState(TimelineElementCategory.SEND_DIGITAL_DOMICILE_FEEDBACK, NotificationStatus.DELIVERING)
-                .withTimelineGoToState(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW, NotificationStatus.DELIVERED)
-                .withTimelineGoToState(TimelineElementCategory.END_OF_ANALOG_DELIVERY_WORKFLOW, NotificationStatus.DELIVERED)
                 .withTimelineGoToState(TimelineElementCategory.NOTIFICATION_VIEWED, NotificationStatus.VIEWED)
                 .withTimelineGoToState(TimelineElementCategory.PAYMENT, NotificationStatus.PAID)
-                .withTimelineGoToState(TimelineElementCategory.NOTIFICATION_PATH_CHOOSE, NotificationStatus.DELIVERING)
                 .withTimelineGoToState(TimelineElementCategory.SEND_ANALOG_DOMICILE, NotificationStatus.DELIVERING)
                 .withTimelineGoToState(TimelineElementCategory.COMPLETELY_UNREACHABLE, NotificationStatus.UNREACHABLE)
 
@@ -81,7 +76,6 @@ class StateMap {
         this.fromState(NotificationStatus.VIEWED)
                 .withTimelineGoToState(TimelineElementCategory.SEND_DIGITAL_DOMICILE, NotificationStatus.VIEWED)
                 .withTimelineGoToState(TimelineElementCategory.SEND_DIGITAL_DOMICILE_FEEDBACK, NotificationStatus.VIEWED)
-                .withTimelineGoToState(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW, NotificationStatus.VIEWED)
                 .withTimelineGoToState(TimelineElementCategory.PAYMENT, NotificationStatus.PAID)
                 .withTimelineGoToState(TimelineElementCategory.REFINEMENT, NotificationStatus.VIEWED)
         ;
@@ -90,7 +84,6 @@ class StateMap {
         this.fromState(NotificationStatus.PAID)
                 .withTimelineGoToState(TimelineElementCategory.SEND_DIGITAL_DOMICILE, NotificationStatus.PAID)
                 .withTimelineGoToState(TimelineElementCategory.SEND_DIGITAL_DOMICILE_FEEDBACK, NotificationStatus.PAID)
-                .withTimelineGoToState(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW, NotificationStatus.PAID)
                 .withTimelineGoToState(TimelineElementCategory.REFINEMENT, NotificationStatus.PAID)
         ;
         this.fromState(NotificationStatus.UNREACHABLE)

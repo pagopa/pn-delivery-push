@@ -24,7 +24,7 @@ public class NotificationServiceImpl implements NotificationService {
         ResponseEntity<SentNotification> resp = pnDeliveryClient.getSentNotification( iun );
         
         if (resp.getStatusCode().is2xxSuccessful()) {
-            log.error("Get notification OK for - iun {}", iun);
+            log.debug("Get notification OK for - iun {}", iun);
             SentNotification sentNotification = resp.getBody();
             
             if(sentNotification != null){

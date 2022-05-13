@@ -165,8 +165,7 @@ class AnalogWorkflowHandlerTest {
                 .build();
 
         SendPaperFeedbackDetails details = SendPaperFeedbackDetails.builder()
-                .taxId(recipient.getTaxId())
-                .address(PhysicalAddress.builder()
+                .physicalAddress(PhysicalAddress.builder()
                         .address("test address 2")
                         .build())
                 .sentAttemptMade(0)
@@ -205,8 +204,7 @@ class AnalogWorkflowHandlerTest {
                 .build();
 
         SendPaperFeedbackDetails details = SendPaperFeedbackDetails.builder()
-                .taxId(recipient.getTaxId())
-                .address(PhysicalAddress.builder()
+                .physicalAddress(PhysicalAddress.builder()
                         .address("test address 2")
                         .build())
                 .sentAttemptMade(0)
@@ -242,8 +240,7 @@ class AnalogWorkflowHandlerTest {
                 .build();
 
         SendPaperFeedbackDetails details = SendPaperFeedbackDetails.builder()
-                .taxId(recipient.getTaxId())
-                .address(PhysicalAddress.builder()
+                .physicalAddress(PhysicalAddress.builder()
                         .address("test address 2")
                         .build())
                 .sentAttemptMade(0)

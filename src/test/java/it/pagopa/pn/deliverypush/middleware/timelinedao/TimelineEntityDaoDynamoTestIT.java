@@ -41,8 +41,8 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity elementToInsert = TimelineElementEntity.builder()
                 .iun("pa1-1")
                 .timelineElementId("elementId1")
-                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW.getValue())
-                .details("{\"category\":\"END_OF_DIGITAL_DELIVERY_WORKFLOW\",\"taxId\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
+                .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE.getValue())
+                .details("{\"category\":\"SEND_DIGITAL_DOMICILE\",\"iun\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
                 .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
                 .build();
 
@@ -71,8 +71,8 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity elementToInsert = TimelineElementEntity.builder()
                 .iun("pa1-1")
                 .timelineElementId("elementId1")
-                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW.getValue())
-                .details("{\"category\":\"END_OF_DIGITAL_DELIVERY_WORKFLOW\",\"taxId\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
+                .category(TimelineElementCategory.PUBLIC_REGISTRY_CALL.getValue())
+                .details("{\"category\":\"PUBLIC_REGISTRY_CALL\",\"iun\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
                 .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
                 .build();
 
@@ -117,8 +117,8 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity firstElementToInsert = TimelineElementEntity.builder()
                 .iun("pa1-1")
                 .timelineElementId("elementId1")
-                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW.getValue())
-                .details("{\"category\":\"END_OF_DIGITAL_DELIVERY_WORKFLOW\",\"taxId\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
+                .category(TimelineElementCategory.NOTIFICATION_VIEWED.getValue())
+                .details("{\"category\":\"NOTIFICATION_VIEWED\",\"iun\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
                 .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
                 .build();
 
@@ -166,8 +166,8 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity firstElementToInsert = TimelineElementEntity.builder()
                 .iun("pa1-1")
                 .timelineElementId("elementId1")
-                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW.getValue())
-                .details("{\"category\":\"END_OF_DIGITAL_DELIVERY_WORKFLOW\",\"taxId\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
+                .category(TimelineElementCategory.REQUEST_ACCEPTED.getValue())
+                .details("{\"category\":\"REQUEST_ACCEPTED\",\"iun\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
                 .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
                 .build();
         Key firstElementToInsertKey = Key.builder()
@@ -219,8 +219,8 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity element = TimelineElementEntity.builder()
                 .iun("pa1-1")
                 .timelineElementId("elementId1")
-                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW.getValue())
-                .details("{\"category\":\"END_OF_DIGITAL_DELIVERY_WORKFLOW\",\"taxId\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
+                .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE.getValue())
+                .details("{\"category\":\"SEND_DIGITAL_DOMICILE\",\"iun\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
                 .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
                 .build();
         Key elementToInsertKey = Key.builder()
@@ -244,8 +244,8 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity elementToInsert = TimelineElementEntity.builder()
                 .iun("pa1-delete")
                 .timelineElementId("elementId1")
-                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW.getValue())
-                .details("{\"category\":\"END_OF_DIGITAL_DELIVERY_WORKFLOW\",\"taxId\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
+                .category(TimelineElementCategory.PUBLIC_REGISTRY_CALL.getValue())
+                .details("{\"category\":\"PUBLIC_REGISTRY_CALL\",\"iun\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
                 .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
                 .build();
 
@@ -274,8 +274,8 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity firstElementToInsert = TimelineElementEntity.builder()
                 .iun(iun)
                 .timelineElementId("elementId1")
-                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW.getValue())
-                .details("{\"category\":\"END_OF_DIGITAL_DELIVERY_WORKFLOW\",\"taxId\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
+                .category(TimelineElementCategory.REFINEMENT.getValue())
+                .details("{\"category\":\"REFINEMENT\",\"iun\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
                 .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
                 .build();
 
@@ -321,8 +321,8 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity firstElementToInsert = TimelineElementEntity.builder()
                 .iun(iun)
                 .timelineElementId("elementId1")
-                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW.getValue())
-                .details("{\"category\":\"END_OF_DIGITAL_DELIVERY_WORKFLOW\",\"taxId\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
+                .category(TimelineElementCategory.PUBLIC_REGISTRY_CALL.getValue())
+                .details("{\"category\":\"PUBLIC_REGISTRY_CALL\",\"iun\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
                 .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
                 .build();
 

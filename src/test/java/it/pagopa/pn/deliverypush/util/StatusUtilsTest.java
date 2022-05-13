@@ -32,7 +32,7 @@ class StatusUtilsTest {
         TimelineElementInternal timelineElement2 = TimelineElementInternal.timelineInternalBuilder()
                 .elementId("el2")
                 .timestamp((Instant.parse("2021-09-16T15:25:00.00Z")))
-                .category(TimelineElementCategory.NOTIFICATION_PATH_CHOOSE)
+                .category(TimelineElementCategory.GET_ADDRESS)
                 .build();
         TimelineElementInternal timelineElement3 = TimelineElementInternal.timelineInternalBuilder()
                 .elementId("el3")
@@ -47,7 +47,7 @@ class StatusUtilsTest {
         TimelineElementInternal timelineElement5 = TimelineElementInternal.timelineInternalBuilder()
                 .elementId("el5")
                 .timestamp((Instant.parse("2021-09-16T15:28:00.00Z")))
-                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW)
+                .category(TimelineElementCategory.DIGITAL_SUCCESS_WORKFLOW)
                 .build();
         TimelineElementInternal timelineElement6 = TimelineElementInternal.timelineInternalBuilder()
                 .elementId("el6")
@@ -146,7 +146,7 @@ class StatusUtilsTest {
         TimelineElementInternal timelineElement2 = TimelineElementInternal.timelineInternalBuilder()
                 .elementId("el2")
                 .timestamp((Instant.parse("2021-09-16T15:25:00.00Z")))
-                .category(TimelineElementCategory.NOTIFICATION_PATH_CHOOSE)
+                .category(TimelineElementCategory.GET_ADDRESS)
                 .build();
         TimelineElementInternal timelineElement3 = TimelineElementInternal.timelineInternalBuilder()
                 .elementId("el3")
@@ -161,7 +161,7 @@ class StatusUtilsTest {
         TimelineElementInternal timelineElement5 = TimelineElementInternal.timelineInternalBuilder()
                 .elementId("el5")
                 .timestamp((Instant.parse("2021-09-16T15:28:00.00Z")))
-                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW)
+                .category(TimelineElementCategory.GET_ADDRESS)
                 .build();
         TimelineElementInternal timelineElement3_1 = TimelineElementInternal.timelineInternalBuilder()
                 .elementId("el6")
@@ -176,7 +176,7 @@ class StatusUtilsTest {
         TimelineElementInternal timelineElement5_1 = TimelineElementInternal.timelineInternalBuilder()
                 .elementId("el8")
                 .timestamp((Instant.parse("2021-09-16T15:31:00.00Z")))
-                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW)
+                .category(TimelineElementCategory.GET_ADDRESS)
                 .build();
         TimelineElementInternal timelineElement6 = TimelineElementInternal.timelineInternalBuilder()
                 .elementId("el9")

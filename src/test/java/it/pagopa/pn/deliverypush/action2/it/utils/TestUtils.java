@@ -42,7 +42,7 @@ public class TestUtils {
 
             Assertions.assertTrue(sendCourtesyMessageDetailsOpt.isPresent());
             SendCourtesyMessageDetails sendCourtesyMessageDetails = sendCourtesyMessageDetailsOpt.get();
-            Assertions.assertEquals(digitalAddress, sendCourtesyMessageDetails.getAddress());
+            Assertions.assertEquals(digitalAddress, sendCourtesyMessageDetails.getDigitalAddress());
             index++;
         }
         //Viene verificato l'effettivo invio del messaggio di cortesia verso external channel
@@ -73,8 +73,8 @@ public class TestUtils {
 
         Optional<SendPaperDetails> sendPaperDetailsOpt = timelineService.getTimelineElement(iun, eventIdFirstSend, SendPaperDetails.class);
         Assertions.assertTrue(sendPaperDetailsOpt.isPresent());
-        SendPaperDetails firstSendPaperDetails = sendPaperDetailsOpt.get();
-        Assertions.assertEquals(physicalAddress, firstSendPaperDetails.getAddress());
+        SendPaperDetails sendPaperDetails = sendPaperDetailsOpt.get();
+        Assertions.assertEquals(physicalAddress, sendPaperDetails.getPhysicalAddress());
     }
 
     public static void checkSuccessAnalogWorkflow(String iun, Integer recIndex, TimelineService timelineService, CompletionWorkFlowHandler completionWorkflow) {

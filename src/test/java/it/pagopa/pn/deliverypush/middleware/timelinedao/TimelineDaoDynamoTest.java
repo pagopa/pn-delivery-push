@@ -3,7 +3,6 @@ package it.pagopa.pn.deliverypush.middleware.timelinedao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.RequestUpdateStatusDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -13,6 +12,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.*;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.StatusService;
+import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import it.pagopa.pn.deliverypush.util.StatusUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -107,20 +107,19 @@ class TimelineDaoDynamoTest {
         String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
 
         String id1 = "sender_ack";
-        
         TimelineElementInternal row1 = TimelineElementInternal.timelineInternalBuilder()
                 .iun(iun)
                 .elementId(id1)
                 .category(TimelineElementCategory.REQUEST_ACCEPTED)
-                .details(TimelineUtils.getGenericDetails(new NotificationRequestAccepted()))
+                .details(SmartMapper.mapToClass(new NotificationRequestAccepted(), TimelineElementDetails.class))
                 .timestamp(Instant.now())
                 .build();
-        String id2 = "path_choose";
+        String id2 = "SendDigitalDetails";
         TimelineElementInternal row2 = TimelineElementInternal.timelineInternalBuilder()
                 .iun(iun)
                 .elementId(id2)
-                .category(TimelineElementCategory.NOTIFICATION_PATH_CHOOSE)
-                .details(TimelineUtils.getGenericDetails(new NotificationPathChooseDetails()))
+                .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE)
+                .details(SmartMapper.mapToClass(new SendDigitalDetails(), TimelineElementDetails.class))
                 .timestamp(Instant.now())
                 .build();
 
@@ -180,12 +179,12 @@ class TimelineDaoDynamoTest {
                 .details(new TimelineElementDetails())
                 .timestamp(Instant.now())
                 .build();
-        String id2 = "path_choose";
+        String id2 = "SendDigitalDetails";
         TimelineElementInternal row2 = TimelineElementInternal.timelineInternalBuilder()
                 .iun(iun)
                 .elementId(id2)
-                .category(TimelineElementCategory.NOTIFICATION_PATH_CHOOSE)
-                .details(new TimelineElementDetails())
+                .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE)
+                .details(SmartMapper.mapToClass(new SendDigitalDetails(), TimelineElementDetails.class))
                 .timestamp(Instant.now())
                 .build();
 
