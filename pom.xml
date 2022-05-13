@@ -113,8 +113,13 @@
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<typeMappings><typeMapping>Date=Instant</typeMapping></typeMappings>
-							<importMappings><importMapping>java.util.Date=java.time.Instant</importMapping></importMappings>
+							<typeMappings>
+								 <typeMapping>Date=Instant</typeMapping>
+							</typeMappings>
+							<importMappings>
+								<importMapping>java.util.Date=java.time.Instant</importMapping>
+								<importMapping>Date=java.time.Instant</importMapping>
+							</importMappings>
 							<inputSpec>${project.basedir}/docs/openapi/api-private-v1.yaml</inputSpec>
 							<generatorName>spring</generatorName>
 							<library>spring-boot</library>

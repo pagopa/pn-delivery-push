@@ -1,14 +1,9 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
-import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationPathChooseDetails;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseStatus;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendDigitalFeedback;
 import lombok.Value;
@@ -120,7 +115,8 @@ public class LegalFactGenerator {
         private String responseDate;
         private boolean ok;
     }
-
+    
+    /*
     @Deprecated
     public byte[] generatePecDeliveryWorkflowLegalFact(List<Action> actions, NotificationInt notification, NotificationPathChooseDetails addresses) throws IOException {
 
@@ -159,6 +155,8 @@ public class LegalFactGenerator {
                 templateModel
         );
     }
+    
+     */
 
     public byte[] generatePecDeliveryWorkflowLegalFact(List<SendDigitalFeedback> feedbackFromExtChannelList, NotificationInt notification, NotificationRecipientInt recipient) throws IOException {
 

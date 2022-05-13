@@ -66,7 +66,7 @@ public class TimeLineServiceImpl implements TimelineService {
         log.debug("getTimelineAndStatusHistory Start - iun {} ", iun);
         
         Set<TimelineElementInternal> timelineElements = this.timelineDao.getTimeline(iun);
-
+        
         List<NotificationStatusHistoryElement> statusHistory = statusUtils
                 .getStatusHistory( timelineElements, numberOfRecipients, createdAt );
 

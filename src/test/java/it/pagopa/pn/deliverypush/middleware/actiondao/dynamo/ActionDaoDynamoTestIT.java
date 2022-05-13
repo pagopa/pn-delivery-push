@@ -3,8 +3,6 @@ package it.pagopa.pn.deliverypush.middleware.actiondao.dynamo;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.ActionDao;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
@@ -41,32 +39,21 @@ class ActionDaoDynamoTestIT {
         String timeSlot = "2022-04-12T09:26";
 
         Action.ActionBuilder actionBuilder = Action.builder()
-                .iun("Test_iun01")
+                .iun("Test_addAndCheckAction_iun01")
                 .recipientIndex(1)
-                .type(ActionType.SEND_PEC);
-        String actionId = ActionType.SEND_PEC.buildActionId(
+                .type(ActionType.ANALOG_WORKFLOW);
+        String actionId = ActionType.ANALOG_WORKFLOW.buildActionId(
                 actionBuilder.build());
         
         Action action = actionBuilder.actionId(actionId).build();
         
         Action.ActionBuilder actionBuilder2 = Action.builder()
-                .iun("Test_iun02")
+                .iun("Test_addAndCheckAction_iun02")
                 .recipientIndex(0)
-                .type(ActionType.RECEIVE_PAPER)
-                .newPhysicalAddress(PhysicalAddress.builder()
-                        .at("Presso")
-                        .address("address")
-                        .zip("00100")
-                        .municipality("Roma")
-                        .province("RM")
-                        .foreignState("IT")
-                        .addressDetails("Scala A")
-                        .build())
-                .retryNumber(1)
-                .notBefore(Instant.now())
-                .digitalAddressSource(DigitalAddressSource.GENERAL);
+                .type(ActionType.REFINEMENT_NOTIFICATION)
+                .notBefore(Instant.now());
         
-        String actionId2 =  ActionType.SEND_PEC.buildActionId(
+        String actionId2 =  ActionType.REFINEMENT_NOTIFICATION.buildActionId(
                 actionBuilder2.build()
         );
 
@@ -85,6 +72,8 @@ class ActionDaoDynamoTestIT {
         Assertions.assertTrue(actionOpt2.isPresent());
         Assertions.assertEquals(actionOpt2.get(),action2);
 
+        actionDao.unSchedule(action, timeSlot);
+        actionDao.unSchedule(action2, timeSlot);
     }
 
     @Test
@@ -93,32 +82,21 @@ class ActionDaoDynamoTestIT {
         String timeSlot = "2022-04-12T09:26";
 
         Action.ActionBuilder actionBuilder = Action.builder()
-                .iun("Test_iun01")
+                .iun("Test_addAndCheckFutureActionSameTimeSlot_iun01")
                 .recipientIndex(1)
-                .type(ActionType.SEND_PEC);
-        String actionId = ActionType.SEND_PEC.buildActionId(
+                .type(ActionType.DIGITAL_WORKFLOW_NEXT_ACTION);
+        String actionId = ActionType.DIGITAL_WORKFLOW_NEXT_ACTION.buildActionId(
                 actionBuilder.build());
 
         Action action = actionBuilder.actionId(actionId).build();
 
         Action.ActionBuilder actionBuilder2 = Action.builder()
-                .iun("Test_iun02")
+                .iun("Test_addAndCheckFutureActionSameTimeSlot_iun02")
                 .recipientIndex(0)
-                .type(ActionType.RECEIVE_PAPER)
-                .newPhysicalAddress(PhysicalAddress.builder()
-                        .at("Presso")
-                        .address("address")
-                        .zip("00100")
-                        .municipality("Roma")
-                        .province("RM")
-                        .foreignState("IT")
-                        .addressDetails("Scala A")
-                        .build())
-                .retryNumber(1)
-                .notBefore(Instant.now())
-                .digitalAddressSource(DigitalAddressSource.GENERAL);
+                .type(ActionType.ANALOG_WORKFLOW)
+                .notBefore(Instant.now());
 
-        String actionId2 =  ActionType.SEND_PEC.buildActionId(
+        String actionId2 =  ActionType.ANALOG_WORKFLOW.buildActionId(
                 actionBuilder2.build()
         );
 
@@ -137,6 +115,9 @@ class ActionDaoDynamoTestIT {
         Assertions.assertTrue(actions.contains(action));
         Assertions.assertTrue(actions.contains(action2));
 
+        actionDao.unSchedule(action, timeSlot);
+        actionDao.unSchedule(action2, timeSlot);
+
     }
 
     @Test
@@ -144,32 +125,21 @@ class ActionDaoDynamoTestIT {
         //GIVEN
 
         Action.ActionBuilder actionBuilder = Action.builder()
-                .iun("Test_iun01")
+                .iun("Test_addAndCheckFutureActionDifferentTimeSlot_iun01")
                 .recipientIndex(1)
-                .type(ActionType.SEND_PEC);
-        String actionId = ActionType.SEND_PEC.buildActionId(
+                .type(ActionType.DIGITAL_WORKFLOW_NEXT_ACTION);
+        String actionId = ActionType.DIGITAL_WORKFLOW_NEXT_ACTION.buildActionId(
                 actionBuilder.build());
 
         Action action = actionBuilder.actionId(actionId).build();
 
         Action.ActionBuilder actionBuilder2 = Action.builder()
-                .iun("Test_iun02")
+                .iun("Test_addAndCheckFutureActionDifferentTimeSlot_iun02")
                 .recipientIndex(0)
-                .type(ActionType.RECEIVE_PAPER)
-                .newPhysicalAddress(PhysicalAddress.builder()
-                        .at("Presso")
-                        .address("address")
-                        .zip("00100")
-                        .municipality("Roma")
-                        .province("RM")
-                        .foreignState("IT")
-                        .addressDetails("Scala A")
-                        .build())
-                .retryNumber(1)
-                .notBefore(Instant.now())
-                .digitalAddressSource(DigitalAddressSource.GENERAL);
+                .type(ActionType.ANALOG_WORKFLOW)
+                .notBefore(Instant.now());
 
-        String actionId2 =  ActionType.SEND_PEC.buildActionId(
+        String actionId2 =  ActionType.ANALOG_WORKFLOW.buildActionId(
                 actionBuilder2.build()
         );
 
@@ -177,10 +147,14 @@ class ActionDaoDynamoTestIT {
 
         String timeSlot1 = "2022-04-12T09:26";
         String timeSlot2 = "2022-04-12T09:27";
+        
+        List<Action> actionslist1 =  actionDao.findActionsByTimeSlot( timeSlot1 );
 
         actionDao.unSchedule(action, timeSlot1);
         actionDao.unSchedule(action2, timeSlot1);
         actionDao.unSchedule(action2, timeSlot2);
+
+        List<Action> actionslist2 =  actionDao.findActionsByTimeSlot( timeSlot1 );
 
         //WHEN
         actionDao.addAction(action, timeSlot1);
@@ -196,7 +170,9 @@ class ActionDaoDynamoTestIT {
         Assertions.assertEquals(1, actions2.size());
         Assertions.assertTrue(actions2.contains(action2));
         Assertions.assertFalse(actions2.contains(action));
-        
+
+        actionDao.unSchedule(action, timeSlot1);
+        actionDao.unSchedule(action2, timeSlot2);
     }
     
     @Test

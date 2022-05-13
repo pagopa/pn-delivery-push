@@ -1,5 +1,6 @@
-package it.pagopa.pn.deliverypush.middleware.eventhandlers;
+package it.pagopa.pn.deliverypush.middleware.eventbinder.oldhandlers;
 
+/*
 import it.pagopa.pn.api.dto.events.PnDeliveryNewNotificationEvent;
 import it.pagopa.pn.api.dto.events.StandardEventHeader;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
@@ -25,6 +26,7 @@ public class NewNotificationEventHandler extends AbstractEventHandler<PnDelivery
 
     @Override
     public void handleEvent(PnDeliveryNewNotificationEvent evt ) {
+
         StandardEventHeader header = evt.getHeader();
         log.info("NEW NOTIFICATION iun={} eventId={}", header.getIun(), header.getEventId());
         
@@ -36,6 +38,8 @@ public class NewNotificationEventHandler extends AbstractEventHandler<PnDelivery
                 .notBefore(header.getCreatedAt().plus(pnDeliveryPushConfigs.getTimeParams().getIntervalBetweenNotificationAndMessageReceived()))
                 .build();
         actionsPool.scheduleFutureAction(senderAck);
+
     }
 
 }
+*/

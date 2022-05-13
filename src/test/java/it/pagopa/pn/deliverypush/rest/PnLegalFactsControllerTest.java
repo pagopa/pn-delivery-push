@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.rest;
 
 import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsId;
@@ -44,18 +45,23 @@ class PnLegalFactsControllerTest {
                                 .build()
                         ).build()
         );
-
         Mockito.when( legalFactService.getLegalFacts( Mockito.anyString() ))
                 .thenReturn( legalFactsList );
-
+        
         webTestClient.get()
-                .uri( "/delivery-push/legalfacts/" + IUN )
+                .uri( "/delivery-push/" + IUN + "/legal-facts" )
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
+                .headers(httpHeaders -> {
+                    httpHeaders.set("x-pagopa-pn-uid","test");
+                    httpHeaders.set("x-pagopa-pn-cx-type", CxTypeAuthFleet.PA.getValue());
+                    httpHeaders.set("x-pagopa-pn-cx-id","test");
+                    httpHeaders.set("x-pagopa-pn-cx-groups", Collections.singletonList("test").toString());
+                })
                 .exchange()
                 .expectStatus()
                 .isOk();
-
+        
         Mockito.verify( legalFactService ).getLegalFacts( Mockito.anyString() );
     }
 
@@ -68,11 +74,12 @@ class PnLegalFactsControllerTest {
         Mockito.when( legalFactService.getLegalfact( Mockito.anyString(), Mockito.any( LegalFactType.class ), Mockito.anyString() ) )
                         .thenReturn( legalFactResult );
 
+        String uri = "/delivery-push/legalfacts/" + IUN + "/" + LegalFactType.SENDER_ACK + "/" + LEGAL_FACT_ID;
+        
+        System.out.println("uri "+ uri);
+        
         webTestClient.get()
-                .uri( "/delivery-push/legalfacts/"
-                        + IUN + "/"
-                        + LegalFactType.SENDER_ACK + "/"
-                        + LEGAL_FACT_ID  )
+                .uri(uri)
                 .accept( MediaType.ALL )
                 .exchange()
                 .expectStatus()

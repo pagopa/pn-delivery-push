@@ -1,4 +1,5 @@
 package it.pagopa.pn.deliverypush.abstractions.actionspool.impl;
+/*
 
 import it.pagopa.pn.api.dto.events.StandardEventHeader;
 import it.pagopa.pn.commons.abstractions.MomProducer;
@@ -84,3 +85,4 @@ public class ActionsEventHandler extends AbstractEventHandler<ActionEvent> {
     }
 
 }
+*/

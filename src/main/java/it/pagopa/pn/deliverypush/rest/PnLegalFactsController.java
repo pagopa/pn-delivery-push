@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.rest;
 
 import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
+import it.pagopa.pn.api.rest.PnDeliveryPushRestApi_methodGetLegalFacts;
 import it.pagopa.pn.api.rest.PnDeliveryPushRestConstants;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.LegalFactsApi;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
@@ -16,7 +17,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @RestController
-public class PnLegalFactsController implements LegalFactsApi {
+public class PnLegalFactsController implements LegalFactsApi, PnDeliveryPushRestApi_methodGetLegalFacts {
 
     private final LegalFactService legalFactService;
 

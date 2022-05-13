@@ -1,4 +1,5 @@
 package it.pagopa.pn.deliverypush.temp.mom.consumer;
+/*
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -24,3 +25,4 @@ public class EventReceiverService {
         }
     }
 }
+*/

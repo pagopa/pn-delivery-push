@@ -1,5 +1,5 @@
 package it.pagopa.pn.deliverypush.actions;
-
+/*
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -56,5 +56,7 @@ public class NotificationViewedActionHandler extends AbstractActionHandler {
         return ActionType.NOTIFICATION_VIEWED;
     }
 }
+
+ */
 
 

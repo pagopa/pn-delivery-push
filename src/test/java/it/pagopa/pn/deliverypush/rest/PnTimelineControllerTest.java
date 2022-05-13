@@ -45,9 +45,9 @@ class PnTimelineControllerTest {
 
         Mockito.when(service.getTimelineAndStatusHistory(Mockito.anyString(), Mockito.anyInt(), Mockito.any()))
         .thenReturn( dto );
-        String createdAt = "2022-05-12T12:34:28.385Z";
+        Instant createdAt = Instant.now();
+
         int numberOfRecipients = 1;
-        
 
         webTestClient.get()
                 .uri(
@@ -60,10 +60,10 @@ class PnTimelineControllerTest {
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .exchange()
-                .expectStatus()
-                .isOk()
+                .expectStatus().isOk()
                 .expectBody(Set.class);
 
         Mockito.verify(service).getTimelineAndStatusHistory(Mockito.anyString(), Mockito.anyInt(), Mockito.any());
+        
     }
 }

@@ -1,5 +1,6 @@
-package it.pagopa.pn.deliverypush.middleware.eventhandlers;
+package it.pagopa.pn.deliverypush.middleware.eventbinder.oldhandlers;
 
+/*
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatusEvent;
 import it.pagopa.pn.api.dto.events.StandardEventHeader;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
@@ -7,7 +8,6 @@ import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.temp.mom.consumer.AbstractEventHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,6 +29,7 @@ public class ExtChannelResponseEventHandler extends AbstractEventHandler<PnExtCh
 
     @Override
     public void handleEvent(PnExtChnProgressStatusEvent evt ) {
+        
         StandardEventHeader header = evt.getHeader();
         log.info( "EXT_CHANNEL RESPONSE iun={} eventId={}", header.getIun(), header.getEventId() );
 
@@ -73,6 +74,7 @@ public class ExtChannelResponseEventHandler extends AbstractEventHandler<PnExtCh
     }
 
     private ActionType sendToReceiveActionType( Action sendAction) {
+
         ActionType result;
         switch ( sendAction.getType() ) {
             case SEND_PEC: result = ActionType.RECEIVE_PEC; break;
@@ -82,6 +84,9 @@ public class ExtChannelResponseEventHandler extends AbstractEventHandler<PnExtCh
                 throw new PnInternalException( sendAction.getType() + " is not a send");
         }
         return result;
+
     }
 
 }
+
+ */

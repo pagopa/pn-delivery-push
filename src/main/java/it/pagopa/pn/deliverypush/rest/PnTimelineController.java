@@ -20,10 +20,10 @@ public class PnTimelineController implements TimelineAndStatusApi {
     public PnTimelineController(TimelineService timelineService) { this.timelineService = timelineService; }
 
     @Override
-    public Mono<ResponseEntity<NotificationHistoryResponse>> getNotificationHistory(String iun, Integer numberOfRecipients, String createdAt, ServerWebExchange exchange) {
+    public Mono<ResponseEntity<NotificationHistoryResponse>> getNotificationHistory(String iun, Integer numberOfRecipients, Instant createdAt, ServerWebExchange exchange) {
         log.debug("Received request getTimelineAndStatusHistory - iun {} numberOfRecipients {} createdAt {}", iun, numberOfRecipients, createdAt);
-        Instant parseCratedAt = Instant.parse(createdAt);
-        NotificationHistoryResponse notificationHistoryResponse = timelineService.getTimelineAndStatusHistory( iun, numberOfRecipients, parseCratedAt);
+
+        NotificationHistoryResponse notificationHistoryResponse = timelineService.getTimelineAndStatusHistory( iun, numberOfRecipients, createdAt);
 
         return Mono.just(ResponseEntity.ok(notificationHistoryResponse));
     }

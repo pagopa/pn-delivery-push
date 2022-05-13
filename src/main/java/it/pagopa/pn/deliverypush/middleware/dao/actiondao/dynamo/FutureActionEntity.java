@@ -1,7 +1,5 @@
 package it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo;
 
-import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +11,6 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbParti
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
 
 import java.time.Instant;
-import java.util.List;
 
 @Builder
 @NoArgsConstructor
@@ -32,13 +29,14 @@ public class FutureActionEntity {
     private Instant notBefore;
     private ActionType type;
     private Integer recipientIndex;
+    /*
     private String taxId;
     private DigitalAddressSource digitalAddressSource;
     private Integer retryNumber;
     private PnExtChnProgressStatus responseStatus;
     private PhysicalAddressConv newPhysicalAddress;
     private List<String> attachmentKeys;
-
+*/
     @DynamoDbPartitionKey
     @DynamoDbAttribute(value = FIELD_TIME_SLOT )
     public String getTimeSlot() {
@@ -87,53 +85,5 @@ public class FutureActionEntity {
 
     public void setRecipientIndex(Integer recipientIndex) {
         this.recipientIndex = recipientIndex;
-    }
-
-    public DigitalAddressSource getDigitalAddressSource() {
-        return digitalAddressSource;
-    }
-
-    public void setDigitalAddressSource(DigitalAddressSource digitalAddressSource) {
-        this.digitalAddressSource = digitalAddressSource;
-    }
-
-    public Integer getRetryNumber() {
-        return retryNumber;
-    }
-
-    public void setRetryNumber(Integer retryNumber) {
-        this.retryNumber = retryNumber;
-    }
-
-    public PnExtChnProgressStatus getResponseStatus() {
-        return responseStatus;
-    }
-
-    public void setResponseStatus(PnExtChnProgressStatus responseStatus) {
-        this.responseStatus = responseStatus;
-    }
-
-    public PhysicalAddressConv getNewPhysicalAddress() {
-        return newPhysicalAddress;
-    }
-
-    public void setNewPhysicalAddress(PhysicalAddressConv newPhysicalAddress) {
-        this.newPhysicalAddress = newPhysicalAddress;
-    }
-
-    public List<String> getAttachmentKeys() {
-        return attachmentKeys;
-    }
-
-    public void setAttachmentKeys(List<String> attachmentKeys) {
-        this.attachmentKeys = attachmentKeys;
-    }
-
-    public String getTaxId() {
-        return taxId;
-    }
-
-    public void setTaxId(String taxId) {
-        this.taxId = taxId;
     }
 }

@@ -1,15 +1,14 @@
-package it.pagopa.pn.deliverypush.middleware.eventhandlers;
+package it.pagopa.pn.deliverypush.middleware.eventbinder.oldhandlers;
+/*
 
 import it.pagopa.pn.api.dto.events.PnDeliveryNotificationViewedEvent;
-import it.pagopa.pn.deliverypush.temp.mom.consumer.AbstractEventHandler;
-import org.springframework.stereotype.Service;
-
 import it.pagopa.pn.api.dto.events.StandardEventHeader;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
+import it.pagopa.pn.deliverypush.temp.mom.consumer.AbstractEventHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
@@ -24,6 +23,7 @@ public class NotificationViewedEventHandler extends AbstractEventHandler<PnDeliv
 
     @Override
     public void handleEvent(PnDeliveryNotificationViewedEvent evt ) {
+
         StandardEventHeader header = evt.getHeader();
         log.info( "NOTIFICATION VIEWED  iun={} eventId={}", header.getIun(), header.getEventId() );
 
@@ -36,6 +36,8 @@ public class NotificationViewedEventHandler extends AbstractEventHandler<PnDeliv
                 .build();
         
         actionsPool.scheduleFutureAction( notificationViewed );
+
     }
 
 }
+*/

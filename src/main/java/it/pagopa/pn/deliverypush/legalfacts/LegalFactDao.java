@@ -2,11 +2,9 @@ package it.pagopa.pn.deliverypush.legalfacts;
 
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationPathChooseDetails;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendDigitalFeedback;
 import org.springframework.stereotype.Component;
 
@@ -16,8 +14,6 @@ import java.io.InputStream;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 public class LegalFactDao {
@@ -44,11 +40,12 @@ public class LegalFactDao {
         }
         return key;
     }
-
+    
+/*x
     @Deprecated
     public String saveNotificationReceivedLegalFact(Action action, NotificationInt notification) {
         return saveNotificationReceivedLegalFact( notification );
-    }
+    }*/
     
     public String saveNotificationReceivedLegalFact(NotificationInt notification) {
         try {
@@ -63,7 +60,8 @@ public class LegalFactDao {
             throw new PnInternalException( msg, exc);
         }
     }
-
+    
+    /*
     @Deprecated
     public String savePecDeliveryWorkflowLegalFact(List<Action> actions, NotificationInt notification, NotificationPathChooseDetails addresses) {
         Set<Integer> recipientIdx = actions.stream()
@@ -91,7 +89,7 @@ public class LegalFactDao {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "DIGITAL_DELIVERY",  notification.getIun(), taxId);
             throw new PnInternalException(  msg, exc);
         }
-    }
+    }*/
 
     public String savePecDeliveryWorkflowLegalFact(
             List<SendDigitalFeedback> listFeedbackFromExtChannel,
@@ -113,14 +111,15 @@ public class LegalFactDao {
             throw new PnInternalException( msg, exc);
         }
     }
-
+    
+    /*
     @Deprecated
     public String saveNotificationViewedLegalFact(Action action, NotificationInt notification) {
         Integer recipientIndex = action.getRecipientIndex();
         NotificationRecipientInt recipient = notification.getRecipients().get( recipientIndex );
 
         return saveNotificationViewedLegalFact( notification, recipient, action.getNotBefore() );
-    }
+    }*/
 
     public String saveNotificationViewedLegalFact(
             NotificationInt notification,

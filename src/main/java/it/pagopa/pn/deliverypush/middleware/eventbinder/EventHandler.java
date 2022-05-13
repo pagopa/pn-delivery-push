@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.binding;
+package it.pagopa.pn.deliverypush.middleware.eventbinder;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

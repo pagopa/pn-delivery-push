@@ -3,7 +3,6 @@ package it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.mapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.ActionEntity;
 import org.springframework.stereotype.Component;
@@ -24,15 +23,15 @@ public class EntityToDtoActionMapper {
     public Action entityToDto(ActionEntity entity ) {
         Action.ActionBuilder builder =  Action.builder()
                 .actionId(entity.getActionId())
-                .attachmentKeys(entity.getAttachmentKeys())
-                .digitalAddressSource(entity.getDigitalAddressSource())
                 .notBefore(entity.getNotBefore())
                 .recipientIndex(entity.getRecipientIndex())
-                .responseStatus(entity.getResponseStatus())
-                .retryNumber(entity.getRetryNumber())
                 .type(entity.getType())
                 .iun(entity.getIun());
-        
+/*
+                 .attachmentKeys(entity.getAttachmentKeys())
+                .digitalAddressSource(entity.getDigitalAddressSource())
+                .responseStatus(entity.getResponseStatus())
+                .retryNumber(entity.getRetryNumber())
         if(entity.getNewPhysicalAddress() != null){
             builder.newPhysicalAddress(
                     PhysicalAddress.builder()
@@ -46,6 +45,7 @@ public class EntityToDtoActionMapper {
                             .build()
             );
         }
+*/
         
         return builder.build();
     }

@@ -1,12 +1,8 @@
 package it.pagopa.pn.deliverypush.abstractions.actionspool;
 
-import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import lombok.*;
 
 import java.time.Instant;
-import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,6 +23,7 @@ public class Action {
     // Required and used for SEND_PEC and RECEIVE_PEC ActionType
     private Integer recipientIndex;
     
+    /*
     // Required and used for SEND_PEC and RECEIVE_PEC ActionType
     private DigitalAddressSource digitalAddressSource;
 
@@ -35,11 +32,8 @@ public class Action {
 
     // Required and used only for RECEIVE_PEC ActionType
     private PnExtChnProgressStatus responseStatus;
-
-    // Optional and used only for RECEIVE_PAPER ActionType
-    private PhysicalAddress newPhysicalAddress; //FIXME verificare per privacy
-
+    
     // Required and used only for RECEIVER_PAPER ActionType
     private List<String> attachmentKeys;
-
+*/
 }

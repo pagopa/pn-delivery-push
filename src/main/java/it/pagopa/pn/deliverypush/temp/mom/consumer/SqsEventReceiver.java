@@ -1,4 +1,5 @@
 package it.pagopa.pn.deliverypush.temp.mom.consumer;
+/*
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -144,3 +145,4 @@ public class SqsEventReceiver implements EventReceiver {
     }
 
 }
+*/
