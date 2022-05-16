@@ -95,7 +95,7 @@
 				<i>Nome e cognome/ragione sociale</i>: ${recipient.denomination} <br/>
 				<i>C.F.</i>: ${recipient.taxId}<br/>
 				<#if recipient.digitalDomicile??>
-					<i>Domicilio digitale</i>: ${recipient.digitalDomicile.address}<br/>
+					<i>Domicilio digitale</i>: ${recipient.digitalDomicile.getAddress()}<br/>
 				<#else>
 					<i>Domicilio digitale</i>: non presente<br/>
 				</#if>

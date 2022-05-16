@@ -17,7 +17,6 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 @WebFluxTest(PnTimelineController.class)
 class PnTimelineControllerTest {
@@ -61,7 +60,7 @@ class PnTimelineControllerTest {
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(Set.class);
+                .expectBody(NotificationHistoryResponse.class);
 
         Mockito.verify(service).getTimelineAndStatusHistory(Mockito.anyString(), Mockito.anyInt(), Mockito.any());
         
