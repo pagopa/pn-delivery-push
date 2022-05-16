@@ -4,10 +4,9 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action2.utils.AnalogWorkflowUtils;
 import it.pagopa.pn.deliverypush.action2.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
-import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendPaperDetails;
@@ -26,18 +25,16 @@ public class AnalogWorkflowHandler {
     private final AnalogWorkflowUtils analogWorkflowUtils;
     private final PublicRegistrySendHandler publicRegistrySendHandler;
     private final InstantNowSupplier instantNowSupplier;
-    private final TimelineUtils timelineUtils;
     
     public AnalogWorkflowHandler(NotificationService notificationService, ExternalChannelSendHandler externalChannelSendHandler,
                                  CompletionWorkFlowHandler completionWorkFlow, AnalogWorkflowUtils analogWorkflowUtils,
-                                 PublicRegistrySendHandler publicRegistrySendHandler, InstantNowSupplier instantNowSupplier, TimelineUtils timelineUtils) {
+                                 PublicRegistrySendHandler publicRegistrySendHandler, InstantNowSupplier instantNowSupplier) {
         this.notificationService = notificationService;
         this.externalChannelSendHandler = externalChannelSendHandler;
         this.completionWorkFlow = completionWorkFlow;
         this.analogWorkflowUtils = analogWorkflowUtils;
         this.publicRegistrySendHandler = publicRegistrySendHandler;
         this.instantNowSupplier = instantNowSupplier;
-        this.timelineUtils = timelineUtils;
     }
 
     public void startAnalogWorkflow(String iun, Integer recIndex) {
@@ -121,7 +118,7 @@ public class AnalogWorkflowHandler {
         log.debug("getLastTimelineSentFeedback completed  - iun {} id {}", iun, recIndex);
 
         //Se l'indirizzo fornito da public registry è presente ...
-        if (response.getPhysicalAddress() != null && response.getPhysicalAddress().getAddress() != null) {
+        if (response.getPhysicalAddress() != null) {
 
             PhysicalAddress lastUsedAddress = lastSentFeedback.getPhysicalAddress();
 
@@ -148,7 +145,7 @@ public class AnalogWorkflowHandler {
 
     private void checkAddressAndSend(NotificationInt notification, Integer recIndex, PhysicalAddress address, boolean investigation, int sentAttemptMade) {
         //Se l'indirizzo passato è valorizzato viene inviata la notifica ad externalChannel...
-        if (address != null && address.getAddress() != null) {
+        if (address != null) {
             log.info("Have a valid address, send notification to external channel  - iun {} id {}", notification.getIun(), recIndex);
             externalChannelSendHandler.sendAnalogNotification(notification, address, recIndex, investigation, sentAttemptMade);
         } else {

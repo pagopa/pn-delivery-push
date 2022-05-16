@@ -138,7 +138,7 @@ public class ExternalChannelUtils {
 
     public PnExtChnPecEvent buildSendPecRequest(String eventId, NotificationInt notification,
                                                 NotificationRecipientInt recipient, DigitalAddress address) {
-        final String accessUrl = getAccessUrl(recipient, notification.getIun());
+        final String accessUrl = getAccessUrl(notification.getIun());
         return PnExtChnPecEvent.builder()
                 .header(StandardEventHeader.builder()
                         .iun(notification.getIun())
@@ -173,7 +173,7 @@ public class ExternalChannelUtils {
             boolean investigation,
             PhysicalAddress address
     ) {
-        final String accessUrl = getAccessUrl(recipient, notification.getIun());
+        final String accessUrl = getAccessUrl(notification.getIun());
 
         return PnExtChnPaperEvent.builder()
                 .header(StandardEventHeader.builder()
@@ -214,7 +214,7 @@ public class ExternalChannelUtils {
             NotificationRecipientInt recipient,
             DigitalAddress emailAddress
     ) {
-        final String accessUrl = getAccessUrl(recipient, notification.getIun());
+        final String accessUrl = getAccessUrl(notification.getIun());
         return PnExtChnEmailEvent.builder()
                 .header(StandardEventHeader.builder()
                         .iun(notification.getIun())
@@ -239,8 +239,8 @@ public class ExternalChannelUtils {
                 .build();
     }
 
-    private String getAccessUrl(NotificationRecipientInt recipient, String iun) {
-        return String.format(cfg.getWebapp().getDirectAccessUrlTemplate());
+    private String getAccessUrl(String iun) {
+        return String.format(cfg.getWebapp().getDirectAccessUrlTemplate(), iun);
     }
 
     private void addTimelineElement(TimelineElementInternal element) {

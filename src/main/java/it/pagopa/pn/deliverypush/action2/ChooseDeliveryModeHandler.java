@@ -155,10 +155,6 @@ public class ChooseDeliveryModeHandler {
         
         Optional<AddressBookEntry> addressBookEntryOpt = chooseDeliveryUtils.getAddresses(notification, recIndex);
 
-        if (addressBookEntryOpt.isPresent()) {
-            DigitalAddress platformDigitalAddress = addressBookEntryOpt.get().getPlatformDigitalAddress();
-            return platformDigitalAddress != null && platformDigitalAddress.getAddress() != null ? platformDigitalAddress : null;
-        }
-        return null;
+        return addressBookEntryOpt.map(AddressBookEntry::getPlatformDigitalAddress).orElse(null);
     }
 }

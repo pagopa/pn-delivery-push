@@ -13,6 +13,7 @@ public class RestTemplateFactoryActivation extends RestTemplateFactory {
     @Bean
     @Qualifier("withTracing")
     @Primary
+    @Override
     public RestTemplate restTemplateWithTracing() {
         return super.restTemplateWithTracing();
     }

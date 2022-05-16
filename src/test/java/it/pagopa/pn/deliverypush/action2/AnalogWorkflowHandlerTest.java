@@ -34,8 +34,6 @@ class AnalogWorkflowHandlerTest {
     private PublicRegistrySendHandler publicRegistrySendHandler;
     @Mock
     private InstantNowSupplier instantNowSupplier;
-    @Mock
-    private TimelineUtils timelineUtils;
     
     private AnalogWorkflowHandler handler;
     
@@ -45,7 +43,7 @@ class AnalogWorkflowHandlerTest {
     public void setup() {
         handler = new AnalogWorkflowHandler(notificationService, externalChannelSendHandler,
                 completionWorkFlow, analogWorkflowUtils,
-                publicRegistrySendHandler, instantNowSupplier, timelineUtils);
+                publicRegistrySendHandler, instantNowSupplier);
         notificationUtils= new NotificationUtils();
     }
 

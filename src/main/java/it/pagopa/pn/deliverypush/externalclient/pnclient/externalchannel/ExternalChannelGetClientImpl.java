@@ -13,13 +13,11 @@ public class ExternalChannelGetClientImpl implements ExternalChannelGetClient {
 
     public static final String EXTERNAL_CHANNEL_GET_DOWNLOAD_LINKS = "/attachments/getDownloadLinks?%s";
     
-    private final PnDeliveryPushConfigs cfg;
     private final RestTemplate restTemplate;
     private final String externalChannelBaseUrl;
     
 
     public ExternalChannelGetClientImpl(PnDeliveryPushConfigs cfg, @Qualifier("withTracing") RestTemplate restTemplate) {
-        this.cfg = cfg;
         this.externalChannelBaseUrl = cfg.getExternalChannelBaseUrl();
         this.restTemplate = restTemplate;
     }

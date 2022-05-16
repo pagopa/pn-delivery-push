@@ -5,6 +5,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetails;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import javax.validation.Valid;
@@ -12,6 +13,7 @@ import java.time.Instant;
 import java.util.List;
 
 @Getter
+@EqualsAndHashCode(callSuper = true)
 public class TimelineElementInternal extends TimelineElement {
     private final String iun;
 

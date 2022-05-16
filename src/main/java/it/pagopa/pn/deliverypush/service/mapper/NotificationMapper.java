@@ -210,9 +210,7 @@ public class NotificationMapper {
         if(internalDigitalDomicile != null){
             notificationDigitalAddress = new NotificationDigitalAddress();
             notificationDigitalAddress.setAddress(internalDigitalDomicile.getAddress());
-            if(internalDigitalDomicile.getType() != null){
-                notificationDigitalAddress.setType(NotificationDigitalAddress.TypeEnum.valueOf(internalDigitalDomicile.getType().getValue()));
-            }
+            notificationDigitalAddress.setType(NotificationDigitalAddress.TypeEnum.valueOf(internalDigitalDomicile.getType().getValue()));
         }
 
         NotificationPhysicalAddress physicalAddress = null;

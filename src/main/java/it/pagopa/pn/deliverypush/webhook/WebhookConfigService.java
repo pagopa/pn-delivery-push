@@ -19,7 +19,7 @@ public class WebhookConfigService {
 
     public void putConfigurations(List<WebhookConfigDto> listConfigDto) {
         List<CassandraWebhookConfigEntity> listEntity = dtoToEntityConfigMapper.dto2Entity(listConfigDto);
-        listEntity.forEach(entity -> webhookConfigsDao.put(entity));
+        listEntity.forEach(webhookConfigsDao::put);
     }
 
     public void putConfiguration(WebhookConfigDto configDto) {

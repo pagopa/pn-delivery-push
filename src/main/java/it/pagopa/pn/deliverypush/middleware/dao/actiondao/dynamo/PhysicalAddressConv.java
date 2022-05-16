@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo;
 
+/*
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -78,3 +79,4 @@ public class PhysicalAddressConv {
         this.foreignState = foreignState;
     }
 }
+*/

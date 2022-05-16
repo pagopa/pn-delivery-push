@@ -1,24 +1,11 @@
 package it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.mapper;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.ActionEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 @Component
 public class EntityToDtoActionMapper {
-    private final ObjectMapper objectMapper;
-    private final Map<TimelineElementCategory, ObjectReader> objectReaders;
-
-    public EntityToDtoActionMapper(ObjectMapper objectMapper ) {
-        this.objectMapper = objectMapper;
-        this.objectReaders = new ConcurrentHashMap<>();
-    }
 
     public Action entityToDto(ActionEntity entity ) {
         Action.ActionBuilder builder =  Action.builder()

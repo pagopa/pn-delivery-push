@@ -1,23 +1,11 @@
 package it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.mapper;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.FutureActionEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
-
 @Component
 public class DtoToEntityFutureActionMapper {
-    private final ObjectMapper objectMapper;
-    private final Map<TimelineElementCategory, ObjectWriter> objectWriters;
-
-    public DtoToEntityFutureActionMapper(ObjectMapper objectMapper, Map<TimelineElementCategory, ObjectWriter> objectWriters) {
-        this.objectMapper = objectMapper;
-        this.objectWriters = objectWriters;
-    }
 
     public FutureActionEntity dtoToEntity(Action dto, String timeSlot) {
         FutureActionEntity.FutureActionEntityBuilder builder = FutureActionEntity.builder()

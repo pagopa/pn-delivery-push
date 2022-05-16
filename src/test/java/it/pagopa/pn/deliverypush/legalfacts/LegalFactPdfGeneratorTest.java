@@ -76,7 +76,7 @@ class LegalFactPdfGeneratorTest {
 		SendDigitalFeedback sdf = SendDigitalFeedback.builder()
 				.recIndex( 0 )
 				.digitalAddress(DigitalAddress.builder()
-						.type(DigitalAddress.TypeEnum.PEC.PEC)
+						.type(DigitalAddress.TypeEnum.PEC)
 						.address("indirizzo di prova test")
 						.build())
 				.responseStatus(ResponseStatus.OK)

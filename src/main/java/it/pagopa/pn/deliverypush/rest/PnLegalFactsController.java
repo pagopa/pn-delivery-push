@@ -52,12 +52,10 @@ public class PnLegalFactsController implements LegalFactsApi, PnDeliveryPushRest
     private LegalFactsId getLegalFactsId(LegalFactListElement element) {
         LegalFactsId legalFactsId = new LegalFactsId();
         legalFactsId.setKey(element.getLegalFactsId().getKey());
-        LegalFactCategory legalFactType = element.getLegalFactsId().getCategory();
+        LegalFactCategory category = element.getLegalFactsId().getCategory();
         
-        if ( legalFactType != null){
-            LegalFactCategory category = LegalFactCategory.valueOf(legalFactType.toString());
-            legalFactsId.setCategory(category);
-        }
+        legalFactsId.setCategory(category);
+        
         return legalFactsId;
     }
 

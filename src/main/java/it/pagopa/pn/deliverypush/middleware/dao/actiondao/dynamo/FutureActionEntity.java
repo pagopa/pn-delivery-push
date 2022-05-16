@@ -18,8 +18,6 @@ import java.time.Instant;
 @EqualsAndHashCode
 @DynamoDbBean
 public class FutureActionEntity {
-    //TODO Da rivedere i campi necessari e quelli eliminabili una volta passati alla v2
-    
     public static final String FIELD_TIME_SLOT = "timeSlot";
     public static final String FIELD_ACTION_ID = "actionId";
 

@@ -138,8 +138,7 @@ public class DigitalWorkFlowUtils {
 
         if (addressBookEntryOpt.isPresent()) {
             log.debug("Retrive platformAddress ok for recipient {} sender {}", recipient.getTaxId(), sender.getPaId());
-            DigitalAddress platformAddress = addressBookEntryOpt.get().getPlatformDigitalAddress();
-            return platformAddress != null && platformAddress.getAddress() != null ? platformAddress : null;
+            return addressBookEntryOpt.get().getPlatformDigitalAddress();
         }
         log.info("Platform address is empty for recipient {} sender {}", recipient.getTaxId(), sender.getPaId());
         return null;

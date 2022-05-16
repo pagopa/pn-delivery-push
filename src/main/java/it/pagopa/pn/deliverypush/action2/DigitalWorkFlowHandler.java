@@ -6,7 +6,6 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.action2.utils.DigitalWorkFlowUtils;
 import it.pagopa.pn.deliverypush.action2.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
-import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
@@ -33,13 +32,12 @@ public class DigitalWorkFlowHandler {
     private final PublicRegistrySendHandler publicRegistrySendHandler;
     private final InstantNowSupplier instantNowSupplier;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
-    private final TimelineUtils timelineUtils;
 
     public DigitalWorkFlowHandler(ExternalChannelSendHandler externalChannelSendHandler,
                                   NotificationService notificationService, SchedulerService schedulerService,
                                   DigitalWorkFlowUtils digitalWorkFlowUtils, CompletionWorkFlowHandler completionWorkflow,
                                   PublicRegistrySendHandler publicRegistryHandler, InstantNowSupplier instantNowSupplier,
-                                  PnDeliveryPushConfigs pnDeliveryPushConfigs, TimelineUtils timelineUtils) {
+                                  PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         this.externalChannelSendHandler = externalChannelSendHandler;
         this.notificationService = notificationService;
         this.schedulerService = schedulerService;
@@ -48,7 +46,6 @@ public class DigitalWorkFlowHandler {
         this.publicRegistrySendHandler = publicRegistryHandler;
         this.instantNowSupplier = instantNowSupplier;
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
-        this.timelineUtils = timelineUtils;
     }
 
     public void startScheduledNextWorkflow(String iun, Integer recIndex) {

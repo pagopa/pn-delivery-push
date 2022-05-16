@@ -4,7 +4,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import org.junit.jupiter.api.Test;
 
 class SmartMapperTest {
-    
+    //TODO DA Definire test
     @Test
     void mapToClass() {
         SendDigitalDetails sendDigitalDetails = SendDigitalDetails.builder()

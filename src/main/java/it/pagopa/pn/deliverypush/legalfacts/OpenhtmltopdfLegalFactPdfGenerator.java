@@ -349,7 +349,6 @@ public class OpenhtmltopdfLegalFactPdfGenerator extends AbstractLegalFactPdfGene
 
         StringBuilder paragraph3 = new StringBuilder();
         for (Action action : actions) {
-            //TODO Capire bene cosa vada valorizzato qui
             DigitalAddress address = action.getDigitalAddressSource().getAddressFrom(addresses);
             NotificationRecipientInt recipient = notification.getRecipients().get(action.getRecipientIndex());
             PnExtChnProgressStatus status = action.getResponseStatus();

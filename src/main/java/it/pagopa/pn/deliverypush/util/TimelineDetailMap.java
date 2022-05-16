@@ -8,6 +8,8 @@ import java.util.Map;
 
 public class TimelineDetailMap {
     
+    private TimelineDetailMap(){}
+    
     private static final Map<TimelineElementCategory, Class<?>> detailsMap = new HashMap<>();
     
     static {
