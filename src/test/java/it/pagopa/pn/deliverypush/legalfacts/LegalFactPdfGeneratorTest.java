@@ -15,7 +15,6 @@ import javax.validation.constraints.NotNull;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import freemarker.template.Configuration;
 import freemarker.template.Version;
