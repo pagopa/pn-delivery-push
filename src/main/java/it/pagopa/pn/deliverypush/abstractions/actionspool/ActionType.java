@@ -32,15 +32,16 @@ public enum ActionType {
                     action.getRecipientIndex()
             );
         }
-    };
-    /*
+    },
     SENDER_ACK() {
 
         @Override
         public String buildActionId(Action action) {
             return String.format("%s_start", action.getIun() );
         }
-    },
+    };
+    /*
+    
     CHOOSE_DELIVERY_MODE {
         @Override
         public String buildActionId(Action action) {
