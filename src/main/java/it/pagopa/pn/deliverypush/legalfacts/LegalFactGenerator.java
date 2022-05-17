@@ -41,6 +41,7 @@ public class LegalFactGenerator {
 
         Map<String, Object> templateModel = new HashMap<>();
         templateModel.put("sendDate", instantWriter.instantToDate( notification.getSentAt() ) );
+        templateModel.put("sendDateNoTime", instantWriter.instantToDate( notification.getSentAt(), true ) );
         templateModel.put("notification", notification.toBuilder()
                 .sender( notification.getSender().toBuilder()
                         .paDenomination( "DenominationOfPA_" + notification.getSender().getPaId() )
