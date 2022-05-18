@@ -8,14 +8,14 @@ import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.externalclient.pnclient.externalchannel.ExternalChannelGetClient;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetails;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
-import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
-import it.pagopa.pn.deliverypush.externalclient.pnclient.externalchannel.ExternalChannelGetClient;
 import it.pagopa.pn.deliverypush.service.LegalFactService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.Resource;
@@ -37,20 +37,20 @@ public class LegalFactServiceImpl implements LegalFactService {
 
     public static final String MISSING_EXT_CHA_LEGAL_FACT_MESSAGE = "Unable to retrieve paper feedback for iun=%s with id=%s from external channel API";
 
-    private final TimelineDao timelineDao;
+    private final TimelineService timelineService;
     private final FileStorage fileStorage;
     private final LegalfactsMetadataUtils legalfactsUtils;
     private final ExternalChannelGetClient externalChannelClient;
     private final NotificationService notificationService;
     private final NotificationUtils notificationUtils;
 
-    public LegalFactServiceImpl(TimelineDao timelineDao,
+    public LegalFactServiceImpl(TimelineService timelineService,
                                 FileStorage fileStorage,
                                 LegalfactsMetadataUtils legalFactsUtils,
                                 ExternalChannelGetClient externalChannelClient,
                                 NotificationService notificationService, 
                                 NotificationUtils notificationUtils) {
-        this.timelineDao = timelineDao;
+        this.timelineService = timelineService;
         this.fileStorage = fileStorage;
         this.legalfactsUtils = legalFactsUtils;
         this.externalChannelClient = externalChannelClient;
@@ -62,7 +62,7 @@ public class LegalFactServiceImpl implements LegalFactService {
     @NotNull
     public List<LegalFactListElement> getLegalFacts(String iun) {
         log.debug( "Retrieve timeline elements for iun={}", iun );
-        Set<TimelineElementInternal> timelineElements = timelineDao.getTimeline(iun);
+        Set<TimelineElementInternal> timelineElements = timelineService.getTimeline(iun);
         NotificationInt notification = notificationService.getNotificationByIun(iun);
         List<LegalFactListElement> legalFacts = timelineElements
                 .stream()

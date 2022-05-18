@@ -18,9 +18,20 @@ public class PaperNotificationFailedServiceImpl implements PaperNotificationFail
         this.paperNotificationFailedDao = paperNotificationFailedDao;
     }
 
-    public List<PaperNotificationFailed> getPaperNotificationsFailed(String recipientId) {
+    @Override
+    public void addPaperNotificationFailed(PaperNotificationFailed paperNotificationFailed) {
+        paperNotificationFailedDao.addPaperNotificationFailed(paperNotificationFailed);
+    }
+
+    @Override
+    public void deleteNotificationFailed(String recipientId, String iun) {
+        paperNotificationFailedDao.deleteNotificationFailed(recipientId, iun);
+    }
+
+    @Override
+    public List<PaperNotificationFailed> getPaperNotificationByRecipientId(String recipientId) {
         log.info( "Retrieve paper notifications failed for recipientId={}", recipientId);
-        return new ArrayList<>(paperNotificationFailedDao.getNotificationByRecipientId(recipientId));
+        return new ArrayList<>(paperNotificationFailedDao.getPaperNotificationFailedByRecipientId(recipientId));
     }
 
 }

@@ -21,6 +21,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressS
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.NotificationServiceImpl;
+import it.pagopa.pn.deliverypush.service.impl.PaperNotificationFailedServiceImpl;
 import it.pagopa.pn.deliverypush.service.impl.TimeLineServiceImpl;
 import it.pagopa.pn.deliverypush.util.StatusUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -65,6 +66,7 @@ import java.util.List;
         StatusUtils.class,
         NotificationServiceImpl.class,
         TimeLineServiceImpl.class,
+        PaperNotificationFailedServiceImpl.class,
         CheckAttachmentUtils.class,
         NotificationUtils.class,
         PaperNotificationFailedDaoMock.class,

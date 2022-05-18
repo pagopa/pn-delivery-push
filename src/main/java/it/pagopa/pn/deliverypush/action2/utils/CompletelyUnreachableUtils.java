@@ -1,11 +1,11 @@
 package it.pagopa.pn.deliverypush.action2.utils;
 
+import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFailed;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFailed;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
+import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -13,14 +13,14 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class CompletelyUnreachableUtils  {
-    private final PaperNotificationFailedDao paperNotificationFailedDao;
+    private final PaperNotificationFailedService paperNotificationFailedService;
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
     private final NotificationUtils notificationUtils;
     
-    public CompletelyUnreachableUtils(PaperNotificationFailedDao paperNotificationFailedDao, TimelineService timelineService,
+    public CompletelyUnreachableUtils(PaperNotificationFailedService paperNotificationFailedService, TimelineService timelineService,
                                       TimelineUtils timelineUtils, NotificationUtils notificationUtils) {
-        this.paperNotificationFailedDao = paperNotificationFailedDao;
+        this.paperNotificationFailedService = paperNotificationFailedService;
         this.timelineService = timelineService;
         this.timelineUtils = timelineUtils;
         this.notificationUtils = notificationUtils;
@@ -45,7 +45,7 @@ public class CompletelyUnreachableUtils  {
         
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
         
-        paperNotificationFailedDao.addPaperNotificationFailed(
+        paperNotificationFailedService.addPaperNotificationFailed(
                 PaperNotificationFailed.builder()
                         .iun(notification.getIun())
                         .recipientId(recipient.getTaxId())

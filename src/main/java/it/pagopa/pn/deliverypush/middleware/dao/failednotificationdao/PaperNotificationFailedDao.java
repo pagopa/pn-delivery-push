@@ -9,7 +9,7 @@ public interface PaperNotificationFailedDao {
 
     void addPaperNotificationFailed(PaperNotificationFailed paperNotificationFailed);
 
-    Set<PaperNotificationFailed> getNotificationByRecipientId(String recipientId);
+    Set<PaperNotificationFailed> getPaperNotificationFailedByRecipientId(String recipientId);
 
     void deleteNotificationFailed(String recipientId, String iun);
 

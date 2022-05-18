@@ -25,7 +25,7 @@ public class PaperNotificationFailedDaoMock implements PaperNotificationFailedDa
     }
 
     @Override
-    public Set<PaperNotificationFailed> getNotificationByRecipientId(String recipientId) {
+    public Set<PaperNotificationFailed> getPaperNotificationFailedByRecipientId(String recipientId) {
         return paperNotificationsFailed.stream().filter(paperNotificationFailed -> recipientId.equals(paperNotificationFailed.getRecipientId())).collect(Collectors.toSet());
     }
 

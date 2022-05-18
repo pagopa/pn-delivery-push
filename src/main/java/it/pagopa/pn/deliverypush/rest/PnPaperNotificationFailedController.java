@@ -24,7 +24,7 @@ public class PnPaperNotificationFailedController implements PnDeliveryRestApi_me
     @GetMapping(PnDeliveryPushRestConstants.NOTIFICATIONS_PAPER_FAILED_PATH)
     public ResponseEntity<List<PaperNotificationFailed>> searchPaperNotificationsFailed(
             @RequestParam(name = "recipientId") String recipientId) {
-        return ResponseEntity.ok().body(service.getPaperNotificationsFailed(recipientId));
+        return ResponseEntity.ok().body(service.getPaperNotificationByRecipientId(recipientId));
     }
 
 }

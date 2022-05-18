@@ -8,8 +8,8 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
-import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +29,7 @@ class NotificationViewedHandlerTest {
     @Mock
     private TimelineUtils timelineUtils;
     @Mock
-    private PaperNotificationFailedDao paperNotificationFailedDao;
+    private PaperNotificationFailedService paperNotificationFailedService;
     @Mock
     private LegalFactDao legalFactStore;
     @Mock
@@ -44,7 +44,7 @@ class NotificationViewedHandlerTest {
     public void setup() {
         notificationUtils = new NotificationUtils();
         handler = new NotificationViewedHandler(timelineService, legalFactStore,
-                paperNotificationFailedDao, notificationService,
+                paperNotificationFailedService, notificationService,
                 timelineUtils, instantNowSupplier, notificationUtils);
     }
     
