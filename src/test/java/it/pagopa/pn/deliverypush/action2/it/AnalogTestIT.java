@@ -21,6 +21,7 @@ import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.NotificationServiceImpl;
 import it.pagopa.pn.deliverypush.service.impl.PaperNotificationFailedServiceImpl;
+import it.pagopa.pn.deliverypush.service.impl.StatusServiceImpl;
 import it.pagopa.pn.deliverypush.service.impl.TimeLineServiceImpl;
 import it.pagopa.pn.deliverypush.util.StatusUtils;
 import org.junit.jupiter.api.Assertions;
@@ -64,6 +65,7 @@ import java.time.Instant;
         NotificationServiceImpl.class,
         TimeLineServiceImpl.class,
         PaperNotificationFailedServiceImpl.class,
+        StatusServiceImpl.class,
         CheckAttachmentUtils.class,
         StatusUtils.class,
         PaperNotificationFailedDaoMock.class,

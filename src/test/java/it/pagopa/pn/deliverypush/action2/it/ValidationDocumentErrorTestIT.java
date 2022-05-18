@@ -24,6 +24,8 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.NotificationServiceImpl;
+import it.pagopa.pn.deliverypush.service.impl.PaperNotificationFailedServiceImpl;
+import it.pagopa.pn.deliverypush.service.impl.StatusServiceImpl;
 import it.pagopa.pn.deliverypush.service.impl.TimeLineServiceImpl;
 import it.pagopa.pn.deliverypush.util.StatusUtils;
 import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
@@ -73,6 +75,8 @@ import static org.mockito.Mockito.doThrow;
         PublicRegistryUtils.class,
         NotificationUtils.class,
         NotificationServiceImpl.class,
+        StatusServiceImpl.class,
+        PaperNotificationFailedServiceImpl.class,
         TimeLineServiceImpl.class,
         CheckAttachmentUtils.class,
         PaperNotificationFailedDaoMock.class,
