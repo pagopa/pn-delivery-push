@@ -27,17 +27,19 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
     @Override
     public void saveTimelineConfidentialInformation(TimelineElementInternal timelineElement) {
         String iun = timelineElement.getIun();
-        
-        ConfidentialTimelineElementDtoInt dtoInt = getConfidentialDtoFromTimeline(timelineElement);
+        if (checkPresenceConfidentialInformation(timelineElement)){
 
-        ConfidentialTimelineElementDto dtoExt = ConfidentialTimelineElementDtoMapper.internalToExternal(dtoInt);
-        ResponseEntity<Void> resp = pnDataVaultClient.updateNotificationTimelineByIunAndTimelineElementId(iun, dtoExt);
+            ConfidentialTimelineElementDtoInt dtoInt = getConfidentialDtoFromTimeline(timelineElement);
 
-        if (resp.getStatusCode().is2xxSuccessful()) {
-            log.debug("UpdateNotificationTimelineByIunAndTimelineElementId OK for - iun {} timelineElementId {}", iun, dtoInt.getTimelineElementId());
-        } else {
-            log.error("UpdateNotificationTimelineByIunAndTimelineElementId Failed for - iun {} timelineElementId {}", iun, dtoInt.getTimelineElementId());
-            throw new PnInternalException("UpdateNotificationTimelineByIunAndTimelineElementId Failed for - iun " + iun +" timelineElementId "+ dtoInt.getTimelineElementId());
+            ConfidentialTimelineElementDto dtoExt = ConfidentialTimelineElementDtoMapper.internalToExternal(dtoInt);
+            ResponseEntity<Void> resp = pnDataVaultClient.updateNotificationTimelineByIunAndTimelineElementId(iun, dtoExt);
+
+            if (resp.getStatusCode().is2xxSuccessful()) {
+                log.debug("UpdateNotificationTimelineByIunAndTimelineElementId OK for - iun {} timelineElementId {}", iun, dtoInt.getTimelineElementId());
+            } else {
+                log.error("UpdateNotificationTimelineByIunAndTimelineElementId Failed for - iun {} timelineElementId {}", iun, dtoInt.getTimelineElementId());
+                throw new PnInternalException("UpdateNotificationTimelineByIunAndTimelineElementId Failed for - iun " + iun +" timelineElementId "+ dtoInt.getTimelineElementId());
+            }
         }
     }
 
@@ -57,7 +59,7 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
     }
 
     @Override
-    public ConfidentialTimelineElementDtoInt getNotificationTimelineByIunAndTimelineElementId(String iun, String timelineElementId) {
+    public ConfidentialTimelineElementDtoInt getTimelineConfidentialInformation(String iun, String timelineElementId) {
         ResponseEntity<ConfidentialTimelineElementDto> resp = pnDataVaultClient.getNotificationTimelineByIunAndTimelineElementId(iun, timelineElementId);
         if (resp.getStatusCode().is2xxSuccessful()) {
             log.debug("getNotificationTimelineByIunAndTimelineElementId OK for - iun {} timelineElementId {}", iun, timelineElementId);
@@ -81,8 +83,7 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
         return null;
     }
 
-    @Override
-    public boolean checkPresenceConfidentialInformation(TimelineElementInternal timelineElementInternal) {
+    private boolean checkPresenceConfidentialInformation(TimelineElementInternal timelineElementInternal) {
         TimelineElementDetails details = timelineElementInternal.getDetails();
         return details.getNewAddress() != null || details.getDigitalAddress() != null || details.getPhysicalAddress() != null;
     }

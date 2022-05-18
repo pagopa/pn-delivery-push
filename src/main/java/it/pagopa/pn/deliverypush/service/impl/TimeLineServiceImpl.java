@@ -1,12 +1,10 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDtoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -37,16 +35,39 @@ public class TimeLineServiceImpl implements TimelineService {
     @Override
     public void addTimelineElement(TimelineElementInternal element) {
         log.debug("addTimelineElement - IUN {} and timelineId {}", element.getIun(), element.getElementId());
-        if (confidentialInformationService.checkPresenceConfidentialInformation(element)){
-            confidentialInformationService.saveTimelineConfidentialInformation(element);
-        }
+        confidentialInformationService.saveTimelineConfidentialInformation(element);
         timelineDao.addTimelineElement(element);
     }
 
     @Override
     public Optional<TimelineElementInternal> getTimelineElement(String iun, String timelineId) {
         log.debug("GetTimelineElement - IUN {} and timelineId {}", iun, timelineId);
+        //TODO Valutare se possibile passare la category della timeline richiesta e in base verificare se sono presenti informazioni confidenziali, dunque se effettuare la richiesta a data-vault
+
         Optional<TimelineElementInternal> timelineElementInternalOpt = timelineDao.getTimelineElement(iun, timelineId);
+        if(timelineElementInternalOpt.isPresent()){
+            TimelineElementInternal timelineElementInt = timelineElementInternalOpt.get();
+            ConfidentialTimelineElementDtoInt confidentialDto = confidentialInformationService.getTimelineConfidentialInformation(iun, timelineId);
+            
+            enrichTimelineElementWithConfidentialInformation(timelineElementInt, confidentialDto);
+            
+            return Optional.of(timelineElementInt);
+        }
+        
+        return Optional.empty();
+    }
+
+    private void enrichTimelineElementWithConfidentialInformation(TimelineElementInternal timelineElementInt,
+                                                                  ConfidentialTimelineElementDtoInt confidentialDto) {
+        TimelineElementDetails details = timelineElementInt.getDetails();
+
+        details.setPhysicalAddress(confidentialDto.getPhysicalAddress());
+        details.setNewAddress(confidentialDto.getNewPhysicalAddress());
+        
+        if(confidentialDto.getDigitalAddress() != null){
+            DigitalAddress address = details.getDigitalAddress();
+            address.setAddress(confidentialDto.getDigitalAddress());
+        }
     }
 
     @Override

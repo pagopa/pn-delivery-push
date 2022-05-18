@@ -11,9 +11,7 @@ public interface ConfidentialInformationService {
     
     void saveTimelineConfidentialInformation(TimelineElementInternal timelineElementInternal);
     
-    ConfidentialTimelineElementDtoInt getNotificationTimelineByIunAndTimelineElementId(String iun, String timelineElementId);
-
-    boolean checkPresenceConfidentialInformation(TimelineElementInternal timelineElementInternal);
-
+    ConfidentialTimelineElementDtoInt getTimelineConfidentialInformation(String iun, String timelineElementId);
+    
     ResponseEntity<List<BaseRecipientDtoInt>> getRecipientDenominationByInternalId(List<String> internalId);
 }
