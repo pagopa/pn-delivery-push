@@ -9,12 +9,12 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.externalclient.pnclient.externalchannel.ExternalChannelGetClient;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
-import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
-import it.pagopa.pn.deliverypush.externalclient.pnclient.externalchannel.ExternalChannelGetClient;
 import it.pagopa.pn.deliverypush.service.LegalFactService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -46,7 +46,7 @@ class LegalFactServiceImplTest {
     private static final long CONTENT_LENGTH = 0L;
     private static final String LEGAL_FACT_ID = "LEGAL_FACT_ID";
 
-    private TimelineDao timelineDao;
+    private TimelineService timelineService;
     private FileStorage fileStorage;
     private LegalfactsMetadataUtils legalfactsUtils;
     private ExternalChannelGetClient externalChannelClient;
@@ -57,7 +57,7 @@ class LegalFactServiceImplTest {
 
     @BeforeEach
     void setup() {
-        timelineDao = Mockito.mock( TimelineDao.class );
+        timelineService = Mockito.mock( TimelineService.class );
         fileStorage = Mockito.mock( FileStorage.class );
         legalfactsUtils = Mockito.mock( LegalfactsMetadataUtils.class );
         externalChannelClient = Mockito.mock( ExternalChannelGetClient.class );
@@ -65,7 +65,7 @@ class LegalFactServiceImplTest {
         notificationUtils = Mockito.mock(NotificationUtils.class);
         
         legalFactService = new LegalFactServiceImpl(
-                timelineDao,
+                timelineService,
                 fileStorage,
                 legalfactsUtils,
                 externalChannelClient,
@@ -101,7 +101,7 @@ class LegalFactServiceImplTest {
                 ).build()
         );
 
-        Mockito.when( timelineDao.getTimeline( Mockito.anyString() ) )
+        Mockito.when( timelineService.getTimeline( Mockito.anyString() ) )
                 .thenReturn( timelineElementsResult );
         Mockito.when( notificationService.getNotificationByIun( Mockito.anyString() ) )
                 .thenReturn( newNotification() );

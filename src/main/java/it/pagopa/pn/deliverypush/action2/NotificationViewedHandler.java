@@ -6,9 +6,9 @@ import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
 import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 public class NotificationViewedHandler {
 
     private final LegalFactDao legalFactStore;
-    private final PaperNotificationFailedDao paperNotificationFailedDao;
+    private final PaperNotificationFailedService paperNotificationFailedService;
     private final TimelineService timelineService;
     private final NotificationService notificationService;
     private final TimelineUtils timelineUtils;
@@ -26,10 +26,10 @@ public class NotificationViewedHandler {
     private final NotificationUtils notificationUtils;
     
     public NotificationViewedHandler(TimelineService timelineService, LegalFactDao legalFactStore,
-                                     PaperNotificationFailedDao paperNotificationFailedDao, NotificationService notificationService,
+                                     PaperNotificationFailedService paperNotificationFailedService, NotificationService notificationService,
                                      TimelineUtils timelineUtils, InstantNowSupplier instantNowSupplier, NotificationUtils notificationUtils) {
         this.legalFactStore = legalFactStore;
-        this.paperNotificationFailedDao = paperNotificationFailedDao;
+        this.paperNotificationFailedService = paperNotificationFailedService;
         this.timelineService = timelineService;
         this.notificationService = notificationService;
         this.timelineUtils = timelineUtils;
@@ -49,7 +49,7 @@ public class NotificationViewedHandler {
         
         addTimelineElement(timelineUtils.buildNotificationViewedTimelineElement(iun, recIndex, legalFactId));
 
-        paperNotificationFailedDao.deleteNotificationFailed(recipient.getTaxId(), iun); //Viene eliminata l'istanza di notifica fallita dal momento che la stessa è stata letta
+        paperNotificationFailedService.deleteNotificationFailed(recipient.getTaxId(), iun); //Viene eliminata l'istanza di notifica fallita dal momento che la stessa è stata letta
 
         log.debug("End HandleViewNotification - iun {} id {}", iun, recIndex);
     }

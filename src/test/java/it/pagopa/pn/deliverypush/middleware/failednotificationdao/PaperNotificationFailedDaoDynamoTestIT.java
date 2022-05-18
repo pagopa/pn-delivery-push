@@ -47,7 +47,7 @@ class PaperNotificationFailedDaoDynamoTestIT {
                 .recipientId(idRecipient).build();
         specificDao.addPaperNotificationFailed(failedNot);
 
-        Set<PaperNotificationFailed> res = specificDao.getNotificationByRecipientId(idRecipient)
+        Set<PaperNotificationFailed> res = specificDao.getPaperNotificationFailedByRecipientId(idRecipient)
                 .stream()
                 .filter(pnf -> iun.equals(pnf.getIun()))
                 .filter(pnf -> idRecipient.equals(pnf.getRecipientId()))
@@ -69,7 +69,7 @@ class PaperNotificationFailedDaoDynamoTestIT {
 
         deletePaperNotificationFailed(iun, idRecipient);
 
-        Set<PaperNotificationFailed> res = specificDao.getNotificationByRecipientId(idRecipient)
+        Set<PaperNotificationFailed> res = specificDao.getPaperNotificationFailedByRecipientId(idRecipient)
                 .stream()
                 .filter(pnf -> iun.equals(pnf.getIun()))
                 .filter(pnf -> idRecipient.equals(pnf.getRecipientId()))
@@ -95,7 +95,7 @@ class PaperNotificationFailedDaoDynamoTestIT {
 
         specificDao.addPaperNotificationFailed(failedNot);
         
-        Set<PaperNotificationFailed> res = specificDao.getNotificationByRecipientId(idRecipient)
+        Set<PaperNotificationFailed> res = specificDao.getPaperNotificationFailedByRecipientId(idRecipient)
                 .stream()
                 .filter(pnf -> iun.equals(pnf.getIun()))
                 .filter(pnf -> idRecipient.equals(pnf.getRecipientId()))

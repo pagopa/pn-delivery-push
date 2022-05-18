@@ -33,7 +33,7 @@ public class PaperNotificationFailedDaoDynamo implements PaperNotificationFailed
     }
 
     @Override
-    public Set<PaperNotificationFailed> getNotificationByRecipientId(String recipientId) {
+    public Set<PaperNotificationFailed> getPaperNotificationFailedByRecipientId(String recipientId) {
         return dao.findByRecipientId(recipientId)
                 .stream().map(entityToDto::entityToDto)
                 .collect(Collectors.toSet());

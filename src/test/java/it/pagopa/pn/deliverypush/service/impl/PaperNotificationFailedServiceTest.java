@@ -36,9 +36,9 @@ class PaperNotificationFailedServiceTest {
                         .build());
         
         //When
-        Mockito.when( paperNotificationFailedDao.getNotificationByRecipientId( Mockito.anyString() ))
+        Mockito.when( paperNotificationFailedDao.getPaperNotificationFailedByRecipientId( Mockito.anyString() ))
                 .thenReturn( paperNotificationFailedSet );
-        List<PaperNotificationFailed> paperNotificationFailedList = paperNotificationFailedService.getPaperNotificationsFailed( RECIPIENT_ID );
+        List<PaperNotificationFailed> paperNotificationFailedList = paperNotificationFailedService.getPaperNotificationByRecipientId( RECIPIENT_ID );
         
         //Then
         assertEquals( paperNotificationFailedList, new ArrayList<>(paperNotificationFailedSet) );

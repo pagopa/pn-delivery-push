@@ -5,8 +5,8 @@ import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
-import it.pagopa.pn.deliverypush.middleware.dao.actiondao.ActionDao;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.LastPollForFutureActionsDao;
+import it.pagopa.pn.deliverypush.service.ActionService;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.core.LockAssert;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
@@ -28,15 +28,15 @@ import java.util.Optional;
 public class ActionsPoolImpl implements ActionsPool {
 
     private final MomProducer<ActionEvent> actionsQueue;
-    private final ActionDao actionDao;
+    private final ActionService actionService;
     private final Clock clock;
     private final LastPollForFutureActionsDao lastFutureActionPoolExecutionTimeDao;
     private final PnDeliveryPushConfigs configs;
 
-    public ActionsPoolImpl(MomProducer<ActionEvent> actionsQueue, ActionDao actionDao,
+    public ActionsPoolImpl(MomProducer<ActionEvent> actionsQueue, ActionService actionService,
                            Clock clock, LastPollForFutureActionsDao lastFutureActionPoolExecutionTimeDao, PnDeliveryPushConfigs configs) {
         this.actionsQueue = actionsQueue;
-        this.actionDao = actionDao;
+        this.actionService = actionService;
         this.clock = clock;
         this.lastFutureActionPoolExecutionTimeDao = lastFutureActionPoolExecutionTimeDao;
         this.configs = configs;
@@ -50,12 +50,12 @@ public class ActionsPoolImpl implements ActionsPool {
                         .build();
         }
         final String timeSlot = computeTimeSlot( action.getNotBefore() );
-        actionDao.addAction( action, timeSlot);
+        actionService.addAction( action, timeSlot);
     }
 
     @Override
     public Optional<Action> loadActionById( String actionId) {
-        return actionDao.getActionById( actionId );
+        return actionService.getActionById( actionId );
     }
 
     private List<String> computeTimeSlots(Instant from, Instant to) {
@@ -109,7 +109,7 @@ public class ActionsPoolImpl implements ActionsPool {
         List<String> uncheckedTimeSlots = computeTimeSlots(lastPollExecuted, now);
         for ( String timeSlot: uncheckedTimeSlots) {
             log.debug("Check time slot {}", timeSlot);
-            actionDao.findActionsByTimeSlot(timeSlot).stream()
+            actionService.findActionsByTimeSlot(timeSlot).stream()
                     .filter(action -> now.isAfter(action.getNotBefore()))
                     .forEach(action -> this.scheduleOne(action, timeSlot));
         }
@@ -121,7 +121,7 @@ public class ActionsPoolImpl implements ActionsPool {
         try {
             log.info("Scheduling action {}", action );
             addToActionsQueue( action );
-            actionDao.unSchedule( action, timeSlot );
+            actionService.unSchedule( action, timeSlot );
         }
         catch ( RuntimeException exc ) {
             log.error( "Scheduling action " + action, exc);
