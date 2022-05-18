@@ -79,6 +79,13 @@ class LegalFactPdfGeneratorTest {
 		Files.write(filePath, pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification, recipient));
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
+	
+	@Test 
+	void generateNotificationAARTest() throws IOException {	
+		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
+		Files.write(filePath, pdfUtils.generateNotificationAAR(buildNotification()));		
+		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+	}
 
 	private List<SendDigitalFeedback> buildFeedbackFromECList() {
 		SendDigitalFeedback sdf = SendDigitalFeedback.builder()

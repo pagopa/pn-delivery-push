@@ -176,6 +176,18 @@ public class LegalFactGenerator {
         );
     }
 
+    public byte[] generateNotificationAAR(Notification notification) throws IOException {
 
+        Map<String, Object> templateModel = new HashMap<>();
+        templateModel.put("sendDate", instantWriter.instantToDate( notification.getSentAt() ) );
+        templateModel.put("sendDateNoTime", instantWriter.instantToDate( notification.getSentAt(), true ) );
+        templateModel.put("notification", notification.toBuilder().build());
+
+        return documentComposition.executePdfTemplate(
+                DocumentComposition.TemplateType.AAR_NOTIFICATION,
+                templateModel
+            );
+
+    }
 }
 
