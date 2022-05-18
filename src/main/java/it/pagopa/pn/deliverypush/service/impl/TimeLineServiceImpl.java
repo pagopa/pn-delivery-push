@@ -1,5 +1,7 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
@@ -8,6 +10,8 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationSta
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
+import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.StatusService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import it.pagopa.pn.deliverypush.util.StatusUtils;
@@ -25,16 +29,31 @@ import java.util.stream.Collectors;
 public class TimeLineServiceImpl implements TimelineService {
     private final TimelineDao timelineDao;
     private final StatusUtils statusUtils;
-    
-    public TimeLineServiceImpl(TimelineDao timelineDao, StatusUtils statusUtils) {
+    private final NotificationService notificationService;
+    private final StatusService statusService;
+
+    public TimeLineServiceImpl(TimelineDao timelineDao, StatusUtils statusUtils, 
+                               NotificationService notificationService, StatusService statusService) {
         this.timelineDao = timelineDao;
         this.statusUtils = statusUtils;
+        this.notificationService = notificationService;
+        this.statusService = statusService;
     }
 
     @Override
-    public void addTimelineElement(TimelineElementInternal element) {
-        log.debug("addTimelineElement - IUN {} and timelineId {}", element.getIun(), element.getElementId());
-        timelineDao.addTimelineElement(element);
+    public void addTimelineElement(TimelineElementInternal dto) {
+        //TODO Verificare se possibile ristrutturare il codice per ricevere la Notification in ingresso, invece di effettuare la chiamata a delivery
+
+        log.debug("addTimelineElement - IUN {} and timelineId {}", dto.getIun(), dto.getElementId());
+        NotificationInt notification = notificationService.getNotificationByIun(dto.getIun());
+
+        if (notification != null) {
+            Set<TimelineElementInternal> currentTimeline = getTimeline(dto.getIun());
+            statusService.checkAndUpdateStatus(dto, currentTimeline, notification);
+            timelineDao.addTimelineElement(dto);
+        } else {
+            throw new PnInternalException("Try to update Timeline and Status for non existing iun " + dto.getIun());
+        }
     }
 
     @Override
