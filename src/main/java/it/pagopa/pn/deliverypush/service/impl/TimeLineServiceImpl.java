@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationSta
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
+import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import it.pagopa.pn.deliverypush.util.StatusUtils;
@@ -25,22 +26,27 @@ import java.util.stream.Collectors;
 public class TimeLineServiceImpl implements TimelineService {
     private final TimelineDao timelineDao;
     private final StatusUtils statusUtils;
+    private final ConfidentialInformationService confidentialInformationService;
     
-    public TimeLineServiceImpl(TimelineDao timelineDao, StatusUtils statusUtils) {
+    public TimeLineServiceImpl(TimelineDao timelineDao, StatusUtils statusUtils, ConfidentialInformationService confidentialInformationService) {
         this.timelineDao = timelineDao;
         this.statusUtils = statusUtils;
+        this.confidentialInformationService = confidentialInformationService;
     }
 
     @Override
     public void addTimelineElement(TimelineElementInternal element) {
         log.debug("addTimelineElement - IUN {} and timelineId {}", element.getIun(), element.getElementId());
+        if (confidentialInformationService.checkPresenceConfidentialInformation(element)){
+            confidentialInformationService.saveTimelineConfidentialInformation(element);
+        }
         timelineDao.addTimelineElement(element);
     }
 
     @Override
     public Optional<TimelineElementInternal> getTimelineElement(String iun, String timelineId) {
         log.debug("GetTimelineElement - IUN {} and timelineId {}", iun, timelineId);
-        return timelineDao.getTimelineElement(iun, timelineId);
+        Optional<TimelineElementInternal> timelineElementInternalOpt = timelineDao.getTimelineElement(iun, timelineId);
     }
 
     @Override

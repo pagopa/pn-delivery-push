@@ -35,6 +35,21 @@ public class ConfidentialTimelineElementDtoMapper {
                             .build()
             );
         }
+
+        PhysicalAddress newPhysicalAddressInt = dtoInt.getNewPhysicalAddress();
+        if (newPhysicalAddressInt != null){
+            dtoExtBuilder.newPhysicalAddress(
+                    AnalogDomicile.builder()
+                            .address(newPhysicalAddressInt.getAddress())
+                            .addressDetails(newPhysicalAddressInt.getAddressDetails())
+                            .at(newPhysicalAddressInt.getAt())
+                            .municipality(newPhysicalAddressInt.getMunicipality())
+                            .cap(newPhysicalAddressInt.getZip())
+                            .state(newPhysicalAddressInt.getForeignState())
+                            .province(newPhysicalAddressInt.getProvince())
+                            .build()
+            );
+        }
         
         return dtoExtBuilder.build();
     }
@@ -47,18 +62,33 @@ public class ConfidentialTimelineElementDtoMapper {
             dtoIntBuilder.digitalAddress(dtoExt.getDigitalAddress().getValue());
         }
 
-        AnalogDomicile analogDomicile = dtoExt.getPhysicalAddress();
-        if (analogDomicile != null){
+        AnalogDomicile physicalAddress = dtoExt.getPhysicalAddress();
+        if (physicalAddress != null){
             dtoIntBuilder.physicalAddress(
                 PhysicalAddress.builder()
-                        .address(analogDomicile.getAddress())
-                        .addressDetails(analogDomicile.getAddressDetails())
-                        .at(analogDomicile.getAt())
-                        .municipality(analogDomicile.getMunicipality())
-                        .zip(analogDomicile.getCap())
-                        .foreignState(analogDomicile.getState())
-                        .province(analogDomicile.getProvince())
+                        .address(physicalAddress.getAddress())
+                        .addressDetails(physicalAddress.getAddressDetails())
+                        .at(physicalAddress.getAt())
+                        .municipality(physicalAddress.getMunicipality())
+                        .zip(physicalAddress.getCap())
+                        .foreignState(physicalAddress.getState())
+                        .province(physicalAddress.getProvince())
                         .build()
+            );
+        }
+
+        AnalogDomicile newPhysicalAddress = dtoExt.getNewPhysicalAddress();
+        if (newPhysicalAddress != null){
+            dtoIntBuilder.newPhysicalAddress(
+                    PhysicalAddress.builder()
+                            .address(newPhysicalAddress.getAddress())
+                            .addressDetails(newPhysicalAddress.getAddressDetails())
+                            .at(newPhysicalAddress.getAt())
+                            .municipality(newPhysicalAddress.getMunicipality())
+                            .zip(newPhysicalAddress.getCap())
+                            .foreignState(newPhysicalAddress.getState())
+                            .province(newPhysicalAddress.getProvince())
+                            .build()
             );
         }
         

@@ -222,7 +222,8 @@
 						</goals>
 						<phase>process-resources</phase>
 						<configuration>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-data-vault/main/docs/openapi/pn-datavault-api-v1.yaml</inputSpec>
+							<!--TODO Da settare il branch corretto di sviluppo e non il feature -->
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-data-vault/feature/PN-1275/docs/openapi/pn-datavault-api-v1.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>

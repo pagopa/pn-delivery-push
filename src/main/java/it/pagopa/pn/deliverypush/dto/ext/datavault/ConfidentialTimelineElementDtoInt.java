@@ -13,4 +13,5 @@ public class ConfidentialTimelineElementDtoInt {
     private String timelineElementId;
     private String digitalAddress;
     private PhysicalAddress physicalAddress;
+    private PhysicalAddress newPhysicalAddress;
 }

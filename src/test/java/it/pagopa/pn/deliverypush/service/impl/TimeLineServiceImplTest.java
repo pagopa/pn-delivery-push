@@ -22,7 +22,7 @@ class TimeLineServiceImplTest {
     void setup() {
         timelineDao = Mockito.mock( TimelineDao.class );
         statusUtils = Mockito.mock( StatusUtils.class );
-        timeLineService = new TimeLineServiceImpl(timelineDao , statusUtils);
+        timeLineService = new TimeLineServiceImpl(timelineDao , statusUtils, confidentialInformationService);
     }
 
     @Test
