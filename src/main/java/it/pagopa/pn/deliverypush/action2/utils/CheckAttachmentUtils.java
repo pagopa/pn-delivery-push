@@ -48,9 +48,6 @@ public class CheckAttachmentUtils {
            if(payment.getF24flatRate() != null){
                checkAttachment(payment.getF24flatRate());
            }
-           if(payment.getF24white() != null){
-               checkAttachment(payment.getF24white());
-           }
            
            log.debug( "End check attachment for payment" );
        }

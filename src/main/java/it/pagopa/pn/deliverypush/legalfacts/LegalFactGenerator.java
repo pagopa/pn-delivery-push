@@ -79,11 +79,7 @@ public class LegalFactGenerator {
                 if ( flatRateF24 != null ) {
                     digests.add(flatRateF24.getDigests().getSha256() );
                 }
-
-                NotificationDocumentInt whiteF24 = recipientPayment.getF24white();
-                if ( whiteF24 != null ) {
-                    digests.add( whiteF24.getDigests().getSha256() );
-                }
+                
             }
         }
 

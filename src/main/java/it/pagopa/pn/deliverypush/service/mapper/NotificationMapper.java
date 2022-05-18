@@ -135,24 +135,6 @@ public class NotificationMapper {
                                             .build()
                             );
                 }
-                if(payment.getF24white() != null){
-                    paymentInfoBuilder
-                            .f24white(
-                                    NotificationDocumentInt.builder()
-                                            .digests(
-                                                    NotificationDocumentInt.Digests.builder()
-                                                            .sha256(payment.getF24white().getDigests().getSha256())
-                                                            .build()
-                                            )
-                                            .ref(
-                                                    NotificationDocumentInt.Ref.builder()
-                                                            .key(payment.getF24white().getRef().getKey())
-                                                            .versionToken(payment.getF24white().getRef().getVersionToken())
-                                                            .build()
-                                            )
-                                            .build()
-                            );
-                }
                 notificationRecIntBuilder.payment(paymentInfoBuilder.build());
             }
             list.add(notificationRecIntBuilder.build());
@@ -246,23 +228,6 @@ public class NotificationMapper {
                 pagoPaForm.setRef(ref);
             }
             payment.setPagoPaForm(pagoPaForm);
-
-            NotificationPaymentAttachment f24White = null;
-            if (paymentInternal.getF24white() != null) {
-                NotificationDocumentInt f24flatRateInternal = paymentInternal.getF24white();
-
-                f24White = new NotificationPaymentAttachment();
-
-                NotificationAttachmentDigests digests = new NotificationAttachmentDigests();
-                digests.setSha256(f24flatRateInternal.getDigests().getSha256());
-                f24White.setDigests(digests);
-
-                NotificationAttachmentBodyRef ref = new NotificationAttachmentBodyRef();
-                ref.setKey(f24flatRateInternal.getRef().getKey());
-                ref.setVersionToken(f24flatRateInternal.getRef().getVersionToken());
-                f24White.setRef(ref);
-            }
-            payment.setF24white(f24White);
 
             NotificationPaymentAttachment f24flatRate = null;
             if (paymentInternal.getF24flatRate() != null){
