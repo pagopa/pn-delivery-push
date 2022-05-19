@@ -41,7 +41,7 @@ public class PublicRegistryUtils {
 
     public PublicRegistryCallDetails getPublicRegistryCallDetail(String iun, String correlationId) {
         //Viene ottenuto l'oggetto di timeline creato in fase d'invio notifica al public registry
-        Optional<PublicRegistryCallDetails> optTimeLinePublicRegistrySend = timelineService.getTimelineElement(iun, correlationId, PublicRegistryCallDetails.class);
+        Optional<PublicRegistryCallDetails> optTimeLinePublicRegistrySend = timelineService.getTimelineElementDetails(iun, correlationId, PublicRegistryCallDetails.class);
 
         if (optTimeLinePublicRegistrySend.isPresent()) {
             return optTimeLinePublicRegistrySend.get();

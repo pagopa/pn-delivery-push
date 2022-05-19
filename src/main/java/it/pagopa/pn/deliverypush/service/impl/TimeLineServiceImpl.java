@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDtoInt;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -55,6 +56,7 @@ public class TimeLineServiceImpl implements TimelineService {
             confidentialInformationService.saveTimelineConfidentialInformation(dto);
             timelineDao.addTimelineElement(dto);
         } else {
+            log.error("Try to update Timeline and Status for non existing iun {}", dto.getIun());
             throw new PnInternalException("Try to update Timeline and Status for non existing iun " + dto.getIun());
         }
     }
@@ -62,18 +64,19 @@ public class TimeLineServiceImpl implements TimelineService {
     @Override
     public Optional<TimelineElementInternal> getTimelineElement(String iun, String timelineId) {
         log.debug("GetTimelineElement - IUN {} and timelineId {}", iun, timelineId);
-        //TODO Valutare se possibile passare la category della timeline richiesta e in base verificare se sono presenti informazioni confidenziali, dunque se effettuare la richiesta a data-vault
+        //TODO Valutare se possibile passare la category della timeline richiesta e in base verificare se sono presenti informazioni confidenziali,
+        // dunque se effettuare la richiesta a data-vault
 
         Optional<TimelineElementInternal> timelineElementInternalOpt = timelineDao.getTimelineElement(iun, timelineId);
         if(timelineElementInternalOpt.isPresent()){
             TimelineElementInternal timelineElementInt = timelineElementInternalOpt.get();
-            ConfidentialTimelineElementDtoInt confidentialDto = confidentialInformationService.getTimelineConfidentialInformation(iun, timelineId);
             
-            enrichTimelineElementWithConfidentialInformation(timelineElementInt, confidentialDto);
+            confidentialInformationService.getTimelineElementConfidentialInformation(iun, timelineId).ifPresent(
+                    confidentialDto -> enrichTimelineElementWithConfidentialInformation(timelineElementInt, confidentialDto)
+            );
             
             return Optional.of(timelineElementInt);
         }
-        
         return Optional.empty();
     }
 
@@ -91,10 +94,10 @@ public class TimeLineServiceImpl implements TimelineService {
     }
 
     @Override
-    public <T> Optional<T> getTimelineElement(String iun, String timelineId, Class<T> timelineDetailsClass) {
+    public <T> Optional<T> getTimelineElementDetails(String iun, String timelineId, Class<T> timelineDetailsClass) {
         log.debug("GetTimelineElement - IUN {} and timelineId {}", iun, timelineId);
 
-        Optional<TimelineElementInternal> row = this.timelineDao.getTimelineElement(iun, timelineId);
+        Optional<TimelineElementInternal> row = getTimelineElement(iun, timelineId);
         
         if(row.isPresent()){
             T details = SmartMapper.mapToClass(row.get().getDetails(), timelineDetailsClass);
@@ -107,14 +110,31 @@ public class TimeLineServiceImpl implements TimelineService {
     @Override
     public Set<TimelineElementInternal> getTimeline(String iun) {
         log.debug("GetTimeline - iun {} ", iun);
-        return this.timelineDao.getTimeline(iun);
+        Set<TimelineElementInternal> setTimelineElements =  this.timelineDao.getTimeline(iun);
+
+        Optional<Map<String, ConfidentialTimelineElementDtoInt>> mapConfOtp = confidentialInformationService.getTimelineConfidentialInformation(iun);
+        
+        if(mapConfOtp.isPresent()){
+            Map<String, ConfidentialTimelineElementDtoInt> mapConf = mapConfOtp.get();
+            
+            setTimelineElements.forEach(
+                    timelineElementInt -> {
+                        ConfidentialTimelineElementDtoInt dtoInt = mapConf.get(timelineElementInt.getElementId());
+                        if(dtoInt != null){
+                            enrichTimelineElementWithConfidentialInformation(timelineElementInt, dtoInt);
+                        }
+                    }
+            );
+        }
+        
+        return setTimelineElements;
     }
 
     @Override
     public NotificationHistoryResponse getTimelineAndStatusHistory(String iun, int numberOfRecipients, Instant createdAt) {
         log.debug("getTimelineAndStatusHistory Start - iun {} ", iun);
         
-        Set<TimelineElementInternal> timelineElements = this.timelineDao.getTimeline(iun);
+        Set<TimelineElementInternal> timelineElements = getTimeline(iun);
         
         List<NotificationStatusHistoryElement> statusHistory = statusUtils
                 .getStatusHistory( timelineElements, numberOfRecipients, createdAt );

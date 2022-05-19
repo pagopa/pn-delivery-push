@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
+
 @Slf4j
 @Component
 public class PnDataVaultClientImpl implements PnDataVaultClient{
@@ -40,4 +42,16 @@ public class PnDataVaultClientImpl implements PnDataVaultClient{
 
         return resp;
     }
+
+    @Override
+    public ResponseEntity<List<ConfidentialTimelineElementDto>> getNotificationTimelineByIunWithHttpInfo(String iun) {
+        log.debug("Start call getNotificationTimelineByIunWithHttpInfo - iun {}", iun);
+
+        ResponseEntity<List<ConfidentialTimelineElementDto>> resp = pnDataVaultNotificationApi.getNotificationTimelineByIunWithHttpInfo(iun);
+
+        log.debug("Response getNotificationTimelineByIunWithHttpInfo - iun {} response {}", iun, resp);
+
+        return resp;
+    }
+
 }
