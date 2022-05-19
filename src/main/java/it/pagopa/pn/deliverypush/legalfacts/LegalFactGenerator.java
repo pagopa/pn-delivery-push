@@ -182,6 +182,7 @@ public class LegalFactGenerator {
         templateModel.put("sendDate", instantWriter.instantToDate( notification.getSentAt() ) );
         templateModel.put("sendDateNoTime", instantWriter.instantToDate( notification.getSentAt(), true ) );
         templateModel.put("notification", notification.toBuilder().build());
+        templateModel.put("addressWriter", this.physicalAddressWriter );
 
         return documentComposition.executePdfTemplate(
                 DocumentComposition.TemplateType.AAR_NOTIFICATION,

@@ -244,6 +244,7 @@
 	</style>
 	</head>
 	<body>
+    <#list notification.recipients as recipient>
 		<div class="container">
 
 			<div id="header" class="row">
@@ -251,16 +252,24 @@
           <h2>Piattaforma Notifiche</h2>
         </div>
         <div class="right-col">
-          <img src="../assets/pn-logo-header.png" />
+          <img src="images/pn-logo-header.png" />
         </div>
       </div>
-      <#list notification.recipients as recipient>
+
 			<div class="row">
-        <div class="left-col col-5-10">&nbsp;</div>
-        <div class="left-col col-5-10">
+        <div class="right-col col-5-10">
           <div class="u-recipient-data">
-            <p id="recipient-name">${recipient.denomination}</p>
-            <p id="recipient-address">${recipient.digitalDomicile.address}</p>
+            <p id="recipient-address">
+              <#if addressWriter.nullSafePhysicalAddressToString( recipient.physicalAddress, recipient.denomination, '<br/>')??>
+                ${addressWriter.nullSafePhysicalAddressToString( recipient.physicalAddress, "<strong>"+recipient.denomination+"</strong>", '<br/>')}
+              <#else>
+                <#if recipient.denomination??>
+                ${recipient.denomination}
+                <#else>
+                indirizzo non presente
+                </#if>
+              </#if>
+            </p>
           </div>
         </div>
       </div>
@@ -277,7 +286,7 @@
 
 			<div class="row">
         <div class="left-col disclaimer-img">
-          <img src="../assets/info.png" />
+          <img src="images/info.png" />
         </div>
         <div class="left-col disclaimer-content">
           <span>Puoi accedere agli atti della notifica entro <strong>120 giorni dalla data di perfezionamento</strong>. Oltre questo termine, dovrai rivolgerti al mittente.</span><br />
@@ -287,11 +296,11 @@
 
 			<div class="row rounded-box margin-y-medium">
         <div class="left-col col-1-10 box-img">
-          <img src="../assets/question.png" />
+          <img src="images/question.png" />
         </div>
         <div class="left-col col-9-10">
-          <h3 class="rounded-box__header">Cosâ€™Ã¨ Piattaforma Notifiche?</h3>
-          <p>Piattaforma Notifiche Ã¨ un nuovo strumento che rende la notifica degli atti della Pubblica Amministrazione piÃ¹ sicura, efficiente ed economica. Istituita ai sensi dei decreti legge<br/> 76/2020 e 77/2021, sostituisce tutte le iniziative precendenti.</p>
+          <h3 class="rounded-box__header">Cos’è Piattaforma Notifiche?</h3>
+          <p>Piattaforma Notifiche è un nuovo strumento che rende la notifica degli atti della Pubblica Amministrazione più sicura, efficiente ed economica. Istituita ai sensi dei decreti legge<br/> 76/2020 e 77/2021, sostituisce tutte le iniziative precendenti.</p>
         </div>
       </div>
     </div>
@@ -308,7 +317,7 @@
               <h4>1.</h4>
             </div>
             <div class="instructions-list-elem">
-              <p>Vai allâ€™indirizzo <a href="">pn.pagopa.it</a></p>
+              <p>Vai all’indirizzo <a href="#">pn.pagopa.it</a></p>
             </div>
           </div>
           
@@ -317,7 +326,7 @@
               <h4>2.</h4>
             </div>
             <div class="instructions-list-elem">
-              <p>Entra con identitÃ  digitale SPID o Carta di IdentitÃ  Elettronica (CIE) 3.0</p>
+              <p>Entra con identità digitale SPID o Carta di Identità Elettronica (CIE) 3.0</p>
             </div>
           </div>
           
@@ -326,21 +335,22 @@
               <h4>3.</h4>
             </div>
             <div class="instructions-list-elem">
-              <p>Seleziona â€œNotificheâ€� dal menu laterale</p>
+              <p>Seleziona “Notifiche” dal menu laterale</p>
             </div>
           </div>
         </div>
 
         <div class="row left-col col-9-20 rounded-box margin-top-small">
           <div class="left-col col-2-10 box-img">
-            <img src="../assets/piggybank.png" />
+            <img src="images/piggybank.png" />
           </div>
           <div class="left-col col-8-10">
-            <p>Per <strong>ricevere le notifiche solo per via digitale e risparmiare sui costi di invio</strong>, vai alla sezione â€œI tuoi datiâ€� e associa un recapito legale</p>            
+            <p>Per <strong>ricevere le notifiche solo per via digitale e risparmiare sui costi di invio</strong>, vai alla sezione “I tuoi dati” e associa un recapito legale</p>            
           </div>
         </div>
       </div>
 
 		</div>
+    </#list>
 	</body>
 </html>
