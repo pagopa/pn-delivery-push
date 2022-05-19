@@ -1,5 +1,16 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
+import java.io.IOException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Component;
+
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
 import it.pagopa.pn.api.dto.extchannel.ExtChannelResponseStatus;
 import it.pagopa.pn.api.dto.notification.Notification;
@@ -11,12 +22,6 @@ import it.pagopa.pn.api.dto.notification.timeline.SendDigitalFeedback;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -98,6 +103,7 @@ public class LegalFactGenerator {
         templateModel.put("recipient", recipient);
         templateModel.put("when", instantWriter.instantToDate( timeStamp) );
         templateModel.put("addressWriter", this.physicalAddressWriter );
+        templateModel.put("sendDateNoTime", instantWriter.instantToDate( timeStamp, true));
 
         return documentComposition.executePdfTemplate(
                 DocumentComposition.TemplateType.NOTIFICATION_VIEWED,
