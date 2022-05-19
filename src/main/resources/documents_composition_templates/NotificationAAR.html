@@ -16,7 +16,7 @@
 
     @page {
       size: A4;
-      margin: 25mm 0mm 15mm 0mm;
+      margin: 25mm 0mm 10mm 0mm;
 
       @top-left {
         content: element(header); 
@@ -61,7 +61,6 @@
     }
 
     #header img {
-      /* margin-top: 15mm; */
       height: 32px;
       /* 85x25 */
     }
@@ -160,8 +159,11 @@
     }
 
     .box-img img {
-      width: 38px;
-      height: 38px;
+      height: 45px;
+    }
+
+    #piggy {
+      height: 60px;
     }
 
     #recipient-name {
@@ -172,7 +174,7 @@
       font-weight: 400;
     }
     .u-recipient-data {
-      margin: 20mm 0 20mm 5mm;
+      margin: 12mm 0 12mm 5mm;
     }
 
     .disclaimer-img {
@@ -229,18 +231,14 @@
     .instructions-list-elem p {
       display: inline-block;
     }
-/* 
-    .box-list-item,
-    .box-list-elem {
-      position: absolute;
-      left: 10mm;
-      /** not working properly */
-      /*
-      top: 50%;
-      transform: translate(0, -50%);
-      
-      top: 1mm;
-    } */
+
+    .page-break-before {
+      page-break-before: always;
+    }
+
+    .page-break-after {
+      page-break-after: always;
+    }
 	</style>
 	</head>
 	<body>
@@ -317,7 +315,7 @@
               <h4>1.</h4>
             </div>
             <div class="instructions-list-elem">
-              <p>Vai all’indirizzo <a href="#">pn.pagopa.it</a></p>
+              <p>Vai all’indirizzo <a href="https://pn.pagopa.it">pn.pagopa.it</a></p>
             </div>
           </div>
           
@@ -342,7 +340,7 @@
 
         <div class="row left-col col-9-20 rounded-box margin-top-small">
           <div class="left-col col-2-10 box-img">
-            <img src="images/piggybank.png" />
+            <img src="images/piggybank.png" id="piggy" />
           </div>
           <div class="left-col col-8-10">
             <p>Per <strong>ricevere le notifiche solo per via digitale e risparmiare sui costi di invio</strong>, vai alla sezione “I tuoi dati” e associa un recapito legale</p>            

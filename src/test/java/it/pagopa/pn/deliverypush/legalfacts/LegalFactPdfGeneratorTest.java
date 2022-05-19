@@ -108,7 +108,7 @@ class LegalFactPdfGeneratorTest {
 		return Notification.builder().sender(createSender("paIdTest"))
 				.sentAt(Instant.now())
 				.iun("iun1234Test_buildNot")
-				.subject("Oggetto della notifica: Atto di citazione")
+				.subject("Oggetto test: Atto di citazione")
 				.documents(Arrays.asList(
 						NotificationAttachment.builder()
 						.ref( NotificationAttachment.Ref.builder()
