@@ -173,6 +173,7 @@ public class LegalFactGenerator {
                 .collect(Collectors.toList());
 
         Map<String, Object> templateModel = new HashMap<>();
+        templateModel.put("sendDateNoTime", instantWriter.instantToDate( notification.getSentAt(), true ) );
         templateModel.put("iun", notification.getIun() );
         templateModel.put("deliveries", pecDeliveries);
 

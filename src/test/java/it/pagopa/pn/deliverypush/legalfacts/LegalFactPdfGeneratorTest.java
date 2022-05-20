@@ -71,23 +71,33 @@ class LegalFactPdfGeneratorTest {
 	}
 	
 	@Test 
-	void generatePecDeliveryWorkflowLegalFactTest() throws IOException {
-		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact.pdf");
-		List<SendDigitalFeedback> feedbackFromExtChannelList = buildFeedbackFromECList();
+	void generatePecDeliveryWorkflowLegalFactTest_OK() throws IOException {
+		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_OK.pdf");
+		List<SendDigitalFeedback> feedbackFromExtChannelList = buildFeedbackFromECList(ExtChannelResponseStatus.OK);
+		Notification notification = buildNotification();
+		NotificationRecipient recipient = buildRecipients().get(0);
+		Files.write(filePath, pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification, recipient));
+		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+	}
+	
+	@Test 
+	void generatePecDeliveryWorkflowLegalFactTest_KO() throws IOException {
+		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_KO.pdf");
+		List<SendDigitalFeedback> feedbackFromExtChannelList = buildFeedbackFromECList(ExtChannelResponseStatus.OK);
 		Notification notification = buildNotification();
 		NotificationRecipient recipient = buildRecipients().get(0);
 		Files.write(filePath, pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification, recipient));
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
 
-	private List<SendDigitalFeedback> buildFeedbackFromECList() {
+	private List<SendDigitalFeedback> buildFeedbackFromECList(ExtChannelResponseStatus status) {
 		SendDigitalFeedback sdf = SendDigitalFeedback.builder()
 				.recIndex( 0 )
 				.address(DigitalAddress.builder()
 						.type(DigitalAddressType.PEC)
 						.address("indirizzo di prova test")
 						.build())
-				.responseStatus(ExtChannelResponseStatus.OK)
+				.responseStatus(status)
 				.notificationDate(Instant.now())
 				.build();
 	
