@@ -1,8 +1,10 @@
-package it.pagopa.pn.deliverypush.middleware.dao.timelinedao;
+package it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo;
 
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineEntityDao;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;

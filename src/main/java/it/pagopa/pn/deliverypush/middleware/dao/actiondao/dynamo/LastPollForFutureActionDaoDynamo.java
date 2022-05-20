@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo;
 
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.LastPollForFutureActionEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.LastPollForFutureActionsDao;
+import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.entity.LastPollForFutureActionEntity;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 

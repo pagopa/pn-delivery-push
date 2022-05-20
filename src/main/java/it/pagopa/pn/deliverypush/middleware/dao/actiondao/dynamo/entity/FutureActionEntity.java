@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo;
+package it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.entity;
 
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import lombok.AllArgsConstructor;
@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
 
 import java.time.Instant;
 
@@ -16,9 +17,11 @@ import java.time.Instant;
 @AllArgsConstructor
 @EqualsAndHashCode
 @DynamoDbBean
-public class ActionEntity {
+public class FutureActionEntity {
+    public static final String FIELD_TIME_SLOT = "timeSlot";
     public static final String FIELD_ACTION_ID = "actionId";
 
+    private String timeSlot;
     private String actionId;
     private String iun;
     private Instant notBefore;
@@ -31,9 +34,17 @@ public class ActionEntity {
     private PnExtChnProgressStatus responseStatus;
     private PhysicalAddressConv newPhysicalAddress;
     private List<String> attachmentKeys;
-    */
-    
+*/
     @DynamoDbPartitionKey
+    @DynamoDbAttribute(value = FIELD_TIME_SLOT )
+    public String getTimeSlot() {
+        return timeSlot;
+    }
+    public void setTimeSlot(String timeSlot) {
+        this.timeSlot = timeSlot;
+    }
+
+    @DynamoDbSortKey
     @DynamoDbAttribute(value = FIELD_ACTION_ID )
     public String getActionId() {
         return actionId;
@@ -73,5 +84,4 @@ public class ActionEntity {
     public void setRecipientIndex(Integer recipientIndex) {
         this.recipientIndex = recipientIndex;
     }
-    
 }

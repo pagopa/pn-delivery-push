@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action2.utils;
 
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfo;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
@@ -342,7 +343,10 @@ public class TimelineUtils {
         
         ScheduleDigitalWorkflow details = ScheduleDigitalWorkflow.builder()
                 .recIndex(recIndex)
-                .lastAttemptInfo(lastAttemptInfo)
+                .lastAttemptDate(lastAttemptInfo.getLastAttemptDate())
+                .digitalAddress(lastAttemptInfo.getDigitalAddress())
+                .digitalAddressSource(lastAttemptInfo.getDigitalAddressSource())
+                .sentAttemptMade(lastAttemptInfo.getSentAttemptMade())
                 .build();
 
         return buildTimeline(iun, TimelineElementCategory.SCHEDULE_DIGITAL_WORKFLOW, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class));

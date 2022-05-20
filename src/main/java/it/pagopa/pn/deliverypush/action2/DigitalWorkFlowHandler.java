@@ -6,6 +6,7 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.action2.utils.DigitalWorkFlowUtils;
 import it.pagopa.pn.deliverypush.action2.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfo;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
@@ -51,7 +52,8 @@ public class DigitalWorkFlowHandler {
     public void startScheduledNextWorkflow(String iun, Integer recIndex) {
         ScheduleDigitalWorkflow scheduleDigitalWorkflow = digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(iun, recIndex);
         NotificationInt notification = notificationService.getNotificationByIun(iun);
-        nextWorkFlowAction(notification, recIndex, scheduleDigitalWorkflow.getLastAttemptInfo());
+        DigitalAddressInfo digitalAddressInfo = getDigitalAddressInfo(scheduleDigitalWorkflow);
+        nextWorkFlowAction(notification, recIndex, digitalAddressInfo);
     }
 
     /**
@@ -216,6 +218,15 @@ public class DigitalWorkFlowHandler {
     private void handleStatusError(ResponseStatus status, String iun, Integer recIndex) {
         log.error("Specified status {} is not possibile - iun {} id {}", status, iun, recIndex);
         throw new PnInternalException("Specified status" + status + " is not possibile");
+    }
+
+    private DigitalAddressInfo getDigitalAddressInfo(ScheduleDigitalWorkflow scheduleDigitalWorkflow) {
+        return DigitalAddressInfo.builder()
+                .digitalAddress(scheduleDigitalWorkflow.getDigitalAddress())
+                .digitalAddressSource(scheduleDigitalWorkflow.getDigitalAddressSource())
+                .lastAttemptDate(scheduleDigitalWorkflow.getLastAttemptDate())
+                .sentAttemptMade(scheduleDigitalWorkflow.getSentAttemptMade())
+                .build();
     }
     
 }

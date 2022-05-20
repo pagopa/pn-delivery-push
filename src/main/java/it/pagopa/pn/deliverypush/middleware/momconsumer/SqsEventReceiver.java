@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.temp.mom.consumer;
+package it.pagopa.pn.deliverypush.middleware.momconsumer;
 /*
 
 import com.fasterxml.jackson.core.JsonProcessingException;

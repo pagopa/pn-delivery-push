@@ -1,5 +1,6 @@
-package it.pagopa.pn.deliverypush.temp.mom.consumer;
+package it.pagopa.pn.deliverypush.middleware.momconsumer;
 
+//TODO Eliminare una volta ristrutturato il webhook
 public abstract class AbstractEventHandler<E> implements EventHandler<E> {
 
     private final Class<E> eventJavaClass;

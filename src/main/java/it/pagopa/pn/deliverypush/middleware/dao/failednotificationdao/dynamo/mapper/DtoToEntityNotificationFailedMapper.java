@@ -1,6 +1,7 @@
-package it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao;
+package it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.dynamo.mapper;
 
 import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFailed;
+import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.dynamo.entity.PaperNotificationFailedEntity;
 import org.springframework.stereotype.Component;
 
 @Component

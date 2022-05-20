@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao;
+package it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.dynamo.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
