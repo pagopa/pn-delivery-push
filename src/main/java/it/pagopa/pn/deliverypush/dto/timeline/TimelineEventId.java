@@ -39,10 +39,11 @@ public enum TimelineEventId {//NEW
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
-                    "%s_send_digital_feedback_%d_attempt_%d",
+                    "%s_send_digital_feedback_%d_attempt_%d_source%s",
                     eventId.getIun(),
                     eventId.getRecIndex(),
-                    eventId.getIndex()
+                    eventId.getIndex(),
+                    eventId.getSource()
             );
         }
     },
