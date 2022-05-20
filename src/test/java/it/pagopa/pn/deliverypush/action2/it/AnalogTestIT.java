@@ -70,6 +70,7 @@ import java.time.Instant;
         TimelineDaoMock.class,
         ExternalChannelMock.class,
         PaperNotificationFailedDaoMock.class,
+        PnDataVaultClientMock.class,
         AnalogTestIT.SpringTestConfiguration.class
 })
 class AnalogTestIT {

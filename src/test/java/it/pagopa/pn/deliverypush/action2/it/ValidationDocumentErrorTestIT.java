@@ -81,6 +81,7 @@ import static org.mockito.Mockito.doThrow;
         TimelineDaoMock.class,
         ExternalChannelMock.class,
         PaperNotificationFailedDaoMock.class,
+        PnDataVaultClientMock.class,
         ValidationDocumentErrorTestIT.SpringTestConfiguration.class
 })
 class ValidationDocumentErrorTestIT {

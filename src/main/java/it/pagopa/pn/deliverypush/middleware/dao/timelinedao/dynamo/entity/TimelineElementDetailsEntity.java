@@ -16,7 +16,6 @@ import java.util.List;
 public class TimelineElementDetailsEntity {
     private Integer recIndex;
     private String category;
-    private PhysicalAddressEntity physicalAddress;
     private DigitalAddressEntity digitalAddress;
     private DigitalAddressSourceEntity digitalAddressSource;
     private Boolean isAvailable;
@@ -33,5 +32,4 @@ public class TimelineElementDetailsEntity {
     private Instant notificationDate;
     private ServiceLevel serviceLevel;
     private Boolean investigation;
-    private PhysicalAddressEntity newAddress;
 }

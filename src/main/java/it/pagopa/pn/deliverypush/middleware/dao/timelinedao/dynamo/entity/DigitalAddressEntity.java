@@ -10,8 +10,7 @@ import lombok.*;
 @EqualsAndHashCode
 public class DigitalAddressEntity {
     private TypeEnum type;
-    private String address;
-
+    
     public enum TypeEnum {
         PEC("PEC");
 

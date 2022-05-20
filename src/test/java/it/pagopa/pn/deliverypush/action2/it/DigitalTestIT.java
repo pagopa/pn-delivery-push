@@ -73,6 +73,7 @@ import java.util.List;
         TimelineDaoMock.class,
         ExternalChannelMock.class,
         PaperNotificationFailedDaoMock.class,
+        PnDataVaultClientMock.class,
         DigitalTestIT.SpringTestConfiguration.class
 })
 class DigitalTestIT {

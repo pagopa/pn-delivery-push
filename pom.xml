@@ -192,8 +192,7 @@
 						</goals>
 						<phase>process-resources</phase>
 						<configuration>
-							<!--TODO Da settare il branch corretto di sviluppo e non il feature -->
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/feature/PN-1150/docs/openapi/api-private-v1.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-private-v1.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
