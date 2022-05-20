@@ -108,6 +108,4 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
         TimelineElementDetails details = timelineElementInternal.getDetails();
         return details.getNewAddress() != null || details.getDigitalAddress() != null || details.getPhysicalAddress() != null;
     }
-    
-    
 }

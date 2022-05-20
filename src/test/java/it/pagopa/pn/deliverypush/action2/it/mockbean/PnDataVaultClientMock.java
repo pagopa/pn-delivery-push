@@ -10,11 +10,18 @@ import java.util.List;
 import java.util.Map;
 
 public class PnDataVaultClientMock implements PnDataVaultClient {
-    Map<String, ConfidentialTimelineElementDto> confidentialMap = new HashMap<>();
-            
+    Map<String, ConfidentialTimelineElementDto> confidentialMap;
+    
+    public void clear() {
+        this.confidentialMap = new HashMap<>();
+    }
+
     @Override
     public ResponseEntity<Void> updateNotificationTimelineByIunAndTimelineElementId(String iun, ConfidentialTimelineElementDto dto) {
         String iunTimelineId = getId(iun, dto.getTimelineElementId());
+        if(confidentialMap.get(iunTimelineId) !=null){
+            System.out.println("ERRORE ERRORE TIMELINE_ID "+dto.getTimelineElementId());
+        }
         confidentialMap.put(iunTimelineId, dto);
         return ResponseEntity.ok(null);
     }

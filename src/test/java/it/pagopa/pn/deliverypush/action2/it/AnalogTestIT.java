@@ -121,7 +121,10 @@ class AnalogTestIT {
 
     @Autowired
     private PaperNotificationFailedDaoMock paperNotificationFailedDaoMock;
-
+    
+    @Autowired
+    private PnDataVaultClientMock pnDataVaultClientMock;
+    
     @BeforeEach
     public void setup() {
         TimeParams times = new TimeParams();
@@ -151,6 +154,7 @@ class AnalogTestIT {
         publicRegistryMock.clear();
         timelineDaoMock.clear();
         paperNotificationFailedDaoMock.clear();
+        pnDataVaultClientMock.clear();
     }
     
     @Test

@@ -129,6 +129,9 @@ class ValidationDocumentErrorTestIT {
     @Autowired
     private NotificationUtils notificationUtils;
 
+    @Autowired
+    private PnDataVaultClientMock pnDataVaultClientMock;
+
     @BeforeEach
     public void setup() {
         //Waiting time for action
@@ -162,7 +165,7 @@ class ValidationDocumentErrorTestIT {
         publicRegistryMock.clear();
         timelineDaoMock.clear();
         paperNotificationFailedDaoMock.clear();
-        
+        pnDataVaultClientMock.clear();
     }
 
     @Test
