@@ -1,12 +1,15 @@
 package it.pagopa.pn.deliverypush.middleware.timelinedao;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
-import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineElementEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineEntityDao;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +19,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -41,9 +46,18 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity elementToInsert = TimelineElementEntity.builder()
                 .iun("pa1-1")
                 .timelineElementId("elementId1")
-                .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE.getValue())
-                .details("{\"category\":\"SEND_DIGITAL_DOMICILE\",\"iun\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
-                .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
+                .category(TimelineElementCategoryEntity.SEND_DIGITAL_DOMICILE)
+                .details(TimelineElementDetailsEntity.builder()
+                        .recIndex(0)
+                        .build())
+                .legalFactId(
+                        legalFactIdsToJsonString(Collections.singletonList(
+                                LegalFactsIdEntity.builder()
+                                        .key("key")
+                                        .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
+                                        .build()
+                        ))
+                )
                 .build();
 
         removeElementFromDb(elementToInsert);
@@ -71,17 +85,35 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity elementToInsert = TimelineElementEntity.builder()
                 .iun("pa1-1")
                 .timelineElementId("elementId1")
-                .category(TimelineElementCategory.PUBLIC_REGISTRY_CALL.getValue())
-                .details("{\"category\":\"PUBLIC_REGISTRY_CALL\",\"iun\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
-                .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
+                .category(TimelineElementCategoryEntity.PUBLIC_REGISTRY_CALL)
+                .details(TimelineElementDetailsEntity.builder()
+                        .recIndex(0)
+                        .build())
+                .legalFactId(
+                        legalFactIdsToJsonString(Collections.singletonList(
+                                LegalFactsIdEntity.builder()
+                                        .key("key")
+                                        .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
+                                        .build()
+                        ))
+                )
                 .build();
 
         TimelineElementEntity elementNotToBeInserted = TimelineElementEntity.builder()
                 .iun("pa1-1")
                 .timelineElementId("elementId1")
-                .category(TimelineElementCategory.SEND_ANALOG_DOMICILE.getValue())
-                .details("{\"category\":\"END_OF_DIGITAL_DELIVERY_WORKFLOW\",\"taxId\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
-                .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
+                .category(TimelineElementCategoryEntity.SEND_ANALOG_DOMICILE)
+                .details(TimelineElementDetailsEntity.builder()
+                        .recIndex(0)
+                        .build())
+                .legalFactId(
+                        legalFactIdsToJsonString(Collections.singletonList(
+                                LegalFactsIdEntity.builder()
+                                        .key("key")
+                                        .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
+                                        .build()
+                        ))
+                )
                 .build();
 
         Key elementsKey = Key.builder()
@@ -117,9 +149,18 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity firstElementToInsert = TimelineElementEntity.builder()
                 .iun("pa1-1")
                 .timelineElementId("elementId1")
-                .category(TimelineElementCategory.NOTIFICATION_VIEWED.getValue())
-                .details("{\"category\":\"NOTIFICATION_VIEWED\",\"iun\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
-                .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
+                .category(TimelineElementCategoryEntity.NOTIFICATION_VIEWED)
+                .details(TimelineElementDetailsEntity.builder()
+                        .recIndex(0)
+                        .build())
+                .legalFactId(
+                        legalFactIdsToJsonString(Collections.singletonList(
+                                LegalFactsIdEntity.builder()
+                                        .key("key")
+                                        .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
+                                        .build()
+                        ))
+                )
                 .build();
 
         Key firstElementsKey = Key.builder()
@@ -130,9 +171,18 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity secondElementToInsert = TimelineElementEntity.builder()
                 .iun("pa1-1")
                 .timelineElementId("elementId2")
-                .category(TimelineElementCategory.SEND_ANALOG_DOMICILE.getValue())
-                .details("{\"category\":\"END_OF_DIGITAL_DELIVERY_WORKFLOW\",\"taxId\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
-                .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
+                .category(TimelineElementCategoryEntity.SEND_ANALOG_DOMICILE)
+                .details(TimelineElementDetailsEntity.builder()
+                        .recIndex(0)
+                        .build())
+                .legalFactId(
+                        legalFactIdsToJsonString(Collections.singletonList(
+                                LegalFactsIdEntity.builder()
+                                        .key("key")
+                                        .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
+                                        .build()
+                        ))
+                )
                 .build();
 
         Key secondElementsKey = Key.builder()
@@ -166,9 +216,18 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity firstElementToInsert = TimelineElementEntity.builder()
                 .iun("pa1-1")
                 .timelineElementId("elementId1")
-                .category(TimelineElementCategory.REQUEST_ACCEPTED.getValue())
-                .details("{\"category\":\"REQUEST_ACCEPTED\",\"iun\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
-                .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
+                .category(TimelineElementCategoryEntity.REQUEST_ACCEPTED)
+                .details(TimelineElementDetailsEntity.builder()
+                        .recIndex(0)
+                        .build())
+                .legalFactId(
+                        legalFactIdsToJsonString(Collections.singletonList(
+                                LegalFactsIdEntity.builder()
+                                        .key("key")
+                                        .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
+                                        .build()
+                        ))
+                )
                 .build();
         Key firstElementToInsertKey = Key.builder()
                 .partitionValue(firstElementToInsert.getIun())
@@ -178,9 +237,18 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity secondElementToInsert = TimelineElementEntity.builder()
                 .iun("pa1-2")
                 .timelineElementId("elementId1")
-                .category(TimelineElementCategory.SEND_ANALOG_DOMICILE.getValue())
-                .details("{\"category\":\"SEND_ANALOG_DOMICILE\",\"taxId\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
-                .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
+                .category(TimelineElementCategoryEntity.SEND_ANALOG_DOMICILE)
+                .details(TimelineElementDetailsEntity.builder()
+                        .recIndex(0)
+                        .build())
+                .legalFactId(
+                        legalFactIdsToJsonString(Collections.singletonList(
+                                LegalFactsIdEntity.builder()
+                                        .key("key")
+                                        .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
+                                        .build()
+                        ))
+                )
                 .build();
         Key secondElementToInsertKey = Key.builder()
                 .partitionValue(secondElementToInsert.getIun())
@@ -219,10 +287,20 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity element = TimelineElementEntity.builder()
                 .iun("pa1-1")
                 .timelineElementId("elementId1")
-                .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE.getValue())
-                .details("{\"category\":\"SEND_DIGITAL_DOMICILE\",\"iun\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
-                .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
+                .category(TimelineElementCategoryEntity.SEND_DIGITAL_DOMICILE)
+                .details(TimelineElementDetailsEntity.builder()
+                        .recIndex(0)
+                        .build())
+                .legalFactId(
+                        legalFactIdsToJsonString(Collections.singletonList(
+                                LegalFactsIdEntity.builder()
+                                        .key("key")
+                                        .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
+                                        .build()
+                        ))
+                )
                 .build();
+        
         Key elementToInsertKey = Key.builder()
                 .partitionValue(element.getIun())
                 .sortValue(element.getTimelineElementId())
@@ -244,9 +322,18 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity elementToInsert = TimelineElementEntity.builder()
                 .iun("pa1-delete")
                 .timelineElementId("elementId1")
-                .category(TimelineElementCategory.PUBLIC_REGISTRY_CALL.getValue())
-                .details("{\"category\":\"PUBLIC_REGISTRY_CALL\",\"iun\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
-                .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
+                .category(TimelineElementCategoryEntity.PUBLIC_REGISTRY_CALL)
+                .details(TimelineElementDetailsEntity.builder()
+                        .recIndex(0)
+                        .build())
+                .legalFactId(
+                        legalFactIdsToJsonString(Collections.singletonList(
+                                LegalFactsIdEntity.builder()
+                                        .key("key")
+                                        .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
+                                        .build()
+                        ))
+                )
                 .build();
 
         removeElementFromDb(elementToInsert);
@@ -274,17 +361,35 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity firstElementToInsert = TimelineElementEntity.builder()
                 .iun(iun)
                 .timelineElementId("elementId1")
-                .category(TimelineElementCategory.REFINEMENT.getValue())
-                .details("{\"category\":\"REFINEMENT\",\"iun\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
-                .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
+                .category(TimelineElementCategoryEntity.REFINEMENT)
+                .details(TimelineElementDetailsEntity.builder()
+                        .recIndex(0)
+                        .build())
+                .legalFactId(
+                        legalFactIdsToJsonString(Collections.singletonList(
+                                LegalFactsIdEntity.builder()
+                                        .key("key")
+                                        .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
+                                        .build()
+                        ))
+                )
                 .build();
 
         TimelineElementEntity secondElementToInsert = TimelineElementEntity.builder()
                 .iun(iun)
                 .timelineElementId("elementId2")
-                .category(TimelineElementCategory.SEND_ANALOG_DOMICILE.getValue())
-                .details("{\"category\":\"SEND_ANALOG_DOMICILE\",\"taxId\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
-                .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
+                .category(TimelineElementCategoryEntity.SEND_ANALOG_DOMICILE)
+                .details(TimelineElementDetailsEntity.builder()
+                        .recIndex(0)
+                        .build())
+                .legalFactId(
+                        legalFactIdsToJsonString(Collections.singletonList(
+                                LegalFactsIdEntity.builder()
+                                        .key("key")
+                                        .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
+                                        .build()
+                        ))
+                )
                 .build();
 
         removeElementFromDb(firstElementToInsert);
@@ -321,17 +426,35 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity firstElementToInsert = TimelineElementEntity.builder()
                 .iun(iun)
                 .timelineElementId("elementId1")
-                .category(TimelineElementCategory.PUBLIC_REGISTRY_CALL.getValue())
-                .details("{\"category\":\"PUBLIC_REGISTRY_CALL\",\"iun\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
-                .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
+                .category(TimelineElementCategoryEntity.PUBLIC_REGISTRY_CALL)
+                .details(TimelineElementDetailsEntity.builder()
+                        .recIndex(0)
+                        .build())
+                .legalFactId(
+                        legalFactIdsToJsonString(Collections.singletonList(
+                                LegalFactsIdEntity.builder()
+                                        .key("key")
+                                        .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
+                                        .build()
+                        ))
+                )
                 .build();
 
         TimelineElementEntity secondElementToInsert = TimelineElementEntity.builder()
                 .iun(iun)
                 .timelineElementId("elementId2")
-                .category(TimelineElementCategory.SEND_ANALOG_DOMICILE.getValue())
-                .details("{\"category\":\"SEND_ANALOG_DOMICILE\",\"taxId\":\"ed84b8c9-444e-410d-80d7-cfad6aa12070\"}")
-                .legalFactId("[{\"key\":\"key\",\"type\":\"DIGITAL_DELIVERY\"}]")
+                .category(TimelineElementCategoryEntity.SEND_ANALOG_DOMICILE)
+                .details(TimelineElementDetailsEntity.builder()
+                        .recIndex(0)
+                        .build())
+                .legalFactId(
+                        legalFactIdsToJsonString(Collections.singletonList(
+                                LegalFactsIdEntity.builder()
+                                        .key("key")
+                                        .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
+                                        .build()
+                        ))
+                )
                 .build();
 
         removeElementFromDb(firstElementToInsert);
@@ -362,6 +485,14 @@ class TimelineEntityDaoDynamoTestIT {
                 .build();
 
         timelineEntityDao.delete(key);
+    }
+
+    private String legalFactIdsToJsonString(List<LegalFactsIdEntity> listLegalFactsEntity) {
+        try {
+            return new ObjectMapper().writeValueAsString( listLegalFactsEntity );
+        } catch (JsonProcessingException exc) {
+            throw new PnInternalException( "Writing timeline detail to storage", exc );
+        }
     }
 
 }

@@ -1,14 +1,10 @@
-package it.pagopa.pn.deliverypush.middleware.dao.timelinedao;
+package it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.TimelineElementCategoryEntityConverter;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.TimelineElementDetailsEntityConverter;
+import lombok.*;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.*;
 
 import java.time.Instant;
 
@@ -16,6 +12,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
+@ToString
 @DynamoDbBean
 public class TimelineElementEntity {
 
@@ -25,9 +22,9 @@ public class TimelineElementEntity {
     private String iun;
     private String timelineElementId;
     private Instant timestamp;
-    private String category;
-    private String legalFactId;
-    private String details;
+    private TimelineElementCategoryEntity category;
+    private String legalFactId; //TODO Utilizzare tipo specifico
+    private TimelineElementDetailsEntity details;
     
     @DynamoDbPartitionKey
     @DynamoDbAttribute(value = FIELD_IUN )
@@ -56,10 +53,11 @@ public class TimelineElementEntity {
     }
 
     @DynamoDbAttribute(value = "category")
-    public String getCategory() {
+    @DynamoDbConvertedBy(TimelineElementCategoryEntityConverter.class)
+    public TimelineElementCategoryEntity getCategory() {
         return category;
     }
-    public void setCategory(String category) {
+    public void setCategory(TimelineElementCategoryEntity category) {
         this.category = category;
     }
 
@@ -72,12 +70,14 @@ public class TimelineElementEntity {
     }
 
     @DynamoDbAttribute(value = "details")
-    public String getDetails() {
+    @DynamoDbConvertedBy(TimelineElementDetailsEntityConverter.class)
+    public TimelineElementDetailsEntity getDetails() {
         return details;
     }
-    public void setDetails(String details) {
+    public void setDetails(TimelineElementDetailsEntity details) {
         this.details = details;
     }
+
 
 }
 

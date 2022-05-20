@@ -7,7 +7,12 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationReq
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendDigitalDetails;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetails;
-import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.*;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineEntityDao;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.TimelineDaoDynamo;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementEntity;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.DtoToEntityTimelineMapper;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.EntityToDtoTimelineMapper;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +36,7 @@ class TimelineDaoDynamoTest {
     @BeforeEach
     void setup() {
         ObjectMapper objMapper = new ObjectMapper();
+
         DtoToEntityTimelineMapper dto2Entity = new DtoToEntityTimelineMapper(objMapper);
         EntityToDtoTimelineMapper entity2dto = new EntityToDtoTimelineMapper(objMapper);
         entityDao = new TestMyTimelineEntityDao();

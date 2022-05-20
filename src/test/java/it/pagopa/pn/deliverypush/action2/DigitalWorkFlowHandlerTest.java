@@ -5,6 +5,7 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action2.utils.DigitalWorkFlowUtils;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfo;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
@@ -81,7 +82,10 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt()))
                 .thenReturn(ScheduleDigitalWorkflow.builder()
                         .recIndex(0)
-                        .lastAttemptInfo(lastAttemptMade)
+                        .sentAttemptMade(lastAttemptMade.getSentAttemptMade())
+                        .digitalAddressSource(lastAttemptMade.getDigitalAddressSource())
+                        .digitalAddress(lastAttemptMade.getDigitalAddress())
+                        .lastAttemptDate(lastAttemptMade.getLastAttemptDate())
                         .build());
         
         
@@ -115,7 +119,10 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt()))
                 .thenReturn(ScheduleDigitalWorkflow.builder()
                         .recIndex(0)
-                        .lastAttemptInfo(lastAttemptMade)
+                        .sentAttemptMade(lastAttemptMade.getSentAttemptMade())
+                        .digitalAddressSource(lastAttemptMade.getDigitalAddressSource())
+                        .digitalAddress(lastAttemptMade.getDigitalAddress())
+                        .lastAttemptDate(lastAttemptMade.getLastAttemptDate())
                         .build());
                 
         Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfo.class)))
@@ -171,7 +178,10 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt()))
                 .thenReturn(ScheduleDigitalWorkflow.builder()
                         .recIndex(0)
-                        .lastAttemptInfo(lastAttemptMade)
+                        .sentAttemptMade(lastAttemptMade.getSentAttemptMade())
+                        .digitalAddressSource(lastAttemptMade.getDigitalAddressSource())
+                        .digitalAddress(lastAttemptMade.getDigitalAddress())
+                        .lastAttemptDate(lastAttemptMade.getLastAttemptDate())
                         .build());
         
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
@@ -229,7 +239,10 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt()))
                 .thenReturn(ScheduleDigitalWorkflow.builder()
                         .recIndex(0)
-                        .lastAttemptInfo(lastAttemptMade)
+                        .sentAttemptMade(lastAttemptMade.getSentAttemptMade())
+                        .digitalAddressSource(lastAttemptMade.getDigitalAddressSource())
+                        .digitalAddress(lastAttemptMade.getDigitalAddress())
+                        .lastAttemptDate(lastAttemptMade.getLastAttemptDate())
                         .build());
         
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
@@ -279,7 +292,10 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt()))
                 .thenReturn(ScheduleDigitalWorkflow.builder()
                         .recIndex(0)
-                        .lastAttemptInfo(lastAttemptMade)
+                        .sentAttemptMade(lastAttemptMade.getSentAttemptMade())
+                        .digitalAddressSource(lastAttemptMade.getDigitalAddressSource())
+                        .digitalAddress(lastAttemptMade.getDigitalAddress())
+                        .lastAttemptDate(lastAttemptMade.getLastAttemptDate())
                         .build());
         
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
@@ -326,7 +342,10 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt()))
                 .thenReturn(ScheduleDigitalWorkflow.builder()
                         .recIndex(0)
-                        .lastAttemptInfo(lastAttemptMade)
+                        .sentAttemptMade(lastAttemptMade.getSentAttemptMade())
+                        .digitalAddressSource(lastAttemptMade.getDigitalAddressSource())
+                        .digitalAddress(lastAttemptMade.getDigitalAddress())
+                        .lastAttemptDate(lastAttemptMade.getLastAttemptDate())
                         .build());
         
         TimeParams times = new TimeParams();

@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo;
+package it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

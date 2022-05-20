@@ -12,9 +12,9 @@ import java.time.Instant;
 @Builder(toBuilder = true)
 @EqualsAndHashCode
 @ToString
-public class DigitalAddressInfoInternal {
-    private DigitalAddress address;
-    private DigitalAddressSource addressSource;
+public class DigitalAddressInfo {
+    private DigitalAddress digitalAddress;
+    private DigitalAddressSource digitalAddressSource;
     private int sentAttemptMade;
     private Instant lastAttemptDate;
 }

@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.temp.mom.consumer;
+package it.pagopa.pn.deliverypush.middleware.momconsumer;
 
 // FIXME: re-implement this package. This implementation is valid only for PoC. W
 /**

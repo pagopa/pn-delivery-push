@@ -221,9 +221,16 @@ components:
         recIndex:
           type: integer
           description: Informazioni ultimo tentativo effettuato
-        lastAttemptInfo:
-          $ref: '#/components/schemas/DigitalAddressInfo'
-          
+        digitalAddress:
+          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+        digitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        sentAttemptMade:
+          type: integer
+        lastAttemptDate:
+          type: string
+          format: date-time
+            
     ScheduleRefinement:
       type: object
       properties:
@@ -340,20 +347,6 @@ components:
         - PLATFORM
         - SPECIAL
         - GENERAL
-    
-    DigitalAddressInfo:
-      type: object
-      description: wrapper informazione indirizzo
-      properties:
-        digitalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
-        digitalAddressSource:
-          $ref: '#/components/schemas/DigitalAddressSource'
-        sentAttemptMade:
-          type: integer
-        lastAttemptDate:
-          type: string
-          format: date-time
 
     ServiceLevel:
       type: string

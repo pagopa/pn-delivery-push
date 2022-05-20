@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.temp.mom.consumer;
+package it.pagopa.pn.deliverypush.middleware.momconsumer;
 
 
 public interface EventHandler<E> {
