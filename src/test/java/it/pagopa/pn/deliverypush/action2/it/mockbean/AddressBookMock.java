@@ -1,8 +1,8 @@
 package it.pagopa.pn.deliverypush.action2.it.mockbean;
 
-import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.deliverypush.external.AddressBook;
-import it.pagopa.pn.deliverypush.external.AddressBookEntry;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBook;
+import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBookEntry;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,7 +20,7 @@ public class AddressBookMock implements AddressBook {
     }
     
     @Override
-    public Optional<AddressBookEntry> getAddresses(String taxId, NotificationSender sender) {
+    public Optional<AddressBookEntry> getAddresses(String taxId, NotificationSenderInt sender) {
         return addressBook.stream().filter(addressBookEntry -> addressBookEntry.getTaxId().equals(taxId)).findFirst();
     }
 }

@@ -1,25 +1,20 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
-import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
-import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntryId;
-import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
-import it.pagopa.pn.api.dto.notification.timeline.ScheduleAnalogWorkflow;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.commons.abstractions.FileData;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.externalclient.pnclient.externalchannel.ExternalChannelGetClient;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
-import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
-import it.pagopa.pn.deliverypush.pnclient.externalchannel.ExternalChannelClient;
 import it.pagopa.pn.deliverypush.service.LegalFactService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -51,10 +46,10 @@ class LegalFactServiceImplTest {
     private static final long CONTENT_LENGTH = 0L;
     private static final String LEGAL_FACT_ID = "LEGAL_FACT_ID";
 
-    private TimelineDao timelineDao;
+    private TimelineService timelineService;
     private FileStorage fileStorage;
     private LegalfactsMetadataUtils legalfactsUtils;
-    private ExternalChannelClient externalChannelClient;
+    private ExternalChannelGetClient externalChannelClient;
     private NotificationService notificationService;
     private NotificationUtils notificationUtils;
 
@@ -62,15 +57,15 @@ class LegalFactServiceImplTest {
 
     @BeforeEach
     void setup() {
-        timelineDao = Mockito.mock( TimelineDao.class );
+        timelineService = Mockito.mock( TimelineService.class );
         fileStorage = Mockito.mock( FileStorage.class );
         legalfactsUtils = Mockito.mock( LegalfactsMetadataUtils.class );
-        externalChannelClient = Mockito.mock( ExternalChannelClient.class );
+        externalChannelClient = Mockito.mock( ExternalChannelGetClient.class );
         notificationService = Mockito.mock(NotificationService.class);
-        notificationUtils = new NotificationUtils();
+        notificationUtils = Mockito.mock(NotificationUtils.class);
         
         legalFactService = new LegalFactServiceImpl(
-                timelineDao,
+                timelineService,
                 fileStorage,
                 legalfactsUtils,
                 externalChannelClient,
@@ -82,35 +77,44 @@ class LegalFactServiceImplTest {
 
     @Test
     void getLegalFactsSuccess() {
-        List<LegalFactsListEntry> legalFactsExpectedResult = Collections.singletonList( LegalFactsListEntry.builder()
+        List<LegalFactListElement> legalFactsExpectedResult = Collections.singletonList( LegalFactListElement.builder()
                 .iun( IUN )
                 .taxId( TAX_ID )
-                .legalFactsId( LegalFactsListEntryId.builder()
+                .legalFactsId( LegalFactsId.builder()
                         .key( KEY )
-                        .type( LegalFactType.SENDER_ACK )
+                        .category( LegalFactCategory.SENDER_ACK )
                         .build()
                 ).build()
         );
-
-        Set<TimelineElement> timelineElementsResult = Collections.singleton( TimelineElement.builder()
+        
+        Set<TimelineElementInternal> timelineElementsResult = Collections.singleton( TimelineElementInternal.timelineInternalBuilder()
                 .iun( IUN )
-                .details( new ScheduleAnalogWorkflow( REC_INDEX ))
+                .details( TimelineElementDetails.builder()
+                        .recIndex(0)
+                        .build() )
                 .category( TimelineElementCategory.REQUEST_ACCEPTED )
                 .elementId( "element_id" )
-                .legalFactsIds( Collections.singletonList( LegalFactsListEntryId.builder()
+                .legalFactsIds( Collections.singletonList( LegalFactsId.builder()
                                 .key( KEY )
-                                .type( LegalFactType.SENDER_ACK )
+                                .category( LegalFactCategory.SENDER_ACK )
                         .build())
                 ).build()
         );
 
-        Mockito.when( timelineDao.getTimeline( Mockito.anyString() ) )
+        Mockito.when( timelineService.getTimeline( Mockito.anyString() ) )
                 .thenReturn( timelineElementsResult );
         Mockito.when( notificationService.getNotificationByIun( Mockito.anyString() ) )
                 .thenReturn( newNotification() );
+
+        NotificationRecipientInt recipientInt = NotificationRecipientInt.builder()
+                .taxId(TAX_ID)
+                .build();
+        
+        Mockito.when( notificationUtils.getRecipientFromIndex( Mockito.any(NotificationInt.class), Mockito.anyInt() ) )
+                .thenReturn( recipientInt );
         
 
-        List<LegalFactsListEntry> result = legalFactService.getLegalFacts( IUN );
+        List<LegalFactListElement> result = legalFactService.getLegalFacts( IUN );
 
         assertEquals( legalFactsExpectedResult, result );
     }
@@ -191,23 +195,20 @@ class LegalFactServiceImplTest {
         assertNotNull( result );
     }
 
-    private Notification newNotification() {
-        return Notification.builder()
+    private NotificationInt newNotification() {
+        return NotificationInt.builder()
                 .iun("IUN_01")
                 .paNotificationId("protocol_01")
-                .subject("Subject 01")
-                .cancelledByIun("IUN_05")
-                .cancelledIun("IUN_00")
-                .sender(NotificationSender.builder()
+                .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()
                 )
                 .recipients(Collections.singletonList(
-                        NotificationRecipient.builder()
+                        NotificationRecipientInt.builder()
                                 .taxId(TAX_ID)
                                 .denomination("Nome Cognome/Ragione Sociale")
                                 .digitalDomicile(DigitalAddress.builder()
-                                        .type(DigitalAddressType.PEC)
+                                        .type(DigitalAddress.TypeEnum.PEC)
                                         .address("account@dominio.it")
                                         .build())
                                 .build()

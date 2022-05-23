@@ -1,0 +1,97 @@
+openapi: 3.0.3
+info:
+  title: OpenAPI servizi ad uso solo interno
+  description: >- 
+    API accessibili solo da microservizi interni
+  version: v1.0
+  contact:
+    email: pn@pagopa.it
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+servers:
+- url: http://internal-pn-in-appli-em20o634urpg-965454854.eu-central-1.elb.amazonaws.com:8080 #TODO Valorizzare correttamente url api private\
+  description: Generated server url
+paths:
+
+  '/delivery-push-private/{iun}/history':
+    get:
+      summary: Storico eventi notifica
+      description: >-
+        Legge e restituisce la timeline di una notifica, il suo stato e la storia dei 
+        suoi cambiamenti di stato.
+        <br/>
+        L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
+      tags:
+        - TimelineAndStatus
+      operationId: getNotificationHistory
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathNumberOfRecipients'
+        - $ref: '#/components/parameters/pathCreatedAt'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationHistoryResponse"
+        '400':
+          description: Bad request
+
+
+components:
+  parameters:
+
+    ############################################################################################
+    ###                        PARAMETRI RICERCA NOTIFICA ACCETTATA                         ###
+    ############################################################################################
+    pathIun:
+      description: >-
+        Identificativo Univoco Notifica
+      name: iun
+      in: path
+      required: true
+      schema:
+        type: string
+        
+    pathNumberOfRecipients:
+      description: >-
+        Numero recipient notifica
+      name: numberOfRecipients
+      in: query
+      required: true
+      schema:
+        type: integer
+
+    pathCreatedAt:
+      description: >-
+        Data creazione notifica
+      name: createdAt
+      in: query
+      required: true
+      schema:
+        type: string
+        format: date-time
+  schemas:
+
+    ############################################################################################
+    ###                        INFORMAZIONI STORICHE DI UNA NOTIFICA                         ###
+    ############################################################################################
+
+    NotificationHistoryResponse:
+      type: object
+      properties:
+        notificationStatus:
+          $ref: './schemas-pn-status-v1.yaml#/components/schemas/NotificationStatus'
+        notificationStatusHistory:
+          $ref: './schemas-pn-status-v1.yaml#/components/schemas/NotificationStatusHistory'
+        timeline:
+          description: >-
+            elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
+          type: array
+          items:
+            $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/TimelineElement'
+
+
+

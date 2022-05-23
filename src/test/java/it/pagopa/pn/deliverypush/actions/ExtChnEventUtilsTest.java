@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.actions;
-
+/*
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
 
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
@@ -13,12 +12,12 @@ import org.mockito.Mockito;
 
 import it.pagopa.pn.api.dto.events.CommunicationType;
 import it.pagopa.pn.api.dto.events.ServiceLevelType;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 
@@ -104,7 +103,7 @@ class ExtChnEventUtilsTest {
                 .subject("Subject 01")
                 .cancelledByIun("IUN_05")
                 .cancelledIun("IUN_00")
-                .sender(NotificationSender.builder()
+                .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()
                 )
@@ -113,7 +112,7 @@ class ExtChnEventUtilsTest {
                                 .taxId("Codice Fiscale 01")
                                 .denomination("Nome Cognome/Ragione Sociale")
                                 .digitalDomicile(DigitalAddress.builder()
-                                        .type(DigitalAddressType.PEC)
+                                        .type(DigitalAddress.TypeEnum.PEC)
                                         .address("account@dominio.it")
                                         .build())
                                 .build()
@@ -122,3 +121,6 @@ class ExtChnEventUtilsTest {
     }
             
 }
+
+
+ */

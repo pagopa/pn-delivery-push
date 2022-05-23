@@ -1,105 +1,47 @@
 package it.pagopa.pn.deliverypush.middleware.timelinedao;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
-import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
-import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
-import it.pagopa.pn.api.dto.notification.timeline.ReceivedDetails;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
-import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.pnclient.delivery.PnDeliveryClient;
-import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.util.StatusUtils;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationRequestAccepted;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendDigitalDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetails;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineEntityDao;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.TimelineDaoDynamo;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementEntity;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.DtoToEntityTimelineMapper;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.EntityToDtoTimelineMapper;
+import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.ResponseEntity;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class TimelineDaoDynamoTest {
 
     private TimelineDao dao;
     private TimelineEntityDao entityDao;
-    
-    @Mock
-    private NotificationService notificationService;
-    @Mock
-    private StatusUtils statusUtils;
-
-    @Mock
-    private PnDeliveryClient client;
 
     @BeforeEach
     void setup() {
         ObjectMapper objMapper = new ObjectMapper();
+
         DtoToEntityTimelineMapper dto2Entity = new DtoToEntityTimelineMapper(objMapper);
         EntityToDtoTimelineMapper entity2dto = new EntityToDtoTimelineMapper(objMapper);
         entityDao = new TestMyTimelineEntityDao();
 
-        dao = new TimelineDaoDynamo(entityDao, dto2Entity, entity2dto, client, notificationService, statusUtils);
-    }
-
-    @ExtendWith(MockitoExtension.class)
-    @Test
-    void addTimelineUpdateStatusFail() {
-        // GIVEN
-        String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
-
-        String id1 = "sender_ack";
-        TimelineElement row1 = TimelineElement.builder()
-                .iun(iun)
-                .elementId(id1)
-                .category(TimelineElementCategory.REQUEST_ACCEPTED)
-                .details(new ReceivedDetails())
-                .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
-                .build();
-        
-        Notification notification = getNotification(iun);
-
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notification);
-        List<NotificationStatusHistoryElement> firstListReturn = new ArrayList<>();
-        NotificationStatusHistoryElement element = NotificationStatusHistoryElement.builder()
-                .status(NotificationStatus.DELIVERING)        
-                .build();
-        firstListReturn.add(element);
-
-        NotificationStatusHistoryElement element2 = NotificationStatusHistoryElement.builder()
-                .status(NotificationStatus.ACCEPTED)
-                .build();
-        List<NotificationStatusHistoryElement> secondListReturn = new ArrayList<>(firstListReturn);
-        secondListReturn.add(element2);
-
-        Mockito.when(statusUtils.getStatusHistory(Mockito.any(), Mockito.anyInt(), Mockito.any() ))
-                .thenReturn(firstListReturn)
-                .thenReturn(secondListReturn);
-
-        Mockito.when(statusUtils.getStatusHistory(Mockito.any(), Mockito.anyInt(), Mockito.any() ))
-                .thenReturn(firstListReturn)
-                .thenReturn(secondListReturn);
-        
-        Mockito.when(client.updateState(Mockito.any(RequestUpdateStatusDto.class))).thenReturn(ResponseEntity.internalServerError().build());
-
-        // WHEN
-        assertThrows(PnInternalException.class, () -> {
-            dao.addTimelineElement(row1);
-        });
+        dao = new TimelineDaoDynamo(entityDao, dto2Entity, entity2dto);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -109,64 +51,39 @@ class TimelineDaoDynamoTest {
         String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
 
         String id1 = "sender_ack";
-        TimelineElement row1 = TimelineElement.builder()
+        TimelineElementInternal row1 = TimelineElementInternal.timelineInternalBuilder()
                 .iun(iun)
                 .elementId(id1)
                 .category(TimelineElementCategory.REQUEST_ACCEPTED)
-                .details(new ReceivedDetails())
-                .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
+                .details(SmartMapper.mapToClass(new NotificationRequestAccepted(), TimelineElementDetails.class))
+                .timestamp(Instant.now())
                 .build();
-        String id2 = "path_choose";
-        TimelineElement row2 = TimelineElement.builder()
+        String id2 = "SendDigitalDetails";
+        TimelineElementInternal row2 = TimelineElementInternal.timelineInternalBuilder()
                 .iun(iun)
                 .elementId(id2)
-                .category(TimelineElementCategory.NOTIFICATION_PATH_CHOOSE)
-                .details(new NotificationPathChooseDetails())
-                .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
+                .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE)
+                .details(SmartMapper.mapToClass(new SendDigitalDetails(), TimelineElementDetails.class))
+                .timestamp(Instant.now())
                 .build();
-
+        
         // WHEN
-        Notification notification = getNotification(iun);
-
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notification);
-        List<NotificationStatusHistoryElement> firstListReturn = new ArrayList<>();
-        NotificationStatusHistoryElement element = NotificationStatusHistoryElement.builder()
-                .status(NotificationStatus.DELIVERING)
-                .build();
-        firstListReturn.add(element);
-
-        NotificationStatusHistoryElement element2 = NotificationStatusHistoryElement.builder()
-                .status(NotificationStatus.ACCEPTED)
-                .build();
-        List<NotificationStatusHistoryElement> secondListReturn = new ArrayList<>(firstListReturn);
-        secondListReturn.add(element2);
-
-        Mockito.when(statusUtils.getStatusHistory(Mockito.any(), Mockito.anyInt(), Mockito.any() ))
-                .thenReturn(firstListReturn)
-                .thenReturn(secondListReturn)
-                .thenReturn(firstListReturn)
-                .thenReturn(secondListReturn);
-
-
-        ResponseEntity<Void> respEntity = ResponseEntity.ok(null);
-        Mockito.when(client.updateState(Mockito.any(RequestUpdateStatusDto.class))).thenReturn( respEntity );
-
         dao.addTimelineElement(row1);
         dao.addTimelineElement(row2);
 
         // THEN
         // check first row
-        Optional<TimelineElement> retrievedRow1 = dao.getTimelineElement(iun, id1);
+        Optional<TimelineElementInternal> retrievedRow1 = dao.getTimelineElement(iun, id1);
         Assertions.assertTrue(retrievedRow1.isPresent());
         Assertions.assertEquals(row1, retrievedRow1.get());
 
         // check second row
-        Optional<TimelineElement> retrievedRow2 = dao.getTimelineElement(iun, id2);
+        Optional<TimelineElementInternal> retrievedRow2 = dao.getTimelineElement(iun, id2);
         Assertions.assertTrue(retrievedRow2.isPresent());
         Assertions.assertEquals(row2, retrievedRow2.get());
 
         // check full retrieve
-        Set<TimelineElement> result = dao.getTimeline(iun);
+        Set<TimelineElementInternal> result = dao.getTimeline(iun);
         Assertions.assertEquals(Set.of(row1, row2), result);
     }
 
@@ -177,47 +94,23 @@ class TimelineDaoDynamoTest {
         String iun = "iun1";
 
         String id1 = "sender_ack";
-        TimelineElement row1 = TimelineElement.builder()
+        TimelineElementInternal row1 = TimelineElementInternal.timelineInternalBuilder()
                 .iun(iun)
                 .elementId(id1)
                 .category(TimelineElementCategory.REQUEST_ACCEPTED)
-                .details(new ReceivedDetails())
-                .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
+                .details(new TimelineElementDetails())
+                .timestamp(Instant.now())
                 .build();
-        String id2 = "path_choose";
-        TimelineElement row2 = TimelineElement.builder()
+        String id2 = "SendDigitalDetails";
+        TimelineElementInternal row2 = TimelineElementInternal.timelineInternalBuilder()
                 .iun(iun)
                 .elementId(id2)
-                .category(TimelineElementCategory.NOTIFICATION_PATH_CHOOSE)
-                .details(new NotificationPathChooseDetails())
-                .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
+                .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE)
+                .details(SmartMapper.mapToClass(new SendDigitalDetails(), TimelineElementDetails.class))
+                .timestamp(Instant.now())
                 .build();
 
         // WHEN
-        Notification notification = getNotification(iun);
-
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notification);
-        List<NotificationStatusHistoryElement> firstListReturn = new ArrayList<>();
-        NotificationStatusHistoryElement element = NotificationStatusHistoryElement.builder()
-                .status(NotificationStatus.DELIVERING)
-                .build();
-        firstListReturn.add(element);
-
-        NotificationStatusHistoryElement element2 = NotificationStatusHistoryElement.builder()
-                .status(NotificationStatus.ACCEPTED)
-                .build();
-        List<NotificationStatusHistoryElement> secondListReturn = new ArrayList<>(firstListReturn);
-        secondListReturn.add(element2);
-
-        Mockito.when(statusUtils.getStatusHistory(Mockito.any(), Mockito.anyInt(), Mockito.any() ))
-                .thenReturn(firstListReturn)
-                .thenReturn(secondListReturn)
-                .thenReturn(firstListReturn)
-                .thenReturn(secondListReturn);
-
-        ResponseEntity<Void> respEntity = ResponseEntity.ok(null);
-        Mockito.when(client.updateState(Mockito.any(RequestUpdateStatusDto.class))).thenReturn(respEntity);
-
         dao.addTimelineElement(row1);
         dao.addTimelineElement(row2);
 
@@ -283,23 +176,4 @@ class TimelineDaoDynamoTest {
 
     }
 
-    private Notification getNotification(String iun) {
-        return Notification.builder()
-                .iun(iun)
-                .paNotificationId("protocol_01")
-                .subject("Subject 01")
-                .cancelledByIun("IUN_05")
-                .cancelledIun("IUN_00")
-                .sender(NotificationSender.builder()
-                        .paId(" pa_02")
-                        .build()
-                )
-                .recipients(Collections.singletonList(
-                        NotificationRecipient.builder()
-                                .taxId("testIdRecipient")
-                                .denomination("Nome Cognome/Ragione Sociale")
-                                .build()
-                ))
-                .build();
-    }
 }

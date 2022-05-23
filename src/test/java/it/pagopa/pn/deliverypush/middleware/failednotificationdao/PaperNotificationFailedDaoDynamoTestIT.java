@@ -2,14 +2,15 @@ package it.pagopa.pn.deliverypush.middleware.failednotificationdao;
 
 import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFailed;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
-import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
+import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
+import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedEntityDao;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -46,7 +47,7 @@ class PaperNotificationFailedDaoDynamoTestIT {
                 .recipientId(idRecipient).build();
         specificDao.addPaperNotificationFailed(failedNot);
 
-        Set<PaperNotificationFailed> res = specificDao.getNotificationByRecipientId(idRecipient)
+        Set<PaperNotificationFailed> res = specificDao.getPaperNotificationFailedByRecipientId(idRecipient)
                 .stream()
                 .filter(pnf -> iun.equals(pnf.getIun()))
                 .filter(pnf -> idRecipient.equals(pnf.getRecipientId()))
@@ -68,7 +69,7 @@ class PaperNotificationFailedDaoDynamoTestIT {
 
         deletePaperNotificationFailed(iun, idRecipient);
 
-        Set<PaperNotificationFailed> res = specificDao.getNotificationByRecipientId(idRecipient)
+        Set<PaperNotificationFailed> res = specificDao.getPaperNotificationFailedByRecipientId(idRecipient)
                 .stream()
                 .filter(pnf -> iun.equals(pnf.getIun()))
                 .filter(pnf -> idRecipient.equals(pnf.getRecipientId()))
@@ -94,7 +95,7 @@ class PaperNotificationFailedDaoDynamoTestIT {
 
         specificDao.addPaperNotificationFailed(failedNot);
         
-        Set<PaperNotificationFailed> res = specificDao.getNotificationByRecipientId(idRecipient)
+        Set<PaperNotificationFailed> res = specificDao.getPaperNotificationFailedByRecipientId(idRecipient)
                 .stream()
                 .filter(pnf -> iun.equals(pnf.getIun()))
                 .filter(pnf -> idRecipient.equals(pnf.getRecipientId()))

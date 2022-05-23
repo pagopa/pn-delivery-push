@@ -1,17 +1,13 @@
 package it.pagopa.pn.deliverypush.action2;
 
-import it.pagopa.pn.deliverypush.action2.utils.EndWorkflowStatus;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
-import it.pagopa.pn.api.dto.notification.timeline.SendPaperDetails;
-import it.pagopa.pn.api.dto.notification.timeline.SendPaperFeedbackDetails;
-import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
-import it.pagopa.pn.deliverypush.action2.utils.AnalogWorkflowUtils;
-import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
-import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
-import it.pagopa.pn.deliverypush.actions.PecFailSendPaperActionHandler;
+import it.pagopa.pn.deliverypush.action2.utils.*;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendPaperFeedbackDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ServiceLevel;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,7 +34,7 @@ class AnalogWorkflowHandlerTest {
     private PublicRegistrySendHandler publicRegistrySendHandler;
     @Mock
     private InstantNowSupplier instantNowSupplier;
-
+    
     private AnalogWorkflowHandler handler;
     
     private NotificationUtils notificationUtils;
@@ -51,19 +47,18 @@ class AnalogWorkflowHandlerTest {
         notificationUtils= new NotificationUtils();
     }
 
-
     @ExtendWith(MockitoExtension.class)
     @Test
     void nextWorkflowStepWithPaAddress_0() {
         //GIVEN
-        Notification notification = getNotificationWithPhysicalAddress();
-        NotificationRecipient recipient = notification.getRecipients().get(0);
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        NotificationInt notification = getNotificationWithPhysicalAddress();
+        NotificationRecipientInt recipient = notification.getRecipients().get(0);
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
         
-        Mockito.when(analogWorkflowUtils.getPhysicalAddress(Mockito.any(Notification.class), Mockito.anyInt()))
+        Mockito.when(analogWorkflowUtils.getPhysicalAddress(Mockito.any(NotificationInt.class), Mockito.anyInt()))
                 .thenReturn(recipient.getPhysicalAddress());
         
         //WHEN
@@ -77,14 +72,14 @@ class AnalogWorkflowHandlerTest {
     @Test
     void nextWorkflowStepWithoutPaAddress_0() {
         //GIVEN
-        Notification notification = getNotificationWithoutPhisicalAddress();
-        NotificationRecipient recipient = notification.getRecipients().get(0);
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        NotificationInt notification = getNotificationWithoutPhisicalAddress();
+        NotificationRecipientInt recipient = notification.getRecipients().get(0);
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
-        Mockito.when(analogWorkflowUtils.getPhysicalAddress(Mockito.any(Notification.class), Mockito.anyInt()))
+        Mockito.when(analogWorkflowUtils.getPhysicalAddress(Mockito.any(NotificationInt.class), Mockito.anyInt()))
                 .thenReturn(recipient.getPhysicalAddress());
 
         //WHEN
@@ -98,9 +93,9 @@ class AnalogWorkflowHandlerTest {
     @Test
     void nextWorkflowStepWithoutPaAddress_1() {
         //GIVEN
-        Notification notification = getNotificationWithPhysicalAddress();
-        NotificationRecipient recipient = notification.getRecipients().get(0);
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        NotificationInt notification = getNotificationWithPhysicalAddress();
+        NotificationRecipientInt recipient = notification.getRecipients().get(0);
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
         
         //WHEN
         handler.nextWorkflowStep(notification, recIndex, 1);
@@ -113,9 +108,9 @@ class AnalogWorkflowHandlerTest {
     @Test
     void nextWorkflowStepWithoutPaAddress_2() {
         //GIVEN
-        Notification notification = getNotificationWithPhysicalAddress();
-        NotificationRecipient recipient = notification.getRecipients().get(0);
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        NotificationInt notification = getNotificationWithPhysicalAddress();
+        NotificationRecipientInt recipient = notification.getRecipients().get(0);
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
         
@@ -130,9 +125,9 @@ class AnalogWorkflowHandlerTest {
     @Test
     void handlePublicRegistryResponseWithResponseAddress_0() {
         //GIVEN
-        Notification notification = getNotificationWithPhysicalAddress();
-        NotificationRecipient recipient = notification.getRecipients().get(0);
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        NotificationInt notification = getNotificationWithPhysicalAddress();
+        NotificationRecipientInt recipient = notification.getRecipients().get(0);
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         PublicRegistryResponse response = PublicRegistryResponse.builder()
                 .correlationId("corrId")
@@ -156,9 +151,9 @@ class AnalogWorkflowHandlerTest {
     @Test
     void handlePublicRegistryResponseAddressWithSameAddressLastUsedAndNewAddressIsAvailable_1() {
         //GIVEN
-        Notification notification = getNotificationWithPhysicalAddress();
-        NotificationRecipient recipient = notification.getRecipients().get(0);
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        NotificationInt notification = getNotificationWithPhysicalAddress();
+        NotificationRecipientInt recipient = notification.getRecipients().get(0);
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         PublicRegistryResponse response = PublicRegistryResponse.builder()
                 .correlationId("corrId")
@@ -167,20 +162,17 @@ class AnalogWorkflowHandlerTest {
                         .build())
                 .build();
 
-        SendPaperFeedbackDetails details = new SendPaperFeedbackDetails(
-                SendPaperDetails.builder()
-                        .taxId(recipient.getTaxId())
-                        .address(PhysicalAddress.builder()
-                                .address("test address 2")
-                                .build())
-                        .sentAttemptMade(0)
-                        .serviceLevel(PecFailSendPaperActionHandler.DIGITAL_FAILURE_PAPER_FALLBACK_SERVICE_LEVEL)
-                        .build(),
-                PhysicalAddress.builder()
+        SendPaperFeedbackDetails details = SendPaperFeedbackDetails.builder()
+                .physicalAddress(PhysicalAddress.builder()
+                        .address("test address 2")
+                        .build())
+                .sentAttemptMade(0)
+                .serviceLevel(ServiceLevel.SIMPLE_REGISTERED_LETTER)
+                .newAddress(PhysicalAddress.builder()
                         .address("test address 3")
-                        .build(),
-                null
-        );
+                        .build())
+                .errors(null)
+                .build();
         
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
@@ -198,9 +190,9 @@ class AnalogWorkflowHandlerTest {
     @Test
     void handlePublicRegistryResponseAddressWithSameAddressLastUsedAndNewAddressIsNotAvailable_1() {
         //GIVEN
-        Notification notification = getNotificationWithPhysicalAddress();
-        NotificationRecipient recipient = notification.getRecipients().get(0);
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        NotificationInt notification = getNotificationWithPhysicalAddress();
+        NotificationRecipientInt recipient = notification.getRecipients().get(0);
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         PublicRegistryResponse response = PublicRegistryResponse.builder()
                 .correlationId("corrId")
@@ -209,18 +201,15 @@ class AnalogWorkflowHandlerTest {
                         .build())
                 .build();
 
-        SendPaperFeedbackDetails details = new SendPaperFeedbackDetails(
-                SendPaperDetails.builder()
-                        .taxId(recipient.getTaxId())
-                        .address(PhysicalAddress.builder()
-                                .address("test address 2")
-                                .build())
-                        .sentAttemptMade(0)
-                        .serviceLevel(PecFailSendPaperActionHandler.DIGITAL_FAILURE_PAPER_FALLBACK_SERVICE_LEVEL)
-                        .build(),
-                null,
-                null
-        );
+        SendPaperFeedbackDetails details = SendPaperFeedbackDetails.builder()
+                .physicalAddress(PhysicalAddress.builder()
+                        .address("test address 2")
+                        .build())
+                .sentAttemptMade(0)
+                .serviceLevel(ServiceLevel.SIMPLE_REGISTERED_LETTER)
+                .newAddress(null)
+                .errors(null)
+                .build();
         
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
@@ -240,26 +229,24 @@ class AnalogWorkflowHandlerTest {
     @Test
     void handlePublicRegistryResponseAddressNotPresent_1() {
         //GIVEN
-        Notification notification = getNotificationWithPhysicalAddress();
-        NotificationRecipient recipient = notification.getRecipients().get(0);
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        NotificationInt notification = getNotificationWithPhysicalAddress();
+        NotificationRecipientInt recipient = notification.getRecipients().get(0);
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         PublicRegistryResponse response = PublicRegistryResponse.builder()
                 .correlationId("corrId")
                 .build();
 
-        SendPaperFeedbackDetails details = new SendPaperFeedbackDetails(
-                SendPaperDetails.builder()
-                        .taxId(recipient.getTaxId())
-                        .address(PhysicalAddress.builder()
-                                .address("test address 2")
-                                .build())
-                        .sentAttemptMade(0)
-                        .serviceLevel(PecFailSendPaperActionHandler.DIGITAL_FAILURE_PAPER_FALLBACK_SERVICE_LEVEL)
-                        .build(),
-                null,
-                null
-        );
+        SendPaperFeedbackDetails details = SendPaperFeedbackDetails.builder()
+                .physicalAddress(PhysicalAddress.builder()
+                        .address("test address 2")
+                        .build())
+                .sentAttemptMade(0)
+                .serviceLevel(ServiceLevel.SIMPLE_REGISTERED_LETTER)
+                .newAddress(null)
+                .errors(null)
+                .build();
+
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
@@ -274,19 +261,16 @@ class AnalogWorkflowHandlerTest {
         Mockito.verify(completionWorkFlow).completionAnalogWorkflow(eq(notification), eq(recIndex), Mockito.any(Instant.class), eq(null), eq(EndWorkflowStatus.FAILURE));
     }
 
-    private Notification getNotificationWithPhysicalAddress() {
-        return Notification.builder()
+    private NotificationInt getNotificationWithPhysicalAddress() {
+        return NotificationInt.builder()
                 .iun("IUN_01")
                 .paNotificationId("protocol_01")
-                .subject("Subject 01")
-                .cancelledByIun("IUN_05")
-                .cancelledIun("IUN_00")
-                .sender(NotificationSender.builder()
+                .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()
                 )
                 .recipients(Collections.singletonList(
-                        NotificationRecipient.builder()
+                        NotificationRecipientInt.builder()
                                 .taxId("testIdRecipient")
                                 .denomination("Nome Cognome/Ragione Sociale")
                                 .physicalAddress(
@@ -299,19 +283,16 @@ class AnalogWorkflowHandlerTest {
                 .build();
     }
 
-    private Notification getNotificationWithoutPhisicalAddress() {
-        return Notification.builder()
+    private NotificationInt getNotificationWithoutPhisicalAddress() {
+        return NotificationInt.builder()
                 .iun("IUN_01")
                 .paNotificationId("protocol_01")
-                .subject("Subject 01")
-                .cancelledByIun("IUN_05")
-                .cancelledIun("IUN_00")
-                .sender(NotificationSender.builder()
+                .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()
                 )
                 .recipients(Collections.singletonList(
-                        NotificationRecipient.builder()
+                        NotificationRecipientInt.builder()
                                 .taxId("testIdRecipient")
                                 .denomination("Nome Cognome/Ragione Sociale")
                                 .build()

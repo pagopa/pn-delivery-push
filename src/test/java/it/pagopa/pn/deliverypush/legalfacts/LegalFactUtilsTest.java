@@ -20,7 +20,7 @@ class LegalFactUtilsTest {
     private FileStorage fileStorage;
     private LegalFactGenerator pdfUtils;
     
-    private Map<String, String> metadata = new HashMap<>();
+    private final Map<String, String> metadata = new HashMap<>();
     
     @BeforeEach
     public void setup() {

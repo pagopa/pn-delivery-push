@@ -1,4 +1,5 @@
 package it.pagopa.pn.deliverypush.actions;
+/*
 
 import static org.mockito.Mockito.verify;
 
@@ -15,13 +16,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import it.pagopa.pn.api.dto.events.PnExtChnEmailEvent;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
-import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+
+import NotificationPathChooseDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
@@ -73,7 +74,7 @@ class EndOfDigitalDeliveryWorkflowActionHandlerTest {
 
 		NotificationPathChooseDetails details = newNotificationPathChooseDetails();
 		List<DigitalAddress> addresses = details.getCourtesyAddresses();
-		TimelineElement timelineElement = newTimelineElement( addresses );
+		TimelineElementInternal timelineElement = newTimelineElement( addresses );
 	    Mockito.when( timelineDao.getTimelineElement( Mockito.anyString(), Mockito.anyString()) )
 				.thenReturn( Optional.of( timelineElement ) );
 	    
@@ -86,8 +87,8 @@ class EndOfDigitalDeliveryWorkflowActionHandlerTest {
 		verify( timelineDao ).addTimelineElement( Mockito.any(TimelineElement.class) );
 	}
 
-	private TimelineElement newTimelineElement(List<DigitalAddress> addresses) {
-		return TimelineElement.builder()
+	private TimelineElementInternal newTimelineElement(List<DigitalAddress> addresses) {
+		return TimelineElementInternal.timelineInternalBuilder()
 				.details( NotificationPathChooseDetails.builder()
 						.courtesyAddresses(addresses)
 						.build()
@@ -98,11 +99,11 @@ class EndOfDigitalDeliveryWorkflowActionHandlerTest {
 	private NotificationPathChooseDetails newNotificationPathChooseDetails() {
 		List<DigitalAddress> addresses = Arrays.asList(
 				DigitalAddress.builder()
-					.type( DigitalAddressType.EMAIL )
+					.type( DigitalAddress.TypeEnum.EMAIL )
 					.address( "nome1.cognome1@develop1.it" )
 					.build(),
 				DigitalAddress.builder()
-					.type( DigitalAddressType.EMAIL )
+					.type( DigitalAddress.TypeEnum.EMAIL )
 					.address( "nome2.cognome2@develop2.it" )
 					.build()
 			);
@@ -128,7 +129,7 @@ class EndOfDigitalDeliveryWorkflowActionHandlerTest {
 		        .cancelledIun( "string" )
 		        .paNotificationId( "proto01" )
 		        .subject( "Local Subject" )
-		        .sender(NotificationSender.builder()
+		        .sender(NotificationSenderInt.builder()
 		                .paId(" pa_02")
 		                .build() 
 		                )
@@ -137,7 +138,7 @@ class EndOfDigitalDeliveryWorkflowActionHandlerTest {
 		                        .taxId( "CGNNMO80A01H501M" )
 		                        .denomination( "Nome1 Cognome1" )
 		                        .digitalDomicile(DigitalAddress.builder()
-		                                .type( DigitalAddressType.PEC )
+		                                .type( DigitalAddress.TypeEnum.PEC )
 		                                .address( "nome1.cognome1@develop.it" )
 		                                .build())
 		                        .build()
@@ -146,3 +147,5 @@ class EndOfDigitalDeliveryWorkflowActionHandlerTest {
 		        .build();
 	}
 }
+
+ */

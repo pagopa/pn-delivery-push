@@ -1,8 +1,8 @@
 package it.pagopa.pn.deliverypush.action2.it.utils;
-import it.pagopa.pn.deliverypush.external.AddressBookEntry;
+import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBookEntry;
 
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+
 
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +28,7 @@ public class AddressBookEntryTestBuilder {
     public AddressBookEntryTestBuilder withCourtesyAddress(String courtesyAddress) {
         this.courtesyAddresses = Collections.singletonList((DigitalAddress.builder()
                 .address(courtesyAddress)
-                .type(DigitalAddressType.PEC)
+                .type(DigitalAddress.TypeEnum.PEC)
                 .build()));
         return this;
     }

@@ -1,11 +1,11 @@
 package it.pagopa.pn.deliverypush.action2.utils;
 
-import it.pagopa.pn.api.dto.notification.timeline.ContactPhase;
-import it.pagopa.pn.api.dto.notification.timeline.DeliveryMode;
-import it.pagopa.pn.api.dto.notification.timeline.PublicRegistryCallDetails;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ContactPhase;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DeliveryMode;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PublicRegistryCallDetails;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -24,7 +24,7 @@ public class PublicRegistryUtils {
         this.timelineUtils = timelineUtils;
     }
 
-    public String generateCorrelationId(String iun, int recIndex, ContactPhase contactPhase, int sentAttemptMade, DeliveryMode deliveryMode) {
+    public String generateCorrelationId(String iun, Integer recIndex, ContactPhase contactPhase, int sentAttemptMade, DeliveryMode deliveryMode) {
         return String.format(
                 "%s_%d_%s_%s_%d",
                 iun,
@@ -35,7 +35,7 @@ public class PublicRegistryUtils {
         );
     }
 
-    public void addPublicRegistryCallToTimeline(String iun, int recIndex, ContactPhase contactPhase, int sentAttemptMade, String correlationId, DeliveryMode digital) {
+    public void addPublicRegistryCallToTimeline(String iun, Integer recIndex, ContactPhase contactPhase, int sentAttemptMade, String correlationId, DeliveryMode digital) {
         addTimelineElement(timelineUtils.buildPublicRegistryCallTimelineElement(iun, recIndex, correlationId, digital, contactPhase, sentAttemptMade));
     }
 
@@ -51,11 +51,11 @@ public class PublicRegistryUtils {
         }
     }
 
-    public void addPublicRegistryResponseToTimeline(String iun,int recIndex, PublicRegistryResponse response) {
+    public void addPublicRegistryResponseToTimeline(String iun,Integer recIndex, PublicRegistryResponse response) {
         addTimelineElement(timelineUtils.buildPublicRegistryResponseCallTimelineElement(iun, recIndex, response));
     }
 
-    private void addTimelineElement(TimelineElement element) {
+    private void addTimelineElement(TimelineElementInternal element) {
         timelineService.addTimelineElement(element);
     }
 

@@ -1,18 +1,18 @@
 package it.pagopa.pn.deliverypush.actions;
-
+/*
 import java.util.Optional;
 
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import org.springframework.stereotype.Component;
 
 import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
-import it.pagopa.pn.api.dto.notification.timeline.SendDigitalDetails;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import NotificationPathChooseDetails;
+import SendDigitalDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
@@ -63,7 +63,7 @@ public class SendPecActionHandler extends AbstractActionHandler {
             }
   
             // - Write timeline
-            addTimelineElement( action, TimelineElement.builder()
+            addTimelineElement( action, TimelineElementInternal.timelineInternalBuilder()
                 .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE )
                 .details( SendDigitalDetails.sendBuilder()
                             .taxId( recipient.getTaxId() )
@@ -85,3 +85,5 @@ public class SendPecActionHandler extends AbstractActionHandler {
         return ActionType.SEND_PEC;
     }
 }
+
+ */

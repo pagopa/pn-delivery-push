@@ -1,12 +1,12 @@
 package it.pagopa.pn.deliverypush.actions;
-
+/*
 import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.timeline.EndOfDigitalDeliveryWorkflowDetails;
-import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
+import EndOfDigitalDeliveryWorkflowDetails;
+import NotificationPathChooseDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
@@ -67,7 +67,7 @@ public class EndOfDigitalDeliveryWorkflowActionHandler extends AbstractActionHan
 
             // - WRITE TIMELINE
             NotificationRecipient recipient = notification.getRecipients().get(action.getRecipientIndex());
-            addTimelineElement(action, TimelineElement.builder()
+            addTimelineElement(action, TimelineElementInternal.timelineInternalBuilder()
                     .category( TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW )
                     .details( EndOfDigitalDeliveryWorkflowDetails.builder()
                             .taxId(recipient.getTaxId())
@@ -87,3 +87,5 @@ public class EndOfDigitalDeliveryWorkflowActionHandler extends AbstractActionHan
         return ActionType.END_OF_DIGITAL_DELIVERY_WORKFLOW;
     }
 }
+
+ */

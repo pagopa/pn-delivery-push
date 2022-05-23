@@ -1,14 +1,14 @@
 package it.pagopa.pn.deliverypush.action2;
 
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.deliverypush.action2.utils.CheckAttachmentUtils;
 import it.pagopa.pn.deliverypush.action2.utils.CourtesyMessageUtils;
 import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -53,18 +53,19 @@ public class StartWorkflowHandler {
     public void startWorkflow(String iun) {
         log.info("Start notification process - iun {}", iun);
         
-        Notification notification = notificationService.getNotificationByIun(iun);
+        NotificationInt notification = notificationService.getNotificationByIun(iun);
+
         try{
             //Validazione degli allegati della notifica
-            checkAttachmentUtils.validateAttachment(notification);
+            //checkAttachmentUtils.validateAttachment(notification);
 
             String legalFactId = legalFactDao.saveNotificationReceivedLegalFact(notification);
 
             addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification, legalFactId));
             
             //Start del workflow per ogni recipient della notifica
-            for (NotificationRecipient recipient : notification.getRecipients()) {
-                int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+            for (NotificationRecipientInt recipient : notification.getRecipients()) {
+                Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
                 startNotificationWorkflowForRecipient(notification, recIndex);
             }
         }catch (PnValidationException ex){
@@ -72,22 +73,22 @@ public class StartWorkflowHandler {
         }
     }
 
-    private void startNotificationWorkflowForRecipient(Notification notification, int recIndex) {
+    private void startNotificationWorkflowForRecipient(NotificationInt notification, Integer recIndex) {
         log.info("Start notification workflow - iun {} id {}", notification.getIun(), recIndex);
-        //... Invio messaggio di cortesia ...
+        //... Invio messaggio di cortxesia ...
         courtesyMessageUtils.checkAddressesForSendCourtesyMessage(notification, recIndex);
         //... e inizializzato il processo di scelta della tipologia di notificazione
         chooseDeliveryType.chooseDeliveryTypeAndStartWorkflow(notification, recIndex);
     }
 
-    private void handleValidationError(Notification notification, PnValidationException ex) {
+    private void handleValidationError(NotificationInt notification, PnValidationException ex) {
         List<String> errors =  ex.getValidationErrors().stream()
                 .map(ConstraintViolation::getMessage).collect(Collectors.toList());
         log.info("Notification refused, errors {} - iun {}", errors, notification.getIun());
         addTimelineElement(timelineUtils.buildRefusedRequestTimelineElement(notification, errors));
     }
 
-    private void addTimelineElement(TimelineElement element) {
+    private void addTimelineElement(TimelineElementInternal element) {
         timelineService.addTimelineElement(element);
     }
 

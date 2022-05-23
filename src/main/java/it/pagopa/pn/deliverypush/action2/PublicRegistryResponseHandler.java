@@ -1,11 +1,11 @@
 package it.pagopa.pn.deliverypush.action2;
 
-import it.pagopa.pn.api.dto.notification.timeline.ContactPhase;
-import it.pagopa.pn.api.dto.notification.timeline.DeliveryMode;
-import it.pagopa.pn.api.dto.notification.timeline.PublicRegistryCallDetails;
-import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action2.utils.PublicRegistryUtils;
+import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ContactPhase;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DeliveryMode;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PublicRegistryCallDetails;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -39,7 +39,7 @@ public class PublicRegistryResponseHandler {
 
         //Viene ottenuto l'oggetto di timeline creato in fase d'invio notifica al public registry
         PublicRegistryCallDetails publicRegistryCallDetails = publicRegistryUtils.getPublicRegistryCallDetail(iun, correlationId);
-        int recIndex = publicRegistryCallDetails.getRecIndex();
+        Integer recIndex = publicRegistryCallDetails.getRecIndex();
 
         publicRegistryUtils.addPublicRegistryResponseToTimeline(iun, recIndex, response);
 
@@ -72,7 +72,7 @@ public class PublicRegistryResponseHandler {
     }
 
     private void handleResponseForSendAttempt(PublicRegistryResponse response, String iun, PublicRegistryCallDetails publicRegistryCallDetails) {
-        int recIndex = publicRegistryCallDetails.getRecIndex();
+        Integer recIndex = publicRegistryCallDetails.getRecIndex();
 
         log.info("Start handleResponseForSendAttempt iun {} id {} deliveryMode {}", iun, recIndex, publicRegistryCallDetails.getDeliveryMode());
 
@@ -93,7 +93,7 @@ public class PublicRegistryResponseHandler {
         }
     }
 
-    private void handleDeliveryModeError(String iun, DeliveryMode deliveryMode, int recIndex) {
+    private void handleDeliveryModeError(String iun, DeliveryMode deliveryMode, Integer recIndex) {
         log.error("Specified deliveryMode {} does not exist - iun {} id {}", deliveryMode, iun, recIndex);
         throw new PnInternalException("Specified deliveryMode " + deliveryMode + " does not exist - iun " + iun + " id " + recIndex);
     }

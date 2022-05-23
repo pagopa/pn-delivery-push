@@ -1,27 +1,17 @@
 package it.pagopa.pn.deliverypush.middleware;
 
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.pagopa.pn.api.dto.events.EventType;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.ActionEventType;
-import it.pagopa.pn.deliverypush.middleware.eventhandlers.ExtChannelResponseEventHandler;
-import it.pagopa.pn.deliverypush.middleware.eventhandlers.NewNotificationEventHandler;
-import it.pagopa.pn.deliverypush.middleware.eventhandlers.NotificationViewedEventHandler;
 import it.pagopa.pn.deliverypush.middleware.momproducer.action.sqs.SqsActionProducer;
 import it.pagopa.pn.deliverypush.middleware.momproducer.emailrequest.sqs.SqsEmailRequestProducer;
 import it.pagopa.pn.deliverypush.middleware.momproducer.paperrequest.sqs.SqsPaperRequestProducer;
 import it.pagopa.pn.deliverypush.middleware.momproducer.pecrequest.sqs.SqsPecRequestProducer;
-import it.pagopa.pn.deliverypush.temp.mom.consumer.EventReceiver;
-import it.pagopa.pn.deliverypush.temp.mom.consumer.SqsEventReceiver;
-import it.pagopa.pn.deliverypush.webhook.WebhookBufferWriterService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import software.amazon.awssdk.services.sqs.SqsClient;
-
-import java.util.Arrays;
-import java.util.Collections;
 
 @Configuration
 public class PnDeliveryPushMiddlewareConfigs {
@@ -31,7 +21,7 @@ public class PnDeliveryPushMiddlewareConfigs {
     public PnDeliveryPushMiddlewareConfigs(PnDeliveryPushConfigs cfg) {
         this.cfg = cfg;
     }
-
+/*
     @Bean
     public EventReceiver newNotificationEventReceiver(SqsClient sqs, ObjectMapper objMapper, NewNotificationEventHandler handler1, NotificationViewedEventHandler handler2) {
         return new SqsEventReceiver(
@@ -64,7 +54,7 @@ public class PnDeliveryPushMiddlewareConfigs {
                 Collections.singletonList( ActionEventType.ACTION_GENERIC )
         );
     }
-
+*/
     @Bean
     public SqsPecRequestProducer pecRequestSender(SqsClient sqs, ObjectMapper objMapper) {
         return new SqsPecRequestProducer( sqs, cfg.getTopics().getToExternalChannelPec(), objMapper);
@@ -90,3 +80,4 @@ public class PnDeliveryPushMiddlewareConfigs {
         return new SqsActionProducer( sqs, cfg.getTopics().getExecutedActions(), objMapper);
     }
 }
+

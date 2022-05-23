@@ -1,23 +1,6 @@
 package it.pagopa.pn.deliverypush.actions;
 
-import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
-import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntryId;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionHandler;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
-import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
-import org.jetbrains.annotations.NotNull;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
-
+/*
 public abstract class AbstractActionHandler implements ActionHandler {
 
     private final TimelineDao timelineDao;
@@ -37,17 +20,18 @@ public abstract class AbstractActionHandler implements ActionHandler {
         );
     }
 
-    protected void addTimelineElement(Action action, TimelineElement row) {
-        this.timelineDao.addTimelineElement(row.toBuilder()
-                .iun(action.getIun())
-                .timestamp(Instant.now())
-                .elementId(action.getActionId())
-                .build()
-        );
+    protected void addTimelineElement(Action action, TimelineElementInternal row) {
+        this.timelineDao.addTimelineElement( new TimelineElementInternal(
+                action.getIun(),
+                row.toBuilder()
+                    .timestamp( Instant.now())
+                    .elementId(action.getActionId())
+                    .build()
+        ));
     }
 
     protected <T> Optional<T> getTimelineElement(Action action, ActionType actionType, Class<T> timelineDetailsClass) {
-        Optional<TimelineElement> row;
+        Optional<TimelineElementInternal> row;
         row = this.timelineDao.getTimelineElement(action.getIun(), actionType.buildActionId(action));
 
         return row.map(el -> timelineDetailsClass.cast(el.getDetails()));
@@ -153,9 +137,9 @@ public abstract class AbstractActionHandler implements ActionHandler {
 
         // FIXME: se non c'è il risultato verificare che manchi anche la richiesta di invio: se c'è è un anomalia.
 
-        Set<TimelineElement> timeline = timelineDao.getTimeline(action.getIun());
+        Set<TimelineElementInternal> timeline = timelineDao.getTimeline(action.getIun());
 
-        Optional<TimelineElement> firstAttemptResult = timeline.stream()
+        Optional<TimelineElementInternal> firstAttemptResult = timeline.stream()
                 .filter(timelineElement -> firstAttemptResultActionId.equals(timelineElement.getElementId()))
                 .findFirst();
 
@@ -198,9 +182,22 @@ public abstract class AbstractActionHandler implements ActionHandler {
                 .recipientIndex(action.getRecipientIndex())
                 .notBefore(actionTime)
                 .type(ActionType.SEND_PEC)
-                .digitalAddressSource(action.getDigitalAddressSource().next())
+                .digitalAddressSource( nextSource( action.getDigitalAddressSource() ))
                 .retryNumber(roundNumber)
                 .build();
+    }
+
+    private DigitalAddressSource nextSource( DigitalAddressSource das ) {
+        switch (das) {
+            case PLATFORM:
+                return DigitalAddressSource.SPECIAL;
+            case SPECIAL:
+                return DigitalAddressSource.GENERAL;
+            case GENERAL:
+                return DigitalAddressSource.PLATFORM;
+            default:
+                throw new PnInternalException(" BUG: add support to next for " + DigitalAddressSource.class + "::" + das.name());
+        }
     }
 
     protected static final Integer FIRST_ROUND = 1;
@@ -229,19 +226,23 @@ public abstract class AbstractActionHandler implements ActionHandler {
     }
 
     @NotNull
-    protected List<LegalFactsListEntryId> extractLegalFactsIds(Action action, LegalFactType type) {
+    protected List<LegalFactsId> extractLegalFactsIds(Action action, LegalFactCategory category) {
         return action.getAttachmentKeys() == null ? Collections.emptyList() : action.getAttachmentKeys().stream()
-                .map( k -> LegalFactsListEntryId.builder()
-                        .type( type )
+                .map( k -> LegalFactsId.builder()
+                        .category( category )
                         .key( k )
                         .build()
                 ).collect(Collectors.toList());
     }
 
-    protected List<LegalFactsListEntryId> singleLegalFactId(String legalFactKey, LegalFactType type) {
-        return Collections.singletonList( LegalFactsListEntryId.builder()
+    protected List<LegalFactsId> singleLegalFactId(String legalFactKey, LegalFactCategory category) {
+        return Collections.singletonList( LegalFactsId.builder()
                 .key( legalFactKey )
-                .type( type )
+                .category( category )
                 .build() );
     }
 }
+
+ */
+
+

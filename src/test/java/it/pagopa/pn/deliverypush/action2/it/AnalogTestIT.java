@@ -1,12 +1,6 @@
 package it.pagopa.pn.deliverypush.action2.it;
 
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
-import it.pagopa.pn.api.dto.notification.timeline.EventId;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineEventId;
 import it.pagopa.pn.commons.abstractions.FileData;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
@@ -16,11 +10,18 @@ import it.pagopa.pn.deliverypush.action2.*;
 import it.pagopa.pn.deliverypush.action2.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action2.it.utils.*;
 import it.pagopa.pn.deliverypush.action2.utils.*;
-import it.pagopa.pn.deliverypush.actions.ExtChnEventUtils;
-import it.pagopa.pn.deliverypush.external.AddressBookEntry;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.timeline.EventId;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBookEntry;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.NotificationServiceImpl;
+import it.pagopa.pn.deliverypush.service.impl.PaperNotificationFailedServiceImpl;
+import it.pagopa.pn.deliverypush.service.impl.StatusServiceImpl;
 import it.pagopa.pn.deliverypush.service.impl.TimeLineServiceImpl;
 import it.pagopa.pn.deliverypush.util.StatusUtils;
 import org.junit.jupiter.api.Assertions;
@@ -56,7 +57,6 @@ import java.time.Instant;
         ExternalChannelUtils.class,
         CompletelyUnreachableUtils.class,
         LegalfactsMetadataUtils.class,
-        ExtChnEventUtils.class,
         AnalogWorkflowUtils.class,
         TimelineUtils.class,
         PublicRegistryUtils.class,
@@ -64,6 +64,8 @@ import java.time.Instant;
         NotificationUtils.class,
         NotificationServiceImpl.class,
         TimeLineServiceImpl.class,
+        PaperNotificationFailedServiceImpl.class,
+        StatusServiceImpl.class,
         CheckAttachmentUtils.class,
         StatusUtils.class,
         PaperNotificationFailedDaoMock.class,
@@ -169,12 +171,12 @@ class AnalogTestIT {
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
-        NotificationRecipient recipient = NotificationRecipientTestBuilder.builder()
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId("TAXID01")
                 .withPhysicalAddress(paPhysicalAddress)
                 .build();
 
-        Notification notification = NotificationTestBuilder.builder()
+        NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun("IUN01")
                 .withNotificationRecipient(recipient)
                 .build();
@@ -188,7 +190,7 @@ class AnalogTestIT {
         addressBookMock.add(addressBookEntry);
 
         String iun = notification.getIun();
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -253,11 +255,11 @@ class AnalogTestIT {
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS + " Via Nuova")
                 .build();
 
-        NotificationRecipient recipient = NotificationRecipientTestBuilder.builder()
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId("TAXID01")
                 .build();
 
-        Notification notification = NotificationTestBuilder.builder()
+        NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun("IUN01")
                 .withNotificationRecipient(recipient)
                 .build();
@@ -271,7 +273,7 @@ class AnalogTestIT {
         publicRegistryMock.addPhysical(recipient.getTaxId(), publicRegistryAddress);
 
         String iun = notification.getIun();
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(notification.getIun());

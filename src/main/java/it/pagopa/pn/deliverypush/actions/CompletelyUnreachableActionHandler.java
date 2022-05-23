@@ -1,11 +1,11 @@
 package it.pagopa.pn.deliverypush.actions;
-
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+/*
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFailed;
-import it.pagopa.pn.api.dto.notification.timeline.CompletelyUnreachableDetails;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
+import CompletelyUnreachableDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.middleware.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class CompletelyUnreachableActionHandler extends AbstractActionHandler {
-    private PaperNotificationFailedDao paperNotificationFailedDao;
+    private final PaperNotificationFailedDao paperNotificationFailedDao;
 
     protected CompletelyUnreachableActionHandler(TimelineDao timelineDao, PaperNotificationFailedDao paperNotificationFailedDao,
                                                  ActionsPool actionsPool, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
@@ -57,7 +57,7 @@ public class CompletelyUnreachableActionHandler extends AbstractActionHandler {
     }
 
     private void buildAndAddTimeLineElement(Action action, NotificationRecipient recipient) {
-        addTimelineElement(action, TimelineElement.builder()
+        addTimelineElement(action, TimelineElementInternal.timelineInternalBuilder()
                 .category(TimelineElementCategory.COMPLETELY_UNREACHABLE)
                 .details(CompletelyUnreachableDetails.builder()
                         .taxId(recipient.getTaxId())
@@ -72,3 +72,5 @@ public class CompletelyUnreachableActionHandler extends AbstractActionHandler {
         return ActionType.COMPLETELY_UNREACHABLE;
     }
 }
+
+ */
