@@ -9,9 +9,8 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBook;
-import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBookEntry;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.deliverypush.service.AddressBookService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -27,13 +26,13 @@ import java.util.Set;
 @Slf4j
 public class DigitalWorkFlowUtils {
     private final TimelineService timelineService;
-    private final AddressBook addressBook;
+    private final AddressBookService addressBookService;
     private final TimelineUtils timelineUtils;
     private final NotificationUtils notificationUtils;
     
-    public DigitalWorkFlowUtils(TimelineService timelineService, AddressBook addressBook, TimelineUtils timelineUtils, NotificationUtils notificationUtils) {
+    public DigitalWorkFlowUtils(TimelineService timelineService, AddressBookService addressBookService, TimelineUtils timelineUtils, NotificationUtils notificationUtils) {
         this.timelineService = timelineService;
-        this.addressBook = addressBook;
+        this.addressBookService = addressBookService;
         this.timelineUtils = timelineUtils;
         this.notificationUtils = notificationUtils;
     }
@@ -135,11 +134,11 @@ public class DigitalWorkFlowUtils {
     private DigitalAddress retrievePlatformAddress(NotificationRecipientInt recipient, NotificationSenderInt sender) {
         log.debug("RetrievePlatformAddress for recipient {} sender {}", recipient.getTaxId(), sender.getPaId());
 
-        Optional<AddressBookEntry> addressBookEntryOpt = addressBook.getAddresses(recipient.getTaxId(), sender);
+        Optional<DigitalAddress> digitalAddressOpt = addressBookService.getPlatformAddresses(recipient.getTaxId(), sender.getPaId());
 
-        if (addressBookEntryOpt.isPresent()) {
+        if (digitalAddressOpt.isPresent()) {
             log.debug("Retrive platformAddress ok for recipient {} sender {}", recipient.getTaxId(), sender.getPaId());
-            return addressBookEntryOpt.get().getPlatformDigitalAddress();
+            return digitalAddressOpt.get();
         }
         log.info("Platform address is empty for recipient {} sender {}", recipient.getTaxId(), sender.getPaId());
         return null;

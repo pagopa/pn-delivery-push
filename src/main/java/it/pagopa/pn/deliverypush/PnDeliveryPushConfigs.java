@@ -16,6 +16,8 @@ public class PnDeliveryPushConfigs {
 
     private String externalChannelBaseUrl;
 
+    private String userAttributesBaseUrl;
+
     private TimeParams timeParams;
 
     private Topics topics;

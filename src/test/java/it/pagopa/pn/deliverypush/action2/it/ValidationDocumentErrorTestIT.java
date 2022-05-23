@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action2.it;
 
+import it.pagopa.pn.api.dto.addressbook.AddressBookEntry;
 import it.pagopa.pn.api.dto.events.PnExtChnEmailEvent;
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
 import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
@@ -19,7 +20,6 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBookEntry;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -117,7 +117,7 @@ class ValidationDocumentErrorTestIT {
     private PnDeliveryClientMock pnDeliveryClientMock;
 
     @Autowired
-    private AddressBookMock addressBookMock;
+    private UserAttributesMock addressBookMock;
 
     @Autowired
     private PublicRegistryMock publicRegistryMock;

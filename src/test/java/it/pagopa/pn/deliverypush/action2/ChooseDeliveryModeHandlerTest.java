@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action2;
 
+import it.pagopa.pn.api.dto.addressbook.AddressBookEntry;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action2.utils.ChooseDeliveryModeUtils;
@@ -9,7 +10,6 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
-import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBookEntry;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ContactPhase;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
@@ -80,7 +80,7 @@ class ChooseDeliveryModeHandlerTest {
                                 .build()
                 ).build();
 
-        Mockito.when(chooseDeliveryUtils.getAddresses(Mockito.any(NotificationInt.class), Mockito.anyInt()))
+        Mockito.when(chooseDeliveryUtils.getPlatformAddress(Mockito.any(NotificationInt.class), Mockito.anyInt()))
                 .thenReturn(Optional.of(entry));
 
         //WHEN
@@ -109,7 +109,7 @@ class ChooseDeliveryModeHandlerTest {
         NotificationRecipientInt recipient =notification.getRecipients().get(0);
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
         
-        Mockito.when(chooseDeliveryUtils.getAddresses(Mockito.any(NotificationInt.class), Mockito.anyInt()))
+        Mockito.when(chooseDeliveryUtils.getPlatformAddress(Mockito.any(NotificationInt.class), Mockito.anyInt()))
                 .thenReturn(Optional.empty());
         Mockito.when(chooseDeliveryUtils.getDigitalDomicile(Mockito.any(NotificationInt.class), Mockito.anyInt()))
                 .thenReturn(recipient.getDigitalDomicile());
@@ -150,7 +150,7 @@ class ChooseDeliveryModeHandlerTest {
         NotificationRecipientInt recipient =notification.getRecipients().get(0);
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
-        Mockito.when(chooseDeliveryUtils.getAddresses(Mockito.any(NotificationInt.class), Mockito.anyInt()))
+        Mockito.when(chooseDeliveryUtils.getPlatformAddress(Mockito.any(NotificationInt.class), Mockito.anyInt()))
                 .thenReturn(Optional.empty());
 
         //WHEN

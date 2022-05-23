@@ -9,12 +9,12 @@ import it.pagopa.pn.deliverypush.action2.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action2.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action2.PublicRegistryResponseHandler;
 import it.pagopa.pn.deliverypush.action2.RefinementHandler;
-import it.pagopa.pn.deliverypush.action2.it.mockbean.AddressBookMock;
+import it.pagopa.pn.deliverypush.action2.it.mockbean.UserAttributesMock;
 import it.pagopa.pn.deliverypush.action2.it.mockbean.PnDeliveryClientMock;
 import it.pagopa.pn.deliverypush.action2.it.mockbean.PublicRegistryMock;
 import it.pagopa.pn.deliverypush.action2.it.mockbean.SchedulerServiceMock;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
-import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBook;
+import it.pagopa.pn.deliverypush.externalclient.pnclient.userattributes.UserAttributes;
 import it.pagopa.pn.deliverypush.legalfacts.*;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
@@ -32,8 +32,8 @@ public class AbstractWorkflowTestConfiguration {
     }
 
     @Bean
-    public AddressBook testAddressBook() {
-        return new AddressBookMock();
+    public UserAttributes testAddressBook() {
+        return new UserAttributesMock();
     }
     
     @Bean

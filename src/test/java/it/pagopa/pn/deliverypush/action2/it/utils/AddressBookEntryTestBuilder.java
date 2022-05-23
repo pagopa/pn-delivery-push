@@ -1,8 +1,7 @@
 package it.pagopa.pn.deliverypush.action2.it.utils;
-import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBookEntry;
 
+import it.pagopa.pn.api.dto.addressbook.AddressBookEntry;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
-
 
 import java.util.Collections;
 import java.util.List;
