@@ -6,10 +6,7 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsId;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetails;
-import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.LegalFactsIdEntity;
-import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementCategoryEntity;
-import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementDetailsEntity;
-import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementEntity;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.*;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import org.springframework.stereotype.Component;
 
@@ -30,21 +27,25 @@ public class DtoToEntityTimelineMapper {
                 .category( TimelineElementCategoryEntity.valueOf(dto.getCategory().getValue()) )
                 .timestamp( dto.getTimestamp() )
                 .details( dtoToDetailsEntity( dto.getDetails() ) )
-                .legalFactId( legalFactsDtoToString( dto.getLegalFactsIds() ) )
+                .legalFactIds( convertLegalFactsToEntity( dto.getLegalFactsIds() ) )
                 .build();
     }
 
-    private String legalFactsDtoToString(List<LegalFactsId> legalFactsIds) {
-        String legalFacts = null;
-                
-        if(legalFactsIds != null){
-            List<LegalFactsIdEntity> listLegalFactsEntity =  legalFactsIds.stream().map(
-                    legalFactsId -> SmartMapper.mapToClass(legalFactsId, LegalFactsIdEntity.class )
-            ).collect(Collectors.toList());
-            legalFacts = legalFactIdsToJsonString(listLegalFactsEntity);
+    private List<LegalFactsIdEntity> convertLegalFactsToEntity(List<LegalFactsId>  dto ) {
+        List<LegalFactsIdEntity> legalFactsIds = null;
+
+        if (dto != null){
+            legalFactsIds = dto.stream().map( this::mapOneLegalFact ).collect(Collectors.toList());
         }
-        
-        return legalFacts;
+
+        return legalFactsIds;
+    }
+
+    private LegalFactsIdEntity mapOneLegalFact(LegalFactsId legalFactsId) {
+        LegalFactsIdEntity entity = new LegalFactsIdEntity();
+        entity.setKey( legalFactsId.getKey() );
+        entity.setCategory(LegalFactCategoryEntity.valueOf( legalFactsId.getCategory().getValue()));
+        return entity;
     }
 
     private String legalFactIdsToJsonString(List<LegalFactsIdEntity> listLegalFactsEntity) {

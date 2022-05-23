@@ -6,6 +6,6 @@ public class SmartMapper {
     private SmartMapper (){}
     
     public static  <S,T> T mapToClass(S source, Class<T> destinationClass ){
-        return new ModelMapper().map(source, destinationClass );
+        return source == null ? null : new ModelMapper().map(source, destinationClass );
     }
 }

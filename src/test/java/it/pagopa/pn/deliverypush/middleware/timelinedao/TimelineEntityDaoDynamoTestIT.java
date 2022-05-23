@@ -49,13 +49,13 @@ class TimelineEntityDaoDynamoTestIT {
                 .details(TimelineElementDetailsEntity.builder()
                         .recIndex(0)
                         .build())
-                .legalFactId(
-                        legalFactIdsToJsonString(Collections.singletonList(
+                .legalFactIds(
+                        Collections.singletonList(
                                 LegalFactsIdEntity.builder()
                                         .key("key")
                                         .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
                                         .build()
-                        ))
+                        )
                 )
                 .build();
 
@@ -88,13 +88,13 @@ class TimelineEntityDaoDynamoTestIT {
                 .details(TimelineElementDetailsEntity.builder()
                         .recIndex(0)
                         .build())
-                .legalFactId(
-                        legalFactIdsToJsonString(Collections.singletonList(
+                .legalFactIds(
+                        Collections.singletonList(
                                 LegalFactsIdEntity.builder()
                                         .key("key")
                                         .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
                                         .build()
-                        ))
+                        )
                 )
                 .build();
 
@@ -105,13 +105,13 @@ class TimelineEntityDaoDynamoTestIT {
                 .details(TimelineElementDetailsEntity.builder()
                         .recIndex(0)
                         .build())
-                .legalFactId(
-                        legalFactIdsToJsonString(Collections.singletonList(
+                .legalFactIds(
+                        Collections.singletonList(
                                 LegalFactsIdEntity.builder()
                                         .key("key")
                                         .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
                                         .build()
-                        ))
+                        )
                 )
                 .build();
 
@@ -152,13 +152,13 @@ class TimelineEntityDaoDynamoTestIT {
                 .details(TimelineElementDetailsEntity.builder()
                         .recIndex(0)
                         .build())
-                .legalFactId(
-                        legalFactIdsToJsonString(Collections.singletonList(
+                .legalFactIds(
+                        Collections.singletonList(
                                 LegalFactsIdEntity.builder()
                                         .key("key")
                                         .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
                                         .build()
-                        ))
+                        )
                 )
                 .build();
 
@@ -174,13 +174,13 @@ class TimelineEntityDaoDynamoTestIT {
                 .details(TimelineElementDetailsEntity.builder()
                         .recIndex(0)
                         .build())
-                .legalFactId(
-                        legalFactIdsToJsonString(Collections.singletonList(
+                .legalFactIds(
+                        Collections.singletonList(
                                 LegalFactsIdEntity.builder()
                                         .key("key")
                                         .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
                                         .build()
-                        ))
+                        )
                 )
                 .build();
 
@@ -219,13 +219,13 @@ class TimelineEntityDaoDynamoTestIT {
                 .details(TimelineElementDetailsEntity.builder()
                         .recIndex(0)
                         .build())
-                .legalFactId(
-                        legalFactIdsToJsonString(Collections.singletonList(
+                .legalFactIds(
+                        Collections.singletonList(
                                 LegalFactsIdEntity.builder()
                                         .key("key")
                                         .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
                                         .build()
-                        ))
+                        )
                 )
                 .build();
         Key firstElementToInsertKey = Key.builder()
@@ -240,13 +240,13 @@ class TimelineEntityDaoDynamoTestIT {
                 .details(TimelineElementDetailsEntity.builder()
                         .recIndex(0)
                         .build())
-                .legalFactId(
-                        legalFactIdsToJsonString(Collections.singletonList(
+                .legalFactIds(
+                        Collections.singletonList(
                                 LegalFactsIdEntity.builder()
                                         .key("key")
                                         .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
                                         .build()
-                        ))
+                        )
                 )
                 .build();
         Key secondElementToInsertKey = Key.builder()
@@ -290,13 +290,13 @@ class TimelineEntityDaoDynamoTestIT {
                 .details(TimelineElementDetailsEntity.builder()
                         .recIndex(0)
                         .build())
-                .legalFactId(
-                        legalFactIdsToJsonString(Collections.singletonList(
+                .legalFactIds(
+                        Collections.singletonList(
                                 LegalFactsIdEntity.builder()
                                         .key("key")
                                         .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
                                         .build()
-                        ))
+                        )
                 )
                 .build();
         
@@ -325,13 +325,13 @@ class TimelineEntityDaoDynamoTestIT {
                 .details(TimelineElementDetailsEntity.builder()
                         .recIndex(0)
                         .build())
-                .legalFactId(
-                        legalFactIdsToJsonString(Collections.singletonList(
+                .legalFactIds(
+                        Collections.singletonList(
                                 LegalFactsIdEntity.builder()
                                         .key("key")
                                         .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
                                         .build()
-                        ))
+                        )
                 )
                 .build();
 
@@ -364,13 +364,13 @@ class TimelineEntityDaoDynamoTestIT {
                 .details(TimelineElementDetailsEntity.builder()
                         .recIndex(0)
                         .build())
-                .legalFactId(
-                        legalFactIdsToJsonString(Collections.singletonList(
+                .legalFactIds(
+                        Collections.singletonList(
                                 LegalFactsIdEntity.builder()
                                         .key("key")
                                         .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
                                         .build()
-                        ))
+                        )
                 )
                 .build();
 
@@ -381,13 +381,13 @@ class TimelineEntityDaoDynamoTestIT {
                 .details(TimelineElementDetailsEntity.builder()
                         .recIndex(0)
                         .build())
-                .legalFactId(
-                        legalFactIdsToJsonString(Collections.singletonList(
+                .legalFactIds(
+                        Collections.singletonList(
                                 LegalFactsIdEntity.builder()
                                         .key("key")
                                         .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
                                         .build()
-                        ))
+                        )
                 )
                 .build();
 
@@ -429,13 +429,13 @@ class TimelineEntityDaoDynamoTestIT {
                 .details(TimelineElementDetailsEntity.builder()
                         .recIndex(0)
                         .build())
-                .legalFactId(
-                        legalFactIdsToJsonString(Collections.singletonList(
+                .legalFactIds(
+                        Collections.singletonList(
                                 LegalFactsIdEntity.builder()
                                         .key("key")
                                         .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
                                         .build()
-                        ))
+                        )
                 )
                 .build();
 
@@ -446,13 +446,13 @@ class TimelineEntityDaoDynamoTestIT {
                 .details(TimelineElementDetailsEntity.builder()
                         .recIndex(0)
                         .build())
-                .legalFactId(
-                        legalFactIdsToJsonString(Collections.singletonList(
+                .legalFactIds(
+                        Collections.singletonList(
                                 LegalFactsIdEntity.builder()
                                         .key("key")
                                         .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
                                         .build()
-                        ))
+                        )
                 )
                 .build();
 
@@ -484,14 +484,6 @@ class TimelineEntityDaoDynamoTestIT {
                 .build();
 
         timelineEntityDao.delete(key);
-    }
-
-    private String legalFactIdsToJsonString(List<LegalFactsIdEntity> listLegalFactsEntity) {
-        try {
-            return new ObjectMapper().writeValueAsString( listLegalFactsEntity );
-        } catch (JsonProcessingException exc) {
-            throw new PnInternalException( "Writing timeline detail to storage", exc );
-        }
     }
 
 }

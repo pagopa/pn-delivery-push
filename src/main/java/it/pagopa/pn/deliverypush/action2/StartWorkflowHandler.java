@@ -57,7 +57,7 @@ public class StartWorkflowHandler {
 
         try{
             //Validazione degli allegati della notifica
-            checkAttachmentUtils.validateAttachment(notification);
+            //checkAttachmentUtils.validateAttachment(notification);
 
             String legalFactId = legalFactDao.saveNotificationReceivedLegalFact(notification);
 
