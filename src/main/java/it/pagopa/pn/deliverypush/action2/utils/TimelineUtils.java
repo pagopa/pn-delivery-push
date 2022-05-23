@@ -37,7 +37,7 @@ public class TimelineUtils {
         return TimelineElementInternal.timelineInternalBuilder()
                 .iun(iun)
                 .category(category)
-                .timestamp(instantNowSupplier.get())
+                .timestamp(Instant.now())
                 .elementId(elementId)
                 .details(details)
                 .legalFactsIds( legalFactsListEntryIds )
@@ -94,6 +94,7 @@ public class TimelineUtils {
                         .iun(response.getIun())
                         .recIndex(sendDigitalDetails.getRecIndex())
                         .index(sendDigitalDetails.getRetryNumber())
+                        .source(sendDigitalDetails.getDigitalAddressSource())
                         .build()
         );
 
