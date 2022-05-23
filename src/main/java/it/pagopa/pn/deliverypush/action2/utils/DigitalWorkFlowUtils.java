@@ -90,7 +90,7 @@ public class DigitalWorkFlowUtils {
 
     }
 
-    // Get attempts number made for source
+    // Get attempts attempt made for source
     private int getAttemptsMadeForSource(Integer recIndex, DigitalAddressSource nextAddressSource, Set<TimelineElementInternal> timeline) {
         return (int) timeline.stream()
                 .filter(timelineElement -> filterTimelineForRecIndexAndSource(timelineElement, recIndex, nextAddressSource)).count();

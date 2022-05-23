@@ -1,6 +1,8 @@
 package it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity;
 
 import lombok.*;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 
 @Builder
 @NoArgsConstructor
@@ -9,7 +11,8 @@ import lombok.*;
 @Setter
 @EqualsAndHashCode
 @ToString
+@DynamoDbBean
 public class LegalFactsIdEntity {
-    private String key;
-    private LegalFactCategoryEntity category;
+    @Getter(onMethod=@__({@DynamoDbAttribute("key")})) private String key;
+    @Getter(onMethod=@__({@DynamoDbAttribute("category")})) private LegalFactCategoryEntity category;
 }

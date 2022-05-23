@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @RestController
-public class PnLegalFactsController implements LegalFactsApi, PnDeliveryPushRestApi_methodGetLegalFacts {
+public class PnLegalFactsController implements LegalFactsApi {
 
     private final LegalFactService legalFactService;
 

@@ -6,12 +6,12 @@ components:
     ###                          STRUTTURE DATI DI PN-DELIVERY                               ###
     ############################################################################################
     RequestUpdateStatusDto:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-private-v1.yaml#/components/schemas/RequestUpdateStatusDto'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery/5ac420926939760b901fe37f1000305c97ba42f2/docs/openapi/api-private-v1.yaml#/components/schemas/RequestUpdateStatusDto'
     ResponseUpdateStatusDto:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-private-v1.yaml#/components/schemas/ResponseUpdateStatusDto'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery/5ac420926939760b901fe37f1000305c97ba42f2/docs/openapi/api-private-v1.yaml#/components/schemas/ResponseUpdateStatusDto'
     Notification:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/schemas-pn-notification-v1.yaml#/components/schemas/SentNotification'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery/5ac420926939760b901fe37f1000305c97ba42f2/docs/openapi/schemas-pn-notification-v1.yaml#/components/schemas/SentNotification'
 
 
-    pn-delivery-private-api:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-private-v1.yaml'
+    #pn-delivery-private-api:
+    #  $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-private-v1.yaml'

@@ -29,6 +29,7 @@ import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
 import it.pagopa.pn.deliverypush.validator.preloaded_digest_error.DigestEqualityBean;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -168,7 +169,7 @@ class ValidationDocumentErrorTestIT {
         pnDataVaultClientMock.clear();
     }
 
-    @Test
+    @Test @Disabled // TODO riabilitare dopo integrazione con safe storage
     void workflowTest() throws IdConflictException {
         
         // GIVEN

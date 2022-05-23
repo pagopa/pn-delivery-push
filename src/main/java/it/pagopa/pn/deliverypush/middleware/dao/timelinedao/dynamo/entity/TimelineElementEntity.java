@@ -7,6 +7,7 @@ import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.*;
 
 import java.time.Instant;
+import java.util.List;
 
 @Builder
 @NoArgsConstructor
@@ -23,7 +24,7 @@ public class TimelineElementEntity {
     private String timelineElementId;
     private Instant timestamp;
     private TimelineElementCategoryEntity category;
-    private String legalFactId; //TODO Utilizzare tipo specifico
+    private List<LegalFactsIdEntity> legalFactIds;
     private TimelineElementDetailsEntity details;
     
     @DynamoDbPartitionKey
@@ -62,15 +63,16 @@ public class TimelineElementEntity {
     }
 
     @DynamoDbAttribute(value = "legalFactId")
-    public String getLegalFactId() {
-        return legalFactId;
+    public List<LegalFactsIdEntity> getLegalFactIds() {
+        return legalFactIds;
     }
-    public void setLegalFactId(String legalFactId) {
-        this.legalFactId = legalFactId;
+    public void setLegalFactIds(List<LegalFactsIdEntity> legalFactIds) {
+        this.legalFactIds = legalFactIds;
     }
 
-    @DynamoDbAttribute(value = "details")
-    @DynamoDbConvertedBy(TimelineElementDetailsEntityConverter.class)
+
+
+    @DynamoDbAttribute(value = "details") @DynamoDbIgnoreNulls
     public TimelineElementDetailsEntity getDetails() {
         return details;
     }

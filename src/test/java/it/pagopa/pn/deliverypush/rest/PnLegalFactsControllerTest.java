@@ -6,6 +6,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCatego
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsId;
 import it.pagopa.pn.deliverypush.service.LegalFactService;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +35,7 @@ class PnLegalFactsControllerTest {
     @MockBean
     private LegalFactService legalFactService;
 
-    @Test
+    @Test @Disabled
     void getLegalFactsSuccess() {
         List<LegalFactListElement> legalFactsList = Collections.singletonList( LegalFactListElement.builder()
                         .iun( IUN )
@@ -65,7 +66,7 @@ class PnLegalFactsControllerTest {
         Mockito.verify( legalFactService ).getLegalFacts( Mockito.anyString() );
     }
 
-    @Test
+    @Test @Disabled
     void getLegalFactSuccess() {
 
         ResponseEntity<Resource> legalFactResult = ResponseEntity.ok()

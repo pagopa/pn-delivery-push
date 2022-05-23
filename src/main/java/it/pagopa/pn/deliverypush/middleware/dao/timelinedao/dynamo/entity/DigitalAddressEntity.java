@@ -1,6 +1,8 @@
 package it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity;
 
 import lombok.*;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 
 @Builder
 @NoArgsConstructor
@@ -8,9 +10,11 @@ import lombok.*;
 @Getter
 @Setter
 @EqualsAndHashCode
+@DynamoDbBean
 public class DigitalAddressEntity {
-    private TypeEnum type;
-    
+    @Getter(onMethod=@__({@DynamoDbAttribute("type")}))  private TypeEnum type;
+    @Getter(onMethod=@__({@DynamoDbAttribute("address")}))  private String address;
+
     public enum TypeEnum {
         PEC("PEC");
 
