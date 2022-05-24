@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.action2.it.mockbean;
 
-import it.pagopa.pn.deliverypush.externalclient.pnclient.userattributes.UserAttributes;
+import it.pagopa.pn.deliverypush.externalclient.pnclient.userattributes.UserAttributesClient;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.service.mapper.CourtesyDigitalAddressMapper;
 import it.pagopa.pn.deliverypush.service.mapper.LegalDigitalAddressMapper;
@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class UserAttributesMock implements UserAttributes {
+public class UserAttributesClientMock implements UserAttributesClient {
     private Map<String, Collection<LegalDigitalAddress>> mapLegalDigitalAddresses;
     private Map<String, Collection<CourtesyDigitalAddress>> mapCourtesyDigitalAddresses;
 

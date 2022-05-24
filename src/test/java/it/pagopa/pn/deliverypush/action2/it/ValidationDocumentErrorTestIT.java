@@ -116,7 +116,7 @@ class ValidationDocumentErrorTestIT {
     private PnDeliveryClientMock pnDeliveryClientMock;
 
     @Autowired
-    private UserAttributesMock addressBookMock;
+    private UserAttributesClientMock addressBookMock;
 
     @Autowired
     private PublicRegistryMock publicRegistryMock;

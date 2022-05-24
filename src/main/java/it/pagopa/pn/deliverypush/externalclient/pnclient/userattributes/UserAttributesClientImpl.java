@@ -16,11 +16,11 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class UserAttributesImpl implements UserAttributes {
+public class UserAttributesClientImpl implements UserAttributesClient {
     private final CourtesyApi courtesyApi;
     private final LegalApi legalApi;
 
-    public UserAttributesImpl(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryPushConfigs cfg) {
+    public UserAttributesClientImpl(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryPushConfigs cfg) {
         ApiClient newApiClient = new ApiClient(restTemplate);
         newApiClient.setBasePath(cfg.getUserAttributesBaseUrl());
         this.courtesyApi = new CourtesyApi( newApiClient );

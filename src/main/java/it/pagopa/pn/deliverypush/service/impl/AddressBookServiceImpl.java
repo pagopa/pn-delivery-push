@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.externalclient.pnclient.userattributes.UserAttributes;
+import it.pagopa.pn.deliverypush.externalclient.pnclient.userattributes.UserAttributesClient;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
@@ -20,15 +20,15 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class AddressBookServiceImpl implements AddressBookService {
-    private final UserAttributes userAttributes;
+    private final UserAttributesClient userAttributesClient;
 
-    public AddressBookServiceImpl(UserAttributes userAttributes) {
-        this.userAttributes = userAttributes;
+    public AddressBookServiceImpl(UserAttributesClient userAttributesClient) {
+        this.userAttributesClient = userAttributesClient;
     }
 
     @Override
     public Optional<DigitalAddress> getPlatformAddresses(String taxId, String senderId) {
-        ResponseEntity<List<LegalDigitalAddress>> resp = userAttributes.getLegalAddressBySender(taxId, senderId);
+        ResponseEntity<List<LegalDigitalAddress>> resp = userAttributesClient.getLegalAddressBySender(taxId, senderId);
 
         if (resp.getStatusCode().is2xxSuccessful()) {
             log.debug("GetLegalAddress OK - taxId {} senderId {}", taxId, senderId);
@@ -64,7 +64,7 @@ public class AddressBookServiceImpl implements AddressBookService {
 
     @Override
     public Optional<List<DigitalAddress>> getCourtesyAddress(String taxId, String senderId) {
-        ResponseEntity<List<CourtesyDigitalAddress>> resp = userAttributes.getCourtesyAddressBySender(taxId, senderId);
+        ResponseEntity<List<CourtesyDigitalAddress>> resp = userAttributesClient.getCourtesyAddressBySender(taxId, senderId);
 
         if (resp.getStatusCode().is2xxSuccessful()) {
             log.debug("getCourtesyAddress OK - taxId {} senderId {}", taxId, senderId);
