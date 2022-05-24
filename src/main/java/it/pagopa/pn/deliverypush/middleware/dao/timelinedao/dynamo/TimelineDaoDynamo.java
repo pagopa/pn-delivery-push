@@ -4,10 +4,13 @@ import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineEntityDao;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.DigitalAddressEntity;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementDetailsEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.DtoToEntityTimelineMapper;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.EntityToDtoTimelineMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
@@ -34,7 +37,29 @@ public class TimelineDaoDynamo implements TimelineDao {
     @Override
     public void addTimelineElement(TimelineElementInternal dto) {
         TimelineElementEntity entity = dto2entity.dtoToEntity(dto);
+
+        TimelineElementDetailsEntity details = entity.getDetails();
+        if( details != null ) {
+
+            TimelineElementDetailsEntity newDetails = cloneWithoutSensitiveInformation(details);
+            entity.setDetails( newDetails );
+        }
         entityDao.put(entity);
+    }
+
+    @NotNull
+    private TimelineElementDetailsEntity cloneWithoutSensitiveInformation(TimelineElementDetailsEntity details) {
+        TimelineElementDetailsEntity newDetails = details.toBuilder().build();
+        newDetails.setPhysicalAddress( null );
+        newDetails.setNewAddress( null );
+
+        DigitalAddressEntity digitalAddress = newDetails.getDigitalAddress();
+        if( digitalAddress != null ) {
+            newDetails.setDigitalAddress( digitalAddress.toBuilder()
+                    .address( null )
+                    .build());
+        }
+        return newDetails;
     }
 
     @Override

@@ -23,10 +23,7 @@ import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBookEntry;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.service.TimelineService;
-import it.pagopa.pn.deliverypush.service.impl.NotificationServiceImpl;
-import it.pagopa.pn.deliverypush.service.impl.PaperNotificationFailedServiceImpl;
-import it.pagopa.pn.deliverypush.service.impl.StatusServiceImpl;
-import it.pagopa.pn.deliverypush.service.impl.TimeLineServiceImpl;
+import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.util.StatusUtils;
 import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
 import it.pagopa.pn.deliverypush.validator.preloaded_digest_error.DigestEqualityBean;
@@ -79,11 +76,13 @@ import static org.mockito.Mockito.doThrow;
         StatusServiceImpl.class,
         PaperNotificationFailedServiceImpl.class,
         TimeLineServiceImpl.class,
+        ConfidentialInformationServiceImpl.class,
         CheckAttachmentUtils.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
         ExternalChannelMock.class,
         PaperNotificationFailedDaoMock.class,
+        PnDataVaultClientMock.class,
         ValidationDocumentErrorTestIT.SpringTestConfiguration.class
 })
 class ValidationDocumentErrorTestIT {
@@ -131,6 +130,9 @@ class ValidationDocumentErrorTestIT {
     @Autowired
     private NotificationUtils notificationUtils;
 
+    @Autowired
+    private PnDataVaultClientMock pnDataVaultClientMock;
+
     @BeforeEach
     public void setup() {
         //Waiting time for action
@@ -164,7 +166,7 @@ class ValidationDocumentErrorTestIT {
         publicRegistryMock.clear();
         timelineDaoMock.clear();
         paperNotificationFailedDaoMock.clear();
-        
+        pnDataVaultClientMock.clear();
     }
 
     @Test @Disabled // TODO riabilitare dopo integrazione con safe storage

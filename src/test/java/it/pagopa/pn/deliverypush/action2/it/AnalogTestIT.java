@@ -19,10 +19,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressS
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.service.TimelineService;
-import it.pagopa.pn.deliverypush.service.impl.NotificationServiceImpl;
-import it.pagopa.pn.deliverypush.service.impl.PaperNotificationFailedServiceImpl;
-import it.pagopa.pn.deliverypush.service.impl.StatusServiceImpl;
-import it.pagopa.pn.deliverypush.service.impl.TimeLineServiceImpl;
+import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.util.StatusUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,12 +63,14 @@ import java.time.Instant;
         TimeLineServiceImpl.class,
         PaperNotificationFailedServiceImpl.class,
         StatusServiceImpl.class,
+        ConfidentialInformationServiceImpl.class,
         CheckAttachmentUtils.class,
         StatusUtils.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
         ExternalChannelMock.class,
         PaperNotificationFailedDaoMock.class,
+        PnDataVaultClientMock.class,
         AnalogTestIT.SpringTestConfiguration.class
 })
 class AnalogTestIT {
@@ -122,7 +121,10 @@ class AnalogTestIT {
 
     @Autowired
     private PaperNotificationFailedDaoMock paperNotificationFailedDaoMock;
-
+    
+    @Autowired
+    private PnDataVaultClientMock pnDataVaultClientMock;
+    
     @BeforeEach
     public void setup() {
         TimeParams times = new TimeParams();
@@ -152,6 +154,7 @@ class AnalogTestIT {
         publicRegistryMock.clear();
         timelineDaoMock.clear();
         paperNotificationFailedDaoMock.clear();
+        pnDataVaultClientMock.clear();
     }
     
     @Test

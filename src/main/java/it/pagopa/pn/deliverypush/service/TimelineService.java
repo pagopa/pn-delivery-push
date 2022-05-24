@@ -14,7 +14,7 @@ public interface TimelineService {
 
     Optional<TimelineElementInternal> getTimelineElement(String iun, String timelineId);
 
-    <T> Optional<T> getTimelineElement(String iun, String timelineId, Class<T> timelineDetailsClass);
+    <T> Optional<T> getTimelineElementDetails(String iun, String timelineId, Class<T> timelineDetailsClass);
 
     Set<TimelineElementInternal> getTimeline(String iun);
 

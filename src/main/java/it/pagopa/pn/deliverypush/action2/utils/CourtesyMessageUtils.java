@@ -72,7 +72,7 @@ public class CourtesyMessageUtils {
     public Optional<SendCourtesyMessageDetails> getFirstSentCourtesyMessage(String iun, Integer recIndex) {
         String timeLineCourtesyId = getTimelineElementId(recIndex, iun, 0);
         log.debug("Get courtesy message for timelineCourtesyId {} - IUN {} id {}", timeLineCourtesyId, iun, recIndex);
-        return timelineService.getTimelineElement(iun, timeLineCourtesyId, SendCourtesyMessageDetails.class);
+        return timelineService.getTimelineElementDetails(iun, timeLineCourtesyId, SendCourtesyMessageDetails.class);
     }
 
 }

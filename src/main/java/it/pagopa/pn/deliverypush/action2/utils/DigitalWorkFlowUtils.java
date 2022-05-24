@@ -152,7 +152,7 @@ public class DigitalWorkFlowUtils {
                         .recIndex(recIndex)
                         .build());
 
-        Optional<ScheduleDigitalWorkflow> optTimeLineScheduleDigitalWorkflow = timelineService.getTimelineElement(iun, eventId,
+        Optional<ScheduleDigitalWorkflow> optTimeLineScheduleDigitalWorkflow = timelineService.getTimelineElementDetails(iun, eventId,
                 ScheduleDigitalWorkflow.class);
         if (optTimeLineScheduleDigitalWorkflow.isPresent()) {
             return optTimeLineScheduleDigitalWorkflow.get();
