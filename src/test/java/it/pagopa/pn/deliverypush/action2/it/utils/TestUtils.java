@@ -38,7 +38,7 @@ public class TestUtils {
                             .recIndex(recIndex)
                             .index(index)
                             .build());
-            Optional<SendCourtesyMessageDetails> sendCourtesyMessageDetailsOpt = timelineService.getTimelineElement(iun, eventId, SendCourtesyMessageDetails.class);
+            Optional<SendCourtesyMessageDetails> sendCourtesyMessageDetailsOpt = timelineService.getTimelineElementDetails(iun, eventId, SendCourtesyMessageDetails.class);
 
             Assertions.assertTrue(sendCourtesyMessageDetailsOpt.isPresent());
             SendCourtesyMessageDetails sendCourtesyMessageDetails = sendCourtesyMessageDetailsOpt.get();
@@ -58,7 +58,7 @@ public class TestUtils {
                         .index(sentAttempt)
                         .build());
 
-        Optional<GetAddressInfo> getAddressInfoOpt = timelineService.getTimelineElement(iun, correlationId, GetAddressInfo.class);
+        Optional<GetAddressInfo> getAddressInfoOpt = timelineService.getTimelineElementDetails(iun, correlationId, GetAddressInfo.class);
         Assertions.assertTrue(getAddressInfoOpt.isPresent());
         Assertions.assertEquals(isAvailable, getAddressInfoOpt.get().getIsAvailable());
     }
@@ -71,7 +71,7 @@ public class TestUtils {
                         .index(sendAttempt)
                         .build());
 
-        Optional<SendPaperDetails> sendPaperDetailsOpt = timelineService.getTimelineElement(iun, eventIdFirstSend, SendPaperDetails.class);
+        Optional<SendPaperDetails> sendPaperDetailsOpt = timelineService.getTimelineElementDetails(iun, eventIdFirstSend, SendPaperDetails.class);
         Assertions.assertTrue(sendPaperDetailsOpt.isPresent());
         SendPaperDetails sendPaperDetails = sendPaperDetailsOpt.get();
         Assertions.assertEquals(physicalAddress, sendPaperDetails.getPhysicalAddress());

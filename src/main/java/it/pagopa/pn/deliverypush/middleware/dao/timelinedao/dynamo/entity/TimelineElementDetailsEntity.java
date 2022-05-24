@@ -9,7 +9,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbIgnor
 import java.time.Instant;
 import java.util.List;
 
-@Builder
+@Builder( toBuilder = true )
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

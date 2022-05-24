@@ -4,6 +4,7 @@ import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
 import it.pagopa.pn.commons.abstractions.FileData;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
+import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.ConfidentialTimelineElementDto;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action2.*;
@@ -14,6 +15,8 @@ import it.pagopa.pn.deliverypush.action2.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action2.utils.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBookEntry;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
@@ -28,6 +31,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -38,6 +42,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
@@ -66,12 +71,14 @@ import java.util.List;
         PaperNotificationFailedServiceImpl.class,
         StatusServiceImpl.class,
         AddressBookServiceImpl.class,
+        ConfidentialInformationServiceImpl.class,
         CheckAttachmentUtils.class,
         NotificationUtils.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
         ExternalChannelMock.class,
         PaperNotificationFailedDaoMock.class,
+        PnDataVaultClientMock.class,
         DigitalTestIT.SpringTestConfiguration.class
 })
 class DigitalTestIT {
@@ -123,6 +130,9 @@ class DigitalTestIT {
     @Autowired
     private NotificationUtils notificationUtils;
 
+    @Autowired
+    private PnDataVaultClientMock pnDataVaultClientMock;
+
     @BeforeEach
     public void setup() {
         TimeParams times = new TimeParams();
@@ -152,6 +162,8 @@ class DigitalTestIT {
         publicRegistryMock.clear();
         timelineDaoMock.clear();
         paperNotificationFailedDaoMock.clear();
+        pnDeliveryClientMock.clear();
+        pnDataVaultClientMock.clear();
     }
 
     @Test
@@ -286,6 +298,11 @@ class DigitalTestIT {
 
         //Viene verificato che sia avvenuto il perfezionamento
         TestUtils.checkRefinement(iun, recIndex, timelineService);
+
+        ResponseEntity<List<ConfidentialTimelineElementDto>> res = pnDataVaultClientMock.getNotificationTimelineByIunWithHttpInfo(iun);
+
+        Set<TimelineElementInternal> timelineElementInternals = timelineDaoMock.getTimeline(iun);
+        System.out.println("RES " +res);
 
     }
 

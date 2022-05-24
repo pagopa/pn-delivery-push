@@ -68,6 +68,7 @@ import java.util.List;
         TimeLineServiceImpl.class,
         PaperNotificationFailedServiceImpl.class,
         StatusServiceImpl.class,
+        ConfidentialInformationServiceImpl.class,
         AddressBookServiceImpl.class,
         CheckAttachmentUtils.class,
         StatusUtils.class,
@@ -75,6 +76,7 @@ import java.util.List;
         TimelineDaoMock.class,
         ExternalChannelMock.class,
         PaperNotificationFailedDaoMock.class,
+        PnDataVaultClientMock.class,
         AnalogTestIT.SpringTestConfiguration.class
 })
 class AnalogTestIT {
@@ -125,7 +127,10 @@ class AnalogTestIT {
 
     @Autowired
     private PaperNotificationFailedDaoMock paperNotificationFailedDaoMock;
-
+    
+    @Autowired
+    private PnDataVaultClientMock pnDataVaultClientMock;
+    
     @BeforeEach
     public void setup() {
         TimeParams times = new TimeParams();
@@ -155,6 +160,7 @@ class AnalogTestIT {
         publicRegistryMock.clear();
         timelineDaoMock.clear();
         paperNotificationFailedDaoMock.clear();
+        pnDataVaultClientMock.clear();
     }
     
     @Test
