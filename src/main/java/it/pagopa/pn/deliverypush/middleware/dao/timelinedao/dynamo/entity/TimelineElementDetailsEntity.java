@@ -4,7 +4,6 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbIgnoreNulls;
 
 import java.time.Instant;
 import java.util.List;
