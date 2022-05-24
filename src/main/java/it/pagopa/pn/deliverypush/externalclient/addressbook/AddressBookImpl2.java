@@ -10,15 +10,16 @@ import java.util.stream.Collectors;
 
 @Component
 public class AddressBookImpl2 implements AddressBook {
-    private final it.pagopa.pn.commons.pnclients.addressbook.AddressBook legacy;
+    /*private final it.pagopa.pn.commons.pnclients.addressbook.AddressBook legacy;
 
-    public AddressBookImpl2(it.pagopa.pn.commons.pnclients.addressbook.AddressBook legacy) {
+    public AddressBookImpl2() {
         this.legacy = legacy;
-    }
+    }*/
     
     @Override
     public Optional<AddressBookEntry> getAddresses(String taxId, NotificationSenderInt sender) {
-        return legacy.getAddresses(taxId).map((it.pagopa.pn.api.dto.addressbook.AddressBookEntry legacyDto )-> 
+        return Optional.empty();
+        /*return legacy.getAddresses(taxId).map((it.pagopa.pn.api.dto.addressbook.AddressBookEntry legacyDto )->
                 AddressBookEntry.builder()
                 .courtesyAddresses(legacyDto.getCourtesyAddresses().stream().map(
                         legacyAddress -> DigitalAddress.builder()
@@ -45,6 +46,6 @@ public class AddressBookImpl2 implements AddressBook {
                                 .build()
                 )
                 .taxId(legacyDto.getTaxId())
-                .build());
+                .build());*/
     }
 }

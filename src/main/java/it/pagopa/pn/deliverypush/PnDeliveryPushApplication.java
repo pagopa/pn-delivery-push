@@ -1,11 +1,11 @@
 package it.pagopa.pn.deliverypush;
 
-import it.pagopa.pn.commons.configs.PnSpringBootApplication;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@PnSpringBootApplication
+@SpringBootApplication
 public class PnDeliveryPushApplication {
 
 	public static void main(String[] args) {
