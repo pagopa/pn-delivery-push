@@ -31,8 +31,7 @@ public class DocumentComposition {
         REQUEST_ACCEPTED("documents_composition_templates/NotificationReceivedLegalFact.html"),
         DIGITAL_NOTIFICATION_WORKFLOW("documents_composition_templates/PecDeliveryWorkflowLegalFact.html"),
         NOTIFICATION_VIEWED("documents_composition_templates/NotificationViewedLegalFact.html"),
-        //AAR_TEXT("templateMail"),
-        //AAR_HTML("templateMail");
+    	AAR_NOTIFICATION("documents_composition_templates/NotificationAAR.html"),
     	FILE_COMPLIANCE("documents_composition_templates/PdfFileCompliance.html");
 
         private final String htmlTemplate;
