@@ -15,6 +15,8 @@ public class PnDeliveryPushConfigs {
     private String deliveryBaseUrl;
 
     private String externalChannelBaseUrl;
+    
+    private String dataVaultBaseUrl;
 
     private TimeParams timeParams;
 

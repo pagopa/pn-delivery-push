@@ -1,10 +1,10 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
-import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
-import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
-import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntryId;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.commons.abstractions.FileData;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsId;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +19,7 @@ public class LegalfactsMetadataUtils {
     public static final String LEGAL_FACT_ID_SEPARATOR = "~";
 
 
-    public Map<String, String> buildMetadata(LegalFactType type, String taxId) {
+    public Map<String, String> buildMetadata(LegalFactCategory type, String taxId) {
         Map<String, String> metadata = new HashMap<>();
 
         if (type != null) {
@@ -40,7 +40,7 @@ public class LegalfactsMetadataUtils {
         return baseKey( iun ) + legalFactKey + ".pdf";
     }
 
-    public LegalFactsListEntry fromFileData(FileData fd) {
+    public LegalFactListElement fromFileData(FileData fd) {
         String versionId = fd.getVersionId();
 
         String fullFileKey = fd.getKey();
@@ -54,17 +54,17 @@ public class LegalfactsMetadataUtils {
             taxId = null;
         }
 
-        return LegalFactsListEntry.builder()
+        return LegalFactListElement.builder()
                 .iun( iun )
-                .legalFactsId( LegalFactsListEntryId.builder()
+                .legalFactsId( LegalFactsId.builder()
                         .key( legalFactName + "~" + versionId )
-                        .type( LegalFactType.valueOf(legalfactTypeString) )
+                        .category( LegalFactCategory.valueOf(legalfactTypeString) )
                         .build() )
                 .taxId(taxId)
                 .build();
     }
 
-    public NotificationAttachment.Ref fromIunAndLegalFactId( String iun, String legalFactId ) {
+    public NotificationAttachment.Ref fromIunAndLegalFactId(String iun, String legalFactId ) {
         String[] parts = legalFactId.split(LEGAL_FACT_ID_SEPARATOR, 2);
         String legalFactkey = parts[0];
         String versionId = parts[1];
@@ -72,16 +72,10 @@ public class LegalfactsMetadataUtils {
         return buildRef( iun, legalFactkey, versionId );
     }
 
-    private NotificationAttachment.Ref buildRef( String iun, String legalFactKey, String versionId ) {
+    private NotificationAttachment.Ref buildRef(String iun, String legalFactKey, String versionId ) {
         return NotificationAttachment.Ref.builder()
                 .key( fullKey( iun, legalFactKey ))
                 .versionToken( versionId )
                 .build();
     }
-
-
-
-
-
-
 }

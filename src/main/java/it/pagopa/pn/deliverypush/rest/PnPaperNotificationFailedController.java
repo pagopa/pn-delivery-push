@@ -14,7 +14,7 @@ import java.util.List;
 @RestController
 public class PnPaperNotificationFailedController implements PnDeliveryRestApi_methodSearchPaperNotificationFailed {
 
-    private PaperNotificationFailedService service;
+    private final PaperNotificationFailedService service;
 
     public PnPaperNotificationFailedController(PaperNotificationFailedService service) {
         this.service = service;
@@ -24,7 +24,7 @@ public class PnPaperNotificationFailedController implements PnDeliveryRestApi_me
     @GetMapping(PnDeliveryPushRestConstants.NOTIFICATIONS_PAPER_FAILED_PATH)
     public ResponseEntity<List<PaperNotificationFailed>> searchPaperNotificationsFailed(
             @RequestParam(name = "recipientId") String recipientId) {
-        return ResponseEntity.ok().body(service.getPaperNotificationsFailed(recipientId));
+        return ResponseEntity.ok().body(service.getPaperNotificationByRecipientId(recipientId));
     }
 
 }

@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.action2;
 
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -17,12 +17,12 @@ public class RefinementHandler {
         this.timelineUtils = timelineUtils;
     }
 
-    public void handleRefinement(String iun, int recIndex) {
+    public void handleRefinement(String iun, Integer recIndex) {
         log.info("Start HandleRefinement - iun {} id {}", iun, recIndex);
         addTimelineElement(timelineUtils.buildRefinementTimelineElement(iun, recIndex));
     }
 
-    private void addTimelineElement(TimelineElement element) {
+    private void addTimelineElement(TimelineElementInternal element) {
         timelineService.addTimelineElement(element);
     }
 }

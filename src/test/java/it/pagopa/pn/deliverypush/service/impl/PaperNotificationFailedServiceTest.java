@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFailed;
-import it.pagopa.pn.deliverypush.middleware.failednotificationdao.PaperNotificationFailedDao;
+import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,9 +36,9 @@ class PaperNotificationFailedServiceTest {
                         .build());
         
         //When
-        Mockito.when( paperNotificationFailedDao.getNotificationByRecipientId( Mockito.anyString() ))
+        Mockito.when( paperNotificationFailedDao.getPaperNotificationFailedByRecipientId( Mockito.anyString() ))
                 .thenReturn( paperNotificationFailedSet );
-        List<PaperNotificationFailed> paperNotificationFailedList = paperNotificationFailedService.getPaperNotificationsFailed( RECIPIENT_ID );
+        List<PaperNotificationFailed> paperNotificationFailedList = paperNotificationFailedService.getPaperNotificationByRecipientId( RECIPIENT_ID );
         
         //Then
         assertEquals( paperNotificationFailedList, new ArrayList<>(paperNotificationFailedSet) );

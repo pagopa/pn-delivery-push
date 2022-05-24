@@ -1,11 +1,11 @@
 package it.pagopa.pn.deliverypush.action2.utils;
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFailed;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.middleware.failednotificationdao.PaperNotificationFailedDao;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -13,20 +13,20 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class CompletelyUnreachableUtils  {
-    private final PaperNotificationFailedDao paperNotificationFailedDao;
+    private final PaperNotificationFailedService paperNotificationFailedService;
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
     private final NotificationUtils notificationUtils;
     
-    public CompletelyUnreachableUtils(PaperNotificationFailedDao paperNotificationFailedDao, TimelineService timelineService,
+    public CompletelyUnreachableUtils(PaperNotificationFailedService paperNotificationFailedService, TimelineService timelineService,
                                       TimelineUtils timelineUtils, NotificationUtils notificationUtils) {
-        this.paperNotificationFailedDao = paperNotificationFailedDao;
+        this.paperNotificationFailedService = paperNotificationFailedService;
         this.timelineService = timelineService;
         this.timelineUtils = timelineUtils;
         this.notificationUtils = notificationUtils;
     }
 
-    public void handleCompletelyUnreachable(Notification notification, int recIndex) {
+    public void handleCompletelyUnreachable(NotificationInt notification, Integer recIndex) {
         log.info("HandleCompletelyUnreachable - iun {} id {} ", notification.getIun(), recIndex);
 
         if (!isNotificationAlreadyViewed(notification.getIun(), recIndex)) {
@@ -35,17 +35,17 @@ public class CompletelyUnreachableUtils  {
         addTimelineElement(timelineUtils.buildCompletelyUnreachableTimelineElement(notification.getIun(), recIndex));
     }
 
-    private boolean isNotificationAlreadyViewed(String iun, int recIndex) {
+    private boolean isNotificationAlreadyViewed(String iun, Integer recIndex) {
         //Lo user potrebbe aver visualizzato la notifica tramite canali differenti anche se non raggiunto dai canali 'legali'
         return timelineService.isPresentTimeLineElement(iun, recIndex, TimelineEventId.NOTIFICATION_VIEWED);
     }
 
-    private void addPaperNotificationFailed(Notification notification, int recIndex) {
+    private void addPaperNotificationFailed(NotificationInt notification, Integer recIndex) {
         log.info("AddPaperNotificationFailed - iun {} id {} ", notification.getIun(), recIndex);
         
-        NotificationRecipient recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
+        NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
         
-        paperNotificationFailedDao.addPaperNotificationFailed(
+        paperNotificationFailedService.addPaperNotificationFailed(
                 PaperNotificationFailed.builder()
                         .iun(notification.getIun())
                         .recipientId(recipient.getTaxId())
@@ -53,7 +53,7 @@ public class CompletelyUnreachableUtils  {
         );
     }
 
-    private void addTimelineElement(TimelineElement element) {
+    private void addTimelineElement(TimelineElementInternal element) {
         timelineService.addTimelineElement(element);
     }
 }

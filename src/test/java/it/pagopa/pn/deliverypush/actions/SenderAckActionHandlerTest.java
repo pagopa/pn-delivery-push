@@ -1,12 +1,12 @@
 package it.pagopa.pn.deliverypush.actions;
-
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+/*
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
+
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
@@ -104,7 +104,7 @@ class SenderAckActionHandlerTest {
                 .subject("Subject 01")
                 .cancelledByIun("IUN_05")
                 .cancelledIun("IUN_00")
-                .sender(NotificationSender.builder()
+                .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()
                 )
@@ -119,26 +119,26 @@ class SenderAckActionHandlerTest {
                                 .build()
                 ))
                 .documents(Arrays.asList(
-                        NotificationAttachment.builder()
-                                .ref(NotificationAttachment.Ref.builder()
+                        NotificationDocumentInt.builder()
+                                .ref(NotificationDocumentInt.Ref.builder()
                                         .key("doc00")
                                         .versionToken("v01_doc00")
                                         .build()
                                 )
-                                .digests(NotificationAttachment.Digests.builder()
+                                .digests(NotificationDocumentInt.Digests.builder()
                                         .sha256("sha256_doc00")
                                         .build()
                                 )
                                 .contentType("application/pdf")
                                 .body("Ym9keV8wMQ==")
                                 .build(),
-                        NotificationAttachment.builder()
-                                .ref(NotificationAttachment.Ref.builder()
+                        NotificationDocumentInt.builder()
+                                .ref(NotificationDocumentInt.Ref.builder()
                                         .key("doc01")
                                         .versionToken("v01_doc01")
                                         .build()
                                 )
-                                .digests(NotificationAttachment.Digests.builder()
+                                .digests(NotificationDocumentInt.Digests.builder()
                                         .sha256("sha256_doc01")
                                         .build()
                                 )
@@ -149,3 +149,6 @@ class SenderAckActionHandlerTest {
                 .build();
     }
 }
+
+
+ */

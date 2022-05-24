@@ -1,9 +1,9 @@
 package it.pagopa.pn.deliverypush.util;
 
-import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
-import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,50 +24,47 @@ class StatusUtilsTest {
     void getTimelineHistoryTest() {
 
         // GIVEN a timeline
-        TimelineElement timelineElement1 = TimelineElement.builder()
+        TimelineElementInternal timelineElement1 = TimelineElementInternal.timelineInternalBuilder()
                 .elementId("el1")
                 .timestamp(Instant.parse("2021-09-16T15:24:00.00Z"))
                 .category(TimelineElementCategory.REQUEST_ACCEPTED)
                 .build();
-        TimelineElement timelineElement2 = TimelineElement.builder()
-                .elementId("el2")
-                .timestamp(Instant.parse("2021-09-16T15:25:00.00Z"))
-                .category(TimelineElementCategory.NOTIFICATION_PATH_CHOOSE)
-                .build();
-        TimelineElement timelineElement3 = TimelineElement.builder()
+        TimelineElementInternal timelineElement3 = TimelineElementInternal.timelineInternalBuilder()
                 .elementId("el3")
-                .timestamp(Instant.parse("2021-09-16T15:26:00.00Z"))
+                .timestamp((Instant.parse("2021-09-16T15:26:00.00Z")))
                 .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE)
                 .build();
-        TimelineElement timelineElement4 = TimelineElement.builder()
+        TimelineElementInternal timelineElement4 = TimelineElementInternal.timelineInternalBuilder()
                 .elementId("el4")
-                .timestamp(Instant.parse("2021-09-16T15:27:00.00Z"))
+                .timestamp((Instant.parse("2021-09-16T15:27:00.00Z")))
                 .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE_FEEDBACK)
                 .build();
-        TimelineElement timelineElement5 = TimelineElement.builder()
+        TimelineElementInternal timelineElement5 = TimelineElementInternal.timelineInternalBuilder()
                 .elementId("el5")
-                .timestamp(Instant.parse("2021-09-16T15:28:00.00Z"))
-                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW)
+                .timestamp((Instant.parse("2021-09-16T15:28:00.00Z")))
+                .category(TimelineElementCategory.DIGITAL_SUCCESS_WORKFLOW)
                 .build();
-        TimelineElement timelineElement6 = TimelineElement.builder()
+        TimelineElementInternal timelineElement6 = TimelineElementInternal.timelineInternalBuilder()
                 .elementId("el6")
-                .timestamp(Instant.parse("2021-09-16T17:00:00.00Z"))
+                .timestamp((Instant.parse("2021-09-16T17:00:00.00Z")))
                 .category(TimelineElementCategory.NOTIFICATION_VIEWED)
                 .build();
-        TimelineElement timelineElement7 = TimelineElement.builder()
+        TimelineElementInternal timelineElement7 = TimelineElementInternal.timelineInternalBuilder()
                 .elementId("el7")
-                .timestamp(Instant.parse("2021-09-16T17:30:00.00Z"))
+                .timestamp((Instant.parse("2021-09-16T17:30:00.00Z")))
                 .category(TimelineElementCategory.PAYMENT)
                 .build();
 
-        Set<TimelineElement> timelineElementList = Set.of(timelineElement1, timelineElement2, timelineElement3,
+        Set<TimelineElementInternal> timelineElementList = Set.of(timelineElement1, timelineElement3,
                 timelineElement4, timelineElement5, timelineElement6, timelineElement7);
 
 
         // WHEN ask for status history
+        Instant notificationCreatedAt = Instant.parse("2021-09-16T15:20:00.00Z");
+        
         List<NotificationStatusHistoryElement> actualStatusHistory = statusUtils.getStatusHistory(
                 timelineElementList, 1,
-                Instant.parse("2021-09-16T15:20:00.00Z")
+                notificationCreatedAt
         );
 
         // THEN status histories have same length
@@ -76,8 +73,8 @@ class StatusUtilsTest {
         //  ... 1st initial status
         Assertions.assertEquals( NotificationStatusHistoryElement.builder()
                         .status(NotificationStatus.IN_VALIDATION)
-                        .activeFrom(Instant.parse("2021-09-16T15:20:00.00Z"))
-                        .relatedTimelineElements( Arrays.asList( ))
+                        .activeFrom(notificationCreatedAt)
+                        .relatedTimelineElements(List.of())
                         .build(),
                 actualStatusHistory.get( 0 ),
                 "1st status wrong"
@@ -86,8 +83,8 @@ class StatusUtilsTest {
         //  ... 2nd initial status
         Assertions.assertEquals( NotificationStatusHistoryElement.builder()
                         .status(NotificationStatus.ACCEPTED)
-                        .activeFrom(Instant.parse("2021-09-16T15:24:00.00Z"))
-                        .relatedTimelineElements( Arrays.asList( "el1" ))
+                        .activeFrom( timelineElement1.getTimestamp() )
+                        .relatedTimelineElements(List.of("el1"))
                         .build(),
                 actualStatusHistory.get( 1 ),
                 "2nd status wrong"
@@ -96,8 +93,8 @@ class StatusUtilsTest {
         //  ... 3rd initial status
         Assertions.assertEquals( NotificationStatusHistoryElement.builder()
                         .status(NotificationStatus.DELIVERING)
-                        .activeFrom(Instant.parse("2021-09-16T15:25:00.00Z"))
-                        .relatedTimelineElements( Arrays.asList( "el2", "el3", "el4" ))
+                        .activeFrom( timelineElement3.getTimestamp() )
+                        .relatedTimelineElements( Arrays.asList(  "el3", "el4" ))
                         .build(),
                 actualStatusHistory.get( 2 ),
                 "3rd status wrong"
@@ -106,8 +103,8 @@ class StatusUtilsTest {
         //  ... 4th initial status
         Assertions.assertEquals( NotificationStatusHistoryElement.builder()
                         .status(NotificationStatus.DELIVERED)
-                        .activeFrom(Instant.parse("2021-09-16T15:28:00.00Z"))
-                        .relatedTimelineElements( Arrays.asList( "el5" ))
+                        .activeFrom( timelineElement5.getTimestamp() )
+                        .relatedTimelineElements(List.of("el5"))
                         .build(),
                 actualStatusHistory.get( 3 ),
                 "4th status wrong"
@@ -116,8 +113,8 @@ class StatusUtilsTest {
         //  ... 5th initial status
         Assertions.assertEquals( NotificationStatusHistoryElement.builder()
                         .status(NotificationStatus.VIEWED)
-                        .activeFrom(Instant.parse("2021-09-16T17:00:00.00Z"))
-                        .relatedTimelineElements( Arrays.asList( "el6" ))
+                        .activeFrom( timelineElement6.getTimestamp() )
+                        .relatedTimelineElements(List.of("el6"))
                         .build(),
                 actualStatusHistory.get( 4 ),
                 "2nd status wrong"
@@ -126,114 +123,110 @@ class StatusUtilsTest {
         //  ... 6th initial status
         Assertions.assertEquals( NotificationStatusHistoryElement.builder()
                         .status(NotificationStatus.PAID)
-                        .activeFrom(Instant.parse("2021-09-16T17:30:00.00Z"))
-                        .relatedTimelineElements( Arrays.asList( "el7" ))
+                        .activeFrom( timelineElement7.getTimestamp() )
+                        .relatedTimelineElements(List.of("el7"))
                         .build(),
                 actualStatusHistory.get( 5 ),
                 "6th status wrong"
         );
-
     }
 
     @Test
     void getTimelineHistoryMoreRecipientTest() {
         // GIVEN a timeline
-        TimelineElement timelineElement1 = TimelineElement.builder()
+        TimelineElementInternal timelineElement1 = TimelineElementInternal.timelineInternalBuilder()
                 .elementId("el1")
-                .timestamp(Instant.parse("2021-09-16T15:24:00.00Z"))
+                .timestamp((Instant.parse("2021-09-16T15:24:00.00Z")))
                 .category(TimelineElementCategory.REQUEST_ACCEPTED)
                 .build();
-        TimelineElement timelineElement2 = TimelineElement.builder()
-                .elementId("el2")
-                .timestamp(Instant.parse("2021-09-16T15:25:00.00Z"))
-                .category(TimelineElementCategory.NOTIFICATION_PATH_CHOOSE)
-                .build();
-        TimelineElement timelineElement3 = TimelineElement.builder()
+        TimelineElementInternal timelineElement3 = TimelineElementInternal.timelineInternalBuilder()
                 .elementId("el3")
-                .timestamp(Instant.parse("2021-09-16T15:26:00.00Z"))
+                .timestamp((Instant.parse("2021-09-16T15:25:00.00Z")))
                 .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE)
                 .build();
-        TimelineElement timelineElement4 = TimelineElement.builder()
+        TimelineElementInternal timelineElement4 = TimelineElementInternal.timelineInternalBuilder()
                 .elementId("el4")
-                .timestamp(Instant.parse("2021-09-16T15:27:00.00Z"))
+                .timestamp((Instant.parse("2021-09-16T15:27:00.00Z")))
                 .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE_FEEDBACK)
                 .build();
-        TimelineElement timelineElement5 = TimelineElement.builder()
+        TimelineElementInternal timelineElement5 = TimelineElementInternal.timelineInternalBuilder()
                 .elementId("el5")
-                .timestamp(Instant.parse("2021-09-16T15:28:00.00Z"))
-                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW)
+                .timestamp((Instant.parse("2021-09-16T15:28:00.00Z")))
+                .category(TimelineElementCategory.GET_ADDRESS)
                 .build();
-        TimelineElement timelineElement3_1 = TimelineElement.builder()
+        TimelineElementInternal timelineElement3_1 = TimelineElementInternal.timelineInternalBuilder()
                 .elementId("el6")
-                .timestamp(Instant.parse("2021-09-16T15:29:00.00Z"))
+                .timestamp((Instant.parse("2021-09-16T15:29:00.00Z")))
                 .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE)
                 .build();
-        TimelineElement timelineElement4_1 = TimelineElement.builder()
+        TimelineElementInternal timelineElement4_1 = TimelineElementInternal.timelineInternalBuilder()
                 .elementId("el7")
-                .timestamp(Instant.parse("2021-09-16T15:30:00.00Z"))
+                .timestamp((Instant.parse("2021-09-16T15:30:00.00Z")))
                 .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE_FEEDBACK)
                 .build();
-        TimelineElement timelineElement5_1 = TimelineElement.builder()
+        TimelineElementInternal timelineElement5_1 = TimelineElementInternal.timelineInternalBuilder()
                 .elementId("el8")
-                .timestamp(Instant.parse("2021-09-16T15:31:00.00Z"))
-                .category(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW)
+                .timestamp((Instant.parse("2021-09-16T15:31:00.00Z")))
+                .category(TimelineElementCategory.DIGITAL_SUCCESS_WORKFLOW)
                 .build();
-        TimelineElement timelineElement6 = TimelineElement.builder()
+        TimelineElementInternal timelineElement6 = TimelineElementInternal.timelineInternalBuilder()
                 .elementId("el9")
-                .timestamp(Instant.parse("2021-09-16T17:00:00.00Z"))
+                .timestamp((Instant.parse("2021-09-16T17:00:00.00Z")))
                 .category(TimelineElementCategory.NOTIFICATION_VIEWED)
                 .build();
-        TimelineElement timelineElement7 = TimelineElement.builder()
+        TimelineElementInternal timelineElement7 = TimelineElementInternal.timelineInternalBuilder()
                 .elementId("el10")
-                .timestamp(Instant.parse("2021-09-16T17:30:00.00Z"))
+                .timestamp((Instant.parse("2021-09-16T17:30:00.00Z")))
                 .category(TimelineElementCategory.PAYMENT)
                 .build();
 
-        Set<TimelineElement> timelineElementList = Set.of(timelineElement1, timelineElement2,
+        Set<TimelineElementInternal> timelineElementList = Set.of(timelineElement1,
                 timelineElement3, timelineElement4, timelineElement5, timelineElement3_1, timelineElement4_1,
                 timelineElement5_1, timelineElement6, timelineElement7);
 
 
         // creare List<NotificationStatusHistoryElement>
+        Instant notificationCreatedAt = Instant.parse("2021-09-16T15:20:00.00Z");
+        
         NotificationStatusHistoryElement historyElement = NotificationStatusHistoryElement.builder()
                 .status(NotificationStatus.IN_VALIDATION)
-                .activeFrom(Instant.parse("2021-09-16T15:20:00.00Z"))
-                .relatedTimelineElements( Arrays.asList(  ))
+                .activeFrom(notificationCreatedAt)
+                .relatedTimelineElements(List.of())
                 .build();
 
         NotificationStatusHistoryElement historyElement1 = NotificationStatusHistoryElement.builder()
                 .status(NotificationStatus.ACCEPTED)
-                .activeFrom(Instant.parse("2021-09-16T15:24:00.00Z"))
-                .relatedTimelineElements( Arrays.asList( "el1" ))
+                .activeFrom((Instant.parse("2021-09-16T15:24:00.00Z")))
+                .relatedTimelineElements(List.of("el1"))
                 .build();
 
         NotificationStatusHistoryElement historyElement2 = NotificationStatusHistoryElement.builder()
                 .status(NotificationStatus.DELIVERING)
-                .activeFrom(Instant.parse("2021-09-16T15:25:00.00Z"))
-                .relatedTimelineElements( Arrays.asList( "el2", "el3", "el4", "el5", "el6", "el7" ))
+                .activeFrom((Instant.parse("2021-09-16T15:25:00.00Z")))
+                .relatedTimelineElements( Arrays.asList( "el3", "el4", "el5", "el6", "el7" ))
                 .build();
         NotificationStatusHistoryElement historyElement4_1 = NotificationStatusHistoryElement.builder()
                 .status(NotificationStatus.DELIVERED)
-                .activeFrom(Instant.parse("2021-09-16T15:31:00.00Z"))
-                .relatedTimelineElements( Arrays.asList( "el8" ))
+                .activeFrom((Instant.parse("2021-09-16T15:31:00.00Z")))
+                .relatedTimelineElements(List.of("el8"))
                 .build();
         NotificationStatusHistoryElement historyElement5 = NotificationStatusHistoryElement.builder()
                 .status(NotificationStatus.VIEWED)
-                .activeFrom(Instant.parse("2021-09-16T17:00:00.00Z"))
-                .relatedTimelineElements( Arrays.asList( "el9" ))
+                .activeFrom((Instant.parse("2021-09-16T17:00:00.00Z")))
+                .relatedTimelineElements(List.of("el9"))
                 .build();
         NotificationStatusHistoryElement historyElement6 = NotificationStatusHistoryElement.builder()
                 .status(NotificationStatus.PAID)
-                .activeFrom(Instant.parse("2021-09-16T17:30:00.00Z"))
-                .relatedTimelineElements( Arrays.asList( "el10" ))
+                .activeFrom((Instant.parse("2021-09-16T17:30:00.00Z")))
+                .relatedTimelineElements(List.of("el10"))
                 .build();
         List<NotificationStatusHistoryElement> historyElementList = Arrays.asList(historyElement,historyElement1,
                 historyElement2, historyElement4_1, historyElement5, historyElement6);
 
         // chiamare metodo di test
         List<NotificationStatusHistoryElement> resHistoryElementList = statusUtils.getStatusHistory(
-                timelineElementList, 2,
-                Instant.parse("2021-09-16T15:20:00.00Z")
+                timelineElementList, 1,
+                notificationCreatedAt
         );
         // verificare che è risultato atteso
         Assertions.assertEquals(historyElementList, resHistoryElementList);
@@ -242,48 +235,49 @@ class StatusUtilsTest {
     @Test
     void getTimelineHistoryErrorTest() {
         // creare TimelineElement
-        TimelineElement timelineElement1 = TimelineElement.builder()
+        TimelineElementInternal timelineElement1 = TimelineElementInternal.timelineInternalBuilder()
                 .elementId("el1")
-                .timestamp(Instant.parse("2021-09-16T15:24:00.00Z"))
+                .timestamp((Instant.parse("2021-09-16T15:24:00.00Z")))
                 .category(TimelineElementCategory.REQUEST_ACCEPTED)
                 .build();
-        TimelineElement timelineElement2 = TimelineElement.builder()
+        TimelineElementInternal timelineElement2 = TimelineElementInternal.timelineInternalBuilder()
                 .elementId("el2")
-                .timestamp(Instant.parse("2021-09-16T15:25:00.00Z"))
+                .timestamp((Instant.parse("2021-09-16T15:25:00.00Z")))
                 .category(TimelineElementCategory.NOTIFICATION_VIEWED)
                 .build();
-        TimelineElement timelineElement3 = TimelineElement.builder()
+        TimelineElementInternal timelineElement3 = TimelineElementInternal.timelineInternalBuilder()
                 .elementId("el3")
-                .timestamp(Instant.parse("2021-09-16T15:26:00.00Z"))
+                .timestamp((Instant.parse("2021-09-16T15:26:00.00Z")))
                 .category(TimelineElementCategory.PAYMENT)
                 .build();
 
-        Set<TimelineElement> timelineElementList = Set.of(timelineElement1,
+        Set<TimelineElementInternal> timelineElementList = Set.of(timelineElement1,
                 timelineElement2, timelineElement3);
 
-        // creare List<NotificationStatusHistoryElement>
+        Instant notificationCreatedAt = Instant.parse("2021-09-16T15:23:00.00Z");
+        
         NotificationStatusHistoryElement historyElement1 = NotificationStatusHistoryElement.builder()
                 .status(NotificationStatus.IN_VALIDATION)
-                .relatedTimelineElements( Arrays.asList( ))
-                .activeFrom(Instant.parse("2021-09-16T15:23:00.00Z"))
+                .relatedTimelineElements(List.of())
+                .activeFrom(notificationCreatedAt)
                 .build();
 
         NotificationStatusHistoryElement historyElement2 = NotificationStatusHistoryElement.builder()
                 .status(NotificationStatus.ACCEPTED)
-                .activeFrom(Instant.parse("2021-09-16T15:24:00.00Z"))
-                .relatedTimelineElements( Arrays.asList("el1"))
+                .activeFrom((Instant.parse("2021-09-16T15:24:00.00Z")))
+                .relatedTimelineElements(List.of("el1"))
                 .build();
 
         NotificationStatusHistoryElement historyElement3 = NotificationStatusHistoryElement.builder()
                 .status(NotificationStatus.VIEWED)
-                .activeFrom(Instant.parse("2021-09-16T15:25:00.00Z"))
-                .relatedTimelineElements( Arrays.asList("el2"))
+                .activeFrom((Instant.parse("2021-09-16T15:25:00.00Z")))
+                .relatedTimelineElements(List.of("el2"))
                 .build();
 
         NotificationStatusHistoryElement historyElement4 = NotificationStatusHistoryElement.builder()
                 .status(NotificationStatus.PAID)
-                .activeFrom(Instant.parse("2021-09-16T15:26:00.00Z"))
-                .relatedTimelineElements( Arrays.asList("el3"))
+                .activeFrom((Instant.parse("2021-09-16T15:26:00.00Z")))
+                .relatedTimelineElements(List.of("el3"))
                 .build();
 
         List<NotificationStatusHistoryElement> historyElementList = Arrays.asList(
@@ -293,7 +287,7 @@ class StatusUtilsTest {
         // chiamare metodo di test
         List<NotificationStatusHistoryElement> resHistoryElementList = statusUtils.getStatusHistory(
                 timelineElementList, 2,
-                Instant.parse("2021-09-16T15:23:00.00Z")
+                notificationCreatedAt
         );
         // verificare che è risultato atteso
         Assertions.assertEquals(historyElementList, resHistoryElementList);

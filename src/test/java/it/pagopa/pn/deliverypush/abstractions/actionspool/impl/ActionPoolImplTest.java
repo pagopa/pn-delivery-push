@@ -3,8 +3,8 @@ package it.pagopa.pn.deliverypush.abstractions.actionspool.impl;
 import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
-import it.pagopa.pn.deliverypush.middleware.actiondao.ActionDao;
-import it.pagopa.pn.deliverypush.middleware.actiondao.LastPollForFutureActionsDao;
+import it.pagopa.pn.deliverypush.middleware.dao.actiondao.LastPollForFutureActionsDao;
+import it.pagopa.pn.deliverypush.service.ActionService;
 import net.javacrumbs.shedlock.core.LockAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,7 +20,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 class ActionPoolImplTest {
 
     private TestActionsPoolImpl service;
-    private ActionDao actionDao;
+    private ActionService actionService;
     private LastPollForFutureActionsDao lastPollForFutureActionsDao;
     private Clock clock;
     private PnDeliveryPushConfigs configs;
@@ -30,12 +30,12 @@ class ActionPoolImplTest {
         LockAssert.TestHelper.makeAllAssertsPass(true);
         
         MomProducer<ActionEvent> actionsQueue = Mockito.mock(MomProducer.class);
-        actionDao = Mockito.mock(ActionDao.class);
+        actionService = Mockito.mock(ActionService.class);
         clock = Mockito.mock(Clock.class);
         lastPollForFutureActionsDao = Mockito.mock(LastPollForFutureActionsDao.class);
         configs = Mockito.mock( PnDeliveryPushConfigs.class );
 
-        service = new TestActionsPoolImpl(actionsQueue, actionDao, clock, lastPollForFutureActionsDao, configs);
+        service = new TestActionsPoolImpl(actionsQueue, actionService, clock, lastPollForFutureActionsDao, configs);
     }
 
     @Test
@@ -54,7 +54,7 @@ class ActionPoolImplTest {
         service.pollForFutureActions();
 
         //THEN
-        Mockito.verify(actionDao, Mockito.times(61)).findActionsByTimeSlot(anyString());
+        Mockito.verify(actionService, Mockito.times(61)).findActionsByTimeSlot(anyString());
     }
 
     @Test
@@ -72,7 +72,7 @@ class ActionPoolImplTest {
         service.pollForFutureActions();
 
         //THEN
-        Mockito.verify(actionDao, Mockito.times(46)).findActionsByTimeSlot(anyString());
+        Mockito.verify(actionService, Mockito.times(46)).findActionsByTimeSlot(anyString());
     }
 
     @Test
@@ -88,19 +88,19 @@ class ActionPoolImplTest {
         service.pollForFutureActions();
 
         //THEN
-        Mockito.verify(actionDao, Mockito.times(121)).findActionsByTimeSlot(anyString());
+        Mockito.verify(actionService, Mockito.times(121)).findActionsByTimeSlot(anyString());
     }
 
     private static class TestActionsPoolImpl extends ActionsPoolImpl {
 
         public TestActionsPoolImpl(
                 MomProducer<ActionEvent> actionsQueue,
-                ActionDao actionDao,
+                ActionService actionService,
                 Clock clock,
                 LastPollForFutureActionsDao lastPollForFutureActionsDao,
                 PnDeliveryPushConfigs configs
         ) {
-            super(actionsQueue, actionDao, clock, lastPollForFutureActionsDao, configs);
+            super(actionsQueue, actionService, clock, lastPollForFutureActionsDao, configs);
         }
 
         @Override
