@@ -1,19 +1,5 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
-import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
-import freemarker.cache.StringTemplateLoader;
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
-import it.pagopa.pn.api.dto.events.GenericEvent;
-import it.pagopa.pn.api.dto.events.StandardEventHeader;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
-import lombok.Value;
-import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
-import org.springframework.stereotype.Component;
-import org.springframework.util.StreamUtils;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +9,20 @@ import java.nio.charset.StandardCharsets;
 import java.util.EnumMap;
 import java.util.Map;
 
+import org.jetbrains.annotations.Nullable;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StreamUtils;
+
+import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
+
+import freemarker.cache.StringTemplateLoader;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
+import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
+
 @Component
 @Slf4j
 public class DocumentComposition {
@@ -30,9 +30,10 @@ public class DocumentComposition {
     public enum TemplateType {
         REQUEST_ACCEPTED("documents_composition_templates/NotificationReceivedLegalFact.html"),
         DIGITAL_NOTIFICATION_WORKFLOW("documents_composition_templates/PecDeliveryWorkflowLegalFact.html"),
-        NOTIFICATION_VIEWED("documents_composition_templates/NotificationViewedLegalFact.html");
+        NOTIFICATION_VIEWED("documents_composition_templates/NotificationViewedLegalFact.html"),
         //AAR_TEXT("templateMail"),
         //AAR_HTML("templateMail");
+    	FILE_COMPLIANCE("documents_composition_templates/PdfFileCompliance.html");
 
         private final String htmlTemplate;
 

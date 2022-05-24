@@ -93,6 +93,13 @@ class LegalFactPdfGeneratorTest {
 		Files.write(filePath, pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification, recipient));
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
+	
+	@Test 
+	void generategenerateFileComplianceTest() throws IOException {	
+		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_FileCompliance.pdf");
+		Files.write(filePath, pdfUtils.generateFileCompliance("PDF file name whitout extension", "test signature", Instant.now()));		
+		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+	}
 
 	private List<SendDigitalFeedback> buildFeedbackFromECList(ResponseStatus status) {
 		SendDigitalFeedback sdf = SendDigitalFeedback.builder()

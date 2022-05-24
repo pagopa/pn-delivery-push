@@ -191,6 +191,30 @@ public class LegalFactGenerator {
                 templateModel
         );
     }
+    
+    /**
+     * Generate the File Compliance Certificate, according to design 4h of: 
+     * https://www.figma.com/file/HjyZhnoAKbzCbxkmQCGsZw/Piattaforma-Notifiche?node-id=13514%3A94002
+     * 
+     * @param pdfFileName - the fileName to certificate, without extension
+     * @param signature - the signature (footprint) of file
+     * @param timeReference - file temporal reference
+     * @return
+     * @throws IOException
+     */
+    public byte[] generateFileCompliance(String pdfFileName, String signature, Instant timeReference) throws IOException {
+
+        Map<String, Object> templateModel = new HashMap<>();
+        templateModel.put("signature", signature);
+        templateModel.put("timeReference", timeReference);
+        templateModel.put("pdfFileName", pdfFileName );
+        templateModel.put("sendDate", instantWriter.instantToDate( Instant.now()/*, true*/ ) );
+
+        return documentComposition.executePdfTemplate(
+                DocumentComposition.TemplateType.FILE_COMPLIANCE,
+                templateModel
+        );
+    }
 
 
 }
