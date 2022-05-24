@@ -1,9 +1,10 @@
 package it.pagopa.pn.deliverypush.util;
 
-import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
-import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -15,9 +16,10 @@ public class StatusUtils {
 
     private static final NotificationStatus INITIAL_STATUS = NotificationStatus.IN_VALIDATION;
     private static final Set<TimelineElementCategory> END_OF_DELIVERY_WORKFLOW = new HashSet<>(Arrays.asList(
-      TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW,
-      TimelineElementCategory.END_OF_ANALOG_DELIVERY_WORKFLOW
+      TimelineElementCategory.DIGITAL_SUCCESS_WORKFLOW,
+      TimelineElementCategory.ANALOG_SUCCESS_WORKFLOW
     ));
+    
     private final StateMap stateMap = new StateMap();
 
     public NotificationStatus getCurrentStatus(List<NotificationStatusHistoryElement> statusHistory) {
@@ -29,11 +31,11 @@ public class StatusUtils {
     }
     
     public List<NotificationStatusHistoryElement> getStatusHistory( //
-                                                                    Set<TimelineElement> timelineElementList, //
+                                                                    Set<TimelineElementInternal> timelineElementList, //
                                                                     int numberOfRecipients, //
                                                                     Instant notificationCreatedAt //
     ) {
-        List<TimelineElement> timelineByTimestampSorted = timelineElementList.stream()
+        List<TimelineElementInternal> timelineByTimestampSorted = timelineElementList.stream()
                 .sorted(Comparator.comparing(TimelineElement::getTimestamp))
                 .collect(Collectors.toList());
 
@@ -45,8 +47,10 @@ public class StatusUtils {
         int numberOfEndedDeliveryWorkflows = 0;
 
 
-        for (TimelineElement timelineElement : timelineByTimestampSorted) {
+        for (TimelineElementInternal timelineElement : timelineByTimestampSorted) {
             TimelineElementCategory category = timelineElement.getCategory();
+            
+            //TODO Questa logica va rivista, qui va inserita la logica per i multiDestinatari atta a gestire il cambio stato
             if( END_OF_DELIVERY_WORKFLOW.contains( category ) ) {
                 numberOfEndedDeliveryWorkflows += 1;
             }
@@ -81,6 +85,7 @@ public class StatusUtils {
         return timelineHistory;
     }
 
+    //TODO Questa logica va rivista, qui va inserita la logica per i multiDestinatari atta a gestire il cambio stato
     private NotificationStatus computeStateAfterEvent(  //
                                                        NotificationStatus currentState, //
                                                        TimelineElementCategory timelineElementCategory, //
@@ -89,7 +94,7 @@ public class StatusUtils {
     ) {
         NotificationStatus nextState;
         if (currentState.equals(NotificationStatus.DELIVERING)) {
-            if( timelineElementCategory.equals(TimelineElementCategory.END_OF_DIGITAL_DELIVERY_WORKFLOW) ) {
+            if( timelineElementCategory.equals(TimelineElementCategory.DIGITAL_SUCCESS_WORKFLOW) ) {
                 if( numberOfEndedDigitalWorkflows == numberOfRecipients ) {
                     nextState = stateMap.getStateTransition(currentState, timelineElementCategory);
                 }
@@ -104,7 +109,6 @@ public class StatusUtils {
             nextState = stateMap.getStateTransition(currentState, timelineElementCategory);
         }
         return nextState;
-
     }
 
 }

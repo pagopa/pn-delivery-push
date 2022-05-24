@@ -1,5 +1,18 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
+import freemarker.template.Configuration;
+import freemarker.template.Version;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseStatus;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendDigitalFeedback;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,16 +31,7 @@ import org.junit.jupiter.api.Test;
 
 import freemarker.template.Configuration;
 import freemarker.template.Version;
-import it.pagopa.pn.api.dto.extchannel.ExtChannelResponseStatus;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.notification.NotificationJsonViews.New;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
-import it.pagopa.pn.api.dto.notification.timeline.SendDigitalFeedback;
+import java.util.*;
 
 class LegalFactPdfGeneratorTest {
 	private static final String TEST_DIR_NAME = "target" + File.separator + "generated-test-PDF";
@@ -65,36 +69,52 @@ class LegalFactPdfGeneratorTest {
 	void generateNotificationViewedLegalFactTest() throws IOException {
 		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ViewedLegalFact.pdf");
 		String iun = "iun1234Test_Viewed";
-		NotificationRecipient recipient = buildRecipients().get(0);		
+		NotificationRecipientInt recipient = buildRecipients().get(0);
 		Files.write(filePath, pdfUtils.generateNotificationViewedLegalFact(iun, recipient, Instant.now()));		
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
 	
 	@Test 
-	void generatePecDeliveryWorkflowLegalFactTest() throws IOException {
-		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact.pdf");
-		List<SendDigitalFeedback> feedbackFromExtChannelList = buildFeedbackFromECList();
-		Notification notification = buildNotification();
-		NotificationRecipient recipient = buildRecipients().get(0);
+	void generatePecDeliveryWorkflowLegalFactTest_OK() throws IOException {
+		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_OK.pdf");
+		List<SendDigitalFeedback> feedbackFromExtChannelList = buildFeedbackFromECList( ResponseStatus.OK);
+		NotificationInt notification = buildNotification();
+		NotificationRecipientInt recipient = buildRecipients().get(0);
 		Files.write(filePath, pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification, recipient));
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
 	
 	@Test 
+<<<<<<< HEAD
 	void generateNotificationAARTest() throws IOException {	
 		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
 		Files.write(filePath, pdfUtils.generateNotificationAAR(buildNotification()));		
+=======
+	void generatePecDeliveryWorkflowLegalFactTest_KO() throws IOException {
+		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_KO.pdf");
+		List<SendDigitalFeedback> feedbackFromExtChannelList = buildFeedbackFromECList(ResponseStatus.KO);
+		NotificationInt notification = buildNotification();
+		NotificationRecipientInt recipient = buildRecipients().get(0);
+		Files.write(filePath, pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification, recipient));
+		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+	}
+	
+	@Test 
+	void generategenerateFileComplianceTest() throws IOException {	
+		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_FileCompliance.pdf");
+		Files.write(filePath, pdfUtils.generateFileCompliance("PDF file name whitout extension", "test signature", Instant.now()));		
+>>>>>>> develop
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
 
-	private List<SendDigitalFeedback> buildFeedbackFromECList() {
+	private List<SendDigitalFeedback> buildFeedbackFromECList(ResponseStatus status) {
 		SendDigitalFeedback sdf = SendDigitalFeedback.builder()
 				.recIndex( 0 )
-				.address(DigitalAddress.builder()
-						.type(DigitalAddressType.PEC)
+				.digitalAddress(DigitalAddress.builder()
+						.type(DigitalAddress.TypeEnum.PEC)
 						.address("indirizzo di prova test")
 						.build())
-				.responseStatus(ExtChannelResponseStatus.OK)
+				.responseStatus(status)
 				.notificationDate(Instant.now())
 				.build();
 	
@@ -104,48 +124,53 @@ class LegalFactPdfGeneratorTest {
 		return result;
 	}
 
-	private Notification buildNotification() {
-		return Notification.builder().sender(createSender("paIdTest"))
+	private NotificationInt buildNotification() {
+		return NotificationInt.builder().sender(createSender("paIdTest"))
 				.sentAt(Instant.now())
 				.iun("iun1234Test_buildNot")
 				.subject("Oggetto test: Atto di citazione")
 				.documents(Arrays.asList(
-						NotificationAttachment.builder()
-						.ref( NotificationAttachment.Ref.builder()
-								.key("doc00")
-								.versionToken("v01_doc00")
-								.build()
-								)
-						.digests(NotificationAttachment.Digests.builder()
-								.sha256("sha256_doc01")
-								.build()
-								)
-						.contentType("application/pdf")
-						.body("Ym9keV8wMQ==")
-						.build()
+						NotificationDocumentInt.builder()
+							.ref( NotificationDocumentInt.Ref.builder()
+									.key("doc00")
+									.versionToken("v01_doc00")
+									.build()
+							)
+							.digests(NotificationDocumentInt.Digests.builder()
+									.sha256("sha256_doc01")
+									.build()
+									)
+							.build()
 						)
-						)
+				)
 				.recipients(buildRecipients())
 				.build();
 	}
 
-	private List<NotificationRecipient> buildRecipients() {
-		NotificationRecipient rec1 = NotificationRecipient.builder()
+	private List<NotificationRecipientInt> buildRecipients() {
+		NotificationRecipientInt rec1 = NotificationRecipientInt.builder()
 				.taxId("CDCFSC11R99X001Z")
 				.denomination("Galileo Bruno")
 				.digitalDomicile(DigitalAddress.builder()
 						.address("test@dominioPec.it")
-						.type(DigitalAddressType.PEC)
+						.type(DigitalAddress.TypeEnum.PEC)
 						.build())
-				.physicalAddress(new PhysicalAddress("Palazzo dell'Inquisizione", "corso Italia 666", "Piano Terra (piatta)", "00100", "Roma", "RM", "IT"))
+				.physicalAddress(new PhysicalAddress(
+						"Palazzo dell'Inquisizione",
+						"corso Italia 666",
+						"Piano Terra (piatta)",
+						"00100",
+						"Roma",
+						null,
+						"RM",
+						"IT"
+				))
 				.build();
 		
-		List<@NotNull(groups = New.class) @Valid NotificationRecipient> list = new ArrayList<NotificationRecipient>();
-		list.add(rec1);
-		return list;
+		return Collections.singletonList( rec1 );
 	}
 
-	private NotificationSender createSender(String paId) {
-		return NotificationSender.builder().paId(paId).build();
+	private NotificationSenderInt createSender(String paId) {
+		return NotificationSenderInt.builder().paId(paId).build();
 	}
 }

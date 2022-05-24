@@ -1,4 +1,5 @@
 package it.pagopa.pn.deliverypush.abstractions.actionspool.impl;
+/*
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
@@ -21,3 +22,4 @@ public class ActionEventReceiver extends SqsEventReceiver{
             );
     }
 }
+*/

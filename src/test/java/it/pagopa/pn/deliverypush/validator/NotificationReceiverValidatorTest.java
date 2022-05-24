@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.validator;
 
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,8 +23,8 @@ class NotificationReceiverValidatorTest {
     @Test
     void successAttachmentDigest() {
         validator.checkPreloadedDigests( "paNotificationId/attachmentKey",
-                NotificationAttachment.Digests.builder().sha256("expected").build(),
-                NotificationAttachment.Digests.builder().sha256("expected").build()
+                NotificationDocumentInt.Digests.builder().sha256("expected").build(),
+                NotificationDocumentInt.Digests.builder().sha256("expected").build()
         );
         //if fails throw exception
     }
@@ -32,8 +32,8 @@ class NotificationReceiverValidatorTest {
     @Test
     void failAttachmentDigest() {
         // Given
-        NotificationAttachment.Digests expected = NotificationAttachment.Digests.builder().sha256("expected").build();
-        NotificationAttachment.Digests actual = NotificationAttachment.Digests.builder().sha256("wrong").build();
+        NotificationDocumentInt.Digests expected = NotificationDocumentInt.Digests.builder().sha256("expected").build();
+        NotificationDocumentInt.Digests actual = NotificationDocumentInt.Digests.builder().sha256("wrong").build();
         // When
         PnValidationException exc = Assertions.assertThrows( PnValidationException.class, () ->
                 validator.checkPreloadedDigests( "paNotificationId/attachmentKey", expected, actual )

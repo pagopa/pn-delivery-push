@@ -1,13 +1,13 @@
 package it.pagopa.pn.deliverypush.action2.utils;
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.timeline.EventId;
-import it.pagopa.pn.api.dto.notification.timeline.SendCourtesyMessageDetails;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.action2.ExternalChannelSendHandler;
-import it.pagopa.pn.deliverypush.external.AddressBook;
+import it.pagopa.pn.deliverypush.dto.timeline.EventId;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBook;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendCourtesyMessageDetails;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -32,10 +32,10 @@ public class CourtesyMessageUtils {
     /**
      * Get recipient addresses and send courtesy messages.
      */
-    public void checkAddressesForSendCourtesyMessage(Notification notification, int recIndex) {
+    public void checkAddressesForSendCourtesyMessage(NotificationInt notification, Integer recIndex) {
         log.info("CheckAddressesForSendCourtesyMessage - iun {} id {} ", notification.getIun(), recIndex);
         
-        NotificationRecipient recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
+        NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         
         //Vengono ottenuti tutti gli indirizzi di cortesia per il recipient ...
         addressBook.getAddresses(recipient.getTaxId(), notification.getSender())
@@ -52,7 +52,7 @@ public class CourtesyMessageUtils {
         log.debug("End sendCourtesyMessage - IUN {} id {}", notification.getIun(),recIndex);
     }
 
-    private void sendCourtesyMessage(Notification notification, int recIndex, int courtesyAddrIndex, DigitalAddress courtesyAddress) {
+    private void sendCourtesyMessage(NotificationInt notification, Integer recIndex, int courtesyAddrIndex, DigitalAddress courtesyAddress) {
         log.debug("Send courtesy message address index {} - iun {} id {} ", courtesyAddrIndex, notification.getIun(), recIndex);
 
         //... Per ogni indirizzo di cortesia ottenuto viene inviata la notifica del messaggio di cortesia tramite external channel
@@ -60,7 +60,7 @@ public class CourtesyMessageUtils {
         externalChannelSendHandler.sendCourtesyNotification(notification, courtesyAddress, recIndex, eventId);
     }
 
-    private String getTimelineElementId(int recIndex, String iun, int index) {
+    private String getTimelineElementId(Integer recIndex, String iun, int index) {
         return TimelineEventId.SEND_COURTESY_MESSAGE.buildEventId(EventId.builder()
                 .iun(iun)
                 .recIndex(recIndex)
@@ -68,18 +68,11 @@ public class CourtesyMessageUtils {
                 .build()
         );
     }
-
-    /**
-     * Get user courtesy messages from timeline
-     *
-     * @param iun   Notification unique identifier
-     * @param taxId User identifier
-     */
-    public Optional<SendCourtesyMessageDetails> getFirstSentCourtesyMessage(String iun, int recIndex) {
+    
+    public Optional<SendCourtesyMessageDetails> getFirstSentCourtesyMessage(String iun, Integer recIndex) {
         String timeLineCourtesyId = getTimelineElementId(recIndex, iun, 0);
         log.debug("Get courtesy message for timelineCourtesyId {} - IUN {} id {}", timeLineCourtesyId, iun, recIndex);
-
-        return timelineService.getTimelineElement(iun, timeLineCourtesyId, SendCourtesyMessageDetails.class);
+        return timelineService.getTimelineElementDetails(iun, timeLineCourtesyId, SendCourtesyMessageDetails.class);
     }
 
 }

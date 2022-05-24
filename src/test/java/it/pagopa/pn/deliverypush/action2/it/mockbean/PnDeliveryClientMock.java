@@ -1,8 +1,9 @@
 package it.pagopa.pn.deliverypush.action2.it.mockbean;
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
-import it.pagopa.pn.deliverypush.pnclient.delivery.PnDeliveryClient;
+import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.SentNotification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.externalclient.pnclient.delivery.PnDeliveryClient;
+import it.pagopa.pn.deliverypush.service.mapper.NotificationMapper;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
@@ -10,24 +11,28 @@ import java.util.Collection;
 import java.util.Optional;
 
 public class PnDeliveryClientMock implements PnDeliveryClient {
-    private Collection<Notification> notifications;
+    private Collection<SentNotification> notifications;
 
     public void clear() {
         this.notifications = new ArrayList<>();
     }
 
+    public void addNotification(NotificationInt notification) {
+        SentNotification sentNotification = NotificationMapper.internalToExternal(notification);
+        this.notifications.add(sentNotification);
+    }
+    
     @Override
-    public ResponseEntity<Void> updateState(RequestUpdateStatusDto dto) {
-        return null;
+    public ResponseEntity<Void> updateStatus(it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.RequestUpdateStatusDto dto) {
+        return ResponseEntity.ok().build();
     }
 
     @Override
-    public Optional<Notification> getNotificationInfo(String iun, boolean withTimeline) {
-        return notifications.stream().filter(notification -> iun.equals(notification.getIun())).findFirst();
+    public ResponseEntity<SentNotification> getSentNotification(String iun) {
+        Optional<SentNotification> sentNotificationOpt = notifications.stream().filter(notification -> iun.equals(notification.getIun())).findFirst();
+        if(sentNotificationOpt.isPresent()){
+            return ResponseEntity.ok(sentNotificationOpt.get());
+        }
+        throw new RuntimeException("Test error, iun is not presente in getSentNotification");
     }
-
-    public void addNotification(Notification notification) {
-        this.notifications.add(notification);
-    }
-
 }

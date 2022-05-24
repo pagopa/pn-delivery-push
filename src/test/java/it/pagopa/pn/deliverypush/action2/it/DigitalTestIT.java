@@ -1,14 +1,10 @@
 package it.pagopa.pn.deliverypush.action2.it;
 
 import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.commons.abstractions.FileData;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
+import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.ConfidentialTimelineElementDto;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action2.*;
@@ -18,12 +14,15 @@ import it.pagopa.pn.deliverypush.action2.it.utils.NotificationRecipientTestBuild
 import it.pagopa.pn.deliverypush.action2.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action2.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action2.utils.*;
-import it.pagopa.pn.deliverypush.actions.ExtChnEventUtils;
-import it.pagopa.pn.deliverypush.external.AddressBookEntry;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBookEntry;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.service.TimelineService;
-import it.pagopa.pn.deliverypush.service.impl.NotificationServiceImpl;
-import it.pagopa.pn.deliverypush.service.impl.TimeLineServiceImpl;
+import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.util.StatusUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,6 +32,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -42,6 +42,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
@@ -59,7 +60,6 @@ import java.util.List;
         DigitalWorkFlowUtils.class,
         CourtesyMessageUtils.class,
         CompletelyUnreachableUtils.class,
-        ExtChnEventUtils.class,
         ExternalChannelUtils.class,
         AnalogWorkflowUtils.class,
         ChooseDeliveryModeUtils.class,
@@ -68,12 +68,16 @@ import java.util.List;
         StatusUtils.class,
         NotificationServiceImpl.class,
         TimeLineServiceImpl.class,
+        PaperNotificationFailedServiceImpl.class,
+        StatusServiceImpl.class,
+        ConfidentialInformationServiceImpl.class,
         CheckAttachmentUtils.class,
         NotificationUtils.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
         ExternalChannelMock.class,
         PaperNotificationFailedDaoMock.class,
+        PnDataVaultClientMock.class,
         DigitalTestIT.SpringTestConfiguration.class
 })
 class DigitalTestIT {
@@ -125,6 +129,9 @@ class DigitalTestIT {
     @Autowired
     private NotificationUtils notificationUtils;
 
+    @Autowired
+    private PnDataVaultClientMock pnDataVaultClientMock;
+
     @BeforeEach
     public void setup() {
         TimeParams times = new TimeParams();
@@ -154,6 +161,8 @@ class DigitalTestIT {
         publicRegistryMock.clear();
         timelineDaoMock.clear();
         paperNotificationFailedDaoMock.clear();
+        pnDeliveryClientMock.clear();
+        pnDataVaultClientMock.clear();
     }
 
     @Test
@@ -167,25 +176,25 @@ class DigitalTestIT {
 
         DigitalAddress platformAddress = DigitalAddress.builder()
                 .address("platformAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddressType.PEC)
+                .type(DigitalAddress.TypeEnum.PEC)
                 .build();
 
         DigitalAddress digitalDomicile = DigitalAddress.builder()
                 .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddressType.PEC)
+                .type(DigitalAddress.TypeEnum.PEC)
                 .build();
 
         DigitalAddress pbDigitalAddress = DigitalAddress.builder()
                 .address("pbDigitalAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddressType.PEC)
+                .type(DigitalAddress.TypeEnum.PEC)
                 .build();
 
-        NotificationRecipient recipient = NotificationRecipientTestBuilder.builder()
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId("TAXID01")
                 .withDigitalDomicile(digitalDomicile)
                 .build();
 
-        Notification notification = NotificationTestBuilder.builder()
+        NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun("IUN01")
                 .withNotificationRecipient(recipient)
                 .build();
@@ -200,7 +209,7 @@ class DigitalTestIT {
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
         
         String iun = notification.getIun();
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -252,14 +261,14 @@ class DigitalTestIT {
 
         DigitalAddress pbDigitalAddress = DigitalAddress.builder()
                 .address("pbDigitalAddress@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
-                .type(DigitalAddressType.PEC)
+                .type(DigitalAddress.TypeEnum.PEC)
                 .build();
 
-        NotificationRecipient recipient = NotificationRecipientTestBuilder.builder()
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId("TAXID01")
                 .build();
 
-        Notification notification = NotificationTestBuilder.builder()
+        NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun("IUN01")
                 .withNotificationRecipient(recipient)
                 .build();
@@ -273,7 +282,7 @@ class DigitalTestIT {
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -296,6 +305,11 @@ class DigitalTestIT {
         //Viene verificato che sia avvenuto il perfezionamento
         TestUtils.checkRefinement(iun, recIndex, timelineService);
 
+        ResponseEntity<List<ConfidentialTimelineElementDto>> res = pnDataVaultClientMock.getNotificationTimelineByIunWithHttpInfo(iun);
+
+        Set<TimelineElementInternal> timelineElementInternals = timelineDaoMock.getTimeline(iun);
+        System.out.println("RES " +res);
+
     }
 
     @Test
@@ -309,15 +323,15 @@ class DigitalTestIT {
 
         final DigitalAddress digitalDomicile = DigitalAddress.builder()
                 .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
-                .type(DigitalAddressType.PEC)
+                .type(DigitalAddress.TypeEnum.PEC)
                 .build();
 
-        final NotificationRecipient recipient = NotificationRecipientTestBuilder.builder()
+        final NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId("TAXID01")
                 .withDigitalDomicile(digitalDomicile)
                 .build();
 
-        final Notification notification = NotificationTestBuilder.builder()
+        final NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun("IUN01")
                 .withNotificationRecipient(recipient)
                 .build();
@@ -331,7 +345,7 @@ class DigitalTestIT {
         addressBookMock.add(addressBookEntry);
 
         String iun = notification.getIun();
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -366,25 +380,25 @@ class DigitalTestIT {
     */
         final DigitalAddress platformAddress = DigitalAddress.builder()
                 .address("test@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
-                .type(DigitalAddressType.PEC)
+                .type(DigitalAddress.TypeEnum.PEC)
                 .build();
 
         final DigitalAddress digitalDomicile = DigitalAddress.builder()
                 .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
-                .type(DigitalAddressType.PEC)
+                .type(DigitalAddress.TypeEnum.PEC)
                 .build();
 
         final DigitalAddress pbDigitalAddress = DigitalAddress.builder()
                 .address("pbDigitalAddress@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
-                .type(DigitalAddressType.PEC)
+                .type(DigitalAddress.TypeEnum.PEC)
                 .build();
 
-        final NotificationRecipient recipient = NotificationRecipientTestBuilder.builder()
+        final NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId("TAXID01")
                 .withDigitalDomicile(digitalDomicile)
                 .build();
 
-        final Notification notification = NotificationTestBuilder.builder()
+        final NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun("IUN01")
                 .withNotificationRecipient(recipient)
                 .build();
@@ -399,7 +413,7 @@ class DigitalTestIT {
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -437,14 +451,14 @@ class DigitalTestIT {
     */
         DigitalAddress platformAddress = DigitalAddress.builder()
                 .address("test@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
-                .type(DigitalAddressType.PEC)
+                .type(DigitalAddress.TypeEnum.PEC)
                 .build();
 
-        NotificationRecipient recipient = NotificationRecipientTestBuilder.builder()
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId("TAXID01")
                 .build();
 
-        Notification notification = NotificationTestBuilder.builder()
+        NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun("IUN01")
                 .withNotificationRecipient(recipient)
                 .build();
@@ -458,7 +472,7 @@ class DigitalTestIT {
         addressBookMock.add(addressBookEntry);
 
         String iun = notification.getIun();
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -484,20 +498,20 @@ class DigitalTestIT {
     */
         DigitalAddress platformAddress = DigitalAddress.builder()
                 .address("test@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
-                .type(DigitalAddressType.PEC)
+                .type(DigitalAddress.TypeEnum.PEC)
                 .build();
 
         DigitalAddress digitalDomicile = DigitalAddress.builder()
                 .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
-                .type(DigitalAddressType.PEC)
+                .type(DigitalAddress.TypeEnum.PEC)
                 .build();
 
-        NotificationRecipient recipient = NotificationRecipientTestBuilder.builder()
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId("TAXID01")
                 .withDigitalDomicile(digitalDomicile)
                 .build();
 
-        Notification notification = NotificationTestBuilder.builder()
+        NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun("IUN01")
                 .withNotificationRecipient(recipient)
                 .build();
@@ -511,7 +525,7 @@ class DigitalTestIT {
         addressBookMock.add(addressBookEntry);
 
         String iun = notification.getIun();
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -547,26 +561,26 @@ class DigitalTestIT {
     */
         DigitalAddress platformAddress = DigitalAddress.builder()
                 .address("test@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddressType.PEC)
+                .type(DigitalAddress.TypeEnum.PEC)
                 .build();
 
 
         DigitalAddress digitalDomicile = DigitalAddress.builder()
                 .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddressType.PEC)
+                .type(DigitalAddress.TypeEnum.PEC)
                 .build();
 
         DigitalAddress pbDigitalAddress = DigitalAddress.builder()
                 .address("pbDigitalAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
-                .type(DigitalAddressType.PEC)
+                .type(DigitalAddress.TypeEnum.PEC)
                 .build();
 
-        NotificationRecipient recipient = NotificationRecipientTestBuilder.builder()
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId("TAXID01")
                 .withDigitalDomicile(digitalDomicile)
                 .build();
 
-        Notification notification = NotificationTestBuilder.builder()
+        NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun("IUN01")
                 .withNotificationRecipient(recipient)
                 .build();
@@ -581,7 +595,7 @@ class DigitalTestIT {
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -636,25 +650,25 @@ class DigitalTestIT {
         
         DigitalAddress platformAddress = DigitalAddress.builder()
                 .address("test@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
-                .type(DigitalAddressType.PEC)
+                .type(DigitalAddress.TypeEnum.PEC)
                 .build();
 
         DigitalAddress digitalDomicile = DigitalAddress.builder()
                 .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
-                .type(DigitalAddressType.PEC)
+                .type(DigitalAddress.TypeEnum.PEC)
                 .build();
 
         DigitalAddress pbDigitalAddress = DigitalAddress.builder()
                 .address("pbDigitalAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
-                .type(DigitalAddressType.PEC)
+                .type(DigitalAddress.TypeEnum.PEC)
                 .build();
 
-        NotificationRecipient recipient = NotificationRecipientTestBuilder.builder()
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId("TAXID01")
                 .withDigitalDomicile(digitalDomicile)
                 .build();
 
-        Notification notification = NotificationTestBuilder.builder()
+        NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun("IUN01")
                 .withNotificationRecipient(recipient)
                 .build();
@@ -669,7 +683,7 @@ class DigitalTestIT {
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -712,26 +726,25 @@ class DigitalTestIT {
     */
         DigitalAddress platformAddress = DigitalAddress.builder()
                 .address("test@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddressType.PEC)
+                .type(DigitalAddress.TypeEnum.PEC)
                 .build();
-
 
         DigitalAddress digitalDomicile = DigitalAddress.builder()
                 .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
-                .type(DigitalAddressType.PEC)
+                .type(DigitalAddress.TypeEnum.PEC)
                 .build();
 
         DigitalAddress pbDigitalAddress = DigitalAddress.builder()
                 .address("pbDigitalAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
-                .type(DigitalAddressType.PEC)
+                .type(DigitalAddress.TypeEnum.PEC)
                 .build();
 
-        NotificationRecipient recipient = NotificationRecipientTestBuilder.builder()
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId("TAXID01")
                 .withDigitalDomicile(digitalDomicile)
                 .build();
 
-        Notification notification = NotificationTestBuilder.builder()
+        NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun("IUN01")
                 .withNotificationRecipient(recipient)
                 .build();
@@ -746,7 +759,7 @@ class DigitalTestIT {
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -800,15 +813,15 @@ class DigitalTestIT {
         //Primo Recipient
         DigitalAddress platformAddress1 = DigitalAddress.builder()
                 .address("test1@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
-                .type(DigitalAddressType.PEC)
+                .type(DigitalAddress.TypeEnum.PEC)
                 .build();
 
         DigitalAddress digitalDomicile1 = DigitalAddress.builder()
                 .address("digitalDomicile1@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
-                .type(DigitalAddressType.PEC)
+                .type(DigitalAddress.TypeEnum.PEC)
                 .build();
 
-        NotificationRecipient recipient1 = NotificationRecipientTestBuilder.builder()
+        NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder()
                 .withTaxId("TAXID01")
                 .withDigitalDomicile(digitalDomicile1)
                 .build();
@@ -821,15 +834,15 @@ class DigitalTestIT {
         //Secondo recipient
         DigitalAddress platformAddress2 = DigitalAddress.builder()
                 .address("test2@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddressType.PEC)
+                .type(DigitalAddress.TypeEnum.PEC)
                 .build();
 
         DigitalAddress digitalDomicile2 = DigitalAddress.builder()
                 .address("digitalDomicile2@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
-                .type(DigitalAddressType.PEC)
+                .type(DigitalAddress.TypeEnum.PEC)
                 .build();
 
-        NotificationRecipient recipient2 = NotificationRecipientTestBuilder.builder()
+        NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder()
                 .withTaxId("TAXID02")
                 .withDigitalDomicile(digitalDomicile2)
                 .build();
@@ -840,12 +853,12 @@ class DigitalTestIT {
                 .build();
 
         
-        List<NotificationRecipient> recipients = new ArrayList<>();
+        List<NotificationRecipientInt> recipients = new ArrayList<>();
 
         recipients.add(recipient1);
         recipients.add(recipient2);
 
-        Notification notification = NotificationTestBuilder.builder()
+        NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun("IUN01")
                 .withNotificationRecipients(recipients)
                 .build();
@@ -855,8 +868,8 @@ class DigitalTestIT {
         addressBookMock.add(addressBookEntry2);
 
         String iun = notification.getIun();
-        int recIndex1 = notificationUtils.getRecipientIndex(notification, recipient1.getTaxId());
-        int recIndex2 = notificationUtils.getRecipientIndex(notification, recipient2.getTaxId());
+        Integer recIndex1 = notificationUtils.getRecipientIndex(notification, recipient1.getTaxId());
+        Integer recIndex2 = notificationUtils.getRecipientIndex(notification, recipient2.getTaxId());
         
 
         //Start del workflow

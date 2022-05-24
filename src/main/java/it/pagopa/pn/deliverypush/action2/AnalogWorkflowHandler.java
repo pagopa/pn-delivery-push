@@ -1,17 +1,18 @@
 package it.pagopa.pn.deliverypush.action2;
 
-import it.pagopa.pn.api.dto.extchannel.ExtChannelResponse;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
-import it.pagopa.pn.api.dto.notification.timeline.SendPaperDetails;
-import it.pagopa.pn.api.dto.notification.timeline.SendPaperFeedbackDetails;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action2.utils.AnalogWorkflowUtils;
 import it.pagopa.pn.deliverypush.action2.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
+import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendPaperDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendPaperFeedbackDetails;
 import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +25,7 @@ public class AnalogWorkflowHandler {
     private final AnalogWorkflowUtils analogWorkflowUtils;
     private final PublicRegistrySendHandler publicRegistrySendHandler;
     private final InstantNowSupplier instantNowSupplier;
-
+    
     public AnalogWorkflowHandler(NotificationService notificationService, ExternalChannelSendHandler externalChannelSendHandler,
                                  CompletionWorkFlowHandler completionWorkFlow, AnalogWorkflowUtils analogWorkflowUtils,
                                  PublicRegistrySendHandler publicRegistrySendHandler, InstantNowSupplier instantNowSupplier) {
@@ -36,15 +37,15 @@ public class AnalogWorkflowHandler {
         this.instantNowSupplier = instantNowSupplier;
     }
 
-    public void startAnalogWorkflow(String iun, int recIndex) {
-        Notification notification = notificationService.getNotificationByIun(iun);
+    public void startAnalogWorkflow(String iun, Integer recIndex) {
+        NotificationInt notification = notificationService.getNotificationByIun(iun);
         nextWorkflowStep(notification, recIndex, 0);
     }
 
     /**
      * Handle analog notification Workflow based on already made attempt
      */
-    public void nextWorkflowStep(Notification notification, int recIndex, int sentAttemptMade) {
+    public void nextWorkflowStep(NotificationInt notification, Integer recIndex, int sentAttemptMade) {
         log.info("Start Analog next workflow action - iun {} id {}", notification.getIun(), recIndex);
         
         String iun = notification.getIun();
@@ -84,10 +85,10 @@ public class AnalogWorkflowHandler {
     /**
      * Handle get response for public registry call.
      */
-    public void handlePublicRegistryResponse(String iun, int recIndex, PublicRegistryResponse response, int sentAttemptMade) {
+    public void handlePublicRegistryResponse(String iun, Integer recIndex, PublicRegistryResponse response, int sentAttemptMade) {
         log.info("Handle analog public registry response sentAttemptMade {} - iun {} id {} ", sentAttemptMade, iun, recIndex);
 
-        Notification notification = notificationService.getNotificationByIun(iun);
+        NotificationInt notification = notificationService.getNotificationByIun(iun);
 
         switch (sentAttemptMade) {
             case 0:
@@ -103,12 +104,12 @@ public class AnalogWorkflowHandler {
         }
     }
     
-    private void handleAttemptError(String iun, int recIndex, int sentAttemptMade) {
+    private void handleAttemptError(String iun, Integer recIndex, int sentAttemptMade) {
         log.error("Specified attempt {} is not possibile  - iun {} id {}", sentAttemptMade, iun, recIndex);
         throw new PnInternalException("Specified attempt " + sentAttemptMade + " is not possibile");
     }
 
-    private void publicRegistrySecondSendResponse(PublicRegistryResponse response, Notification notification, int recIndex, int sentAttemptMade) {
+    private void publicRegistrySecondSendResponse(PublicRegistryResponse response, NotificationInt notification, Integer recIndex, int sentAttemptMade) {
         String iun = notification.getIun();
         log.info("Start publicRegistrySecondSendResponse  - iun {} id {}", iun, recIndex);
 
@@ -117,9 +118,9 @@ public class AnalogWorkflowHandler {
         log.debug("getLastTimelineSentFeedback completed  - iun {} id {}", iun, recIndex);
 
         //Se l'indirizzo fornito da public registry è presente ...
-        if (response.getPhysicalAddress() != null && response.getPhysicalAddress().getAddress() != null) {
+        if (response.getPhysicalAddress() != null) {
 
-            PhysicalAddress lastUsedAddress = lastSentFeedback.getAddress();
+            PhysicalAddress lastUsedAddress = lastSentFeedback.getPhysicalAddress();
 
             //... e risulta diverso da quello utilizzato nel primo tentativo, viene inviata seconda notifica ad external channel con questo indirizzo
             if (!response.getPhysicalAddress().equals(lastUsedAddress)) {
@@ -137,14 +138,14 @@ public class AnalogWorkflowHandler {
         }
     }
 
-    private void sendWithInvestigationAddress(Notification notification, int recIndex, int sentAttemptMade, PhysicalAddress newAddress) {
+    private void sendWithInvestigationAddress(NotificationInt notification, Integer recIndex, int sentAttemptMade, PhysicalAddress newAddress) {
         log.info("Check address from investigation");
         checkAddressAndSend(notification, recIndex, newAddress, false, sentAttemptMade);
     }
 
-    private void checkAddressAndSend(Notification notification, int recIndex, PhysicalAddress address, boolean investigation, int sentAttemptMade) {
+    private void checkAddressAndSend(NotificationInt notification, Integer recIndex, PhysicalAddress address, boolean investigation, int sentAttemptMade) {
         //Se l'indirizzo passato è valorizzato viene inviata la notifica ad externalChannel...
-        if (address != null && address.getAddress() != null) {
+        if (address != null) {
             log.info("Have a valid address, send notification to external channel  - iun {} id {}", notification.getIun(), recIndex);
             externalChannelSendHandler.sendAnalogNotification(notification, address, recIndex, investigation, sentAttemptMade);
         } else {
@@ -154,12 +155,12 @@ public class AnalogWorkflowHandler {
         }
     }
 
-    public void extChannelResponseHandler(ExtChannelResponse response, TimelineElement notificationTimelineElement) {
-        SendPaperDetails sendPaperDetails = (SendPaperDetails) notificationTimelineElement.getDetails();
+    public void extChannelResponseHandler(ExtChannelResponse response, TimelineElementInternal notificationTimelineElement) {
+        SendPaperDetails sendPaperDetails = SmartMapper.mapToClass(notificationTimelineElement.getDetails(), SendPaperDetails.class);
 
         String iun = response.getIun();
-        Notification notification = notificationService.getNotificationByIun(iun);
-        int recIndex = sendPaperDetails.getRecIndex();
+        NotificationInt notification = notificationService.getNotificationByIun(iun);
+        Integer recIndex = sendPaperDetails.getRecIndex();
         
         log.info("Analog workflow Ext channel response  - iun {} id {} with status {}", iun, recIndex, response.getResponseStatus());
 
@@ -167,7 +168,7 @@ public class AnalogWorkflowHandler {
             switch (response.getResponseStatus()) {
                 case OK:
                     // La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
-                    completionWorkFlow.completionAnalogWorkflow(notification, recIndex, response.getNotificationDate(), sendPaperDetails.getAddress(), EndWorkflowStatus.SUCCESS);
+                    completionWorkFlow.completionAnalogWorkflow(notification, recIndex, response.getNotificationDate(), sendPaperDetails.getPhysicalAddress(), EndWorkflowStatus.SUCCESS);
                     break;
                 case KO:
                     // External channel non è riuscito a effettuare la notificazione, si passa al prossimo step del workflow
@@ -184,7 +185,7 @@ public class AnalogWorkflowHandler {
 
     }
 
-    private void handleStatusError(ExtChannelResponse response, String iun, int recIndex) {
+    private void handleStatusError(ExtChannelResponse response, String iun, Integer recIndex) {
         log.error("Specified response {} is not possibile  - iun {} id {}", response.getResponseStatus(), iun, recIndex);
         throw new PnInternalException("Specified response " + response.getResponseStatus() + " is not possibile");
     }

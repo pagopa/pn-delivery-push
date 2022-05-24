@@ -1,14 +1,14 @@
 package it.pagopa.pn.deliverypush.actions;
-
+/*
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
-import it.pagopa.pn.api.dto.notification.timeline.SendPaperDetails;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
+
+import SendPaperDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
@@ -78,7 +78,7 @@ class ReceivePaperActionHandlerTest {
         Mockito.when(timelineDao.getTimelineElement(
                         Mockito.anyString(),
                         Mockito.anyString()))
-                .thenReturn(Optional.of(TimelineElement.builder()
+                .thenReturn(Optional.of(TimelineElementInternal.timelineInternalBuilder()
                         .details(SendPaperDetails.builder()
                                 .address(PhysicalAddress.builder()
                                         .at("presso")
@@ -97,7 +97,7 @@ class ReceivePaperActionHandlerTest {
         handler.handleAction(inputAction, notification);
 
         //Then
-        ArgumentCaptor<TimelineElement> timeLineArg = ArgumentCaptor.forClass(TimelineElement.class);
+        ArgumentCaptor<TimelineElementInternal> timeLineArg = ArgumentCaptor.forClass(TimelineElement.class);
         Mockito.verify(timelineDao).addTimelineElement(timeLineArg.capture());
         Assertions.assertEquals(TimelineElementCategory.SEND_PAPER_FEEDBACK, timeLineArg.getValue().getCategory());
 
@@ -135,7 +135,7 @@ class ReceivePaperActionHandlerTest {
         Mockito.when(timelineDao.getTimelineElement(
                         Mockito.anyString(),
                         Mockito.anyString()))
-                .thenReturn(Optional.of(TimelineElement.builder()
+                .thenReturn(Optional.of(TimelineElementInternal.timelineInternalBuilder()
                         .details(SendPaperDetails.builder()
                                 .address(PhysicalAddress.builder()
                                         .at("presso")
@@ -154,7 +154,7 @@ class ReceivePaperActionHandlerTest {
         handler.handleAction(inputAction, notification);
 
         //Then
-        ArgumentCaptor<TimelineElement> timeLineArg = ArgumentCaptor.forClass(TimelineElement.class);
+        ArgumentCaptor<TimelineElementInternal> timeLineArg = ArgumentCaptor.forClass(TimelineElement.class);
         Mockito.verify(timelineDao).addTimelineElement(timeLineArg.capture());
         Assertions.assertEquals(TimelineElementCategory.SEND_PAPER_FEEDBACK, timeLineArg.getValue().getCategory());
 
@@ -176,7 +176,7 @@ class ReceivePaperActionHandlerTest {
                 .iun("test_iun")
                 .paNotificationId("protocol_01")
                 .subject("Subject 01")
-                .sender(NotificationSender.builder()
+                .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()
                 )
@@ -198,3 +198,6 @@ class ReceivePaperActionHandlerTest {
                 .build();
     }
 }
+
+
+ */

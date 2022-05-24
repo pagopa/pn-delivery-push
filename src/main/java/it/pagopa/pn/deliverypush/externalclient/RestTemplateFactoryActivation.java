@@ -1,0 +1,20 @@
+package it.pagopa.pn.deliverypush.externalclient;
+
+import it.pagopa.pn.commons.pnclients.RestTemplateFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.web.client.RestTemplate;
+
+@Configuration
+public class RestTemplateFactoryActivation extends RestTemplateFactory {
+
+    @Bean
+    @Qualifier("withTracing")
+    @Primary
+    @Override
+    public RestTemplate restTemplateWithTracing() {
+        return super.restTemplateWithTracing();
+    }
+}
