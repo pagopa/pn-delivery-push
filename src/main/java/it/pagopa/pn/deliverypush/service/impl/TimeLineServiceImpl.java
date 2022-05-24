@@ -18,10 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -112,8 +109,9 @@ public class TimeLineServiceImpl implements TimelineService {
         log.debug("GetTimeline - iun {} ", iun);
         Set<TimelineElementInternal> setTimelineElements =  this.timelineDao.getTimeline(iun);
 
-        Optional<Map<String, ConfidentialTimelineElementDtoInt>> mapConfOtp = confidentialInformationService.getTimelineConfidentialInformation(iun);
-        
+        Optional<Map<String, ConfidentialTimelineElementDtoInt>> mapConfOtp;
+        mapConfOtp = confidentialInformationService.getTimelineConfidentialInformation(iun);
+
         if(mapConfOtp.isPresent()){
             Map<String, ConfidentialTimelineElementDtoInt> mapConf = mapConfOtp.get();
             
