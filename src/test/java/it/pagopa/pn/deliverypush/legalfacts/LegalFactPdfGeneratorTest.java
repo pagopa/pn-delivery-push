@@ -85,11 +85,6 @@ class LegalFactPdfGeneratorTest {
 	}
 	
 	@Test 
-<<<<<<< HEAD
-	void generateNotificationAARTest() throws IOException {	
-		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
-		Files.write(filePath, pdfUtils.generateNotificationAAR(buildNotification()));		
-=======
 	void generatePecDeliveryWorkflowLegalFactTest_KO() throws IOException {
 		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_KO.pdf");
 		List<SendDigitalFeedback> feedbackFromExtChannelList = buildFeedbackFromECList(ResponseStatus.KO);
@@ -103,7 +98,6 @@ class LegalFactPdfGeneratorTest {
 	void generategenerateFileComplianceTest() throws IOException {	
 		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_FileCompliance.pdf");
 		Files.write(filePath, pdfUtils.generateFileCompliance("PDF file name whitout extension", "test signature", Instant.now()));		
->>>>>>> develop
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
 
@@ -128,7 +122,6 @@ class LegalFactPdfGeneratorTest {
 		return NotificationInt.builder().sender(createSender("paIdTest"))
 				.sentAt(Instant.now())
 				.iun("iun1234Test_buildNot")
-				.subject("Oggetto test: Atto di citazione")
 				.documents(Arrays.asList(
 						NotificationDocumentInt.builder()
 							.ref( NotificationDocumentInt.Ref.builder()
