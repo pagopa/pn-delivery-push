@@ -24,7 +24,16 @@ public class PnLegalFactsController implements LegalFactsApi {
     public PnLegalFactsController(LegalFactService legalFactService) { this.legalFactService = legalFactService; }
 
     @Override
-    public Mono<ResponseEntity<LegalFactDownloadMetadataResponse>> getLegalFact(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String iun, LegalFactCategory legalFactType, String legalFactId, ServerWebExchange exchange) {
+    public Mono<ResponseEntity<LegalFactDownloadMetadataResponse>> getLegalFact(
+            String xPagopaPnUid,
+            CxTypeAuthFleet xPagopaPnCxType,
+            String xPagopaPnCxId,
+            String iun,
+            LegalFactCategory legalFactType,
+            String legalFactId,
+            List<String> xPagopaPnCxGroups,
+            ServerWebExchange exchange
+    ) {
         return Mono.fromSupplier(()-> {
             //TODO Da implementare quando disponibile safeStorage
             return ResponseEntity.ok(new LegalFactDownloadMetadataResponse());
@@ -32,7 +41,14 @@ public class PnLegalFactsController implements LegalFactsApi {
     }
 
     @Override
-    public Mono<ResponseEntity<Flux<LegalFactListElement>>> getNotificationLegalFacts(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String iun, ServerWebExchange exchange) {
+    public Mono<ResponseEntity<Flux<LegalFactListElement>>> getNotificationLegalFacts(
+            String xPagopaPnUid,
+            CxTypeAuthFleet xPagopaPnCxType,
+            String xPagopaPnCxId,
+            String iun,
+            List<String> xPagopaPnCxGroups,
+            ServerWebExchange exchange
+    ) {
         List<LegalFactListElement> legalFacts = legalFactService.getLegalFacts(iun);
         Flux<LegalFactListElement> fluxFacts = Flux.fromStream(legalFacts.stream().map(this::convert));
         return Mono.just(ResponseEntity.ok(fluxFacts));
