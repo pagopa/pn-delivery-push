@@ -19,6 +19,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import freemarker.template.Configuration;
+import freemarker.template.Version;
 import java.util.*;
 
 class LegalFactPdfGeneratorTest {
@@ -63,9 +75,19 @@ class LegalFactPdfGeneratorTest {
 	}
 	
 	@Test 
-	void generatePecDeliveryWorkflowLegalFactTest() throws IOException {
-		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact.pdf");
-		List<SendDigitalFeedback> feedbackFromExtChannelList = buildFeedbackFromECList();
+	void generatePecDeliveryWorkflowLegalFactTest_OK() throws IOException {
+		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_OK.pdf");
+		List<SendDigitalFeedback> feedbackFromExtChannelList = buildFeedbackFromECList( ResponseStatus.OK);
+		NotificationInt notification = buildNotification();
+		NotificationRecipientInt recipient = buildRecipients().get(0);
+		Files.write(filePath, pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification, recipient));
+		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+	}
+	
+	@Test 
+	void generatePecDeliveryWorkflowLegalFactTest_KO() throws IOException {
+		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_KO.pdf");
+		List<SendDigitalFeedback> feedbackFromExtChannelList = buildFeedbackFromECList(ResponseStatus.KO);
 		NotificationInt notification = buildNotification();
 		NotificationRecipientInt recipient = buildRecipients().get(0);
 		Files.write(filePath, pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification, recipient));
@@ -79,15 +101,15 @@ class LegalFactPdfGeneratorTest {
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
 
-	private List<SendDigitalFeedback> buildFeedbackFromECList() {
+	private List<SendDigitalFeedback> buildFeedbackFromECList(ResponseStatus status) {
 		SendDigitalFeedback sdf = SendDigitalFeedback.builder()
 				.recIndex( 0 )
 				.digitalAddress(DigitalAddress.builder()
 						.type(DigitalAddress.TypeEnum.PEC)
 						.address("indirizzo di prova test")
 						.build())
-				.responseStatus(ResponseStatus.OK)
-				.notificationDate( Instant.now() )
+				.responseStatus(status)
+				.notificationDate(Instant.now())
 				.build();
 	
 		
