@@ -44,32 +44,33 @@ public class UserAttributesMock implements UserAttributes {
     public ResponseEntity<List<LegalDigitalAddress>> getLegalAddressBySender(String taxId, String senderId) {
         String id = getId(taxId, senderId);
 
+        List<LegalDigitalAddress> listLegalDigitalAddress = new ArrayList<>();
+
         Collection<LegalDigitalAddress> collectionLegalDigitalAddresses = mapLegalDigitalAddresses.get(id);
         
-        List<LegalDigitalAddress> legalDigitalAddress =  collectionLegalDigitalAddresses.stream()
-                .filter(
-                        digitalAddresses -> digitalAddresses.getRecipientId().equals(taxId)
-                ).collect(Collectors.toList());
-        
-        return ResponseEntity.ok(legalDigitalAddress);
+        if(collectionLegalDigitalAddresses != null && !collectionLegalDigitalAddresses.isEmpty()){
+            listLegalDigitalAddress = new ArrayList<>(collectionLegalDigitalAddresses);
+        }
+
+        return ResponseEntity.ok(listLegalDigitalAddress);
     }
 
     @Override
     public ResponseEntity<List<CourtesyDigitalAddress>> getCourtesyAddressBySender(String taxId, String senderId) {
         String id = getId(taxId, senderId);
-
+        List<CourtesyDigitalAddress> listCourtesyDigitalAddress = new ArrayList<>();
+        
         Collection<CourtesyDigitalAddress> collectionCourtesyDigitalAddresses = mapCourtesyDigitalAddresses.get(id);
-
-        List<CourtesyDigitalAddress> courtesy =  collectionCourtesyDigitalAddresses.stream()
-                .filter(
-                        digitalAddresses -> digitalAddresses.getRecipientId().equals(taxId)
-                ).collect(Collectors.toList());
-
-        return ResponseEntity.ok(courtesy);
+        
+        if(collectionCourtesyDigitalAddresses != null && !collectionCourtesyDigitalAddresses.isEmpty()){
+            listCourtesyDigitalAddress = new ArrayList<>(collectionCourtesyDigitalAddresses);
+        }
+        
+        return ResponseEntity.ok(listCourtesyDigitalAddress);
     }
 
     //TODO Aggiungere logica senderId dopo aver verificato che continua a funzionare così
     private String getId(String taxId, String senderId) {
-        return taxId;
+        return taxId + "_" + senderId;
     }
 }

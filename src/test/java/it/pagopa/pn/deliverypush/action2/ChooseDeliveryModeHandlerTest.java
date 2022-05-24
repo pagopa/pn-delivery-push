@@ -72,16 +72,12 @@ class ChooseDeliveryModeHandlerTest {
         NotificationRecipientInt recipient =notification.getRecipients().get(0);
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
-        AddressBookEntry entry = AddressBookEntry.builder()
-                .platformDigitalAddress(
-                        DigitalAddress.builder()
-                                .type(DigitalAddress.TypeEnum.PEC)
-                                .address("Via di test")
-                                .build()
-                ).build();
 
         Mockito.when(chooseDeliveryUtils.getPlatformAddress(Mockito.any(NotificationInt.class), Mockito.anyInt()))
-                .thenReturn(Optional.of(entry));
+                .thenReturn(Optional.of(DigitalAddress.builder()
+                        .type(DigitalAddress.TypeEnum.PEC)
+                        .address("Via di test")
+                        .build()));
 
         //WHEN
         handler.chooseDeliveryTypeAndStartWorkflow(notification, recIndex);

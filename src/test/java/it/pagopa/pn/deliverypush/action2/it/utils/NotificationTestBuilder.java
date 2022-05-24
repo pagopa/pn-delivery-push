@@ -9,8 +9,9 @@ import java.util.List;
 
 public class NotificationTestBuilder {
     private String iun;
+    private String paId;
     private List<NotificationRecipientInt> recipients;
-
+    
     public NotificationTestBuilder() {
         recipients = Collections.emptyList();
     }
@@ -18,9 +19,14 @@ public class NotificationTestBuilder {
     public static NotificationTestBuilder builder() {
         return new NotificationTestBuilder();
     }
-
+    
     public NotificationTestBuilder withIun(String iun) {
         this.iun = iun;
+        return this;
+    }
+
+    public NotificationTestBuilder withPaId(String paId) {
+        this.paId = paId;
         return this;
     }
 
@@ -43,7 +49,7 @@ public class NotificationTestBuilder {
                 .sentAt(Instant.now())
                 .physicalCommunicationType(ServiceLevelTypeInt.SIMPLE_REGISTERED_LETTER)
                 .sender(NotificationSenderInt.builder()
-                        .paId(" pa_02")
+                        .paId(paId)
                         .build()
                 )
                 .recipients(recipients)

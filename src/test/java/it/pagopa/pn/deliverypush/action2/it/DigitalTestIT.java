@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.action2.it;
 
-import it.pagopa.pn.api.dto.addressbook.AddressBookEntry;
 import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
 import it.pagopa.pn.commons.abstractions.FileData;
 import it.pagopa.pn.commons.abstractions.FileStorage;
@@ -9,7 +8,6 @@ import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action2.*;
 import it.pagopa.pn.deliverypush.action2.it.mockbean.*;
-import it.pagopa.pn.deliverypush.action2.it.utils.AddressBookEntryTestBuilder;
 import it.pagopa.pn.deliverypush.action2.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action2.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action2.it.utils.TestUtils;
@@ -20,10 +18,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.service.TimelineService;
-import it.pagopa.pn.deliverypush.service.impl.NotificationServiceImpl;
-import it.pagopa.pn.deliverypush.service.impl.PaperNotificationFailedServiceImpl;
-import it.pagopa.pn.deliverypush.service.impl.StatusServiceImpl;
-import it.pagopa.pn.deliverypush.service.impl.TimeLineServiceImpl;
+import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.util.StatusUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,6 +36,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @ExtendWith(SpringExtension.class)
@@ -69,6 +65,7 @@ import java.util.List;
         TimeLineServiceImpl.class,
         PaperNotificationFailedServiceImpl.class,
         StatusServiceImpl.class,
+        AddressBookServiceImpl.class,
         CheckAttachmentUtils.class,
         NotificationUtils.class,
         PaperNotificationFailedDaoMock.class,
@@ -188,16 +185,13 @@ class DigitalTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun("IUN01")
+                .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
-
-        AddressBookEntry addressBookEntry = AddressBookEntryTestBuilder.builder()
-                .withTaxId(recipient.getTaxId())
-                .withPlatformAddress(platformAddress)
-                .build();
+        
+        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.add(addressBookEntry);
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
         
         String iun = notification.getIun();
@@ -262,15 +256,11 @@ class DigitalTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun("IUN01")
+                .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
 
-        AddressBookEntry addressBookEntry = AddressBookEntryTestBuilder.builder()
-                .withTaxId(recipient.getTaxId())
-                .build();
-
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.add(addressBookEntry);
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
@@ -320,16 +310,11 @@ class DigitalTestIT {
 
         final NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun("IUN01")
+                .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
 
-        final AddressBookEntry addressBookEntry = AddressBookEntryTestBuilder.builder()
-                .withTaxId(recipient.getTaxId())
-                .build();
-
-
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.add(addressBookEntry);
 
         String iun = notification.getIun();
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
@@ -387,16 +372,12 @@ class DigitalTestIT {
 
         final NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun("IUN01")
+                .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
 
-        final AddressBookEntry addressBookEntry = AddressBookEntryTestBuilder.builder()
-                .withTaxId(recipient.getTaxId())
-                .withPlatformAddress(platformAddress)
-                .build();
-
+        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.add(addressBookEntry);
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
@@ -447,16 +428,12 @@ class DigitalTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun("IUN01")
+                .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
-
-        AddressBookEntry addressBookEntry = AddressBookEntryTestBuilder.builder()
-                .withTaxId(recipient.getTaxId())
-                .withPlatformAddress(platformAddress)
-                .build();
-
+        
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.add(addressBookEntry);
+        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
         String iun = notification.getIun();
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
@@ -500,16 +477,12 @@ class DigitalTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun("IUN01")
+                .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
 
-        AddressBookEntry addressBookEntry = AddressBookEntryTestBuilder.builder()
-                .withTaxId(recipient.getTaxId())
-                .withPlatformAddress(platformAddress)
-                .build();
-
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.add(addressBookEntry);
+        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
         String iun = notification.getIun();
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
@@ -569,16 +542,12 @@ class DigitalTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun("IUN01")
+                .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
 
-        AddressBookEntry addressBookEntry = AddressBookEntryTestBuilder.builder()
-                .withTaxId(recipient.getTaxId())
-                .withPlatformAddress(platformAddress)
-                .build();
-
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.add(addressBookEntry);
+        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
@@ -657,16 +626,12 @@ class DigitalTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun("IUN01")
+                .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
 
-        AddressBookEntry addressBookEntry = AddressBookEntryTestBuilder.builder()
-                .withTaxId(recipient.getTaxId())
-                .withPlatformAddress(platformAddress)
-                .build();
-
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.add(addressBookEntry);
+        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
@@ -733,16 +698,12 @@ class DigitalTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun("IUN01")
+                .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
-
-        AddressBookEntry addressBookEntry = AddressBookEntryTestBuilder.builder()
-                .withTaxId(recipient.getTaxId())
-                .withPlatformAddress(platformAddress)
-                .build();
-
+        
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.add(addressBookEntry);
+        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
@@ -813,11 +774,6 @@ class DigitalTestIT {
                 .withDigitalDomicile(digitalDomicile1)
                 .build();
 
-        AddressBookEntry addressBookEntry1 = AddressBookEntryTestBuilder.builder()
-                .withTaxId(recipient1.getTaxId())
-                .withPlatformAddress(platformAddress1)
-                .build();
-
         //Secondo recipient
         DigitalAddress platformAddress2 = DigitalAddress.builder()
                 .address("test2@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
@@ -833,12 +789,6 @@ class DigitalTestIT {
                 .withTaxId("TAXID02")
                 .withDigitalDomicile(digitalDomicile2)
                 .build();
-
-        AddressBookEntry addressBookEntry2 = AddressBookEntryTestBuilder.builder()
-                .withTaxId(recipient2.getTaxId())
-                .withPlatformAddress(platformAddress2)
-                .build();
-
         
         List<NotificationRecipientInt> recipients = new ArrayList<>();
 
@@ -847,12 +797,13 @@ class DigitalTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun("IUN01")
+                .withPaId("paId01")
                 .withNotificationRecipients(recipients)
                 .build();
 
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.add(addressBookEntry1);
-        addressBookMock.add(addressBookEntry2);
+        addressBookMock.addLegalDigitalAddresses(recipient1.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress1));
+        addressBookMock.addLegalDigitalAddresses(recipient2.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress2));
 
         String iun = notification.getIun();
         Integer recIndex1 = notificationUtils.getRecipientIndex(notification, recipient1.getTaxId());
