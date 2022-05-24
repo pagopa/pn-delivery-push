@@ -27,35 +27,6 @@ tags:
 
 
 paths:
-  
-
-  '/delivery-push/{iun}/history':
-    get:
-      summary: Storico eventi notifica
-      description: >-
-        Legge e restituisce la timeline di una notifica, il suo stato e la storia dei 
-        suoi cambiamenti di stato.
-        <br/>
-        L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
-      tags:
-        - TimelineAndStatus
-      operationId: getNotificationHistory
-      parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'
-        - $ref: '#/components/parameters/cxTypeAuthFleet'
-        - $ref: '#/components/parameters/cxIdAuthFleet'
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'
-        - $ref: '#/components/parameters/pathIun'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/NotificationHistoryResponse"
-        '400':
-          description: Bad request
-  
       
   '/delivery-push/{iun}/legal-facts':
     get:
@@ -140,7 +111,7 @@ components:
       required: true
       schema:
         type: string
-
+        
     ############################################################################################
     ###                      PARAMETRI RICERCA ATTI OPPONIBILI A TERZI                       ###
     ############################################################################################
@@ -161,26 +132,3 @@ components:
       required: true
       schema:
         type: string
-  
-  schemas:
-    
-    ############################################################################################
-    ###                        INFORMAZIONI STORICHE DI UNA NOTIFICA                         ###
-    ############################################################################################
-    
-    NotificationHistoryResponse:
-      type: object
-      properties:
-        notificationStatus:
-          $ref: './schemas-pn-status-v1.yaml#/components/schemas/NotificationStatus'
-        notificationStatusHistory:
-          $ref: './schemas-pn-status-v1.yaml#/components/schemas/NotificationStatusHistory'
-        timeline:
-          description: >-
-            elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
-          type: array
-          items:
-            $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/TimelineElement'
-
-
-

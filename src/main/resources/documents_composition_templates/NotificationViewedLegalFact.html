@@ -164,6 +164,7 @@
         Ai sensi dell'art. 26, comma 11, del decreto-legge, la PagoPA s.p.a. nella sua qualità di gestore ex lege della Piattaforma Notifiche Digitali di cui allo stesso art. 26, con ogni valore legale per l'opponibilità a terzi, ATTESTA CHE:
       </p>
 
+
       <p class="paragraph">
         gli atti di cui alla notifica identificata con IUN <strong>${iun}</strong> sono stati gestiti come segue:
       </p>
@@ -195,8 +196,8 @@
           <div class="left-col col-5-10">
             <p>
             <strong>
-              <#if recipient.digitalDomicile??>
-                ${recipient.digitalDomicile.address}
+              <#if recipient.getDigitalDomicile()??>
+                ${recipient.getDigitalDomicile().getAddress()}
                <#else>
                 non presente
               </#if>

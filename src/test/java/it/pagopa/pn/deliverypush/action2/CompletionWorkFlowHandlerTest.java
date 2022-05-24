@@ -1,11 +1,5 @@
 package it.pagopa.pn.deliverypush.action2;
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
@@ -13,6 +7,11 @@ import it.pagopa.pn.deliverypush.action2.utils.CompletelyUnreachableUtils;
 import it.pagopa.pn.deliverypush.action2.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
@@ -64,16 +63,16 @@ class CompletionWorkFlowHandlerTest {
     @Test
     void completionDigitalWorkflowSuccess() {
         //GIVEN
-        Notification notification = getNotification();
-        NotificationRecipient recipient = notification.getRecipients().get(0);
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        NotificationInt notification = getNotification();
+        NotificationRecipientInt recipient = notification.getRecipients().get(0);
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
         
         TimeParams times = new TimeParams();
         times.setSchedulingDaysSuccessDigitalRefinement(Duration.ofSeconds(1));
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
 
         Mockito.when( legalFactDao.savePecDeliveryWorkflowLegalFact(
-                Mockito.anyList(), Mockito.any( Notification.class ), Mockito.any( NotificationRecipient.class )
+                Mockito.anyList(), Mockito.any( NotificationInt.class ), Mockito.any( NotificationRecipientInt.class )
         )).thenReturn( "" );
 
         Instant notificationDate = Instant.now();
@@ -96,16 +95,16 @@ class CompletionWorkFlowHandlerTest {
     @Test
     void completionDigitalWorkflowFailure() {
         //GIVEN
-        Notification notification = getNotification();
-        NotificationRecipient recipient = notification.getRecipients().get(0);
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        NotificationInt notification = getNotification();
+        NotificationRecipientInt recipient = notification.getRecipients().get(0);
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
         
         TimeParams times = new TimeParams();
         times.setSchedulingDaysFailureDigitalRefinement(Duration.ofSeconds(1));
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
 
         Mockito.when( legalFactDao.savePecDeliveryWorkflowLegalFact(
-                    Mockito.anyList(), Mockito.any( Notification.class ), Mockito.any( NotificationRecipient.class )
+                    Mockito.anyList(), Mockito.any( NotificationInt.class ), Mockito.any( NotificationRecipientInt.class )
                 )).thenReturn( "" );
 
         Instant notificationDate = Instant.now();
@@ -114,7 +113,7 @@ class CompletionWorkFlowHandlerTest {
         handler.completionDigitalWorkflow(notification, recIndex, notificationDate, recipient.getDigitalDomicile(), EndWorkflowStatus.FAILURE);
 
         //THEN
-        Mockito.verify(externalChannelSendHandler).sendNotificationForRegisteredLetter(Mockito.any(Notification.class), Mockito.any(PhysicalAddress.class), Mockito.anyInt());
+        Mockito.verify(externalChannelSendHandler).sendNotificationForRegisteredLetter(Mockito.any(NotificationInt.class), Mockito.any(PhysicalAddress.class), Mockito.anyInt());
 
         Mockito.verify(timelineUtils).buildFailureDigitalWorkflowTimelineElement(Mockito.anyString(),
                 Mockito.anyInt(), Mockito.anyString());
@@ -131,9 +130,9 @@ class CompletionWorkFlowHandlerTest {
     @Test
     void completionAnalogWorkflowSuccess() {
         //GIVEN
-        Notification notification = getNotification();
-        NotificationRecipient recipient = notification.getRecipients().get(0);
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        NotificationInt notification = getNotification();
+        NotificationRecipientInt recipient = notification.getRecipients().get(0);
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         Instant notificationDate = Instant.now();
 
@@ -158,9 +157,9 @@ class CompletionWorkFlowHandlerTest {
     @Test
     void completionAnalogWorkflowFailure() {
         //GIVEN
-        Notification notification = getNotification();
-        NotificationRecipient recipient = notification.getRecipients().get(0);
-        int recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        NotificationInt notification = getNotification();
+        NotificationRecipientInt recipient = notification.getRecipients().get(0);
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         Instant notificationDate = Instant.now();
 
@@ -181,23 +180,20 @@ class CompletionWorkFlowHandlerTest {
         Assertions.assertEquals(schedulingDateOk, schedulingDateCaptor.getValue());
     }
 
-    private Notification getNotification() {
-        return Notification.builder()
+    private NotificationInt getNotification() {
+        return NotificationInt.builder()
                 .iun("IUN_01")
                 .paNotificationId("protocol_01")
-                .subject("Subject 01")
-                .cancelledByIun("IUN_05")
-                .cancelledIun("IUN_00")
-                .sender(NotificationSender.builder()
+                .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()
                 )
                 .recipients(Collections.singletonList(
-                        NotificationRecipient.builder()
+                        NotificationRecipientInt.builder()
                                 .taxId("testIdRecipient")
                                 .denomination("Nome Cognome/Ragione Sociale")
                                 .digitalDomicile(DigitalAddress.builder()
-                                        .type(DigitalAddressType.PEC)
+                                        .type(DigitalAddress.TypeEnum.PEC)
                                         .address("account@dominio.it")
                                         .build())
                                 .physicalAddress(PhysicalAddress.builder()

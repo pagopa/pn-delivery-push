@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.action2.it.mockbean;
 
 import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFailed;
-import it.pagopa.pn.deliverypush.middleware.failednotificationdao.PaperNotificationFailedDao;
+import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,7 +25,7 @@ public class PaperNotificationFailedDaoMock implements PaperNotificationFailedDa
     }
 
     @Override
-    public Set<PaperNotificationFailed> getNotificationByRecipientId(String recipientId) {
+    public Set<PaperNotificationFailed> getPaperNotificationFailedByRecipientId(String recipientId) {
         return paperNotificationsFailed.stream().filter(paperNotificationFailed -> recipientId.equals(paperNotificationFailed.getRecipientId())).collect(Collectors.toSet());
     }
 

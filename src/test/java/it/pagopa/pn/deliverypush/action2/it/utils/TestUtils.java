@@ -1,15 +1,14 @@
 package it.pagopa.pn.deliverypush.action2.it.utils;
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.deliverypush.action2.utils.EndWorkflowStatus;
 import it.pagopa.pn.api.dto.events.PnExtChnEmailEvent;
 import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressSource;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
-import it.pagopa.pn.api.dto.notification.timeline.*;
 import it.pagopa.pn.deliverypush.action2.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action2.it.mockbean.ExternalChannelMock;
+import it.pagopa.pn.deliverypush.action2.utils.EndWorkflowStatus;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.timeline.EventId;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Assertions;
 import org.mockito.ArgumentCaptor;
@@ -29,7 +28,7 @@ public class TestUtils {
     public static final String PUBLIC_REGISTRY_FAIL_GET_ANALOG_ADDRESS = "PUBLIC_REGISTRY_FAIL_GET_ANALOG_ADDRESS";
 
 
-    public static void checkSendCourtesyAddresses(String iun, int recIndex, List<DigitalAddress> courtesyAddresses, TimelineService timelineService, ExternalChannelMock externalChannelMock) {
+    public static void checkSendCourtesyAddresses(String iun, Integer recIndex, List<DigitalAddress> courtesyAddresses, TimelineService timelineService, ExternalChannelMock externalChannelMock) {
 
         int index = 0;
         for (DigitalAddress digitalAddress : courtesyAddresses) {
@@ -39,18 +38,18 @@ public class TestUtils {
                             .recIndex(recIndex)
                             .index(index)
                             .build());
-            Optional<SendCourtesyMessageDetails> sendCourtesyMessageDetailsOpt = timelineService.getTimelineElement(iun, eventId, SendCourtesyMessageDetails.class);
+            Optional<SendCourtesyMessageDetails> sendCourtesyMessageDetailsOpt = timelineService.getTimelineElementDetails(iun, eventId, SendCourtesyMessageDetails.class);
 
             Assertions.assertTrue(sendCourtesyMessageDetailsOpt.isPresent());
             SendCourtesyMessageDetails sendCourtesyMessageDetails = sendCourtesyMessageDetailsOpt.get();
-            Assertions.assertEquals(digitalAddress, sendCourtesyMessageDetails.getAddress());
+            Assertions.assertEquals(digitalAddress, sendCourtesyMessageDetails.getDigitalAddress());
             index++;
         }
         //Viene verificato l'effettivo invio del messaggio di cortesia verso external channel
         Mockito.verify(externalChannelMock, Mockito.times(courtesyAddresses.size())).sendNotification(Mockito.any(PnExtChnEmailEvent.class));
     }
 
-    public static void checkGetAddress(String iun, int recIndex, Boolean isAvailable, DigitalAddressSource source, int sentAttempt, TimelineService timelineService) {
+    public static void checkGetAddress(String iun, Integer recIndex, Boolean isAvailable, DigitalAddressSource source, int sentAttempt, TimelineService timelineService) {
         String correlationId = TimelineEventId.GET_ADDRESS.buildEventId(
                 EventId.builder()
                         .iun(iun)
@@ -59,12 +58,12 @@ public class TestUtils {
                         .index(sentAttempt)
                         .build());
 
-        Optional<GetAddressInfo> getAddressInfoOpt = timelineService.getTimelineElement(iun, correlationId, GetAddressInfo.class);
+        Optional<GetAddressInfo> getAddressInfoOpt = timelineService.getTimelineElementDetails(iun, correlationId, GetAddressInfo.class);
         Assertions.assertTrue(getAddressInfoOpt.isPresent());
-        Assertions.assertEquals(isAvailable, getAddressInfoOpt.get().isAvailable());
+        Assertions.assertEquals(isAvailable, getAddressInfoOpt.get().getIsAvailable());
     }
 
-    public static void checkSendPaperToExtChannel(String iun, int recIndex, PhysicalAddress physicalAddress, int sendAttempt, TimelineService timelineService) {
+    public static void checkSendPaperToExtChannel(String iun, Integer recIndex, PhysicalAddress physicalAddress, int sendAttempt, TimelineService timelineService) {
         String eventIdFirstSend = TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(
                 EventId.builder()
                         .iun(iun)
@@ -72,13 +71,13 @@ public class TestUtils {
                         .index(sendAttempt)
                         .build());
 
-        Optional<SendPaperDetails> sendPaperDetailsOpt = timelineService.getTimelineElement(iun, eventIdFirstSend, SendPaperDetails.class);
+        Optional<SendPaperDetails> sendPaperDetailsOpt = timelineService.getTimelineElementDetails(iun, eventIdFirstSend, SendPaperDetails.class);
         Assertions.assertTrue(sendPaperDetailsOpt.isPresent());
-        SendPaperDetails firstSendPaperDetails = sendPaperDetailsOpt.get();
-        Assertions.assertEquals(physicalAddress, firstSendPaperDetails.getAddress());
+        SendPaperDetails sendPaperDetails = sendPaperDetailsOpt.get();
+        Assertions.assertEquals(physicalAddress, sendPaperDetails.getPhysicalAddress());
     }
 
-    public static void checkSuccessAnalogWorkflow(String iun, int recIndex, TimelineService timelineService, CompletionWorkFlowHandler completionWorkflow) {
+    public static void checkSuccessAnalogWorkflow(String iun, Integer recIndex, TimelineService timelineService, CompletionWorkFlowHandler completionWorkflow) {
         //Viene verificato che il workflow abbia avuto successo
         Assertions.assertTrue(timelineService.getTimelineElement(
                 iun,
@@ -90,7 +89,7 @@ public class TestUtils {
 
         ArgumentCaptor<EndWorkflowStatus> endWorkflowStatusArgumentCaptor = ArgumentCaptor.forClass(EndWorkflowStatus.class);
         ArgumentCaptor<Integer> recIndexCaptor = ArgumentCaptor.forClass(Integer.class);
-        ArgumentCaptor<Notification> notificationCaptor = ArgumentCaptor.forClass(Notification.class);
+        ArgumentCaptor<NotificationInt> notificationCaptor = ArgumentCaptor.forClass(NotificationInt.class);
 
         Mockito.verify(completionWorkflow, Mockito.times(1)).completionAnalogWorkflow(
                 notificationCaptor.capture(), recIndexCaptor.capture(), Mockito.any(Instant.class), Mockito.any(PhysicalAddress.class), endWorkflowStatusArgumentCaptor.capture()
@@ -100,7 +99,7 @@ public class TestUtils {
         Assertions.assertEquals(EndWorkflowStatus.SUCCESS, endWorkflowStatusArgumentCaptor.getValue());
     }
 
-    public static void checkSuccessDigitalWorkflow(String iun, int recIndex, TimelineService timelineService,
+    public static void checkSuccessDigitalWorkflow(String iun, Integer recIndex, TimelineService timelineService,
                                                    CompletionWorkFlowHandler completionWorkflow, DigitalAddress address,
                                                    int invocationsNumber, int invocation) {
         //Viene verificato che il workflow abbia avuto successo
@@ -114,7 +113,7 @@ public class TestUtils {
 
         ArgumentCaptor<EndWorkflowStatus> endWorkflowStatusArgumentCaptor = ArgumentCaptor.forClass(EndWorkflowStatus.class);
         ArgumentCaptor<Integer> recIndexCaptor = ArgumentCaptor.forClass(Integer.class);
-        ArgumentCaptor<Notification> notificationCaptor = ArgumentCaptor.forClass(Notification.class);
+        ArgumentCaptor<NotificationInt> notificationCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<DigitalAddress> addressCaptor = ArgumentCaptor.forClass(DigitalAddress.class);
 
         Mockito.verify(completionWorkflow, Mockito.times(invocationsNumber)).completionDigitalWorkflow(
@@ -123,7 +122,7 @@ public class TestUtils {
 
         List<EndWorkflowStatus> endWorkflowStatusArgumentCaptorValue = endWorkflowStatusArgumentCaptor.getAllValues();
         List<Integer> recIndexCaptorValue = recIndexCaptor.getAllValues();
-        List<Notification> notificationCaptorValue = notificationCaptor.getAllValues();
+        List<NotificationInt> notificationCaptorValue = notificationCaptor.getAllValues();
         List<DigitalAddress> addressCaptorValue = addressCaptor.getAllValues();
 
         Assertions.assertEquals(recIndex, recIndexCaptorValue.get(invocation));
@@ -132,7 +131,7 @@ public class TestUtils {
         Assertions.assertEquals(address, addressCaptorValue.get(invocation));
     }
 
-    public static void checkFailDigitalWorkflow(String iun, int recIndex, TimelineService timelineService, CompletionWorkFlowHandler completionWorkflow) {
+    public static void checkFailDigitalWorkflow(String iun, Integer recIndex, TimelineService timelineService, CompletionWorkFlowHandler completionWorkflow) {
         //Viene verificato che il workflow sia fallito
         Assertions.assertTrue(timelineService.getTimelineElement(
                 iun,
@@ -143,7 +142,7 @@ public class TestUtils {
                                 .build())).isPresent());
 
         ArgumentCaptor<EndWorkflowStatus> endWorkflowStatusArgumentCaptor = ArgumentCaptor.forClass(EndWorkflowStatus.class);
-        ArgumentCaptor<Notification> notificationCaptor = ArgumentCaptor.forClass(Notification.class);
+        ArgumentCaptor<NotificationInt> notificationCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<Integer> recIndexCaptor = ArgumentCaptor.forClass(Integer.class);
 
         Mockito.verify(completionWorkflow, Mockito.times(1)).completionDigitalWorkflow(
@@ -154,7 +153,7 @@ public class TestUtils {
         Assertions.assertEquals(EndWorkflowStatus.FAILURE, endWorkflowStatusArgumentCaptor.getValue());
     }
 
-    public static void checkRefinement(String iun, int recIndex, TimelineService timelineService) {
+    public static void checkRefinement(String iun, Integer recIndex, TimelineService timelineService) {
         Assertions.assertTrue(timelineService.getTimelineElement(
                 iun,
                 TimelineEventId.REFINEMENT.buildEventId(

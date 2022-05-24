@@ -1,18 +1,27 @@
 package it.pagopa.pn.deliverypush.actions;
-
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+/*
 import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
+<<<<<<< HEAD
+=======
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.middleware.failednotificationdao.PaperNotificationFailedDao;
+>>>>>>> develop
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
+<<<<<<< HEAD
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactUtils;
+import it.pagopa.pn.deliverypush.middleware.failednotificationdao.PaperNotificationFailedDao;
+=======
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
+>>>>>>> develop
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -104,7 +113,7 @@ class NotificationViewedActionHandlerTest {
                 .subject("Subject 01")
                 .cancelledByIun("IUN_05")
                 .cancelledIun("IUN_00")
-                .sender(NotificationSender.builder()
+                .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()
                 )
@@ -121,3 +130,4 @@ class NotificationViewedActionHandlerTest {
                 .build();
     }
 }
+*/

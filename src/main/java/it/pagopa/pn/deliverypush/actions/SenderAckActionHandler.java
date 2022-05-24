@@ -1,11 +1,11 @@
 package it.pagopa.pn.deliverypush.actions;
-
+/*
 import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.notification.timeline.ReceivedDetails;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
+import ReceivedDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
@@ -47,13 +47,13 @@ public class SenderAckActionHandler extends AbstractActionHandler {
         }
 
         // - WRITE TIMELINE
-        addTimelineElement(action, TimelineElement.builder()
+        addTimelineElement(action, TimelineElementInternal.timelineInternalBuilder()
                 .category(TimelineElementCategory.REQUEST_ACCEPTED)
                 .details(ReceivedDetails.builder()
                         .recipients(notification.getRecipients())
                         .documentsDigests(notification.getDocuments()
                                 .stream()
-                                .map(NotificationAttachment::getDigests)
+                                .map(NotificationDocumentInt::getDigests)
                                 .collect(Collectors.toList())
                         )
                         .build()
@@ -68,3 +68,5 @@ public class SenderAckActionHandler extends AbstractActionHandler {
         return ActionType.SENDER_ACK;
     }
 }
+
+ */

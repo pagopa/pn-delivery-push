@@ -1,5 +1,5 @@
 package it.pagopa.pn.deliverypush.actions;
-
+/*
 import java.util.Collections;
 import java.util.Optional;
 
@@ -7,14 +7,14 @@ import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import org.springframework.stereotype.Component;
 
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
-import it.pagopa.pn.api.dto.notification.timeline.SendDigitalDetails;
-import it.pagopa.pn.api.dto.notification.timeline.SendDigitalFeedbackDetails;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import NotificationPathChooseDetails;
+import SendDigitalDetails;
+import SendDigitalFeedbackDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
@@ -50,7 +50,7 @@ public class ReceivePecActionHandler extends AbstractActionHandler {
                 getTimelineElement( action, ActionType.CHOOSE_DELIVERY_MODE, NotificationPathChooseDetails.class );
         if( addresses.isPresent() ) {
             DigitalAddress address = action.getDigitalAddressSource().getAddressFrom(addresses.get());
-            addTimelineElement(action, TimelineElement.builder()
+            addTimelineElement(action, TimelineElementInternal.timelineInternalBuilder()
                     .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE_FEEDBACK)
                     .details(new SendDigitalFeedbackDetails(SendDigitalDetails.sendBuilder()
                             .taxId(recipient.getTaxId())
@@ -72,3 +72,6 @@ public class ReceivePecActionHandler extends AbstractActionHandler {
         return ActionType.RECEIVE_PEC;
     }
 }
+
+
+ */

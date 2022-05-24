@@ -1,10 +1,6 @@
 package it.pagopa.pn.deliverypush.action2.it.utils;
 
-import it.pagopa.pn.api.dto.events.ServiceLevelType;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.NotificationSender;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -13,7 +9,7 @@ import java.util.List;
 
 public class NotificationTestBuilder {
     private String iun;
-    private List<NotificationRecipient> recipients;
+    private List<NotificationRecipientInt> recipients;
 
     public NotificationTestBuilder() {
         recipients = Collections.emptyList();
@@ -28,49 +24,48 @@ public class NotificationTestBuilder {
         return this;
     }
 
-    public NotificationTestBuilder withNotificationRecipient(NotificationRecipient recipient) {
+    public NotificationTestBuilder withNotificationRecipient(NotificationRecipientInt recipient) {
         this.recipients = Collections.singletonList(
                 recipient
         );
         return this;
     }
 
-    public NotificationTestBuilder withNotificationRecipients(List<NotificationRecipient> recipientCollections) {
+    public NotificationTestBuilder withNotificationRecipients(List<NotificationRecipientInt> recipientCollections) {
         this.recipients = recipientCollections;
         return this;
     }
 
-    public Notification build() {
-        return Notification.builder()
+    public NotificationInt build() {
+        return NotificationInt.builder()
                 .iun(iun)
                 .paNotificationId("protocol_01")
-                .subject("Subject 01")
                 .sentAt(Instant.now())
-                .physicalCommunicationType(ServiceLevelType.SIMPLE_REGISTERED_LETTER)
-                .sender(NotificationSender.builder()
+                .physicalCommunicationType(ServiceLevelTypeInt.SIMPLE_REGISTERED_LETTER)
+                .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()
                 )
                 .recipients(recipients)
                 .documents(Arrays.asList(
-                        NotificationAttachment.builder()
-                                .ref(NotificationAttachment.Ref.builder()
+                        NotificationDocumentInt.builder()
+                                .ref(NotificationDocumentInt.Ref.builder()
                                         .key("key_doc00")
                                         .versionToken("v01_doc00")
                                         .build()
                                 )
-                                .digests(NotificationAttachment.Digests.builder()
+                                .digests(NotificationDocumentInt.Digests.builder()
                                         .sha256("sha256_doc00")
                                         .build()
                                 )
                                 .build(),
-                        NotificationAttachment.builder()
-                                .ref(NotificationAttachment.Ref.builder()
+                        NotificationDocumentInt.builder()
+                                .ref(NotificationDocumentInt.Ref.builder()
                                         .key("key_doc01")
                                         .versionToken("v01_doc01")
                                         .build()
                                 )
-                                .digests(NotificationAttachment.Digests.builder()
+                                .digests(NotificationDocumentInt.Digests.builder()
                                         .sha256("sha256_doc01")
                                         .build()
                                 )

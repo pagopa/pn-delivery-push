@@ -5,5 +5,9 @@ import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFai
 import java.util.List;
 
 public interface PaperNotificationFailedService {
-    List<PaperNotificationFailed> getPaperNotificationsFailed(String recipientId);
+    void addPaperNotificationFailed(PaperNotificationFailed paperNotificationFailed);
+    
+    void deleteNotificationFailed(String recipientId, String iun);
+
+    List<PaperNotificationFailed> getPaperNotificationByRecipientId(String recipientId);
 }

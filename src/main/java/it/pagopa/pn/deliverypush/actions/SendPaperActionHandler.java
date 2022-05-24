@@ -1,15 +1,5 @@
 package it.pagopa.pn.deliverypush.actions;
-
-import it.pagopa.pn.api.dto.addressbook.AddressBookEntry;
-import it.pagopa.pn.api.dto.events.CommunicationType;
-import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
-import it.pagopa.pn.api.dto.notification.timeline.SendPaperDetails;
-import it.pagopa.pn.api.dto.notification.timeline.SendPaperFeedbackDetails;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
+/*
 import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.pnclients.addressbook.AddressBook;
@@ -17,6 +7,11 @@ import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.PnExtChnPaperEvent;
+import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBookEntry;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.middleware.timelinedao.TimelineDao;
 import lombok.Value;
 import org.springframework.stereotype.Component;
@@ -104,7 +99,7 @@ public class SendPaperActionHandler extends AbstractActionHandler {
             this.paperRequestProducer.push(event);
 
             // - Write timeline
-            addTimelineElement(action, TimelineElement.builder()
+            addTimelineElement(action, TimelineElementInternal.timelineInternalBuilder()
                     .category(TimelineElementCategory.SEND_ANALOG_DOMICILE)
                     .details(SendPaperDetails.builder()
                             .taxId(recipient.getTaxId())
@@ -182,3 +177,5 @@ public class SendPaperActionHandler extends AbstractActionHandler {
     }
 
 }
+
+ */

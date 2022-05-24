@@ -1,5 +1,5 @@
 <html>
-	<head>
+<head>
     <style type="text/css" media="all">
       @font-face {
         font-family: 'Montserrat';
@@ -19,10 +19,10 @@
         margin: 22mm 10mm 32mm 10mm;
 
         @top-left {
-          content: element(header); 
+          content: element(header);
         }
 
-        @bottom-center { 
+        @bottom-center {
           content: element(footer);
         }
       }
@@ -134,119 +134,132 @@
         list-style-type: disc;
         list-style-position: inside;
       }
-    </style>
-	</head>
-	<body>
-		<div class="container">
 
-			<div id="header" class="row">
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div id="header" class="row">
         <div class="left-col">
-          <img src="images/pn-logo-header.png" />
+            <img src="images/pn-logo-header.png"/>
         </div>
-      </div>
-			<!-- Se il footer viene messo in fondo al documento compare solo nell'ultima pagina -->
-      <div id="footer" class="row">
+    </div>
+    <!-- Se il footer viene messo in fondo al documento compare solo nell'ultima pagina -->
+    <div id="footer" class="row">
         <div class="left-col">
-          <p>PagoPA S.p.A.</p>
-          <p>società per azioni con socio unico</p>
-          <p>capitale sociale di euro 1,000,000 interamente versato</p>
-          <p>sede legale in Roma, Piazza Colonna 370, CAP 00187</p>
-          <p>n. di iscrizione a Registro Imprese di Roma, CF e P.IVA 15376371009</p>
+            <p>PagoPA S.p.A.</p>
+            <p>società per azioni con socio unico</p>
+            <p>capitale sociale di euro 1,000,000 interamente versato</p>
+            <p>sede legale in Roma, Piazza Colonna 370, CAP 00187</p>
+            <p>n. di iscrizione a Registro Imprese di Roma, CF e P.IVA 15376371009</p>
         </div>
         <div class="right-col">
-          <img src="images/pn-logo-footer.png" />
+            <img src="images/pn-logo-footer.png"/>
         </div>
-      </div>
+    </div>
 
-      <h3 id="subject">Attestazione opponibile a terzi</h3>
-      
-      <p class="paragraph">
-        Ai sensi dell'art. 26, comma 11, del decreto-legge, la PagoPA s.p.a. nella sua qualità di gestore ex lege della Piattaforma Notifiche Digitali di cui allo stesso art. 26, con ogni valore legale per l'opponibilità a terzi, ATTESTA CHE:
-      </p>
+    <h3 id="subject">Attestazione opponibile a terzi</h3>
 
-      <p class="paragraph">
-        in data <strong>${sendDate}</strong> il soggetto mittente <strong>${notification.sender.paDenomination}</strong>, C.F. <strong>${notification.sender.taxId}</strong> ha messo a disposizione del gestore i documenti informatici di cui allo IUN <strong>${notification.iun}</strong> e identificati in modo univoco con i seguenti hash:
-      </p>
-      
-      <p class="paragraph">
-        <ul class="hash-list">
-          <#list digests as digest>
-            <li><strong>${digest};</strong></li>
-          </#list>
-        </ul>
-      </p>
+    <p class="paragraph">
+        Ai sensi dell'art. 26, comma 11, del decreto-legge, la PagoPA s.p.a. nella sua qualità di
+        gestore ex lege della Piattaforma Notifiche Digitali di cui allo stesso art. 26, con ogni
+        valore legale per l'opponibilità a terzi, ATTESTA CHE:
+    </p>
 
-      <p class="paragraph">
-        il soggetto mittente ha richiesto che la notificazione di tali documenti fosse eseguita nei confronti dei seguenti soggetti destinatari che in seguito alle verifiche di cui all’art. 7, commi 1 e 2, del DPCM del -........, sono indicati unitamente al loro domicilio digitale o in assenza al loro indirizzo fisico utile ai fini della notificazione richiesta:
-      </p>
+    <p class="paragraph">
+        in data <strong>${sendDate}</strong>
+        il soggetto mittente <strong>${notification.getSender().getPaDenomination()}</strong>,
+        C.F. <strong>${notification.getSender().getPaTaxId()}</strong>
+        ha messo a disposizione del gestore i documenti informatici di cui allo IUN
+        <strong>${notification.getIun()}</strong> e identificati in modo univoco con i seguenti
+        hash:
+    </p>
 
-      <#list notification.recipients as recipient>
-      <div class="margin-y-small">
+    <p class="paragraph">
+    <ul class="hash-list">
+        <#list digests as digest>
+        <li><strong>${digest};</strong></li>
+       </#list>
+    </ul>
+    </p>
+
+    <p class="paragraph">
+        il soggetto mittente ha richiesto che la notificazione di tali documenti fosse eseguita nei
+        confronti dei seguenti soggetti destinatari che in seguito alle verifiche di cui all’art. 7,
+        commi 1 e 2, del DPCM del -........, sono indicati unitamente al loro domicilio digitale o
+        in assenza al loro indirizzo fisico utile ai fini della notificazione richiesta:
+    </p>
+
+    <#list notification.recipients as recipient>
+    <div class="margin-y-small">
 
         <div class="row">
-          <div class="left-col col-5-10">
-            <p>Nome e Cognome / Ragione Sociale</p>
-          </div>
-          <div class="left-col col-5-10">
-            <p><strong>${recipient.denomination}</strong></p>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="left-col col-5-10">
-            <p>Codice Fiscale</p>
-          </div>
-          <div class="left-col col-5-10">
-            <p><strong>${recipient.taxId}</strong></p>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="left-col col-5-10">
-            <p>Domicilio digitale</p>
-          </div>
-          <div class="left-col col-5-10">
-            <p>
-              <strong>
-                <#if recipient.digitalDomicile??>
-                  ${recipient.digitalDomicile.address}
-                <#else>
-                  non presente
-                </#if>
-              </strong>
-            </p>
-          </div>
+            <div class="left-col col-5-10">
+                <p>Nome e Cognome / Ragione Sociale</p>
+            </div>
+            <div class="left-col col-5-10">
+                <p><strong>${recipient.denomination}</strong></p>
+            </div>
         </div>
 
         <div class="row">
-          <div class="left-col col-5-10">
-            <p>Indirizzo fisico</p>
-          </div>
-          <div class="left-col col-5-10">
-            <p>
-              <strong>
-              <#if addressWriter.nullSafePhysicalAddressToString( recipient.physicalAddress, recipient.denomination, '<br/>')??>
-                ${addressWriter.nullSafePhysicalAddressToString( recipient.physicalAddress, recipient.denomination, '<br/>')}
-              <#else>
-                non presente
-              </#if>
-              </strong>
-            </p>
-          </div>
+            <div class="left-col col-5-10">
+                <p>Codice Fiscale</p>
+            </div>
+            <div class="left-col col-5-10">
+                <p><strong>${recipient.taxId}</strong></p>
+            </div>
         </div>
-      
-      </div>
-      </#list>
 
-      <div class="row margin-top-large">
-        <div class="left-col col-5-10">
-          <p>Data, ${sendDateNoTime}</p>
+        <div class="row">
+            <div class="left-col col-5-10">
+                <p>Domicilio digitale</p>
+            </div>
+            <div class="left-col col-5-10">
+                <p>
+                    <strong>
+                        <#if recipient.getDigitalDomicile()??>
+                        ${recipient.getDigitalDomicile().getAddress()}
+                        <#else>
+                        non presente
+                    </#if>
+                    </strong>
+                </p>
+            </div>
         </div>
-        <div class="left-col col-5-10">
-          <p class="right">Firmato digitalmente da PagoPA S.p.A.</p>
+
+        <div class="row">
+            <div class="left-col col-5-10">
+                <p>Indirizzo fisico</p>
+            </div>
+            <div class="left-col col-5-10">
+                <p>
+                    <strong>
+                        <#if addressWriter.nullSafePhysicalAddressToString(
+                        recipient.physicalAddress, recipient.denomination, '<br/>')??>
+                        ${addressWriter.nullSafePhysicalAddressToString( recipient.physicalAddress,
+                        recipient.denomination, '<br/>')}
+                        <#else>
+                        non presente
+                    </#if>
+                    </strong>
+                </p>
+            </div>
         </div>
-      </div>
-		</div>
-	</body>
+
+    </div>
+</#list>
+
+<div class="row margin-top-large">
+    <div class="left-col col-5-10">
+        <p>Data, ${sendDateNoTime}</p>
+    </div>
+    <div class="left-col col-5-10">
+        <p class="right">Firmato digitalmente da PagoPA S.p.A.</p>
+    </div>
+</div>
+</div>
+</body>
 </html>
 

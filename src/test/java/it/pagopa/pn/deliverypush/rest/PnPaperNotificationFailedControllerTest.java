@@ -34,7 +34,7 @@ class PnPaperNotificationFailedControllerTest {
         List<PaperNotificationFailed> listPaperNot = new ArrayList<>();
         listPaperNot.add(paperNotificationFailed);
 
-        Mockito.when(service.getPaperNotificationsFailed(Mockito.anyString()))
+        Mockito.when(service.getPaperNotificationByRecipientId(Mockito.anyString()))
                 .thenReturn(listPaperNot);
         
         webTestClient.get()
@@ -47,6 +47,6 @@ class PnPaperNotificationFailedControllerTest {
                 .isOk()
                 .expectBody(List.class);
 
-        Mockito.verify(service).getPaperNotificationsFailed(Mockito.anyString());
+        Mockito.verify(service).getPaperNotificationByRecipientId(Mockito.anyString());
     }
 }

@@ -1,14 +1,14 @@
 package it.pagopa.pn.deliverypush.actions;
-
+/*
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatus;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
-import it.pagopa.pn.api.dto.notification.timeline.SendPaperFeedbackDetails;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+
+import SendPaperFeedbackDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
@@ -69,7 +69,7 @@ class PecFailReceivePaperFeedbackActionHandlerTest {
         NotificationRecipient recipient = notification.getRecipients().get(action.getRecipientIndex());
 
         Mockito.when(timelineDao.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Optional.of(TimelineElement.builder()
+                .thenReturn(Optional.of(TimelineElementInternal.timelineInternalBuilder()
                         .category(TimelineElementCategory.SEND_PAPER_FEEDBACK)
                         .details(new SendPaperFeedbackDetails(
                                 recipient.getPhysicalAddress(),
@@ -99,7 +99,7 @@ class PecFailReceivePaperFeedbackActionHandlerTest {
                 .subject("Subject 01")
                 .cancelledByIun("IUN_05")
                 .cancelledIun("IUN_00")
-                .sender(NotificationSender.builder()
+                .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()
                 )
@@ -116,3 +116,6 @@ class PecFailReceivePaperFeedbackActionHandlerTest {
                 .build();
     }
 }
+
+
+ */

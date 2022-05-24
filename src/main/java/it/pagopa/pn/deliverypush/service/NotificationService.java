@@ -1,8 +1,7 @@
 package it.pagopa.pn.deliverypush.service;
 
-import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 
 public interface NotificationService {
-    Notification getNotificationByIun(String iun);
-
+    NotificationInt getNotificationByIun(String iun);
 }

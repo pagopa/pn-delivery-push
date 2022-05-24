@@ -13,54 +13,54 @@
         font-weight: bold;
         font-style: normal;
       }
-  
+
       @page {
         size: A4;
         margin: 22mm 10mm 32mm 10mm;
-  
+
         @top-left {
-          content: element(header); 
+          content: element(header);
         }
-  
-        @bottom-center { 
+
+        @bottom-center {
           content: element(footer);
         }
       }
-  
+
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
       }
-  
+
       body {
         font-size: 16px;
         font-family: "Montserrat", sans-serif;
         font-weight: 400;
       }
-  
+
       p {
         margin: 0;
         padding: 0;
         line-height: 1.5em;
       }
-  
+
       a {
         color: inherit;
       }
-  
+
       #header {
         position: running(header);
         font-size: 14px
       }
-  
+
       #header img {
         margin-top: 15mm;
         width: 119px;
         height: 35px;
         /* 85x25 */
       }
-  
+
       #footer {
         position: running(footer);
         font-size: 8px;
@@ -69,18 +69,18 @@
         padding-top: 3mm;
         margin-bottom: 10mm;
       }
-  
+
       #footer p {
         margin: 0;
         padding: 0;
         line-height: 1em;
       }
-  
+
       #footer img {
         width: 45px;
         height: 45px;
       }
-  
+
       .row {
         width: 100%;
       }
@@ -89,15 +89,15 @@
         display: block;
         clear: both;
       }
-  
+
       .left-col {
         float: left;
       }
-  
+
       .right-col {
         float: right;
       }
-  
+
       .col-1-10 { width: 10%; }
       .col-2-10 { width: 20%; }
       .col-3-10 { width: 30%; }
@@ -107,29 +107,29 @@
       .col-7-10 { width: 70%; }
       .col-8-10 { width: 80%; }
       .col-9-10 { width: 90%; }
-  
+
       .margin-top-medium { margin-top: 10mm; }
       .margin-top-large { margin-top: 15mm; }
-  
+
       .margin-y-small { margin: 5mm 0; }
       .margin-y-medium { margin: 10mm 0; }
-  
+
       .right {
         text-align: right;
       }
-  
+
       #subject {
         font-size: 20px;
         margin: 7mm 0;
         margin-top: 4mm;
       }
-  
+
       .paragraph {
         margin: 7mm 0;
         /* text-align: justify;
         text-justify: inter-word; */
       }
-  
+
       .hash-list li {
         list-style-type: disc;
         list-style-position: inside;
@@ -159,7 +159,7 @@
       </div>
 
       <h3 id="subject">Attestazione opponibile a terzi</h3>
-      
+
       <p class="paragraph">
         Ai sensi dell'art. 26, comma 11, del decreto-legge, la PagoPA s.p.a. nella sua qualità di gestore ex lege della Piattaforma Notifiche Digitali di cui allo stesso art. 26, con ogni valore legale per l'opponibilità a terzi, ATTESTA CHE:
       </p>
@@ -168,9 +168,8 @@
         gli atti di cui alla notifica identificata con <strong>${iun}</strong> sono stati gestiti come segue:
       </p>
 
-      <div class="margin-y-small">
-      
       <#list deliveries as delivery>
+      <div class="margin-y-small">
         <div class="row">
           <div class="left-col col-5-10">
             <p>Nome e Cognome / Ragione Sociale</p>
@@ -201,8 +200,8 @@
               </#if></p>
           </div>
         </div>
-      
-      </div>      
+
+      </div>
 		<#if delivery.ok>
 			<div class="paragraph">
 				il relativo avviso di avvenuta ricezione in formato elettronico è stato consegnato in data ${delivery.responseDate}.
