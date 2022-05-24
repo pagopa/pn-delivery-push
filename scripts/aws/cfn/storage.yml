@@ -48,51 +48,6 @@ Resources:
             ExposedHeaders:
               - "x-amz-version-id"
 
-  WebhookBufferTable:
-    Type: AWS::Cassandra::Table
-    Properties:
-      TableName: webhook_buffer
-      KeyspaceName: !Sub '${ProjectName}_delivery'
-      PointInTimeRecoveryEnabled: true
-      PartitionKeyColumns:
-        - ColumnName: senderid
-          ColumnType: text
-      ClusteringKeyColumns:
-        - Column:
-            ColumnName: statuschangetime
-            ColumnType: timestamp
-          OrderBy: ASC
-        - Column:
-            ColumnName: iun
-            ColumnType: text
-          OrderBy: ASC
-      RegularColumns:
-        - ColumnName: notificationelement
-          ColumnType: text
-
-  WebhookConfigsTable:
-    Type: AWS::Cassandra::Table
-    Properties:
-      TableName: webhook_configs
-      KeyspaceName: !Sub '${ProjectName}_delivery'
-      PointInTimeRecoveryEnabled: true
-      PartitionKeyColumns:
-        - ColumnName: paid
-          ColumnType: text
-      RegularColumns:
-        - ColumnName: url
-          ColumnType: text
-        - ColumnName: since
-          ColumnType: timestamp
-        - ColumnName: active
-          ColumnType: boolean
-        - ColumnName: type
-          ColumnType: text
-        - ColumnName: allnotifications
-          ColumnType: boolean
-        - ColumnName: notificationselement
-          ColumnType: set<text>
-
   # Internal queues
   ScheduledActionsQueue:
     Type: AWS::CloudFormation::Stack
@@ -201,12 +156,6 @@ Resources:
       BillingMode: "PAY_PER_REQUEST"
       
 Outputs:
-
-  # Keyvalue store
-  KeyspaceName:
-    Description: Keyspace Name used by application to access the key-value store
-    Value: !Sub '${ProjectName}_delivery'
-
 
   # Legal facts S3 bucket
   LegalFactsBucketName:

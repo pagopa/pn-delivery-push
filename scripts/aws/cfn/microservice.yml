@@ -99,11 +99,6 @@ Parameters:
     Type: String
     Description: 'Send done actions to this queue read by webhook'
 
-
-  KeyspaceName:
-    Type: String
-    Description: 'Where to write database data'
-
   LegalFactsBucketName:
     Type: String
     Description: 'Where to write documents files'
@@ -214,8 +209,9 @@ Resources:
         ContainerEnvEntry16: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_RECIPIENTVIEWMAXTIMEFORDIGITAL=${RecipientTimeoutDelayDigital}'
         ContainerEnvEntry17: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_RECIPIENTVIEWMAXTIMEFORANALOG=${RecipientTimeoutDelayAnalog}'
         ContainerEnvEntry18: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_REFINEMENTTIMEFORCOMPLETELYUNREACHABLE=${RefinementTimeCompletelyUnreachable}'
-        ContainerEnvEntry19: !Sub 'SPRING_DATA_CASSANDRA_KEYSPACENAME=${KeyspaceName}'
-        ContainerEnvEntry20: 'SPRING_DATA_CASSANDRA_SSL=true'
+        ContainerEnvEntry19: !Sub 'PN_DELIVERYPUSH_DATAVAULTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        #ContainerEnvEntry19: !Sub 'SPRING_DATA_CASSANDRA_KEYSPACENAME=${KeyspaceName}'
+        #ContainerEnvEntry20: 'SPRING_DATA_CASSANDRA_SSL=true'
         ContainerEnvEntry21: !Sub 'SPRING_DATA_CASSANDRA_CONTACTPOINTS=cassandra.${AWS::Region}.${AWS::URLSuffix}:9142'
 # WAIT for real client certificates (PN-565)
 #        ContainerEnvEntry21:
@@ -228,7 +224,7 @@ Resources:
 #            - '='
 #            - - CLIENT_KEY_PEM
 #              - '{{resolve:secretsmanager:pa_webhook_client_cert:SecretString:client_key_pem}}'
-        ContainerEnvEntry22: 'PN_DELIVERYPUSH_FEATUREFLAGS_WORKFLOW=v1'
+        ContainerEnvEntry22: 'PN_DELIVERYPUSH_FEATUREFLAGS_WORKFLOW=v2'
         ContainerEnvEntry23: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry24: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
         ContainerEnvEntry25: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
@@ -237,7 +233,6 @@ Resources:
         ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_FUTUREACTIONDAO_TABLENAME=${FutureActionDynamoTableName}'
         ContainerEnvEntry29: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_TABLENAME=${LastPollForFutureActionDynamoTableName}'
         ContainerEnvEntry30: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_LOCKTABLENAME=${PnDeliveryPushShedLockDynamoTableName}'
-        ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_DATAVAULTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
