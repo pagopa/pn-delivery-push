@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.datavault;
+package it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.api.FileDownloadApi;
