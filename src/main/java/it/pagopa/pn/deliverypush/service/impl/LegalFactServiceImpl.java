@@ -111,7 +111,7 @@ public class LegalFactServiceImpl implements LegalFactService {
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + buildLegalFactFilename(iun, legalFactType, legalfactId))
                     .contentType(MediaType.parseMediaType(fileDownloadResponse.getContentType()))
                     .body( new UrlResource(fileDownloadResponse.getDownload().getUrl()) );
-        } catch (MalformedURLException e) {
+        } catch (Exception e) {
             log.error("cannot stream content", e);
             throw new PnInternalException("Cannot get legal fact content", e);
         }
