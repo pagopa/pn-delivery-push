@@ -44,6 +44,8 @@ public class NotificationTestBuilder {
                 .physicalCommunicationType(ServiceLevelTypeInt.SIMPLE_REGISTERED_LETTER)
                 .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
+                        .paDenomination(" Una PA di test")
+                        .paTaxId("TESTPA02")
                         .build()
                 )
                 .recipients(recipients)

@@ -25,6 +25,7 @@ public class NotificationMapper {
                 .sentAt(sentNotification.getSentAt())
                 .sender(
                         NotificationSenderInt.builder()
+                                .paTaxId( sentNotification.getSenderTaxId() )
                                 .paId(sentNotification.getSenderPaId())
                                 .paDenomination(sentNotification.getSenderDenomination())
                                 .build()
@@ -150,6 +151,13 @@ public class NotificationMapper {
         sentNotification.setIun(notification.getIun());
         sentNotification.setPaProtocolNumber(notification.getPaNotificationId());
         sentNotification.setSentAt(notification.getSentAt());
+
+        NotificationSenderInt sender = notification.getSender();
+        if( sender != null ) {
+            sentNotification.setSenderDenomination( sender.getPaDenomination() );
+            sentNotification.setSenderPaId( sender.getPaId() );
+            sentNotification.setSenderTaxId( sender.getPaTaxId() );
+        }
 
         List<NotificationRecipient> recipients = notification.getRecipients().stream()
                 .map(NotificationMapper::getNotificationRecipient).collect(Collectors.toList());
