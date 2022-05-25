@@ -18,6 +18,10 @@ public class PnDeliveryPushConfigs {
     
     private String dataVaultBaseUrl;
 
+    private String safeStorageBaseUrl;
+
+    private String safeStorageCxId;
+
     private TimeParams timeParams;
 
     private Topics topics;

@@ -15,6 +15,7 @@ import it.pagopa.pn.deliverypush.action2.it.mockbean.PublicRegistryMock;
 import it.pagopa.pn.deliverypush.action2.it.mockbean.SchedulerServiceMock;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBook;
+import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.datavault.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.legalfacts.*;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
@@ -37,8 +38,8 @@ public class AbstractWorkflowTestConfiguration {
     }
     
     @Bean
-    public FileStorage fileStorageTest() {
-        return Mockito.mock(FileStorage.class);
+    public PnSafeStorageClient safeStorageTest() {
+        return Mockito.mock(PnSafeStorageClient.class);
     }
 
     @Bean
@@ -56,10 +57,9 @@ public class AbstractWorkflowTestConfiguration {
     }
     
     @Bean
-    public LegalFactDao LegalFactsTest(FileStorage fileStorage,
-                                       LegalFactGenerator pdfUtils,
-                                       LegalfactsMetadataUtils legalfactMetadataUtils) {
-        return new LegalFactDao(fileStorage, pdfUtils, legalfactMetadataUtils);
+    public LegalFactDao LegalFactsTest(PnSafeStorageClient safeStorageClient,
+                                       LegalFactGenerator pdfUtils) {
+        return new LegalFactDao(pdfUtils, safeStorageClient);
     }
 
     @Bean

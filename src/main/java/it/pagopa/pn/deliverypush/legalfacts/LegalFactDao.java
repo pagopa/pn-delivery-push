@@ -1,59 +1,56 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
-import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
+import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.datavault.FileCreationWithContentRequest;
+import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.datavault.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendDigitalFeedback;
 import org.springframework.stereotype.Component;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 
 @Component
 public class LegalFactDao {
 
-    private final static String SAVE_LEGAL_FACT_EXCEPTION_MESSAGE = "Generating %s legal fact for IUN=%s and recipientId=%s";
+    public static final String PN_NOTIFICATION_ATTACHMENTS = "PN_NOTIFICATION_ATTACHMENTS";
+    public static final String PRELOADED = "PRELOADED";
+
+    private static final String SAVE_LEGAL_FACT_EXCEPTION_MESSAGE = "Generating %s legal fact for IUN=%s and recipientId=%s";
     public static final String LEGALFACTS_MEDIATYPE_STRING = "application/pdf";
-    private final FileStorage fileStorage;
     private final LegalFactGenerator legalFactBuilder;
-    private final LegalfactsMetadataUtils legalFactMetadataUtils;
 
-    public LegalFactDao(FileStorage fileStorage,
-                        LegalFactGenerator legalFactBuilder,
-                        LegalfactsMetadataUtils legalFactMetadataUtils
-    ) {
-        this.fileStorage = fileStorage;
+    private final PnSafeStorageClient safeStorageClient;
+
+    public LegalFactDao(LegalFactGenerator legalFactBuilder,
+                        PnSafeStorageClient safeStorageClient) {
         this.legalFactBuilder = legalFactBuilder;
-        this.legalFactMetadataUtils = legalFactMetadataUtils;
+        this.safeStorageClient = safeStorageClient;
     }
 
-    String saveLegalFact(String iun, String name, byte[] legalFact, Map<String, String> metadata) throws IOException {
-        String key = legalFactMetadataUtils.fullKey(iun, name);
-        try (InputStream bodyStream = new ByteArrayInputStream(legalFact)) {
-            fileStorage.putFileVersion(key, bodyStream, legalFact.length, LEGALFACTS_MEDIATYPE_STRING, metadata);
-        }
-        return key;
+    String saveLegalFact(byte[] legalFact) {
+        FileCreationWithContentRequest fileCreationRequest = new FileCreationWithContentRequest();
+        fileCreationRequest.setContentType(LEGALFACTS_MEDIATYPE_STRING);
+        fileCreationRequest.setDocumentType(PN_NOTIFICATION_ATTACHMENTS);
+        fileCreationRequest.setStatus(PRELOADED);
+        fileCreationRequest.setContent(legalFact);
+        FileCreationResponse fileCreationResponse = safeStorageClient.createAndUploadContent(fileCreationRequest);
+
+        return fileCreationResponse.getKey();
     }
-    
+
 /*x
     @Deprecated
     public String saveNotificationReceivedLegalFact(Action action, NotificationInt notification) {
         return saveNotificationReceivedLegalFact( notification );
     }*/
-    
+
     public String saveNotificationReceivedLegalFact(NotificationInt notification) {
         try {
-            Map<String, String> metadata = legalFactMetadataUtils.buildMetadata(
-                    LegalFactCategory.SENDER_ACK, null
-                );
-            byte[] pdfBytes = legalFactBuilder.generateNotificationReceivedLegalFact(notification);
-            return this.saveLegalFact(notification.getIun(), "sender_ack", pdfBytes, metadata);
+            return this.saveLegalFact(legalFactBuilder.generateNotificationReceivedLegalFact(notification));
         }
         catch ( IOException exc ) {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "REQUEST_ACCEPTED",  notification.getIun(), "N/A");
@@ -98,13 +95,8 @@ public class LegalFactDao {
     ) {
 
         try {
-            Map<String, String> metadata = legalFactMetadataUtils.buildMetadata(
-                    LegalFactCategory.DIGITAL_DELIVERY, recipient.getTaxId()
-                );
-
-            byte[] pdfBytes = legalFactBuilder.generatePecDeliveryWorkflowLegalFact(
-                                        listFeedbackFromExtChannel, notification, recipient);
-            return this.saveLegalFact(notification.getIun(), "digital_delivery_info_" + recipient.getTaxId(), pdfBytes, metadata);
+            return this.saveLegalFact(legalFactBuilder.generatePecDeliveryWorkflowLegalFact(
+                    listFeedbackFromExtChannel, notification, recipient));
         }
         catch ( IOException exc ) {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "DIGITAL_DELIVERY",  notification.getIun(), recipient.getTaxId());
@@ -128,13 +120,8 @@ public class LegalFactDao {
             Instant timeStamp
     ) {
        try {
-            String taxId = recipient.getTaxId();
-            Map<String, String> metadata = legalFactMetadataUtils.buildMetadata(
-                    LegalFactCategory.RECIPIENT_ACCESS, taxId
-                );
-            byte[] pdfBytes = legalFactBuilder.generateNotificationViewedLegalFact(
-                                                   notification.getIun(), recipient, timeStamp);
-            return this.saveLegalFact(notification.getIun(), "notification_viewed_" + taxId, pdfBytes, metadata);
+            return this.saveLegalFact(legalFactBuilder.generateNotificationViewedLegalFact(
+                    notification.getIun(), recipient, timeStamp));
         }
         catch ( IOException exc ) {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "NOTIFICATION_VIEWED",  notification.getIun(), recipient.getTaxId());

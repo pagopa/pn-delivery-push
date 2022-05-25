@@ -6,6 +6,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
+import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.datavault.FileCreationWithContentRequest;
+import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.datavault.PnSafeStorageClient;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,62 +16,62 @@ import org.junit.platform.commons.util.StringUtils;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import it.pagopa.pn.commons.abstractions.FileStorage;
+import static org.mockito.Mockito.when;
+
 
 class LegalFactUtilsTest {
     private LegalFactDao legalFactDao;
-    private FileStorage fileStorage;
     private LegalFactGenerator pdfUtils;
-    
-    private final Map<String, String> metadata = new HashMap<>();
+    private PnSafeStorageClient safeStorageClient;
+
     
     @BeforeEach
     public void setup() {
-        fileStorage = Mockito.mock(FileStorage.class);
         pdfUtils = Mockito.mock(LegalFactGenerator.class);
+        safeStorageClient = Mockito.mock(PnSafeStorageClient.class);
         legalFactDao = new LegalFactDao(
-                fileStorage,
                 pdfUtils,
-                new LegalfactsMetadataUtils() );
-        metadata.put("Content-Type", "application/pdf; charset=utf-8");
+                safeStorageClient
+                );
     }
     
     @Test
-    void successSaveLegalFact() throws IOException {
+    void successSaveLegalFact() {
         //Given
         String iun = "TestIun1";
         String legalFactName = "TestLegalFact";
         byte[] legalFact = new byte[] { 77, 97, 114, 121 };
-        Long expectedBodyLength = (long) legalFact.length;
-		
+        int expectedBodyLength = legalFact.length;
+
+        FileCreationResponse response = new FileCreationResponse();
+        response.setKey("123");
+        response.setSecret("abc");
+        response.setUploadUrl("https://www.unqualcheurl.it");
+        response.setUploadMethod(FileCreationResponse.UploadMethodEnum.POST);
+
+        when(safeStorageClient.createAndUploadContent(Mockito.any())).thenReturn(response);
+
         //When
-        legalFactDao.saveLegalFact(iun, legalFactName, legalFact, metadata);
+        legalFactDao.saveLegalFact(legalFact);
 
         //Then
-        ArgumentCaptor<String> keyCapture = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<InputStream> bodyCapture = ArgumentCaptor.forClass(InputStream.class);
-        ArgumentCaptor<Long> bodyLengthCapture = ArgumentCaptor.forClass(long.class);
-        ArgumentCaptor<Map> mapCapture = ArgumentCaptor.forClass(Map.class);
+        ArgumentCaptor<FileCreationWithContentRequest> argCapture = ArgumentCaptor.forClass(FileCreationWithContentRequest.class);
 
-        Mockito.verify(fileStorage).putFileVersion(
-                keyCapture.capture(),
-                bodyCapture.capture(),
-                bodyLengthCapture.capture(),
-                Mockito.anyString(),
-                mapCapture.capture()
+        Mockito.verify(safeStorageClient).createAndUploadContent(
+                argCapture.capture()
         );
         
-        Assertions.assertTrue(StringUtils.isNotBlank(keyCapture.getValue()));
+        Assertions.assertNotNull(argCapture);
            
-        byte[] body = readByte(bodyCapture.getValue());
+        byte[] body = argCapture.getValue().getContent();
         Assertions.assertArrayEquals(legalFact, body, "Different body from the expected");
   
-        Assertions.assertEquals(expectedBodyLength, bodyLengthCapture.getValue(), "Different body length from expected");
-        Assertions.assertEquals(Collections.singletonMap("Content-Type", "application/pdf; charset=utf-8"), mapCapture.getValue());
+        Assertions.assertEquals(expectedBodyLength, body.length, "Different body length from expected");
+        Assertions.assertEquals("application/pdf", argCapture.getValue().getContentType());
     }
     
     @Test
-    void onceWriterTest() throws IOException {
+    void onceWriterTest() {
         //Given
         String iun1 = "Test_iun1";
         String iun2 = "Test_iun2";
@@ -77,25 +80,22 @@ class LegalFactUtilsTest {
         byte[] legalFact1 = new byte[] { 77, 97, 114, 121 };
         byte[] legalFact2 = new byte[] { 77, 97, 114, 122 };
 
+        FileCreationResponse response = new FileCreationResponse();
+        response.setKey("123");
+        response.setSecret("abc");
+        response.setUploadUrl("https://www.unqualcheurl.it");
+        response.setUploadMethod(FileCreationResponse.UploadMethodEnum.POST);
+
+        when(safeStorageClient.createAndUploadContent(Mockito.any())).thenReturn(response);
+
         //When
-        legalFactDao.saveLegalFact(iun1, legalFactName, legalFact1, metadata);
-        legalFactDao.saveLegalFact(iun2, legalFactName, legalFact2, metadata);
+        legalFactDao.saveLegalFact(legalFact1);
+        legalFactDao.saveLegalFact(legalFact2);
 
         //Then
-        Mockito.verify(fileStorage, Mockito.times(2)).putFileVersion(
-                Mockito.anyString(),
-                Mockito.any(InputStream.class),
-                Mockito.anyLong(),
-                Mockito.anyString(),
-                Mockito.anyMap()
+        Mockito.verify(safeStorageClient, Mockito.times(2)).createAndUploadContent(
+                Mockito.any()
             );
     }
-
-    public byte[] readByte(InputStream inputStream) throws IOException {
-        byte[] array = new byte[inputStream.available()];
-        inputStream.read(array);
-
-        return array;
-   }
         
 }

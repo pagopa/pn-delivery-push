@@ -1,0 +1,11 @@
+package it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.datavault;
+
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationRequest;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+@Data
+@EqualsAndHashCode(callSuper = true)
+public class FileCreationWithContentRequest extends FileCreationRequest {
+    private byte[] content;
+}

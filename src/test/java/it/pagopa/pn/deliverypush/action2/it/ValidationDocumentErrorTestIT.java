@@ -3,10 +3,10 @@ package it.pagopa.pn.deliverypush.action2.it;
 import it.pagopa.pn.api.dto.events.PnExtChnEmailEvent;
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
 import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
-import it.pagopa.pn.commons.abstractions.FileData;
-import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action2.*;
@@ -20,6 +20,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBookEntry;
+import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.datavault.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -29,7 +30,6 @@ import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
 import it.pagopa.pn.deliverypush.validator.preloaded_digest_error.DigestEqualityBean;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -40,8 +40,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.validation.ConstraintViolation;
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashSet;
@@ -107,7 +106,7 @@ class ValidationDocumentErrorTestIT {
     private ExternalChannelMock externalChannelMock;
     
     @SpyBean
-    private FileStorage fileStorage;
+    private PnSafeStorageClient safeStorageClient;
 
     @SpyBean
     private NotificationReceiverValidator notificationReceiverValidator;
@@ -153,12 +152,18 @@ class ValidationDocumentErrorTestIT {
         //Mock for get current date
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
         
-        //File mock to return for getFileVersion
-        FileData fileData = FileData.builder()
-                .content( new ByteArrayInputStream("Body".getBytes(StandardCharsets.UTF_8)) )
-                .build();
-        Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
-                .thenReturn( fileData );
+        //File mock to return for getFileAndDownloadContent
+        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
+        fileDownloadResponse.setContentType("application/pdf");
+        fileDownloadResponse.setContentLength(new BigDecimal(0));
+        fileDownloadResponse.setChecksum("123");
+        fileDownloadResponse.setKey("123");
+        fileDownloadResponse.setDownload(new FileDownloadInfo());
+        fileDownloadResponse.getDownload().setUrl("https://www.url.qualcosa.it");
+        fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
+
+        Mockito.when( safeStorageClient.getFile( Mockito.anyString(), Mockito.eq(false)))
+                .thenReturn( fileDownloadResponse );
         
         //Clear mock
         pnDeliveryClientMock.clear();
@@ -169,7 +174,7 @@ class ValidationDocumentErrorTestIT {
         pnDataVaultClientMock.clear();
     }
 
-    @Test @Disabled // TODO riabilitare dopo integrazione con safe storage
+    @Test
     void workflowTest() throws IdConflictException {
         
         // GIVEN

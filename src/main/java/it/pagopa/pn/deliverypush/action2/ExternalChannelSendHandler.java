@@ -46,6 +46,7 @@ public class ExternalChannelSendHandler {
 
     /**
      * Send registered letter to external channel
+     * to use when all pec send fails
      */
     public void sendNotificationForRegisteredLetter(NotificationInt notification, PhysicalAddress physicalAddress, Integer recIndex) {
         PnExtChnPaperEvent pnExtChnPaperEvent = externalChannelUtils.getExtChannelPaperRequest(notification, physicalAddress, recIndex);
@@ -55,6 +56,7 @@ public class ExternalChannelSendHandler {
 
     /**
      * Send paper notification to external channel
+     *
      */
     public void sendAnalogNotification(NotificationInt notification, PhysicalAddress physicalAddress, Integer recIndex, boolean investigation, int sentAttemptMade) {
         PnExtChnPaperEvent pnExtChnPaperEvent = externalChannelUtils.getExtChannelPaperRequest(notification, physicalAddress, recIndex, investigation, sentAttemptMade);
