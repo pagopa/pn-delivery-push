@@ -15,6 +15,8 @@ public class RestTemplateFactoryActivation extends RestTemplateFactory {
     @Primary
     @Override
     public RestTemplate restTemplateWithTracing() {
-        return super.restTemplateWithTracing();
+        RestTemplate restTemplate =  super.restTemplateWithTracing();
+        restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
+        return restTemplate;
     }
 }

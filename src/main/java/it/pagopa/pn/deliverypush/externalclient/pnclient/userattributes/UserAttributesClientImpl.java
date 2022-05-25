@@ -30,11 +30,11 @@ public class UserAttributesClientImpl implements UserAttributesClient {
     @Override
     public ResponseEntity<List<LegalDigitalAddress>> getLegalAddressBySender(String taxId, String senderId) {
         log.debug("Start getPlatformDigitalAddress for taxId={} senderId {}",taxId, senderId);
-
+        
         ResponseEntity<List<LegalDigitalAddress>> resp = legalApi.getLegalAddressBySenderWithHttpInfo(taxId, senderId);
         
         log.debug("Response to getPlatformDigitalAddress for taxId={} senderId {}, have status code {}",taxId, senderId, resp.getStatusCode());
-
+        
         return resp;
     }
 

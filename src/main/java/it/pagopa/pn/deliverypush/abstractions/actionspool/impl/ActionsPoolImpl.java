@@ -88,7 +88,6 @@ public class ActionsPoolImpl implements ActionsPool {
     @Scheduled( fixedDelay = 10 * 1000L )
     @SchedulerLock(name = "actionPoll", lockAtMostFor = "1m", lockAtLeastFor = "30s")
     protected void pollForFutureActions() {
-        log.debug("Start action scheduling");
         // To assert that the lock is held (prevents misconfiguration errors)
         LockAssert.assertLocked();
 
@@ -103,12 +102,10 @@ public class ActionsPoolImpl implements ActionsPool {
                 lastPollExecuted = clock.instant().minus(2, ChronoUnit.HOURS);
             }
         }
-        log.debug("Action pool start poll {}", lastPollExecuted);
 
         Instant now = clock.instant();
         List<String> uncheckedTimeSlots = computeTimeSlots(lastPollExecuted, now);
         for ( String timeSlot: uncheckedTimeSlots) {
-            log.debug("Check time slot {}", timeSlot);
             actionService.findActionsByTimeSlot(timeSlot).stream()
                     .filter(action -> now.isAfter(action.getNotBefore()))
                     .forEach(action -> this.scheduleOne(action, timeSlot));

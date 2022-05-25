@@ -37,7 +37,7 @@ public class PnDeliveryClientImpl implements PnDeliveryClient{
         log.debug("Start getNotificationInfo for iun={}", iun);
         
         ResponseEntity<SentNotification> res = pnDeliveryApi.getSentNotificationPrivateWithHttpInfo(iun);
-        log.debug("Response getNotificationInfo for iun {} is {}", iun, res);
+        log.debug("Response getNotificationInfo OK for iun {}", iun);
         
         return res;
     }
