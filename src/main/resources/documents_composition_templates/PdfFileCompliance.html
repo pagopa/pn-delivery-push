@@ -13,54 +13,54 @@
         font-weight: bold;
         font-style: normal;
       }
-
+  
       @page {
         size: A4;
         margin: 22mm 10mm 32mm 10mm;
-
+  
         @top-left {
           content: element(header); 
         }
-
+  
         @bottom-center { 
           content: element(footer);
         }
       }
-
+  
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
       }
-
+  
       body {
         font-size: 16px;
         font-family: "Montserrat", sans-serif;
         font-weight: 400;
       }
-
+  
       p {
         margin: 0;
         padding: 0;
         line-height: 1.5em;
       }
-
+  
       a {
         color: inherit;
       }
-
+  
       #header {
         position: running(header);
         font-size: 14px
       }
-
+  
       #header img {
         margin-top: 15mm;
         width: 119px;
         height: 35px;
         /* 85x25 */
       }
-
+  
       #footer {
         position: running(footer);
         font-size: 8px;
@@ -69,18 +69,18 @@
         padding-top: 3mm;
         margin-bottom: 10mm;
       }
-
+  
       #footer p {
         margin: 0;
         padding: 0;
         line-height: 1em;
       }
-
+  
       #footer img {
         width: 45px;
         height: 45px;
       }
-
+  
       .row {
         width: 100%;
       }
@@ -89,15 +89,15 @@
         display: block;
         clear: both;
       }
-
+  
       .left-col {
         float: left;
       }
-
+  
       .right-col {
         float: right;
       }
-
+  
       .col-1-10 { width: 10%; }
       .col-2-10 { width: 20%; }
       .col-3-10 { width: 30%; }
@@ -107,29 +107,29 @@
       .col-7-10 { width: 70%; }
       .col-8-10 { width: 80%; }
       .col-9-10 { width: 90%; }
-
+  
       .margin-top-medium { margin-top: 10mm; }
       .margin-top-large { margin-top: 15mm; }
-
+  
       .margin-y-small { margin: 5mm 0; }
       .margin-y-medium { margin: 10mm 0; }
-
+  
       .right {
         text-align: right;
       }
-
+  
       #subject {
         font-size: 20px;
         margin: 7mm 0;
         margin-top: 4mm;
       }
-
+  
       .paragraph {
         margin: 7mm 0;
         /* text-align: justify;
         text-justify: inter-word; */
       }
-
+  
       .hash-list li {
         list-style-type: disc;
         list-style-position: inside;
@@ -161,64 +161,16 @@
       <h3 id="subject">Attestazione opponibile a terzi</h3>
       
       <p class="paragraph">
-        Ai sensi dell'art. 26, comma 11, del decreto-legge, la PagoPA s.p.a. nella sua qualità di gestore ex lege della Piattaforma Notifiche Digitali di cui allo stesso art. 26, con ogni valore legale per l'opponibilità a terzi, ATTESTA CHE:
-      </p>
-
-
-      <p class="paragraph">
-        gli atti di cui alla notifica identificata con IUN <strong>${iun}</strong> sono stati gestiti come segue:
-      </p>
-
-      <div class="margin-y-small">
-
-        <div class="row">
-          <div class="left-col col-5-10">
-            <p>Nome e Cognome / Ragione Sociale</p>
-          </div>
-          <div class="left-col col-5-10">
-            <p><strong>${recipient.denomination}</strong></p>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="left-col col-5-10">
-            <p>C. F.</p>
-          </div>
-          <div class="left-col col-5-10">
-            <p><strong>${recipient.taxId}</strong></p>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="left-col col-5-10">
-            <p>Domicilio digitale</p>
-          </div>
-          <div class="left-col col-5-10">
-            <p>
-            <strong>
-              <#if recipient.getDigitalDomicile()??>
-                ${recipient.getDigitalDomicile().getAddress()}
-               <#else>
-                non presente
-              </#if>
-            </strong>
-            </p>
-          </div>
-        </div>
-      
-      </div>
-
-      <p class="paragraph">
-        in data <strong>${when}</strong> il destinatario ha avuto accesso ai documenti informatici oggetto di notifica e associati allo IUN già indicato.
+        Ai sensi dell’art. 12, comma 1, lett. h) del DPCM ______________, la PagoPA s.p.a., nella sua qualità di gestore ex lege della Piattaforma Notifiche Digitali di cui all’art. 26 del D.L. 76 del 16 luglio 2020 , con ogni valore legale, ATTESTA CHE:
       </p>
 
       <p class="paragraph">
-        Si segnala che ogni successivo accesso ai medesimi documenti non è oggetto della presente attestazione in quanto irrilevante ai fini del perfezionamento della notificazione.
+        ai sensi e per gli effetti del combinato disposto degli artt. 16 decies e 16 undecies, comma 3 del D.L. 179/2012, convertito dalla L. 221/2012, che il file ${pdfFileName}.pdf, contenente la copia per immagine dell'avviso di avvenuta ricezione cartaceo di cui all'impronta ${signature}, Riferimento temporale: ${timeReference}, è conforme all’originale dal quale è stato estratto.
       </p>
 
       <div class="row margin-top-large">
         <div class="left-col col-5-10">
-          <p>Data, ${sendDateNoTime}</p>
+          <p>Data, ${sendDate}</p>
         </div>
         <div class="left-col col-5-10">
           <p class="right">Firmato digitalmente da PagoPA S.p.A.</p>
