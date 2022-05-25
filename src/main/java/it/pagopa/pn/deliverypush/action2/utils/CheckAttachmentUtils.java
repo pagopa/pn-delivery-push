@@ -50,26 +50,19 @@ public class CheckAttachmentUtils {
     }
 
     private void checkAttachment(NotificationDocumentInt attachment) {
-        try {
-            NotificationDocumentInt.Ref ref = attachment.getRef();
+        NotificationDocumentInt.Ref ref = attachment.getRef();
 
-            FileDownloadResponse fd = safeStorageClient.getFile(ref.getKey(),true);
+        FileDownloadResponse fd = safeStorageClient.getFile(ref.getKey(),true);
 
-            String attachmentKey = fd.getKey();
+        String attachmentKey = fd.getKey();
 
-            log.debug( "Check preload digest for attachment with key={}", attachmentKey);
-            validator.checkPreloadedDigests(
-                    attachmentKey,
-                    attachment.getDigests(),
-                    NotificationDocumentInt.Digests.builder()
-                            .sha256( fd.getChecksum() )
-                            .build()
-            );
-        } catch (PnInternalException e) {
-            throw e;
-        } catch (Exception e) {
-            log.error("Cannot check attachment", e);
-            throw new PnInternalException("Cannot check attachment", e);
-        }
+        log.debug( "Check preload digest for attachment with key={}", attachmentKey);
+        validator.checkPreloadedDigests(
+                attachmentKey,
+                attachment.getDigests(),
+                NotificationDocumentInt.Digests.builder()
+                        .sha256( fd.getChecksum() )
+                        .build()
+        );
     }
 }

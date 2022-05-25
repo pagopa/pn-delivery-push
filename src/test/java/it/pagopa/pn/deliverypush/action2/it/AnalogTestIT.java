@@ -1,9 +1,10 @@
 package it.pagopa.pn.deliverypush.action2.it;
 
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
-import it.pagopa.pn.commons.abstractions.FileData;
-import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action2.*;
@@ -15,6 +16,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBookEntry;
+import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.datavault.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
@@ -33,6 +35,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.ByteArrayInputStream;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
@@ -96,10 +99,10 @@ class AnalogTestIT {
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     @SpyBean
-    private ExternalChannelMock externalChannelMock;
+    private PnSafeStorageClient safeStorageClientMock;
 
     @SpyBean
-    private FileStorage fileStorage;
+    private ExternalChannelMock externalChannelMock;
 
     @SpyBean
     private CompletionWorkFlowHandler completionWorkflow;
@@ -141,13 +144,29 @@ class AnalogTestIT {
 
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
-        FileData fileData = FileData.builder()
-                .content( new ByteArrayInputStream("Body".getBytes(StandardCharsets.UTF_8)) )
-                .build();
+        //File mock to return for getFileAndDownloadContent
+        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
+        fileDownloadResponse.setContentType("application/pdf");
+        fileDownloadResponse.setContentLength(new BigDecimal(0));
+        fileDownloadResponse.setChecksum("123");
+        fileDownloadResponse.setKey("123");
+        fileDownloadResponse.setDownload(new FileDownloadInfo());
+        fileDownloadResponse.getDownload().setUrl("https://www.url.qualcosa.it");
+        fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
+
+
+        FileCreationResponse fileCreationResponse = new FileCreationResponse();
+        fileCreationResponse.setKey("123");
+        fileCreationResponse.setSecret("abc");
+        fileCreationResponse.setUploadUrl("https://www.unqualcheurl.it");
+        fileCreationResponse.setUploadMethod(FileCreationResponse.UploadMethodEnum.POST);
+
+
+        Mockito.when( safeStorageClientMock.getFile( Mockito.anyString(), Mockito.anyBoolean()))
+                .thenReturn( fileDownloadResponse );
+        Mockito.when( safeStorageClientMock.createAndUploadContent(Mockito.any())).thenReturn(fileCreationResponse);
 
         // Given
-        Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
-                .thenReturn( fileData );
 
         pnDeliveryClientMock.clear();
         addressBookMock.clear();

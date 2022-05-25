@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
@@ -30,8 +31,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class LegalFactServiceImplTest {
 
@@ -69,6 +69,8 @@ class LegalFactServiceImplTest {
         );
 
     }
+
+
 
     @Test
     void getLegalFactsSuccess() {
@@ -138,6 +140,29 @@ class LegalFactServiceImplTest {
         assertNotNull( result );
     }
 
+
+    @Test
+    void getLegalFactBadUrl() {
+        //Given
+
+        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
+        fileDownloadResponse.setContentType("application/pdf");
+        fileDownloadResponse.setContentLength(new BigDecimal(0));
+        fileDownloadResponse.setChecksum("123");
+        fileDownloadResponse.setKey("123");
+        fileDownloadResponse.setDownload(new FileDownloadInfo());
+        fileDownloadResponse.getDownload().setUrl("error not a url");
+        fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
+
+        //When
+        Mockito.when( safeStorageClient.getFile( Mockito.anyString(), Mockito.eq(false) ) )
+                .thenReturn( fileDownloadResponse );
+        Mockito.when( notificationService.getNotificationByIun( Mockito.anyString() ) )
+                .thenReturn( newNotification() );
+
+        assertThrows(PnInternalException.class, () -> legalFactService.getLegalfact( IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID));
+    }
+
     @Test
     void getAnalogLegalFactSuccess() {
         //Given
@@ -170,10 +195,52 @@ class LegalFactServiceImplTest {
                 .thenReturn( urls );
         Mockito.when( notificationService.getNotificationByIun( Mockito.anyString() ) )
                 .thenReturn( newNotification() );
-        
+
         ResponseEntity<Resource> result = legalFactService.getLegalfact( IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID);
         //Then
         assertNotNull( result );
+    }
+
+    @Test
+    void getAnalogLegalFactMetadataSuccess() {
+        //Given
+        NotificationAttachment.Ref ref = NotificationAttachment.Ref.builder()
+                .key( KEY )
+                .versionToken( VERSION_TOKEN )
+                .build();
+
+
+        String[] urls = new String[1];
+        try {
+            Path path = Files.createTempFile( null,null );
+            urls[0] =  new File(path.toString()).toURI().toURL().toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
+        fileDownloadResponse.setContentType("application/pdf");
+        fileDownloadResponse.setContentLength(new BigDecimal(0));
+        fileDownloadResponse.setChecksum("123");
+        fileDownloadResponse.setKey("123");
+        fileDownloadResponse.setDownload(new FileDownloadInfo());
+        fileDownloadResponse.getDownload().setUrl("https://www.url.qualcosa.it");
+        fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
+
+        //When
+        Mockito.when( safeStorageClient.getFile( Mockito.anyString(), Mockito.eq(false) ) )
+                .thenReturn( fileDownloadResponse );
+        Mockito.when( externalChannelClient.getResponseAttachmentUrl( Mockito.any(String[].class) ))
+                .thenReturn( urls );
+        Mockito.when( notificationService.getNotificationByIun( Mockito.anyString() ) )
+                .thenReturn( newNotification() );
+
+        LegalFactDownloadMetadataResponse result = legalFactService.getLegalFactMetadata( IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID);
+        //Then
+        assertNotNull( result );
+        assertNotNull(result.getFilename());
+        assertEquals(fileDownloadResponse.getDownload().getUrl(), result.getUrl());
+        assertEquals(fileDownloadResponse.getDownload().getRetryAfter(), result.getRetryAfter());
+        assertEquals(fileDownloadResponse.getContentLength(), result.getContentLength());
     }
 
     private NotificationInt newNotification() {

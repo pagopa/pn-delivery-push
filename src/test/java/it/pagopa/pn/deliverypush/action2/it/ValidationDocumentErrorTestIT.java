@@ -162,7 +162,7 @@ class ValidationDocumentErrorTestIT {
         fileDownloadResponse.getDownload().setUrl("https://www.url.qualcosa.it");
         fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
 
-        Mockito.when( safeStorageClient.getFile( Mockito.anyString(), Mockito.eq(false)))
+        Mockito.when( safeStorageClient.getFile( Mockito.anyString(), Mockito.anyBoolean()))
                 .thenReturn( fileDownloadResponse );
         
         //Clear mock
