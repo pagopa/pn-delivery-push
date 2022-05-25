@@ -57,7 +57,7 @@ public class PnSafeStorageClientImpl implements PnSafeStorageClient {
             FileCreationResponse fileCreationResponse = this.createFile(fileCreationRequest);
             log.debug("createAndUploadContent create file preloaded");
             this.uploadContent(fileCreationRequest, fileCreationResponse);
-            log.debug("createAndUploadContent file uploaded successfully");
+            log.info("createAndUploadContent file uploaded successfully key:{}", fileCreationResponse.getKey());
             return fileCreationResponse;
     }
 
@@ -73,9 +73,9 @@ public class PnSafeStorageClientImpl implements PnSafeStorageClient {
                     new ByteArrayInputStream(fileCreationRequest.getContent()), -1, ContentType.parse(fileCreationRequest.getContentType()));
             httppost.setEntity(reqEntity);
 
-            log.info("uploadContent Executing request " + httppost.getMethod() + " " + httppost.getURI());
+            log.debug("uploadContent Executing request " + httppost.getMethod() + " " + httppost.getURI());
             try (final CloseableHttpResponse response = httpclient.execute(httppost)) {
-                log.info(response.getStatusLine().getStatusCode() + " " + response.getStatusLine().getReasonPhrase());
+                log.debug("uploadContent response: " + response.getStatusLine().getStatusCode() + " " + response.getStatusLine().getReasonPhrase());
                 if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
                 {
                     throw new PnInternalException("File upload failed");

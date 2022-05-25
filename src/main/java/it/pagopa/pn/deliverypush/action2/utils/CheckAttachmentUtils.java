@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action2.utils;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
@@ -49,19 +50,26 @@ public class CheckAttachmentUtils {
     }
 
     private void checkAttachment(NotificationDocumentInt attachment) {
-        NotificationDocumentInt.Ref ref = attachment.getRef();
+        try {
+            NotificationDocumentInt.Ref ref = attachment.getRef();
 
-        FileDownloadResponse fd = safeStorageClient.getFile(ref.getKey(),true);
+            FileDownloadResponse fd = safeStorageClient.getFile(ref.getKey(),true);
 
-        String attachmentKey = fd.getKey();
+            String attachmentKey = fd.getKey();
 
-        log.debug( "Check preload digest for attachment with key={}", attachmentKey);
-        validator.checkPreloadedDigests(
-                attachmentKey,
-                attachment.getDigests(),
-                NotificationDocumentInt.Digests.builder()
-                        .sha256( fd.getChecksum() )
-                        .build()
-        );
+            log.debug( "Check preload digest for attachment with key={}", attachmentKey);
+            validator.checkPreloadedDigests(
+                    attachmentKey,
+                    attachment.getDigests(),
+                    NotificationDocumentInt.Digests.builder()
+                            .sha256( fd.getChecksum() )
+                            .build()
+            );
+        } catch (PnInternalException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Cannot check attachment", e);
+            throw new PnInternalException("Cannot check attachment", e);
+        }
     }
 }
