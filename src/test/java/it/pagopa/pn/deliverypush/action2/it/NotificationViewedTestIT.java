@@ -79,7 +79,7 @@ import static org.mockito.ArgumentMatchers.eq;
         ExternalChannelMock.class,
         PaperNotificationFailedDaoMock.class,
         PnDataVaultClientMock.class,
-        DigitalTestIT.SpringTestConfiguration.class
+        NotificationViewedTestIT.SpringTestConfiguration.class
 })
 
 class NotificationViewedTestIT {
