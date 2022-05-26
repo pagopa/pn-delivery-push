@@ -15,7 +15,9 @@ public class LegalDigitalAddressMapper {
 
     public static LegalDigitalAddress internalToExternal(DigitalAddress digitalAddress) {
         LegalDigitalAddress legalDigitalAddress = new LegalDigitalAddress();
-        legalDigitalAddress.setChannelType(digitalAddress.getType() != null ? LegalChannelType.valueOf(digitalAddress.getType().getValue()) : null);
+        legalDigitalAddress.setChannelType(
+                LegalChannelType.valueOf(digitalAddress.getType().getValue())
+            );
         legalDigitalAddress.setValue(digitalAddress.getAddress());
         
         return legalDigitalAddress;

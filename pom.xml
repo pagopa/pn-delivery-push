@@ -253,7 +253,7 @@
 						<phase>process-resources</phase>
 						<configuration>
 							<!--TODO Da settare commit corretta una volta effettuato il merge della modifica -->
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-user-attributes/main/docs/openapi/pn-address-book-api-v1.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-user-attributes/acde392a14cd2cf7a99378d6131580fdd133caf6/docs/openapi/pn-address-book-api-v1.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
