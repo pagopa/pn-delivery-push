@@ -35,6 +35,7 @@ public class NotificationMapper {
                                 .paTaxId( sentNotification.getSenderTaxId() )
                                 .paId(sentNotification.getSenderPaId())
                                 .paDenomination(sentNotification.getSenderDenomination())
+                                .paTaxId(sentNotification.getSenderTaxId())
                                 .build()
                 )
                 .documents(listNotificationDocumentIntInt)
@@ -185,7 +186,13 @@ public class NotificationMapper {
         if(notification.getPhysicalCommunicationType() != null){
             sentNotification.setPhysicalCommunicationType(SentNotification.PhysicalCommunicationTypeEnum.valueOf(notification.getPhysicalCommunicationType().name()));
         }
-
+        
+        if(notification.getSender() != null){
+            sentNotification.setSenderPaId(notification.getSender().getPaId());
+            sentNotification.setSenderDenomination(notification.getSender().getPaDenomination());
+            sentNotification.setSenderTaxId(notification.getSender().getPaTaxId());
+        }
+        
         return sentNotification;
     }
 

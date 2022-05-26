@@ -11,7 +11,6 @@ import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action2.*;
 import it.pagopa.pn.deliverypush.action2.it.mockbean.*;
-import it.pagopa.pn.deliverypush.action2.it.utils.AddressBookEntryTestBuilder;
 import it.pagopa.pn.deliverypush.action2.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action2.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action2.utils.*;
@@ -19,7 +18,6 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBookEntry;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -44,6 +42,7 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -77,6 +76,7 @@ import static org.mockito.Mockito.doThrow;
         PaperNotificationFailedServiceImpl.class,
         TimeLineServiceImpl.class,
         ConfidentialInformationServiceImpl.class,
+        AddressBookServiceImpl.class,
         CheckAttachmentUtils.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
@@ -116,7 +116,7 @@ class ValidationDocumentErrorTestIT {
     private PnDeliveryClientMock pnDeliveryClientMock;
 
     @Autowired
-    private AddressBookMock addressBookMock;
+    private UserAttributesClientMock addressBookMock;
 
     @Autowired
     private PublicRegistryMock publicRegistryMock;
@@ -199,16 +199,12 @@ class ValidationDocumentErrorTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun("IUN01")
+                .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
 
-        AddressBookEntry addressBookEntry = AddressBookEntryTestBuilder.builder()
-                .withTaxId(recipient.getTaxId())
-                .withPlatformAddress(platformAddress)
-                .build();
-
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.add(addressBookEntry);
+        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         Set<ConstraintViolation<DigestEqualityBean>> errors = new HashSet<>();

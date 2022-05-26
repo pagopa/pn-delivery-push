@@ -210,8 +210,7 @@ Resources:
         ContainerEnvEntry17: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_RECIPIENTVIEWMAXTIMEFORANALOG=${RecipientTimeoutDelayAnalog}'
         ContainerEnvEntry18: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_REFINEMENTTIMEFORCOMPLETELYUNREACHABLE=${RefinementTimeCompletelyUnreachable}'
         ContainerEnvEntry19: !Sub 'PN_DELIVERYPUSH_DATAVAULTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        #ContainerEnvEntry19: !Sub 'SPRING_DATA_CASSANDRA_KEYSPACENAME=${KeyspaceName}'
-        #ContainerEnvEntry20: 'SPRING_DATA_CASSANDRA_SSL=true'
+        ContainerEnvEntry20: !Sub 'PN_DELIVERYPUSH_USERATTRIBUTESBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry21: !Sub 'SPRING_DATA_CASSANDRA_CONTACTPOINTS=cassandra.${AWS::Region}.${AWS::URLSuffix}:9142'
 # WAIT for real client certificates (PN-565)
 #        ContainerEnvEntry21:
