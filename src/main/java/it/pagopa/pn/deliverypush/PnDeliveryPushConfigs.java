@@ -18,6 +18,8 @@ public class PnDeliveryPushConfigs {
     
     private String dataVaultBaseUrl;
 
+    private String userAttributesBaseUrl;
+
     private TimeParams timeParams;
 
     private Topics topics;

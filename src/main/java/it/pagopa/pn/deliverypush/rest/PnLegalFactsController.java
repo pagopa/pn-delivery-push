@@ -78,5 +78,4 @@ public class PnLegalFactsController implements LegalFactsApi {
     public ResponseEntity<Resource> getLegalFact(String iun, LegalFactType legalFactType, String legalfactId) {
         return legalFactService.getLegalfact( iun, legalFactType, legalfactId );
     }
-    
 }
