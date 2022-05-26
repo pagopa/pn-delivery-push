@@ -215,35 +215,6 @@
 						</configuration>
 					</execution>
 
-					<!-- OPEN API CLIENT PN-USER-ATTRIBUTES -->
-					<execution>
-						<id>generate-client-pn-user-attributes</id>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-						<phase>process-resources</phase>
-						<configuration>
-							<!--TODO Da settare commit corretta una volta effettuato il merge della modifica -->
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-user-attributes/acde392a14cd2cf7a99378d6131580fdd133caf6/docs/openapi/pn-address-book-api-v1.yaml</inputSpec>
-							<generatorName>java</generatorName>
-							<library>resttemplate</library>
-							<generateApiTests>false</generateApiTests>
-							<generateModelTests>false</generateModelTests>
-							<typeMappings><typeMapping>OffsetDateTime=Instant</typeMapping></typeMappings>
-							<importMappings><importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping></importMappings>
-							<configOptions>
-								<apiPackage>it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.api</apiPackage>
-								<modelPackage>it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model</modelPackage>
-								<dateLibrary>java8</dateLibrary>
-								<annotationLibrary>none</annotationLibrary>
-								<documentationProvider>source</documentationProvider>
-								<openApiNullable>false</openApiNullable>
-								<useAbstractionForFiles>true</useAbstractionForFiles>
-								<useBeanValidation>false</useBeanValidation>
-							</configOptions>
-						</configuration>
-					</execution>
-
 					<!-- OPEN API CLIENT PN-DATA-VAULT -->
 					<execution>
 						<id>generate-client-pn-data-vault</id>

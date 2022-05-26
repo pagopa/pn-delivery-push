@@ -144,7 +144,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
             digitalNotificationRequestDto.setAttachmentUrls(new ArrayList<>());
 
             digitalLegalMessagesApi.sendDigitalLegalMessage(requestId, cfg.getExternalchannelCxId(), digitalNotificationRequestDto);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new PnInternalException("error sending PEC notification", e);
         }
     }
@@ -170,7 +170,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
             digitalNotificationRequestDto.setAttachmentUrls(new ArrayList<>());
 
             digitalCourtesyMessagesApi.sendDigitalCourtesyMessage(requestId, cfg.getExternalchannelCxId(), digitalNotificationRequestDto);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new PnInternalException("error sending EMAIL notification", e);
         }
     }
