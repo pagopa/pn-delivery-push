@@ -42,6 +42,7 @@ public class NotificationViewedHandler {
 
         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex);
         
+        //I processi collegati alla visualizzazione di una notifica vengono effettuati solo la prima volta che la stessa viene visualizzata
         if(!isNotificationAlreadyViewed){
             log.info("Notification isn't already viewed, start view notification process");
             
@@ -54,7 +55,7 @@ public class NotificationViewedHandler {
 
             addTimelineElement(timelineUtils.buildNotificationViewedTimelineElement(iun, recIndex, legalFactId));
 
-            paperNotificationFailedService.deleteNotificationFailed(recipient.getTaxId(), iun); //Viene eliminata l'istanza di notifica fallita dal momento che la stessa è stata letta
+            paperNotificationFailedService.deleteNotificationFailed(recipient.getTaxId(), iun); //Viene eliminata l'eventuale istanza di notifica fallita dal momento che la stessa è stata letta
         } else {
             log.debug("Notification is already viewed");
         }
