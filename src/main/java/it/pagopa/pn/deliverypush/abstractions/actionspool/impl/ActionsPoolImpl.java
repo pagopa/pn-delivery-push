@@ -102,6 +102,7 @@ public class ActionsPoolImpl implements ActionsPool {
                 lastPollExecuted = clock.instant().minus(2, ChronoUnit.HOURS);
             }
         }
+        log.debug("Action pool start poll {}", lastPollExecuted);
 
         Instant now = clock.instant();
         List<String> uncheckedTimeSlots = computeTimeSlots(lastPollExecuted, now);
