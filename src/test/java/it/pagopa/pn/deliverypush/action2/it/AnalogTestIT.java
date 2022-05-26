@@ -9,7 +9,10 @@ import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action2.*;
 import it.pagopa.pn.deliverypush.action2.it.mockbean.*;
-import it.pagopa.pn.deliverypush.action2.it.utils.*;
+import it.pagopa.pn.deliverypush.action2.it.utils.NotificationRecipientTestBuilder;
+import it.pagopa.pn.deliverypush.action2.it.utils.NotificationTestBuilder;
+import it.pagopa.pn.deliverypush.action2.it.utils.PhysicalAddressBuilder;
+import it.pagopa.pn.deliverypush.action2.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action2.utils.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -17,6 +20,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBookEntry;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.PnSafeStorageClient;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
@@ -37,6 +41,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
@@ -65,6 +71,7 @@ import java.time.Instant;
         PaperNotificationFailedServiceImpl.class,
         StatusServiceImpl.class,
         ConfidentialInformationServiceImpl.class,
+        AddressBookServiceImpl.class,
         CheckAttachmentUtils.class,
         StatusUtils.class,
         PaperNotificationFailedDaoMock.class,
@@ -109,7 +116,7 @@ class AnalogTestIT {
     private PnDeliveryClientMock pnDeliveryClientMock;
 
     @Autowired
-    private AddressBookMock addressBookMock;
+    private UserAttributesClientMock addressBookMock;
 
     @Autowired
     private PublicRegistryMock publicRegistryMock;
@@ -198,16 +205,16 @@ class AnalogTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun("IUN01")
+                .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
 
-        AddressBookEntry addressBookEntry = AddressBookEntryTestBuilder.builder()
-                .withTaxId(recipient.getTaxId())
-                .withCourtesyAddress("test@mail.it")
-                .build();
+        List<DigitalAddress> listCourtesyAddress = Collections.singletonList(DigitalAddress.builder()
+                .address("test@mail.it")
+                .build());
 
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.add(addressBookEntry);
+        addressBookMock.addCourtesyDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), listCourtesyAddress);
 
         String iun = notification.getIun();
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
@@ -216,7 +223,7 @@ class AnalogTestIT {
         startWorkflowHandler.startWorkflow(iun);
 
         //Viene verificato che sia stato inviato un messaggio ad ogni indirizzo presente nei courtesyaddress
-        TestUtils.checkSendCourtesyAddresses(iun, recIndex, addressBookEntry.getCourtesyAddresses(), timelineService, externalChannelMock);
+        TestUtils.checkSendCourtesyAddresses(iun, recIndex, listCourtesyAddress, timelineService, externalChannelMock);
 
         //Viene verificato che gli indirizzi PLATFORM SPECIAL E GENERAL non siano presenti
         TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
@@ -281,15 +288,13 @@ class AnalogTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun("IUN01")
+                .withPaId("paId01")
                 .withNotificationRecipient(recipient)
-                .build();
-
-        AddressBookEntry addressBookEntry = AddressBookEntryTestBuilder.builder()
-                .withTaxId(recipient.getTaxId())
                 .build();
         
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.add(addressBookEntry);
+        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.emptyList());
+
         publicRegistryMock.addPhysical(recipient.getTaxId(), publicRegistryAddress);
 
         String iun = notification.getIun();
@@ -299,7 +304,7 @@ class AnalogTestIT {
         startWorkflowHandler.startWorkflow(notification.getIun());
 
         //Viene verificato che non sia stato inviato alcun messaggio di cortesia
-        TestUtils.checkSendCourtesyAddresses(iun, recIndex, addressBookEntry.getCourtesyAddresses(), timelineService, externalChannelMock);
+        TestUtils.checkSendCourtesyAddresses(iun, recIndex, Collections.emptyList(), timelineService, externalChannelMock);
 
         //Viene verificato che gli indirizzi PLATFORM SPECIAL E GENERAL non siano presenti
         TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);

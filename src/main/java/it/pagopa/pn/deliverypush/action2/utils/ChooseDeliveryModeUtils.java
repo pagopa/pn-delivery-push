@@ -2,12 +2,11 @@ package it.pagopa.pn.deliverypush.action2.utils;
 
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBook;
-import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBookEntry;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendCourtesyMessageDetails;
+import it.pagopa.pn.deliverypush.service.AddressBookService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -23,15 +22,15 @@ public class ChooseDeliveryModeUtils {
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
     private final CourtesyMessageUtils courtesyMessageUtils;
-    private final AddressBook addressBook;
+    private final AddressBookService addressBookService;
     private final NotificationUtils notificationUtils;
 
-    public ChooseDeliveryModeUtils(TimelineService timelineService, TimelineUtils timelineUtils, CourtesyMessageUtils courtesyMessageUtils, 
-                                   AddressBook addressBook, NotificationUtils notificationUtils) {
+    public ChooseDeliveryModeUtils(TimelineService timelineService, TimelineUtils timelineUtils, CourtesyMessageUtils courtesyMessageUtils,
+                                   AddressBookService addressBookService, NotificationUtils notificationUtils) {
         this.timelineService = timelineService;
         this.timelineUtils = timelineUtils;
         this.courtesyMessageUtils = courtesyMessageUtils;
-        this.addressBook = addressBook;
+        this.addressBookService = addressBookService;
         this.notificationUtils = notificationUtils;
     }
 
@@ -49,9 +48,10 @@ public class ChooseDeliveryModeUtils {
         return courtesyMessageUtils.getFirstSentCourtesyMessage(iun, recIndex);
     }
 
-    public Optional<AddressBookEntry> getAddresses(NotificationInt notification, Integer recIndex) {
+    public Optional<DigitalAddress> getPlatformAddress(NotificationInt notification, Integer recIndex) {
         NotificationRecipientInt notificationRecipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
-        return addressBook.getAddresses(notificationRecipient.getTaxId(), notification.getSender());
+        
+        return addressBookService.getPlatformAddresses(notificationRecipient.getTaxId(), notification.getSender().getPaId());
     }
     
     public DigitalAddress getDigitalDomicile(NotificationInt notification, Integer recIndex){

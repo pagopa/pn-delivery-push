@@ -24,6 +24,8 @@ public class PnDeliveryPushConfigs {
 
     private String safeStorageCxId;
 
+    private String userAttributesBaseUrl;
+
     private TimeParams timeParams;
 
     private Topics topics;

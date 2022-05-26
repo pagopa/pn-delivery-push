@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendDigitalFeedback;
 import org.springframework.stereotype.Component;
 
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
@@ -17,6 +16,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseStatus;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendDigitalFeedback;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,8 +46,8 @@ public class LegalFactGenerator {
         templateModel.put("sendDateNoTime", instantWriter.instantToDate( notification.getSentAt(), true ) );
         templateModel.put("notification", notification.toBuilder()
                 .sender( notification.getSender().toBuilder()
-                        .paDenomination( "DenominationOfPA_" + notification.getSender().getPaId() )
-                        .paTaxId( "TaxIdOfPA_" + notification.getSender().getPaId())
+                        .paDenomination( notification.getSender().getPaDenomination() )
+                        .paTaxId( notification.getSender().getPaTaxId())
                         .build()
                 )
                 .build()

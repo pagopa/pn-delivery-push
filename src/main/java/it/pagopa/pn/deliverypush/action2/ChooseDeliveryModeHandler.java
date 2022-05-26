@@ -6,7 +6,6 @@ import it.pagopa.pn.deliverypush.action2.utils.ChooseDeliveryModeUtils;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
-import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBookEntry;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ContactPhase;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
@@ -54,11 +53,13 @@ public class ChooseDeliveryModeHandler {
         log.info("Start ChooseDeliveryTypeAndStartWorkflow process-IUN {} id {}", notification.getIun(), recIndex);
 
         String iun = notification.getIun();
-        DigitalAddress platformAddress = retrievePlatformAddress(notification, recIndex);
+        Optional<DigitalAddress> platformAddressOpt = chooseDeliveryUtils.getPlatformAddress(notification, recIndex);
 
         //Verifico presenza indirizzo di piattaforma, ...
-        if (platformAddress != null) {
+        if (platformAddressOpt.isPresent()) {
             log.info("Platform address is present, Digital workflow can be started - IUN {} id {}", notification.getIun(), recIndex);
+            DigitalAddress platformAddress = platformAddressOpt.get();
+            
             chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, iun, DigitalAddressSource.PLATFORM, true);
             startDigitalWorkflow(notification, platformAddress, DigitalAddressSource.PLATFORM, recIndex);
         } else {
@@ -147,14 +148,5 @@ public class ChooseDeliveryModeHandler {
         }
         chooseDeliveryUtils.addScheduleAnalogWorkflowToTimeline(recIndex, iun);
         schedulerService.scheduleEvent(iun, recIndex, schedulingDate, ActionType.ANALOG_WORKFLOW);
-    }
-
-
-    private DigitalAddress retrievePlatformAddress(NotificationInt notification, Integer recIndex) {
-        log.debug("retrievePlatformAddress  for id {}", recIndex);
-        
-        Optional<AddressBookEntry> addressBookEntryOpt = chooseDeliveryUtils.getAddresses(notification, recIndex);
-
-        return addressBookEntryOpt.map(AddressBookEntry::getPlatformDigitalAddress).orElse(null);
     }
 }

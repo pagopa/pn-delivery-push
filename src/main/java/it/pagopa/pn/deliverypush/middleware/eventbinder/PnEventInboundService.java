@@ -35,6 +35,8 @@ import static it.pagopa.pn.api.dto.events.StandardEventHeader.*;
 @Slf4j
 @ConditionalOnProperty( name = "pn.delivery-push.featureflags.workflow", havingValue = "v2")
 public class PnEventInboundService {
+    //TODO Trovare un modo per gestire gli errori globalmente
+    
     private final StartWorkflowHandler startWorkflowHandler;
     private final ExternalChannelResponseHandler externalChannelResponseHandler;
     private final NotificationViewedHandler notificationViewedHandler;
@@ -180,7 +182,6 @@ public class PnEventInboundService {
         return message -> {
             log.info("pnDeliveryPushAnalogWorkflowConsumer, message {}", message);
             Action action = message.getPayload();
-
             analogWorkflowHandler.startAnalogWorkflow(action.getIun(), action.getRecipientIndex());
         };
     }
@@ -199,7 +200,6 @@ public class PnEventInboundService {
         return message -> {
             log.info("pnDeliveryPushDigitalNextActionConsumer, message {}", message);
             Action action = message.getPayload();
-            
             digitalWorkFlowHandler.startScheduledNextWorkflow(action.getIun(), action.getRecipientIndex());
         };
     }

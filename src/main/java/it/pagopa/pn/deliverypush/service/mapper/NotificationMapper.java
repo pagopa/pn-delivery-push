@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
+import it.pagopa.pn.api.dto.events.ServiceLevelType;
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
@@ -19,14 +20,22 @@ public class NotificationMapper {
         List<NotificationRecipientInt> listNotificationRecipientInt = mapNotificationRecipient(sentNotification.getRecipients());
         List<NotificationDocumentInt> listNotificationDocumentIntInt = mapNotificationDocument(sentNotification.getDocuments());
 
+        ServiceLevelTypeInt lvl = null;
+        if( sentNotification.getPhysicalCommunicationType() != null ) {
+            lvl = ServiceLevelTypeInt.valueOf( sentNotification.getPhysicalCommunicationType().name() );
+        }
+
         return NotificationInt.builder()
                 .iun(sentNotification.getIun())
                 .paNotificationId(sentNotification.getPaProtocolNumber())
+                .physicalCommunicationType( lvl )
                 .sentAt(sentNotification.getSentAt())
                 .sender(
                         NotificationSenderInt.builder()
+                                .paTaxId( sentNotification.getSenderTaxId() )
                                 .paId(sentNotification.getSenderPaId())
                                 .paDenomination(sentNotification.getSenderDenomination())
+                                .paTaxId(sentNotification.getSenderTaxId())
                                 .build()
                 )
                 .documents(listNotificationDocumentIntInt)
@@ -151,6 +160,19 @@ public class NotificationMapper {
         sentNotification.setPaProtocolNumber(notification.getPaNotificationId());
         sentNotification.setSentAt(notification.getSentAt());
 
+        if( notification.getPhysicalCommunicationType() != null ) {
+            sentNotification.setPhysicalCommunicationType(
+                    SentNotification.PhysicalCommunicationTypeEnum.valueOf( notification.getPhysicalCommunicationType().name() )
+            );
+        }
+
+        NotificationSenderInt sender = notification.getSender();
+        if( sender != null ) {
+            sentNotification.setSenderDenomination( sender.getPaDenomination() );
+            sentNotification.setSenderPaId( sender.getPaId() );
+            sentNotification.setSenderTaxId( sender.getPaTaxId() );
+        }
+
         List<NotificationRecipient> recipients = notification.getRecipients().stream()
                 .map(NotificationMapper::getNotificationRecipient).collect(Collectors.toList());
 
@@ -164,7 +186,13 @@ public class NotificationMapper {
         if(notification.getPhysicalCommunicationType() != null){
             sentNotification.setPhysicalCommunicationType(SentNotification.PhysicalCommunicationTypeEnum.valueOf(notification.getPhysicalCommunicationType().name()));
         }
-
+        
+        if(notification.getSender() != null){
+            sentNotification.setSenderPaId(notification.getSender().getPaId());
+            sentNotification.setSenderDenomination(notification.getSender().getPaDenomination());
+            sentNotification.setSenderTaxId(notification.getSender().getPaTaxId());
+        }
+        
         return sentNotification;
     }
 

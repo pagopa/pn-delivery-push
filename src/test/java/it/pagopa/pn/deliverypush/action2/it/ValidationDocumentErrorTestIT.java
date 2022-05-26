@@ -11,7 +11,6 @@ import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action2.*;
 import it.pagopa.pn.deliverypush.action2.it.mockbean.*;
-import it.pagopa.pn.deliverypush.action2.it.utils.AddressBookEntryTestBuilder;
 import it.pagopa.pn.deliverypush.action2.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action2.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action2.utils.*;
@@ -43,6 +42,7 @@ import javax.validation.ConstraintViolation;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -76,6 +76,7 @@ import static org.mockito.Mockito.doThrow;
         PaperNotificationFailedServiceImpl.class,
         TimeLineServiceImpl.class,
         ConfidentialInformationServiceImpl.class,
+        AddressBookServiceImpl.class,
         CheckAttachmentUtils.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
@@ -115,7 +116,7 @@ class ValidationDocumentErrorTestIT {
     private PnDeliveryClientMock pnDeliveryClientMock;
 
     @Autowired
-    private AddressBookMock addressBookMock;
+    private UserAttributesClientMock addressBookMock;
 
     @Autowired
     private PublicRegistryMock publicRegistryMock;
@@ -204,16 +205,12 @@ class ValidationDocumentErrorTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun("IUN01")
+                .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
 
-        AddressBookEntry addressBookEntry = AddressBookEntryTestBuilder.builder()
-                .withTaxId(recipient.getTaxId())
-                .withPlatformAddress(platformAddress)
-                .build();
-
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.add(addressBookEntry);
+        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         Set<ConstraintViolation<DigestEqualityBean>> errors = new HashSet<>();

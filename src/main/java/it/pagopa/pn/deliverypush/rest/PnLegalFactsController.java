@@ -78,5 +78,4 @@ public class PnLegalFactsController implements LegalFactsApi {
                                                  @PathVariable(value="id") String legalfactId) {
         return legalFactService.getLegalfact( iun, legalFactType, legalfactId );
     }
-    
 }

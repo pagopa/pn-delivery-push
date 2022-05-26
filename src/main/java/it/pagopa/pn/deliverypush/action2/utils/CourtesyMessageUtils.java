@@ -1,15 +1,15 @@
 package it.pagopa.pn.deliverypush.action2.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.action2.ExternalChannelSendHandler;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
-import it.pagopa.pn.deliverypush.action2.ExternalChannelSendHandler;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBook;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendCourtesyMessageDetails;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
+import it.pagopa.pn.deliverypush.service.AddressBookService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -19,16 +19,16 @@ import java.util.Optional;
 @Component
 @Slf4j
 public class CourtesyMessageUtils {
-    private final AddressBook addressBook;
+    private final AddressBookService addressBookService;
     private final ExternalChannelSendHandler externalChannelSendHandler;
     private final TimelineService timelineService;
     private final NotificationUtils notificationUtils;
     private final LegalFactDao legalFactDao;
     private final TimelineUtils timelineUtils;
 
-    
-    public CourtesyMessageUtils(AddressBook addressBook, ExternalChannelSendHandler externalChannelSendHandler, TimelineService timelineService, NotificationUtils notificationUtils, LegalFactDao legalFactDao, TimelineUtils timelineUtils) {
-        this.addressBook = addressBook;
+
+    public CourtesyMessageUtils(AddressBookService addressBookService, ExternalChannelSendHandler externalChannelSendHandler, TimelineService timelineService, NotificationUtils notificationUtils, LegalFactDao legalFactDao, TimelineUtils timelineUtils) {
+        this.addressBookService = addressBookService;
         this.externalChannelSendHandler = externalChannelSendHandler;
         this.timelineService = timelineService;
         this.notificationUtils = notificationUtils;
@@ -45,14 +45,12 @@ public class CourtesyMessageUtils {
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         
         //Vengono ottenuti tutti gli indirizzi di cortesia per il recipient ...
-        addressBook.getAddresses(recipient.getTaxId(), notification.getSender())
-                .ifPresent(addressBookItem -> {
+        addressBookService.getCourtesyAddress(recipient.getTaxId(), notification.getSender().getPaId())
+                .ifPresent(listCourtesyAddresses -> {
                     int courtesyAddrIndex = 0;
-                    if (addressBookItem.getCourtesyAddresses() != null) {
-                        for (DigitalAddress courtesyAddress : addressBookItem.getCourtesyAddresses()) {
-                            sendCourtesyMessage(notification, recIndex, courtesyAddrIndex, courtesyAddress);
-                            courtesyAddrIndex++;
-                        }
+                    for (DigitalAddress courtesyAddress : listCourtesyAddresses) {
+                        sendCourtesyMessage(notification, recIndex, courtesyAddrIndex, courtesyAddress);
+                        courtesyAddrIndex++;
                     }
                 });
 

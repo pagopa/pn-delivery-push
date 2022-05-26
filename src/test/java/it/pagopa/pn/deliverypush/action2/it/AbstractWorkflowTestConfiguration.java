@@ -8,12 +8,13 @@ import it.pagopa.pn.deliverypush.action2.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action2.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action2.PublicRegistryResponseHandler;
 import it.pagopa.pn.deliverypush.action2.RefinementHandler;
-import it.pagopa.pn.deliverypush.action2.it.mockbean.AddressBookMock;
+import it.pagopa.pn.deliverypush.action2.it.mockbean.UserAttributesClientMock;
 import it.pagopa.pn.deliverypush.action2.it.mockbean.PnDeliveryClientMock;
 import it.pagopa.pn.deliverypush.action2.it.mockbean.PublicRegistryMock;
 import it.pagopa.pn.deliverypush.action2.it.mockbean.SchedulerServiceMock;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
-import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBook;
+import it.pagopa.pn.deliverypush.externalclient.pnclient.userattributes.UserAttributesClient;
+import it.pagopa.pn.deliverypush.legalfacts.*;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.legalfacts.*;
@@ -32,8 +33,8 @@ public class AbstractWorkflowTestConfiguration {
     }
 
     @Bean
-    public AddressBook testAddressBook() {
-        return new AddressBookMock();
+    public UserAttributesClient testAddressBook() {
+        return new UserAttributesClientMock();
     }
     
     @Bean
