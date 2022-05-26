@@ -53,7 +53,7 @@ class CompletionWorkFlowHandlerTest {
 
     @BeforeEach
     public void setup() {
-        notificationUtils= new NotificationUtils();
+        notificationUtils= new NotificationUtils(legalFactGenerator);
         handler = new CompletionWorkFlowHandler(notificationUtils, scheduler,
                 externalChannelSendHandler, timelineService, completelyUnreachableUtils, timelineUtils, legalFactDao
                 ,pnDeliveryPushConfigs);

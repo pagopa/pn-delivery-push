@@ -227,7 +227,48 @@ public class LegalFactGenerator {
         return documentComposition.executePdfTemplate(
                 DocumentComposition.TemplateType.AAR_NOTIFICATION,
                 templateModel
+        );
+
+    }
+
+    public String generateNotificationAARBody(NotificationInt notification) {
+
+        Map<String, Object> templateModel = new HashMap<>();
+        templateModel.put("sendDate", instantWriter.instantToDate( notification.getSentAt() ) );
+        templateModel.put("sendDateNoTime", instantWriter.instantToDate( notification.getSentAt(), true ) );
+        templateModel.put("notification", notification.toBuilder().build());
+        templateModel.put("addressWriter", this.physicalAddressWriter );
+
+        return documentComposition.executeTextTemplate(
+                DocumentComposition.TemplateType.AAR_NOTIFICATION,
+                templateModel
             );
+
+    }
+
+
+    public String generateNotificationAARSubject(NotificationInt notification) {
+
+        Map<String, Object> templateModel = new HashMap<>();
+        templateModel.put("sendDateNoTime", instantWriter.instantToDate( notification.getSentAt(), true ) );
+
+        return documentComposition.executeTextTemplate(
+                DocumentComposition.TemplateType.AAR_NOTIFICATION_SUBJECT,
+                templateModel
+        );
+
+    }
+
+
+    public String generateNotificationAARForSMS(NotificationInt notification) {
+
+        Map<String, Object> templateModel = new HashMap<>();
+        templateModel.put("notification", notification.toBuilder().build());
+
+        return documentComposition.executeTextTemplate(
+                DocumentComposition.TemplateType.AAR_NOTIFICATION_SMS,
+                templateModel
+        );
 
     }
 }

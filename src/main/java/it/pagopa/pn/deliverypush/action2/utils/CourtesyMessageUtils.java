@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action2.utils;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
@@ -8,6 +9,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBook;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendCourtesyMessageDetails;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -21,12 +23,17 @@ public class CourtesyMessageUtils {
     private final ExternalChannelSendHandler externalChannelSendHandler;
     private final TimelineService timelineService;
     private final NotificationUtils notificationUtils;
+    private final LegalFactDao legalFactDao;
+    private final TimelineUtils timelineUtils;
+
     
-    public CourtesyMessageUtils(AddressBook addressBook, ExternalChannelSendHandler externalChannelSendHandler, TimelineService timelineService, NotificationUtils notificationUtils) {
+    public CourtesyMessageUtils(AddressBook addressBook, ExternalChannelSendHandler externalChannelSendHandler, TimelineService timelineService, NotificationUtils notificationUtils, LegalFactDao legalFactDao, TimelineUtils timelineUtils) {
         this.addressBook = addressBook;
         this.externalChannelSendHandler = externalChannelSendHandler;
         this.timelineService = timelineService;
         this.notificationUtils = notificationUtils;
+        this.legalFactDao = legalFactDao;
+        this.timelineUtils = timelineUtils;
     }
 
     /**
@@ -75,4 +82,16 @@ public class CourtesyMessageUtils {
         return timelineService.getTimelineElementDetails(iun, timeLineCourtesyId, SendCourtesyMessageDetails.class);
     }
 
+
+    public void generateAARAndSaveInSafeStorageAndAddTimelineevent(NotificationInt notification, Integer recIndex)
+    {
+        try {
+            String safestoragekey =legalFactDao.saveAARLegalFact(notification);
+
+            timelineService.addTimelineElement(timelineUtils.buildAarGenerationTimelineElement(notification, recIndex, safestoragekey));
+
+        } catch (Exception e) {
+            throw new PnInternalException("cannot generate AAR pdf", e);
+        }
+    }
 }

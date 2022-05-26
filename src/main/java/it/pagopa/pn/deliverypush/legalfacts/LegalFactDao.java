@@ -48,6 +48,16 @@ public class LegalFactDao {
         return saveNotificationReceivedLegalFact( notification );
     }*/
 
+    public String saveAARLegalFact(NotificationInt notification) {
+        try {
+            return this.saveLegalFact(legalFactBuilder.generateNotificationAAR(notification));
+        }
+        catch ( IOException exc ) {
+            String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "AAR",  notification.getIun(), "N/A");
+            throw new PnInternalException( msg, exc);
+        }
+    }
+
     public String saveNotificationReceivedLegalFact(NotificationInt notification) {
         try {
             return this.saveLegalFact(legalFactBuilder.generateNotificationReceivedLegalFact(notification));

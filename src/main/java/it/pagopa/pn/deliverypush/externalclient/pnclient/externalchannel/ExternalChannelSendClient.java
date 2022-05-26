@@ -1,14 +1,20 @@
 package it.pagopa.pn.deliverypush.externalclient.pnclient.externalchannel;
 
 
-import it.pagopa.pn.api.dto.events.PnExtChnEmailEvent;
-import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
-import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 
 public interface ExternalChannelSendClient {
-    void sendNotification(PnExtChnEmailEvent pnExtChnEmailEvent);
 
-    void sendNotification(PnExtChnPecEvent pnExtChnPecEvent);
+    enum ANALOG_TYPE{
+        REGISTERED_LETTER_890,
+        SIMPLE_REGISTERED_LETTER,
+        AR_REGISTERED_LETTER
+    }
 
-    void sendNotification(PnExtChnPaperEvent pnExtChnPecEvent);
+
+    void sendDigitalNotification(NotificationInt notificationInt, DigitalAddress digitalAddress, String timelineEventId);
+
+    void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, String timelineEventI, ANALOG_TYPE analogType, String aarKey);
 }

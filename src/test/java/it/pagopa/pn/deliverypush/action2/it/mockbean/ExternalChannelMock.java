@@ -5,8 +5,11 @@ import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
 import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
 import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.deliverypush.action2.ExternalChannelResponseHandler;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseStatus;
 import org.springframework.context.annotation.Lazy;
 
@@ -116,5 +119,20 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
         }
 
         externalChannelHandler.extChannelResponseReceiver(responseBuilder.build());
+    }
+
+    @Override
+    public void sendCourtesyNotification(NotificationInt notificationInt, DigitalAddress digitalAddress, String eventtype) {
+
+    }
+
+    @Override
+    public void sendLegalNotification(NotificationInt notificationInt, DigitalAddress digitalAddress, String eventtype) {
+
+    }
+
+    @Override
+    public void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, String eventtype) {
+
     }
 }

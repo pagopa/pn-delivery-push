@@ -60,7 +60,7 @@ class ChooseDeliveryModeHandlerTest {
         handler = new ChooseDeliveryModeHandler(chooseDeliveryUtils, notificationService,
                 externalChannelSendHandler, schedulerService,
                 publicRegistrySendHandler, instantNowSupplier, pnDeliveryPushConfigs);
-        notificationUtils= new NotificationUtils();
+        notificationUtils= new NotificationUtils(legalFactGenerator);
     }
 
 

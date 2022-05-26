@@ -30,6 +30,8 @@ components:
         - PAYMENT
         - COMPLETELY_UNREACHABLE
         - REQUEST_REFUSED
+        - AAR_GENERATION
+
     
     DownstreamId:
       description: identificativo del messaggio nel sistema a valle
@@ -92,6 +94,8 @@ components:
         - "$ref": "#/components/schemas/SendPaperDetails"
         - "$ref": "#/components/schemas/SendPaperFeedbackDetails"
         - "$ref": "#/components/schemas/SimpleRegisteredLetterDetails"
+        - "$ref": "#/components/schemas/AarGenerationDetails"
+
 
     NotificationRequestAccepted:
       type: object
@@ -339,6 +343,16 @@ components:
           description: Index destinatario notifica digitale
         physicalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
+
+    AarGenerationDetails:
+      type: object
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+        safestorageKey:
+          type: string
+          description: Chiave per recupero da safestorage
 
     DigitalAddressSource:
       type: string

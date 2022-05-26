@@ -411,6 +411,28 @@ public class TimelineUtils {
         return buildTimeline(notification.getIun(), TimelineElementCategory.REQUEST_REFUSED, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
     }
 
+
+    public TimelineElementInternal  buildAarGenerationTimelineElement(NotificationInt notification, Integer recIndex, String legalFactId) {
+        log.debug("buildAarGenerationTimelineElement - iun {}", notification.getIun());
+
+        String elementId = TimelineEventId.AAR_GENERATION.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build());
+        AarGenerationDetails details = AarGenerationDetails.builder()
+                .recIndex(recIndex)
+                .safestorageKey(legalFactId)
+                .build();
+
+        return buildTimeline(
+                notification.getIun(),
+                TimelineElementCategory.AAR_GENERATION,
+                elementId,
+                SmartMapper.mapToClass(details, TimelineElementDetails.class)
+        );
+    }
+
     public List<LegalFactsId> singleLegalFactId(String legalFactKey, LegalFactCategory type) {
         return Collections.singletonList( LegalFactsId.builder()
                 .key( legalFactKey )

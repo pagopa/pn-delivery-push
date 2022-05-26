@@ -75,6 +75,8 @@ public class StartWorkflowHandler {
 
     private void startNotificationWorkflowForRecipient(NotificationInt notification, Integer recIndex) {
         log.info("Start notification workflow - iun {} id {}", notification.getIun(), recIndex);
+        // ... genero il pdf dell'AAR, salvo su Safestorage e genero elemento in timeline AAR_GENERATION, potrebbe servirmi dopo ...
+        courtesyMessageUtils.generateAARAndSaveInSafeStorageAndAddTimelineevent(notification, recIndex);
         //... Invio messaggio di cortxesia ...
         courtesyMessageUtils.checkAddressesForSendCourtesyMessage(notification, recIndex);
         //... e inizializzato il processo di scelta della tipologia di notificazione
