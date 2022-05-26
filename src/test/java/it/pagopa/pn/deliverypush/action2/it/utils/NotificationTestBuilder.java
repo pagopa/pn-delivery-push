@@ -50,6 +50,8 @@ public class NotificationTestBuilder {
                 .physicalCommunicationType(ServiceLevelTypeInt.SIMPLE_REGISTERED_LETTER)
                 .sender(NotificationSenderInt.builder()
                         .paId(paId)
+                        .paDenomination("Denominazione pa con id " + paId)
+                        .paTaxId("CFPA-" + paId)
                         .build()
                 )
                 .recipients(recipients)

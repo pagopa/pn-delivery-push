@@ -15,6 +15,7 @@ import java.util.List;
 public class NotificationInt {
     private String iun;
     private String paNotificationId;
+    private String subject;
     private Instant sentAt;
     private NotificationSenderInt sender ;
     private List<NotificationRecipientInt> recipients ;

@@ -1,5 +1,19 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import freemarker.template.Configuration;
 import freemarker.template.Version;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
@@ -10,28 +24,6 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseStatus;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendDigitalFeedback;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import freemarker.template.Configuration;
-import freemarker.template.Version;
-import java.util.*;
 
 class LegalFactPdfGeneratorTest {
 	private static final String TEST_DIR_NAME = "target" + File.separator + "generated-test-PDF";
@@ -100,6 +92,13 @@ class LegalFactPdfGeneratorTest {
 		Files.write(filePath, pdfUtils.generateFileCompliance("PDF file name whitout extension", "test signature", Instant.now()));		
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
+	
+	@Test 
+	void generateNotificationAARTest() throws IOException {	
+		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
+		Files.write(filePath, pdfUtils.generateNotificationAAR(buildNotification()));		
+		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+	}
 
 	private List<SendDigitalFeedback> buildFeedbackFromECList(ResponseStatus status) {
 		SendDigitalFeedback sdf = SendDigitalFeedback.builder()
@@ -119,9 +118,11 @@ class LegalFactPdfGeneratorTest {
 	}
 
 	private NotificationInt buildNotification() {
-		return NotificationInt.builder().sender(createSender("paIdTest"))
+		return NotificationInt.builder()
+				.sender(createSender())
 				.sentAt(Instant.now())
-				.iun("iun1234Test_buildNot")
+				.iun("Example_IUN_1234_Test")
+				.subject("notification test subject")
 				.documents(Arrays.asList(
 						NotificationDocumentInt.builder()
 							.ref( NotificationDocumentInt.Ref.builder()
@@ -163,7 +164,11 @@ class LegalFactPdfGeneratorTest {
 		return Collections.singletonList( rec1 );
 	}
 
-	private NotificationSenderInt createSender(String paId) {
-		return NotificationSenderInt.builder().paId(paId).build();
+	private NotificationSenderInt createSender() {
+		return NotificationSenderInt.builder()
+				.paId("TEST_PA_ID")
+				.paTaxId("TEST_TAX_ID")
+				.paDenomination("TEST_PA_DENOMINATION")
+				.build();
 	}
 }
