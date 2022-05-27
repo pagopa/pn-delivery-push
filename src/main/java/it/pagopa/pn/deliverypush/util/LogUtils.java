@@ -31,6 +31,16 @@ public class LogUtils {
         }
     }
 
+
+    public static String maskGeneric(String generic) {
+        try {
+            return generic.length()>=5?maskString(generic, 1, generic.length() - 3, '*'):"***";
+        } catch (Exception e) {
+            log.error("cannot mask generic", e);
+            return "***";
+        }
+    }
+
     public static String maskString(String strText, int start, int end, char maskChar) {
 
         if(strText == null || strText.equals(""))

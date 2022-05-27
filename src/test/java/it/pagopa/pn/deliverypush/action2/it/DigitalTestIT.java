@@ -60,6 +60,7 @@ import java.util.Set;
         LegalfactsMetadataUtils.class,
         DigitalWorkFlowUtils.class,
         CourtesyMessageUtils.class,
+        AarUtils.class,
         CompletelyUnreachableUtils.class,
         ExternalChannelUtils.class,
         AnalogWorkflowUtils.class,
@@ -691,7 +692,7 @@ class DigitalTestIT {
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
-        Mockito.verify(externalChannelMock, Mockito.times(6)).sendLegalNotification(notificationIntEventCaptor.capture(), digitalAddressEventCaptor.capture(), Mockito.anyString());
+        Mockito.verify(externalChannelMock, Mockito.times(4)).sendLegalNotification(notificationIntEventCaptor.capture(), digitalAddressEventCaptor.capture(), Mockito.anyString());
         List<NotificationInt> notificationIntsEvents = notificationIntEventCaptor.getAllValues();
         List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
 

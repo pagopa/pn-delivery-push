@@ -5,6 +5,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddre
 import it.pagopa.pn.deliverypush.externalclient.pnclient.userattributes.UserAttributesClient;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
+import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.CourtesyChannelType;
 import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.CourtesyDigitalAddress;
 import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.LegalChannelType;
 import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.LegalDigitalAddress;
@@ -60,6 +61,7 @@ class AddressBookServiceImplTest {
         //GIVEN
         CourtesyDigitalAddress courtesyDigitalAddress = new CourtesyDigitalAddress();
         courtesyDigitalAddress.setValue("indirizzo@prova.com");
+        courtesyDigitalAddress.setChannelType(CourtesyChannelType.EMAIL);
 
         List<CourtesyDigitalAddress> listLegalDigitalAddresses = Collections.singletonList(courtesyDigitalAddress);
 

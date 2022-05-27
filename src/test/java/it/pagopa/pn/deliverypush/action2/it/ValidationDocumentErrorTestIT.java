@@ -64,6 +64,7 @@ import static org.mockito.Mockito.doThrow;
         LegalfactsMetadataUtils.class,
         DigitalWorkFlowUtils.class,
         CourtesyMessageUtils.class,
+        AarUtils.class,
         CompletelyUnreachableUtils.class,
         ExternalChannelUtils.class,
         AnalogWorkflowUtils.class,

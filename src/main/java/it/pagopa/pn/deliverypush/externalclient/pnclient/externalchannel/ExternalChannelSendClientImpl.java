@@ -62,6 +62,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
 
     @Override
     public void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, PhysicalAddress physicalAddress, String timelineEventId, ANALOG_TYPE analogType, String aarKey) {
+        log.info("sendAnalogNotification address:{} recipient:{} requestId:{} aarkey:{}", LogUtils.maskGeneric(physicalAddress.getAddress()), LogUtils.maskGeneric(recipientInt.getDenomination()), timelineEventId, aarKey);
 
         PaperEngageRequest paperEngageRequest = new PaperEngageRequest();
         paperEngageRequest.setRequestId(timelineEventId);

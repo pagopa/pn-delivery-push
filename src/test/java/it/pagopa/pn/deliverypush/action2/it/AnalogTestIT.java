@@ -58,6 +58,7 @@ import java.util.List;
         RefinementHandler.class,
         DigitalWorkFlowUtils.class,
         CourtesyMessageUtils.class,
+        AarUtils.class,
         ExternalChannelUtils.class,
         CompletelyUnreachableUtils.class,
         LegalfactsMetadataUtils.class,
@@ -212,6 +213,7 @@ class AnalogTestIT {
 
         List<CourtesyDigitalAddressInt> listCourtesyAddress = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test@works.it")
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL)
                 .build());
 
         pnDeliveryClientMock.addNotification(notification);

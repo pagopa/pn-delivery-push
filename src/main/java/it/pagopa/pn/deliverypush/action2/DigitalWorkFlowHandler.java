@@ -224,10 +224,7 @@ public class DigitalWorkFlowHandler {
 
     private DigitalAddressInfo getDigitalAddressInfo(ScheduleDigitalWorkflow scheduleDigitalWorkflow) {
         return DigitalAddressInfo.builder()
-                .digitalAddress(LegalDigitalAddressInt.builder()
-                        .address( scheduleDigitalWorkflow.getDigitalAddress().getAddress())
-                        .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.valueOf( scheduleDigitalWorkflow.getDigitalAddress().getType()))
-                        .build())
+                .digitalAddress(LegalDigitalAddressMapper.digitalToLegal(scheduleDigitalWorkflow.getDigitalAddress()))
                 .digitalAddressSource(scheduleDigitalWorkflow.getDigitalAddressSource())
                 .lastAttemptDate(scheduleDigitalWorkflow.getLastAttemptDate())
                 .sentAttemptMade(scheduleDigitalWorkflow.getSentAttemptMade())

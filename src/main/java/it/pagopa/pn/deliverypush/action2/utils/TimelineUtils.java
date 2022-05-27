@@ -10,6 +10,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.deliverypush.service.mapper.CourtesyDigitalAddressMapper;
 import it.pagopa.pn.deliverypush.service.mapper.LegalDigitalAddressMapper;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -117,10 +118,7 @@ public class TimelineUtils {
 
         SendCourtesyMessageDetails details = SendCourtesyMessageDetails.builder()
                 .recIndex(recIndex)
-                .digitalAddress(DigitalAddress.builder()
-                        .type(address.getType().name())
-                        .address(address.getAddress())
-                        .build())
+                .digitalAddress(CourtesyDigitalAddressMapper.courtesyToDigital(address))
                 .sendDate(sendDate)
                 .build();
 
@@ -248,10 +246,7 @@ public class TimelineUtils {
         );
         PublicRegistryResponseDetails details = PublicRegistryResponseDetails.builder()
                 .recIndex(recIndex)
-                .digitalAddress(DigitalAddress.builder()
-                        .address( response.getDigitalAddress().getAddress())
-                        .type( response.getDigitalAddress().getType().getValue())
-                        .build())
+                .digitalAddress(LegalDigitalAddressMapper.legalToDigital(response.getDigitalAddress()))
                 .physicalAddress(response.getPhysicalAddress())
                 .build();
 
@@ -354,10 +349,7 @@ public class TimelineUtils {
         ScheduleDigitalWorkflow details = ScheduleDigitalWorkflow.builder()
                 .recIndex(recIndex)
                 .lastAttemptDate(lastAttemptInfo.getLastAttemptDate())
-                .digitalAddress(DigitalAddress.builder()
-                        .address( lastAttemptInfo.getDigitalAddress().getAddress())
-                        .type( lastAttemptInfo.getDigitalAddress().getType().getValue())
-                        .build())
+                .digitalAddress(LegalDigitalAddressMapper.legalToDigital(lastAttemptInfo.getDigitalAddress()))
                 .digitalAddressSource(lastAttemptInfo.getDigitalAddressSource())
                 .sentAttemptMade(lastAttemptInfo.getSentAttemptMade())
                 .build();

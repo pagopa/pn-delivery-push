@@ -3,7 +3,7 @@ package it.pagopa.pn.deliverypush.action2.it.mockbean;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.userattributes.UserAttributesClient;
-import it.pagopa.pn.deliverypush.service.mapper.CourtesyDigitalAddressMapper;
+import it.pagopa.pn.deliverypush.service.mapper.CourtesyCourtesyDigitalAddressMapper;
 import it.pagopa.pn.deliverypush.service.mapper.LegalLegalDigitalAddressMapper;
 import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.CourtesyDigitalAddress;
 import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.LegalDigitalAddress;
@@ -33,7 +33,7 @@ public class UserAttributesClientMock implements UserAttributesClient {
 
     public void addCourtesyDigitalAddresses(String taxId, String senderId, List<CourtesyDigitalAddressInt> courtesyDigitalAddresses) {
         List<CourtesyDigitalAddress> legalDigitalAddressList = courtesyDigitalAddresses.stream().map(
-                CourtesyDigitalAddressMapper::internalToExternal
+                CourtesyCourtesyDigitalAddressMapper::internalToExternal
         ).collect(Collectors.toList());
 
         String id = getId(taxId, senderId);

@@ -6,7 +6,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddre
 import it.pagopa.pn.deliverypush.externalclient.pnclient.userattributes.UserAttributesClient;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
-import it.pagopa.pn.deliverypush.service.mapper.CourtesyDigitalAddressMapper;
+import it.pagopa.pn.deliverypush.service.mapper.CourtesyCourtesyDigitalAddressMapper;
 import it.pagopa.pn.deliverypush.service.mapper.LegalLegalDigitalAddressMapper;
 import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.CourtesyDigitalAddress;
 import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.LegalDigitalAddress;
@@ -74,7 +74,7 @@ public class AddressBookServiceImpl implements AddressBookService {
             if(courtesyDigitalAddresses != null && !courtesyDigitalAddresses.isEmpty()){
                 return Optional.of(
                         courtesyDigitalAddresses.stream().map(
-                                CourtesyDigitalAddressMapper::externalToInternal
+                                CourtesyCourtesyDigitalAddressMapper::externalToInternal
                         ).collect(Collectors.toList())
                 );
             }
