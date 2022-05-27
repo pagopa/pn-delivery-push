@@ -31,9 +31,9 @@ public class PaperNotificationFailedDaoMock implements PaperNotificationFailedDa
 
     @Override
     public void deleteNotificationFailed(String recipientId, String iun) {
-        paperNotificationsFailed.remove(
-                paperNotificationsFailed.stream().filter(paperNotificationFailed -> recipientId.equals(paperNotificationFailed.getRecipientId())
-                        && iun.equals(paperNotificationFailed.getIun())).findFirst().get()
-        );
+        paperNotificationsFailed.stream().filter(
+                paperNotificationFailed -> recipientId.equals(paperNotificationFailed.getRecipientId()) && iun.equals(paperNotificationFailed.getIun()))
+                .findFirst()
+                .ifPresent(notificationFailed -> paperNotificationsFailed.remove(notificationFailed));
     }
 }

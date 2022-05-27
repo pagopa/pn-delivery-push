@@ -51,22 +51,50 @@ class NotificationViewedHandlerTest {
     @ExtendWith(MockitoExtension.class)
     @Test
     void handleViewNotification() {
-        NotificationInt notification = getNotification();
+        //GIVEN
+        String iun = "test_iun";
+        NotificationInt notification = getNotification(iun);
+        NotificationRecipientInt recipientInt = notification.getRecipients().get(0);
 
+        Mockito.when(timelineUtils.checkNotificationIsAlreadyViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
-
+        
+        //WHEN
         handler.handleViewNotification(notification.getIun(),0);
-
+        
+        //THEN
         Mockito.verify(timelineService).addTimelineElement(Mockito.any());
      
         Mockito.verify(legalFactStore).saveNotificationViewedLegalFact(eq(notification),Mockito.any(NotificationRecipientInt.class), Mockito.any(Instant.class));
 
+        Mockito.verify(paperNotificationFailedService).deleteNotificationFailed(recipientInt.getTaxId(), iun);
     }
 
-    private NotificationInt getNotification() {
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void handleAlreadyViewedNotification() {
+        //GIVEN
+        String iun = "test_iun";
+        NotificationInt notification = getNotification(iun);
+        NotificationRecipientInt recipientInt = notification.getRecipients().get(0);
+
+        Mockito.when(timelineUtils.checkNotificationIsAlreadyViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
+
+        //WHEN
+        handler.handleViewNotification(notification.getIun(),0);
+
+        //THEN
+        Mockito.verify(timelineService, Mockito.never()).addTimelineElement(Mockito.any());
+
+        Mockito.verify(legalFactStore, Mockito.never()).saveNotificationViewedLegalFact(eq(notification),Mockito.any(NotificationRecipientInt.class), Mockito.any(Instant.class));
+
+        Mockito.verify(paperNotificationFailedService, Mockito.never()).deleteNotificationFailed(recipientInt.getTaxId(), iun);
+    }
+    
+    private NotificationInt getNotification(String iun) {
         return NotificationInt.builder()
-                .iun("IUN_01")
+                .iun(iun)
                 .paNotificationId("protocol_01")
                 .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
