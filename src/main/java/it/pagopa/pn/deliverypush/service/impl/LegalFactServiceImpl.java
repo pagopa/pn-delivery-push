@@ -6,7 +6,6 @@ import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.externalclient.pnclient.externalchannel.ExternalChannelGetClient;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.LegalFactService;
@@ -21,7 +20,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.net.MalformedURLException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -33,18 +31,15 @@ public class LegalFactServiceImpl implements LegalFactService {
 
     private final TimelineService timelineService;
     private final PnSafeStorageClient safeStorageClient;
-    private final ExternalChannelGetClient externalChannelClient;
     private final NotificationService notificationService;
     private final NotificationUtils notificationUtils;
 
     public LegalFactServiceImpl(TimelineService timelineService,
                                 PnSafeStorageClient safeStorageClient,
-                                ExternalChannelGetClient externalChannelClient,
                                 NotificationService notificationService,
                                 NotificationUtils notificationUtils) {
         this.timelineService = timelineService;
         this.safeStorageClient = safeStorageClient;
-        this.externalChannelClient = externalChannelClient;
         this.notificationService = notificationService;
         this.notificationUtils = notificationUtils;
     }

@@ -64,7 +64,6 @@ class LegalFactServiceImplTest {
         legalFactService = new LegalFactServiceImpl(
                 timelineService,
                 safeStorageClient,
-                externalChannelClient,
                 notificationService,
                 notificationUtils
         );
