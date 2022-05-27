@@ -210,7 +210,7 @@ class AnalogTestIT {
 
 
         List<DigitalAddress> listCourtesyAddress = Collections.singletonList(DigitalAddress.builder()
-                .address("test@fail-both.it")
+                .address("test@works.it")
                 .build());
 
         pnDeliveryClientMock.addNotification(notification);

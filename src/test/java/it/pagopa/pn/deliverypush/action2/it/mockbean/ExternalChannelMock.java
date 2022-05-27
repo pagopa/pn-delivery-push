@@ -74,6 +74,8 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
         String newAddress;
 
         PhysicalAddress destinationAddress = recipientInt.getPhysicalAddress();
+        if (destinationAddress == null)
+            return;
         String street = destinationAddress.getAddress();
 
         Matcher matcher = NEW_ADDRESS_INPUT_PATTERN.matcher(street);
