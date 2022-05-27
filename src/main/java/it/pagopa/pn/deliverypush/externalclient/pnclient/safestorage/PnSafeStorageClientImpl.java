@@ -43,21 +43,28 @@ public class PnSafeStorageClientImpl implements PnSafeStorageClient {
 
     public FileDownloadResponse getFile(String fileKey, Boolean metadataOnly) {
         log.debug("Start call getFile - fileKey {} metadataOnly {}", fileKey, metadataOnly);
+
         return fileDownloadApi.getFile( fileKey, this.cfg.getSafeStorageCxId(), metadataOnly );
     }
 
     public FileCreationResponse createFile(FileCreationRequest fileCreationRequest) {
-        log.debug("Start call createFile - fileCreationRequest {}", fileCreationRequest);
+        log.debug("Start call createFile - documentType:{} status: {}", fileCreationRequest.getDocumentType(), fileCreationRequest.getStatus());
+
         return fileUploadApi.createFile( this.cfg.getSafeStorageCxId(), fileCreationRequest );
     }
 
     @Override
     public FileCreationResponse createAndUploadContent(FileCreationWithContentRequest fileCreationRequest) {
-            log.debug("Start call createAndUploadFile - fileCreationRequest {} filesize:{}", fileCreationRequest, fileCreationRequest.getContent().length);
+            log.debug("Start call createAndUploadFile - documentType {} filesize:{}", fileCreationRequest.getDocumentType(), fileCreationRequest.getContent().length);
+
             FileCreationResponse fileCreationResponse = this.createFile(fileCreationRequest);
+
             log.debug("createAndUploadContent create file preloaded");
+
             this.uploadContent(fileCreationRequest, fileCreationResponse);
+
             log.info("createAndUploadContent file uploaded successfully key:{}", fileCreationResponse.getKey());
+
             return fileCreationResponse;
     }
 
