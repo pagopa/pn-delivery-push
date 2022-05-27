@@ -18,7 +18,6 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBookEntry;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
@@ -233,9 +232,8 @@ class ValidationDocumentErrorTestIT {
                                 .recIndex(recIndex)
                                 .build())).isPresent());
         
-        Mockito.verify(externalChannelMock, Mockito.times(0)).sendNotification(Mockito.any(PnExtChnEmailEvent.class));
-        Mockito.verify(externalChannelMock, Mockito.times(0)).sendNotification(Mockito.any(PnExtChnPecEvent.class));
-        Mockito.verify(externalChannelMock, Mockito.times(0)).sendNotification(Mockito.any(PnExtChnPaperEvent.class));
+        Mockito.verify(externalChannelMock, Mockito.times(0)).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(DigitalAddress.class), Mockito.anyString());
+        Mockito.verify(externalChannelMock, Mockito.times(0)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
     }
 
 

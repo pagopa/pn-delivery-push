@@ -46,6 +46,7 @@ public class NotificationTestBuilder {
         return NotificationInt.builder()
                 .iun(iun)
                 .paNotificationId("protocol_01")
+                .subject("subject not very long but not too short")
                 .sentAt(Instant.now())
                 .physicalCommunicationType(ServiceLevelTypeInt.SIMPLE_REGISTERED_LETTER)
                 .sender(NotificationSenderInt.builder()

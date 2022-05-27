@@ -42,7 +42,7 @@ class NotificationViewedHandlerTest {
 
     @BeforeEach
     public void setup() {
-        notificationUtils = new NotificationUtils(legalFactGenerator);
+        notificationUtils = new NotificationUtils();
         handler = new NotificationViewedHandler(timelineService, legalFactStore,
                 paperNotificationFailedService, notificationService,
                 timelineUtils, instantNowSupplier, notificationUtils);

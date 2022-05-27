@@ -1,15 +1,12 @@
 package it.pagopa.pn.deliverypush.action2.it.mockbean;
 
-import it.pagopa.pn.api.dto.events.PnExtChnEmailEvent;
-import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
-import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.deliverypush.action2.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseStatus;
 import org.springframework.context.annotation.Lazy;
 
@@ -29,6 +26,8 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
     public static final String EXT_CHANNEL_SEND_NEW_ADDR = "NEW_ADDR:"; //Invio notifica fallita con nuovo indirizzo da investigazione
     //Esempio: La combinazione di EXT_CHANNEL_SEND_NEW_ADDR + EXTCHANNEL_SEND_OK ad esempio significa -> Invio notifica fallito ma con nuovo indirizzo trovato e l'invio a tale indirzzo avrà successo
 
+    private static final Pattern NEW_ADDRESS_INPUT_PATTERN = Pattern.compile("^" + EXT_CHANNEL_SEND_NEW_ADDR + "(.*)$");
+
     ExternalChannelResponseHandler externalChannelHandler;
 
     public ExternalChannelMock(@Lazy ExternalChannelResponseHandler externalChannelHandler) {
@@ -36,17 +35,13 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
     }
 
     @Override
-    public void sendNotification(PnExtChnEmailEvent event) {
+    public void sendDigitalNotification(NotificationInt notificationInt, DigitalAddress digitalAddress, String timelineEventId) {
         //Invio messaggio di cortesia non necessità di risposta da external channel
-    }
-
-    @Override
-    public void sendNotification(PnExtChnPecEvent event) {
         ResponseStatus status;
 
-        String pecAddress = event.getPayload().getPecAddress();
+        String pecAddress = digitalAddress.getAddress();
 
-        String eventId = event.getHeader().getEventId();
+        String eventId = timelineEventId;
         String retryNumberPart = eventId.replaceFirst(".*([0-9]+)$", "$1");
 
         if (pecAddress != null) {
@@ -65,22 +60,20 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
         }
 
         ExtChannelResponse extChannelResponse = ExtChannelResponse.builder()
-                .eventId(event.getHeader().getEventId())
+                .eventId(timelineEventId)
                 .responseStatus(status)
                 .notificationDate(Instant.now())
-                .iun(event.getPayload().getIun())
+                .iun(notificationInt.getIun())
                 .build();
         externalChannelHandler.extChannelResponseReceiver(extChannelResponse);
     }
 
-    private static final Pattern NEW_ADDRESS_INPUT_PATTERN = Pattern.compile("^" + EXT_CHANNEL_SEND_NEW_ADDR + "(.*)$");
-
     @Override
-    public void sendNotification(PnExtChnPaperEvent event) {
+    public void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, String timelineEventId, ANALOG_TYPE analogType, String aarKey) {
         ResponseStatus status;
         String newAddress;
 
-        PhysicalAddress destinationAddress = event.getPayload().getDestinationAddress();
+        PhysicalAddress destinationAddress = recipientInt.getPhysicalAddress();
         String street = destinationAddress.getAddress();
 
         Matcher matcher = NEW_ADDRESS_INPUT_PATTERN.matcher(street);
@@ -99,10 +92,10 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
 
 
         ExtChannelResponse.ExtChannelResponseBuilder responseBuilder = ExtChannelResponse.builder()
-                .iun(event.getPayload().getIun())
+                .iun(notificationInt.getIun())
                 .notificationDate(Instant.now())
                 .responseStatus(status)
-                .eventId(event.getHeader().getEventId());
+                .eventId(timelineEventId);
 
         if (newAddress != null) {
 
@@ -119,20 +112,5 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
         }
 
         externalChannelHandler.extChannelResponseReceiver(responseBuilder.build());
-    }
-
-    @Override
-    public void sendCourtesyNotification(NotificationInt notificationInt, DigitalAddress digitalAddress, String eventtype) {
-
-    }
-
-    @Override
-    public void sendLegalNotification(NotificationInt notificationInt, DigitalAddress digitalAddress, String eventtype) {
-
-    }
-
-    @Override
-    public void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, String eventtype) {
-
     }
 }

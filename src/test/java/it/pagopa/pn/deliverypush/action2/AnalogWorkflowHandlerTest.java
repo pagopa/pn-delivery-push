@@ -44,7 +44,7 @@ class AnalogWorkflowHandlerTest {
         handler = new AnalogWorkflowHandler(notificationService, externalChannelSendHandler,
                 completionWorkFlow, analogWorkflowUtils,
                 publicRegistrySendHandler, instantNowSupplier);
-        notificationUtils= new NotificationUtils(legalFactGenerator);
+        notificationUtils= new NotificationUtils();
     }
 
     @ExtendWith(MockitoExtension.class)

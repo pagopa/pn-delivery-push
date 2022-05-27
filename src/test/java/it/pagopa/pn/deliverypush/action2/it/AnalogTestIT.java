@@ -18,7 +18,6 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.externalclient.addressbook.AddressBookEntry;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
@@ -209,8 +208,9 @@ class AnalogTestIT {
                 .withNotificationRecipient(recipient)
                 .build();
 
+
         List<DigitalAddress> listCourtesyAddress = Collections.singletonList(DigitalAddress.builder()
-                .address("test@mail.it")
+                .address("test@fail-both.it")
                 .build());
 
         pnDeliveryClientMock.addNotification(notification);
@@ -236,7 +236,7 @@ class AnalogTestIT {
         //checkSendToExtChannel(iun, TestUtils.PHYSICAL_ADDRESS_FAILURE_BOTH, 1);
 
         //Viene verificato l'effettivo invio delle due notifiche verso externalChannel
-        Mockito.verify(externalChannelMock, Mockito.times(2)).sendNotification(Mockito.any(PnExtChnPaperEvent.class));
+        Mockito.verify(externalChannelMock, Mockito.times(2)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
 
         //Viene verificato che il workflow sia fallito
         Assertions.assertTrue(timelineService.getTimelineElement(
@@ -320,7 +320,7 @@ class AnalogTestIT {
         */
 
         //Vengono verificati il numero di send verso external channel
-        Mockito.verify(externalChannelMock, Mockito.times(2)).sendNotification(Mockito.any(PnExtChnPaperEvent.class));
+        Mockito.verify(externalChannelMock, Mockito.times(2)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
 
         TestUtils.checkSuccessAnalogWorkflow(iun, recIndex, timelineService, completionWorkflow);
 

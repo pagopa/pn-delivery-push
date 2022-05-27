@@ -41,7 +41,7 @@ class StartWorkflowHandlerTest {
 
     @BeforeEach
     public void setup() {
-        notificationUtils= new NotificationUtils(legalFactGenerator);
+        notificationUtils= new NotificationUtils();
         handler = new StartWorkflowHandler(legalFactDao, notificationService, courtesyMessageUtils,
                 chooseDeliveryType, timelineService, timelineUtils, attachmentService,
                 notificationUtils);

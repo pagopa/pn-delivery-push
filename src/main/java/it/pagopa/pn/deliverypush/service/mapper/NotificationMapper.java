@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
-import it.pagopa.pn.api.dto.events.ServiceLevelType;
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
@@ -20,13 +19,12 @@ public class NotificationMapper {
         List<NotificationRecipientInt> listNotificationRecipientInt = mapNotificationRecipient(sentNotification.getRecipients());
         List<NotificationDocumentInt> listNotificationDocumentIntInt = mapNotificationDocument(sentNotification.getDocuments());
 
-        ServiceLevelTypeInt lvl = null;
-        if( sentNotification.getPhysicalCommunicationType() != null ) {
-            lvl = ServiceLevelTypeInt.valueOf( sentNotification.getPhysicalCommunicationType().name() );
-        }
+        ServiceLevelTypeInt lvl =  ServiceLevelTypeInt.valueOf( sentNotification.getPhysicalCommunicationType().name());
+
 
         return NotificationInt.builder()
                 .iun(sentNotification.getIun())
+                .subject(sentNotification.getSubject())
                 .paNotificationId(sentNotification.getPaProtocolNumber())
                 .physicalCommunicationType( lvl )
                 .sentAt(sentNotification.getSentAt())
@@ -159,6 +157,7 @@ public class NotificationMapper {
         sentNotification.setIun(notification.getIun());
         sentNotification.setPaProtocolNumber(notification.getPaNotificationId());
         sentNotification.setSentAt(notification.getSentAt());
+        sentNotification.setSubject(notification.getSubject());
 
         if( notification.getPhysicalCommunicationType() != null ) {
             sentNotification.setPhysicalCommunicationType(

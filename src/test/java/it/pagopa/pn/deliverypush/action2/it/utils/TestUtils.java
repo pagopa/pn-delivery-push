@@ -46,7 +46,7 @@ public class TestUtils {
             index++;
         }
         //Viene verificato l'effettivo invio del messaggio di cortesia verso external channel
-        Mockito.verify(externalChannelMock, Mockito.times(courtesyAddresses.size())).sendNotification(Mockito.any(PnExtChnEmailEvent.class));
+        Mockito.verify(externalChannelMock, Mockito.times(courtesyAddresses.size())).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(DigitalAddress.class), Mockito.anyString());
     }
 
     public static void checkGetAddress(String iun, Integer recIndex, Boolean isAvailable, DigitalAddressSource source, int sentAttempt, TimelineService timelineService) {
@@ -163,9 +163,9 @@ public class TestUtils {
                                 .build())).isPresent());
     }
 
-    public static void checkExternalChannelPecSend(String iun, String taxId, List<PnExtChnPecEvent> sendPecEvent, int sendTime, String address) {
-        Assertions.assertEquals(iun, sendPecEvent.get(sendTime).getPayload().getIun());
-        Assertions.assertEquals(taxId, sendPecEvent.get(sendTime).getPayload().getRecipientTaxId());
-        Assertions.assertEquals(address, sendPecEvent.get(sendTime).getPayload().getPecAddress());
+    public static void checkExternalChannelPecSend(String iunExpected, String addressExpected, String iunValue, String addressValue) {
+        Assertions.assertEquals(iunExpected, iunValue);
+        //Assertions.assertEquals(taxIdExpected, taxIdValue);
+        Assertions.assertEquals(addressExpected, addressValue);
     }
 }
