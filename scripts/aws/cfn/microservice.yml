@@ -227,7 +227,7 @@ Resources:
 #            - '='
 #            - - CLIENT_KEY_PEM
 #              - '{{resolve:secretsmanager:pa_webhook_client_cert:SecretString:client_key_pem}}'
-        ContainerEnvEntry21: !Sub 'SPRING_CLOUD_STREAM_BINDINGS_FUNCTIONROUTERIN0_DESTINATION=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName}'
+        ContainerEnvEntry21: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName}'
         ContainerEnvEntry22: 'PN_DELIVERYPUSH_FEATUREFLAGS_WORKFLOW=v2'
         ContainerEnvEntry23: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry24: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
