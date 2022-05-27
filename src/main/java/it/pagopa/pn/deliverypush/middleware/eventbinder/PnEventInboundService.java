@@ -22,6 +22,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
+import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -62,6 +63,7 @@ public class PnEventInboundService {
        return message -> {
            log.info("messaggio ricevuto da customRouter "+message);
            String eventType = (String) message.getHeaders().get("eventType");
+           log.info("messaggio ricevuto da customRouter eventType={}", eventType );
            if(eventType != null){
                if(ActionEventType.ACTION_GENERIC.name().equals(eventType)) 
                    return handleAction(message);
@@ -69,7 +71,12 @@ public class PnEventInboundService {
                log.error("eventType not present, cannot start scheduled action");
                throw new PnInternalException("eventType not present, cannot start scheduled action");
            }
-           return eventHandler.getHandler().get(eventType);
+
+           String handlerName = eventHandler.getHandler().get(eventType);
+           if( ! StringUtils.hasText( handlerName) ) {
+               log.error("undefined handler for eventType={}", eventType);
+           }
+           return handlerName;
        };
     }
 
@@ -80,8 +87,12 @@ public class PnEventInboundService {
             Map<String, String> actionMap = getActionMapFromMessage(message);
             String actionType = actionMap.get("type");
             if(actionType != null){
-                return eventHandler.getHandler().get(actionType);
-            }else {
+                String handlerName = eventHandler.getHandler().get(actionType);
+                if( ! StringUtils.hasText( handlerName) ) {
+                    log.error("undefined handler for actionType={}", actionType);
+                }
+                return handlerName;
+            } else {
                 log.error("actionType not present, cannot start scheduled action");
                 throw new PnInternalException("actionType not present, cannot start scheduled action");
             }
