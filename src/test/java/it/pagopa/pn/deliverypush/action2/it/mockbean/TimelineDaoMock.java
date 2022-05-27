@@ -37,13 +37,15 @@ public class TimelineDaoMock implements TimelineDao {
     
     @Override
     public void addTimelineElement(TimelineElementInternal row) {
-        NotificationRecipientInt notificationRecipientInt = getRecipientInt(row);
-
-        String viewNotificationString = SIMULATE_VIEW_NOTIFICATION + row.getElementId();
-        
-        if(notificationRecipientInt.getTaxId().startsWith(viewNotificationString)){
-            //Viene simulata la visualizzazione della notifica prima di uno specifico inserimento in timeline
-            notificationViewedHandler.handleViewNotification( row.getIun(), row.getDetails().getRecIndex() );
+        if( row.getDetails() != null && row.getDetails().getRecIndex() != null ){
+            
+            NotificationRecipientInt notificationRecipientInt = getRecipientInt(row);
+            String viewNotificationString = SIMULATE_VIEW_NOTIFICATION + row.getElementId();
+            
+            if(notificationRecipientInt.getTaxId().startsWith(viewNotificationString)){
+                //Viene simulata la visualizzazione della notifica prima di uno specifico inserimento in timeline
+                notificationViewedHandler.handleViewNotification( row.getIun(), row.getDetails().getRecIndex() );
+            }
         }
         
         timelineList.add(row);
