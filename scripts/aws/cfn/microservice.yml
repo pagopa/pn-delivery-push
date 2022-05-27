@@ -221,7 +221,6 @@ Resources:
         ContainerEnvEntry20: !Sub 'PN_DELIVERYPUSH_USERATTRIBUTESBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry21: !Sub 'PN_DELIVERYPUSH_SAFESTORAGEBASEURL=${SandboxSafeStorageBaseUrl}'
         ContainerEnvEntry22: 'PN_DELIVERYPUSH_SAFESTORAGECXID=pn-delivery'
-        #ContainerEnvEntry20: 'SPRING_DATA_CASSANDRA_SSL=true'
         #ContainerEnvEntry21: !Sub 'SPRING_DATA_CASSANDRA_CONTACTPOINTS=cassandra.${AWS::Region}.${AWS::URLSuffix}:9142'
 # WAIT for real client certificates (PN-565)
 #        ContainerEnvEntry21:
@@ -234,15 +233,16 @@ Resources:
 #            - '='
 #            - - CLIENT_KEY_PEM
 #              - '{{resolve:secretsmanager:pa_webhook_client_cert:SecretString:client_key_pem}}'
-        ContainerEnvEntry23: 'PN_DELIVERYPUSH_FEATUREFLAGS_WORKFLOW=v2'
-        ContainerEnvEntry24: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry25: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
-        ContainerEnvEntry26: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
-        ContainerEnvEntry27: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
-        ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_ACTIONDAO_TABLENAME=${ActionDynamoTableName}'
-        ContainerEnvEntry29: !Sub 'PN_DELIVERYPUSH_FUTUREACTIONDAO_TABLENAME=${FutureActionDynamoTableName}'
-        ContainerEnvEntry30: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_TABLENAME=${LastPollForFutureActionDynamoTableName}'
-        ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_LOCKTABLENAME=${PnDeliveryPushShedLockDynamoTableName}'
+        ContainerEnvEntry23: !Sub 'SPRING_CLOUD_STREAM_BINDINGS_FUNCTIONROUTERIN0_DESTINATION=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName}'
+        ContainerEnvEntry24: 'PN_DELIVERYPUSH_FEATUREFLAGS_WORKFLOW=v2'
+        ContainerEnvEntry25: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry26: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
+        ContainerEnvEntry27: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
+        ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
+        ContainerEnvEntry29: !Sub 'PN_DELIVERYPUSH_ACTIONDAO_TABLENAME=${ActionDynamoTableName}'
+        ContainerEnvEntry30: !Sub 'PN_DELIVERYPUSH_FUTUREACTIONDAO_TABLENAME=${FutureActionDynamoTableName}'
+        ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_TABLENAME=${LastPollForFutureActionDynamoTableName}'
+        ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_LOCKTABLENAME=${PnDeliveryPushShedLockDynamoTableName}'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
@@ -355,15 +355,15 @@ Resources:
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
 
   # Expose PN-Delivery-push microservice public API with API-GW for IO usage
-  DeliveryPushMicroservicePublicIoAPI:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service.yaml"
-      Parameters:
-        MicroServiceUniqueName: !Sub '${ProjectName}-delivery-push'
-        IntendedUsage: IO
-        DnsName: !Ref IoApiDnsName
-        ProjectName: !Ref ProjectName
-        ServiceApiPath: 'delivery-push'
-        NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
-        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
+  # DeliveryPushMicroservicePublicIoAPI:
+  #   Type: AWS::CloudFormation::Stack
+  #   Properties:
+  #     TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service.yaml"
+  #     Parameters:
+  #       MicroServiceUniqueName: !Sub '${ProjectName}-delivery-push'
+  #       IntendedUsage: IO
+  #       DnsName: !Ref IoApiDnsName
+  #       ProjectName: !Ref ProjectName
+  #       ServiceApiPath: 'delivery-push'
+  #       NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
+  #       ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
