@@ -4,6 +4,7 @@ import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.action2.utils.ChooseDeliveryModeUtils;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ContactPhase;
@@ -53,12 +54,12 @@ public class ChooseDeliveryModeHandler {
         log.info("Start ChooseDeliveryTypeAndStartWorkflow process-IUN {} id {}", notification.getIun(), recIndex);
 
         String iun = notification.getIun();
-        Optional<DigitalAddress> platformAddressOpt = chooseDeliveryUtils.getPlatformAddress(notification, recIndex);
+        Optional<LegalDigitalAddressInt> platformAddressOpt = chooseDeliveryUtils.getPlatformAddress(notification, recIndex);
 
         //Verifico presenza indirizzo di piattaforma, ...
         if (platformAddressOpt.isPresent()) {
             log.info("Platform address is present, Digital workflow can be started - IUN {} id {}", notification.getIun(), recIndex);
-            DigitalAddress platformAddress = platformAddressOpt.get();
+            LegalDigitalAddressInt platformAddress = platformAddressOpt.get();
             
             chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, iun, DigitalAddressSource.PLATFORM, true);
             startDigitalWorkflow(notification, platformAddress, DigitalAddressSource.PLATFORM, recIndex);
@@ -67,7 +68,7 @@ public class ChooseDeliveryModeHandler {
             chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, iun, DigitalAddressSource.PLATFORM, false);
 
             // ... se non lo trovo, verifico presenza indirizzo speciale, ...
-            DigitalAddress specialAddress = chooseDeliveryUtils.getDigitalDomicile(notification, recIndex);
+            LegalDigitalAddressInt specialAddress = chooseDeliveryUtils.getDigitalDomicile(notification, recIndex);
             if (specialAddress != null) {
                 log.info("Special address is present, Digital workflow can be started  - iun {} id {}", notification.getIun(), recIndex);
 
@@ -119,7 +120,7 @@ public class ChooseDeliveryModeHandler {
      * @param digitalAddress User address
      * @param recIndex      User identifier
      */
-    public void startDigitalWorkflow(NotificationInt notification, DigitalAddress digitalAddress, DigitalAddressSource addressSource, Integer recIndex) {
+    public void startDigitalWorkflow(NotificationInt notification, LegalDigitalAddressInt digitalAddress, DigitalAddressSource addressSource, Integer recIndex) {
         log.info("Starting digital workflow sending notification to external channel - iun {} id {} ", notification.getIun(), recIndex);
         externalChannelSendHandler.sendDigitalNotification(notification, digitalAddress, addressSource, recIndex, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER);
     }

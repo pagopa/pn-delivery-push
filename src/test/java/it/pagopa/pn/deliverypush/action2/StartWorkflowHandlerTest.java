@@ -1,9 +1,7 @@
 package it.pagopa.pn.deliverypush.action2;
 
-import it.pagopa.pn.deliverypush.action2.utils.CheckAttachmentUtils;
-import it.pagopa.pn.deliverypush.action2.utils.CourtesyMessageUtils;
-import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
-import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.action2.utils.*;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
@@ -34,6 +32,8 @@ class StartWorkflowHandlerTest {
     @Mock
     private TimelineUtils timelineUtils;
     @Mock
+    private AarUtils aarUtils;
+    @Mock
     private CheckAttachmentUtils attachmentService;
     
     private StartWorkflowHandler handler;
@@ -44,7 +44,7 @@ class StartWorkflowHandlerTest {
         notificationUtils= new NotificationUtils();
         handler = new StartWorkflowHandler(legalFactDao, notificationService, courtesyMessageUtils,
                 chooseDeliveryType, timelineService, timelineUtils, attachmentService,
-                notificationUtils);
+                notificationUtils, aarUtils);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -78,8 +78,8 @@ class StartWorkflowHandlerTest {
                         NotificationRecipientInt.builder()
                                 .taxId("testIdRecipient")
                                 .denomination("Nome Cognome/Ragione Sociale")
-                                .digitalDomicile(DigitalAddress.builder()
-                                        .type(DigitalAddress.TypeEnum.PEC)
+                                .digitalDomicile(LegalDigitalAddressInt.builder()
+                                        .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                                         .address("account@dominio.it")
                                         .build())
                                 .build()

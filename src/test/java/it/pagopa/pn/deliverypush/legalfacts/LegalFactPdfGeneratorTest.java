@@ -11,15 +11,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import freemarker.template.Configuration;
 import freemarker.template.Version;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseStatus;
@@ -104,7 +101,7 @@ class LegalFactPdfGeneratorTest {
 		SendDigitalFeedback sdf = SendDigitalFeedback.builder()
 				.recIndex( 0 )
 				.digitalAddress(DigitalAddress.builder()
-						.type(DigitalAddress.TypeEnum.PEC)
+						.type("PEC")
 						.address("indirizzo di prova test")
 						.build())
 				.responseStatus(status)
@@ -145,9 +142,9 @@ class LegalFactPdfGeneratorTest {
 		NotificationRecipientInt rec1 = NotificationRecipientInt.builder()
 				.taxId("CDCFSC11R99X001Z")
 				.denomination("Galileo Bruno")
-				.digitalDomicile(DigitalAddress.builder()
+				.digitalDomicile(LegalDigitalAddressInt.builder()
 						.address("test@dominioPec.it")
-						.type(DigitalAddress.TypeEnum.PEC)
+						.type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
 						.build())
 				.physicalAddress(new PhysicalAddress(
 						"Palazzo dell'Inquisizione",

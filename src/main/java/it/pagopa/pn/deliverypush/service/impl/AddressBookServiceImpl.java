@@ -1,12 +1,13 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.userattributes.UserAttributesClient;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
 import it.pagopa.pn.deliverypush.service.mapper.CourtesyDigitalAddressMapper;
-import it.pagopa.pn.deliverypush.service.mapper.LegalDigitalAddressMapper;
+import it.pagopa.pn.deliverypush.service.mapper.LegalLegalDigitalAddressMapper;
 import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.CourtesyDigitalAddress;
 import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.LegalDigitalAddress;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +28,7 @@ public class AddressBookServiceImpl implements AddressBookService {
     }
 
     @Override
-    public Optional<DigitalAddress> getPlatformAddresses(String taxId, String senderId) {
+    public Optional<LegalDigitalAddressInt> getPlatformAddresses(String taxId, String senderId) {
         ResponseEntity<List<LegalDigitalAddress>> resp = userAttributesClient.getLegalAddressBySender(taxId, senderId);
 
         if (resp.getStatusCode().is2xxSuccessful()) {
@@ -40,14 +41,14 @@ public class AddressBookServiceImpl implements AddressBookService {
                     log.warn("Digital addresses list contains more than one element ");
                 }
 
-                List<DigitalAddress> digitalAddresses = legalDigitalAddresses.stream().map(
-                        LegalDigitalAddressMapper::externalToInternal
+                List<LegalDigitalAddressInt> digitalAddresses = legalDigitalAddresses.stream().map(
+                        LegalLegalDigitalAddressMapper::externalToInternal
                 ).collect(Collectors.toList());
                         
-                for(DigitalAddress address : digitalAddresses){
+                for(LegalDigitalAddressInt address : digitalAddresses){
                     log.debug("For taxId {} and senderId {} address type {} is available", taxId, senderId, address.getType());
 
-                    if(DigitalAddress.TypeEnum.PEC.equals(address.getType())){
+                    if(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC.equals(address.getType())){
                         return Optional.of(address);
                     }
                 }
@@ -63,7 +64,7 @@ public class AddressBookServiceImpl implements AddressBookService {
     }
 
     @Override
-    public Optional<List<DigitalAddress>> getCourtesyAddress(String taxId, String senderId) {
+    public Optional<List<CourtesyDigitalAddressInt>> getCourtesyAddress(String taxId, String senderId) {
         ResponseEntity<List<CourtesyDigitalAddress>> resp = userAttributesClient.getCourtesyAddressBySender(taxId, senderId);
 
         if (resp.getStatusCode().is2xxSuccessful()) {

@@ -45,7 +45,7 @@ class ExternalChannelHandlerTest {
                 .digitalAddress(
                         DigitalAddress.builder()
                                 .address("TEST")
-                                .type(DigitalAddress.TypeEnum.PEC).build())
+                                .type("PEC").build())
                 .build();
 
         TimelineElementDetails genericDetails = SmartMapper.mapToClass(details, TimelineElementDetails.class);

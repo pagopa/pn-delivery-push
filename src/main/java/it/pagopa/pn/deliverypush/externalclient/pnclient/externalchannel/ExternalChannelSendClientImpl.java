@@ -10,9 +10,7 @@ import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.Dig
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.DigitalNotificationRequest;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.PaperEngageRequest;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.util.LogUtils;
@@ -21,7 +19,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -63,10 +60,8 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
         this.cfg = cfg;
     }
 
-
-
     @Override
-    public void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, String timelineEventId, ANALOG_TYPE analogType, String aarKey) {
+    public void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, PhysicalAddress physicalAddress, String timelineEventId, ANALOG_TYPE analogType, String aarKey) {
 
         PaperEngageRequest paperEngageRequest = new PaperEngageRequest();
         paperEngageRequest.setRequestId(timelineEventId);
@@ -79,7 +74,6 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
         // nome e indirizzo destinatario
         paperEngageRequest.setReceiverName(recipientInt.getDenomination());
 
-        PhysicalAddress physicalAddress = recipientInt.getPhysicalAddress();
         paperEngageRequest.setReceiverAddress(physicalAddress.getAddress());
         paperEngageRequest.setReceiverAddressRow2(physicalAddress.getAddressDetails());
         paperEngageRequest.setReceiverCap(physicalAddress.getZip());
@@ -94,39 +88,31 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
         paperMessagesApi.sendPaperEngageRequest(timelineEventId, cfg.getExternalchannelCxId(), paperEngageRequest);
     }
 
-    public void checkAnalogNotification(String timelineEventId)
+    @Override
+    public void sendLegalNotification(NotificationInt notificationInt, LegalDigitalAddressInt digitalAddress, String timelineEventId)
     {
-        // TODO fare il check a polling per ora?
-        paperMessagesApi.getPaperEngageProgresses(timelineEventId, cfg.getExternalchannelCxId());
-    }
-
-    public void checkDigitalNotification(String timelineEventId)
-    {
-        // TODO fare il check a polling per ora?
-        digitalLegalMessagesApi.getDigitalLegalMessageStatus(timelineEventId, cfg.getExternalchannelCxId());
-        digitalCourtesyMessagesApi.getDigitalCourtesyMessageStatus(timelineEventId, cfg.getExternalchannelCxId());
+        if (digitalAddress.getType() == LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+            sendNotificationPEC(timelineEventId, notificationInt, digitalAddress);
+        else
+            throw new PnInternalException("channel type not supported");
     }
 
     @Override
-    public void sendDigitalNotification(NotificationInt notificationInt, DigitalAddress recipientAddress, String timelineEventId) {
-
-        // FIXME: sistemare l'enum del tipo
-        if (recipientAddress.getType() == DigitalAddress.TypeEnum.PEC) // SMS
-            sendNotificationSMS(timelineEventId, notificationInt, recipientAddress);
-        else if (recipientAddress.getType() == DigitalAddress.TypeEnum.PEC) // EMAIL
-            sendNotificationEMAIL(timelineEventId, notificationInt, recipientAddress);
-        else  if (recipientAddress.getType() == DigitalAddress.TypeEnum.PEC) // PEC
-            sendNotificationPEC(timelineEventId, notificationInt, recipientAddress);
+    public void sendCourtesyNotification(NotificationInt notificationInt, CourtesyDigitalAddressInt digitalAddress, String timelineEventId)
+    {
+        if (digitalAddress.getType() == CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL)
+            sendNotificationEMAIL(timelineEventId, notificationInt, digitalAddress);
+        else if (digitalAddress.getType() == CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.SMS)
+            sendNotificationSMS(timelineEventId, notificationInt, digitalAddress);
         else
             throw new PnInternalException("channel type not supported");
-
     }
 
 
-    private void sendNotificationPEC(String requestId, NotificationInt notificationInt, DigitalAddress digitalAddress)
+    private void sendNotificationPEC(String requestId, NotificationInt notificationInt, DigitalAddressInt digitalAddress)
     {
         try {
-            log.info("sendNotificationPEC address:{} type:{} requestId:{}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), digitalAddress.getType(), requestId);
+            log.info("sendNotificationPEC address:{} requestId:{}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), requestId);
 
             String mailbody = legalFactGenerator.generateNotificationAARBody(notificationInt);
             String mailsubj = legalFactGenerator.generateNotificationAARSubject(notificationInt);
@@ -149,10 +135,10 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
         }
     }
 
-    private void sendNotificationEMAIL(String requestId, NotificationInt notificationInt, DigitalAddress digitalAddress)
+    private void sendNotificationEMAIL(String requestId, NotificationInt notificationInt, DigitalAddressInt digitalAddress)
     {
         try {
-            log.info("sendNotificationEMAIL address:{} type:{} requestId:{}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), digitalAddress.getType(), requestId);
+            log.info("sendNotificationEMAIL address:{} requestId:{}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), requestId);
 
             String mailbody = legalFactGenerator.generateNotificationAARBody(notificationInt);
             String mailsubj = legalFactGenerator.generateNotificationAARSubject(notificationInt);
@@ -175,10 +161,10 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
         }
     }
 
-    private void sendNotificationSMS(String requestId, NotificationInt notificationInt, DigitalAddress digitalAddress)
+    private void sendNotificationSMS(String requestId, NotificationInt notificationInt, DigitalAddressInt digitalAddress)
     {
         try {
-            log.info("sendNotificationSMS address:{} type:{} requestId:{}", LogUtils.maskNumber(digitalAddress.getAddress()), digitalAddress.getType(), requestId);
+            log.info("sendNotificationSMS address:{} requestId:{}", LogUtils.maskNumber(digitalAddress.getAddress()), requestId);
 
             String smsbody = legalFactGenerator.generateNotificationAARForSMS(notificationInt);
 
@@ -199,12 +185,12 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
 
     private String getProductType(ANALOG_TYPE serviceLevelType)
     {
-        /**
-         * Tipo prodotto di cui viene chiesto il recapito:
-         * - AR: Raccomandata Andata e Ritorno,
-         * - 890: Recapito a norma della legge 890/1982,
-         * - RI: Raccomandata Internazionale,
-         * - RS: Raccomandata Semplice (per Avviso di mancato Recapito).
+        /*
+          Tipo prodotto di cui viene chiesto il recapito:
+          - AR: Raccomandata Andata e Ritorno,
+          - 890: Recapito a norma della legge 890/1982,
+          - RI: Raccomandata Internazionale,
+          - RS: Raccomandata Semplice (per Avviso di mancato Recapito).
          */
         switch (serviceLevelType){
             case REGISTERED_LETTER_890:

@@ -1,23 +1,19 @@
 package it.pagopa.pn.deliverypush.action2;
 
-import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.action2.utils.AarUtils;
 import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
 import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
-import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.AarGenerationDetails;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
-import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
 
 @Component
 @Slf4j
@@ -25,20 +21,20 @@ public class ExternalChannelSendHandler {
     private final ExternalChannelUtils externalChannelUtils;
     private final ExternalChannelSendClient externalChannel;
     private final NotificationUtils notificationUtils;
-    private final TimelineService timelineService;
+    private final AarUtils aarUtils;
 
-    public ExternalChannelSendHandler(ExternalChannelUtils externalChannelUtils, ExternalChannelSendClient externalChannel, NotificationUtils notificationUtils, TimelineService timelineService) {
+    public ExternalChannelSendHandler(ExternalChannelUtils externalChannelUtils, ExternalChannelSendClient externalChannel, NotificationUtils notificationUtils, AarUtils aarUtils) {
         this.externalChannelUtils = externalChannelUtils;
         this.externalChannel = externalChannel;
         this.notificationUtils = notificationUtils;
-        this.timelineService = timelineService;
+        this.aarUtils = aarUtils;
     }
 
     /**
      * Send pec notification to external channel
      * MEssaggio con valore legale (PEC)
      */
-    public void sendDigitalNotification(NotificationInt notification, DigitalAddress digitalAddress, DigitalAddressSource addressSource, Integer recIndex,
+    public void sendDigitalNotification(NotificationInt notification, LegalDigitalAddressInt digitalAddress, DigitalAddressSource addressSource, Integer recIndex,
                                         int sentAttemptMade) {
 
         String eventId = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
@@ -52,7 +48,7 @@ public class ExternalChannelSendHandler {
 
         externalChannelUtils.addSendDigitalNotificationToTimeline(notification, digitalAddress, addressSource, recIndex, sentAttemptMade, eventId);
 
-        externalChannel.sendDigitalNotification(notification, digitalAddress, eventId);
+        externalChannel.sendLegalNotification(notification, digitalAddress, eventId);
     }
 
     /**
@@ -60,11 +56,11 @@ public class ExternalChannelSendHandler {
      * MEssaggio senza valore legale (EMAIL, SMS)
      *
      */
-    public void sendCourtesyNotification(NotificationInt notification, DigitalAddress courtesyAddress, Integer recIndex, String eventId) {
+    public void sendCourtesyNotification(NotificationInt notification, CourtesyDigitalAddressInt courtesyAddress, Integer recIndex, String eventId) {
 
         externalChannelUtils.addSendCourtesyMessageToTimeline(notification, courtesyAddress, recIndex, eventId);
 
-        externalChannel.sendDigitalNotification(notification, courtesyAddress, eventId);
+        externalChannel.sendCourtesyNotification(notification, courtesyAddress, eventId);
     }
 
     /**
@@ -83,8 +79,8 @@ public class ExternalChannelSendHandler {
         externalChannelUtils.addSendSimpleRegisteredLetterToTimeline(notification, physicalAddress, recIndex, eventId);
 
         // la tipologia qui è sempre raccomandata semplice SR
-        externalChannel.sendAnalogNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), eventId,
-                ExternalChannelSendClient.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER, getAarPdfFromTimeline(notification, recIndex));
+        externalChannel.sendAnalogNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), physicalAddress, eventId,
+                ExternalChannelSendClient.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER, aarUtils.getAarPdfFromTimeline(notification, recIndex));
     }
 
     /**
@@ -105,26 +101,9 @@ public class ExternalChannelSendHandler {
 
         // c'è una discrepanza nella nomenclatura tra l'enum serviceleveltype.SIMPLE_REGISTERED_LETTER che si traduce in AR e non SR.
         // Cmq se non è 890, si intende AR.
-        externalChannel.sendAnalogNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), eventId,
+        externalChannel.sendAnalogNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), physicalAddress, eventId,
                 notification.getPhysicalCommunicationType()== ServiceLevelTypeInt.REGISTERED_LETTER_890?ExternalChannelSendClient.ANALOG_TYPE.REGISTERED_LETTER_890:ExternalChannelSendClient.ANALOG_TYPE.AR_REGISTERED_LETTER
-                , getAarPdfFromTimeline(notification, recIndex));
+                , aarUtils.getAarPdfFromTimeline(notification, recIndex));
     }
 
-    private String getAarPdfFromTimeline(NotificationInt notification, Integer recIndex) {
-        // ricostruisco il timelineid della  genrazione dell'aar
-        String aarGenerationEventId = TimelineEventId.AAR_GENERATION.buildEventId(
-                EventId.builder()
-                        .iun(notification.getIun())
-                        .recIndex(recIndex)
-                        .build()
-        );
-
-        Optional<AarGenerationDetails> detail = timelineService
-                    .getTimelineElementDetails(notification.getIun(), aarGenerationEventId, AarGenerationDetails.class);
-
-        if (detail.isEmpty())
-            throw new PnInternalException("cannot retreieve AAR pdf safestoragekey");
-
-        return detail.get().getSafestorageKey();
-    }
 }

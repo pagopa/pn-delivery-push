@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.action2.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfo;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
@@ -106,7 +107,7 @@ public class DigitalWorkFlowUtils {
     }
 
     @Nullable
-    public DigitalAddress getAddressFromSource(DigitalAddressSource addressSource, Integer recIndex, NotificationInt notification) {
+    public LegalDigitalAddressInt getAddressFromSource(DigitalAddressSource addressSource, Integer recIndex, NotificationInt notification) {
         log.info("GetAddressFromSource for source {} - iun {} id {}", addressSource, notification.getIun(), recIndex);
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         
@@ -131,10 +132,10 @@ public class DigitalWorkFlowUtils {
         throw new PnInternalException("Specified addressSource " + addressSource + " does not exist - iun " + notification.getIun() + " id " + recipient.getTaxId());
     }
 
-    private DigitalAddress retrievePlatformAddress(NotificationRecipientInt recipient, NotificationSenderInt sender) {
+    private LegalDigitalAddressInt retrievePlatformAddress(NotificationRecipientInt recipient, NotificationSenderInt sender) {
         log.debug("RetrievePlatformAddress for recipient {} sender {}", recipient.getTaxId(), sender.getPaId());
 
-        Optional<DigitalAddress> digitalAddressOpt = addressBookService.getPlatformAddresses(recipient.getTaxId(), sender.getPaId());
+        Optional<LegalDigitalAddressInt> digitalAddressOpt = addressBookService.getPlatformAddresses(recipient.getTaxId(), sender.getPaId());
 
         if (digitalAddressOpt.isPresent()) {
             log.debug("Retrive platformAddress ok for recipient {} sender {}", recipient.getTaxId(), sender.getPaId());

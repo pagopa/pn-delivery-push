@@ -1,12 +1,15 @@
 package it.pagopa.pn.deliverypush.externalclient.pnclient.externalchannel;
 
 
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 
 public interface ExternalChannelSendClient {
 
+    // TODO da spostare in PhysicalAddressInt quando e se ci sarà
     enum ANALOG_TYPE{
         REGISTERED_LETTER_890,
         SIMPLE_REGISTERED_LETTER,
@@ -14,7 +17,9 @@ public interface ExternalChannelSendClient {
     }
 
 
-    void sendDigitalNotification(NotificationInt notificationInt, DigitalAddress digitalAddress, String timelineEventId);
+    void sendLegalNotification(NotificationInt notificationInt, LegalDigitalAddressInt digitalAddress, String timelineEventId);
 
-    void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, String timelineEventId, ANALOG_TYPE analogType, String aarKey);
+    void sendCourtesyNotification(NotificationInt notificationInt, CourtesyDigitalAddressInt digitalAddress, String timelineEventId);
+
+    void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, PhysicalAddress physicalAddress, String timelineEventId, ANALOG_TYPE analogType, String aarKey);
 }

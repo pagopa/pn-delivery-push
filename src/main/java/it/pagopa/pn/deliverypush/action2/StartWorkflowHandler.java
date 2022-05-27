@@ -2,10 +2,7 @@ package it.pagopa.pn.deliverypush.action2;
 
 
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.deliverypush.action2.utils.CheckAttachmentUtils;
-import it.pagopa.pn.deliverypush.action2.utils.CourtesyMessageUtils;
-import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
-import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.action2.utils.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -30,11 +27,12 @@ public class StartWorkflowHandler {
     private final TimelineUtils timelineUtils;
     private final CheckAttachmentUtils checkAttachmentUtils;
     private final NotificationUtils notificationUtils;
+    private final AarUtils aarUtils;
 
     public StartWorkflowHandler(LegalFactDao legalFactDao, NotificationService notificationService,
                                 CourtesyMessageUtils courtesyMessageUtils, ChooseDeliveryModeHandler chooseDeliveryType,
-                                TimelineService timelineService, TimelineUtils timelineUtils, CheckAttachmentUtils checkAttachmentUtils, 
-                                NotificationUtils notificationUtils) {
+                                TimelineService timelineService, TimelineUtils timelineUtils, CheckAttachmentUtils checkAttachmentUtils,
+                                NotificationUtils notificationUtils, AarUtils aarUtils) {
         this.legalFactDao = legalFactDao;
         this.notificationService = notificationService;
         this.courtesyMessageUtils = courtesyMessageUtils;
@@ -43,6 +41,7 @@ public class StartWorkflowHandler {
         this.timelineUtils = timelineUtils;
         this.checkAttachmentUtils = checkAttachmentUtils;
         this.notificationUtils = notificationUtils;
+        this.aarUtils = aarUtils;
     }
     
     /**
@@ -76,7 +75,7 @@ public class StartWorkflowHandler {
     private void startNotificationWorkflowForRecipient(NotificationInt notification, Integer recIndex) {
         log.info("Start notification workflow - iun {} id {}", notification.getIun(), recIndex);
         // ... genero il pdf dell'AAR, salvo su Safestorage e genero elemento in timeline AAR_GENERATION, potrebbe servirmi dopo ...
-        courtesyMessageUtils.generateAARAndSaveInSafeStorageAndAddTimelineevent(notification, recIndex);
+        aarUtils.generateAARAndSaveInSafeStorageAndAddTimelineevent(notification, recIndex);
         //... Invio messaggio di cortxesia ...
         courtesyMessageUtils.checkAddressesForSendCourtesyMessage(notification, recIndex);
         //... e inizializzato il processo di scelta della tipologia di notificazione

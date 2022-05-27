@@ -1,6 +1,8 @@
 package it.pagopa.pn.deliverypush.action2.it.mockbean;
 
 import it.pagopa.pn.deliverypush.action2.ExternalChannelResponseHandler;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
@@ -35,7 +37,7 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
     }
 
     @Override
-    public void sendDigitalNotification(NotificationInt notificationInt, DigitalAddress digitalAddress, String timelineEventId) {
+    public void sendLegalNotification(NotificationInt notificationInt, LegalDigitalAddressInt digitalAddress, String timelineEventId) {
         //Invio messaggio di cortesia non necessità di risposta da external channel
         ResponseStatus status;
 
@@ -68,8 +70,44 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
         externalChannelHandler.extChannelResponseReceiver(extChannelResponse);
     }
 
+
     @Override
-    public void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, String timelineEventId, ANALOG_TYPE analogType, String aarKey) {
+    public void sendCourtesyNotification(NotificationInt notificationInt, CourtesyDigitalAddressInt digitalAddress, String timelineEventId) {
+        //Invio messaggio di cortesia non necessità di risposta da external channel
+        ResponseStatus status;
+
+        String pecAddress = digitalAddress.getAddress();
+
+        String eventId = timelineEventId;
+        String retryNumberPart = eventId.replaceFirst(".*([0-9]+)$", "$1");
+
+        if (pecAddress != null) {
+            String domainPart = pecAddress.replaceFirst(".*@", "");
+
+            if (domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_BOTH)
+                    || (domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_FIRST) && "1".equals(retryNumberPart))) {
+                status = ResponseStatus.KO;
+            } else if (domainPart.startsWith(EXT_CHANNEL_WORKS) || domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_FIRST)) {
+                status = ResponseStatus.OK;
+            } else {
+                throw new IllegalArgumentException("PecAddress " + pecAddress + " do not match test rule for mocks");
+            }
+        } else {
+            throw new IllegalArgumentException("PecAddress is null");
+        }
+
+        ExtChannelResponse extChannelResponse = ExtChannelResponse.builder()
+                .eventId(timelineEventId)
+                .responseStatus(status)
+                .notificationDate(Instant.now())
+                .iun(notificationInt.getIun())
+                .build();
+        externalChannelHandler.extChannelResponseReceiver(extChannelResponse);
+    }
+
+
+    @Override
+    public void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, PhysicalAddress physicalAddress, String timelineEventId, ANALOG_TYPE analogType, String aarKey) {
         ResponseStatus status;
         String newAddress;
 

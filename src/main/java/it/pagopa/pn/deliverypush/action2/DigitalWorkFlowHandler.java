@@ -7,6 +7,7 @@ import it.pagopa.pn.deliverypush.action2.utils.DigitalWorkFlowUtils;
 import it.pagopa.pn.deliverypush.action2.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfo;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
@@ -14,6 +15,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
+import it.pagopa.pn.deliverypush.service.mapper.LegalDigitalAddressMapper;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -102,7 +104,7 @@ public class DigitalWorkFlowHandler {
             log.debug("Address source is not general - iun {} id {}", iun, recIndex);
 
             //Viene ottenuto l'indirizzo a partire dalla source
-            DigitalAddress destinationAddress = digitalWorkFlowUtils.getAddressFromSource(nextAddressInfo.getDigitalAddressSource(), recIndex, notification);
+            LegalDigitalAddressInt destinationAddress = digitalWorkFlowUtils.getAddressFromSource(nextAddressInfo.getDigitalAddressSource(), recIndex, notification);
             nextAddressInfo = nextAddressInfo.toBuilder().digitalAddress(destinationAddress).build();
             log.info("Get address completed - iun {} id {}", iun, recIndex);
             //Viene Effettuato il check dell'indirizzo e l'eventuale send
@@ -160,7 +162,7 @@ public class DigitalWorkFlowHandler {
     private void checkAddressAndSend(NotificationInt notification, Integer recIndex, DigitalAddressInfo addressInfo) {
         String iun = notification.getIun();
 
-        DigitalAddress digitalAddress = addressInfo.getDigitalAddress();
+        LegalDigitalAddressInt digitalAddress = addressInfo.getDigitalAddress();
 
         log.info("CheckAddressAndSend - iun {} id {}", iun, recIndex);
 
@@ -194,7 +196,7 @@ public class DigitalWorkFlowHandler {
                 case OK:
                     log.info("Notification sent successfully, starting completion workflow - iun {} id {}", response.getIun(), recIndex);
                     //La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
-                    completionWorkflow.completionDigitalWorkflow(notification, recIndex, response.getNotificationDate(), sendDigitalDetails.getDigitalAddress(), EndWorkflowStatus.SUCCESS);
+                    completionWorkflow.completionDigitalWorkflow(notification, recIndex, response.getNotificationDate(), LegalDigitalAddressMapper.digitalToLegal(sendDigitalDetails.getDigitalAddress()), EndWorkflowStatus.SUCCESS);
                     break;
                 case KO:
                     //Non è stato possibile effettuare la notificazione, si passa al prossimo step del workflow
@@ -222,7 +224,10 @@ public class DigitalWorkFlowHandler {
 
     private DigitalAddressInfo getDigitalAddressInfo(ScheduleDigitalWorkflow scheduleDigitalWorkflow) {
         return DigitalAddressInfo.builder()
-                .digitalAddress(scheduleDigitalWorkflow.getDigitalAddress())
+                .digitalAddress(LegalDigitalAddressInt.builder()
+                        .address( scheduleDigitalWorkflow.getDigitalAddress().getAddress())
+                        .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.valueOf( scheduleDigitalWorkflow.getDigitalAddress().getType()))
+                        .build())
                 .digitalAddressSource(scheduleDigitalWorkflow.getDigitalAddressSource())
                 .lastAttemptDate(scheduleDigitalWorkflow.getLastAttemptDate())
                 .sentAttemptMade(scheduleDigitalWorkflow.getSentAttemptMade())

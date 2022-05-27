@@ -2,7 +2,6 @@ package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import org.jetbrains.annotations.NotNull;
 
@@ -76,11 +75,11 @@ public class NotificationMapper {
 
             it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationDigitalAddress digitalDomicile = recipient.getDigitalDomicile();
             if(digitalDomicile != null){
-                DigitalAddress.TypeEnum typeEnum = DigitalAddress.TypeEnum.valueOf(digitalDomicile.getType().name());
+                LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE typeEnum = LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.valueOf(digitalDomicile.getType().name());
 
                 notificationRecIntBuilder
                         .digitalDomicile(
-                                DigitalAddress.builder()
+                                LegalDigitalAddressInt.builder()
                                         .address(digitalDomicile.getAddress())
                                         .type(typeEnum)
                                         .build()
@@ -215,7 +214,7 @@ public class NotificationMapper {
         NotificationRecipient notificationRecipient = new NotificationRecipient();
         NotificationDigitalAddress notificationDigitalAddress = null;
 
-        DigitalAddress internalDigitalDomicile = recipient.getDigitalDomicile();
+        LegalDigitalAddressInt internalDigitalDomicile = recipient.getDigitalDomicile();
         if(internalDigitalDomicile != null){
             notificationDigitalAddress = new NotificationDigitalAddress();
             notificationDigitalAddress.setAddress(internalDigitalDomicile.getAddress());

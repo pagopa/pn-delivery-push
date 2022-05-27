@@ -149,6 +149,8 @@ public class PnEventInboundService {
 
             ResponseStatus status = PnExtChnProgressStatus.OK.equals(evt.getPayload().getStatusCode()) ? ResponseStatus.OK : ResponseStatus.KO;
 
+            // TODO sistemare in base
+
             it.pagopa.pn.api.dto.notification.address.PhysicalAddress newPhysicalAddressExt = evt.getPayload().getNewPhysicalAddress();
             PhysicalAddress newPhysicalAddress = null;
             if(newPhysicalAddressExt != null){

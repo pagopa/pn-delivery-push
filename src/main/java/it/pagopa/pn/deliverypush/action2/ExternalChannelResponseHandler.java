@@ -35,8 +35,9 @@ public class ExternalChannelResponseHandler {
 
         if (notificationTimelineElement.getCategory() != null) {
             switch (notificationTimelineElement.getCategory()) {
-                //TODO gestire SEND_COURTESY_MESSAGE
-
+                case SEND_COURTESY_MESSAGE:
+                    log.info("Received SEND_COURTESY_MESSAGE response for response status {} - iun {} eventId {} ", response.getResponseStatus(), response.getIun(), response.getEventId());
+                    break;
                 case SEND_DIGITAL_DOMICILE:
                     digitalWorkFlowHandler.handleExternalChannelResponse(response, notificationTimelineElement);
                     break;

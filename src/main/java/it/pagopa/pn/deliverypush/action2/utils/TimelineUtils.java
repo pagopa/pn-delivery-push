@@ -1,6 +1,8 @@
 package it.pagopa.pn.deliverypush.action2.utils;
 
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfo;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
@@ -8,6 +10,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.deliverypush.service.mapper.LegalDigitalAddressMapper;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -109,12 +112,15 @@ public class TimelineUtils {
         return buildTimeline(response.getIun(), TimelineElementCategory.SEND_DIGITAL_FEEDBACK, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
     }
 
-    public TimelineElementInternal buildSendCourtesyMessageTimelineElement(Integer recIndex, String iun, DigitalAddress address, Instant sendDate, String eventId) {
+    public TimelineElementInternal buildSendCourtesyMessageTimelineElement(Integer recIndex, String iun, CourtesyDigitalAddressInt address, Instant sendDate, String eventId) {
         log.debug("buildSendCourtesyMessageTimelineElement - IUN {} and id {}", iun, recIndex);
 
         SendCourtesyMessageDetails details = SendCourtesyMessageDetails.builder()
                 .recIndex(recIndex)
-                .digitalAddress(address)
+                .digitalAddress(DigitalAddress.builder()
+                        .type(address.getType().name())
+                        .address(address.getAddress())
+                        .build())
                 .sendDate(sendDate)
                 .build();
 
@@ -134,13 +140,13 @@ public class TimelineUtils {
     }
 
 
-    public TimelineElementInternal buildSendDigitalNotificationTimelineElement(DigitalAddress digitalAddress, DigitalAddressSource addressSource, Integer recIndex, NotificationInt notification, int sentAttemptMade, String eventId) {
+    public TimelineElementInternal buildSendDigitalNotificationTimelineElement(LegalDigitalAddressInt digitalAddress, DigitalAddressSource addressSource, Integer recIndex, NotificationInt notification, int sentAttemptMade, String eventId) {
         log.debug("buildSendDigitalNotificationTimelineElement - IUN {} and id {}", notification.getIun(), recIndex);
 
         SendDigitalDetails details = SendDigitalDetails.builder()
                 .recIndex(recIndex)
                 .retryNumber(sentAttemptMade)
-                .digitalAddress(digitalAddress)
+                .digitalAddress(LegalDigitalAddressMapper.legalToDigital(digitalAddress))
                 .digitalAddressSource(addressSource)
                 .build();
 
@@ -164,7 +170,7 @@ public class TimelineUtils {
     }
 
 
-    public TimelineElementInternal buildSuccessDigitalWorkflowTimelineElement(String iun, Integer recIndex, DigitalAddress address, String legalFactId) {
+    public TimelineElementInternal buildSuccessDigitalWorkflowTimelineElement(String iun, Integer recIndex, LegalDigitalAddressInt address, String legalFactId) {
         log.debug("buildSuccessDigitalWorkflowTimelineElement - IUN {} and id {}", iun, recIndex);
 
         String elementId = TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.buildEventId(
@@ -175,7 +181,7 @@ public class TimelineUtils {
         
         DigitalSuccessWorkflow details = DigitalSuccessWorkflow.builder()
                 .recIndex(recIndex)
-                .digitalAddress(address)
+                .digitalAddress(LegalDigitalAddressMapper.legalToDigital(address))
                 .build();
 
         List<LegalFactsId> legalFactIds = singleLegalFactId(legalFactId, LegalFactCategory.DIGITAL_DELIVERY);
@@ -242,7 +248,10 @@ public class TimelineUtils {
         );
         PublicRegistryResponseDetails details = PublicRegistryResponseDetails.builder()
                 .recIndex(recIndex)
-                .digitalAddress(response.getDigitalAddress())
+                .digitalAddress(DigitalAddress.builder()
+                        .address( response.getDigitalAddress().getAddress())
+                        .type( response.getDigitalAddress().getType().getValue())
+                        .build())
                 .physicalAddress(response.getPhysicalAddress())
                 .build();
 
@@ -345,7 +354,10 @@ public class TimelineUtils {
         ScheduleDigitalWorkflow details = ScheduleDigitalWorkflow.builder()
                 .recIndex(recIndex)
                 .lastAttemptDate(lastAttemptInfo.getLastAttemptDate())
-                .digitalAddress(lastAttemptInfo.getDigitalAddress())
+                .digitalAddress(DigitalAddress.builder()
+                        .address( lastAttemptInfo.getDigitalAddress().getAddress())
+                        .type( lastAttemptInfo.getDigitalAddress().getType().getValue())
+                        .build())
                 .digitalAddressSource(lastAttemptInfo.getDigitalAddressSource())
                 .sentAttemptMade(lastAttemptInfo.getSentAttemptMade())
                 .build();

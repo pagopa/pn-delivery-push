@@ -23,7 +23,6 @@ class StateMap {
         ;
                 
         this.fromState(NotificationStatus.ACCEPTED)
-                // TODO è ok?
                 .withTimelineGoToState(TimelineElementCategory.AAR_GENERATION, NotificationStatus.ACCEPTED)
                 .withTimelineGoToState(TimelineElementCategory.SEND_COURTESY_MESSAGE, NotificationStatus.ACCEPTED)
                 .withTimelineGoToState(TimelineElementCategory.GET_ADDRESS, NotificationStatus.ACCEPTED)

@@ -1,8 +1,8 @@
 package it.pagopa.pn.deliverypush.externalclient.publicregistry;
 
 import it.pagopa.pn.deliverypush.action2.PublicRegistryResponseHandler;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -12,13 +12,13 @@ import java.util.Map;
 @Component
 public class PublicRegistryImpl implements PublicRegistry {
     private final PublicRegistryResponseHandler publicRegistryResponseHandler;
-    private final Map<String, DigitalAddress> digitalAddressResponse;
+    private final Map<String, LegalDigitalAddressInt> digitalAddressResponse;
     private final Map<String, PhysicalAddress> physicalAddressResponse;
 
     //TODO La logica di public registry è MOCK quando verrà implementato il servizio bisognerà cambiarla
 
     public PublicRegistryImpl(
-            Map<String, DigitalAddress> digitalAddressResponse,
+            Map<String, LegalDigitalAddressInt> digitalAddressResponse,
             Map<String, PhysicalAddress> physicalAddressResponse,
             @Lazy PublicRegistryResponseHandler publicRegistryResponseHandler
     ) {
@@ -34,7 +34,7 @@ public class PublicRegistryImpl implements PublicRegistry {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        DigitalAddress address = this.digitalAddressResponse.get(taxId);
+        LegalDigitalAddressInt address = this.digitalAddressResponse.get(taxId);
 
         PublicRegistryResponse response = PublicRegistryResponse.builder()
                 .correlationId(correlationId)

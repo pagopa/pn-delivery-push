@@ -1,5 +1,7 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.userattributes.UserAttributesClient;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
@@ -44,11 +46,11 @@ class AddressBookServiceImplTest {
         );
         
         //WHEN
-        Optional<DigitalAddress> platformAddressOpt =  addressBookService.getPlatformAddresses("TAXID", "SENDERID");
+        Optional<LegalDigitalAddressInt> platformAddressOpt =  addressBookService.getPlatformAddresses("TAXID", "SENDERID");
         
         //THEN
         Assertions.assertTrue(platformAddressOpt.isPresent());
-        DigitalAddress platformAddress = platformAddressOpt.get();
+        LegalDigitalAddressInt platformAddress = platformAddressOpt.get();
         Assertions.assertEquals(legalDigitalAddress.getValue(), platformAddress.getAddress());
         Assertions.assertEquals(legalDigitalAddress.getChannelType().getValue(), platformAddress.getType().getValue());
     }
@@ -66,11 +68,11 @@ class AddressBookServiceImplTest {
         );
 
         //WHEN
-        Optional<List<DigitalAddress>> listCourtesyAddressOpt =  addressBookService.getCourtesyAddress("TAXID", "SENDERID");
+        Optional<List<CourtesyDigitalAddressInt>> listCourtesyAddressOpt =  addressBookService.getCourtesyAddress("TAXID", "SENDERID");
 
         //THEN
         Assertions.assertTrue(listCourtesyAddressOpt.isPresent());
-        List<DigitalAddress> listCourtesyAddress = listCourtesyAddressOpt.get();
+        List<CourtesyDigitalAddressInt> listCourtesyAddress = listCourtesyAddressOpt.get();
         Assertions.assertEquals(courtesyDigitalAddress.getValue(), listCourtesyAddress.get(0).getAddress());
     }
     
