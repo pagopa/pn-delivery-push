@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action2;
 
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.deliverypush.action2.utils.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -69,6 +70,8 @@ public class StartWorkflowHandler {
             }
         }catch (PnValidationException ex){
             handleValidationError(notification, ex);
+        } catch (Exception ex){
+            throw new PnInternalException("Cannot start workflow", ex);
         }
     }
 
