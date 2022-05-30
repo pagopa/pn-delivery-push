@@ -71,6 +71,7 @@ public class StartWorkflowHandler {
         }catch (PnValidationException ex){
             handleValidationError(notification, ex);
         } catch (Exception ex){
+            log.error("exception starting workflow", ex);
             throw new PnInternalException("Cannot start workflow", ex);
         }
     }

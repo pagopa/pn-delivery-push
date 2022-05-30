@@ -18,6 +18,12 @@ public class PnDeliveryPushConfigs {
 
     private String externalchannelCxId;
 
+    private String externalchannelSenderPec;
+
+    private String externalchannelSenderEmail;
+
+    private String externalchannelSenderSms;
+
     private String dataVaultBaseUrl;
 
     private String safeStorageBaseUrl;

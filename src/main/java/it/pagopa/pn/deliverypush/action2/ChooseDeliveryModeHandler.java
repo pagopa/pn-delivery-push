@@ -69,7 +69,7 @@ public class ChooseDeliveryModeHandler {
 
             // ... se non lo trovo, verifico presenza indirizzo speciale, ...
             LegalDigitalAddressInt specialAddress = chooseDeliveryUtils.getDigitalDomicile(notification, recIndex);
-            if (specialAddress != null) {
+            if (specialAddress != null && specialAddress.getAddress() != null) {
                 log.info("Special address is present, Digital workflow can be started  - iun {} id {}", notification.getIun(), recIndex);
 
                 startDigitalWorkflow(notification, specialAddress, DigitalAddressSource.SPECIAL, recIndex);

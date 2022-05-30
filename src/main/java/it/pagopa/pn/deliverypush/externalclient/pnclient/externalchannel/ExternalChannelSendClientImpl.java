@@ -17,6 +17,7 @@ import it.pagopa.pn.deliverypush.util.LogUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.OffsetDateTime;
@@ -129,6 +130,8 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
             digitalNotificationRequestDto.setMessageText(mailbody);
             digitalNotificationRequestDto.setSubjectText(mailsubj);
             digitalNotificationRequestDto.setAttachmentUrls(new ArrayList<>());
+            if (StringUtils.hasText(cfg.getExternalchannelSenderPec()))
+                digitalNotificationRequestDto.setSenderDigitalAddress(cfg.getExternalchannelSenderPec());
 
             digitalLegalMessagesApi.sendDigitalLegalMessage(requestId, cfg.getExternalchannelCxId(), digitalNotificationRequestDto);
         } catch (Exception e) {
@@ -155,6 +158,8 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
             digitalNotificationRequestDto.setMessageText(mailbody);
             digitalNotificationRequestDto.setSubjectText(mailsubj);
             digitalNotificationRequestDto.setAttachmentUrls(new ArrayList<>());
+            if (StringUtils.hasText(cfg.getExternalchannelSenderEmail()))
+                digitalNotificationRequestDto.setSenderDigitalAddress(cfg.getExternalchannelSenderEmail());
 
             digitalCourtesyMessagesApi.sendDigitalCourtesyMessage(requestId, cfg.getExternalchannelCxId(), digitalNotificationRequestDto);
         } catch (Exception e) {
@@ -177,6 +182,9 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
             digitalNotificationRequestDto.setReceiverDigitalAddress(digitalAddress.getAddress());
             digitalNotificationRequestDto.setClientRequestTimeStamp(OffsetDateTime.now(ZoneOffset.UTC).toInstant());
             digitalNotificationRequestDto.setMessageText(smsbody);
+            if (StringUtils.hasText(cfg.getExternalchannelSenderSms()))
+                digitalNotificationRequestDto.setSenderDigitalAddress(cfg.getExternalchannelSenderSms());
+
             digitalCourtesyMessagesApi.sendCourtesyShortMessage(requestId, cfg.getExternalchannelCxId(), digitalNotificationRequestDto);
         } catch (Exception e) {
             throw new PnInternalException("error sending SMS notification", e);
