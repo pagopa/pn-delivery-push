@@ -68,8 +68,11 @@ public class StartWorkflowHandler {
                 Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
                 startNotificationWorkflowForRecipient(notification, recIndex);
             }
-        }catch (PnValidationException ex){
+        } catch (PnValidationException ex){
             handleValidationError(notification, ex);
+        } catch (PnInternalException ex){
+            log.error("exception starting workflow", ex);
+            throw ex;
         } catch (Exception ex){
             log.error("exception starting workflow", ex);
             throw new PnInternalException("Cannot start workflow", ex);

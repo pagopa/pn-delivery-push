@@ -4,12 +4,14 @@ package it.pagopa.pn.deliverypush.action2.utils;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.AarGenerationDetails;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.util.Optional;
 
@@ -29,10 +31,22 @@ public class AarUtils {
     public void generateAARAndSaveInSafeStorageAndAddTimelineevent(NotificationInt notification, Integer recIndex)
     {
         try {
-            String safestoragekey = legalFactDao.saveAAR(notification);
+            // check se già esiste
+            String elementId = TimelineEventId.AAR_GENERATION.buildEventId(
+                    EventId.builder()
+                            .iun(notification.getIun())
+                            .recIndex(recIndex)
+                            .build());
 
-            timelineService.addTimelineElement(timelineUtils.buildAarGenerationTimelineElement(notification, recIndex, safestoragekey));
+            Optional<TimelineElementInternal> timeline = timelineService.getTimelineElement(notification.getIun(), elementId);
+            if (!timeline.isPresent())
+            {
+                String safestoragekey = legalFactDao.saveAAR(notification);
 
+                timelineService.addTimelineElement(timelineUtils.buildAarGenerationTimelineElement(notification, recIndex, safestoragekey));
+            }
+            else
+                log.debug("no need to recreate AAR iun:{} timelineId:{}", notification.getIun(), elementId);
         } catch (Exception e) {
             throw new PnInternalException("cannot generate AAR pdf", e);
         }
@@ -50,7 +64,7 @@ public class AarUtils {
         Optional<AarGenerationDetails> detail = timelineService
                 .getTimelineElementDetails(notification.getIun(), aarGenerationEventId, AarGenerationDetails.class);
 
-        if (detail.isEmpty())
+        if (detail.isEmpty() || !StringUtils.hasText(detail.get().getSafestorageKey()))
             throw new PnInternalException("cannot retreieve AAR pdf safestoragekey");
 
         return detail.get().getSafestorageKey();
