@@ -80,8 +80,7 @@ public class CompletionWorkFlowHandler {
 
     private String generatePecDeliveryWorkflowLegalFact(NotificationInt notification, Integer recIndex) {
         Set<TimelineElementInternal> timeline = timelineService.getTimeline(notification.getIun());
-
-
+        
         List<SendDigitalFeedback> listFeedbackFromExtChannel = timeline.stream()
                 .filter(timelineElement -> filterTimelineForTaxId(timelineElement, recIndex))
                 .map(timelineElement -> 

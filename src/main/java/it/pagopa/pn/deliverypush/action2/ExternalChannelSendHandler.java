@@ -66,7 +66,7 @@ public class ExternalChannelSendHandler {
             
             log.info("Registered Letter sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
         }else {
-            log.info("Notification is already viewed, registered Letter isn't sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
+            log.info("Notification is already viewed, registered Letter will not be sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
         }
     }
 
@@ -85,7 +85,7 @@ public class ExternalChannelSendHandler {
 
             log.info("Registered Letter sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
         }else {
-            log.info("Notification is already viewed, registered Letter isn't sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
+            log.info("Notification is already viewed, paper notification will not be sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
         }
     }
 }
