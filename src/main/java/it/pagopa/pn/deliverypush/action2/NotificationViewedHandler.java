@@ -38,18 +38,27 @@ public class NotificationViewedHandler {
     }
     
     public void handleViewNotification(String iun, Integer recIndex) {
-        log.info("Start HandleViewNotification - iun {}", iun);
+        log.debug("Start HandleViewNotification - iun {}", iun);
 
-        NotificationInt notification = notificationService.getNotificationByIun(iun);
+        boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex);
         
-        log.debug("handleViewNotification get recipient ok- iun {} taxId {}", iun, recIndex);
+        //I processi collegati alla visualizzazione di una notifica vengono effettuati solo la prima volta che la stessa viene visualizzata
+        if(!isNotificationAlreadyViewed){
+            log.info("Start view notification process");
+            
+            NotificationInt notification = notificationService.getNotificationByIun(iun);
 
-        NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
-        String legalFactId = legalFactStore.saveNotificationViewedLegalFact(notification, recipient, instantNowSupplier.get());
-        
-        addTimelineElement(timelineUtils.buildNotificationViewedTimelineElement(iun, recIndex, legalFactId));
+            log.debug("handleViewNotification get recipient ok- iun {} taxId {}", iun, recIndex);
 
-        paperNotificationFailedService.deleteNotificationFailed(recipient.getTaxId(), iun); //Viene eliminata l'istanza di notifica fallita dal momento che la stessa è stata letta
+            NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
+            String legalFactId = legalFactStore.saveNotificationViewedLegalFact(notification, recipient, instantNowSupplier.get());
+
+            addTimelineElement(timelineUtils.buildNotificationViewedTimelineElement(iun, recIndex, legalFactId));
+
+            paperNotificationFailedService.deleteNotificationFailed(recipient.getTaxId(), iun); //Viene eliminata l'eventuale istanza di notifica fallita dal momento che la stessa è stata letta
+        } else {
+            log.debug("Notification is already viewed");
+        }
 
         log.debug("End HandleViewNotification - iun {} id {}", iun, recIndex);
     }
