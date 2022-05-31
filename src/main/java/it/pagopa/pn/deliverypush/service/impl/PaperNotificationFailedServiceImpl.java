@@ -20,12 +20,16 @@ public class PaperNotificationFailedServiceImpl implements PaperNotificationFail
 
     @Override
     public void addPaperNotificationFailed(PaperNotificationFailed paperNotificationFailed) {
-        paperNotificationFailedDao.addPaperNotificationFailed(paperNotificationFailed);
+        //FIXME In attesa della risoluzione della PN-1472 che prevede l'anonimizzazione del taxId, l'inserimento viene commentato
+        
+        //paperNotificationFailedDao.addPaperNotificationFailed(paperNotificationFailed);
     }
 
     @Override
     public void deleteNotificationFailed(String recipientId, String iun) {
-        paperNotificationFailedDao.deleteNotificationFailed(recipientId, iun);
+        //FIXME In attesa della risoluzione della PN-1472 che prevede l'anonimizzazione del taxId, la delete viene commentata
+        
+        //paperNotificationFailedDao.deleteNotificationFailed(recipientId, iun);
     }
 
     @Override

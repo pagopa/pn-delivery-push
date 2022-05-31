@@ -40,11 +40,13 @@ public class NotificationViewedHandler {
     public void handleViewNotification(String iun, Integer recIndex) {
         log.debug("Start HandleViewNotification - iun={}", iun);
 
+
+
         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex);
         
         //I processi collegati alla visualizzazione di una notifica vengono effettuati solo la prima volta che la stessa viene visualizzata
         if(!isNotificationAlreadyViewed){
-            log.info("Start view notification process");
+            log.info("Notification isn't already viewed, start view notification process");
             
             NotificationInt notification = notificationService.getNotificationByIun(iun);
 
