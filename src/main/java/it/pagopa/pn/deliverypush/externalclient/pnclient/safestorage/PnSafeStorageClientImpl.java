@@ -81,6 +81,7 @@ public class PnSafeStorageClientImpl implements PnSafeStorageClient {
             }
         } catch (PnInternalException ee)
         {
+            log.error("uploadContent PnInternalException uploading file", ee);
             throw ee;
         }
         catch (Exception ee)
