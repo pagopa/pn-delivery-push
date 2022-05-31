@@ -111,7 +111,7 @@ public class CompletionWorkFlowHandler {
         PhysicalAddress physicalAddress = recipient.getPhysicalAddress();
 
         if (physicalAddress != null) {
-            log.info("Sending simple registered letter  - iun {} id {}", notification.getIun(), recipient.getTaxId());
+            log.info("Sending simple registered letter  - iun {} id {}", notification.getIun(), recIndex);
             externalChannelSendHandler.sendNotificationForRegisteredLetter(notification, physicalAddress, recIndex);
         } else {
             log.info("Simple registered letter can't be send, there isn't physical address for recipient. iun {} id {}", notification.getIun(), recIndex);
