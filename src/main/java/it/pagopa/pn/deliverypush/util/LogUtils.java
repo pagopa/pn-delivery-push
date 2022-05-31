@@ -34,6 +34,9 @@ public class LogUtils {
 
     public static String maskGeneric(String generic) {
         try {
+            if (generic == null)
+                return "null";
+
             return generic.length()>=5?maskString(generic, 1, generic.length() - 3, '*'):"***";
         } catch (Exception e) {
             log.error("cannot mask generic", e);
