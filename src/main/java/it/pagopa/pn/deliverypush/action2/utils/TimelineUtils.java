@@ -12,6 +12,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.mapper.CourtesyDigitalAddressMapper;
 import it.pagopa.pn.deliverypush.service.mapper.LegalDigitalAddressMapper;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -26,9 +28,12 @@ import java.util.stream.Collectors;
 public class TimelineUtils {
 
     private final InstantNowSupplier instantNowSupplier;
+    private final TimelineService timelineService;
 
-    public TimelineUtils(InstantNowSupplier instantNowSupplier) {
+    public TimelineUtils(InstantNowSupplier instantNowSupplier,
+                         TimelineService timelineService) {
         this.instantNowSupplier = instantNowSupplier;
+        this.timelineService = timelineService;
     }
 
     public TimelineElementInternal buildTimeline(String iun, TimelineElementCategory category, String elementId, TimelineElementDetails details) {
@@ -442,6 +447,18 @@ public class TimelineUtils {
                 .key( legalFactKey )
                 .category( type )
                 .build() );
+    }
+
+    public boolean checkNotificationIsAlreadyViewed(String iun, Integer recIndex){
+
+        String elementId = TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .build());
+
+        Optional<TimelineElementInternal> timelineOpt = timelineService.getTimelineElement(iun, elementId);
+        return timelineOpt.isPresent();
     }
 
 }

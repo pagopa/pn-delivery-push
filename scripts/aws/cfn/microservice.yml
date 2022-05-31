@@ -183,10 +183,6 @@ Parameters:
     Type: String
     Description: ARN of dynamodb table containing
 
-  SandboxSafeStorageBaseUrl:
-    Type: String
-    Description: 'Url to the SafeStorage microservice'
-
 Resources:
 
   # PN-Delivery-push microservice
@@ -233,7 +229,7 @@ Resources:
 #            - '='
 #            - - CLIENT_KEY_PEM
 #              - '{{resolve:secretsmanager:pa_webhook_client_cert:SecretString:client_key_pem}}'
-        ContainerEnvEntry23: !Sub 'SPRING_CLOUD_STREAM_BINDINGS_FUNCTIONROUTERIN0_DESTINATION=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName}'
+        ContainerEnvEntry23: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName}'
         ContainerEnvEntry24: 'PN_DELIVERYPUSH_FEATUREFLAGS_WORKFLOW=v2'
         ContainerEnvEntry25: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry26: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
