@@ -50,7 +50,6 @@ public class StatusUtils {
         for (TimelineElementInternal timelineElement : timelineByTimestampSorted) {
             TimelineElementCategory category = timelineElement.getCategory();
             
-            //TODO Questa logica va rivista, qui va inserita la logica per i multiDestinatari atta a gestire il cambio stato
             if( END_OF_DELIVERY_WORKFLOW.contains( category ) ) {
                 numberOfEndedDeliveryWorkflows += 1;
             }
@@ -85,7 +84,6 @@ public class StatusUtils {
         return timelineHistory;
     }
 
-    //TODO Questa logica va rivista, qui va inserita la logica per i multiDestinatari atta a gestire il cambio stato
     private NotificationStatus computeStateAfterEvent(  //
                                                        NotificationStatus currentState, //
                                                        TimelineElementCategory timelineElementCategory, //
@@ -93,8 +91,12 @@ public class StatusUtils {
                                                        int numberOfRecipients //
     ) {
         NotificationStatus nextState;
-        if (currentState.equals(NotificationStatus.DELIVERING)) {
-            if( timelineElementCategory.equals(TimelineElementCategory.DIGITAL_SUCCESS_WORKFLOW) ) {
+        if (currentState.equals(NotificationStatus.DELIVERING) || currentState.equals(NotificationStatus.VIEWED)) {
+            //Se sono in delivering, oppure la notifica è stata visualizzata ma sono comunque in invio notifica
+            
+            if( timelineElementCategory.equals(TimelineElementCategory.DIGITAL_SUCCESS_WORKFLOW)
+                || timelineElementCategory.equals(TimelineElementCategory.ANALOG_SUCCESS_WORKFLOW)) {
+                
                 if( numberOfEndedDigitalWorkflows == numberOfRecipients ) {
                     nextState = stateMap.getStateTransition(currentState, timelineElementCategory);
                 }

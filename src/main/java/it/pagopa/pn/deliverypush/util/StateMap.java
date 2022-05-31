@@ -18,40 +18,44 @@ class StateMap {
     public StateMap() {
         // Received state
         this.fromState(NotificationStatus.IN_VALIDATION)
+                //STATE CHANGE
                 .withTimelineGoToState(TimelineElementCategory.REQUEST_ACCEPTED, NotificationStatus.ACCEPTED)
                 .withTimelineGoToState(TimelineElementCategory.REQUEST_REFUSED, NotificationStatus.REFUSED)
         ;
                 
         this.fromState(NotificationStatus.ACCEPTED)
+                //STATE UNCHANGE
                 .withTimelineGoToState(TimelineElementCategory.SEND_COURTESY_MESSAGE, NotificationStatus.ACCEPTED)
                 .withTimelineGoToState(TimelineElementCategory.GET_ADDRESS, NotificationStatus.ACCEPTED)
                 .withTimelineGoToState(TimelineElementCategory.PUBLIC_REGISTRY_CALL, NotificationStatus.ACCEPTED)
                 .withTimelineGoToState(TimelineElementCategory.PUBLIC_REGISTRY_RESPONSE, NotificationStatus.ACCEPTED)
-                .withTimelineGoToState(TimelineElementCategory.SCHEDULE_ANALOG_WORKFLOW, NotificationStatus.DELIVERING)
+                //STATE CHANGE
                 .withTimelineGoToState(TimelineElementCategory.SEND_DIGITAL_DOMICILE, NotificationStatus.DELIVERING)
                 .withTimelineGoToState(TimelineElementCategory.SEND_ANALOG_DOMICILE, NotificationStatus.DELIVERING)
                 .withTimelineGoToState(TimelineElementCategory.NOTIFICATION_VIEWED, NotificationStatus.VIEWED)
+                .withTimelineGoToState(TimelineElementCategory.COMPLETELY_UNREACHABLE, NotificationStatus.UNREACHABLE) //Casista tutti gli indirizzi digitali e analogici non sono presenti
                 .withTimelineGoToState(TimelineElementCategory.PAYMENT, NotificationStatus.PAID)
         ;
 
         // Delivering state
         this.fromState(NotificationStatus.DELIVERING)
+                //STATE UNCHANGE
                 .withTimelineGoToState(TimelineElementCategory.SEND_PAPER_FEEDBACK, NotificationStatus.DELIVERING)
                 .withTimelineGoToState(TimelineElementCategory.SEND_DIGITAL_DOMICILE, NotificationStatus.DELIVERING)
                 .withTimelineGoToState(TimelineElementCategory.SEND_DIGITAL_DOMICILE_FEEDBACK, NotificationStatus.DELIVERING)
-                .withTimelineGoToState(TimelineElementCategory.NOTIFICATION_VIEWED, NotificationStatus.VIEWED)
-                .withTimelineGoToState(TimelineElementCategory.PAYMENT, NotificationStatus.PAID)
                 .withTimelineGoToState(TimelineElementCategory.SEND_ANALOG_DOMICILE, NotificationStatus.DELIVERING)
-                .withTimelineGoToState(TimelineElementCategory.COMPLETELY_UNREACHABLE, NotificationStatus.UNREACHABLE)
-
                 .withTimelineGoToState(TimelineElementCategory.GET_ADDRESS, NotificationStatus.DELIVERING)
                 .withTimelineGoToState(TimelineElementCategory.PUBLIC_REGISTRY_CALL, NotificationStatus.DELIVERING)
                 .withTimelineGoToState(TimelineElementCategory.PUBLIC_REGISTRY_RESPONSE, NotificationStatus.DELIVERING)
                 .withTimelineGoToState(TimelineElementCategory.SEND_DIGITAL_FEEDBACK, NotificationStatus.DELIVERING)
                 .withTimelineGoToState(TimelineElementCategory.SEND_SIMPLE_REGISTERED_LETTER, NotificationStatus.DELIVERING)
-                .withTimelineGoToState(TimelineElementCategory.ANALOG_FAILURE_WORKFLOW, NotificationStatus.DELIVERING)
+                .withTimelineGoToState(TimelineElementCategory.ANALOG_FAILURE_WORKFLOW, NotificationStatus.DELIVERING) //Fallito workflow analogico, ci sarà l'elemento di timeline Completely unreachable che porta allo stato UNREACHABLE 
                 .withTimelineGoToState(TimelineElementCategory.SCHEDULE_DIGITAL_WORKFLOW, NotificationStatus.DELIVERING)
 
+                //STATE CHANGE
+                .withTimelineGoToState(TimelineElementCategory.COMPLETELY_UNREACHABLE, NotificationStatus.UNREACHABLE)
+                .withTimelineGoToState(TimelineElementCategory.NOTIFICATION_VIEWED, NotificationStatus.VIEWED)
+                .withTimelineGoToState(TimelineElementCategory.PAYMENT, NotificationStatus.PAID)
                 .withTimelineGoToState(TimelineElementCategory.DIGITAL_SUCCESS_WORKFLOW, NotificationStatus.DELIVERED)
                 .withTimelineGoToState(TimelineElementCategory.DIGITAL_FAILURE_WORKFLOW, NotificationStatus.DELIVERED)
                 .withTimelineGoToState(TimelineElementCategory.ANALOG_SUCCESS_WORKFLOW, NotificationStatus.DELIVERED)
@@ -59,35 +63,40 @@ class StateMap {
 
         // Delivered state
         this.fromState(NotificationStatus.DELIVERED)
+                //STATE UNCHANGE
+                .withTimelineGoToState(TimelineElementCategory.SCHEDULE_REFINEMENT, NotificationStatus.DELIVERED)
+                //STATE CHANGE
                 .withTimelineGoToState(TimelineElementCategory.NOTIFICATION_VIEWED, NotificationStatus.VIEWED)
                 .withTimelineGoToState(TimelineElementCategory.PAYMENT, NotificationStatus.PAID)
                 .withTimelineGoToState(TimelineElementCategory.REFINEMENT, NotificationStatus.EFFECTIVE_DATE)
-                .withTimelineGoToState(TimelineElementCategory.SCHEDULE_REFINEMENT, NotificationStatus.DELIVERED)
         ;
 
         // Effective date state
         this.fromState(NotificationStatus.EFFECTIVE_DATE)
+                //STATE CHANGE
                 .withTimelineGoToState(TimelineElementCategory.NOTIFICATION_VIEWED, NotificationStatus.VIEWED)
                 .withTimelineGoToState(TimelineElementCategory.PAYMENT, NotificationStatus.PAID)
-                .withTimelineGoToState(TimelineElementCategory.REFINEMENT, NotificationStatus.EFFECTIVE_DATE)
         ;
 
-        // Viewed state
+        // Viewed state //TODO DA Riscrivere completamente
         this.fromState(NotificationStatus.VIEWED)
                 .withTimelineGoToState(TimelineElementCategory.SEND_DIGITAL_DOMICILE, NotificationStatus.VIEWED)
                 .withTimelineGoToState(TimelineElementCategory.SEND_DIGITAL_DOMICILE_FEEDBACK, NotificationStatus.VIEWED)
-                .withTimelineGoToState(TimelineElementCategory.PAYMENT, NotificationStatus.PAID)
                 .withTimelineGoToState(TimelineElementCategory.REFINEMENT, NotificationStatus.VIEWED)
+
+                .withTimelineGoToState(TimelineElementCategory.PAYMENT, NotificationStatus.PAID)
         ;
 
-        // Paid state
+        // Paid state //TODO Da capire cosa avviene una volta pagata una notifica
         this.fromState(NotificationStatus.PAID)
                 .withTimelineGoToState(TimelineElementCategory.SEND_DIGITAL_DOMICILE, NotificationStatus.PAID)
                 .withTimelineGoToState(TimelineElementCategory.SEND_DIGITAL_DOMICILE_FEEDBACK, NotificationStatus.PAID)
                 .withTimelineGoToState(TimelineElementCategory.REFINEMENT, NotificationStatus.PAID)
         ;
         this.fromState(NotificationStatus.UNREACHABLE)
+                //STATE UNCHANGE
                 .withTimelineGoToState(TimelineElementCategory.SCHEDULE_REFINEMENT, NotificationStatus.UNREACHABLE)
+                //STATE CHANGE
                 .withTimelineGoToState(TimelineElementCategory.NOTIFICATION_VIEWED, NotificationStatus.VIEWED)
                 .withTimelineGoToState(TimelineElementCategory.REFINEMENT, NotificationStatus.EFFECTIVE_DATE)
         ;
