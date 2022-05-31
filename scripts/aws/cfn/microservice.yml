@@ -215,7 +215,7 @@ Resources:
         ContainerEnvEntry18: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_REFINEMENTTIMEFORCOMPLETELYUNREACHABLE=${RefinementTimeCompletelyUnreachable}'
         ContainerEnvEntry19: !Sub 'PN_DELIVERYPUSH_DATAVAULTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry20: !Sub 'PN_DELIVERYPUSH_USERATTRIBUTESBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry21: !Sub 'SPRING_DATA_CASSANDRA_CONTACTPOINTS=cassandra.${AWS::Region}.${AWS::URLSuffix}:9142'
+        #ContainerEnvEntry21: !Sub 'SPRING_DATA_CASSANDRA_CONTACTPOINTS=cassandra.${AWS::Region}.${AWS::URLSuffix}:9142'
 # WAIT for real client certificates (PN-565)
 #        ContainerEnvEntry21:
 #          Fn::Join:
@@ -227,6 +227,7 @@ Resources:
 #            - '='
 #            - - CLIENT_KEY_PEM
 #              - '{{resolve:secretsmanager:pa_webhook_client_cert:SecretString:client_key_pem}}'
+        ContainerEnvEntry21: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName}'
         ContainerEnvEntry22: 'PN_DELIVERYPUSH_FEATUREFLAGS_WORKFLOW=v2'
         ContainerEnvEntry23: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry24: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
@@ -348,15 +349,15 @@ Resources:
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
 
   # Expose PN-Delivery-push microservice public API with API-GW for IO usage
-  DeliveryPushMicroservicePublicIoAPI:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service.yaml"
-      Parameters:
-        MicroServiceUniqueName: !Sub '${ProjectName}-delivery-push'
-        IntendedUsage: IO
-        DnsName: !Ref IoApiDnsName
-        ProjectName: !Ref ProjectName
-        ServiceApiPath: 'delivery-push'
-        NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
-        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
+  # DeliveryPushMicroservicePublicIoAPI:
+  #   Type: AWS::CloudFormation::Stack
+  #   Properties:
+  #     TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service.yaml"
+  #     Parameters:
+  #       MicroServiceUniqueName: !Sub '${ProjectName}-delivery-push'
+  #       IntendedUsage: IO
+  #       DnsName: !Ref IoApiDnsName
+  #       ProjectName: !Ref ProjectName
+  #       ServiceApiPath: 'delivery-push'
+  #       NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
+  #       ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
