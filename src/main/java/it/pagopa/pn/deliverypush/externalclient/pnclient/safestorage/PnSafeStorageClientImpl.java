@@ -8,20 +8,18 @@ import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDow
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.ByteArrayInputStream;
+import java.net.URI;
 
 @Slf4j
 @Component
@@ -30,6 +28,7 @@ public class PnSafeStorageClientImpl implements PnSafeStorageClient {
     private final FileDownloadApi fileDownloadApi;
     private final FileUploadApi fileUploadApi;
     private final PnDeliveryPushConfigs cfg;
+    private final RestTemplate restTemplate;
 
     public PnSafeStorageClientImpl(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryPushConfigs cfg) {
         it.pagopa.pn.delivery.generated.openapi.clients.safestorage.ApiClient newApiClient = new it.pagopa.pn.delivery.generated.openapi.clients.safestorage.ApiClient( restTemplate );
@@ -37,6 +36,7 @@ public class PnSafeStorageClientImpl implements PnSafeStorageClient {
 
         this.fileDownloadApi = new FileDownloadApi( newApiClient );
         this.fileUploadApi =new FileUploadApi( newApiClient );
+        this.restTemplate = restTemplate;
         this.cfg = cfg;
     }
 
@@ -65,30 +65,21 @@ public class PnSafeStorageClientImpl implements PnSafeStorageClient {
     }
 
     private void uploadContent(FileCreationWithContentRequest fileCreationRequest, FileCreationResponse fileCreationResponse, String sha256){
-        try (final CloseableHttpClient httpclient = HttpClients.createDefault()) {
-            HttpEntityEnclosingRequestBase httppost;
-            if (fileCreationResponse.getUploadMethod() == FileCreationResponse.UploadMethodEnum.POST)
-                httppost = new HttpPost(fileCreationResponse.getUploadUrl());
-            else
-                httppost = new HttpPut(fileCreationResponse.getUploadUrl());
 
-            httppost.setHeader("x-amz-meta-secret", fileCreationResponse.getSecret());
-            httppost.setHeader("x-amz-checksum-sha256", sha256);
+        try {
+            MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+            headers.add("Content-type", fileCreationRequest.getContentType());
+            headers.add("x-amz-checksum-sha256", sha256);
+            headers.add("x-amz-meta-secret", fileCreationResponse.getSecret());
 
-            final InputStreamEntity reqEntity = new InputStreamEntity(
-                    new ByteArrayInputStream(fileCreationRequest.getContent()), -1, ContentType.parse(fileCreationRequest.getContentType()));
-            httppost.setEntity(reqEntity);
-
-            log.debug("uploadContent Executing request " + httppost.getMethod() + " " + httppost.getURI());
-            try (final CloseableHttpResponse response = httpclient.execute(httppost)) {
-                log.debug("uploadContent response: " + response.getStatusLine().getStatusCode() + " " + response.getStatusLine().getReasonPhrase());
-                if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
-                {
-                    throw new PnInternalException("File upload failed");
-                }
+            HttpEntity<Resource> req = new HttpEntity<>(new ByteArrayResource(fileCreationRequest.getContent()), headers);
+            ResponseEntity<Object> res = restTemplate.exchange( URI.create(fileCreationResponse.getUploadUrl()),
+                    fileCreationResponse.getUploadMethod()== FileCreationResponse.UploadMethodEnum.POST? HttpMethod.POST:HttpMethod.PUT, req, Object.class);
+            if (res.getStatusCodeValue() != org.springframework.http.HttpStatus.OK.value())
+            {
+                throw new PnInternalException("File upload failed");
             }
-        }
-        catch (PnInternalException ee)
+        } catch (PnInternalException ee)
         {
             throw ee;
         }
