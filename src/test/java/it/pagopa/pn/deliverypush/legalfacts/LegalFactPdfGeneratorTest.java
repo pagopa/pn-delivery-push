@@ -93,7 +93,8 @@ class LegalFactPdfGeneratorTest {
 	@Test 
 	void generateNotificationAARTest() throws IOException {	
 		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
-		Files.write(filePath, pdfUtils.generateNotificationAAR(buildNotification()));		
+		NotificationInt notificationInt = buildNotification();
+		Files.write(filePath, pdfUtils.generateNotificationAAR(notificationInt, notificationInt.getRecipients().get(0)));
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
 

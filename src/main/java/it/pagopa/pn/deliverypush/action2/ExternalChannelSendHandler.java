@@ -48,7 +48,7 @@ public class ExternalChannelSendHandler {
 
         externalChannelUtils.addSendDigitalNotificationToTimeline(notification, digitalAddress, addressSource, recIndex, sentAttemptMade, eventId);
 
-        externalChannel.sendLegalNotification(notification, digitalAddress, eventId);
+        externalChannel.sendLegalNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), digitalAddress, eventId);
     }
 
     /**
@@ -60,7 +60,7 @@ public class ExternalChannelSendHandler {
 
         externalChannelUtils.addSendCourtesyMessageToTimeline(notification, courtesyAddress, recIndex, eventId);
 
-        externalChannel.sendCourtesyNotification(notification, courtesyAddress, eventId);
+        externalChannel.sendCourtesyNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), courtesyAddress, eventId);
     }
 
     /**

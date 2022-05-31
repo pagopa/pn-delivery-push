@@ -43,13 +43,14 @@ public class LegalFactDao {
         return fileCreationResponse.getKey();
     }
 
-    public String saveAAR(NotificationInt notification) {
+    public String saveAAR(NotificationInt notification,
+                          NotificationRecipientInt recipient) {
         try {
             FileCreationWithContentRequest fileCreationRequest = new FileCreationWithContentRequest();
             fileCreationRequest.setContentType(LEGALFACTS_MEDIATYPE_STRING);
             fileCreationRequest.setDocumentType(PN_AAR);
             fileCreationRequest.setStatus(SAVED);
-            fileCreationRequest.setContent(legalFactBuilder.generateNotificationAAR(notification));
+            fileCreationRequest.setContent(legalFactBuilder.generateNotificationAAR(notification, recipient));
             FileCreationResponse fileCreationResponse = safeStorageClient.createAndUploadContent(fileCreationRequest);
 
 

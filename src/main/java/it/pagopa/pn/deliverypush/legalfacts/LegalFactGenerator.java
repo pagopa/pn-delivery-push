@@ -228,12 +228,13 @@ public class LegalFactGenerator {
         );
     }
 
-    public byte[] generateNotificationAAR(NotificationInt notification) throws IOException {
+    public byte[] generateNotificationAAR(NotificationInt notification, NotificationRecipientInt recipient) throws IOException {
 
         Map<String, Object> templateModel = new HashMap<>();
         templateModel.put(FIELD_SEND_DATE, instantWriter.instantToDate( notification.getSentAt() ) );
         templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( notification.getSentAt(), true ) );
         templateModel.put(FIELD_NOTIFICATION, notification);
+        templateModel.put(FIELD_RECIPIENT, recipient);
         templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
 
         return documentComposition.executePdfTemplate(
@@ -243,16 +244,17 @@ public class LegalFactGenerator {
 
     }
 
-    public String generateNotificationAARBody(NotificationInt notification) {
+    public String generateNotificationAARBody(NotificationInt notification, NotificationRecipientInt recipient) {
 
         Map<String, Object> templateModel = new HashMap<>();
         templateModel.put(FIELD_SEND_DATE, instantWriter.instantToDate( notification.getSentAt() ) );
         templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( notification.getSentAt(), true ) );
         templateModel.put(FIELD_NOTIFICATION, notification);
+        templateModel.put(FIELD_RECIPIENT, recipient);
         templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
 
         return documentComposition.executeTextTemplate(
-                DocumentComposition.TemplateType.AAR_NOTIFICATION,
+                DocumentComposition.TemplateType.AAR_NOTIFICATION_EMAIL,
                 templateModel
             );
 

@@ -86,6 +86,12 @@ public class TimeLineServiceImpl implements TimelineService {
         
         if(confidentialDto.getDigitalAddress() != null){
             DigitalAddress address = details.getDigitalAddress();
+            if (address == null)
+            {
+                details.setDigitalAddress(DigitalAddress.builder().build());
+                address = details.getDigitalAddress();
+            }
+
             address.setAddress(confidentialDto.getDigitalAddress());
         }
     }

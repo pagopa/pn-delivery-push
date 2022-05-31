@@ -21,11 +21,13 @@ public class AarUtils {
     private final LegalFactDao legalFactDao;
     private final TimelineUtils timelineUtils;
     private final TimelineService timelineService;
+    private final NotificationUtils notificationUtils;
 
-    public AarUtils(TimelineService timelineService, TimelineUtils timelineUtils, LegalFactDao legalFactDao) {
+    public AarUtils(TimelineService timelineService, TimelineUtils timelineUtils, LegalFactDao legalFactDao, NotificationUtils notificationUtils) {
         this.legalFactDao = legalFactDao;
         this.timelineUtils = timelineUtils;
         this.timelineService = timelineService;
+        this.notificationUtils = notificationUtils;
     }
 
     public void generateAARAndSaveInSafeStorageAndAddTimelineevent(NotificationInt notification, Integer recIndex)
@@ -41,7 +43,7 @@ public class AarUtils {
             Optional<TimelineElementInternal> timeline = timelineService.getTimelineElement(notification.getIun(), elementId);
             if (!timeline.isPresent())
             {
-                String safestoragekey = legalFactDao.saveAAR(notification);
+                String safestoragekey = legalFactDao.saveAAR(notification, notificationUtils.getRecipientFromIndex(notification,recIndex));
 
                 timelineService.addTimelineElement(timelineUtils.buildAarGenerationTimelineElement(notification, recIndex, safestoragekey));
             }

@@ -240,7 +240,7 @@ class DigitalTestIT {
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
-        Mockito.verify(externalChannelMock, Mockito.times(6)).sendLegalNotification(notificationIntEventCaptor.capture(), digitalAddressEventCaptor.capture(), Mockito.anyString());
+        Mockito.verify(externalChannelMock, Mockito.times(6)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
 
         List<NotificationInt> notificationIntsEvents = notificationIntEventCaptor.getAllValues();
         List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
@@ -307,7 +307,7 @@ class DigitalTestIT {
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
-        Mockito.verify(externalChannelMock, Mockito.times(1)).sendLegalNotification(notificationIntEventCaptor.capture(), digitalAddressEventCaptor.capture(), Mockito.anyString());
+        Mockito.verify(externalChannelMock, Mockito.times(1)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
         List<NotificationInt> notificationIntsEvents = notificationIntEventCaptor.getAllValues();
         List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
 
@@ -366,7 +366,7 @@ class DigitalTestIT {
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
-        Mockito.verify(externalChannelMock, Mockito.times(1)).sendLegalNotification(notificationIntEventCaptor.capture(), digitalAddressEventCaptor.capture(), Mockito.anyString());
+        Mockito.verify(externalChannelMock, Mockito.times(1)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
         List<NotificationInt> notificationIntsEvents = notificationIntEventCaptor.getAllValues();
         List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
 
@@ -431,7 +431,7 @@ class DigitalTestIT {
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
-        Mockito.verify(externalChannelMock, Mockito.times(3)).sendLegalNotification(notificationIntEventCaptor.capture(), digitalAddressEventCaptor.capture(), Mockito.anyString());
+        Mockito.verify(externalChannelMock, Mockito.times(3)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
         List<NotificationInt> notificationIntsEvents = notificationIntEventCaptor.getAllValues();
         List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
 
@@ -482,7 +482,7 @@ class DigitalTestIT {
         //Viene verificata la presenza dell'indirizzo di piattaforma
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         //Viene verificato che sia stata effettuata una sola chiamata ad external channel
-        Mockito.verify(externalChannelMock, Mockito.times(1)).sendLegalNotification(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString());
+        Mockito.verify(externalChannelMock, Mockito.times(1)).sendLegalNotification(Mockito.any(NotificationInt.class), Mockito.any(), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString());
 
         //Viene verificato che il workflow abbia avuto successo
         TestUtils.checkSuccessDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow, platformAddress, 1, 0);
@@ -535,7 +535,7 @@ class DigitalTestIT {
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
-        Mockito.verify(externalChannelMock, Mockito.times(2)).sendLegalNotification(notificationIntEventCaptor.capture(), digitalAddressEventCaptor.capture(), Mockito.anyString());
+        Mockito.verify(externalChannelMock, Mockito.times(2)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
         List<NotificationInt> notificationIntsEvents = notificationIntEventCaptor.getAllValues();
         List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
 
@@ -608,7 +608,7 @@ class DigitalTestIT {
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
-        Mockito.verify(externalChannelMock, Mockito.times(6)).sendLegalNotification(notificationIntEventCaptor.capture(), digitalAddressEventCaptor.capture(), Mockito.anyString());
+        Mockito.verify(externalChannelMock, Mockito.times(6)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
         List<NotificationInt> notificationIntsEvents = notificationIntEventCaptor.getAllValues();
         List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
 
@@ -692,7 +692,7 @@ class DigitalTestIT {
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
-        Mockito.verify(externalChannelMock, Mockito.times(4)).sendLegalNotification(notificationIntEventCaptor.capture(), digitalAddressEventCaptor.capture(), Mockito.anyString());
+        Mockito.verify(externalChannelMock, Mockito.times(4)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
         List<NotificationInt> notificationIntsEvents = notificationIntEventCaptor.getAllValues();
         List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
 
@@ -768,7 +768,7 @@ class DigitalTestIT {
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
-        Mockito.verify(externalChannelMock, Mockito.times(5)).sendLegalNotification(notificationIntEventCaptor.capture(), digitalAddressEventCaptor.capture(), Mockito.anyString());
+        Mockito.verify(externalChannelMock, Mockito.times(5)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
         List<NotificationInt> notificationIntsEvents = notificationIntEventCaptor.getAllValues();
         List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
 
@@ -868,7 +868,7 @@ class DigitalTestIT {
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
-        Mockito.verify(externalChannelMock, Mockito.times(6)).sendLegalNotification(notificationIntEventCaptor.capture(), digitalAddressEventCaptor.capture(), Mockito.anyString());
+        Mockito.verify(externalChannelMock, Mockito.times(6)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
         List<NotificationInt> notificationIntsEvents = notificationIntEventCaptor.getAllValues();
         List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
 

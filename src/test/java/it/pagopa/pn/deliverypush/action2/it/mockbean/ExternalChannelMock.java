@@ -39,14 +39,14 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
     }
 
     @Override
-    public void sendLegalNotification(NotificationInt notificationInt, LegalDigitalAddressInt digitalAddress, String timelineEventId) {
+    public void sendLegalNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, LegalDigitalAddressInt digitalAddress, String timelineEventId) {
         //Invio messaggio di cortesia non necessità di risposta da external channel
         sendDigitalNotification(digitalAddress.getAddress(), notificationInt, timelineEventId);
     }
 
 
     @Override
-    public void sendCourtesyNotification(NotificationInt notificationInt, CourtesyDigitalAddressInt digitalAddress, String timelineEventId) {
+    public void sendCourtesyNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, CourtesyDigitalAddressInt digitalAddress, String timelineEventId) {
         //Invio messaggio di cortesia non necessità di risposta da external channel
 
         sendDigitalNotification(digitalAddress.getAddress(), notificationInt, timelineEventId);

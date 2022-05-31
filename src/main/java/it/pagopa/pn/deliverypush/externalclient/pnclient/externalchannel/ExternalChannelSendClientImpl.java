@@ -91,32 +91,32 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
     }
 
     @Override
-    public void sendLegalNotification(NotificationInt notificationInt, LegalDigitalAddressInt digitalAddress, String timelineEventId)
+    public void sendLegalNotification(NotificationInt notificationInt,  NotificationRecipientInt recipientInt, LegalDigitalAddressInt digitalAddress, String timelineEventId)
     {
         if (digitalAddress.getType() == LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
-            sendNotificationPEC(timelineEventId, notificationInt, digitalAddress);
+            sendNotificationPEC(timelineEventId, notificationInt, recipientInt, digitalAddress);
         else
             throw new PnInternalException("channel type not supported");
     }
 
     @Override
-    public void sendCourtesyNotification(NotificationInt notificationInt, CourtesyDigitalAddressInt digitalAddress, String timelineEventId)
+    public void sendCourtesyNotification(NotificationInt notificationInt,  NotificationRecipientInt recipientInt, CourtesyDigitalAddressInt digitalAddress, String timelineEventId)
     {
         if (digitalAddress.getType() == CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL)
-            sendNotificationEMAIL(timelineEventId, notificationInt, digitalAddress);
+            sendNotificationEMAIL(timelineEventId, notificationInt, recipientInt, digitalAddress);
         else if (digitalAddress.getType() == CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.SMS)
-            sendNotificationSMS(timelineEventId, notificationInt, digitalAddress);
+            sendNotificationSMS(timelineEventId, notificationInt, recipientInt, digitalAddress);
         else
             throw new PnInternalException("channel type not supported");
     }
 
 
-    private void sendNotificationPEC(String requestId, NotificationInt notificationInt, DigitalAddressInt digitalAddress)
+    private void sendNotificationPEC(String requestId, NotificationInt notificationInt,  NotificationRecipientInt recipientInt, DigitalAddressInt digitalAddress)
     {
         try {
-            log.info("sendNotificationPEC address:{} requestId:{}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), requestId);
+            log.info("sendNotificationPEC address:{} requestId:{} recipient:{}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
 
-            String mailbody = legalFactGenerator.generateNotificationAARBody(notificationInt);
+            String mailbody = legalFactGenerator.generateNotificationAARBody(notificationInt, recipientInt);
             String mailsubj = legalFactGenerator.generateNotificationAARSubject(notificationInt);
 
             DigitalNotificationRequest digitalNotificationRequestDto = new DigitalNotificationRequest();
@@ -139,12 +139,12 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
         }
     }
 
-    private void sendNotificationEMAIL(String requestId, NotificationInt notificationInt, DigitalAddressInt digitalAddress)
+    private void sendNotificationEMAIL(String requestId, NotificationInt notificationInt, NotificationRecipientInt recipientInt, DigitalAddressInt digitalAddress)
     {
         try {
-            log.info("sendNotificationEMAIL address:{} requestId:{}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), requestId);
+            log.info("sendNotificationEMAIL address:{} requestId:{} recipient:{}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
 
-            String mailbody = legalFactGenerator.generateNotificationAARBody(notificationInt);
+            String mailbody = legalFactGenerator.generateNotificationAARBody(notificationInt, recipientInt);
             String mailsubj = legalFactGenerator.generateNotificationAARSubject(notificationInt);
 
             DigitalCourtesyMailRequest digitalNotificationRequestDto = new DigitalCourtesyMailRequest();
@@ -167,10 +167,10 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
         }
     }
 
-    private void sendNotificationSMS(String requestId, NotificationInt notificationInt, DigitalAddressInt digitalAddress)
+    private void sendNotificationSMS(String requestId, NotificationInt notificationInt, NotificationRecipientInt recipientInt, DigitalAddressInt digitalAddress)
     {
         try {
-            log.info("sendNotificationSMS address:{} requestId:{}", LogUtils.maskNumber(digitalAddress.getAddress()), requestId);
+            log.info("sendNotificationSMS address:{} requestId:{} recipient:{}", LogUtils.maskNumber(digitalAddress.getAddress()), requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
 
             String smsbody = legalFactGenerator.generateNotificationAARForSMS(notificationInt);
 

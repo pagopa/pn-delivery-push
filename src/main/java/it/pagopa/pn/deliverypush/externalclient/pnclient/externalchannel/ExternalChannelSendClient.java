@@ -17,9 +17,9 @@ public interface ExternalChannelSendClient {
     }
 
 
-    void sendLegalNotification(NotificationInt notificationInt, LegalDigitalAddressInt digitalAddress, String timelineEventId);
+    void sendLegalNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, LegalDigitalAddressInt digitalAddress, String timelineEventId);
 
-    void sendCourtesyNotification(NotificationInt notificationInt, CourtesyDigitalAddressInt digitalAddress, String timelineEventId);
+    void sendCourtesyNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, CourtesyDigitalAddressInt digitalAddress, String timelineEventId);
 
     void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, PhysicalAddress physicalAddress, String timelineEventId, ANALOG_TYPE analogType, String aarKey);
 }
