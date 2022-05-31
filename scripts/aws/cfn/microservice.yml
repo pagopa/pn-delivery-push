@@ -188,7 +188,7 @@ Parameters:
     Description: url base di external channel
 
   SandboxSafeStorageBaseUrl:
-    Type String
+    Type: String
     Description: url base di safe storage
 
 Resources:
