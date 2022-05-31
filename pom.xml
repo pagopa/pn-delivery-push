@@ -75,6 +75,18 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.mock-server</groupId>
+			<artifactId>mockserver-junit-jupiter</artifactId>
+			<version>5.11.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mock-server</groupId>
+			<artifactId>mockserver-netty</artifactId>
+			<version>5.11.0</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-configuration-processor</artifactId>
 			<optional>true</optional>
@@ -281,7 +293,8 @@
 						</goals>
 						<phase>process-resources</phase>
 						<configuration>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-safe-storage/main/docs/openapi/pn-safestorage-v1-api.yaml</inputSpec>
+							<!-- <inputSpec>https://raw.githubusercontent.com/pagopa/pn-safe-storage/main/docs/openapi/pn-safestorage-v1-api.yaml</inputSpec> -->
+							<inputSpec>${project.basedir}/docs/wsclient/pn-safe-storage/pn-safestorage-v1-api.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>

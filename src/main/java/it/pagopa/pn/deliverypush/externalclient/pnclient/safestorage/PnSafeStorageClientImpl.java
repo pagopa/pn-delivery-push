@@ -3,11 +3,11 @@ package it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.api.FileDownloadApi;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.api.FileUploadApi;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationRequest;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
@@ -47,34 +47,33 @@ public class PnSafeStorageClientImpl implements PnSafeStorageClient {
         return fileDownloadApi.getFile( fileKey, this.cfg.getSafeStorageCxId(), metadataOnly );
     }
 
-    public FileCreationResponse createFile(FileCreationRequest fileCreationRequest) {
-        log.debug("Start call createFile - documentType:{} status: {}", fileCreationRequest.getDocumentType(), fileCreationRequest.getStatus());
-
-        return fileUploadApi.createFile( this.cfg.getSafeStorageCxId(), fileCreationRequest );
-    }
-
     @Override
     public FileCreationResponse createAndUploadContent(FileCreationWithContentRequest fileCreationRequest) {
             log.debug("Start call createAndUploadFile - documentType {} filesize:{}", fileCreationRequest.getDocumentType(), fileCreationRequest.getContent().length);
 
-            FileCreationResponse fileCreationResponse = this.createFile(fileCreationRequest);
+            String sha256 = DigestUtils.sha256Hex(fileCreationRequest.getContent());
 
-            log.debug("createAndUploadContent create file preloaded");
+            FileCreationResponse fileCreationResponse = fileUploadApi.createFile( this.cfg.getSafeStorageCxId(),  "SHA-256", sha256,  fileCreationRequest );
 
-            this.uploadContent(fileCreationRequest, fileCreationResponse);
+            log.debug("createAndUploadContent create file preloaded sha256:{}", sha256);
+
+            this.uploadContent(fileCreationRequest, fileCreationResponse, sha256);
 
             log.info("createAndUploadContent file uploaded successfully key:{}", fileCreationResponse.getKey());
 
             return fileCreationResponse;
     }
 
-    private void uploadContent(FileCreationWithContentRequest fileCreationRequest, FileCreationResponse fileCreationResponse){
+    private void uploadContent(FileCreationWithContentRequest fileCreationRequest, FileCreationResponse fileCreationResponse, String sha256){
         try (final CloseableHttpClient httpclient = HttpClients.createDefault()) {
             HttpEntityEnclosingRequestBase httppost;
             if (fileCreationResponse.getUploadMethod() == FileCreationResponse.UploadMethodEnum.POST)
                 httppost = new HttpPost(fileCreationResponse.getUploadUrl());
             else
                 httppost = new HttpPut(fileCreationResponse.getUploadUrl());
+
+            httppost.setHeader("x-amz-meta-secret", fileCreationResponse.getSecret());
+            httppost.setHeader("x-amz-checksum-sha256", sha256);
 
             final InputStreamEntity reqEntity = new InputStreamEntity(
                     new ByteArrayInputStream(fileCreationRequest.getContent()), -1, ContentType.parse(fileCreationRequest.getContentType()));

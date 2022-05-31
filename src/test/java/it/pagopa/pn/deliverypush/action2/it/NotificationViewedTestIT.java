@@ -1,7 +1,8 @@
 package it.pagopa.pn.deliverypush.action2.it;
 
-import it.pagopa.pn.commons.abstractions.FileData;
-import it.pagopa.pn.commons.abstractions.FileStorage;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action2.*;
@@ -9,12 +10,14 @@ import it.pagopa.pn.deliverypush.action2.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action2.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action2.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action2.utils.*;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.PnSafeStorageClient;
+import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.PnSafeStorageClientImpl;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
@@ -32,8 +35,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -65,6 +67,7 @@ import static org.mockito.ArgumentMatchers.eq;
         ChooseDeliveryModeUtils.class,
         TimelineUtils.class,
         PublicRegistryUtils.class,
+        AarUtils.class,
         StatusUtils.class,
         NotificationServiceImpl.class,
         TimeLineServiceImpl.class,
@@ -104,7 +107,7 @@ class NotificationViewedTestIT {
     private ExternalChannelMock externalChannelMock;
     
     @SpyBean
-    private FileStorage fileStorage;
+    private PnSafeStorageClient safeStorageClient;
     
     @Autowired
     private PnDeliveryClientMock pnDeliveryClientMock;
@@ -156,13 +159,28 @@ class NotificationViewedTestIT {
 
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
-        FileData fileData = FileData.builder()
-                .content( new ByteArrayInputStream("Body".getBytes(StandardCharsets.UTF_8)) )
-                .build();
+        //File mock to return for getFileAndDownloadContent
+        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
+        fileDownloadResponse.setContentType("application/pdf");
+        fileDownloadResponse.setContentLength(new BigDecimal(0));
+        fileDownloadResponse.setChecksum("123");
+        fileDownloadResponse.setKey("123");
+        fileDownloadResponse.setDownload(new FileDownloadInfo());
+        fileDownloadResponse.getDownload().setUrl("https://www.url.qualcosa.it");
+        fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
 
-        // Given
-        Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
-                .thenReturn( fileData );
+        FileCreationResponse fileCreationResponse = new FileCreationResponse();
+        fileCreationResponse.setUploadMethod(FileCreationResponse.UploadMethodEnum.POST);
+        fileCreationResponse.setKey("123");
+        fileDownloadResponse.setChecksum("123");
+
+
+        Mockito.when( safeStorageClient.getFile( Mockito.anyString(), Mockito.anyBoolean()))
+                .thenReturn( fileDownloadResponse);
+
+        Mockito.when( safeStorageClient.createAndUploadContent( Mockito.any()))
+                .thenReturn( fileCreationResponse );
+
 
         pnDeliveryClientMock.clear();
         addressBookMock.clear();
@@ -177,19 +195,19 @@ class NotificationViewedTestIT {
     void notificationViewed(){
         //GIVEN
 
-        DigitalAddress platformAddress = DigitalAddress.builder()
+        LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
                 .address("platformAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        DigitalAddress digitalDomicile = DigitalAddress.builder()
+        LegalDigitalAddressInt digitalDomicile = LegalDigitalAddressInt.builder()
                 .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        DigitalAddress pbDigitalAddress = DigitalAddress.builder()
+        LegalDigitalAddressInt pbDigitalAddress = LegalDigitalAddressInt.builder()
                 .address("pbDigitalAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
@@ -249,14 +267,14 @@ class NotificationViewedTestIT {
     @Test
     void testNotificationViewedTwoRecipient(){
         //Primo Recipient
-        DigitalAddress platformAddress1 = DigitalAddress.builder()
+        LegalDigitalAddressInt platformAddress1 = LegalDigitalAddressInt.builder()
                 .address("test1@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        DigitalAddress digitalDomicile1 = DigitalAddress.builder()
+        LegalDigitalAddressInt digitalDomicile1 = LegalDigitalAddressInt.builder()
                 .address("digitalDomicile1@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
         NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder()
@@ -265,14 +283,14 @@ class NotificationViewedTestIT {
                 .build();
 
         //Secondo recipient
-        DigitalAddress platformAddress2 = DigitalAddress.builder()
+        LegalDigitalAddressInt platformAddress2 = LegalDigitalAddressInt.builder()
                 .address("test2@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        DigitalAddress digitalDomicile2 = DigitalAddress.builder()
+        LegalDigitalAddressInt digitalDomicile2 = LegalDigitalAddressInt.builder()
                 .address("digitalDomicile2@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
         NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder()
