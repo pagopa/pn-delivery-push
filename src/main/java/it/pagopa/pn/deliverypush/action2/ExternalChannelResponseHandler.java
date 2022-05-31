@@ -28,15 +28,15 @@ public class ExternalChannelResponseHandler {
      * @param response Notification response
      */
     public void extChannelResponseReceiver(ExtChannelResponse response) {
-        log.info("Get response from external channel with status {} - iun {} eventId {} ", response.getResponseStatus(), response.getIun(), response.getEventId());
+        log.info("Get response from external channel with status={} - iun={} eventId={} ", response.getResponseStatus(), response.getIun(), response.getEventId());
         TimelineElementInternal notificationTimelineElement = externalChannelUtils.getExternalChannelNotificationTimelineElement(response.getIun(), response.getEventId());
 
-        log.debug("Get notification element ok, category {} - iun {} eventId {} ", notificationTimelineElement.getCategory(), response.getIun(), response.getEventId());
+        log.debug("Get notification element ok, category={} - iun={} eventId={} ", notificationTimelineElement.getCategory(), response.getIun(), response.getEventId());
 
         if (notificationTimelineElement.getCategory() != null) {
             switch (notificationTimelineElement.getCategory()) {
                 case SEND_COURTESY_MESSAGE:
-                    log.info("Received SEND_COURTESY_MESSAGE response for response status {} - iun {} eventId {} ", response.getResponseStatus(), response.getIun(), response.getEventId());
+                    log.info("Received SEND_COURTESY_MESSAGE response for response status={} - iun={} eventId={} ", response.getResponseStatus(), response.getIun(), response.getEventId());
                     break;
                 case SEND_DIGITAL_DOMICILE:
                     digitalWorkFlowHandler.handleExternalChannelResponse(response, notificationTimelineElement);
@@ -46,7 +46,7 @@ public class ExternalChannelResponseHandler {
                     break;
                 case SEND_SIMPLE_REGISTERED_LETTER:
                     //Non richiede azioni specifiche
-                    log.info("Received SEND_SIMPLE_REGISTERED_LETTER response for response status {} - iun {} eventId {} ", response.getResponseStatus(), response.getIun(), response.getEventId());
+                    log.info("Received SEND_SIMPLE_REGISTERED_LETTER response for response status={} - iun={} eventId={} ", response.getResponseStatus(), response.getIun(), response.getEventId());
                     break;
                 default:
                     handleError(response, notificationTimelineElement);
@@ -58,7 +58,7 @@ public class ExternalChannelResponseHandler {
     }
 
     private void handleError(ExtChannelResponse response, TimelineElementInternal notificationTimelineElement) {
-        log.error("Specified category {} is not possibile - iun {} eventId {}", notificationTimelineElement.getCategory(), response.getIun(), response.getEventId());
+        log.error("Specified category={} is not possibile - iun={} eventId={}", notificationTimelineElement.getCategory(), response.getIun(), response.getEventId());
         throw new PnInternalException("Specified category " + notificationTimelineElement.getCategory() + " is not possibile");
     }
 

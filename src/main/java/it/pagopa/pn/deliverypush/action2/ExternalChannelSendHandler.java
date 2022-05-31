@@ -32,7 +32,7 @@ public class ExternalChannelSendHandler {
 
     /**
      * Send pec notification to external channel
-     * MEssaggio con valore legale (PEC)
+     * Messaggio con valore legale (PEC)
      */
     public void sendDigitalNotification(NotificationInt notification, LegalDigitalAddressInt digitalAddress, DigitalAddressSource addressSource, Integer recIndex,
                                         int sentAttemptMade) {
@@ -53,7 +53,7 @@ public class ExternalChannelSendHandler {
 
     /**
      * Send courtesy message to external channel
-     * MEssaggio senza valore legale (EMAIL, SMS)
+     * Messaggio senza valore legale (EMAIL, SMS)
      *
      */
     public void sendCourtesyNotification(NotificationInt notification, CourtesyDigitalAddressInt courtesyAddress, Integer recIndex, String eventId) {
