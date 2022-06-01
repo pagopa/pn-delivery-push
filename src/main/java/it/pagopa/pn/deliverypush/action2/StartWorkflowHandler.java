@@ -51,7 +51,7 @@ public class StartWorkflowHandler {
      * @param iun Notification unique identifier
      */
     public void startWorkflow(String iun) {
-        log.info("Start notification process - iun {}", iun);
+        log.info("Start notification process iun={}", iun);
         try{
             NotificationInt notification = notificationService.getNotificationByIun(iun);
 
@@ -72,7 +72,7 @@ public class StartWorkflowHandler {
                 handleValidationError(notification, ex);
             }
         } catch (Exception ex){
-            log.error("Generic Exception ex ", ex);
+            log.error("Generic Exception for iun={} ex={}",iun, ex);
             throw ex;
         }
     }
