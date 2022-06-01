@@ -83,7 +83,7 @@ public class ExternalChannelSendHandler {
             externalChannelUtils.addSendAnalogNotificationToTimeline(notification, physicalAddress, recIndex, investigation, sentAttemptMade, pnExtChnPaperEvent.getHeader().getEventId());
             externalChannel.sendNotification(pnExtChnPaperEvent);
 
-            log.info("Registered Letter sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
+            log.info("Analog notification sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
         }else {
             log.info("Notification is already viewed, paper notification will not be sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
         }

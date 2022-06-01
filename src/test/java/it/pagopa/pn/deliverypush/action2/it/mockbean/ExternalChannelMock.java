@@ -39,6 +39,21 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
 
     @Override
     public void sendNotification(PnExtChnPecEvent event) {
+        new Thread(() -> {
+            simulateExternalChannelPecResponse(event);
+        }).start();
+    }
+    
+    private static final Pattern NEW_ADDRESS_INPUT_PATTERN = Pattern.compile("^" + EXT_CHANNEL_SEND_NEW_ADDR + "(.*)$");
+
+    @Override
+    public void sendNotification(PnExtChnPaperEvent event) {
+        new Thread(() -> {
+            simulateExternalChannelPaperResponse(event);
+        }).start();
+    }
+    
+    private void simulateExternalChannelPecResponse(PnExtChnPecEvent event) {
         ResponseStatus status;
 
         String pecAddress = event.getPayload().getPecAddress();
@@ -70,10 +85,7 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
         externalChannelHandler.extChannelResponseReceiver(extChannelResponse);
     }
 
-    private static final Pattern NEW_ADDRESS_INPUT_PATTERN = Pattern.compile("^" + EXT_CHANNEL_SEND_NEW_ADDR + "(.*)$");
-
-    @Override
-    public void sendNotification(PnExtChnPaperEvent event) {
+    private void simulateExternalChannelPaperResponse(PnExtChnPaperEvent event) {
         ResponseStatus status;
         String newAddress;
 

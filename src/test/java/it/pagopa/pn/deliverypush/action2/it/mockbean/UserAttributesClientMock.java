@@ -69,7 +69,6 @@ public class UserAttributesClientMock implements UserAttributesClient {
         return ResponseEntity.ok(listCourtesyDigitalAddress);
     }
 
-    //TODO Aggiungere logica senderId dopo aver verificato che continua a funzionare così
     private String getId(String taxId, String senderId) {
         return taxId + "_" + senderId;
     }

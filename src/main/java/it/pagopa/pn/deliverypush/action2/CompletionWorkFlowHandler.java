@@ -133,8 +133,7 @@ public class CompletionWorkFlowHandler {
                     break;
                 case FAILURE:
                     addTimelineElement(timelineUtils.buildFailureAnalogWorkflowTimelineElement(iun, recIndex));
-                    completelyUnreachableService.handleCompletelyUnreachable(notification, recIndex);
-                    scheduleRefinement(iun, recIndex, notificationDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysFailureAnalogRefinement());
+                    completelyUnreachableService.handleCompletelyUnreachable(notification, recIndex, notificationDate);
                     break;
                 default:
                     handleError(iun, recIndex, status);

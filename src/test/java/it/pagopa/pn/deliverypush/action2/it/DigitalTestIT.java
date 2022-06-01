@@ -977,11 +977,11 @@ class DigitalTestIT {
 
 
     @Test
-    void twoRecipient() throws IdConflictException {
+    void twoRecipient() {
        /* Primo recipient
        - Platform address presente e primo invio con fallimento
        - Special address presente e primo invio con successo
-       - General address vuoto (Ottenuto non valorizzando
+       - General address vuoto
        
        Secondo recipient
        - Platform address presente ed entrambi gli invii con fallimento

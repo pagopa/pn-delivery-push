@@ -37,7 +37,12 @@ public class PublicRegistryMock implements PublicRegistry {
     
     @Override
     public void sendRequestForGetDigitalAddress(String taxId, String correlationId) {
+        new Thread(() -> {
+            simulateDigitalAddressResponse(taxId, correlationId);
+        }).start();
+    }
 
+    private void simulateDigitalAddressResponse(String taxId, String correlationId) {
         DigitalAddress address = this.digitalAddressResponse.get(taxId);
 
         PublicRegistryResponse response = PublicRegistryResponse.builder()
@@ -49,6 +54,12 @@ public class PublicRegistryMock implements PublicRegistry {
 
     @Override
     public void sendRequestForGetPhysicalAddress(String taxId, String correlationId) {
+        new Thread(() -> {
+            simulatePhysicalAddressResponse(taxId, correlationId);
+        }).start();
+    }
+
+    private void simulatePhysicalAddressResponse(String taxId, String correlationId) {
         PhysicalAddress address = this.physicalAddressResponse.get(taxId);
 
         PublicRegistryResponse response = PublicRegistryResponse.builder()
