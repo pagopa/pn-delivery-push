@@ -52,24 +52,28 @@ public class StartWorkflowHandler {
      */
     public void startWorkflow(String iun) {
         log.info("Start notification process - iun {}", iun);
-        
-        NotificationInt notification = notificationService.getNotificationByIun(iun);
-
         try{
-            //Validazione degli allegati della notifica
-            //checkAttachmentUtils.validateAttachment(notification);
+            NotificationInt notification = notificationService.getNotificationByIun(iun);
 
-            String legalFactId = legalFactDao.saveNotificationReceivedLegalFact(notification);
+            try{
+                //Validazione degli allegati della notifica
+                //checkAttachmentUtils.validateAttachment(notification);
 
-            addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification, legalFactId));
-            
-            //Start del workflow per ogni recipient della notifica
-            for (NotificationRecipientInt recipient : notification.getRecipients()) {
-                Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
-                startNotificationWorkflowForRecipient(notification, recIndex);
+                String legalFactId = legalFactDao.saveNotificationReceivedLegalFact(notification);
+
+                addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification, legalFactId));
+
+                //Start del workflow per ogni recipient della notifica
+                for (NotificationRecipientInt recipient : notification.getRecipients()) {
+                    Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+                    startNotificationWorkflowForRecipient(notification, recIndex);
+                }
+            }catch (PnValidationException ex){
+                handleValidationError(notification, ex);
             }
-        }catch (PnValidationException ex){
-            handleValidationError(notification, ex);
+        } catch (Exception ex){
+            log.error("Generic Exception ex ", ex);
+            throw ex;
         }
     }
 
