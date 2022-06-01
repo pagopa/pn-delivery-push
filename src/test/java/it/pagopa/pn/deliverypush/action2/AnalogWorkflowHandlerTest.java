@@ -118,7 +118,7 @@ class AnalogWorkflowHandlerTest {
         handler.nextWorkflowStep(notification, recIndex, 2);
         
         //THEN
-        Mockito.verify(completionWorkFlow).completionAnalogWorkflow(eq(notification), eq(recIndex), Mockito.any(Instant.class), eq(null), eq(EndWorkflowStatus.FAILURE));
+        Mockito.verify(completionWorkFlow).completionAnalogWorkflow(eq(notification), eq(recIndex), Mockito.any(), Mockito.any(Instant.class), eq(null), eq(EndWorkflowStatus.FAILURE));
     }
     
     @ExtendWith(MockitoExtension.class)
@@ -222,7 +222,7 @@ class AnalogWorkflowHandlerTest {
         handler.handlePublicRegistryResponse(notification.getIun(),recIndex,response, 1);
         
         //THEN
-        Mockito.verify(completionWorkFlow).completionAnalogWorkflow(eq(notification), eq(recIndex), Mockito.any(Instant.class), eq(null), eq(EndWorkflowStatus.FAILURE));
+        Mockito.verify(completionWorkFlow).completionAnalogWorkflow(eq(notification), eq(recIndex), Mockito.any(), Mockito.any(Instant.class), eq(null), eq(EndWorkflowStatus.FAILURE));
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -258,7 +258,7 @@ class AnalogWorkflowHandlerTest {
         handler.handlePublicRegistryResponse(notification.getIun(), recIndex,response, 1);
 
         //THEN
-        Mockito.verify(completionWorkFlow).completionAnalogWorkflow(eq(notification), eq(recIndex), Mockito.any(Instant.class), eq(null), eq(EndWorkflowStatus.FAILURE));
+        Mockito.verify(completionWorkFlow).completionAnalogWorkflow(eq(notification), eq(recIndex), Mockito.any(), Mockito.any(Instant.class), eq(null), eq(EndWorkflowStatus.FAILURE));
     }
 
     private NotificationInt getNotificationWithPhysicalAddress() {

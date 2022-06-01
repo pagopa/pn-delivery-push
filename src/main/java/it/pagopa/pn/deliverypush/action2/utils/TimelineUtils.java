@@ -4,7 +4,6 @@ import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfo;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -95,12 +94,12 @@ public class TimelineUtils {
     }
 
 
-    public TimelineElementInternal buildDigitaFeedbackTimelineElement(ExtChannelResponse response, SendDigitalDetails sendDigitalDetails) {
-        log.debug("buildDigitaFeedbackTimelineElement - IUN {} and id {}", response.getIun(), sendDigitalDetails.getRecIndex());
+    public TimelineElementInternal buildDigitalFeedbackTimelineElement(String iun, ResponseStatus status, List<String> errors, SendDigitalDetails sendDigitalDetails) {
+        log.debug("buildDigitaFeedbackTimelineElement - IUN {} and id {}", iun, sendDigitalDetails.getRecIndex());
 
         String elementId = TimelineEventId.SEND_DIGITAL_FEEDBACK.buildEventId(
                 EventId.builder()
-                        .iun(response.getIun())
+                        .iun(iun)
                         .recIndex(sendDigitalDetails.getRecIndex())
                         .index(sendDigitalDetails.getRetryNumber())
                         .source(sendDigitalDetails.getDigitalAddressSource())
@@ -108,14 +107,14 @@ public class TimelineUtils {
         );
 
         SendDigitalFeedback details = SendDigitalFeedback.builder()
-                .errors(response.getErrorList())
+                .errors(errors)
                 .digitalAddress(sendDigitalDetails.getDigitalAddress())
-                .responseStatus(response.getResponseStatus())
+                .responseStatus(status)
                 .recIndex(sendDigitalDetails.getRecIndex())
                 .notificationDate(instantNowSupplier.get())
                 .build();
 
-        return buildTimeline(response.getIun(), TimelineElementCategory.SEND_DIGITAL_FEEDBACK, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
+        return buildTimeline(iun, TimelineElementCategory.SEND_DIGITAL_FEEDBACK, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
     }
 
     public TimelineElementInternal buildSendCourtesyMessageTimelineElement(Integer recIndex, String iun, CourtesyDigitalAddressInt address, Instant sendDate, String eventId) {
@@ -210,7 +209,7 @@ public class TimelineUtils {
     }
 
 
-    public TimelineElementInternal buildSuccessAnalogWorkflowTimelineElement(String iun, Integer recIndex, PhysicalAddress address) {
+    public TimelineElementInternal buildSuccessAnalogWorkflowTimelineElement(String iun, Integer recIndex, PhysicalAddress address, List<LegalFactsId> attachments) {
         log.debug("buildSuccessAnalogWorkflowTimelineElement - iun {} and id {}", iun, recIndex);
 
         String elementId = TimelineEventId.ANALOG_SUCCESS_WORKFLOW.buildEventId(
@@ -223,11 +222,11 @@ public class TimelineUtils {
                 .physicalAddress(address)
                 .build();
 
-        return buildTimeline(iun, TimelineElementCategory.ANALOG_SUCCESS_WORKFLOW, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
+        return buildTimeline(iun, TimelineElementCategory.ANALOG_SUCCESS_WORKFLOW, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class), attachments);
     }
 
 
-    public TimelineElementInternal buildFailureAnalogWorkflowTimelineElement(String iun, Integer recIndex) {
+    public TimelineElementInternal buildFailureAnalogWorkflowTimelineElement(String iun, Integer recIndex, List<LegalFactsId> attachments) {
         log.debug("buildFailureAnalogWorkflowTimelineElement - iun {} and id {}", iun, recIndex);
 
         String elementId = TimelineEventId.ANALOG_FAILURE_WORKFLOW.buildEventId(
@@ -239,7 +238,7 @@ public class TimelineUtils {
                 .recIndex(recIndex)
                 .build();
 
-        return buildTimeline(iun, TimelineElementCategory.ANALOG_FAILURE_WORKFLOW, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
+        return buildTimeline(iun, TimelineElementCategory.ANALOG_FAILURE_WORKFLOW, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class), attachments);
     }
 
 
@@ -274,10 +273,8 @@ public class TimelineUtils {
     }
 
 
-    public TimelineElementInternal buildAnalogFailureAttemptTimelineElement(ExtChannelResponse response, int sentAttemptMade, SendPaperDetails sendPaperDetails) {
-        log.debug("buildAnalogFailureAttemptTimelineElement - iun {} and id {}", response.getIun(), sendPaperDetails.getRecIndex());
-
-        String iun = response.getIun();
+    public TimelineElementInternal buildAnalogFailureAttemptTimelineElement(String iun, int sentAttemptMade, List<LegalFactsId> legalFactsListEntryIds, PhysicalAddress newAddress, List<String> errors, SendPaperDetails sendPaperDetails) {
+        log.debug("buildAnalogFailureAttemptTimelineElement - iun {} and id {}", iun, sendPaperDetails.getRecIndex());
 
         String elementId = TimelineEventId.SEND_PAPER_FEEDBACK.buildEventId(
                 EventId.builder()
@@ -292,22 +289,10 @@ public class TimelineUtils {
                 .physicalAddress(sendPaperDetails.getPhysicalAddress())
                 .sentAttemptMade(sentAttemptMade)
                 .serviceLevel(sendPaperDetails.getServiceLevel())
-                .newAddress(response.getAnalogNewAddressFromInvestigation())
-                .errors(response.getErrorList())
+                .newAddress(newAddress)
+                .errors(errors)
                 .build();
 
-        final List<String> attachmentKeys = response.getAttachmentKeys();
-        List<LegalFactsId> legalFactsListEntryIds;
-        if ( attachmentKeys != null ) {
-            legalFactsListEntryIds = attachmentKeys.stream()
-                    .map( k -> LegalFactsId.builder()
-                            .key( k )
-                            .category( LegalFactCategory.ANALOG_DELIVERY )
-                            .build()
-                    ).collect(Collectors.toList());
-        } else {
-            legalFactsListEntryIds = Collections.emptyList();
-        }
         return buildTimeline( iun, TimelineElementCategory.SEND_PAPER_FEEDBACK,
                                                                             elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class), legalFactsListEntryIds );
     }
@@ -459,6 +444,11 @@ public class TimelineUtils {
 
         Optional<TimelineElementInternal> timelineOpt = timelineService.getTimelineElement(iun, elementId);
         return timelineOpt.isPresent();
+    }
+
+    public String getIunFromTimelineId(String timelineId)
+    {
+        return timelineId.split("_")[0];
     }
 
 }

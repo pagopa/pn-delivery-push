@@ -18,6 +18,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.CourtesyDigitalAd
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
@@ -221,6 +222,8 @@ class AnalogTestIT {
 
         String iun = notification.getIun();
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+
+
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);

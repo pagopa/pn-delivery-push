@@ -1,15 +1,13 @@
 package it.pagopa.pn.deliverypush.action2.it.mockbean;
 
+import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.*;
 import it.pagopa.pn.deliverypush.action2.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseStatus;
-import it.pagopa.pn.deliverypush.util.LogUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 
@@ -40,8 +38,8 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
 
     @Override
     public void sendLegalNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, LegalDigitalAddressInt digitalAddress, String timelineEventId) {
-        //Invio messaggio di cortesia non necessità di risposta da external channel
-        sendDigitalNotification(digitalAddress.getAddress(), notificationInt, timelineEventId);
+        //Invio messaggio legali necessità di risposta da external channel
+        sendDigitalNotification(digitalAddress.getAddress(), notificationInt, timelineEventId, true);
     }
 
 
@@ -49,14 +47,14 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
     public void sendCourtesyNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, CourtesyDigitalAddressInt digitalAddress, String timelineEventId) {
         //Invio messaggio di cortesia non necessità di risposta da external channel
 
-        sendDigitalNotification(digitalAddress.getAddress(), notificationInt, timelineEventId);
+        sendDigitalNotification(digitalAddress.getAddress(), notificationInt, timelineEventId, false);
 
     }
 
-    private void sendDigitalNotification(String address, NotificationInt notificationInt, String timelineEventId){
+    private void sendDigitalNotification(String address, NotificationInt notificationInt, String timelineEventId, boolean legal){
         log.info("sendDigitalNotification address:{} requestId:{}", address, timelineEventId);
 
-        ResponseStatus status;
+        ProgressEventCategory status;
 
         String eventId = timelineEventId;
         String retryNumberPart = eventId.replaceFirst(".*([0-9]+)$", "$1");
@@ -66,9 +64,9 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
 
             if (domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_BOTH)
                     || (domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_FIRST) && "1".equals(retryNumberPart))) {
-                status = ResponseStatus.KO;
+                status = ProgressEventCategory.ERROR;
             } else if (domainPart.startsWith(EXT_CHANNEL_WORKS) || domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_FIRST)) {
-                status = ResponseStatus.OK;
+                status = ProgressEventCategory.OK;
             } else {
                 throw new IllegalArgumentException("PecAddress " + address + " do not match test rule for mocks");
             }
@@ -76,20 +74,35 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
             throw new IllegalArgumentException("PecAddress is null");
         }
 
-        ExtChannelResponse extChannelResponse = ExtChannelResponse.builder()
-                .eventId(timelineEventId)
-                .responseStatus(status)
-                .notificationDate(Instant.now())
-                .iun(notificationInt.getIun())
-                .build();
-        externalChannelHandler.extChannelResponseReceiver(extChannelResponse);
+        SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();
+        if (legal)
+        {
+            LegalMessageSentDetails extChannelResponse = new LegalMessageSentDetails();
+            extChannelResponse.setStatus(status);
+            extChannelResponse.setEventTimestamp(Instant.now());
+            extChannelResponse.setRequestId(timelineEventId);
+
+            singleStatusUpdate.setDigitalLegal(extChannelResponse);
+        }
+        else
+        {
+            CourtesyMessageProgressEvent extChannelResponse = new CourtesyMessageProgressEvent();
+            extChannelResponse.setStatus(status);
+            extChannelResponse.setEventTimestamp(Instant.now());
+            extChannelResponse.setRequestId(timelineEventId);
+
+            singleStatusUpdate.setDigitalCourtesy(extChannelResponse);
+        }
+
+
+        externalChannelHandler.extChannelResponseReceiver(singleStatusUpdate);
     }
 
 
     @Override
     public void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, PhysicalAddress physicalAddress, String timelineEventId, ANALOG_TYPE analogType, String aarKey) {
         log.info("sendAnalogNotification address:{} recipient:{} requestId:{} aarkey:{}", physicalAddress.getAddress(), recipientInt.getDenomination(), timelineEventId, aarKey);
-        ResponseStatus status;
+        String status;
         String newAddress;
 
         PhysicalAddress destinationAddress = physicalAddress;
@@ -97,39 +110,42 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
 
         Matcher matcher = NEW_ADDRESS_INPUT_PATTERN.matcher(street);
         if (matcher.find()) {
-            status = ResponseStatus.KO;
+            status = "__005__";
             newAddress = matcher.group(1).trim();
         } else if (street.startsWith(EXTCHANNEL_SEND_FAIL)) {
-            status = ResponseStatus.KO;
+            status = "__005__";
             newAddress = null;
         } else if (street.startsWith(EXTCHANNEL_SEND_SUCCESS)) {
-            status = ResponseStatus.OK;
+            status = "__004__";
             newAddress = null;
         } else {
             throw new IllegalArgumentException("Address " + street + " do not match test rule for mocks");
         }
 
 
-        ExtChannelResponse.ExtChannelResponseBuilder responseBuilder = ExtChannelResponse.builder()
-                .iun(notificationInt.getIun())
-                .notificationDate(Instant.now())
-                .responseStatus(status)
-                .eventId(timelineEventId);
-
+        PaperProgressStatusEvent extChannelResponse = new PaperProgressStatusEvent();
+        extChannelResponse.setStatusCode(status);
+        extChannelResponse.setRequestId(timelineEventId);
+        extChannelResponse.setIun(notificationInt.getIun());
+        extChannelResponse.setStatusDateTime(Instant.now());
         if (newAddress != null) {
 
-            it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress newDestinationAddress = it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress.builder()
-                    .foreignState(destinationAddress.getForeignState())
-                    .zip(destinationAddress.getZip())
-                    .at(destinationAddress.getAt())
-                    .addressDetails(destinationAddress.getAddressDetails())
-                    .municipality(destinationAddress.getMunicipality())
-                    .province(destinationAddress.getProvince())
-                    .address(newAddress)
-                    .build();
-            responseBuilder.analogNewAddressFromInvestigation(newDestinationAddress);
+            DiscoveredAddress newDestinationAddress = new DiscoveredAddress();
+            newDestinationAddress.setCountry(destinationAddress.getForeignState());
+            newDestinationAddress.setCap(destinationAddress.getZip());
+            newDestinationAddress.setNameRow2(destinationAddress.getAt());
+            newDestinationAddress.setAddressRow2(destinationAddress.getAddressDetails());
+            newDestinationAddress.setCity(destinationAddress.getMunicipality());
+            newDestinationAddress.setPr(destinationAddress.getProvince());
+            newDestinationAddress.setAddress(newAddress);
+
+            extChannelResponse.setDiscoveredAddress(newDestinationAddress);
         }
 
-        externalChannelHandler.extChannelResponseReceiver(responseBuilder.build());
+        SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();
+        singleStatusUpdate.setAnalogMail(extChannelResponse);
+
+
+        externalChannelHandler.extChannelResponseReceiver(singleStatusUpdate);
     }
 }

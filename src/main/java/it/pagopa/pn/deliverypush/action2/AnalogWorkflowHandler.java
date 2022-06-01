@@ -1,24 +1,28 @@
 package it.pagopa.pn.deliverypush.action2;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.DiscoveredAddress;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.PaperProgressStatusEvent;
 import it.pagopa.pn.deliverypush.action2.utils.AnalogWorkflowUtils;
 import it.pagopa.pn.deliverypush.action2.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendPaperDetails;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendPaperFeedbackDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Component
 @Slf4j
 public class AnalogWorkflowHandler {
+
     private final NotificationService notificationService;
     private final ExternalChannelSendHandler externalChannelSendHandler;
     private final CompletionWorkFlowHandler completionWorkFlow;
@@ -75,7 +79,7 @@ public class AnalogWorkflowHandler {
             case 2:
                 // All sent attempts have been made. The user is not reachable
                 log.info("User with iun {} and id {} is unreachable, all attempt was failed", iun, recIndex);
-                completionWorkFlow.completionAnalogWorkflow(notification, recIndex, instantNowSupplier.get(), null, EndWorkflowStatus.FAILURE);
+                completionWorkFlow.completionAnalogWorkflow(notification, recIndex, null, instantNowSupplier.get(), null, EndWorkflowStatus.FAILURE);
                 break;
             default:
                 handleAttemptError(iun, recIndex, sentAttemptMade);
@@ -151,43 +155,88 @@ public class AnalogWorkflowHandler {
         } else {
             //... se l'indirizzo non è presente non è possibile raggiungere il destinatario che risulta irreperibile 
             log.info("Address isn't valid, user is unreachable  - iun {} id {}", notification.getIun(), recIndex);
-            completionWorkFlow.completionAnalogWorkflow(notification, recIndex, instantNowSupplier.get(), null, EndWorkflowStatus.FAILURE);
+            completionWorkFlow.completionAnalogWorkflow(notification, recIndex, null, instantNowSupplier.get(), null, EndWorkflowStatus.FAILURE);
         }
     }
 
-    public void extChannelResponseHandler(ExtChannelResponse response, TimelineElementInternal notificationTimelineElement) {
+    public void extChannelResponseHandler(PaperProgressStatusEvent response, TimelineElementInternal notificationTimelineElement) {
         SendPaperDetails sendPaperDetails = SmartMapper.mapToClass(notificationTimelineElement.getDetails(), SendPaperDetails.class);
 
         String iun = response.getIun();
         NotificationInt notification = notificationService.getNotificationByIun(iun);
         Integer recIndex = sendPaperDetails.getRecIndex();
-        
-        log.info("Analog workflow Ext channel response  - iun {} id {} with status {}", iun, recIndex, response.getResponseStatus());
+        ResponseStatus status = mapPaperStatusInResponseStatus(response.getStatusCode());
+        List<LegalFactsId> legalFactsListEntryIds;
+        if ( response.getAttachments() != null ) {
+            legalFactsListEntryIds = response.getAttachments().stream()
+                    .map( k -> LegalFactsId.builder()
+                            .key( k.getUrl() )
+                            .category( LegalFactCategory.ANALOG_DELIVERY )
+                            .build()
+                    ).collect(Collectors.toList());
+        } else {
+            legalFactsListEntryIds = Collections.emptyList();
+        }
 
-        if (response.getResponseStatus() != null) {
-            switch (response.getResponseStatus()) {
+        log.info("Analog workflow Ext channel response  - iun {} id {} with status {}", iun, recIndex, response.getStatusCode());
+
+        if (status!= null) {
+            switch (status) {
                 case OK:
                     // La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
-                    completionWorkFlow.completionAnalogWorkflow(notification, recIndex, response.getNotificationDate(), sendPaperDetails.getPhysicalAddress(), EndWorkflowStatus.SUCCESS);
+                    completionWorkFlow.completionAnalogWorkflow(notification, recIndex, legalFactsListEntryIds, response.getStatusDateTime(), sendPaperDetails.getPhysicalAddress(), EndWorkflowStatus.SUCCESS);
                     break;
                 case KO:
                     // External channel non è riuscito a effettuare la notificazione, si passa al prossimo step del workflow
                     int sentAttemptMade = sendPaperDetails.getSentAttemptMade() + 1;
-                    analogWorkflowUtils.addAnalogFailureAttemptToTimeline(response, sentAttemptMade, sendPaperDetails);
+                    PhysicalAddress newPhysicalAddress = null;
+                    if (response.getDiscoveredAddress() != null)
+                    {
+                        DiscoveredAddress rawAddress = response.getDiscoveredAddress();
+                        newPhysicalAddress = PhysicalAddress.builder()
+                                .address(rawAddress.getAddress())
+                                .addressDetails(rawAddress.getAddressRow2())
+                                .municipality(rawAddress.getCity())
+                                .municipalityDetails(rawAddress.getCity2())
+                                .province(rawAddress.getPr())
+                                .zip(rawAddress.getCap())
+                                .foreignState(rawAddress.getCountry())
+                                .at(rawAddress.getNameRow2())
+                                .build();
+                    }
+                    analogWorkflowUtils.addAnalogFailureAttemptToTimeline(iun, sentAttemptMade, legalFactsListEntryIds, newPhysicalAddress, response.getDeliveryFailureCause()==null?null:List.of(response.getDeliveryFailureCause()),  sendPaperDetails);
                     nextWorkflowStep(notification, recIndex, sentAttemptMade);
                     break;
-                default:
-                    handleStatusError(response, iun, recIndex);
             }
         } else {
-            handleStatusError(response, iun, recIndex);
+            handleStatusProgress(response, iun, recIndex);
         }
 
     }
 
-    private void handleStatusError(ExtChannelResponse response, String iun, Integer recIndex) {
-        log.error("Specified response {} is not possibile  - iun {} id {}", response.getResponseStatus(), iun, recIndex);
-        throw new PnInternalException("Specified response " + response.getResponseStatus() + " is not possibile");
+    private void handleStatusProgress(PaperProgressStatusEvent event, String iun, Integer recIndex) {
+        log.error("Specified response {} is not final  - iun {} id {}", event.getStatusCode(), iun, recIndex);
+    }
+
+    private ResponseStatus mapPaperStatusInResponseStatus(String paperStatus)
+    {
+        /* Codifica sintetica dello stato dell'esito._  <br/>
+                - __001__ Stampato  <br/>
+                - __002__ Disponibile al recapitista  <br/>
+                - __003__ Preso in carico dal recapitista  <br/>
+                - __004__ Consegnata  <br/>
+                - __005__ Mancata consegna  <br/>
+                - __006__ Furto/Smarrimanto/deterioramento  <br/>
+                - __007__ Consegnato Ufficio Postale  <br/>
+                - __008__ Mancata consegna Ufficio Postale  <br/>
+                - __009__ Compiuta giacenza  <br/>
+        */
+        if (paperStatus.equals("__001__") || paperStatus.equals("__002__") || paperStatus.equals("__003__"))
+            return null;    //vuol dire progress
+        if (paperStatus.equals("__004__") || paperStatus.equals("__007__"))
+            return ResponseStatus.OK;
+        else
+            return ResponseStatus.KO;   // tutto il resto è KO
     }
 
 }

@@ -142,10 +142,10 @@ class CompletionWorkFlowHandlerTest {
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
         
         //WHEN
-        handler.completionAnalogWorkflow(notification, recIndex, notificationDate, recipient.getPhysicalAddress(), EndWorkflowStatus.SUCCESS);
+        handler.completionAnalogWorkflow(notification, recIndex, null, notificationDate, recipient.getPhysicalAddress(), EndWorkflowStatus.SUCCESS);
         
         //THEN
-        Mockito.verify(timelineUtils).buildSuccessAnalogWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt(), Mockito.any(PhysicalAddress.class));
+        Mockito.verify(timelineUtils).buildSuccessAnalogWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt(), Mockito.any(PhysicalAddress.class), Mockito.any());
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
         Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyInt(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
@@ -169,10 +169,10 @@ class CompletionWorkFlowHandlerTest {
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
         
         //WHEN
-        handler.completionAnalogWorkflow(notification, recIndex, notificationDate, recipient.getPhysicalAddress(), EndWorkflowStatus.FAILURE);
+        handler.completionAnalogWorkflow(notification, recIndex, null, notificationDate, recipient.getPhysicalAddress(), EndWorkflowStatus.FAILURE);
     
         //THEN
-        Mockito.verify(timelineUtils).buildFailureAnalogWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt());
+        Mockito.verify(timelineUtils).buildFailureAnalogWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt(), Mockito.any());
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
         Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyInt(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));

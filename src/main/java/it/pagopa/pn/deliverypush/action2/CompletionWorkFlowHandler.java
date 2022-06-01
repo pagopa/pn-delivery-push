@@ -123,18 +123,18 @@ public class CompletionWorkFlowHandler {
     /**
      * Handle necessary steps to complete analog workflow.
      */
-    public void completionAnalogWorkflow(NotificationInt notification, Integer recIndex, Instant notificationDate, PhysicalAddress usedAddress, EndWorkflowStatus status) {
+    public void completionAnalogWorkflow(NotificationInt notification, Integer recIndex, List<LegalFactsId> attachments, Instant notificationDate, PhysicalAddress usedAddress, EndWorkflowStatus status) {
         log.info("Analog workflow completed with status {} IUN {} id {}", status, notification.getIun(), recIndex);
         String iun = notification.getIun();
         
         if (status != null) {
             switch (status) {
                 case SUCCESS:
-                    addTimelineElement(timelineUtils.buildSuccessAnalogWorkflowTimelineElement(iun, recIndex, usedAddress));
+                    addTimelineElement(timelineUtils.buildSuccessAnalogWorkflowTimelineElement(iun, recIndex, usedAddress, attachments));
                     scheduleRefinement(iun, recIndex, notificationDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysSuccessAnalogRefinement());
                     break;
                 case FAILURE:
-                    addTimelineElement(timelineUtils.buildFailureAnalogWorkflowTimelineElement(iun, recIndex));
+                    addTimelineElement(timelineUtils.buildFailureAnalogWorkflowTimelineElement(iun, recIndex, attachments));
                     completelyUnreachableService.handleCompletelyUnreachable(notification, recIndex);
                     scheduleRefinement(iun, recIndex, notificationDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysFailureAnalogRefinement());
                     break;

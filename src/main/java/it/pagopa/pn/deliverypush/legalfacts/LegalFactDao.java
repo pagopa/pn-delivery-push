@@ -21,6 +21,8 @@ public class LegalFactDao {
     public static final String PN_LEGAL_FACTS = "PN_LEGAL_FACTS";
     public static final String SAVED = "SAVED";
     public static final String PN_AAR = "PN_AAR";
+
+    private static final String SAFE_STORAGE_URL_PREFIX = "safestorage://";
     private final LegalFactGenerator legalFactBuilder;
 
     private final PnSafeStorageClient safeStorageClient;
@@ -40,7 +42,7 @@ public class LegalFactDao {
         FileCreationResponse fileCreationResponse = safeStorageClient.createAndUploadContent(fileCreationRequest);
 
 
-        return fileCreationResponse.getKey();
+        return SAFE_STORAGE_URL_PREFIX + fileCreationResponse.getKey();
     }
 
     public String saveAAR(NotificationInt notification,
@@ -54,7 +56,7 @@ public class LegalFactDao {
             FileCreationResponse fileCreationResponse = safeStorageClient.createAndUploadContent(fileCreationRequest);
 
 
-            return fileCreationResponse.getKey();
+            return SAFE_STORAGE_URL_PREFIX + fileCreationResponse.getKey();
         }
         catch ( IOException exc ) {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "AAR",  notification.getIun(), "N/A");

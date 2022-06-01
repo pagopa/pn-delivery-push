@@ -1,5 +1,9 @@
 package it.pagopa.pn.deliverypush.action2;
 
+import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.LegalMessageSentDetails;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.PaperProgressStatusEvent;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.ProgressEventCategory;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.SingleStatusUpdate;
 import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
@@ -22,23 +26,25 @@ class ExternalChannelHandlerTest {
     private AnalogWorkflowHandler analogWorkflowHandler;
     @Mock
     private ExternalChannelUtils externalChannelUtils;
+    @Mock
+    private TimelineUtils timelineUtils;
 
     private ExternalChannelResponseHandler handler;
 
     @BeforeEach
     public void setup() {
-        handler = new ExternalChannelResponseHandler(digitalWorkFlowHandler, analogWorkflowHandler, externalChannelUtils);
+        handler = new ExternalChannelResponseHandler(digitalWorkFlowHandler, analogWorkflowHandler, externalChannelUtils, timelineUtils);
     }
 
     @ExtendWith(MockitoExtension.class)
     @Test
     void extChannelResponseReceiverForDigital() {
-        ExtChannelResponse extChannelResponse = ExtChannelResponse.builder()
-                .responseStatus(ResponseStatus.OK)
-                .iun("IUN")
-                .notificationDate(Instant.now())
-                .eventId("Test event id")
-                .build();
+        LegalMessageSentDetails extChannelResponse = new LegalMessageSentDetails();
+        extChannelResponse.setStatus(ProgressEventCategory.OK);
+        extChannelResponse.setEventTimestamp(Instant.now());
+        extChannelResponse.setRequestId("iun_event_idx_0");
+        SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();
+        singleStatusUpdate.setDigitalLegal(extChannelResponse);
 
         SendDigitalDetails details = SendDigitalDetails.builder()
                 .recIndex(0)
@@ -55,30 +61,32 @@ class ExternalChannelHandlerTest {
                         .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE)
                         .details(genericDetails)
                         .build());
+        Mockito.when(timelineUtils.getIunFromTimelineId(Mockito.anyString())).thenReturn("iun");
 
-        handler.extChannelResponseReceiver(extChannelResponse);
+        handler.extChannelResponseReceiver(singleStatusUpdate);
 
-        Mockito.verify(digitalWorkFlowHandler).handleExternalChannelResponse(Mockito.any(ExtChannelResponse.class), Mockito.any(TimelineElementInternal.class));
+        Mockito.verify(digitalWorkFlowHandler).handleExternalChannelResponse(Mockito.any(LegalMessageSentDetails.class), Mockito.any(TimelineElementInternal.class));
 
     }
 
     @ExtendWith(MockitoExtension.class)
     @Test
     void extChannelResponseReceiverForAnalog() {
-        ExtChannelResponse extChannelResponse = ExtChannelResponse.builder()
-                .responseStatus(ResponseStatus.OK)
-                .iun("IUN")
-                .eventId("test event id")
-                .notificationDate(Instant.now())
-                .build();
+        PaperProgressStatusEvent extChannelResponse = new PaperProgressStatusEvent();
+        extChannelResponse.setStatusCode("__004__");
+        extChannelResponse.setRequestId("iun_event_idx_0");
+        extChannelResponse.setIun("iun");
+        SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();
+        singleStatusUpdate.setAnalogMail(extChannelResponse);
+
 
         Mockito.when(externalChannelUtils.getExternalChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(TimelineElementInternal.timelineInternalBuilder()
                         .category(TimelineElementCategory.SEND_ANALOG_DOMICILE)
                         .build());
 
-        handler.extChannelResponseReceiver(extChannelResponse);
+        handler.extChannelResponseReceiver(singleStatusUpdate);
 
-        Mockito.verify(analogWorkflowHandler).extChannelResponseHandler(Mockito.any(ExtChannelResponse.class), Mockito.any(TimelineElementInternal.class));
+        Mockito.verify(analogWorkflowHandler).extChannelResponseHandler(Mockito.any(PaperProgressStatusEvent.class), Mockito.any(TimelineElementInternal.class));
     }
 }

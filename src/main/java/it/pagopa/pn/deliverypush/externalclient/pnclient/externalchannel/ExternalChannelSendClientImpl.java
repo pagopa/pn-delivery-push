@@ -85,7 +85,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
         paperEngageRequest.setReceiverPr(physicalAddress.getProvince());
 
         // uso la key recuperata dalla timeline la key riferita all'avviso AAR da spedire tramite raccomandata
-        paperEngageRequest.setAttachmentUri("safestorage://" + aarKey);
+        paperEngageRequest.setAttachmentUri(aarKey);
 
         paperMessagesApi.sendPaperEngageRequest(timelineEventId, cfg.getExternalchannelCxId(), paperEngageRequest);
     }

@@ -6,7 +6,6 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddre
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
@@ -20,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -170,8 +170,8 @@ public class DigitalWorkFlowUtils {
         addTimelineElement(timelineUtils.buildAvailabilitySourceTimelineElement(recIndex, iun, source, isAvailable, sentAttemptMade));
     }
 
-    public void addDigitalFeedbackTimelineElement(ExtChannelResponse response, SendDigitalDetails sendDigitalDetails) {
-        addTimelineElement(timelineUtils.buildDigitaFeedbackTimelineElement(response, sendDigitalDetails));
+    public void addDigitalFeedbackTimelineElement(String iun, ResponseStatus status, List<String> errors, SendDigitalDetails sendDigitalDetails) {
+        addTimelineElement(timelineUtils.buildDigitalFeedbackTimelineElement(iun, status, errors, sendDigitalDetails));
     }
 
     private void addTimelineElement(TimelineElementInternal element) {

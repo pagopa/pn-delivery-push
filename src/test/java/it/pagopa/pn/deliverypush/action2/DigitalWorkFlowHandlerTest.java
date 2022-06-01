@@ -1,5 +1,8 @@
 package it.pagopa.pn.deliverypush.action2;
 
+import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.LegalMessageSentDetails;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.ProgressEventCategory;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.SingleStatusUpdate;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
@@ -455,11 +458,13 @@ class DigitalWorkFlowHandlerTest {
         //GIVEN
         NotificationInt notification = getNotification();
 
-        ExtChannelResponse extChannelResponse = ExtChannelResponse.builder()
-                .responseStatus(ResponseStatus.KO)
-                .iun(notification.getIun())
-                .notificationDate(Instant.now())
-                .build();
+        LegalMessageSentDetails extChannelResponse = new LegalMessageSentDetails();
+        extChannelResponse.setStatus(ProgressEventCategory.ERROR);
+        extChannelResponse.setEventTimestamp(Instant.now());
+        extChannelResponse.setRequestId(notification.getIun() + "_event_idx_0");
+        SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();
+        singleStatusUpdate.setDigitalLegal(extChannelResponse);
+
 
         SendDigitalDetails details = SendDigitalDetails.builder()
                 .recIndex(0)
@@ -473,6 +478,7 @@ class DigitalWorkFlowHandlerTest {
         
         TimelineElementInternal element = TimelineElementInternal.timelineInternalBuilder()
                 .timestamp(Instant.now())
+                .iun(notification.getIun())
                 .details(SmartMapper.mapToClass(details, TimelineElementDetails.class))
                 .build();
         
@@ -490,12 +496,12 @@ class DigitalWorkFlowHandlerTest {
         handler.handleExternalChannelResponse(extChannelResponse, element);
 
         //THEN
-        Mockito.verify(digitalWorkFlowUtils).addDigitalFeedbackTimelineElement(Mockito.any(ExtChannelResponse.class), Mockito.any(SendDigitalDetails.class));
+        Mockito.verify(digitalWorkFlowUtils).addDigitalFeedbackTimelineElement(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any(SendDigitalDetails.class));
     }
 
     private NotificationInt getNotification() {
         return NotificationInt.builder()
-                .iun("IUN_01")
+                .iun("IUN-01")
                 .paNotificationId("protocol_01")
                 .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")

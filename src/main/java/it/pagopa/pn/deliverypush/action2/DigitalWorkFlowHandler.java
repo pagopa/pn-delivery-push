@@ -1,6 +1,8 @@
 package it.pagopa.pn.deliverypush.action2;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.LegalMessageSentDetails;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.ProgressEventCategory;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.action2.utils.DigitalWorkFlowUtils;
@@ -9,7 +11,6 @@ import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfo;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
@@ -21,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -181,26 +183,28 @@ public class DigitalWorkFlowHandler {
         }
     }
 
-    public void handleExternalChannelResponse(ExtChannelResponse response, TimelineElementInternal timelineElement) {
+    public void handleExternalChannelResponse(LegalMessageSentDetails response, TimelineElementInternal timelineElement) {
         SendDigitalDetails sendDigitalDetails = SmartMapper.mapToClass(timelineElement.getDetails(), SendDigitalDetails.class);
-
-        log.info("HandleExternalChannelResponse - iun {} id {}", response.getIun(), sendDigitalDetails.getRecIndex());
+        String iun = timelineElement.getIun();
+        log.info("HandleExternalChannelResponse - iun {} id {}", iun, sendDigitalDetails.getRecIndex());
         
-        NotificationInt notification = notificationService.getNotificationByIun(response.getIun());
+        NotificationInt notification = notificationService.getNotificationByIun(iun);
         Integer recIndex = sendDigitalDetails.getRecIndex();
-        
-        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(response, sendDigitalDetails);
 
-        if (response.getResponseStatus() != null) {
-            switch (response.getResponseStatus()) {
+        ResponseStatus status = mapDigitalStatusInResponseStatus(response.getStatus());
+        
+        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(iun, status, response.getEventDetails()==null?null:List.of(response.getEventDetails()), sendDigitalDetails);
+
+        if (status != null) {
+            switch (status) {
                 case OK:
-                    log.info("Notification sent successfully, starting completion workflow - iun {} id {}", response.getIun(), recIndex);
+                    log.info("Notification sent successfully, starting completion workflow - iun {} id {}", iun, recIndex);
                     //La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
-                    completionWorkflow.completionDigitalWorkflow(notification, recIndex, response.getNotificationDate(), LegalDigitalAddressMapper.digitalToLegal(sendDigitalDetails.getDigitalAddress()), EndWorkflowStatus.SUCCESS);
+                    completionWorkflow.completionDigitalWorkflow(notification, recIndex, response.getEventTimestamp(), LegalDigitalAddressMapper.digitalToLegal(sendDigitalDetails.getDigitalAddress()), EndWorkflowStatus.SUCCESS);
                     break;
                 case KO:
                     //Non è stato possibile effettuare la notificazione, si passa al prossimo step del workflow
-                    log.info("Notification failed, starting next workflow action - iun {} id {}", response.getIun(), recIndex);
+                    log.info("Notification failed, starting next workflow action - iun {} id {}", iun, recIndex);
 
                     DigitalAddressInfo lastAttemptMade = DigitalAddressInfo.builder()
                             .digitalAddressSource(sendDigitalDetails.getDigitalAddressSource())
@@ -209,17 +213,14 @@ public class DigitalWorkFlowHandler {
 
                     nextWorkFlowAction(notification, recIndex, lastAttemptMade);
                     break;
-                default:
-                    handleStatusError(response.getResponseStatus(), response.getIun(), recIndex);
             }
         } else {
-            handleStatusError(response.getResponseStatus(), response.getIun(), recIndex);
+            handleStatusProgress(response.getStatus(), iun, recIndex);
         }
     }
 
-    private void handleStatusError(ResponseStatus status, String iun, Integer recIndex) {
-        log.error("Specified status {} is not possibile - iun {} id {}", status, iun, recIndex);
-        throw new PnInternalException("Specified status" + status + " is not possibile");
+    private void handleStatusProgress(ProgressEventCategory status, String iun, Integer recIndex) {
+        log.info("Specified status {} is not final - iun {} id {}", status, iun, recIndex);
     }
 
     private DigitalAddressInfo getDigitalAddressInfo(ScheduleDigitalWorkflow scheduleDigitalWorkflow) {
@@ -229,6 +230,20 @@ public class DigitalWorkFlowHandler {
                 .lastAttemptDate(scheduleDigitalWorkflow.getLastAttemptDate())
                 .sentAttemptMade(scheduleDigitalWorkflow.getSentAttemptMade())
                 .build();
+    }
+
+
+    private ResponseStatus mapDigitalStatusInResponseStatus(ProgressEventCategory digitalStatus)
+    {
+        /* si traduce l'enum
+            [ PROGRESS, OK, RETRIABLE_ERROR, ERROR ]
+        */
+        if (digitalStatus == ProgressEventCategory.PROGRESS)
+            return null;    //vuol dire progress
+        if (digitalStatus == ProgressEventCategory.OK)
+            return ResponseStatus.OK;
+        else
+            return ResponseStatus.KO;   // tutto il resto è KO
     }
     
 }
