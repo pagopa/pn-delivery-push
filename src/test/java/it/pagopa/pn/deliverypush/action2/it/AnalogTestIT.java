@@ -3,7 +3,6 @@ package it.pagopa.pn.deliverypush.action2.it;
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
 import it.pagopa.pn.commons.abstractions.FileData;
 import it.pagopa.pn.commons.abstractions.FileStorage;
-import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action2.*;
@@ -28,6 +27,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -54,6 +54,7 @@ import java.util.List;
         PublicRegistrySendHandler.class,
         ExternalChannelSendHandler.class,
         RefinementHandler.class,
+        NotificationViewedHandler.class,
         DigitalWorkFlowUtils.class,
         CourtesyMessageUtils.class,
         ExternalChannelUtils.class,
@@ -80,8 +81,6 @@ import java.util.List;
         AnalogTestIT.SpringTestConfiguration.class
 })
 class AnalogTestIT {
-    
-
     @TestConfiguration
     static class SpringTestConfiguration extends AbstractWorkflowTestConfiguration {
         public SpringTestConfiguration() {
@@ -162,9 +161,158 @@ class AnalogTestIT {
         paperNotificationFailedDaoMock.clear();
         pnDataVaultClientMock.clear();
     }
+
+
+    @Test
+    void notificationViewedPaPhysicalAddressSend() {
+ /*
+       - Platform address vuoto (Ottenuto non valorizzando il platformAddress in addressBookEntry)
+       - Special address vuoto (Ottenuto non valorizzando il digitalDomicile del recipient)
+       - General address vuoto (Ottenuto non valorizzando nessun digital address per il recipient in PUB_REGISTRY_DIGITAL)
+       
+       - Indirizzo courtesy message presente, dunque inviato (Ottenuto valorizzando il courtesyAddress del addressBookEntry)
+       - Pa physical address presente con struttura indirizzo che porta al fallimento dell'invio tramite external channel (Ottenuto inserendo nell'indirizzo ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR)
+         e ottenimento indirizzo investigazione
+       - Viene visualizzata la notifica in fase d'invio del messaggio di cortesia, questo comporta che nessun invio analogico successivo avvenga
+     */
+
+        PhysicalAddress paPhysicalAddress = PhysicalAddressBuilder.builder()
+                .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
+                .build();
+
+        String iun = "IUN01";
+
+        //Simulazione visualizzazione notifica a valle del send del messaggio di cortesi
+        String taxId = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.SEND_PAPER_FEEDBACK.buildEventId(EventId.builder()
+                .iun(iun)
+                .recIndex(0)
+                .index(1)
+                .build()
+        );
+
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
+                .withTaxId(taxId)
+                .withPhysicalAddress(paPhysicalAddress)
+                .build();
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withIun(iun)
+                .withPaId("paId01")
+                .withNotificationRecipient(recipient)
+                .build();
+
+        List<DigitalAddress> listCourtesyAddress = Collections.singletonList(DigitalAddress.builder()
+                .address("test@mail.it")
+                .build());
+
+        pnDeliveryClientMock.addNotification(notification);
+        addressBookMock.addCourtesyDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), listCourtesyAddress);
+
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+
+        //Start del workflow
+        startWorkflowHandler.startWorkflow(iun);
+
+        //Viene verificato che sia stato inviato un messaggio ad ogni indirizzo presente nei courtesyaddress
+        TestUtils.checkSendCourtesyAddresses(iun, recIndex, listCourtesyAddress, timelineService, externalChannelMock);
+
+        //Viene verificato che gli indirizzi PLATFORM SPECIAL E GENERAL non siano presenti
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+
+        //Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito dalla PA
+        TestUtils.checkSendPaperToExtChannel(iun, recIndex, paPhysicalAddress, 0, timelineService);
+
+        ArgumentCaptor<PnExtChnPaperEvent> pnExtChnPaperEventCaptor = ArgumentCaptor.forClass(PnExtChnPaperEvent.class);
+
+        Mockito.verify(externalChannelMock, Mockito.times(1)).sendNotification(pnExtChnPaperEventCaptor.capture());
+
+        PnExtChnPaperEvent pnExtChnPaperEvent = pnExtChnPaperEventCaptor.getValue();
+        Assertions.assertEquals(paPhysicalAddress.getAddress(), pnExtChnPaperEvent.getPayload().getDestinationAddress().getAddress());
+        
+        //Viene verificato che la notifica sia stata visualizzata
+        Assertions.assertTrue(timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recIndex(recIndex)
+                                .build())).isPresent());
+    }
     
     @Test
-    void completelyUnreachable() throws IdConflictException {
+    void notificationViewedNoAnalogSend() {
+ /*
+       - Platform address vuoto (Ottenuto non valorizzando il platformAddress in addressBookEntry)
+       - Special address vuoto (Ottenuto non valorizzando il digitalDomicile del recipient)
+       - General address vuoto (Ottenuto non valorizzando nessun digital address per il recipient in PUB_REGISTRY_DIGITAL)
+       
+       - Indirizzo courtesy message presente, dunque inviato (Ottenuto valorizzando il courtesyAddress del addressBookEntry)
+       - Viene visualizzata la notifica in fase d'invio del messaggio di cortesia, questo comporta che nessun invio analogico avvenga
+     */
+
+        PhysicalAddress paPhysicalAddress = PhysicalAddressBuilder.builder()
+                .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
+                .build();
+
+        String iun = "IUN01";
+
+        //Simulazione visualizzazione notifica a valle del send del messaggio di cortesi
+        String taxId = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.SEND_COURTESY_MESSAGE.buildEventId(EventId.builder()
+                .iun(iun)
+                .recIndex(0)
+                .index(0)
+                .build()
+        );
+
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
+                .withTaxId(taxId)
+                .withPhysicalAddress(paPhysicalAddress)
+                .build();
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withIun(iun)
+                .withPaId("paId01")
+                .withNotificationRecipient(recipient)
+                .build();
+
+        List<DigitalAddress> listCourtesyAddress = Collections.singletonList(DigitalAddress.builder()
+                .address("test@mail.it")
+                .build());
+
+        pnDeliveryClientMock.addNotification(notification);
+        addressBookMock.addCourtesyDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), listCourtesyAddress);
+
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+
+        //Start del workflow
+        startWorkflowHandler.startWorkflow(iun);
+
+        //Viene verificato che sia stato inviato un messaggio ad ogni indirizzo presente nei courtesyaddress
+        TestUtils.checkSendCourtesyAddresses(iun, recIndex, listCourtesyAddress, timelineService, externalChannelMock);
+
+        //Viene verificato che gli indirizzi PLATFORM SPECIAL E GENERAL non siano presenti
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+
+        //Viene verificata l'assenza degli invii verso external channel
+        TestUtils.checkNotSendPaperToExtChannel(iun, recIndex, paPhysicalAddress, 0, timelineService);
+        Mockito.verify(externalChannelMock, Mockito.times(0)).sendNotification(Mockito.any(PnExtChnPaperEvent.class));
+
+        //Viene verificato che la notifica sia stata visualizzata
+        Assertions.assertTrue(timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recIndex(recIndex)
+                                .build())).isPresent());
+    }
+
+    @Test
+    void completelyUnreachable() {
  /*
        - Platform address vuoto (Ottenuto non valorizzando il platformAddress in addressBookEntry)
        - Special address vuoto (Ottenuto non valorizzando il digitalDomicile del recipient)
@@ -194,10 +342,10 @@ class AnalogTestIT {
         List<DigitalAddress> listCourtesyAddress = Collections.singletonList(DigitalAddress.builder()
                 .address("test@mail.it")
                 .build());
-        
+
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addCourtesyDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), listCourtesyAddress);
-        
+
         String iun = notification.getIun();
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
@@ -247,9 +395,9 @@ class AnalogTestIT {
                                 .recIndex(recIndex)
                                 .build())).isPresent());
     }
-
+    
     @Test
-    void publicRegistryAddressFailInvestigationAddressSuccessTest() throws IdConflictException {
+    void publicRegistryAddressFailInvestigationAddressSuccessTest() {
   /*
        - Platform address vuoto (Ottenuto non valorizzando il platformAddress in addressBookEntry)
        - Special address vuoto (Ottenuto non valorizzando il digitalDomicile del recipient)
