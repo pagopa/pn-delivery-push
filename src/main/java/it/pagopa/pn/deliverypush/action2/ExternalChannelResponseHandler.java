@@ -47,28 +47,52 @@ public class ExternalChannelResponseHandler {
 
     private void paperUpdate(PaperProgressStatusEvent event)
     {
-        log.info("Received PaperProgressStatusEvent event for requestId={} - status={} details={} deliveryfailcause={}", event.getRequestId(), event.getStatusCode(), event.getStatusDescription(), event.getDeliveryFailureCause());
-        String iun = timelineUtils.getIunFromTimelineId(event.getRequestId());
-        TimelineElementInternal notificationTimelineElement = externalChannelUtils.getExternalChannelNotificationTimelineElement(iun, event.getRequestId());
+        try {
+            log.info("Received PaperProgressStatusEvent event for requestId={} - status={} details={} deliveryfailcause={}", event.getRequestId(), event.getStatusCode(), event.getStatusDescription(), event.getDeliveryFailureCause());
+            String iun = timelineUtils.getIunFromTimelineId(event.getRequestId());
+            TimelineElementInternal notificationTimelineElement = externalChannelUtils.getExternalChannelNotificationTimelineElement(iun, event.getRequestId());
 
-        analogWorkflowHandler.extChannelResponseHandler(event, notificationTimelineElement);
+            analogWorkflowHandler.extChannelResponseHandler(event, notificationTimelineElement);
+        } catch (PnInternalException e) {
+            log.error("Exception legalUpdate", e);
+            throw e;
+        } catch (Exception e) {
+            log.error("Exception legalUpdate", e);
+            throw new PnInternalException("Exception on legalUpdate", e);
+        }
 
     }
 
     private void legalUpdate(LegalMessageSentDetails event)
     {
-        log.info("Received LegalMessageSentDetails event for requestId={} - status={} details={} eventcode={}", event.getRequestId(), event.getStatus(), event.getEventDetails(), event.getEventCode());
-        String iun = timelineUtils.getIunFromTimelineId(event.getRequestId());
-        TimelineElementInternal notificationTimelineElement = externalChannelUtils.getExternalChannelNotificationTimelineElement(iun, event.getRequestId());
+        try {
+            log.info("Received LegalMessageSentDetails event for requestId={} - status={} details={} eventcode={}", event.getRequestId(), event.getStatus(), event.getEventDetails(), event.getEventCode());
+            String iun = timelineUtils.getIunFromTimelineId(event.getRequestId());
+            TimelineElementInternal notificationTimelineElement = externalChannelUtils.getExternalChannelNotificationTimelineElement(iun, event.getRequestId());
 
-        digitalWorkFlowHandler.handleExternalChannelResponse(event, notificationTimelineElement);
+            digitalWorkFlowHandler.handleExternalChannelResponse(event, notificationTimelineElement);
+        } catch (PnInternalException e) {
+            log.error("Exception legalUpdate", e);
+            throw e;
+        } catch (Exception e) {
+            log.error("Exception legalUpdate", e);
+            throw new PnInternalException("Exception on legalUpdate", e);
+        }
     }
 
 
     private void courtesyUpdate(CourtesyMessageProgressEvent event)
     {
-        // per ora non è previsto nulla
-        log.info("Received CourtesyMessageProgressEvent event for requestId={} - status={} details={} eventcode={}", event.getRequestId(), event.getStatus(), event.getEventDetails(), event.getEventCode());
+        try {
+            // per ora non è previsto nulla
+            log.info("Received CourtesyMessageProgressEvent event for requestId={} - status={} details={} eventcode={}", event.getRequestId(), event.getStatus(), event.getEventDetails(), event.getEventCode());
+        } catch (PnInternalException e) {
+            log.error("Exception legalUpdate", e);
+            throw e;
+        } catch (Exception e) {
+            log.error("Exception legalUpdate", e);
+            throw new PnInternalException("Exception on legalUpdate", e);
+        }
     }
 
     private void handleError(SingleStatusUpdate response) {
