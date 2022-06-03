@@ -1,5 +1,5 @@
 package it.pagopa.pn.deliverypush.externalclient.pnclient.externalchannel;
-
+/*
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -34,3 +34,4 @@ public class ExternalChannelGetClientImpl implements ExternalChannelGetClient {
     }
 
 }
+*/

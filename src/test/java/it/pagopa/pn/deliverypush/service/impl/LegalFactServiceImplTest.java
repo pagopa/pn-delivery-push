@@ -10,7 +10,6 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.externalclient.pnclient.externalchannel.ExternalChannelGetClient;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.LegalFactService;
@@ -47,7 +46,6 @@ class LegalFactServiceImplTest {
 
     private TimelineService timelineService;
     private PnSafeStorageClient safeStorageClient;
-    private ExternalChannelGetClient externalChannelClient;
     private NotificationService notificationService;
     private NotificationUtils notificationUtils;
 
@@ -57,7 +55,6 @@ class LegalFactServiceImplTest {
     void setup() {
         timelineService = Mockito.mock( TimelineService.class );
         safeStorageClient = Mockito.mock( PnSafeStorageClient.class );
-        externalChannelClient = Mockito.mock( ExternalChannelGetClient.class );
         notificationService = Mockito.mock(NotificationService.class);
         notificationUtils = Mockito.mock(NotificationUtils.class);
         
@@ -191,8 +188,7 @@ class LegalFactServiceImplTest {
         //When
         Mockito.when( safeStorageClient.getFile( Mockito.anyString(), Mockito.eq(false) ) )
                 .thenReturn( fileDownloadResponse );
-        Mockito.when( externalChannelClient.getResponseAttachmentUrl( Mockito.any(String[].class) ))
-                .thenReturn( urls );
+
         Mockito.when( notificationService.getNotificationByIun( Mockito.anyString() ) )
                 .thenReturn( newNotification() );
 
@@ -229,8 +225,7 @@ class LegalFactServiceImplTest {
         //When
         Mockito.when( safeStorageClient.getFile( Mockito.anyString(), Mockito.eq(false) ) )
                 .thenReturn( fileDownloadResponse );
-        Mockito.when( externalChannelClient.getResponseAttachmentUrl( Mockito.any(String[].class) ))
-                .thenReturn( urls );
+
         Mockito.when( notificationService.getNotificationByIun( Mockito.anyString() ) )
                 .thenReturn( newNotification() );
 

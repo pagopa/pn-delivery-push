@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
+import javax.annotation.PostConstruct;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -34,31 +35,31 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
 
     public static final String PRINT_TYPE_BN_FRONTE_RETRO = "BN_FRONTE_RETRO";
     private final PnDeliveryPushConfigs cfg;
-    private final DigitalLegalMessagesApi digitalLegalMessagesApi;
-    private final DigitalCourtesyMessagesApi digitalCourtesyMessagesApi;
-    private final PaperMessagesApi paperMessagesApi;
+    private final RestTemplate restTemplate;
+    private DigitalLegalMessagesApi digitalLegalMessagesApi;
+    private DigitalCourtesyMessagesApi digitalCourtesyMessagesApi;
+    private PaperMessagesApi paperMessagesApi;
     private final LegalFactGenerator legalFactGenerator;
 
     public ExternalChannelSendClientImpl(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryPushConfigs cfg, LegalFactGenerator legalFactGenerator) {
         this.legalFactGenerator = legalFactGenerator;
+        this.cfg = cfg;
+        this.restTemplate = restTemplate;
+    }
 
+    @PostConstruct
+    public void init(){
+        this.digitalLegalMessagesApi = new DigitalLegalMessagesApi(newApiClient());
+        this.digitalCourtesyMessagesApi = new DigitalCourtesyMessagesApi(newApiClient());
+        this.paperMessagesApi = new PaperMessagesApi(newApiClient());
+    }
+
+    private ApiClient newApiClient()
+    {
         ApiClient apiClient = new ApiClient(restTemplate);
         apiClient.setBasePath(cfg.getExternalChannelBaseUrl());
-
-        this.digitalLegalMessagesApi = new DigitalLegalMessagesApi(apiClient);
-
-        apiClient = new ApiClient(restTemplate);
-        apiClient.setBasePath(cfg.getExternalChannelBaseUrl());
-
-        this.digitalCourtesyMessagesApi = new DigitalCourtesyMessagesApi(apiClient);
-
-        apiClient = new ApiClient(restTemplate);
-        apiClient.setBasePath(cfg.getExternalChannelBaseUrl());
-
-        this.paperMessagesApi = new PaperMessagesApi(apiClient);
-
-
-        this.cfg = cfg;
+        //apiClient.addDefaultHeader("x-api-key", cfg.getExternalchannelApiKey());
+        return apiClient;
     }
 
     @Override

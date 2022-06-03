@@ -36,7 +36,7 @@ class ExternalChannelSendClientImplTestIT {
     @Mock
     private LegalFactGenerator legalFactGenerator;
 
-    private ExternalChannelSendClient externalChannelSendClient;
+    private ExternalChannelSendClientImpl externalChannelSendClient;
 
     @BeforeEach
     void setup() {
@@ -44,6 +44,7 @@ class ExternalChannelSendClientImplTestIT {
         Mockito.when( cfg.getExternalChannelBaseUrl() ).thenReturn( "http://localhost:8080" );
         Mockito.when( cfg.getExternalchannelCxId() ).thenReturn( "pn-delivery-002" );
         this.externalChannelSendClient = new ExternalChannelSendClientImpl( restTemplate, cfg, legalFactGenerator);
+        this.externalChannelSendClient.init();
     }
 
     @Test
