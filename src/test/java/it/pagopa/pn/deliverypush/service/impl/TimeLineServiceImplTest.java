@@ -248,7 +248,7 @@ class TimeLineServiceImplTest {
         Assertions.assertEquals(retrievedSendPaperFeedback.getDetails().getRecIndex() , sendPaperFeedbackConfInf.getDetails().getRecIndex());
         Assertions.assertEquals(retrievedSendPaperFeedback.getDetails().getPhysicalAddress() , confInfPhysical.getPhysicalAddress());
     }
-    
+
     @Test
     void getTimelineAndStatusHistory() {
         //GIVEN
@@ -262,12 +262,17 @@ class TimeLineServiceImplTest {
         Mockito.when(timelineDao.getTimeline(Mockito.anyString()))
                 .thenReturn(setTimelineElement);
 
-        List<NotificationStatusHistoryElement> notificationStatusHistoryElements = Collections.singletonList(
-                NotificationStatusHistoryElement.builder()
-                        .status(NotificationStatus.DELIVERING)
-                        .activeFrom(Instant.now())
-                        .build()
-        );
+        NotificationStatusHistoryElement inValidationElement = NotificationStatusHistoryElement.builder()
+                .status(NotificationStatus.IN_VALIDATION)
+                .activeFrom(Instant.now())
+                .build();
+
+        NotificationStatusHistoryElement deliveringElement = NotificationStatusHistoryElement.builder()
+                .status(NotificationStatus.DELIVERING)
+                .activeFrom(Instant.now())
+                .build();
+        List<NotificationStatusHistoryElement> notificationStatusHistoryElements = new ArrayList<>(List.of(inValidationElement, deliveringElement));
+
         Mockito.when(
                 statusUtils.getStatusHistory(Mockito.anySet() ,Mockito.anyInt(), Mockito.any(Instant.class))
         ).thenReturn(notificationStatusHistoryElements);
@@ -275,20 +280,25 @@ class TimeLineServiceImplTest {
         Mockito.when(
                 statusUtils.getCurrentStatus( Mockito.anyList() )
         ).thenReturn(currentStatus);
-        
+
         //WHEN
         NotificationHistoryResponse notificationHistoryResponse = timeLineService.getTimelineAndStatusHistory(iun, numberOfRecipients1, notificationCreatedAt);
-        
+
         //THEN
+        Assertions.assertEquals(1, notificationHistoryResponse.getTimeline().size());
+        
         TimelineElement element = notificationHistoryResponse.getTimeline().get(0);
+        
         List<TimelineElementInternal> timelineElementList = new ArrayList<>(setTimelineElement);
         TimelineElementInternal elementInt = timelineElementList.get(0);
-        
+
         Assertions.assertEquals( notificationHistoryResponse.getNotificationStatus(), currentStatus );
         Assertions.assertEquals( elementInt.getElementId(), element.getElementId() );
         Assertions.assertEquals( elementInt.getDetails().getRecIndex(), element.getDetails().getRecIndex() );
         Assertions.assertEquals( elementInt.getDetails().getPhysicalAddress().getAddress(), element.getDetails().getPhysicalAddress().getAddress() );
 
+        Assertions.assertEquals(1, notificationHistoryResponse.getNotificationStatusHistory().size());
+        Assertions.assertEquals(deliveringElement.getStatus(), notificationHistoryResponse.getNotificationStatusHistory().get(0).getStatus());
     }
     
     private TimelineElementInternal getSpecificElementFromList(List<TimelineElementInternal> listElement, String timelineId){

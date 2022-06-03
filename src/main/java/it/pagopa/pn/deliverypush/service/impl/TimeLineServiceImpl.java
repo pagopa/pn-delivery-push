@@ -136,7 +136,11 @@ public class TimeLineServiceImpl implements TimelineService {
         
         List<NotificationStatusHistoryElement> statusHistory = statusUtils
                 .getStatusHistory( timelineElements, numberOfRecipients, createdAt );
-
+        
+        statusHistory.removeIf(
+                statusHistoryElement -> NotificationStatus.IN_VALIDATION.equals( statusHistoryElement.getStatus() )
+        );
+        
         NotificationStatus currentStatus = statusUtils.getCurrentStatus( statusHistory );
         
         log.debug("getTimelineAndStatusHistory Ok - iun {} ", iun);

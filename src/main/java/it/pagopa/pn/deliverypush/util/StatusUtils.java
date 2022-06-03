@@ -60,6 +60,7 @@ public class StatusUtils {
             TimelineElementCategory category = timelineElement.getCategory();
             
             if( SUCCES_DELIVERY_WORKFLOW_CATEGORY.contains( category ) || FAILURE_DELIVERY_WORKFLOW_CATEGORY.contains( category ) ) {
+                //Vengono contati il numero di workflow completate per entrambi i recipient, sia in caso di successo che di fallimento
                 numberOfCompletedWorkflow += 1;
             }
             
@@ -92,7 +93,7 @@ public class StatusUtils {
             //Viene aggiornato il currentState nel caso in cui sia cambiato
             currentState = nextState;
         }
-
+                 
         NotificationStatusHistoryElement statusHistoryElement = NotificationStatusHistoryElement.builder()
                 .status( currentState )
                 .activeFrom( creationDateCurrentState )
@@ -111,18 +112,23 @@ public class StatusUtils {
                                                        List<TimelineElementCategory> relatedCategoryElements
     ) {
         NotificationStatus nextState;
-        
+
+        //(Gli stati ACCEPTED e DELIVERING sono gli stati in cui ci sono differenze di gestione per il multi destinatario, dunque prevedono una logica ad-hoc per il cambio stato)
+        // Se sono nello stato ACCEPTED o DELIVERING e l'elemento di timeline preso in considerazione è uno degli stati di successo o fallimento del workflow ...
         if ( ( currentState.equals(NotificationStatus.ACCEPTED) || currentState.equals(NotificationStatus.DELIVERING) ) 
                 &&
              ( SUCCES_DELIVERY_WORKFLOW_CATEGORY.contains(timelineElementCategory) || FAILURE_DELIVERY_WORKFLOW_CATEGORY.contains(timelineElementCategory) )
         ) {
+            //... e il workflow è stato completato per tutti i recipient della notifica
             if( numberOfCompletedWorkflow == numberOfRecipients ){
+                //... può essere ottenuto il nextState
                 nextState =  getNextState(currentState, relatedCategoryElements, numberOfRecipients);
-
             }else {
+                //... Altrimenti lo stato non cambia, bisogna attendere la fine del workflow per tutti i recipient
                 nextState = currentState;
             }
         } else {
+            //... Altrimenti lo stato viene calcolato normalmente dalla mappa
                 nextState = stateMap.getStateTransition(currentState, timelineElementCategory);
         }
         
@@ -132,13 +138,20 @@ public class StatusUtils {
     private NotificationStatus getNextState(NotificationStatus currentState, List<TimelineElementCategory> relatedCategoryElements, int numberOfRecipient) {
         int failureWorkflow = 0;
         
+        //Viene effettuato un ciclo su tutti gli elementi relati allo stato corrente
         for (TimelineElementCategory category : relatedCategoryElements){
+            
+            //Se almeno per un recipient il workflow è andato a buon fine
             if( SUCCES_DELIVERY_WORKFLOW_CATEGORY.contains(category) ) {
+                //Viene ottenuto lo stato relato alla category di successo
                 return stateMap.getStateTransition(currentState, category);
                 
+                //Se per tutti i recipient il workflow è fallito
             }else if( FAILURE_DELIVERY_WORKFLOW_CATEGORY.contains(category) ) {
                 failureWorkflow +=1;
                 if( failureWorkflow == numberOfRecipient) {
+                    
+                    //Viene ottenuto lo stato relato alla category di fallimento
                     return stateMap.getStateTransition(currentState, category);
                 }
             }
