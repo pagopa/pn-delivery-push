@@ -117,77 +117,93 @@ public class PnEventInboundService {
     @Bean
     public Consumer<Message<PnDeliveryNewNotificationEvent.Payload>> pnDeliveryNewNotificationEventConsumer() {
         return message -> {
-            log.info("New notification event received, message {}", message);
+            try{
+                log.info("New notification event received, message {}", message);
 
-            PnDeliveryNewNotificationEvent pnDeliveryNewNotificationEvent = PnDeliveryNewNotificationEvent.builder()
-                    .payload(message.getPayload())
-                    .header(mapStandardEventHeader(message.getHeaders()))
-                    .build();
+                PnDeliveryNewNotificationEvent pnDeliveryNewNotificationEvent = PnDeliveryNewNotificationEvent.builder()
+                        .payload(message.getPayload())
+                        .header(mapStandardEventHeader(message.getHeaders()))
+                        .build();
 
-            String iun = pnDeliveryNewNotificationEvent.getHeader().getIun();
+                String iun = pnDeliveryNewNotificationEvent.getHeader().getIun();
 
-            startWorkflowHandler.startWorkflow(iun);
+                startWorkflowHandler.startWorkflow(iun);
+
+            }catch (Exception ex){
+                handleException(message.getHeaders(), ex);
+                throw ex;
+            }
         };
     }
 
     @Bean
     public Consumer<Message<PnDeliveryNotificationViewedEvent.Payload>> pnDeliveryNotificationViewedEventConsumer() {
         return message -> {
-            log.info("Notification viewed event received, message {}", message);
+            try {
+                log.info("Notification viewed event received, message {}", message);
 
-            PnDeliveryNotificationViewedEvent pnDeliveryNewNotificationEvent = PnDeliveryNotificationViewedEvent.builder()
-                    .payload(message.getPayload())
-                    .header(mapStandardEventHeader(message.getHeaders()))
-                    .build();
+                PnDeliveryNotificationViewedEvent pnDeliveryNewNotificationEvent = PnDeliveryNotificationViewedEvent.builder()
+                        .payload(message.getPayload())
+                        .header(mapStandardEventHeader(message.getHeaders()))
+                        .build();
 
-            String iun = pnDeliveryNewNotificationEvent.getHeader().getIun();
-            int recipientIndex = pnDeliveryNewNotificationEvent.getPayload().getRecipientIndex();
-            log.info("pnDeliveryNotificationViewedEventConsumer - iun {}", iun);
+                String iun = pnDeliveryNewNotificationEvent.getHeader().getIun();
+                int recipientIndex = pnDeliveryNewNotificationEvent.getPayload().getRecipientIndex();
+                log.info("pnDeliveryNotificationViewedEventConsumer - iun {}", iun);
 
-            notificationViewedHandler.handleViewNotification(iun, recipientIndex);
+                notificationViewedHandler.handleViewNotification(iun, recipientIndex);
+            } catch (Exception ex) {
+                handleException(message.getHeaders(), ex);
+                throw ex;
+            }
         };
     }
 
     @Bean
     public Consumer<Message<PnExtChnProgressStatusEventPayload>>  pnExtChannelEventInboundConsumer() {
         return message -> {
-            log.info("External channel event received, message {}", message);
-            
-            PnExtChnProgressStatusEvent evt = PnExtChnProgressStatusEvent.builder()
-                    .payload(message.getPayload())
-                    .header(mapStandardEventHeader(message.getHeaders()))
-                    .build();
+            try {
+                log.info("External channel event received, message {}", message);
 
-            ResponseStatus status = PnExtChnProgressStatus.OK.equals(evt.getPayload().getStatusCode()) ? ResponseStatus.OK : ResponseStatus.KO;
-
-            it.pagopa.pn.api.dto.notification.address.PhysicalAddress newPhysicalAddressExt = evt.getPayload().getNewPhysicalAddress();
-            PhysicalAddress newPhysicalAddress = null;
-            if(newPhysicalAddressExt != null){
-                newPhysicalAddress = PhysicalAddress.builder()
-                        .address(newPhysicalAddressExt.getAddress())
-                        .province(newPhysicalAddressExt.getProvince())
-                        .addressDetails(newPhysicalAddressExt.getAddressDetails())
-                        .municipality(newPhysicalAddressExt.getMunicipality())
-                        .at(newPhysicalAddressExt.getAt())
-                        .zip(newPhysicalAddressExt.getZip())
-                        .foreignState(newPhysicalAddressExt.getForeignState())
+                PnExtChnProgressStatusEvent evt = PnExtChnProgressStatusEvent.builder()
+                        .payload(message.getPayload())
+                        .header(mapStandardEventHeader(message.getHeaders()))
                         .build();
-            }
-            ExtChannelResponse response = ExtChannelResponse.builder()
-                    .responseStatus(status)
-                    .eventId(evt.getPayload().getRequestCorrelationId())
-                    .analogNewAddressFromInvestigation(newPhysicalAddress)
-                    .notificationDate(evt.getPayload().getStatusDate())
-                    .iun(evt.getPayload().getIun())
-                    .attachmentKeys(evt.getPayload().getAttachmentKeys())
-                    .errorList(Collections.singletonList(status.getValue()))
-                    .build();
 
-            externalChannelResponseHandler.extChannelResponseReceiver(response);
-            
+                ResponseStatus status = PnExtChnProgressStatus.OK.equals(evt.getPayload().getStatusCode()) ? ResponseStatus.OK : ResponseStatus.KO;
+
+                it.pagopa.pn.api.dto.notification.address.PhysicalAddress newPhysicalAddressExt = evt.getPayload().getNewPhysicalAddress();
+                PhysicalAddress newPhysicalAddress = null;
+                if(newPhysicalAddressExt != null){
+                    newPhysicalAddress = PhysicalAddress.builder()
+                            .address(newPhysicalAddressExt.getAddress())
+                            .province(newPhysicalAddressExt.getProvince())
+                            .addressDetails(newPhysicalAddressExt.getAddressDetails())
+                            .municipality(newPhysicalAddressExt.getMunicipality())
+                            .at(newPhysicalAddressExt.getAt())
+                            .zip(newPhysicalAddressExt.getZip())
+                            .foreignState(newPhysicalAddressExt.getForeignState())
+                            .build();
+                }
+                ExtChannelResponse response = ExtChannelResponse.builder()
+                        .responseStatus(status)
+                        .eventId(evt.getPayload().getRequestCorrelationId())
+                        .analogNewAddressFromInvestigation(newPhysicalAddress)
+                        .notificationDate(evt.getPayload().getStatusDate())
+                        .iun(evt.getPayload().getIun())
+                        .attachmentKeys(evt.getPayload().getAttachmentKeys())
+                        .errorList(Collections.singletonList(status.getValue()))
+                        .build();
+
+                externalChannelResponseHandler.extChannelResponseReceiver(response);
+            } catch (Exception ex) {
+                handleException(message.getHeaders(), ex);
+                throw ex;
+            }
+
         };
     }
-
+    
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushAnalogWorkflowConsumer() {
         return message -> {
@@ -227,6 +243,15 @@ public class PnEventInboundService {
 
     private Instant mapInstant(Object createdAt) {
         return createdAt != null ? Instant.parse((CharSequence) createdAt) : null;
+    }
+    
+    private void handleException(MessageHeaders headers, Exception ex) {
+        if(headers != null){
+            StandardEventHeader standardEventHeader = mapStandardEventHeader(headers);
+            log.error("Generic exception for iun={} ex={}", standardEventHeader.getIun(), ex);
+        }else {
+            log.error("Generic exception ex={}", ex);
+        }
     }
     
 }
