@@ -79,6 +79,7 @@ class ExternalChannelHandlerTest {
         SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();
         singleStatusUpdate.setAnalogMail(extChannelResponse);
 
+        Mockito.when(timelineUtils.getIunFromTimelineId(Mockito.anyString())).thenReturn("iun");
 
         Mockito.when(externalChannelUtils.getExternalChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(TimelineElementInternal.timelineInternalBuilder()

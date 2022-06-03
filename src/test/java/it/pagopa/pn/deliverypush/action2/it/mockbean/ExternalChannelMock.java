@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -128,6 +129,12 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
         extChannelResponse.setRequestId(timelineEventId);
         extChannelResponse.setIun(notificationInt.getIun());
         extChannelResponse.setStatusDateTime(Instant.now());
+        AttachmentDetails attachmentDetails = new AttachmentDetails();
+        attachmentDetails.setUrl("safestorage://urlditest");
+        attachmentDetails.setId("123");
+        attachmentDetails.setDate(Instant.now());
+        attachmentDetails.setDocumentType("ricevuta");
+        extChannelResponse.setAttachments(List.of(attachmentDetails));
         if (newAddress != null) {
 
             DiscoveredAddress newDestinationAddress = new DiscoveredAddress();
