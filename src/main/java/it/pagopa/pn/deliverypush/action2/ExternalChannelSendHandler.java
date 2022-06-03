@@ -48,8 +48,8 @@ public class ExternalChannelSendHandler {
 
         PnExtChnEmailEvent pnExtChnEmailEvent = externalChannelUtils.getExtChannelEmailRequest(notification, courtesyAddress, recIndex, eventId);
 
-        externalChannelUtils.addSendCourtesyMessageToTimeline(notification, courtesyAddress, recIndex, eventId);
         externalChannel.sendNotification(pnExtChnEmailEvent);
+        externalChannelUtils.addSendCourtesyMessageToTimeline(notification, courtesyAddress, recIndex, eventId);
     }
 
     /**
@@ -60,10 +60,11 @@ public class ExternalChannelSendHandler {
         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
 
         if(! isNotificationAlreadyViewed){
-            PnExtChnPaperEvent pnExtChnPaperEvent = externalChannelUtils.getExtChannelPaperRequest(notification, physicalAddress, recIndex);
-            externalChannelUtils.addSendSimpleRegisteredLetterToTimeline(notification, physicalAddress, recIndex, pnExtChnPaperEvent.getHeader().getEventId());
-            externalChannel.sendNotification(pnExtChnPaperEvent);
             
+            PnExtChnPaperEvent pnExtChnPaperEvent = externalChannelUtils.getExtChannelPaperRequest(notification, physicalAddress, recIndex);
+            externalChannel.sendNotification(pnExtChnPaperEvent);
+            externalChannelUtils.addSendSimpleRegisteredLetterToTimeline(notification, physicalAddress, recIndex, pnExtChnPaperEvent.getHeader().getEventId());
+
             log.info("Registered Letter sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
         }else {
             log.info("Notification is already viewed, registered Letter will not be sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
@@ -79,9 +80,10 @@ public class ExternalChannelSendHandler {
         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
 
         if(! isNotificationAlreadyViewed){
+           
             PnExtChnPaperEvent pnExtChnPaperEvent = externalChannelUtils.getExtChannelPaperRequest(notification, physicalAddress, recIndex, investigation, sentAttemptMade);
-            externalChannelUtils.addSendAnalogNotificationToTimeline(notification, physicalAddress, recIndex, investigation, sentAttemptMade, pnExtChnPaperEvent.getHeader().getEventId());
             externalChannel.sendNotification(pnExtChnPaperEvent);
+            externalChannelUtils.addSendAnalogNotificationToTimeline(notification, physicalAddress, recIndex, investigation, sentAttemptMade, pnExtChnPaperEvent.getHeader().getEventId());
 
             log.info("Analog notification sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
         }else {

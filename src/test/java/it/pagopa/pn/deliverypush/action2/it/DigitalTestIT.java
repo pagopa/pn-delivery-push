@@ -5,7 +5,6 @@ import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
 import it.pagopa.pn.commons.abstractions.FileData;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.ConfidentialTimelineElementDto;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action2.*;
@@ -18,10 +17,10 @@ import it.pagopa.pn.deliverypush.action2.utils.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.*;
@@ -35,7 +34,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -46,9 +44,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import static it.pagopa.pn.deliverypush.action2.it.mockbean.ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS;
+import static org.awaitility.Awaitility.await;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
@@ -145,7 +143,10 @@ class DigitalTestIT {
     
     @Autowired
     private ChooseDeliveryModeHandler chooseDeliveryType;
-
+    
+    @Autowired
+    private StatusUtils statusUtils;
+    
     @BeforeEach
     public void setup() {
         TimeParams times = new TimeParams();
@@ -242,6 +243,18 @@ class DigitalTestIT {
         
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
+
+        String timelineId = TimelineEventId.REFINEMENT.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .build()
+        );
+
+        // Viene atteso fino a che l'ultimo elemento di timeline sia stato inserito per procedere con le successive verifiche
+        await().untilAsserted(() ->
+                Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent())
+        );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
@@ -284,7 +297,6 @@ class DigitalTestIT {
     
     @Test
     void completeFailWithRegisteredLetter() {
-        
         /*
        - Platform address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
        - Special address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il digitalDomicile del recipient con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
@@ -333,6 +345,11 @@ class DigitalTestIT {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
+        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
+        await().untilAsserted(() ->
+                Assertions.assertEquals(NotificationStatus.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        );
+
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
@@ -379,7 +396,6 @@ class DigitalTestIT {
     
     @Test
     void completeFailWithoutRegisteredLetter() {
-        
         /*
        - Platform address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
        - Special address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il digitalDomicile del recipient con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
@@ -422,7 +438,12 @@ class DigitalTestIT {
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
-        
+
+        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
+        await().untilAsserted(() ->
+                Assertions.assertEquals(NotificationStatus.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        );
+
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
@@ -460,11 +481,10 @@ class DigitalTestIT {
 
         //Viene verificato che sia avvenuto il perfezionamento
         TestUtils.checkRefinement(iun, recIndex, timelineService);
-
     }
 
     @Test
-    void emptyFirstSuccessGeneral() throws IdConflictException {
+    void emptyFirstSuccessGeneral() {
   /*
        - Platform address vuoto (Ottenuto non valorizzando nessun platformAddress in addressBookEntry)
        - Special address vuoto (Ottenuto non valorizzando nessun digitalDomicile del recipient)
@@ -495,6 +515,11 @@ class DigitalTestIT {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
+        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
+        await().untilAsserted(() ->
+                Assertions.assertEquals(NotificationStatus.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        );
+
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
         TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
@@ -512,12 +537,6 @@ class DigitalTestIT {
 
         //Viene verificato che sia avvenuto il perfezionamento
         TestUtils.checkRefinement(iun, recIndex, timelineService);
-
-        ResponseEntity<List<ConfidentialTimelineElementDto>> res = pnDataVaultClientMock.getNotificationTimelineByIunWithHttpInfo(iun);
-
-        Set<TimelineElementInternal> timelineElementInternals = timelineDaoMock.getTimeline(iun);
-        System.out.println("RES " +res);
-
     }
 
     @Test
@@ -527,7 +546,6 @@ class DigitalTestIT {
        - Special address presente e primo invio con successo (Ottenuto valorizzando il digitalDomicile del recipient con ExternalChannelMock.EXT_CHANNEL_WORKS)
        - General address vuoto (Ottenuto non valorizzando nessun digital address per il recipient in PUB_REGISTRY_DIGITAL)
     */
-
 
         final DigitalAddress digitalDomicile = DigitalAddress.builder()
                 .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
@@ -553,6 +571,11 @@ class DigitalTestIT {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
+        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
+        await().untilAsserted(() ->
+                Assertions.assertEquals(NotificationStatus.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        );
+        
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
         TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
@@ -575,7 +598,7 @@ class DigitalTestIT {
 
 
     @Test
-    void firstSuccessGeneral() throws IdConflictException {
+    void firstSuccessGeneral() {
   /*
        - Platform address presente e primo invio con fallimento (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXT_CHANNEL_WORKS)
        - Special address presente e primo invio con fallimento (Ottenuto valorizzando il digitalDomicile del recipient con ExternalChannelMock.EXT_CHANNEL_WORKS)
@@ -617,6 +640,11 @@ class DigitalTestIT {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
+        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
+        await().untilAsserted(() ->
+                Assertions.assertEquals(NotificationStatus.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        );
+        
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
@@ -642,7 +670,7 @@ class DigitalTestIT {
     }
 
     @Test
-    void firstSuccessPlatform() throws IdConflictException {
+    void firstSuccessPlatform() {
      /*
        - Platform address presente e invio con successo (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXT_CHANNEL_WORKS)
        - Special address vuoto (Ottenuto non valorizzando il digitalDomicile del recipient)
@@ -672,6 +700,11 @@ class DigitalTestIT {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
+        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
+        await().untilAsserted(() ->
+                Assertions.assertEquals(NotificationStatus.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        );
+        
         //Viene verificata la presenza dell'indirizzo di piattaforma
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         //Viene verificato che sia stata effettuata una sola chiamata ad external channel
@@ -685,7 +718,7 @@ class DigitalTestIT {
     }
 
     @Test
-    void firstSuccessSpecial() throws IdConflictException {
+    void firstSuccessSpecial() {
         /*
        - Platform address presente e primo invio con fallimento (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXT_CHANNEL_WORKS)
        - Special address presente e primo invio con successo (Ottenuto valorizzando il digitalDomicile del recipient con ExternalChannelMock.EXT_CHANNEL_WORKS)
@@ -721,6 +754,11 @@ class DigitalTestIT {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
+        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
+        await().untilAsserted(() ->
+                Assertions.assertEquals(NotificationStatus.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        );
+        
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
@@ -744,7 +782,7 @@ class DigitalTestIT {
     }
 
     @Test
-    void secondSuccessGeneral() throws IdConflictException {
+    void secondSuccessGeneral() {
        /*
        - Platform address presente fallimento sia primo che secondo tentativo (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
        - Special address presente fallimento sia primo che secondo tentativo (Ottenuto valorizzando il digitaldomicile con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
@@ -787,6 +825,11 @@ class DigitalTestIT {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
+        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
+        await().untilAsserted(() ->
+                Assertions.assertEquals(NotificationStatus.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        );
+        
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
@@ -824,11 +867,6 @@ class DigitalTestIT {
 
     @Test
     void secondSuccessPlatform() {
-
-        pnDeliveryClientMock.clear();
-        addressBookMock.clear();
-        publicRegistryMock.clear();
-
         /*
        - Platform address presente e fallimento primo tentativo e successo secondo (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
        - Special address presente e fallimento primo tentativo (Ottenuto valorizzando il digitaldomicile con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
@@ -871,6 +909,11 @@ class DigitalTestIT {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
+        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
+        await().untilAsserted(() ->
+                Assertions.assertEquals(NotificationStatus.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        );
+        
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
@@ -943,6 +986,11 @@ class DigitalTestIT {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
+        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
+        await().untilAsserted(() ->
+                Assertions.assertEquals(NotificationStatus.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        );
+        
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
@@ -1044,38 +1092,38 @@ class DigitalTestIT {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
+        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
+        await().untilAsserted(() ->
+                Assertions.assertEquals(NotificationStatus.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        );
+        
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo per il primo recipient
         TestUtils.checkGetAddress(iun, recIndex1, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         TestUtils.checkGetAddress(iun, recIndex2, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
-        //Viene verificato il numero di send PEC verso external channel
-        ArgumentCaptor<PnExtChnPecEvent> pnExtChnPecEventCaptor = ArgumentCaptor.forClass(PnExtChnPecEvent.class);
-        Mockito.verify(externalChannelMock, Mockito.times(6)).sendNotification(pnExtChnPecEventCaptor.capture());
-
-        List<PnExtChnPecEvent> sendPecEvent = pnExtChnPecEventCaptor.getAllValues();
-
         //Viene verificato per il primo recipient che il primo tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, recipient1.getTaxId(), sendPecEvent, 0, platformAddress1.getAddress());
+        TestUtils.checkExternalChannelPecSendFromTimeline( iun, recIndex1, 0, platformAddress1, DigitalAddressSource.PLATFORM,  timelineService );
+        
         //Viene verificato per il primo recipient che il secondo tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, recipient1.getTaxId(), sendPecEvent, 1, digitalDomicile1.getAddress());
-
+        TestUtils.checkExternalChannelPecSendFromTimeline( iun, recIndex1, 0, digitalDomicile1, DigitalAddressSource.SPECIAL, timelineService );
+        
         //Viene verificato per il primo recipient che il workflow abbia avuto successo
-        TestUtils.checkSuccessDigitalWorkflow(iun, recIndex1, timelineService, completionWorkflow, digitalDomicile1, 2, 0);
-
+        TestUtils.checkSuccessDigitalWorkflowFromTimeline(iun, recIndex1, digitalDomicile1, timelineService);
+        
         //Viene verificato per il primo recipient che sia avvenuto il perfezionamento
         TestUtils.checkRefinement(iun, recIndex1, timelineService);
 
         //Viene verificato per il secondo recipient che il primo tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, recipient2.getTaxId(), sendPecEvent, 2, platformAddress2.getAddress());
+        TestUtils.checkExternalChannelPecSendFromTimeline( iun, recIndex2, 0, platformAddress2, DigitalAddressSource.PLATFORM,  timelineService );
         //Viene verificato per il secondo recipient che il secondo tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, recipient2.getTaxId(), sendPecEvent, 3, digitalDomicile2.getAddress());
+        TestUtils.checkExternalChannelPecSendFromTimeline( iun, recIndex2, 0, digitalDomicile2, DigitalAddressSource.SPECIAL,  timelineService );
         //Viene verificato per il secondo recipient che il terzo tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, recipient2.getTaxId(), sendPecEvent, 2, platformAddress2.getAddress());
+        TestUtils.checkExternalChannelPecSendFromTimeline( iun, recIndex2, 1, platformAddress2, DigitalAddressSource.PLATFORM,  timelineService );
         //Viene verificato per il secondo recipient che il quarto tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, recipient2.getTaxId(), sendPecEvent, 3, digitalDomicile2.getAddress());
+        TestUtils.checkExternalChannelPecSendFromTimeline( iun, recIndex2, 1, digitalDomicile2, DigitalAddressSource.SPECIAL,  timelineService );
 
         //Viene verificato per il secondo recipient che il workflow abbia avuto successo
-        TestUtils.checkSuccessDigitalWorkflow(iun, recIndex2, timelineService, completionWorkflow, digitalDomicile2, 2, 1);
+        TestUtils.checkSuccessDigitalWorkflowFromTimeline(iun, recIndex2, digitalDomicile2, timelineService);
 
         //Viene verificato per il secondo recipient che sia avvenuto il perfezionamento
         TestUtils.checkRefinement(iun, recIndex2, timelineService);

@@ -26,6 +26,8 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
     public static final String EXT_CHANNEL_SEND_NEW_ADDR = "NEW_ADDR:"; //Invio notifica fallita con nuovo indirizzo da investigazione
     //Esempio: La combinazione di EXT_CHANNEL_SEND_NEW_ADDR + EXTCHANNEL_SEND_OK ad esempio significa -> Invio notifica fallito ma con nuovo indirizzo trovato e l'invio a tale indirzzo avrà successo
 
+    public static final int WAITING_TIME = 100;
+
     ExternalChannelResponseHandler externalChannelHandler;
 
     public ExternalChannelMock(@Lazy ExternalChannelResponseHandler externalChannelHandler) {
@@ -40,6 +42,12 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
     @Override
     public void sendNotification(PnExtChnPecEvent event) {
         new Thread(() -> {
+            try {
+                Thread.sleep(WAITING_TIME);
+            } catch (InterruptedException exc) {
+                throw new RuntimeException( exc );
+            }
+            
             simulateExternalChannelPecResponse(event);
         }).start();
     }
@@ -49,6 +57,12 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
     @Override
     public void sendNotification(PnExtChnPaperEvent event) {
         new Thread(() -> {
+            try {
+                Thread.sleep(WAITING_TIME);
+            } catch (InterruptedException exc) {
+                throw new RuntimeException( exc );
+            }
+            
             simulateExternalChannelPaperResponse(event);
         }).start();
     }

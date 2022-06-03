@@ -74,7 +74,7 @@ public class ChooseDeliveryModeHandler {
                 startDigitalWorkflow(notification, specialAddress, DigitalAddressSource.SPECIAL, recIndex);
                 chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, iun, DigitalAddressSource.SPECIAL, true);
             } else {
-                log.info("Special address isn't present, need to get General address async");
+                log.info("Special address isn't present, need to get General address async - iun {} id {}", notification.getIun(), recIndex);
                 chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, iun, DigitalAddressSource.SPECIAL, false);
 
                 // ... se non lo trovo, lancio ricerca asincrona dell'indirizzo generale

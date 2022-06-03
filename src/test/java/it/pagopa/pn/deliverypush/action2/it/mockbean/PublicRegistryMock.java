@@ -11,6 +11,7 @@ import java.util.Map;
 
 public class PublicRegistryMock implements PublicRegistry {
 
+    public static final int WAITING_TIME = 100;
     private final PublicRegistryResponseHandler publicRegistryResponseHandler;
     private Map<String, DigitalAddress> digitalAddressResponse;
     private Map<String, PhysicalAddress> physicalAddressResponse;
@@ -38,6 +39,11 @@ public class PublicRegistryMock implements PublicRegistry {
     @Override
     public void sendRequestForGetDigitalAddress(String taxId, String correlationId) {
         new Thread(() -> {
+            try {
+                Thread.sleep(WAITING_TIME);
+            } catch (InterruptedException exc) {
+                throw new RuntimeException( exc );
+            }
             simulateDigitalAddressResponse(taxId, correlationId);
         }).start();
     }
@@ -55,6 +61,11 @@ public class PublicRegistryMock implements PublicRegistry {
     @Override
     public void sendRequestForGetPhysicalAddress(String taxId, String correlationId) {
         new Thread(() -> {
+            try {
+                Thread.sleep(WAITING_TIME);
+            } catch (InterruptedException exc) {
+                throw new RuntimeException( exc );
+            }
             simulatePhysicalAddressResponse(taxId, correlationId);
         }).start();
     }

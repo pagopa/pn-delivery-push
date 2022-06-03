@@ -31,7 +31,7 @@ public class CompletionWorkFlowHandler {
     private final SchedulerService scheduler;
     private final ExternalChannelSendHandler externalChannelSendHandler;
     private final TimelineService timelineService;
-    private final CompletelyUnreachableUtils completelyUnreachableService;
+    private final CompletelyUnreachableUtils completelyUnreachableUtils;
     private final TimelineUtils timelineUtils;
     private final LegalFactDao legalFactDao;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
@@ -44,7 +44,7 @@ public class CompletionWorkFlowHandler {
         this.scheduler = scheduler;
         this.externalChannelSendHandler = externalChannelSendHandler;
         this.timelineService = timelineService;
-        this.completelyUnreachableService = completelyUnreachableUtils;
+        this.completelyUnreachableUtils = completelyUnreachableUtils;
         this.timelineUtils = timelineUtils;
         this.legalFactDao = legalFactDao;
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
@@ -133,7 +133,8 @@ public class CompletionWorkFlowHandler {
                     break;
                 case FAILURE:
                     addTimelineElement(timelineUtils.buildFailureAnalogWorkflowTimelineElement(iun, recIndex));
-                    completelyUnreachableService.handleCompletelyUnreachable(notification, recIndex, notificationDate);
+                    completelyUnreachableUtils.handleCompletelyUnreachable(notification, recIndex);
+                    scheduleRefinement( notification.getIun(), recIndex, notificationDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysFailureAnalogRefinement());
                     break;
                 default:
                     handleError(iun, recIndex, status);

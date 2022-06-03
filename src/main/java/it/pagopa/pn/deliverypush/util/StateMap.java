@@ -49,6 +49,11 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategory.SEND_SIMPLE_REGISTERED_LETTER, NotificationStatus.DELIVERING)
                 .withTimelineGoToState(TimelineElementCategory.ANALOG_FAILURE_WORKFLOW, NotificationStatus.DELIVERING) //Fallito workflow analogico, ci sarà l'elemento di timeline Completely unreachable che porta allo stato UNREACHABLE 
                 .withTimelineGoToState(TimelineElementCategory.SCHEDULE_DIGITAL_WORKFLOW, NotificationStatus.DELIVERING)
+                .withTimelineGoToState(TimelineElementCategory.SCHEDULE_REFINEMENT, NotificationStatus.DELIVERING) //Per le notifiche multi recipient potrebbe esserci il REFINEMENT anche in fase di DELIVERING (perchè la notifica potrebbe essere stata consegnata per un destinatario ma non per i restanti)
+                .withTimelineGoToState(TimelineElementCategory.REFINEMENT, NotificationStatus.DELIVERING)
+                .withTimelineGoToState(TimelineElementCategory.SCHEDULE_ANALOG_WORKFLOW, NotificationStatus.DELIVERING) //Con i MultiDestinatari potrebbe essere schedulato l'analog workflow anche in delivering
+                .withTimelineGoToState(TimelineElementCategory.SEND_COURTESY_MESSAGE, NotificationStatus.DELIVERING) //Con i MultiDestinatari potrebbe essere inviato il messaggio di cortesia in delivering
+
 
                 //STATE CHANGE
                 .withTimelineGoToState(TimelineElementCategory.COMPLETELY_UNREACHABLE, NotificationStatus.UNREACHABLE)
@@ -69,6 +74,8 @@ class StateMap {
 
         // Effective date state
         this.fromState(NotificationStatus.EFFECTIVE_DATE)
+                //STATE UNCHANGE
+                .withTimelineGoToState(TimelineElementCategory.REFINEMENT, NotificationStatus.EFFECTIVE_DATE) //Multi destinatari
                 //STATE CHANGE
                 .withTimelineGoToState(TimelineElementCategory.NOTIFICATION_VIEWED, NotificationStatus.VIEWED)
                 .withTimelineGoToState(TimelineElementCategory.PAYMENT, NotificationStatus.PAID)
@@ -90,7 +97,11 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategory.ANALOG_FAILURE_WORKFLOW, NotificationStatus.VIEWED)
                 .withTimelineGoToState(TimelineElementCategory.SCHEDULE_DIGITAL_WORKFLOW, NotificationStatus.VIEWED)
                 .withTimelineGoToState(TimelineElementCategory.SCHEDULE_REFINEMENT, NotificationStatus.VIEWED)
+                .withTimelineGoToState(TimelineElementCategory.REFINEMENT, NotificationStatus.VIEWED)
+                .withTimelineGoToState(TimelineElementCategory.SCHEDULE_ANALOG_WORKFLOW, NotificationStatus.VIEWED )
+                .withTimelineGoToState(TimelineElementCategory.DIGITAL_FAILURE_WORKFLOW, NotificationStatus.VIEWED )
 
+        
                 //STATE CHANGE
                 .withTimelineGoToState(TimelineElementCategory.PAYMENT, NotificationStatus.PAID)
         ;
