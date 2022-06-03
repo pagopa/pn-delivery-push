@@ -38,7 +38,9 @@ public class NotificationViewedHandler {
     }
     
     public void handleViewNotification(String iun, Integer recIndex) {
-        log.debug("Start HandleViewNotification - iun {}", iun);
+        log.debug("Start HandleViewNotification - iun={}", iun);
+
+
 
         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex);
         
@@ -48,7 +50,7 @@ public class NotificationViewedHandler {
             
             NotificationInt notification = notificationService.getNotificationByIun(iun);
 
-            log.debug("handleViewNotification get recipient ok- iun {} taxId {}", iun, recIndex);
+            log.debug("handleViewNotification get recipient ok - iun={} id={}", iun, recIndex);
 
             NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
             String legalFactId = legalFactStore.saveNotificationViewedLegalFact(notification, recipient, instantNowSupplier.get());
@@ -60,7 +62,7 @@ public class NotificationViewedHandler {
             log.debug("Notification is already viewed");
         }
 
-        log.debug("End HandleViewNotification - iun {} id {}", iun, recIndex);
+        log.debug("End HandleViewNotification - iun={} id={}", iun, recIndex);
     }
 
     private void addTimelineElement(TimelineElementInternal element) {
