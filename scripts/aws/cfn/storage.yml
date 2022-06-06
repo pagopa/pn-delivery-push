@@ -262,4 +262,6 @@ Outputs:
   TimelineCdcKinesisKeyArn:
     Value: !GetAtt TimelineCdcKinesis.Outputs.KinesisStreamKeyArn
     Description: KMS key arn for timeline stream decryption
-
+  TimelineCdcKinesisStreamReadOnlyRoleArn:
+    Value: !GetAtt TimelineCdcKinesis.Outputs.KinesisStreamReadOnlyRoleArn
+    Description: KMS key arn for timeline stream decryption
