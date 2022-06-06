@@ -77,6 +77,18 @@ public class TestUtils {
         Assertions.assertEquals(physicalAddress, sendPaperDetails.getPhysicalAddress());
     }
 
+    public static void checkNotSendPaperToExtChannel(String iun, Integer recIndex, PhysicalAddress physicalAddress, int sendAttempt, TimelineService timelineService) {
+        String eventIdFirstSend = TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .index(sendAttempt)
+                        .build());
+
+        Optional<SendPaperDetails> sendPaperDetailsOpt = timelineService.getTimelineElementDetails(iun, eventIdFirstSend, SendPaperDetails.class);
+        Assertions.assertFalse(sendPaperDetailsOpt.isPresent());
+    }
+    
     public static void checkSuccessAnalogWorkflow(String iun, Integer recIndex, TimelineService timelineService, CompletionWorkFlowHandler completionWorkflow) {
         //Viene verificato che il workflow abbia avuto successo
         Assertions.assertTrue(timelineService.getTimelineElement(

@@ -31,7 +31,7 @@ public class AddressBookServiceImpl implements AddressBookService {
         ResponseEntity<List<LegalDigitalAddress>> resp = userAttributesClient.getLegalAddressBySender(taxId, senderId);
 
         if (resp.getStatusCode().is2xxSuccessful()) {
-            log.debug("GetLegalAddress OK - taxId {} senderId {}", taxId, senderId);
+            log.debug("GetLegalAddress OK - senderId {}", senderId);
             List<LegalDigitalAddress> legalDigitalAddresses = resp.getBody();
             
             if(legalDigitalAddresses != null && !legalDigitalAddresses.isEmpty()){
@@ -45,7 +45,7 @@ public class AddressBookServiceImpl implements AddressBookService {
                 ).collect(Collectors.toList());
                         
                 for(DigitalAddress address : digitalAddresses){
-                    log.debug("For taxId {} and senderId {} address type {} is available", taxId, senderId, address.getType());
+                    log.debug("For and senderId {} address type {} is available", senderId, address.getType());
 
                     if(DigitalAddress.TypeEnum.PEC.equals(address.getType())){
                         return Optional.of(address);
@@ -53,11 +53,11 @@ public class AddressBookServiceImpl implements AddressBookService {
                 }
             }
 
-            log.debug("list legal address is empty - taxId {} senderId {}", taxId, senderId);
+            log.debug("list legal address is empty - senderId {}", senderId);
 
             return Optional.empty();
         } else {
-            log.error("GetLegalAddress Failed taxId {} senderId {}", taxId, senderId);
+            log.error("GetLegalAddress Failed  senderId {}", senderId);
             throw new PnInternalException("GetLegalAddress Failed taxId "+ taxId +" senderId "+ senderId);
         }
     }
@@ -67,7 +67,7 @@ public class AddressBookServiceImpl implements AddressBookService {
         ResponseEntity<List<CourtesyDigitalAddress>> resp = userAttributesClient.getCourtesyAddressBySender(taxId, senderId);
 
         if (resp.getStatusCode().is2xxSuccessful()) {
-            log.debug("getCourtesyAddress OK - taxId {} senderId {}", taxId, senderId);
+            log.debug("getCourtesyAddress OK - senderId {}", senderId);
             List<CourtesyDigitalAddress> courtesyDigitalAddresses = resp.getBody();
 
             if(courtesyDigitalAddresses != null && !courtesyDigitalAddresses.isEmpty()){
@@ -80,14 +80,14 @@ public class AddressBookServiceImpl implements AddressBookService {
 
             return Optional.empty();
         } else {
-            log.error("getCourtesyAddress Failed taxId {} senderId {}", taxId, senderId);
+            log.error("getCourtesyAddress Failed senderId {}", senderId);
             throw new PnInternalException("getCourtesyAddress Failed taxId "+ taxId +" senderId "+ senderId);
         }
     }
 
     @Override
     public Optional<PhysicalAddress> getResidentialAddress(String taxId, String senderId) {
-        log.error("Call to Unsupported method, getResidentialAddress for taxId {} sendId {} ", taxId, senderId);
+        log.error("Call to Unsupported method, getResidentialAddress for sendId {} ", senderId);
         throw new UnsupportedOperationException("getResidentialAddress is not supported yet");
     }
 }
