@@ -14,6 +14,10 @@ Parameters:
   TemplateBucketBaseUrl:
     Type: String
     Description: URL da cui caricare i frammenti di template di infrastruttura
+  
+  TimelineCdcKinesisStreamArn:
+    Type: String
+    Description: Kinesis stream a cui inviare tutte le operazioni sui dati della timeline.
 
 Resources:
 
@@ -81,6 +85,10 @@ Resources:
         - AttributeName: "timelineElementId"
           KeyType: "RANGE"
       BillingMode: "PAY_PER_REQUEST"
+      KinesisStreamSpecification:
+        StreamArn: !Ref TimelineCdcKinesisStreamArn
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
 
   # Failed Paper Notification
   PaperNotificationFailedTable:
