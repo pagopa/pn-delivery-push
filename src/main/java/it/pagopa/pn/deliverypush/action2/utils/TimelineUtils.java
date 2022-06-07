@@ -53,7 +53,7 @@ public class TimelineUtils {
     }
     
     public TimelineElementInternal  buildAcceptedRequestTimelineElement(NotificationInt notification, String legalFactId) {
-        log.debug("buildAcceptedRequestTimelineElement - iun {}", notification.getIun());
+        log.debug("buildAcceptedRequestTimelineElement - iun={}", notification.getIun());
 
         String elementId = TimelineEventId.REQUEST_ACCEPTED.buildEventId(
                 EventId.builder()
@@ -72,7 +72,7 @@ public class TimelineUtils {
 
     public TimelineElementInternal buildAvailabilitySourceTimelineElement(Integer recIndex, String iun, DigitalAddressSource source, boolean isAvailable,
                                                                           int sentAttemptMade) {
-        log.debug("buildAvailabilitySourceTimelineElement - IUN {} and id {}", iun, recIndex);
+        log.debug("buildAvailabilitySourceTimelineElement - IUN={} and id={}", iun, recIndex);
 
         String elementId = TimelineEventId.GET_ADDRESS.buildEventId(
                 EventId.builder()
@@ -95,7 +95,7 @@ public class TimelineUtils {
 
 
     public TimelineElementInternal buildDigitalFeedbackTimelineElement(String iun, ResponseStatus status, List<String> errors, SendDigitalDetails sendDigitalDetails) {
-        log.debug("buildDigitaFeedbackTimelineElement - IUN {} and id {}", iun, sendDigitalDetails.getRecIndex());
+        log.debug("buildDigitaFeedbackTimelineElement - IUN={} and id={}", iun, sendDigitalDetails.getRecIndex());
 
         String elementId = TimelineEventId.SEND_DIGITAL_FEEDBACK.buildEventId(
                 EventId.builder()
@@ -118,7 +118,7 @@ public class TimelineUtils {
     }
 
     public TimelineElementInternal buildSendCourtesyMessageTimelineElement(Integer recIndex, String iun, CourtesyDigitalAddressInt address, Instant sendDate, String eventId) {
-        log.debug("buildSendCourtesyMessageTimelineElement - IUN {} and id {}", iun, recIndex);
+        log.debug("buildSendCourtesyMessageTimelineElement - IUN={} and id={}", iun, recIndex);
 
         SendCourtesyMessageDetails details = SendCourtesyMessageDetails.builder()
                 .recIndex(recIndex)
@@ -131,7 +131,7 @@ public class TimelineUtils {
 
 
     public TimelineElementInternal buildSendSimpleRegisteredLetterTimelineElement(Integer recIndex, String iun, PhysicalAddress address, String eventId) {
-        log.debug("buildSendSimpleRegisteredLetterTimelineElement - IUN {} and id {}", iun, recIndex);
+        log.debug("buildSendSimpleRegisteredLetterTimelineElement - IUN={} and id={}", iun, recIndex);
 
         SimpleRegisteredLetterDetails details = SimpleRegisteredLetterDetails.builder()
                 .recIndex(recIndex)
@@ -143,7 +143,7 @@ public class TimelineUtils {
 
 
     public TimelineElementInternal buildSendDigitalNotificationTimelineElement(LegalDigitalAddressInt digitalAddress, DigitalAddressSource addressSource, Integer recIndex, NotificationInt notification, int sentAttemptMade, String eventId) {
-        log.debug("buildSendDigitalNotificationTimelineElement - IUN {} and id {}", notification.getIun(), recIndex);
+        log.debug("buildSendDigitalNotificationTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
 
         SendDigitalDetails details = SendDigitalDetails.builder()
                 .recIndex(recIndex)
@@ -158,7 +158,7 @@ public class TimelineUtils {
 
     public TimelineElementInternal buildSendAnalogNotificationTimelineElement(PhysicalAddress address, Integer recIndex, NotificationInt notification, boolean investigation,
                                                                               int sentAttemptMade, String eventId) {
-        log.debug("buildSendAnalogNotificationTimelineElement - IUN {} and id {}", notification.getIun(), recIndex);
+        log.debug("buildSendAnalogNotificationTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
         ServiceLevel serviceLevel = notification.getPhysicalCommunicationType() != null ? ServiceLevel.valueOf(notification.getPhysicalCommunicationType().name()) : null;
         SendPaperDetails details = SendPaperDetails.builder()
                 .recIndex(recIndex)
@@ -173,7 +173,7 @@ public class TimelineUtils {
 
 
     public TimelineElementInternal buildSuccessDigitalWorkflowTimelineElement(String iun, Integer recIndex, LegalDigitalAddressInt address, String legalFactId) {
-        log.debug("buildSuccessDigitalWorkflowTimelineElement - IUN {} and id {}", iun, recIndex);
+        log.debug("buildSuccessDigitalWorkflowTimelineElement - IUN={} and id={}", iun, recIndex);
 
         String elementId = TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.buildEventId(
                 EventId.builder()
@@ -192,7 +192,7 @@ public class TimelineUtils {
 
 
     public TimelineElementInternal buildFailureDigitalWorkflowTimelineElement(String iun, Integer recIndex, String legalFactId) {
-        log.debug("buildFailureDigitalWorkflowTimelineElement - IUN {} and id {}", iun, recIndex);
+        log.debug("buildFailureDigitalWorkflowTimelineElement - IUN={} and id={}", iun, recIndex);
 
         String elementId = TimelineEventId.DIGITAL_FAILURE_WORKFLOW.buildEventId(
                 EventId.builder()
@@ -210,7 +210,7 @@ public class TimelineUtils {
 
 
     public TimelineElementInternal buildSuccessAnalogWorkflowTimelineElement(String iun, Integer recIndex, PhysicalAddress address, List<LegalFactsId> attachments) {
-        log.debug("buildSuccessAnalogWorkflowTimelineElement - iun {} and id {}", iun, recIndex);
+        log.debug("buildSuccessAnalogWorkflowTimelineElement - iun={} and id={}", iun, recIndex);
 
         String elementId = TimelineEventId.ANALOG_SUCCESS_WORKFLOW.buildEventId(
                 EventId.builder()
@@ -227,7 +227,7 @@ public class TimelineUtils {
 
 
     public TimelineElementInternal buildFailureAnalogWorkflowTimelineElement(String iun, Integer recIndex, List<LegalFactsId> attachments) {
-        log.debug("buildFailureAnalogWorkflowTimelineElement - iun {} and id {}", iun, recIndex);
+        log.debug("buildFailureAnalogWorkflowTimelineElement - iun={} and id={}", iun, recIndex);
 
         String elementId = TimelineEventId.ANALOG_FAILURE_WORKFLOW.buildEventId(
                 EventId.builder()
@@ -243,7 +243,7 @@ public class TimelineUtils {
 
 
     public TimelineElementInternal buildPublicRegistryResponseCallTimelineElement(String iun, Integer recIndex, PublicRegistryResponse response) {
-        log.debug("buildPublicRegistryResponseCallTimelineElement - iun {} and id {}", iun, recIndex);
+        log.debug("buildPublicRegistryResponseCallTimelineElement - iun={} and id={}", iun, recIndex);
         String correlationId = String.format(
                 "response_%s",
                 response.getCorrelationId()
@@ -259,7 +259,7 @@ public class TimelineUtils {
 
 
     public TimelineElementInternal  buildPublicRegistryCallTimelineElement(String iun, Integer recIndex, String eventId, DeliveryMode deliveryMode, ContactPhase contactPhase, int sentAttemptMade) {
-        log.debug("buildPublicRegistryCallTimelineElement - iun {} and id {}", iun, recIndex);
+        log.debug("buildPublicRegistryCallTimelineElement - iun={} and id={}", iun, recIndex);
 
         PublicRegistryCallDetails details = PublicRegistryCallDetails.builder()
                 .recIndex(recIndex)
@@ -274,7 +274,7 @@ public class TimelineUtils {
 
 
     public TimelineElementInternal buildAnalogFailureAttemptTimelineElement(String iun, int sentAttemptMade, List<LegalFactsId> legalFactsListEntryIds, PhysicalAddress newAddress, List<String> errors, SendPaperDetails sendPaperDetails) {
-        log.debug("buildAnalogFailureAttemptTimelineElement - iun {} and id {}", iun, sendPaperDetails.getRecIndex());
+        log.debug("buildAnalogFailureAttemptTimelineElement - iun={} and id={}", iun, sendPaperDetails.getRecIndex());
 
         String elementId = TimelineEventId.SEND_PAPER_FEEDBACK.buildEventId(
                 EventId.builder()
@@ -298,7 +298,7 @@ public class TimelineUtils {
     }
 
     public TimelineElementInternal  buildNotificationViewedTimelineElement(String iun, Integer recIndex, String legalFactId) {
-        log.debug("buildNotificationViewedTimelineElement - iun {} and id {}", iun, recIndex);
+        log.debug("buildNotificationViewedTimelineElement - iun={} and id={}", iun, recIndex);
 
         String elementId = TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
                 EventId.builder()
@@ -314,7 +314,7 @@ public class TimelineUtils {
     }
 
     public TimelineElementInternal  buildCompletelyUnreachableTimelineElement(String iun, Integer recIndex) {
-        log.debug("buildCompletelyUnreachableTimelineElement - iun {} and id {}", iun, recIndex);
+        log.debug("buildCompletelyUnreachableTimelineElement - iun={} and id={}", iun, recIndex);
 
         String elementId = TimelineEventId.COMPLETELY_UNREACHABLE.buildEventId(
                 EventId.builder()
@@ -329,7 +329,7 @@ public class TimelineUtils {
     }
 
     public TimelineElementInternal  buildScheduleDigitalWorkflowTimeline(String iun, Integer recIndex, DigitalAddressInfo lastAttemptInfo) {
-        log.debug("buildScheduledActionTimeline - iun {} and id {}", iun, recIndex);
+        log.debug("buildScheduledActionTimeline - iun={} and id={}", iun, recIndex);
         String elementId = TimelineEventId.SCHEDULE_DIGITAL_WORKFLOW.buildEventId(
                 EventId.builder()
                         .iun(iun)
@@ -348,7 +348,7 @@ public class TimelineUtils {
     }
 
     public TimelineElementInternal  buildScheduleAnalogWorkflowTimeline(String iun, Integer recIndex) {
-        log.debug("buildScheduleAnalogWorkflowTimeline - iun {} and id {}", iun, recIndex);
+        log.debug("buildScheduleAnalogWorkflowTimeline - iun={} and id={}", iun, recIndex);
         String elementId = TimelineEventId.SCHEDULE_ANALOG_WORKFLOW.buildEventId(
                 EventId.builder()
                         .iun(iun)
@@ -363,7 +363,7 @@ public class TimelineUtils {
     }
 
     public TimelineElementInternal  buildRefinementTimelineElement(String iun, Integer recIndex) {
-        log.debug("buildRefinementTimelineElement - iun {} and id {}", iun, recIndex);
+        log.debug("buildRefinementTimelineElement - iun={} and id={}", iun, recIndex);
         String elementId = TimelineEventId.REFINEMENT.buildEventId(
                 EventId.builder()
                         .iun(iun)
@@ -377,7 +377,7 @@ public class TimelineUtils {
     }
     
     public TimelineElementInternal  buildScheduleRefinement(String iun, Integer recIndex) {
-        log.debug("buildScheduleRefinement - iun {} and id {}", iun, recIndex);
+        log.debug("buildScheduleRefinement - iun={} and id={}", iun, recIndex);
         String elementId = TimelineEventId.SCHEDULE_REFINEMENT_WORKFLOW.buildEventId(
                 EventId.builder()
                         .iun(iun)
@@ -391,7 +391,7 @@ public class TimelineUtils {
     }
 
     public TimelineElementInternal  buildRefusedRequestTimelineElement(NotificationInt notification, List<String> errors) {
-        log.debug("buildRefusedRequestTimelineElement - iun {}", notification.getIun());
+        log.debug("buildRefusedRequestTimelineElement - iun={}", notification.getIun());
 
         String elementId = TimelineEventId.REQUEST_REFUSED.buildEventId(
                 EventId.builder()
@@ -407,7 +407,7 @@ public class TimelineUtils {
 
 
     public TimelineElementInternal  buildAarGenerationTimelineElement(NotificationInt notification, Integer recIndex, String legalFactId) {
-        log.debug("buildAarGenerationTimelineElement - iun {}", notification.getIun());
+        log.debug("buildAarGenerationTimelineElement - iun={}", notification.getIun());
 
         String elementId = TimelineEventId.AAR_GENERATION.buildEventId(
                 EventId.builder()
@@ -416,7 +416,7 @@ public class TimelineUtils {
                         .build());
         AarGenerationDetails details = AarGenerationDetails.builder()
                 .recIndex(recIndex)
-                .safestorageKey(legalFactId)
+                .generatedAarUrl(legalFactId)
                 .build();
 
         return buildTimeline(

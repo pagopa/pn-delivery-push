@@ -43,7 +43,7 @@ class AnalogWorkflowHandlerTest {
     public void setup() {
         handler = new AnalogWorkflowHandler(notificationService, externalChannelSendHandler,
                 completionWorkFlow, analogWorkflowUtils,
-                publicRegistrySendHandler, instantNowSupplier);
+                publicRegistrySendHandler, instantNowSupplier, pnDeliveryPushConfigs);
         notificationUtils= new NotificationUtils();
     }
 

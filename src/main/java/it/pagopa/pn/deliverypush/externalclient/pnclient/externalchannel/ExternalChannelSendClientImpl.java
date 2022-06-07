@@ -24,6 +24,7 @@ import javax.annotation.PostConstruct;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Locale;
 
 @Component
 @Slf4j
@@ -64,12 +65,12 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
 
     @Override
     public void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, PhysicalAddress physicalAddress, String timelineEventId, ANALOG_TYPE analogType, String aarKey) {
-        log.info("sendAnalogNotification address:{} recipient:{} requestId:{} aarkey:{}", LogUtils.maskGeneric(physicalAddress.getAddress()), LogUtils.maskGeneric(recipientInt.getDenomination()), timelineEventId, aarKey);
+        log.info("sendAnalogNotification address={} recipient={} requestId={} aarkey={}", LogUtils.maskGeneric(physicalAddress.getAddress()), LogUtils.maskGeneric(recipientInt.getDenomination()), timelineEventId, aarKey);
 
         PaperEngageRequest paperEngageRequest = new PaperEngageRequest();
         paperEngageRequest.setRequestId(timelineEventId);
         paperEngageRequest.setIun(notificationInt.getIun());
-        paperEngageRequest.setProductType(getProductType(analogType));
+        paperEngageRequest.setProductType(getProductType(analogType, physicalAddress.getForeignState()));
         paperEngageRequest.setRequestPaId(notificationInt.getSender().getPaId());
         paperEngageRequest.setClientRequestTimeStamp(OffsetDateTime.now(ZoneOffset.UTC).toInstant());
         paperEngageRequest.setPrintType(PRINT_TYPE_BN_FRONTE_RETRO);
@@ -115,7 +116,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
     private void sendNotificationPEC(String requestId, NotificationInt notificationInt,  NotificationRecipientInt recipientInt, DigitalAddressInt digitalAddress)
     {
         try {
-            log.info("sendNotificationPEC address:{} requestId:{} recipient:{}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
+            log.info("sendNotificationPEC address={} requestId={} recipient={}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
 
             String mailbody = legalFactGenerator.generateNotificationAARBody(notificationInt, recipientInt);
             String mailsubj = legalFactGenerator.generateNotificationAARSubject(notificationInt);
@@ -143,7 +144,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
     private void sendNotificationEMAIL(String requestId, NotificationInt notificationInt, NotificationRecipientInt recipientInt, DigitalAddressInt digitalAddress)
     {
         try {
-            log.info("sendNotificationEMAIL address:{} requestId:{} recipient:{}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
+            log.info("sendNotificationEMAIL address={} requestId={} recipient={}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
 
             String mailbody = legalFactGenerator.generateNotificationAARBody(notificationInt, recipientInt);
             String mailsubj = legalFactGenerator.generateNotificationAARSubject(notificationInt);
@@ -171,7 +172,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
     private void sendNotificationSMS(String requestId, NotificationInt notificationInt, NotificationRecipientInt recipientInt, DigitalAddressInt digitalAddress)
     {
         try {
-            log.info("sendNotificationSMS address:{} requestId:{} recipient:{}", LogUtils.maskNumber(digitalAddress.getAddress()), requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
+            log.info("sendNotificationSMS address={} requestId={} recipient={}", LogUtils.maskNumber(digitalAddress.getAddress()), requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
 
             String smsbody = legalFactGenerator.generateNotificationAARForSMS(notificationInt);
 
@@ -193,7 +194,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
     }
 
 
-    private String getProductType(ANALOG_TYPE serviceLevelType)
+    private String getProductType(ANALOG_TYPE serviceLevelType, String country)
     {
         /*
           Tipo prodotto di cui viene chiesto il recapito:
@@ -202,6 +203,13 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
           - RI: Raccomandata Internazionale,
           - RS: Raccomandata Semplice (per Avviso di mancato Recapito).
          */
+
+        // la RI se il country è non vuoto e diverso da it
+        if (StringUtils.hasText(country) && !country.toLowerCase(Locale.ROOT).equals("it"))
+        {
+            return "RI";
+        }
+
         switch (serviceLevelType){
             case REGISTERED_LETTER_890:
                 return "890";
@@ -209,7 +217,6 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
                 return "AR";
             case SIMPLE_REGISTERED_LETTER:
                 return "RS";
-            // FIXME: gestire il caso di RI
         }
 
         return  null;
