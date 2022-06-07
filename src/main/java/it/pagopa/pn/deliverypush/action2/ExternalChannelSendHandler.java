@@ -32,7 +32,7 @@ public class ExternalChannelSendHandler {
      */
     public void sendDigitalNotification(NotificationInt notification, DigitalAddress digitalAddress, DigitalAddressSource addressSource, Integer recIndex,
                                         int sentAttemptMade) {
-        log.debug("Start sendDigitalNotification - iun {} id {}", notification.getIun(), recIndex);
+        log.debug("Start sendDigitalNotification - iun={} recipientIndex={}", notification.getIun(), recIndex);
 
         PnExtChnPecEvent pnExtChnPecEvent = externalChannelUtils.getExtChannelPecEvent(notification, digitalAddress, addressSource, recIndex, sentAttemptMade);
 
@@ -44,7 +44,7 @@ public class ExternalChannelSendHandler {
      * Send courtesy message to external channel
      */
     public void sendCourtesyNotification(NotificationInt notification, DigitalAddress courtesyAddress, Integer recIndex, String eventId) {
-        log.debug("Start sendCourtesyNotification - iun {} id {}", notification.getIun(), recIndex);
+        log.debug("Start sendCourtesyNotification - iun={} recipientIndex={}", notification.getIun(), recIndex);
 
         PnExtChnEmailEvent pnExtChnEmailEvent = externalChannelUtils.getExtChannelEmailRequest(notification, courtesyAddress, recIndex, eventId);
 
@@ -56,7 +56,7 @@ public class ExternalChannelSendHandler {
      * Send registered letter to external channel
      */
     public void sendNotificationForRegisteredLetter(NotificationInt notification, PhysicalAddress physicalAddress, Integer recIndex) {
-        log.debug("Start sendNotificationForRegisteredLetter - iun {} id {}", notification.getIun(), recIndex);
+        log.debug("Start sendNotificationForRegisteredLetter - iun={} recipientIndex={}", notification.getIun(), recIndex);
         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
 
         if(! isNotificationAlreadyViewed){
@@ -65,9 +65,9 @@ public class ExternalChannelSendHandler {
             externalChannel.sendNotification(pnExtChnPaperEvent);
             externalChannelUtils.addSendSimpleRegisteredLetterToTimeline(notification, physicalAddress, recIndex, pnExtChnPaperEvent.getHeader().getEventId());
 
-            log.info("Registered Letter sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
+            log.info("Registered Letter sent to externalChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
         }else {
-            log.info("Notification is already viewed, registered Letter will not be sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
+            log.info("Notification is already viewed, registered Letter will not be sent to externalChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
         }
     }
 
@@ -75,7 +75,7 @@ public class ExternalChannelSendHandler {
      * Send paper notification to external channel
      */
     public void sendAnalogNotification(NotificationInt notification, PhysicalAddress physicalAddress, Integer recIndex, boolean investigation, int sentAttemptMade) {
-        log.debug("Start sendAnalogNotification - iun {} id {}", notification.getIun(), recIndex);
+        log.debug("Start sendAnalogNotification - iun={} recipientIndex={}", notification.getIun(), recIndex);
         
         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
 
@@ -85,9 +85,9 @@ public class ExternalChannelSendHandler {
             externalChannel.sendNotification(pnExtChnPaperEvent);
             externalChannelUtils.addSendAnalogNotificationToTimeline(notification, physicalAddress, recIndex, investigation, sentAttemptMade, pnExtChnPaperEvent.getHeader().getEventId());
 
-            log.info("Analog notification sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
+            log.info("Analog notification sent to externalChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
         }else {
-            log.info("Notification is already viewed, paper notification will not be sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
+            log.info("Notification is already viewed, paper notification will not be sent to externalChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
         }
     }
 }

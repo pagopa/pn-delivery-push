@@ -136,16 +136,43 @@ public class TimeLineServiceImpl implements TimelineService {
         
         List<NotificationStatusHistoryElement> statusHistory = statusUtils
                 .getStatusHistory( timelineElements, numberOfRecipients, createdAt );
-        
-        statusHistory.removeIf(
-                statusHistoryElement -> NotificationStatus.IN_VALIDATION.equals( statusHistoryElement.getStatus() )
-        );
-        
+
+        removeNotToBeReturnedElements(statusHistory);
+
         NotificationStatus currentStatus = statusUtils.getCurrentStatus( statusHistory );
         
         log.debug("getTimelineAndStatusHistory Ok - iun {} ", iun);
 
         return createResponse(timelineElements, statusHistory, currentStatus);
+    }
+
+    private void removeNotToBeReturnedElements(List<NotificationStatusHistoryElement> statusHistory) {
+        
+        //Viene eliminato l'elemento InValidation dalla response
+        Optional<Instant> inValidationStatusActiveFromOpt = Optional.empty();
+        
+        for(NotificationStatusHistoryElement element : statusHistory){
+            
+            if(NotificationStatus.IN_VALIDATION.equals( element.getStatus() )){
+                inValidationStatusActiveFromOpt = Optional.of(element.getActiveFrom());
+                statusHistory.remove(element);
+                break;
+            }
+        }
+        
+        if( inValidationStatusActiveFromOpt.isPresent() ){
+            
+            //Viene sostituito il campo ActiveFrom dell'elemento ACCEPTED con quella dell'elemento eliminato IN_VALIDATION
+            Instant inValidationStatusActiveFrom = inValidationStatusActiveFromOpt.get();
+
+            statusHistory.stream()
+                    .filter(
+                            statusHistoryElement -> NotificationStatus.ACCEPTED.equals( statusHistoryElement.getStatus() )
+                    ).findFirst()
+                    .ifPresent(
+                            el -> el.setActiveFrom(inValidationStatusActiveFrom)
+                    );
+        }
     }
 
     private NotificationHistoryResponse createResponse(Set<TimelineElementInternal> timelineElements, List<NotificationStatusHistoryElement> statusHistory,

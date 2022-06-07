@@ -50,31 +50,31 @@ public class ChooseDeliveryModeHandler {
      * @param notification Public Administration notification request
      */
     public void chooseDeliveryTypeAndStartWorkflow(NotificationInt notification, Integer recIndex) {
-        log.info("Start ChooseDeliveryTypeAndStartWorkflow process-IUN {} id {}", notification.getIun(), recIndex);
+        log.info("Start ChooseDeliveryTypeAndStartWorkflow process - iun={} recipientIndex={}", notification.getIun(), recIndex);
 
         String iun = notification.getIun();
         Optional<DigitalAddress> platformAddressOpt = chooseDeliveryUtils.getPlatformAddress(notification, recIndex);
 
         //Verifico presenza indirizzo di piattaforma, ...
         if (platformAddressOpt.isPresent()) {
-            log.info("Platform address is present, Digital workflow can be started - IUN {} id {}", notification.getIun(), recIndex);
+            log.info("Platform address is present, Digital workflow can be started - iun={} recipientIndex={}", notification.getIun(), recIndex);
             DigitalAddress platformAddress = platformAddressOpt.get();
             
             chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, iun, DigitalAddressSource.PLATFORM, true);
             startDigitalWorkflow(notification, platformAddress, DigitalAddressSource.PLATFORM, recIndex);
         } else {
-            log.info("Platform address isn't present  - iun {} id {}", notification.getIun(), recIndex);
+            log.info("Platform address isn't present - iun={} recipientIndex={}", notification.getIun(), recIndex);
             chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, iun, DigitalAddressSource.PLATFORM, false);
 
             // ... se non lo trovo, verifico presenza indirizzo speciale, ...
             DigitalAddress specialAddress = chooseDeliveryUtils.getDigitalDomicile(notification, recIndex);
             if (specialAddress != null) {
-                log.info("Special address is present, Digital workflow can be started  - iun {} id {}", notification.getIun(), recIndex);
+                log.info("Special address is present, Digital workflow can be started - iun={} recipientIndex={}", notification.getIun(), recIndex);
 
                 startDigitalWorkflow(notification, specialAddress, DigitalAddressSource.SPECIAL, recIndex);
                 chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, iun, DigitalAddressSource.SPECIAL, true);
             } else {
-                log.info("Special address isn't present, need to get General address async - iun {} id {}", notification.getIun(), recIndex);
+                log.info("Special address isn't present, need to get General address async - iun={} recipientIndex={}", notification.getIun(), recIndex);
                 chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, iun, DigitalAddressSource.SPECIAL, false);
 
                 // ... se non lo trovo, lancio ricerca asincrona dell'indirizzo generale
@@ -82,7 +82,7 @@ public class ChooseDeliveryModeHandler {
             }
         }
 
-        log.info("END chooseDeliveryTypeAndStartWorkflow process  - iun {} id {}", notification.getIun(), recIndex);
+        log.info("END chooseDeliveryTypeAndStartWorkflow process - iun={} recipientIndex={}", notification.getIun(), recIndex);
     }
 
     /**
