@@ -205,7 +205,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
          */
 
         // la RI se il country è non vuoto e diverso da it
-        if (StringUtils.hasText(country) && !country.toLowerCase(Locale.ROOT).equals("it"))
+        if (StringUtils.hasText(country) && !country.trim().equalsIgnoreCase("it"))
         {
             return "RI";
         }
