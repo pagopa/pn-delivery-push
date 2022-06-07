@@ -182,6 +182,10 @@ Parameters:
   PnDeliveryPushShedLockDynamoTableArn:
     Type: String
     Description: ARN of dynamodb table containing
+  
+  AlarmSNSTopicArn:
+    Type: String
+    Description: ARN of alarm topic
 
   ExternalChannelBaseUrl:
     Type: String
@@ -202,6 +206,7 @@ Resources:
         MicroServiceUniqueName: !Sub '${ProjectName}-delivery-push'
         CpuValue: 1024
         MemoryAmount: 2GB
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
         ContainerImageURI: !Sub '${ContainerImageUri}'
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
         ContainerEnvEntry2: !Sub 'AWS_BUCKETNAME=${LegalFactsBucketName}'

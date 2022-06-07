@@ -11,8 +11,7 @@ public class LegalDigitalAddressInt extends DigitalAddressInt{
 
 
     public enum LEGAL_DIGITAL_ADDRESS_TYPE{
-        PEC("PEC"),
-        APPIO("APPIO");
+        PEC("PEC");
 
         private final String value;
 

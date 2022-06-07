@@ -48,7 +48,7 @@ public class AarUtils {
                 timelineService.addTimelineElement(timelineUtils.buildAarGenerationTimelineElement(notification, recIndex, safestoragekey));
             }
             else
-                log.debug("no need to recreate AAR iun:{} timelineId:{}", notification.getIun(), elementId);
+                log.debug("no need to recreate AAR iun={} timelineId={}", notification.getIun(), elementId);
         } catch (Exception e) {
             throw new PnInternalException("cannot generate AAR pdf", e);
         }
@@ -66,9 +66,9 @@ public class AarUtils {
         Optional<AarGenerationDetails> detail = timelineService
                 .getTimelineElementDetails(notification.getIun(), aarGenerationEventId, AarGenerationDetails.class);
 
-        if (detail.isEmpty() || !StringUtils.hasText(detail.get().getSafestorageKey()))
+        if (detail.isEmpty() || !StringUtils.hasText(detail.get().getGeneratedAarUrl()))
             throw new PnInternalException("cannot retreieve AAR pdf safestoragekey");
 
-        return detail.get().getSafestorageKey();
+        return detail.get().getGeneratedAarUrl();
     }
 }

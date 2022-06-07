@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action2;
 
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action2.utils.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -34,7 +35,9 @@ class AnalogWorkflowHandlerTest {
     private PublicRegistrySendHandler publicRegistrySendHandler;
     @Mock
     private InstantNowSupplier instantNowSupplier;
-    
+    @Mock
+    private PnDeliveryPushConfigs pnDeliveryPushConfigs;
+
     private AnalogWorkflowHandler handler;
     
     private NotificationUtils notificationUtils;
@@ -43,7 +46,7 @@ class AnalogWorkflowHandlerTest {
     public void setup() {
         handler = new AnalogWorkflowHandler(notificationService, externalChannelSendHandler,
                 completionWorkFlow, analogWorkflowUtils,
-                publicRegistrySendHandler, instantNowSupplier);
+                publicRegistrySendHandler, instantNowSupplier, pnDeliveryPushConfigs);
         notificationUtils= new NotificationUtils();
     }
 

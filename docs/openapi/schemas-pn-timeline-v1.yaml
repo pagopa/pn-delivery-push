@@ -350,9 +350,9 @@ components:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
-        safestorageKey:
+        generatedAarUrl:
           type: string
-          description: Chiave per recupero da safestorage
+          description: Chiave per recupero da safestorage del documento aar
 
     DigitalAddressSource:
       type: string

@@ -7,10 +7,12 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.client.ResponseErrorHandler;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -33,7 +35,7 @@ public class RestTemplateResponseErrorHandler
 
     @Override
     public void handleError(@NotNull ClientHttpResponse response) throws IOException {
-        log.error("Error in call response {} ", response);
+        log.error("Error in call response={} ", response);
         
         if (response.getStatusCode().series() == SERVER_ERROR) {
             throw new PnHttpServerResponseException( "Error in rest request, status code "+ response.getStatusCode() );
@@ -46,11 +48,13 @@ public class RestTemplateResponseErrorHandler
     public void handleError(@NotNull URI url, @NotNull HttpMethod method, ClientHttpResponse response)
             throws IOException {
         //TODO Gestire le differenti casistiche di errore, si potrebbe pensare di gestire in maniera differente la exception che dipendono dal client e quelle che dipendono dal server
-        InputStreamReader isr = new InputStreamReader(response.getBody(), StandardCharsets.UTF_8);
-        String body = new BufferedReader(isr)
-                .lines()
-                .collect(Collectors.joining("\n"));
-        log.error("Error in call {} method {} status code {} body {}", url, method, response.getStatusCode(), body);
+
+        String body = null;
+        try (InputStream responseBody = response.getBody()) {
+            body = StreamUtils.copyToString(responseBody, StandardCharsets.UTF_8);
+        }
+
+        log.error("Error in call url={} method={} status code={} body={}", url, method, response.getStatusCode(), body);
         
         if (response.getStatusCode().series() == SERVER_ERROR) {
             throw new PnHttpServerResponseException("Error in call "+ url + " status code "+ response.getStatusCode() );

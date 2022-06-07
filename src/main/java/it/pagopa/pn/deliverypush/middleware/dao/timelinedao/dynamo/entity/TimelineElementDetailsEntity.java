@@ -37,5 +37,5 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("serviceLevel")})) private ServiceLevel serviceLevel;
     @Getter(onMethod=@__({@DynamoDbAttribute("investigation")})) private Boolean investigation;
     @Getter(onMethod=@__({@DynamoDbAttribute("newAddress")})) private PhysicalAddressEntity newAddress;
-    @Getter(onMethod=@__({@DynamoDbAttribute("safestorageKey")})) private String safestorageKey;
+    @Getter(onMethod=@__({@DynamoDbAttribute("generatedAarUrl")})) private String generatedAarUrl;
 }

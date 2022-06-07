@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 import java.time.Instant;
+import java.util.List;
 
 @Configuration
 @ConfigurationProperties( prefix = "pn.delivery-push")
@@ -53,7 +54,9 @@ public class PnDeliveryPushConfigs {
     private FutureActionDao futureActionDao;
     
     private LastPollForFutureActionDao lastPollForFutureActionDao;
-    
+
+    private ExternalChannel externalChannel;
+
     @Data
     public static class Topics {
 
@@ -77,6 +80,13 @@ public class PnDeliveryPushConfigs {
     public static class Webhook {
         private Long scheduleInterval;
         private Integer maxLength;
+    }
+
+    @Data
+    public static class ExternalChannel {
+        private List<String> analogCodesProgress;
+        private List<String> analogCodesSuccess;
+        private List<String> analogCodesFail;
     }
 
    @Data

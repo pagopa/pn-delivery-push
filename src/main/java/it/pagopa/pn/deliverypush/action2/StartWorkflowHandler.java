@@ -51,26 +51,27 @@ public class StartWorkflowHandler {
      * @param iun Notification unique identifier
      */
     public void startWorkflow(String iun) {
-        log.info("Start notification process - iun {}", iun);
-        
-        NotificationInt notification = notificationService.getNotificationByIun(iun);
+        log.info("Start notification process iun={}", iun);
+        try {
+            NotificationInt notification = notificationService.getNotificationByIun(iun);
 
-        try{
-            //Validazione degli allegati della notifica
-            checkAttachmentUtils.validateAttachment(notification);
+            try {
+                //Validazione degli allegati della notifica
+                checkAttachmentUtils.validateAttachment(notification);
 
-            String legalFactId = legalFactDao.saveNotificationReceivedLegalFact(notification);
+                String legalFactId = legalFactDao.saveNotificationReceivedLegalFact(notification);
 
-            addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification, legalFactId));
-            
-            //Start del workflow per ogni recipient della notifica
-            for (NotificationRecipientInt recipient : notification.getRecipients()) {
-                Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
-                startNotificationWorkflowForRecipient(notification, recIndex);
+                addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification, legalFactId));
+
+                //Start del workflow per ogni recipient della notifica
+                for (NotificationRecipientInt recipient : notification.getRecipients()) {
+                    Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+                    startNotificationWorkflowForRecipient(notification, recIndex);
+                }
+            } catch (PnValidationException ex) {
+                handleValidationError(notification, ex);
             }
-        } catch (PnValidationException ex){
-            handleValidationError(notification, ex);
-        } catch (PnInternalException ex){
+        }catch (PnInternalException ex){
             log.error("exception starting workflow", ex);
             throw ex;
         } catch (Exception ex){
