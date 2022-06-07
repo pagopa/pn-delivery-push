@@ -48,6 +48,8 @@ public class PnDeliveryPushConfigs {
 
     private ActionDao actionDao;
 
+    private WebhookDao webhookDao;
+
     private FutureActionDao futureActionDao;
     
     private LastPollForFutureActionDao lastPollForFutureActionDao;
@@ -100,6 +102,13 @@ public class PnDeliveryPushConfigs {
     @Data
     public static class FutureActionDao {
         private String tableName;
+    }
+
+
+    @Data
+    public static class WebhookDao {
+        private String streamsTableName;
+        private String eventsTableName;
     }
 
     @Data
