@@ -1,7 +1,5 @@
 package it.pagopa.pn.deliverypush.action2.it;
 
-import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
-import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
@@ -18,10 +16,8 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.CourtesyDigitalAd
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.PnSafeStorageClient;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
@@ -229,8 +225,9 @@ class AnalogTestIT {
                 .withNotificationRecipient(recipient)
                 .build();
 
-        List<DigitalAddress> listCourtesyAddress = Collections.singletonList(DigitalAddress.builder()
-                .address("test@mail.it")
+        List<CourtesyDigitalAddressInt> listCourtesyAddress = Collections.singletonList(CourtesyDigitalAddressInt.builder()
+                .address("test@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL)
                 .build());
 
         pnDeliveryClientMock.addNotification(notification);
@@ -252,12 +249,13 @@ class AnalogTestIT {
         //Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito dalla PA
         TestUtils.checkSendPaperToExtChannel(iun, recIndex, paPhysicalAddress, 0, timelineService);
 
-        ArgumentCaptor<PnExtChnPaperEvent> pnExtChnPaperEventCaptor = ArgumentCaptor.forClass(PnExtChnPaperEvent.class);
+        ArgumentCaptor<PhysicalAddress> pnPhysicalAddressArgumentCaptor = ArgumentCaptor.forClass(PhysicalAddress.class);
 
-        Mockito.verify(externalChannelMock, Mockito.times(1)).sendNotification(pnExtChnPaperEventCaptor.capture());
+        Mockito.verify(externalChannelMock, Mockito.times(1)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), pnPhysicalAddressArgumentCaptor.capture(), Mockito.anyString(), Mockito.any(), Mockito.anyString());
 
-        PnExtChnPaperEvent pnExtChnPaperEvent = pnExtChnPaperEventCaptor.getValue();
-        Assertions.assertEquals(paPhysicalAddress.getAddress(), pnExtChnPaperEvent.getPayload().getDestinationAddress().getAddress());
+
+        PhysicalAddress pnExtChnPaperEvent = pnPhysicalAddressArgumentCaptor.getValue();
+        Assertions.assertEquals(paPhysicalAddress.getAddress(), pnExtChnPaperEvent.getAddress());
 
         //Viene verificato che la notifica sia stata visualizzata
         Assertions.assertTrue(timelineService.getTimelineElement(
@@ -305,8 +303,9 @@ class AnalogTestIT {
                 .withNotificationRecipient(recipient)
                 .build();
 
-        List<DigitalAddress> listCourtesyAddress = Collections.singletonList(DigitalAddress.builder()
-                .address("test@mail.it")
+        List<CourtesyDigitalAddressInt> listCourtesyAddress = Collections.singletonList(CourtesyDigitalAddressInt.builder()
+                .address("test@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL)
                 .build());
 
         pnDeliveryClientMock.addNotification(notification);
@@ -327,7 +326,9 @@ class AnalogTestIT {
 
         //Viene verificata l'assenza degli invii verso external channel
         TestUtils.checkNotSendPaperToExtChannel(iun, recIndex, paPhysicalAddress, 0, timelineService);
-        Mockito.verify(externalChannelMock, Mockito.times(0)).sendNotification(Mockito.any(PnExtChnPaperEvent.class));
+
+        Mockito.verify(externalChannelMock, Mockito.times(0)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddress.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+
 
         //Viene verificato che la notifica sia stata visualizzata
         Assertions.assertTrue(timelineService.getTimelineElement(
