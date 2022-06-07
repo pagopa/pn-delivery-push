@@ -1,20 +1,25 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
-import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.CourtesyDigitalAddress;
 
 public class CourtesyDigitalAddressMapper {
-    private CourtesyDigitalAddressMapper (){}
+    private CourtesyDigitalAddressMapper(){}
     
-    public static DigitalAddress externalToInternal(CourtesyDigitalAddress courtesyDigitalAddress) {
-        return DigitalAddress.builder()
-                .address(courtesyDigitalAddress.getValue())
+    public static CourtesyDigitalAddressInt digitalToCourtesy(DigitalAddress courtesyDigitalAddress) {
+        if (courtesyDigitalAddress == null)
+            return  null;
+        return CourtesyDigitalAddressInt.builder()
+                .address(courtesyDigitalAddress.getAddress())
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.valueOf(courtesyDigitalAddress.getType()))
                 .build();
     }
 
-    public static CourtesyDigitalAddress internalToExternal(DigitalAddress digitalAddress) {
-        CourtesyDigitalAddress courtesyDigitalAddress = new CourtesyDigitalAddress();
-        courtesyDigitalAddress.setValue(digitalAddress.getAddress());
+    public static DigitalAddress courtesyToDigital(CourtesyDigitalAddressInt digitalAddress) {
+        DigitalAddress courtesyDigitalAddress = new DigitalAddress();
+        courtesyDigitalAddress.setAddress(digitalAddress.getAddress());
+        courtesyDigitalAddress.setType(digitalAddress.getType().getValue());
         return courtesyDigitalAddress;
     }
+
 }

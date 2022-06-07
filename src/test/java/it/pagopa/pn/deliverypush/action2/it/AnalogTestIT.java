@@ -1,8 +1,8 @@
 package it.pagopa.pn.deliverypush.action2.it;
 
-import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
-import it.pagopa.pn.commons.abstractions.FileData;
-import it.pagopa.pn.commons.abstractions.FileStorage;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action2.*;
@@ -12,11 +12,12 @@ import it.pagopa.pn.deliverypush.action2.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action2.it.utils.PhysicalAddressBuilder;
 import it.pagopa.pn.deliverypush.action2.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action2.utils.*;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
@@ -35,8 +36,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
@@ -57,6 +57,7 @@ import java.util.List;
         NotificationViewedHandler.class,
         DigitalWorkFlowUtils.class,
         CourtesyMessageUtils.class,
+        AarUtils.class,
         ExternalChannelUtils.class,
         CompletelyUnreachableUtils.class,
         LegalfactsMetadataUtils.class,
@@ -101,10 +102,10 @@ class AnalogTestIT {
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     @SpyBean
-    private ExternalChannelMock externalChannelMock;
+    private PnSafeStorageClient safeStorageClientMock;
 
     @SpyBean
-    private FileStorage fileStorage;
+    private ExternalChannelMock externalChannelMock;
 
     @SpyBean
     private CompletionWorkFlowHandler completionWorkflow;
@@ -140,19 +141,42 @@ class AnalogTestIT {
         times.setSchedulingDaysFailureAnalogRefinement(Duration.ofSeconds(1));
         times.setSecondNotificationWorkflowWaitingTime(Duration.ofSeconds(1));
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
+
+        PnDeliveryPushConfigs.ExternalChannel externalChannelCfg = new PnDeliveryPushConfigs.ExternalChannel();
+        externalChannelCfg.setAnalogCodesFail(List.of("__005__","__006__","__008__","__009__"));
+        externalChannelCfg.setAnalogCodesSuccess(List.of("__004__","__007__"));
+        externalChannelCfg.setAnalogCodesProgress(List.of("__001__","__002__","__003__"));
+        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(externalChannelCfg);
+
         PnDeliveryPushConfigs.Webapp webapp = new PnDeliveryPushConfigs.Webapp();
         webapp.setDirectAccessUrlTemplate("test");
         Mockito.when(pnDeliveryPushConfigs.getWebapp()).thenReturn(webapp);
 
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
-        FileData fileData = FileData.builder()
-                .content( new ByteArrayInputStream("Body".getBytes(StandardCharsets.UTF_8)) )
-                .build();
+        //File mock to return for getFileAndDownloadContent
+        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
+        fileDownloadResponse.setContentType("application/pdf");
+        fileDownloadResponse.setContentLength(new BigDecimal(0));
+        fileDownloadResponse.setChecksum("123");
+        fileDownloadResponse.setKey("123");
+        fileDownloadResponse.setDownload(new FileDownloadInfo());
+        fileDownloadResponse.getDownload().setUrl("https://www.url.qualcosa.it");
+        fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
+
+
+        FileCreationResponse fileCreationResponse = new FileCreationResponse();
+        fileCreationResponse.setKey("123");
+        fileCreationResponse.setSecret("abc");
+        fileCreationResponse.setUploadUrl("https://www.unqualcheurl.it");
+        fileCreationResponse.setUploadMethod(FileCreationResponse.UploadMethodEnum.POST);
+
+
+        Mockito.when( safeStorageClientMock.getFile( Mockito.anyString(), Mockito.anyBoolean()))
+                .thenReturn( fileDownloadResponse );
+        Mockito.when( safeStorageClientMock.createAndUploadContent(Mockito.any())).thenReturn(fileCreationResponse);
 
         // Given
-        Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
-                .thenReturn( fileData );
 
         pnDeliveryClientMock.clear();
         addressBookMock.clear();
@@ -169,7 +193,7 @@ class AnalogTestIT {
        - Platform address vuoto (Ottenuto non valorizzando il platformAddress in addressBookEntry)
        - Special address vuoto (Ottenuto non valorizzando il digitalDomicile del recipient)
        - General address vuoto (Ottenuto non valorizzando nessun digital address per il recipient in PUB_REGISTRY_DIGITAL)
-       
+
        - Indirizzo courtesy message presente, dunque inviato (Ottenuto valorizzando il courtesyAddress del addressBookEntry)
        - Pa physical address presente con struttura indirizzo che porta al fallimento dell'invio tramite external channel (Ottenuto inserendo nell'indirizzo ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR)
          e ottenimento indirizzo investigazione
@@ -201,8 +225,9 @@ class AnalogTestIT {
                 .withNotificationRecipient(recipient)
                 .build();
 
-        List<DigitalAddress> listCourtesyAddress = Collections.singletonList(DigitalAddress.builder()
-                .address("test@mail.it")
+        List<CourtesyDigitalAddressInt> listCourtesyAddress = Collections.singletonList(CourtesyDigitalAddressInt.builder()
+                .address("test@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL)
                 .build());
 
         pnDeliveryClientMock.addNotification(notification);
@@ -224,13 +249,14 @@ class AnalogTestIT {
         //Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito dalla PA
         TestUtils.checkSendPaperToExtChannel(iun, recIndex, paPhysicalAddress, 0, timelineService);
 
-        ArgumentCaptor<PnExtChnPaperEvent> pnExtChnPaperEventCaptor = ArgumentCaptor.forClass(PnExtChnPaperEvent.class);
+        ArgumentCaptor<PhysicalAddress> pnPhysicalAddressArgumentCaptor = ArgumentCaptor.forClass(PhysicalAddress.class);
 
-        Mockito.verify(externalChannelMock, Mockito.times(1)).sendNotification(pnExtChnPaperEventCaptor.capture());
+        Mockito.verify(externalChannelMock, Mockito.times(1)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), pnPhysicalAddressArgumentCaptor.capture(), Mockito.anyString(), Mockito.any(), Mockito.anyString());
 
-        PnExtChnPaperEvent pnExtChnPaperEvent = pnExtChnPaperEventCaptor.getValue();
-        Assertions.assertEquals(paPhysicalAddress.getAddress(), pnExtChnPaperEvent.getPayload().getDestinationAddress().getAddress());
-        
+
+        PhysicalAddress pnExtChnPaperEvent = pnPhysicalAddressArgumentCaptor.getValue();
+        Assertions.assertEquals(paPhysicalAddress.getAddress(), pnExtChnPaperEvent.getAddress());
+
         //Viene verificato che la notifica sia stata visualizzata
         Assertions.assertTrue(timelineService.getTimelineElement(
                 iun,
@@ -240,14 +266,14 @@ class AnalogTestIT {
                                 .recIndex(recIndex)
                                 .build())).isPresent());
     }
-    
+
     @Test
     void notificationViewedNoAnalogSend() {
  /*
        - Platform address vuoto (Ottenuto non valorizzando il platformAddress in addressBookEntry)
        - Special address vuoto (Ottenuto non valorizzando il digitalDomicile del recipient)
        - General address vuoto (Ottenuto non valorizzando nessun digital address per il recipient in PUB_REGISTRY_DIGITAL)
-       
+
        - Indirizzo courtesy message presente, dunque inviato (Ottenuto valorizzando il courtesyAddress del addressBookEntry)
        - Viene visualizzata la notifica in fase d'invio del messaggio di cortesia, questo comporta che nessun invio analogico avvenga
      */
@@ -277,8 +303,9 @@ class AnalogTestIT {
                 .withNotificationRecipient(recipient)
                 .build();
 
-        List<DigitalAddress> listCourtesyAddress = Collections.singletonList(DigitalAddress.builder()
-                .address("test@mail.it")
+        List<CourtesyDigitalAddressInt> listCourtesyAddress = Collections.singletonList(CourtesyDigitalAddressInt.builder()
+                .address("test@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL)
                 .build());
 
         pnDeliveryClientMock.addNotification(notification);
@@ -299,7 +326,9 @@ class AnalogTestIT {
 
         //Viene verificata l'assenza degli invii verso external channel
         TestUtils.checkNotSendPaperToExtChannel(iun, recIndex, paPhysicalAddress, 0, timelineService);
-        Mockito.verify(externalChannelMock, Mockito.times(0)).sendNotification(Mockito.any(PnExtChnPaperEvent.class));
+
+        Mockito.verify(externalChannelMock, Mockito.times(0)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddress.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+
 
         //Viene verificato che la notifica sia stata visualizzata
         Assertions.assertTrue(timelineService.getTimelineElement(
@@ -339,8 +368,10 @@ class AnalogTestIT {
                 .withNotificationRecipient(recipient)
                 .build();
 
-        List<DigitalAddress> listCourtesyAddress = Collections.singletonList(DigitalAddress.builder()
-                .address("test@mail.it")
+
+        List<CourtesyDigitalAddressInt> listCourtesyAddress = Collections.singletonList(CourtesyDigitalAddressInt.builder()
+                .address("test@works.it")
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL)
                 .build());
 
         pnDeliveryClientMock.addNotification(notification);
@@ -348,6 +379,8 @@ class AnalogTestIT {
 
         String iun = notification.getIun();
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+
+
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -366,7 +399,7 @@ class AnalogTestIT {
         //checkSendToExtChannel(iun, TestUtils.PHYSICAL_ADDRESS_FAILURE_BOTH, 1);
 
         //Viene verificato l'effettivo invio delle due notifiche verso externalChannel
-        Mockito.verify(externalChannelMock, Mockito.times(2)).sendNotification(Mockito.any(PnExtChnPaperEvent.class));
+        Mockito.verify(externalChannelMock, Mockito.times(2)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddress.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
 
         //Viene verificato che il workflow sia fallito
         Assertions.assertTrue(timelineService.getTimelineElement(
@@ -395,7 +428,7 @@ class AnalogTestIT {
                                 .recIndex(recIndex)
                                 .build())).isPresent());
     }
-    
+
     @Test
     void publicRegistryAddressFailInvestigationAddressSuccessTest() {
   /*
@@ -450,7 +483,7 @@ class AnalogTestIT {
         */
 
         //Vengono verificati il numero di send verso external channel
-        Mockito.verify(externalChannelMock, Mockito.times(2)).sendNotification(Mockito.any(PnExtChnPaperEvent.class));
+        Mockito.verify(externalChannelMock, Mockito.times(2)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddress.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
 
         TestUtils.checkSuccessAnalogWorkflow(iun, recIndex, timelineService, completionWorkflow);
 

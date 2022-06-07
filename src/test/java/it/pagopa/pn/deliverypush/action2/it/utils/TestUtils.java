@@ -1,11 +1,12 @@
 package it.pagopa.pn.deliverypush.action2.it.utils;
 
-import it.pagopa.pn.api.dto.events.PnExtChnEmailEvent;
-import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
 import it.pagopa.pn.deliverypush.action2.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action2.it.mockbean.ExternalChannelMock;
 import it.pagopa.pn.deliverypush.action2.utils.EndWorkflowStatus;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
@@ -28,10 +29,10 @@ public class TestUtils {
     public static final String PUBLIC_REGISTRY_FAIL_GET_ANALOG_ADDRESS = "PUBLIC_REGISTRY_FAIL_GET_ANALOG_ADDRESS";
 
 
-    public static void checkSendCourtesyAddresses(String iun, Integer recIndex, List<DigitalAddress> courtesyAddresses, TimelineService timelineService, ExternalChannelMock externalChannelMock) {
+    public static void checkSendCourtesyAddresses(String iun, Integer recIndex, List<CourtesyDigitalAddressInt> courtesyAddresses, TimelineService timelineService, ExternalChannelMock externalChannelMock) {
 
         int index = 0;
-        for (DigitalAddress digitalAddress : courtesyAddresses) {
+        for (CourtesyDigitalAddressInt digitalAddress : courtesyAddresses) {
             String eventId = TimelineEventId.SEND_COURTESY_MESSAGE.buildEventId(
                     EventId.builder()
                             .iun(iun)
@@ -42,11 +43,12 @@ public class TestUtils {
 
             Assertions.assertTrue(sendCourtesyMessageDetailsOpt.isPresent());
             SendCourtesyMessageDetails sendCourtesyMessageDetails = sendCourtesyMessageDetailsOpt.get();
-            Assertions.assertEquals(digitalAddress, sendCourtesyMessageDetails.getDigitalAddress());
+            Assertions.assertEquals(digitalAddress.getAddress(), sendCourtesyMessageDetails.getDigitalAddress().getAddress());
+            Assertions.assertEquals(digitalAddress.getType().getValue(), sendCourtesyMessageDetails.getDigitalAddress().getType());
             index++;
         }
         //Viene verificato l'effettivo invio del messaggio di cortesia verso external channel
-        Mockito.verify(externalChannelMock, Mockito.times(courtesyAddresses.size())).sendNotification(Mockito.any(PnExtChnEmailEvent.class));
+        Mockito.verify(externalChannelMock, Mockito.times(courtesyAddresses.size())).sendCourtesyNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(CourtesyDigitalAddressInt.class), Mockito.anyString());
     }
 
     public static void checkGetAddress(String iun, Integer recIndex, Boolean isAvailable, DigitalAddressSource source, int sentAttempt, TimelineService timelineService) {
@@ -104,7 +106,7 @@ public class TestUtils {
         ArgumentCaptor<NotificationInt> notificationCaptor = ArgumentCaptor.forClass(NotificationInt.class);
 
         Mockito.verify(completionWorkflow, Mockito.times(1)).completionAnalogWorkflow(
-                notificationCaptor.capture(), recIndexCaptor.capture(), Mockito.any(Instant.class), Mockito.any(PhysicalAddress.class), endWorkflowStatusArgumentCaptor.capture()
+                notificationCaptor.capture(), recIndexCaptor.capture(), Mockito.any(), Mockito.any(Instant.class), Mockito.any(PhysicalAddress.class), endWorkflowStatusArgumentCaptor.capture()
         );
         Assertions.assertEquals(recIndex, recIndexCaptor.getValue());
         Assertions.assertEquals(iun, notificationCaptor.getValue().getIun());
@@ -112,7 +114,7 @@ public class TestUtils {
     }
 
     public static void checkSuccessDigitalWorkflow(String iun, Integer recIndex, TimelineService timelineService,
-                                                   CompletionWorkFlowHandler completionWorkflow, DigitalAddress address,
+                                                   CompletionWorkFlowHandler completionWorkflow, LegalDigitalAddressInt address,
                                                    int invocationsNumber, int invocation) {
         //Viene verificato che il workflow abbia avuto successo
         Assertions.assertTrue(timelineService.getTimelineElement(
@@ -126,7 +128,7 @@ public class TestUtils {
         ArgumentCaptor<EndWorkflowStatus> endWorkflowStatusArgumentCaptor = ArgumentCaptor.forClass(EndWorkflowStatus.class);
         ArgumentCaptor<Integer> recIndexCaptor = ArgumentCaptor.forClass(Integer.class);
         ArgumentCaptor<NotificationInt> notificationCaptor = ArgumentCaptor.forClass(NotificationInt.class);
-        ArgumentCaptor<DigitalAddress> addressCaptor = ArgumentCaptor.forClass(DigitalAddress.class);
+        ArgumentCaptor<LegalDigitalAddressInt> addressCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
 
         Mockito.verify(completionWorkflow, Mockito.times(invocationsNumber)).completionDigitalWorkflow(
                 notificationCaptor.capture(), recIndexCaptor.capture(), Mockito.any(Instant.class), addressCaptor.capture(),
@@ -135,7 +137,7 @@ public class TestUtils {
         List<EndWorkflowStatus> endWorkflowStatusArgumentCaptorValue = endWorkflowStatusArgumentCaptor.getAllValues();
         List<Integer> recIndexCaptorValue = recIndexCaptor.getAllValues();
         List<NotificationInt> notificationCaptorValue = notificationCaptor.getAllValues();
-        List<DigitalAddress> addressCaptorValue = addressCaptor.getAllValues();
+        List<LegalDigitalAddressInt> addressCaptorValue = addressCaptor.getAllValues();
 
         Assertions.assertEquals(recIndex, recIndexCaptorValue.get(invocation));
         Assertions.assertEquals(iun, notificationCaptorValue.get(invocation).getIun());
@@ -175,9 +177,9 @@ public class TestUtils {
                                 .build())).isPresent());
     }
 
-    public static void checkExternalChannelPecSend(String iun, String taxId, List<PnExtChnPecEvent> sendPecEvent, int sendTime, String address) {
-        Assertions.assertEquals(iun, sendPecEvent.get(sendTime).getPayload().getIun());
-        Assertions.assertEquals(taxId, sendPecEvent.get(sendTime).getPayload().getRecipientTaxId());
-        Assertions.assertEquals(address, sendPecEvent.get(sendTime).getPayload().getPecAddress());
+    public static void checkExternalChannelPecSend(String iunExpected, String addressExpected, String iunValue, String addressValue) {
+        Assertions.assertEquals(iunExpected, iunValue);
+        //Assertions.assertEquals(taxIdExpected, taxIdValue);
+        Assertions.assertEquals(addressExpected, addressValue);
     }
 }

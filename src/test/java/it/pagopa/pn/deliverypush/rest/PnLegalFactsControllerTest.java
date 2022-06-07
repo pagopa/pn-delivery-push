@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.rest;
 
-import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElement;
@@ -35,7 +34,7 @@ class PnLegalFactsControllerTest {
     @MockBean
     private LegalFactService legalFactService;
 
-    @Test @Disabled
+    @Test
     void getLegalFactsSuccess() {
         List<LegalFactListElement> legalFactsList = Collections.singletonList( LegalFactListElement.builder()
                         .iun( IUN )
@@ -66,17 +65,17 @@ class PnLegalFactsControllerTest {
         Mockito.verify( legalFactService ).getLegalFacts( Mockito.anyString() );
     }
 
-    @Test @Disabled
+    @Test
     void getLegalFactSuccess() {
 
         ResponseEntity<Resource> legalFactResult = ResponseEntity.ok()
                 .body( new InputStreamResource( InputStream.nullInputStream()) );
 
-        Mockito.when( legalFactService.getLegalfact( Mockito.anyString(), Mockito.any( LegalFactType.class ), Mockito.anyString() ) )
+        Mockito.when( legalFactService.getLegalfact( Mockito.anyString(), Mockito.eq(LegalFactCategory.SENDER_ACK), Mockito.anyString() ) )
                         .thenReturn( legalFactResult );
 
-        String uri = "/delivery-push/legalfacts/" + IUN + "/" + LegalFactType.SENDER_ACK + "/" + LEGAL_FACT_ID;
-        
+        String uri = "/delivery-push/legalfacts/" + IUN + "/" + LegalFactCategory.SENDER_ACK + "/" + LEGAL_FACT_ID;
+
         System.out.println("uri "+ uri);
         
         webTestClient.get()
@@ -86,6 +85,6 @@ class PnLegalFactsControllerTest {
                 .expectStatus()
                 .isOk();
 
-        Mockito.verify( legalFactService ).getLegalfact( Mockito.anyString(), Mockito.any( LegalFactType.class ), Mockito.anyString() );
+        Mockito.verify( legalFactService ).getLegalfact( Mockito.anyString(), Mockito.eq(LegalFactCategory.SENDER_ACK), Mockito.anyString() );
     }
 }

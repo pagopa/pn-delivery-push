@@ -50,7 +50,9 @@ public enum TimelineElementCategoryEntity {
 
     COMPLETELY_UNREACHABLE("COMPLETELY_UNREACHABLE"),
 
-    REQUEST_REFUSED("REQUEST_REFUSED");
+    REQUEST_REFUSED("REQUEST_REFUSED"),
+
+    AAR_GENERATION("AAR_GENERATION");
 
     private String value;
 

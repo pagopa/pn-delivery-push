@@ -8,6 +8,8 @@
     "RecipientTimeoutDelayDigital": "2m",
     "RefinementTimeCompletelyUnreachable": "4m",
     "WebhookScanInterval": "60000",
-    "WebhookMaxLength": "10"
+    "WebhookMaxLength": "10",
+    "SandboxSafeStorageBaseUrl": "https://non.anocora.disponibile",
+    "ExternalChannelBaseUrl": "https://non.anocora.disponibile"
   }
 }

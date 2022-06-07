@@ -3,9 +3,7 @@ package it.pagopa.pn.deliverypush.action2.utils;
 import it.pagopa.pn.api.dto.events.*;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
@@ -13,6 +11,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.CourtesyDigitalAddress;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -55,7 +54,7 @@ public class ExternalChannelUtils {
         return buildSendPecRequest(eventId, notification, recipient, digitalAddress);
     }
 
-    public void addSendDigitalNotificationToTimeline(NotificationInt notification, DigitalAddress digitalAddress, DigitalAddressSource addressSource, Integer recIndex, int sentAttemptMade, String eventId) {
+    public void addSendDigitalNotificationToTimeline(NotificationInt notification, LegalDigitalAddressInt digitalAddress, DigitalAddressSource addressSource, Integer recIndex, int sentAttemptMade, String eventId) {
         addTimelineElement(timelineUtils.buildSendDigitalNotificationTimelineElement(digitalAddress, addressSource, recIndex, notification, sentAttemptMade, eventId));
     }
 
@@ -73,7 +72,7 @@ public class ExternalChannelUtils {
                 courtesyAddress);
     }
 
-    public void addSendCourtesyMessageToTimeline(NotificationInt notification, DigitalAddress courtesyAddress, Integer recIndex, String eventId) {
+    public void addSendCourtesyMessageToTimeline(NotificationInt notification, CourtesyDigitalAddressInt courtesyAddress, Integer recIndex, String eventId) {
         addTimelineElement(timelineUtils.buildSendCourtesyMessageTimelineElement(recIndex, notification.getIun(), courtesyAddress, instantNowSupplier.get(), eventId));
     }
 

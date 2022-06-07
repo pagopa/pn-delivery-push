@@ -2,10 +2,11 @@ package it.pagopa.pn.deliverypush.action2.it;
 
 import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
 import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
-import it.pagopa.pn.commons.abstractions.FileData;
-import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.ConfidentialTimelineElementDto;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action2.*;
@@ -15,13 +16,17 @@ import it.pagopa.pn.deliverypush.action2.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action2.it.utils.PhysicalAddressBuilder;
 import it.pagopa.pn.deliverypush.action2.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action2.utils.*;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.*;
@@ -39,8 +44,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -66,6 +70,7 @@ import static it.pagopa.pn.deliverypush.action2.it.mockbean.ExternalChannelMock.
         LegalfactsMetadataUtils.class,
         DigitalWorkFlowUtils.class,
         CourtesyMessageUtils.class,
+        AarUtils.class,
         CompletelyUnreachableUtils.class,
         ExternalChannelUtils.class,
         AnalogWorkflowUtils.class,
@@ -115,9 +120,10 @@ class DigitalTestIT {
 
     @SpyBean
     private CompletionWorkFlowHandler completionWorkflow;
-    
+
+
     @SpyBean
-    private FileStorage fileStorage;
+    private PnSafeStorageClient safeStorageClientMock;
     
     @Autowired
     private PnDeliveryClientMock pnDeliveryClientMock;
@@ -139,10 +145,10 @@ class DigitalTestIT {
 
     @Autowired
     private PnDataVaultClientMock pnDataVaultClientMock;
-    
+
     @Autowired
     private NotificationViewedHandler notificationViewedHandler;
-    
+
     @Autowired
     private ChooseDeliveryModeHandler chooseDeliveryType;
 
@@ -156,19 +162,41 @@ class DigitalTestIT {
         times.setSchedulingDaysFailureAnalogRefinement(Duration.ofSeconds(1));
         times.setSecondNotificationWorkflowWaitingTime(Duration.ofSeconds(1));
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
+
+        PnDeliveryPushConfigs.ExternalChannel externalChannelCfg = new PnDeliveryPushConfigs.ExternalChannel();
+        externalChannelCfg.setAnalogCodesFail(List.of("__005__","__006__","__008__","__009__"));
+        externalChannelCfg.setAnalogCodesSuccess(List.of("__004__","__007__"));
+        externalChannelCfg.setAnalogCodesProgress(List.of("__001__","__002__","__003__"));
+        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(externalChannelCfg);
+
+
         PnDeliveryPushConfigs.Webapp webapp = new PnDeliveryPushConfigs.Webapp();
         webapp.setDirectAccessUrlTemplate("test");
         Mockito.when(pnDeliveryPushConfigs.getWebapp()).thenReturn(webapp);
 
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
-        FileData fileData = FileData.builder()
-                .content( new ByteArrayInputStream("Body".getBytes(StandardCharsets.UTF_8)) )
-                .build();
+        //File mock to return for getFileAndDownloadContent
+        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
+        fileDownloadResponse.setContentType("application/pdf");
+        fileDownloadResponse.setContentLength(new BigDecimal(0));
+        fileDownloadResponse.setChecksum("123");
+        fileDownloadResponse.setKey("123");
+        fileDownloadResponse.setDownload(new FileDownloadInfo());
+        fileDownloadResponse.getDownload().setUrl("https://www.url.qualcosa.it");
+        fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
 
-        // Given
-        Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
-                .thenReturn( fileData );
+
+        FileCreationResponse fileCreationResponse = new FileCreationResponse();
+        fileCreationResponse.setKey("123");
+        fileCreationResponse.setSecret("abc");
+        fileCreationResponse.setUploadUrl("https://www.unqualcheurl.it");
+        fileCreationResponse.setUploadMethod(FileCreationResponse.UploadMethodEnum.POST);
+
+
+        Mockito.when( safeStorageClientMock.getFile( Mockito.anyString(), Mockito.anyBoolean()))
+                .thenReturn( fileDownloadResponse );
+        Mockito.when( safeStorageClientMock.createAndUploadContent(Mockito.any())).thenReturn(fileCreationResponse);
 
         pnDeliveryClientMock.clear();
         addressBookMock.clear();
@@ -188,19 +216,19 @@ class DigitalTestIT {
        - Simulata visualizzazione notifica in fase di SEND_COURTESY_MESSAGE (Ottenuto valorizzando il tax id con TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION)
         */
 
-        DigitalAddress platformAddress = DigitalAddress.builder()
+        LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
                 .address("platformAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        DigitalAddress digitalDomicile = DigitalAddress.builder()
+        LegalDigitalAddressInt digitalDomicile = LegalDigitalAddressInt.builder()
                 .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        DigitalAddress pbDigitalAddress = DigitalAddress.builder()
+        LegalDigitalAddressInt pbDigitalAddress = LegalDigitalAddressInt.builder()
                 .address("pbDigitalAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
         String iun = "IUN01";
@@ -211,7 +239,7 @@ class DigitalTestIT {
                 .index(0)
                 .build()
         );
-        
+
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId)
                 .withDigitalDomicile(digitalDomicile)
@@ -229,9 +257,10 @@ class DigitalTestIT {
                 .build();
 
         addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
-        
-        List<DigitalAddress> listCourtesyAddress = Collections.singletonList(DigitalAddress.builder()
-                .address("test@mail.it")
+
+        List<CourtesyDigitalAddressInt> listCourtesyAddress = Collections.singletonList(CourtesyDigitalAddressInt.builder()
+                .address("test@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL)
                 .build());
         addressBookMock.addCourtesyDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), listCourtesyAddress);
 
@@ -239,10 +268,10 @@ class DigitalTestIT {
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
-        
+
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
-        
+
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
@@ -252,36 +281,38 @@ class DigitalTestIT {
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
 
-        //Viene verificato il numero di send PEC verso external channel
-        ArgumentCaptor<PnExtChnPecEvent> pnExtChnPecEventCaptor = ArgumentCaptor.forClass(PnExtChnPecEvent.class);
-        Mockito.verify(externalChannelMock, Mockito.times(6)).sendNotification(pnExtChnPecEventCaptor.capture());
 
-        List<PnExtChnPecEvent> sendPecEvent = pnExtChnPecEventCaptor.getAllValues();
+        //Viene verificato il numero di send PEC verso external channel
+        ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
+        ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
+        Mockito.verify(externalChannelMock, Mockito.times(6)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
+        List<NotificationInt> notificationIntsEvents = notificationIntEventCaptor.getAllValues();
+        List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
+
 
         //Viene verificato che il primo tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 0, platformAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, platformAddress.getAddress(), notificationIntsEvents.get(0).getIun(), digitalAddressesEvents.get(0).getAddress());
         //Viene verificato che il secondo tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 1, digitalDomicile.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, digitalDomicile.getAddress(), notificationIntsEvents.get(1).getIun(), digitalAddressesEvents.get(1).getAddress());
         //Viene verificato che il secondo tentativo sia avvenuto con l'indirizzo fornito dai registri pubblici
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 2, pbDigitalAddress.getAddress());
-
+        TestUtils.checkExternalChannelPecSend(iun, pbDigitalAddress.getAddress(), notificationIntsEvents.get(2).getIun(), digitalAddressesEvents.get(2).getAddress());
         //Viene verificato che il quarto tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 3, platformAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, platformAddress.getAddress(), notificationIntsEvents.get(3).getIun(), digitalAddressesEvents.get(3).getAddress());
         //Viene verificato che il quinto tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 4, digitalDomicile.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, digitalDomicile.getAddress(), notificationIntsEvents.get(4).getIun(), digitalAddressesEvents.get(4).getAddress());
         //Viene verificato che il sesto tentativo sia avvenuto con l'indirizzo fornito dai registri pubblici
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 5, pbDigitalAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, pbDigitalAddress.getAddress(), notificationIntsEvents.get(5).getIun(), digitalAddressesEvents.get(5).getAddress());
 
         //Viene verificato che il workflow abbia avuto successo
         TestUtils.checkFailDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow);
 
         //Viene verificato il mancato invio della registered letter, dal momento che non è presente la notifica è stata già visualizzata
-        Mockito.verify(externalChannelMock, Mockito.never()).sendNotification(Mockito.any(PnExtChnPaperEvent.class));
-        
+        Mockito.verify(externalChannelMock, Mockito.never()).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddress.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+
         //Viene verificato che sia avvenuto il perfezionamento
         TestUtils.checkRefinement(iun, recIndex, timelineService);
     }
-    
+
     @Test
     void completeFailWithRegisteredLetter() {
         
@@ -291,21 +322,21 @@ class DigitalTestIT {
        - General address presente e invio fallito per entrambi gli invii (Ottenuto non valorizzando il pbDigitalAddress per il recipient in PUB_REGISTRY_DIGITAL con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
         */
 
-        DigitalAddress platformAddress = DigitalAddress.builder()
+        LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
                 .address("platformAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        DigitalAddress digitalDomicile = DigitalAddress.builder()
+        LegalDigitalAddressInt digitalDomicile = LegalDigitalAddressInt.builder()
                 .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        DigitalAddress pbDigitalAddress = DigitalAddress.builder()
+        LegalDigitalAddressInt pbDigitalAddress = LegalDigitalAddressInt.builder()
                 .address("pbDigitalAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
-        
+
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId("TAXID01")
                 .withDigitalDomicile(digitalDomicile)
@@ -318,7 +349,6 @@ class DigitalTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun("IUN01")
-                .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
 
@@ -343,62 +373,67 @@ class DigitalTestIT {
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
-        ArgumentCaptor<PnExtChnPecEvent> pnExtChnPecEventCaptor = ArgumentCaptor.forClass(PnExtChnPecEvent.class);
-        Mockito.verify(externalChannelMock, Mockito.times(6)).sendNotification(pnExtChnPecEventCaptor.capture());
+        ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
+        ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
+        Mockito.verify(externalChannelMock, Mockito.times(6)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
 
-        List<PnExtChnPecEvent> sendPecEvent = pnExtChnPecEventCaptor.getAllValues();
+        List<NotificationInt> notificationIntsEvents = notificationIntEventCaptor.getAllValues();
+        List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
 
         //Viene verificato che il primo tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 0, platformAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, platformAddress.getAddress(), notificationIntsEvents.get(0).getIun(), digitalAddressesEvents.get(0).getAddress());
         //Viene verificato che il secondo tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 1, digitalDomicile.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, digitalDomicile.getAddress(), notificationIntsEvents.get(1).getIun(), digitalAddressesEvents.get(1).getAddress());
         //Viene verificato che il secondo tentativo sia avvenuto con l'indirizzo fornito dai registri pubblici
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 2, pbDigitalAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, pbDigitalAddress.getAddress(), notificationIntsEvents.get(2).getIun(), digitalAddressesEvents.get(2).getAddress());
 
         //Viene verificato che il quarto tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 3, platformAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, platformAddress.getAddress(), notificationIntsEvents.get(3).getIun(), digitalAddressesEvents.get(3).getAddress());
         //Viene verificato che il quinto tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 4, digitalDomicile.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, digitalDomicile.getAddress(), notificationIntsEvents.get(4).getIun(), digitalAddressesEvents.get(4).getAddress());
         //Viene verificato che il sesto tentativo sia avvenuto con l'indirizzo fornito dai registri pubblici
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 5, pbDigitalAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, pbDigitalAddress.getAddress(), notificationIntsEvents.get(5).getIun(), digitalAddressesEvents.get(5).getAddress());
 
         //Viene verificato che il workflow abbia avuto successo
         TestUtils.checkFailDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow);
 
         //Viene verificato l'invio della registered letter
-        ArgumentCaptor<PnExtChnPaperEvent> pnExtChnPaperEventCaptor = ArgumentCaptor.forClass(PnExtChnPaperEvent.class);
-        Mockito.verify(externalChannelMock).sendNotification(pnExtChnPaperEventCaptor.capture());
-        PnExtChnPaperEvent extChnPaperEvent = pnExtChnPaperEventCaptor.getValue();
+        ArgumentCaptor<PhysicalAddress> pnPhysicalAddressArgumentCaptor = ArgumentCaptor.forClass(PhysicalAddress.class);
+        ArgumentCaptor<NotificationInt> pnNotificationIntArgumentCaptor = ArgumentCaptor.forClass(NotificationInt.class);
 
-        Assertions.assertEquals(iun, extChnPaperEvent.getPayload().getIun());
-        Assertions.assertEquals(recipient.getPhysicalAddress().getAddress(), extChnPaperEvent.getPayload().getDestinationAddress().getAddress());
+        Mockito.verify(externalChannelMock).sendAnalogNotification(pnNotificationIntArgumentCaptor.capture(), Mockito.any(NotificationRecipientInt.class), pnPhysicalAddressArgumentCaptor.capture(), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+        PhysicalAddress physicalAddress = pnPhysicalAddressArgumentCaptor.getValue();
+        NotificationInt notificationInt = pnNotificationIntArgumentCaptor.getValue();
+
+        Assertions.assertEquals(iun, notificationInt.getIun());
+        Assertions.assertEquals(recipient.getPhysicalAddress().getAddress(), physicalAddress.getAddress());
 
         //Viene verificato che sia avvenuto il perfezionamento
         TestUtils.checkRefinement(iun, recIndex, timelineService);
     }
-    
+
     @Test
     void completeFailWithoutRegisteredLetter() {
-        
+
         /*
        - Platform address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
        - Special address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il digitalDomicile del recipient con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
        - General address presente e invio fallito per entrambi gli invii (Ottenuto non valorizzando il pbDigitalAddress per il recipient in PUB_REGISTRY_DIGITAL con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
         */
 
-        DigitalAddress platformAddress = DigitalAddress.builder()
+        LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
                 .address("platformAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        DigitalAddress digitalDomicile = DigitalAddress.builder()
+        LegalDigitalAddressInt digitalDomicile = LegalDigitalAddressInt.builder()
                 .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        DigitalAddress pbDigitalAddress = DigitalAddress.builder()
+        LegalDigitalAddressInt pbDigitalAddress = LegalDigitalAddressInt.builder()
                 .address("pbDigitalAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
@@ -411,18 +446,18 @@ class DigitalTestIT {
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
-        
+
         addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
         pnDeliveryClientMock.addNotification(notification);
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
-        
+
         String iun = notification.getIun();
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
-        
+
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
@@ -433,30 +468,32 @@ class DigitalTestIT {
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
-        ArgumentCaptor<PnExtChnPecEvent> pnExtChnPecEventCaptor = ArgumentCaptor.forClass(PnExtChnPecEvent.class);
-        Mockito.verify(externalChannelMock, Mockito.times(6)).sendNotification(pnExtChnPecEventCaptor.capture());
+        ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
+        ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
+        Mockito.verify(externalChannelMock, Mockito.times(6)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
 
-        List<PnExtChnPecEvent> sendPecEvent = pnExtChnPecEventCaptor.getAllValues();
+        List<NotificationInt> notificationIntsEvents = notificationIntEventCaptor.getAllValues();
+        List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
 
         //Viene verificato che il primo tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 0, platformAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, platformAddress.getAddress(), notificationIntsEvents.get(0).getIun(), digitalAddressesEvents.get(0).getAddress());
         //Viene verificato che il secondo tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 1, digitalDomicile.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, digitalDomicile.getAddress(), notificationIntsEvents.get(1).getIun(), digitalAddressesEvents.get(1).getAddress());
         //Viene verificato che il secondo tentativo sia avvenuto con l'indirizzo fornito dai registri pubblici
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 2, pbDigitalAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, pbDigitalAddress.getAddress(), notificationIntsEvents.get(2).getIun(), digitalAddressesEvents.get(2).getAddress());
 
         //Viene verificato che il quarto tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 3, platformAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, platformAddress.getAddress(), notificationIntsEvents.get(3).getIun(), digitalAddressesEvents.get(3).getAddress());
         //Viene verificato che il quinto tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 4, digitalDomicile.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, digitalDomicile.getAddress(), notificationIntsEvents.get(4).getIun(), digitalAddressesEvents.get(4).getAddress());
         //Viene verificato che il sesto tentativo sia avvenuto con l'indirizzo fornito dai registri pubblici
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 5, pbDigitalAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, pbDigitalAddress.getAddress(), notificationIntsEvents.get(5).getIun(), digitalAddressesEvents.get(5).getAddress());
 
         //Viene verificato che il workflow abbia avuto successo
         TestUtils.checkFailDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow);
 
         //Viene verificato il mancato invio della registered letter, dal momento che non è presente il physicalAddress per il recipient
-        Mockito.verify(externalChannelMock, Mockito.never()).sendNotification(Mockito.any(PnExtChnPaperEvent.class));
+        Mockito.verify(externalChannelMock, Mockito.never()).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddress.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
 
         //Viene verificato che sia avvenuto il perfezionamento
         TestUtils.checkRefinement(iun, recIndex, timelineService);
@@ -471,9 +508,9 @@ class DigitalTestIT {
        - General presente ed primo invio avvenuto con successo (Ottenuto valorizzando il digital address per il recipient in PUB_REGISTRY_DIGITAL con )
     */
 
-        DigitalAddress pbDigitalAddress = DigitalAddress.builder()
+        LegalDigitalAddressInt pbDigitalAddress = LegalDigitalAddressInt.builder()
                 .address("pbDigitalAddress@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
@@ -501,11 +538,13 @@ class DigitalTestIT {
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
-        ArgumentCaptor<PnExtChnPecEvent> pnExtChnPecEventCaptor = ArgumentCaptor.forClass(PnExtChnPecEvent.class);
-        Mockito.verify(externalChannelMock, Mockito.times(1)).sendNotification(pnExtChnPecEventCaptor.capture());
-        List<PnExtChnPecEvent> sendPecEvent = pnExtChnPecEventCaptor.getAllValues();
+        ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
+        ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
+        Mockito.verify(externalChannelMock, Mockito.times(1)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
+        List<NotificationInt> notificationIntsEvents = notificationIntEventCaptor.getAllValues();
+        List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
 
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 0, pbDigitalAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, pbDigitalAddress.getAddress(), notificationIntsEvents.get(0).getIun(), digitalAddressesEvents.get(0).getAddress());
 
         //Viene verificato che il workflow abbia avuto successo
         TestUtils.checkSuccessDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow, pbDigitalAddress, 1, 0);
@@ -529,9 +568,9 @@ class DigitalTestIT {
     */
 
 
-        final DigitalAddress digitalDomicile = DigitalAddress.builder()
+        final LegalDigitalAddressInt digitalDomicile = LegalDigitalAddressInt.builder()
                 .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
         final NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
@@ -558,13 +597,13 @@ class DigitalTestIT {
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
-        ArgumentCaptor<PnExtChnPecEvent> pnExtChnPecEventCaptor = ArgumentCaptor.forClass(PnExtChnPecEvent.class);
-        Mockito.verify(externalChannelMock, Mockito.times(1)).sendNotification(pnExtChnPecEventCaptor.capture());
+        ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
+        ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
+        Mockito.verify(externalChannelMock, Mockito.times(1)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
+        List<NotificationInt> notificationIntsEvents = notificationIntEventCaptor.getAllValues();
+        List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
 
-        List<PnExtChnPecEvent> sendPecEvent = pnExtChnPecEventCaptor.getAllValues();
-
-        //Viene verificato che il primo tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 0, digitalDomicile.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, digitalDomicile.getAddress(), notificationIntsEvents.get(0).getIun(), digitalAddressesEvents.get(0).getAddress());
 
         //Viene verificato che il workflow abbia avuto successo
         TestUtils.checkSuccessDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow, digitalDomicile, 1, 0);
@@ -581,19 +620,19 @@ class DigitalTestIT {
        - Special address presente e primo invio con fallimento (Ottenuto valorizzando il digitalDomicile del recipient con ExternalChannelMock.EXT_CHANNEL_WORKS)
        - General address presente e primo invio con successo (Ottenuto valorizzando digital address per il recipient in ExternalChannelMock.EXT_CHANNEL_WORKS)
     */
-        final DigitalAddress platformAddress = DigitalAddress.builder()
+        final LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
                 .address("test@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        final DigitalAddress digitalDomicile = DigitalAddress.builder()
+        final LegalDigitalAddressInt digitalDomicile = LegalDigitalAddressInt.builder()
                 .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        final DigitalAddress pbDigitalAddress = DigitalAddress.builder()
+        final LegalDigitalAddressInt pbDigitalAddress = LegalDigitalAddressInt.builder()
                 .address("pbDigitalAddress@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
         final NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
@@ -623,16 +662,17 @@ class DigitalTestIT {
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
-        ArgumentCaptor<PnExtChnPecEvent> pnExtChnPecEventCaptor = ArgumentCaptor.forClass(PnExtChnPecEvent.class);
-        Mockito.verify(externalChannelMock, Mockito.times(3)).sendNotification(pnExtChnPecEventCaptor.capture());
-
-        List<PnExtChnPecEvent> sendPecEvent = pnExtChnPecEventCaptor.getAllValues();
+        ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
+        ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
+        Mockito.verify(externalChannelMock, Mockito.times(3)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
+        List<NotificationInt> notificationIntsEvents = notificationIntEventCaptor.getAllValues();
+        List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
 
         //Viene verificato che il primo tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 0, platformAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, platformAddress.getAddress(), notificationIntsEvents.get(0).getIun(), digitalAddressesEvents.get(0).getAddress());
         //Viene verificato che il secondo tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 1, digitalDomicile.getAddress());
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 2, pbDigitalAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, digitalDomicile.getAddress(), notificationIntsEvents.get(1).getIun(), digitalAddressesEvents.get(1).getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, pbDigitalAddress.getAddress(), notificationIntsEvents.get(2).getIun(), digitalAddressesEvents.get(2).getAddress());
 
         //Viene verificato che il workflow abbia avuto successo
         TestUtils.checkSuccessDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow, pbDigitalAddress, 1, 0);
@@ -648,9 +688,9 @@ class DigitalTestIT {
        - Special address vuoto (Ottenuto non valorizzando il digitalDomicile del recipient)
        - General address vuoto (Ottenuto non valorizzando nessun digital address per il recipient in PUB_REGISTRY_DIGITAL)
     */
-        DigitalAddress platformAddress = DigitalAddress.builder()
+        LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
                 .address("test@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
@@ -662,7 +702,7 @@ class DigitalTestIT {
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
-        
+
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
@@ -675,7 +715,7 @@ class DigitalTestIT {
         //Viene verificata la presenza dell'indirizzo di piattaforma
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         //Viene verificato che sia stata effettuata una sola chiamata ad external channel
-        Mockito.verify(externalChannelMock, Mockito.times(1)).sendNotification(Mockito.any(PnExtChnPecEvent.class));
+        Mockito.verify(externalChannelMock, Mockito.times(1)).sendLegalNotification(Mockito.any(NotificationInt.class), Mockito.any(), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString());
 
         //Viene verificato che il workflow abbia avuto successo
         TestUtils.checkSuccessDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow, platformAddress, 1, 0);
@@ -691,14 +731,14 @@ class DigitalTestIT {
        - Special address presente e primo invio con successo (Ottenuto valorizzando il digitalDomicile del recipient con ExternalChannelMock.EXT_CHANNEL_WORKS)
        - General address vuoto (Ottenuto non valorizzando nessun digital address per il recipient in PUB_REGISTRY_DIGITAL)
     */
-        DigitalAddress platformAddress = DigitalAddress.builder()
+        LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
                 .address("test@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        DigitalAddress digitalDomicile = DigitalAddress.builder()
+        LegalDigitalAddressInt digitalDomicile = LegalDigitalAddressInt.builder()
                 .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
@@ -726,15 +766,17 @@ class DigitalTestIT {
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
-        ArgumentCaptor<PnExtChnPecEvent> pnExtChnPecEventCaptor = ArgumentCaptor.forClass(PnExtChnPecEvent.class);
-        Mockito.verify(externalChannelMock, Mockito.times(2)).sendNotification(pnExtChnPecEventCaptor.capture());
+        ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
+        ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
+        Mockito.verify(externalChannelMock, Mockito.times(2)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
+        List<NotificationInt> notificationIntsEvents = notificationIntEventCaptor.getAllValues();
+        List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
 
-        List<PnExtChnPecEvent> sendPecEvent = pnExtChnPecEventCaptor.getAllValues();
 
         //Viene verificato che il primo tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 0, platformAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, platformAddress.getAddress(), notificationIntsEvents.get(0).getIun(), digitalAddressesEvents.get(0).getAddress());
         //Viene verificato che il secondo tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 1, digitalDomicile.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, digitalDomicile.getAddress(), notificationIntsEvents.get(1).getIun(), digitalAddressesEvents.get(1).getAddress());
 
         //Viene verificato che il workflow abbia avuto successo
         TestUtils.checkSuccessDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow, digitalDomicile, 1, 0);
@@ -750,20 +792,20 @@ class DigitalTestIT {
        - Special address presente fallimento sia primo che secondo tentativo (Ottenuto valorizzando il digitaldomicile con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
        - General address successo (Ottenuto valorizzando il digitaladdress con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST per il recipient in PUB_REGISTRY_DIGITAL)
     */
-        DigitalAddress platformAddress = DigitalAddress.builder()
+        LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
                 .address("test@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
 
-        DigitalAddress digitalDomicile = DigitalAddress.builder()
+        LegalDigitalAddressInt digitalDomicile = LegalDigitalAddressInt.builder()
                 .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        DigitalAddress pbDigitalAddress = DigitalAddress.builder()
+        LegalDigitalAddressInt pbDigitalAddress = LegalDigitalAddressInt.builder()
                 .address("pbDigitalAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
@@ -797,23 +839,25 @@ class DigitalTestIT {
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
-        ArgumentCaptor<PnExtChnPecEvent> pnExtChnPecEventCaptor = ArgumentCaptor.forClass(PnExtChnPecEvent.class);
-        Mockito.verify(externalChannelMock, Mockito.times(6)).sendNotification(pnExtChnPecEventCaptor.capture());
+        ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
+        ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
+        Mockito.verify(externalChannelMock, Mockito.times(6)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
+        List<NotificationInt> notificationIntsEvents = notificationIntEventCaptor.getAllValues();
+        List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
 
-        List<PnExtChnPecEvent> sendPecEvent = pnExtChnPecEventCaptor.getAllValues();
 
         //Viene verificato che il primo tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 0, platformAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, platformAddress.getAddress(), notificationIntsEvents.get(0).getIun(), digitalAddressesEvents.get(0).getAddress());
         //Viene verificato che il secondo tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 1, digitalDomicile.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, digitalDomicile.getAddress(), notificationIntsEvents.get(1).getIun(), digitalAddressesEvents.get(1).getAddress());
         //Viene verificato che il secondo tentativo sia avvenuto con l'indirizzo fornito dai registri pubblici
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 2, pbDigitalAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, pbDigitalAddress.getAddress(), notificationIntsEvents.get(2).getIun(), digitalAddressesEvents.get(2).getAddress());
         //Viene verificato che il quarto tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 3, platformAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, platformAddress.getAddress(), notificationIntsEvents.get(3).getIun(), digitalAddressesEvents.get(3).getAddress());
         //Viene verificato che il quinto tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 4, digitalDomicile.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, digitalDomicile.getAddress(), notificationIntsEvents.get(4).getIun(), digitalAddressesEvents.get(4).getAddress());
         //Viene verificato che il sesto tentativo sia avvenuto con l'indirizzo fornito dai registri pubblici
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 5, pbDigitalAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, pbDigitalAddress.getAddress(), notificationIntsEvents.get(5).getIun(), digitalAddressesEvents.get(5).getAddress());
 
         //Viene verificato che il workflow abbia avuto successo
         TestUtils.checkSuccessDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow, pbDigitalAddress, 1, 0);
@@ -834,20 +878,20 @@ class DigitalTestIT {
        - Special address presente e fallimento primo tentativo (Ottenuto valorizzando il digitaldomicile con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
        - General address presente e fallimento primo tentativo (Ottenuto non valorizzando il digitaladdress con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST  per il recipient in PUB_REGISTRY_DIGITAL)
     */
-        
-        DigitalAddress platformAddress = DigitalAddress.builder()
+
+        LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
                 .address("test@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        DigitalAddress digitalDomicile = DigitalAddress.builder()
+        LegalDigitalAddressInt digitalDomicile = LegalDigitalAddressInt.builder()
                 .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        DigitalAddress pbDigitalAddress = DigitalAddress.builder()
+        LegalDigitalAddressInt pbDigitalAddress = LegalDigitalAddressInt.builder()
                 .address("pbDigitalAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
@@ -879,19 +923,22 @@ class DigitalTestIT {
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
-        ArgumentCaptor<PnExtChnPecEvent> pnExtChnPecEventCaptor = ArgumentCaptor.forClass(PnExtChnPecEvent.class);
-        Mockito.verify(externalChannelMock, Mockito.times(4)).sendNotification(pnExtChnPecEventCaptor.capture());
+        ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
+        ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
+        Mockito.verify(externalChannelMock, Mockito.times(4)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
+        List<NotificationInt> notificationIntsEvents = notificationIntEventCaptor.getAllValues();
+        List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
 
-        List<PnExtChnPecEvent> sendPecEvent = pnExtChnPecEventCaptor.getAllValues();
 
         //Viene verificato che il primo tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 0, platformAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, platformAddress.getAddress(), notificationIntsEvents.get(0).getIun(), digitalAddressesEvents.get(0).getAddress());
         //Viene verificato che il secondo tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 1, digitalDomicile.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, digitalDomicile.getAddress(), notificationIntsEvents.get(1).getIun(), digitalAddressesEvents.get(1).getAddress());
         //Viene verificato che il secondo tentativo sia avvenuto con l'indirizzo fornito dai registri pubblici
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 2, pbDigitalAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, pbDigitalAddress.getAddress(), notificationIntsEvents.get(2).getIun(), digitalAddressesEvents.get(2).getAddress());
         //Viene verificato che il quarto tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 3, platformAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, platformAddress.getAddress(), notificationIntsEvents.get(3).getIun(), digitalAddressesEvents.get(3).getAddress());
+
 
         //Viene verificato che il workflow abbia avuto successo
         TestUtils.checkSuccessDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow, platformAddress, 1, 0);
@@ -907,19 +954,19 @@ class DigitalTestIT {
        - Special address presente fallimento primo tentativo successo secondo tentativo (Ottenuto valorizzando il digitaldomicile con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
        - General address presente fallimento primo tentativo (Ottenuto valorizzando il digitaladdress con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST  per il recipient in PUB_REGISTRY_DIGITAL)
     */
-        DigitalAddress platformAddress = DigitalAddress.builder()
+        LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
                 .address("test@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        DigitalAddress digitalDomicile = DigitalAddress.builder()
+        LegalDigitalAddressInt digitalDomicile = LegalDigitalAddressInt.builder()
                 .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        DigitalAddress pbDigitalAddress = DigitalAddress.builder()
+        LegalDigitalAddressInt pbDigitalAddress = LegalDigitalAddressInt.builder()
                 .address("pbDigitalAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
@@ -932,7 +979,7 @@ class DigitalTestIT {
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
-        
+
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
@@ -952,21 +999,24 @@ class DigitalTestIT {
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
-        ArgumentCaptor<PnExtChnPecEvent> pnExtChnPecEventCaptor = ArgumentCaptor.forClass(PnExtChnPecEvent.class);
-        Mockito.verify(externalChannelMock, Mockito.times(5)).sendNotification(pnExtChnPecEventCaptor.capture());
+        ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
+        ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
+        Mockito.verify(externalChannelMock, Mockito.times(5)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
+        List<NotificationInt> notificationIntsEvents = notificationIntEventCaptor.getAllValues();
+        List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
 
-        List<PnExtChnPecEvent> sendPecEvent = pnExtChnPecEventCaptor.getAllValues();
 
         //Viene verificato che il primo tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 0, platformAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, platformAddress.getAddress(), notificationIntsEvents.get(0).getIun(), digitalAddressesEvents.get(0).getAddress());
         //Viene verificato che il secondo tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 1, digitalDomicile.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, digitalDomicile.getAddress(), notificationIntsEvents.get(1).getIun(), digitalAddressesEvents.get(1).getAddress());
         //Viene verificato che il secondo tentativo sia avvenuto con l'indirizzo fornito dai registri pubblici
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 2, pbDigitalAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, pbDigitalAddress.getAddress(), notificationIntsEvents.get(2).getIun(), digitalAddressesEvents.get(2).getAddress());
         //Viene verificato che il quarto tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 3, platformAddress.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, platformAddress.getAddress(), notificationIntsEvents.get(3).getIun(), digitalAddressesEvents.get(3).getAddress());
         //Viene verificato che il quinto tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, recipient.getTaxId(), sendPecEvent, 4, digitalDomicile.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, digitalDomicile.getAddress(), notificationIntsEvents.get(4).getIun(), digitalAddressesEvents.get(4).getAddress());
+
 
         //Viene verificato che il workflow abbia avuto successo
         TestUtils.checkSuccessDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow, digitalDomicile, 1, 0);
@@ -990,14 +1040,14 @@ class DigitalTestIT {
     */
 
         //Primo Recipient
-        DigitalAddress platformAddress1 = DigitalAddress.builder()
+        LegalDigitalAddressInt platformAddress1 = LegalDigitalAddressInt.builder()
                 .address("test1@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        DigitalAddress digitalDomicile1 = DigitalAddress.builder()
+        LegalDigitalAddressInt digitalDomicile1 = LegalDigitalAddressInt.builder()
                 .address("digitalDomicile1@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
         NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder()
@@ -1006,14 +1056,14 @@ class DigitalTestIT {
                 .build();
 
         //Secondo recipient
-        DigitalAddress platformAddress2 = DigitalAddress.builder()
+        LegalDigitalAddressInt platformAddress2 = LegalDigitalAddressInt.builder()
                 .address("test2@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        DigitalAddress digitalDomicile2 = DigitalAddress.builder()
+        LegalDigitalAddressInt digitalDomicile2 = LegalDigitalAddressInt.builder()
                 .address("digitalDomicile2@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
         NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder()
@@ -1049,15 +1099,17 @@ class DigitalTestIT {
         TestUtils.checkGetAddress(iun, recIndex2, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
-        ArgumentCaptor<PnExtChnPecEvent> pnExtChnPecEventCaptor = ArgumentCaptor.forClass(PnExtChnPecEvent.class);
-        Mockito.verify(externalChannelMock, Mockito.times(6)).sendNotification(pnExtChnPecEventCaptor.capture());
+        ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
+        ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
+        Mockito.verify(externalChannelMock, Mockito.times(6)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
+        List<NotificationInt> notificationIntsEvents = notificationIntEventCaptor.getAllValues();
+        List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
 
-        List<PnExtChnPecEvent> sendPecEvent = pnExtChnPecEventCaptor.getAllValues();
 
         //Viene verificato per il primo recipient che il primo tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, recipient1.getTaxId(), sendPecEvent, 0, platformAddress1.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, platformAddress1.getAddress(), notificationIntsEvents.get(0).getIun(), digitalAddressesEvents.get(0).getAddress());
         //Viene verificato per il primo recipient che il secondo tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, recipient1.getTaxId(), sendPecEvent, 1, digitalDomicile1.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, digitalDomicile1.getAddress(), notificationIntsEvents.get(1).getIun(), digitalAddressesEvents.get(1).getAddress());
 
         //Viene verificato per il primo recipient che il workflow abbia avuto successo
         TestUtils.checkSuccessDigitalWorkflow(iun, recIndex1, timelineService, completionWorkflow, digitalDomicile1, 2, 0);
@@ -1066,13 +1118,14 @@ class DigitalTestIT {
         TestUtils.checkRefinement(iun, recIndex1, timelineService);
 
         //Viene verificato per il secondo recipient che il primo tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, recipient2.getTaxId(), sendPecEvent, 2, platformAddress2.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, platformAddress2.getAddress(), notificationIntsEvents.get(2).getIun(), digitalAddressesEvents.get(2).getAddress());
         //Viene verificato per il secondo recipient che il secondo tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, recipient2.getTaxId(), sendPecEvent, 3, digitalDomicile2.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, digitalDomicile2.getAddress(), notificationIntsEvents.get(3).getIun(), digitalAddressesEvents.get(3).getAddress());
         //Viene verificato per il secondo recipient che il terzo tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, recipient2.getTaxId(), sendPecEvent, 2, platformAddress2.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, platformAddress2.getAddress(), notificationIntsEvents.get(4).getIun(), digitalAddressesEvents.get(4).getAddress());
         //Viene verificato per il secondo recipient che il quarto tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, recipient2.getTaxId(), sendPecEvent, 3, digitalDomicile2.getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, digitalDomicile2.getAddress(), notificationIntsEvents.get(5).getIun(), digitalAddressesEvents.get(5).getAddress());
+
 
         //Viene verificato per il secondo recipient che il workflow abbia avuto successo
         TestUtils.checkSuccessDigitalWorkflow(iun, recIndex2, timelineService, completionWorkflow, digitalDomicile2, 2, 1);

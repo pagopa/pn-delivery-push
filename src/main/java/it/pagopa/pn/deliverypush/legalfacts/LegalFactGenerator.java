@@ -24,6 +24,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class LegalFactGenerator {
 
+    public static final String FIELD_SEND_DATE = "sendDate";
+    public static final String FIELD_SEND_DATE_NO_TIME = "sendDateNoTime";
+    public static final String FIELD_NOTIFICATION = "notification";
+    public static final String FIELD_DIGESTS = "digests";
+    public static final String FIELD_ADDRESS_WRITER = "addressWriter";
+    public static final String FIELD_SIGNATURE = "signature";
+    public static final String FIELD_TIME_REFERENCE = "timeReference";
+    public static final String FIELD_PDF_FILE_NAME = "pdfFileName";
+    public static final String FIELD_IUN = "iun";
+    public static final String FIELD_DELIVERIES = "deliveries";
+    public static final String FIELD_RECIPIENT = "recipient";
+    public static final String FIELD_WHEN = "when";
     private final DocumentComposition documentComposition;
     private final CustomInstantWriter instantWriter;
     private final PhysicalAddressWriter physicalAddressWriter;
@@ -42,9 +54,9 @@ public class LegalFactGenerator {
     public byte[] generateNotificationReceivedLegalFact(NotificationInt notification) throws IOException {
 
         Map<String, Object> templateModel = new HashMap<>();
-        templateModel.put("sendDate", instantWriter.instantToDate( notification.getSentAt() ) );
-        templateModel.put("sendDateNoTime", instantWriter.instantToDate( notification.getSentAt(), true ) );
-        templateModel.put("notification", notification.toBuilder()
+        templateModel.put(FIELD_SEND_DATE, instantWriter.instantToDate( notification.getSentAt() ) );
+        templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( notification.getSentAt(), true ) );
+        templateModel.put(FIELD_NOTIFICATION, notification.toBuilder()
                 .sender( notification.getSender().toBuilder()
                         .paDenomination( notification.getSender().getPaDenomination() )
                         .paTaxId( notification.getSender().getPaTaxId())
@@ -52,8 +64,8 @@ public class LegalFactGenerator {
                 )
                 .build()
             );
-        templateModel.put("digests", extractNotificationAttachmentDigests( notification ) );
-        templateModel.put("addressWriter", this.physicalAddressWriter );
+        templateModel.put(FIELD_DIGESTS, extractNotificationAttachmentDigests( notification ) );
+        templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
 
         return documentComposition.executePdfTemplate(
                 DocumentComposition.TemplateType.REQUEST_ACCEPTED,
@@ -97,11 +109,11 @@ public class LegalFactGenerator {
     public byte[] generateNotificationViewedLegalFact(String iun, NotificationRecipientInt recipient, Instant timeStamp) throws IOException {
 
         Map<String, Object> templateModel = new HashMap<>();
-        templateModel.put("iun", iun);
-        templateModel.put("recipient", recipient);
-        templateModel.put("when", instantWriter.instantToDate( timeStamp) );
-        templateModel.put("addressWriter", this.physicalAddressWriter );
-        templateModel.put("sendDateNoTime", instantWriter.instantToDate( timeStamp, true));
+        templateModel.put(FIELD_IUN, iun);
+        templateModel.put(FIELD_RECIPIENT, recipient);
+        templateModel.put(FIELD_WHEN, instantWriter.instantToDate( timeStamp) );
+        templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
+        templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( timeStamp, true));
 
         return documentComposition.executePdfTemplate(
                 DocumentComposition.TemplateType.NOTIFICATION_VIEWED,
@@ -182,9 +194,9 @@ public class LegalFactGenerator {
                 .collect(Collectors.toList());
 
         Map<String, Object> templateModel = new HashMap<>();
-        templateModel.put("sendDateNoTime", instantWriter.instantToDate( notification.getSentAt(), true ) );
-        templateModel.put("iun", notification.getIun() );
-        templateModel.put("deliveries", pecDeliveries);
+        templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( notification.getSentAt(), true ) );
+        templateModel.put(FIELD_IUN, notification.getIun() );
+        templateModel.put(FIELD_DELIVERIES, pecDeliveries);
 
         return documentComposition.executePdfTemplate(
                 DocumentComposition.TemplateType.DIGITAL_NOTIFICATION_WORKFLOW,
@@ -199,16 +211,16 @@ public class LegalFactGenerator {
      * @param pdfFileName - the fileName to certificate, without extension
      * @param signature - the signature (footprint) of file
      * @param timeReference - file temporal reference
-     * @return
-     * @throws IOException
+     * @return documento pdf
+     * @throws IOException in caso di generazione fallita
      */
     public byte[] generateFileCompliance(String pdfFileName, String signature, Instant timeReference) throws IOException {
 
         Map<String, Object> templateModel = new HashMap<>();
-        templateModel.put("signature", signature);
-        templateModel.put("timeReference", timeReference);
-        templateModel.put("pdfFileName", pdfFileName );
-        templateModel.put("sendDate", instantWriter.instantToDate( Instant.now()/*, true*/ ) );
+        templateModel.put(FIELD_SIGNATURE, signature);
+        templateModel.put(FIELD_TIME_REFERENCE, timeReference);
+        templateModel.put(FIELD_PDF_FILE_NAME, pdfFileName );
+        templateModel.put(FIELD_SEND_DATE, instantWriter.instantToDate( Instant.now()/*, true*/ ) );
 
         return documentComposition.executePdfTemplate(
                 DocumentComposition.TemplateType.FILE_COMPLIANCE,
@@ -216,18 +228,61 @@ public class LegalFactGenerator {
         );
     }
 
-    public byte[] generateNotificationAAR(NotificationInt notification) throws IOException {
+    public byte[] generateNotificationAAR(NotificationInt notification, NotificationRecipientInt recipient) throws IOException {
 
         Map<String, Object> templateModel = new HashMap<>();
-        templateModel.put("sendDate", instantWriter.instantToDate( notification.getSentAt() ) );
-        templateModel.put("sendDateNoTime", instantWriter.instantToDate( notification.getSentAt(), true ) );
-        templateModel.put("notification", notification.toBuilder().build());
-        templateModel.put("addressWriter", this.physicalAddressWriter );
+        templateModel.put(FIELD_SEND_DATE, instantWriter.instantToDate( notification.getSentAt() ) );
+        templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( notification.getSentAt(), true ) );
+        templateModel.put(FIELD_NOTIFICATION, notification);
+        templateModel.put(FIELD_RECIPIENT, recipient);
+        templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
 
         return documentComposition.executePdfTemplate(
                 DocumentComposition.TemplateType.AAR_NOTIFICATION,
                 templateModel
+        );
+
+    }
+
+    public String generateNotificationAARBody(NotificationInt notification, NotificationRecipientInt recipient) {
+
+        Map<String, Object> templateModel = new HashMap<>();
+        templateModel.put(FIELD_SEND_DATE, instantWriter.instantToDate( notification.getSentAt() ) );
+        templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( notification.getSentAt(), true ) );
+        templateModel.put(FIELD_NOTIFICATION, notification);
+        templateModel.put(FIELD_RECIPIENT, recipient);
+        templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
+
+        return documentComposition.executeTextTemplate(
+                DocumentComposition.TemplateType.AAR_NOTIFICATION_EMAIL,
+                templateModel
             );
+
+    }
+
+
+    public String generateNotificationAARSubject(NotificationInt notification) {
+
+        Map<String, Object> templateModel = new HashMap<>();
+        templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( notification.getSentAt(), true ) );
+
+        return documentComposition.executeTextTemplate(
+                DocumentComposition.TemplateType.AAR_NOTIFICATION_SUBJECT,
+                templateModel
+        );
+
+    }
+
+
+    public String generateNotificationAARForSMS(NotificationInt notification) {
+
+        Map<String, Object> templateModel = new HashMap<>();
+        templateModel.put(FIELD_NOTIFICATION, notification);
+
+        return documentComposition.executeTextTemplate(
+                DocumentComposition.TemplateType.AAR_NOTIFICATION_SMS,
+                templateModel
+        );
 
     }
 }

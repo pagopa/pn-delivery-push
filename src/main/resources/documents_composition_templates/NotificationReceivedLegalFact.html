@@ -219,7 +219,7 @@
             <div class="left-col col-5-10">
                 <p>
                     <strong>
-                        <#if recipient.getDigitalDomicile()??>
+                        <#if (recipient.getDigitalDomicile().getAddress())??>
                         ${recipient.getDigitalDomicile().getAddress()}
                         <#else>
                         non presente

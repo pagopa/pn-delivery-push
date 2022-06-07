@@ -1,11 +1,9 @@
 package it.pagopa.pn.deliverypush.action2;
 
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.deliverypush.action2.utils.CheckAttachmentUtils;
-import it.pagopa.pn.deliverypush.action2.utils.CourtesyMessageUtils;
-import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
-import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.action2.utils.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -30,11 +28,12 @@ public class StartWorkflowHandler {
     private final TimelineUtils timelineUtils;
     private final CheckAttachmentUtils checkAttachmentUtils;
     private final NotificationUtils notificationUtils;
+    private final AarUtils aarUtils;
 
     public StartWorkflowHandler(LegalFactDao legalFactDao, NotificationService notificationService,
                                 CourtesyMessageUtils courtesyMessageUtils, ChooseDeliveryModeHandler chooseDeliveryType,
-                                TimelineService timelineService, TimelineUtils timelineUtils, CheckAttachmentUtils checkAttachmentUtils, 
-                                NotificationUtils notificationUtils) {
+                                TimelineService timelineService, TimelineUtils timelineUtils, CheckAttachmentUtils checkAttachmentUtils,
+                                NotificationUtils notificationUtils, AarUtils aarUtils) {
         this.legalFactDao = legalFactDao;
         this.notificationService = notificationService;
         this.courtesyMessageUtils = courtesyMessageUtils;
@@ -43,6 +42,7 @@ public class StartWorkflowHandler {
         this.timelineUtils = timelineUtils;
         this.checkAttachmentUtils = checkAttachmentUtils;
         this.notificationUtils = notificationUtils;
+        this.aarUtils = aarUtils;
     }
     
     /**
@@ -52,12 +52,12 @@ public class StartWorkflowHandler {
      */
     public void startWorkflow(String iun) {
         log.info("Start notification process iun={}", iun);
-        try{
+        try {
             NotificationInt notification = notificationService.getNotificationByIun(iun);
 
-            try{
+            try {
                 //Validazione degli allegati della notifica
-                //checkAttachmentUtils.validateAttachment(notification);
+                checkAttachmentUtils.validateAttachment(notification);
 
                 String legalFactId = legalFactDao.saveNotificationReceivedLegalFact(notification);
 
@@ -68,17 +68,22 @@ public class StartWorkflowHandler {
                     Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
                     startNotificationWorkflowForRecipient(notification, recIndex);
                 }
-            }catch (PnValidationException ex){
+            } catch (PnValidationException ex) {
                 handleValidationError(notification, ex);
             }
-        } catch (Exception ex){
-            log.error("Generic Exception for iun={} ex={}",iun, ex);
+        }catch (PnInternalException ex){
+            log.error("exception starting workflow", ex);
             throw ex;
+        } catch (Exception ex){
+            log.error("exception starting workflow", ex);
+            throw new PnInternalException("Cannot start workflow", ex);
         }
     }
 
     private void startNotificationWorkflowForRecipient(NotificationInt notification, Integer recIndex) {
         log.info("Start notification workflow - iun {} id {}", notification.getIun(), recIndex);
+        // ... genero il pdf dell'AAR, salvo su Safestorage e genero elemento in timeline AAR_GENERATION, potrebbe servirmi dopo ...
+        aarUtils.generateAARAndSaveInSafeStorageAndAddTimelineevent(notification, recIndex);
         //... Invio messaggio di cortxesia ...
         courtesyMessageUtils.checkAddressesForSendCourtesyMessage(notification, recIndex);
         //... e inizializzato il processo di scelta della tipologia di notificazione

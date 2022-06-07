@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.dto.ext.delivery.notification;
 
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.constraints.CheckSha256;
 import lombok.*;
 
 @NoArgsConstructor
@@ -9,7 +8,6 @@ import lombok.*;
 @Builder(toBuilder = true)
 @EqualsAndHashCode
 @ToString
-@CheckSha256
 public class NotificationDocumentInt {
     private Digests digests;
     private Ref ref;

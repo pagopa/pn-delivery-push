@@ -24,32 +24,32 @@ public class PnDataVaultClientImpl implements PnDataVaultClient{
     }
     
     public ResponseEntity<Void> updateNotificationTimelineByIunAndTimelineElementId(String iun, ConfidentialTimelineElementDto dto){
-        log.debug("Start call updateNotificationTimelineByIunAndTimelineElementId - iun {} timelineElementId {}", iun, dto.getTimelineElementId());
+        log.debug("Start call updateNotificationTimelineByIunAndTimelineElementId - iun={} timelineElementId={}", iun, dto.getTimelineElementId());
 
         ResponseEntity<Void> resp = pnDataVaultNotificationApi.updateNotificationTimelineByIunAndTimelineElementIdWithHttpInfo(iun, dto.getTimelineElementId(), dto);
 
-        log.debug("Response updateNotificationTimelineByIunAndTimelineElementId - iun {} timelineElementId {} response {}", iun, dto.getTimelineElementId(), resp);
+        log.debug("Response updateNotificationTimelineByIunAndTimelineElementId - iun={} timelineElementId={}", iun, dto.getTimelineElementId());
         
         return resp;
     }
 
     public ResponseEntity<ConfidentialTimelineElementDto> getNotificationTimelineByIunAndTimelineElementId(String iun, String timelineElementId){
-        log.debug("Start call getNotificationTimelineByIunAndTimelineElementId - iun {} timelineElementId {}", iun, timelineElementId);
+        log.debug("Start call getNotificationTimelineByIunAndTimelineElementId - iun={} timelineElementId={}", iun, timelineElementId);
 
         ResponseEntity<ConfidentialTimelineElementDto> resp = pnDataVaultNotificationApi.getNotificationTimelineByIunAndTimelineElementIdWithHttpInfo(iun, timelineElementId);
 
-        log.debug("Response getNotificationTimelineByIunAndTimelineElementId - iun {} timelineElementId {} response {}", iun, timelineElementId, resp);
+        log.debug("Response getNotificationTimelineByIunAndTimelineElementId - iun={} timelineElementId={}", iun, timelineElementId);
 
         return resp;
     }
 
     @Override
     public ResponseEntity<List<ConfidentialTimelineElementDto>> getNotificationTimelineByIunWithHttpInfo(String iun) {
-        log.debug("Start call getNotificationTimelineByIunWithHttpInfo - iun {}", iun);
+        log.debug("Start call getNotificationTimelineByIunWithHttpInfo - iun={}", iun);
 
         ResponseEntity<List<ConfidentialTimelineElementDto>> resp = pnDataVaultNotificationApi.getNotificationTimelineByIunWithHttpInfo(iun);
 
-        log.debug("Response getNotificationTimelineByIunWithHttpInfo - iun {} response {}", iun, resp);
+        log.debug("Response getNotificationTimelineByIunWithHttpInfo - iun={}", iun);
 
         return resp;
     }

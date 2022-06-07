@@ -1,0 +1,1 @@
+Ciao, hai una notifica con Codice IUN ${notification.iun}. Per accedere agli atti, entra in pn.pagopa.it con SPID o CIE.
