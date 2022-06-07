@@ -34,7 +34,7 @@ public class PublicRegistryResponseHandler {
     public void handleResponse(PublicRegistryResponse response) {
 
         String correlationId = response.getCorrelationId();
-        String iun = correlationId.substring(0, correlationId.indexOf("_")); //TODO Da modificare quando verrà risolta PN-533
+        String iun = correlationId.substring(0, correlationId.indexOf("_"));
         log.info("Handle public registry response -  iun {} correlationId {}", iun, response.getCorrelationId());
 
         //Viene ottenuto l'oggetto di timeline creato in fase d'invio notifica al public registry

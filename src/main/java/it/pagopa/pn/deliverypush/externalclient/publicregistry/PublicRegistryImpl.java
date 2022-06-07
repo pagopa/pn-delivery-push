@@ -1,18 +1,45 @@
 package it.pagopa.pn.deliverypush.externalclient.publicregistry;
 
+import it.pagopa.pn.deliverypush.action2.PublicRegistryResponseHandler;
+import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PublicRegistryImpl implements PublicRegistry {
-    //FIXME In attesa della risoluzione della PN-1145, la richiesta a PublicRegistry comporta una UnsupportedOperationException
+    //FIXME In attesa della risoluzione della PN-1145, la richiesta a PublicRegistry restituisce sempre una risposta vuota
     
+    private final PublicRegistryResponseHandler publicRegistryResponseHandler;
+
+    public PublicRegistryImpl(@Lazy PublicRegistryResponseHandler publicRegistryResponseHandler) {
+        this.publicRegistryResponseHandler = publicRegistryResponseHandler;
+    }
+
     @Override
     public void sendRequestForGetDigitalAddress(String taxId, String correlationId) {
-        throw new UnsupportedOperationException();
+        new Thread(() -> {
+            
+            PublicRegistryResponse response = PublicRegistryResponse.builder()
+                    .correlationId(correlationId)
+                    .digitalAddress(null)
+                    .build();
+
+            publicRegistryResponseHandler.handleResponse(response);
+
+        }).start();
     }
 
     @Override
     public void sendRequestForGetPhysicalAddress(String taxId, String correlationId) {
-        throw new UnsupportedOperationException();
+        new Thread(() -> {
+            
+            PublicRegistryResponse response = PublicRegistryResponse.builder()
+                    .correlationId(correlationId)
+                    .physicalAddress(null)
+                    .build();
+
+            publicRegistryResponseHandler.handleResponse(response);
+
+        }).start();
     }
 }
