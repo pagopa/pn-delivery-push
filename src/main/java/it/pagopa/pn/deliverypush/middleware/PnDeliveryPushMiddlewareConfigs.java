@@ -4,9 +4,6 @@ package it.pagopa.pn.deliverypush.middleware;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.middleware.momproducer.action.sqs.SqsActionProducer;
-import it.pagopa.pn.deliverypush.middleware.momproducer.emailrequest.sqs.SqsEmailRequestProducer;
-import it.pagopa.pn.deliverypush.middleware.momproducer.paperrequest.sqs.SqsPaperRequestProducer;
-import it.pagopa.pn.deliverypush.middleware.momproducer.pecrequest.sqs.SqsPecRequestProducer;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -55,20 +52,6 @@ public class PnDeliveryPushMiddlewareConfigs {
         );
     }
 */
-    @Bean
-    public SqsPecRequestProducer pecRequestSender(SqsClient sqs, ObjectMapper objMapper) {
-        return new SqsPecRequestProducer( sqs, cfg.getTopics().getToExternalChannelPec(), objMapper);
-    }
-    
-    @Bean
-    public SqsEmailRequestProducer emailRequestSender(SqsClient sqs, ObjectMapper objMapper) {
-        return new SqsEmailRequestProducer( sqs, cfg.getTopics().getToExternalChannelEmail(), objMapper);
-    }
-    
-    @Bean
-    public SqsPaperRequestProducer paperRequestSender(SqsClient sqs, ObjectMapper objMapper) {
-        return new SqsPaperRequestProducer( sqs, cfg.getTopics().getToExternalChannelPaper(), objMapper);
-    }
 
     @Bean @Primary
     public SqsActionProducer actionsEventProducer(SqsClient sqs, ObjectMapper objMapper) {

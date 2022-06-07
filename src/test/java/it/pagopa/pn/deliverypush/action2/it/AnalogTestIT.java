@@ -145,6 +145,13 @@ class AnalogTestIT {
         times.setSchedulingDaysFailureAnalogRefinement(Duration.ofSeconds(1));
         times.setSecondNotificationWorkflowWaitingTime(Duration.ofSeconds(1));
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
+
+        PnDeliveryPushConfigs.ExternalChannel externalChannelCfg = new PnDeliveryPushConfigs.ExternalChannel();
+        externalChannelCfg.setAnalogCodesFail(List.of("__005__","__006__","__008__","__009__"));
+        externalChannelCfg.setAnalogCodesSuccess(List.of("__004__","__007__"));
+        externalChannelCfg.setAnalogCodesProgress(List.of("__001__","__002__","__003__"));
+        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(externalChannelCfg);
+
         PnDeliveryPushConfigs.Webapp webapp = new PnDeliveryPushConfigs.Webapp();
         webapp.setDirectAccessUrlTemplate("test");
         Mockito.when(pnDeliveryPushConfigs.getWebapp()).thenReturn(webapp);
