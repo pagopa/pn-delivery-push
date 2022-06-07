@@ -116,7 +116,7 @@ public class DigitalWorkFlowUtils {
                 case PLATFORM:
                     return retrievePlatformAddress(recipient, notification.getSender());
                 case SPECIAL:
-                    log.debug("Return digital domicile - iun {} id {}", notification.getIun(), recipient.getTaxId());
+                    log.debug("Return digital domicile - iun {} id {}", notification.getIun(), recIndex);
                     return recipient.getDigitalDomicile();
                 default:
                     handleAddressSourceError(addressSource, recipient, notification);
@@ -133,7 +133,7 @@ public class DigitalWorkFlowUtils {
     }
 
     private LegalDigitalAddressInt retrievePlatformAddress(NotificationRecipientInt recipient, NotificationSenderInt sender) {
-        log.debug("RetrievePlatformAddress for recipient {} sender {}", recipient.getTaxId(), sender.getPaId());
+        log.debug("RetrievePlatformAddress for sender {}", sender.getPaId());
 
         Optional<LegalDigitalAddressInt> digitalAddressOpt = addressBookService.getPlatformAddresses(recipient.getTaxId(), sender.getPaId());
 
@@ -141,7 +141,7 @@ public class DigitalWorkFlowUtils {
             log.debug("Retrive platformAddress ok for recipient {} sender {}", recipient.getTaxId(), sender.getPaId());
             return digitalAddressOpt.get();
         }
-        log.info("Platform address is empty for recipient {} sender {}", recipient.getTaxId(), sender.getPaId());
+        log.info("Platform address is empty for sender {}", sender.getPaId());
         return null;
     }
 

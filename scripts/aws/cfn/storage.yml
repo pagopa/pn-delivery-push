@@ -14,6 +14,7 @@ Parameters:
   TemplateBucketBaseUrl:
     Type: String
     Description: URL da cui caricare i frammenti di template di infrastruttura
+  
 
 Resources:
 
@@ -81,6 +82,11 @@ Resources:
         - AttributeName: "timelineElementId"
           KeyType: "RANGE"
       BillingMode: "PAY_PER_REQUEST"
+      KinesisStreamSpecification:
+        StreamArn: !GetAtt TimelineCdcKinesis.Outputs.KinesisStreamArn
+      StreamSpecification: 
+        StreamViewType: NEW_IMAGE
+
 
   # Failed Paper Notification
   PaperNotificationFailedTable:
@@ -154,6 +160,19 @@ Resources:
         - AttributeName: "_id"
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
+  
+
+  ## KINESIS SOURCE STREAM FOR TIMELINE Change Data Capture
+  TimelineCdcKinesis:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/kinesis-stream.yaml"
+      Parameters:
+        StreamName: !Sub '${ProjectName}-timeline-cdc-stream'
+        StreamRetentionPeriodHours: 24
+        StreamShardCount: 10
+
+  
       
 Outputs:
 
@@ -231,4 +250,18 @@ Outputs:
   PnDeliveryPushShedLockDynamoTableArn:
     Description: ARN of dynamodb table containing
     Value: !Sub '${PnDeliveryPushShedLockTable.Arn}'
-
+  
+  
+  # Timeline Change Data Capture kinesis stream
+  TimelineCdcKinesisStreamName:
+    Value: !GetAtt TimelineCdcKinesis.Outputs.KinesisStreamName
+    Description: kinesis stream name for timeline dynamo table
+  TimelineCdcKinesisStreamArn:
+    Value: !GetAtt TimelineCdcKinesis.Outputs.KinesisStreamArn
+    Description: kinesis stream Arn for timeline dynamo table
+  TimelineCdcKinesisKeyArn:
+    Value: !GetAtt TimelineCdcKinesis.Outputs.KinesisStreamKeyArn
+    Description: KMS key arn for timeline stream decryption
+  TimelineCdcKinesisStreamReadOnlyRoleArn:
+    Value: !GetAtt TimelineCdcKinesis.Outputs.KinesisStreamReadOnlyRoleArn
+    Description: KMS key arn for timeline stream decryption
