@@ -36,20 +36,20 @@ public class EventEntityDaoDynamo implements EventEntityDao {
     }
 
     @Override
-    public Mono<EventEntityBatch> findByStreamId(String streamId, Instant timestamp) {
-        log.info("findByStreamId streamId={} timestamp={}", streamId, timestamp);
-        return this.findByStreamId(streamId, timestamp, false, limitCount);
+    public Mono<EventEntityBatch> findByStreamId(String streamId, String eventId) {
+        log.info("findByStreamId streamId={} eventId={}", streamId, eventId);
+        return this.findByStreamId(streamId, eventId, false, limitCount);
     }
 
     @Override
-    public Mono<Void> delete(String streamId, Instant timestamp, boolean olderThan) {
-        if (timestamp == null)
-           timestamp = Instant.EPOCH;
+    public Mono<Boolean> delete(String streamId, String eventId, boolean olderThan) {
+        if (eventId == null)
+            eventId = Instant.EPOCH.toString();
 
-        log.info("delete streamId={} timestamp={} olderThan={}", streamId, timestamp, olderThan);
-        return findByStreamId(streamId, timestamp,olderThan, 25)  // il batch di cancellazione ne supporta fino a 25
+        log.info("delete streamId={} eventId={} olderThan={}", streamId, eventId, olderThan);
+        return findByStreamId(streamId, eventId, olderThan, 25)  // il batch di cancellazione ne supporta fino a 25
                 .flatMap(res -> {
-                    boolean thereAreMore = res.getLastTimestampRead()!=null;
+                    boolean thereAreMore = res.getLastEventIdRead()!=null;
                     log.info("deleting events count={} thereAreMore={}", res.getEvents(), thereAreMore);
                     TransactWriteItemsEnhancedRequest.Builder transactWriteItemsEnhancedRequest = TransactWriteItemsEnhancedRequest.builder();
                     res.getEvents().forEach(ev -> transactWriteItemsEnhancedRequest.addDeleteItem(table, ev));
@@ -57,9 +57,10 @@ public class EventEntityDaoDynamo implements EventEntityDao {
                     // ricorsione per gestire la paginazione
                     if (thereAreMore)
                         return Mono.fromFuture(dynamoDbEnhancedClient.transactWriteItems(transactWriteItemsEnhancedRequest.build()))
-                                .then(delete(streamId, res.getLastTimestampRead(), olderThan));
+                                .then(Mono.just(true));
                     else
-                        return Mono.fromFuture(dynamoDbEnhancedClient.transactWriteItems(transactWriteItemsEnhancedRequest.build()));
+                        return Mono.fromFuture(dynamoDbEnhancedClient.transactWriteItems(transactWriteItemsEnhancedRequest.build()))
+                                .then(Mono.just(false));
                 });
     }
 
@@ -70,10 +71,10 @@ public class EventEntityDaoDynamo implements EventEntityDao {
     }
 
 
-    public Mono<EventEntityBatch> findByStreamId(String streamId, Instant timestamp, boolean olderThan, int pagelimit) {
+    public Mono<EventEntityBatch> findByStreamId(String streamId, String eventId, boolean olderThan, int pagelimit) {
         Key hashKey = Key.builder()
                 .partitionValue(streamId)
-                .sortValue(timestamp.toString())
+                .sortValue(eventId)
                 .build();
 
         QueryConditional queryByHashKey = olderThan?sortLessThan( hashKey ):sortGreaterThanOrEqualTo(hashKey) ;
@@ -89,9 +90,9 @@ public class EventEntityDaoDynamo implements EventEntityDao {
                     eventEntityBatch.setStreamId(streamId);
                     // se dynamo mi dice che non ha finito di leggere, già so che ne ho altri
                     if (!page.lastEvaluatedKey().isEmpty())
-                        eventEntityBatch.setLastTimestampRead(Instant.parse(page.lastEvaluatedKey().get(EventEntity.COL_SK).s()));
+                        eventEntityBatch.setLastEventIdRead(page.lastEvaluatedKey().get(EventEntity.COL_SK).s());
                     else if (page.items().size() == pagelimit +1)  // caso particolare in cui ce n'erano esattamente limitcount+1 da leggere.
-                        eventEntityBatch.setLastTimestampRead(page.items().get(pagelimit-1).getTimestamp());    //faccio finta di aver letto fino a limitcount
+                        eventEntityBatch.setLastEventIdRead(page.items().get(pagelimit-1).getEventId());    //faccio finta di aver letto fino a limitcount
 
                     // avevo chiesto 1 in più, ne ritorno 1 in meno nel caso in cui abbia ricevuto limitcount+1 elementi
                     eventEntityBatch.setEvents(page.items().subList(0, Math.min(page.items().size(), pagelimit)));

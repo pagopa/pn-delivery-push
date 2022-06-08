@@ -37,15 +37,35 @@ public class SchedulerServiceImpl implements SchedulerService {
         );
     }
 
+
+
     @Override
-    public void addWebhookEvent(String iun, String timelineId, Instant timestamp, String newStatus, String   WebhookEventType actionType) {
+    public void scheduleWebhookEvent(String iun, String timelineId, Instant timestamp, String newStatus,
+                                     String timelineEventCategory, Instant dateToSchedule, WebhookEventType actionType) {
         WebhookAction action = WebhookAction.builder()
                 .iun(iun)
                 .timestamp(timestamp)
-                .eventId(eventId)
+                .eventId(timestamp + "_" + timelineId)
+                .notBefore(dateToSchedule)
+                .newStatus(newStatus)
+                .timelineEventCategory(timelineEventCategory)
+                .type(actionType)
                 .build();
 
-        this.webhooksPool.addWebhookAction(action, actionType);
+        this.webhooksPool.scheduleFutureAction(action, actionType);
+    }
+
+
+    @Override
+    public void scheduleWebhookEvent(String streamId, String eventId, Instant dateToSchedule, WebhookEventType actionType) {
+        WebhookAction action = WebhookAction.builder()
+                .streamId(streamId)
+                .eventId(eventId)
+                .notBefore(dateToSchedule)
+                .type(actionType)
+                .build();
+
+        this.webhooksPool.scheduleFutureAction(action, actionType);
     }
 
 }

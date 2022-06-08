@@ -12,10 +12,10 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.SingleStatusUpdate;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.ActionEventType;
+import it.pagopa.pn.deliverypush.abstractions.webhookspool.WebhookAction;
+import it.pagopa.pn.deliverypush.abstractions.webhookspool.impl.WebhookActionEventType;
+import it.pagopa.pn.deliverypush.abstractions.webhookspool.impl.WebhookActionsEventHandler;
 import it.pagopa.pn.deliverypush.action2.*;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.function.context.MessageRoutingCallback;
@@ -26,7 +26,6 @@ import org.springframework.messaging.MessageHeaders;
 import org.springframework.util.StringUtils;
 
 import java.time.Instant;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -46,10 +45,11 @@ public class PnEventInboundService {
     private final AnalogWorkflowHandler analogWorkflowHandler;
     private final RefinementHandler refinementHandler;
     private final EventHandler eventHandler;
+    private final WebhookActionsEventHandler webhookActionsEventHandler;
 
-    public PnEventInboundService(StartWorkflowHandler startWorkflowHandler, ExternalChannelResponseHandler externalChannelResponseHandler, 
-                                 NotificationViewedHandler notificationViewedHandler, DigitalWorkFlowHandler digitalWorkFlowHandler, 
-                                 AnalogWorkflowHandler analogWorkflowHandler, RefinementHandler refinementHandler, EventHandler eventHandler) {
+    public PnEventInboundService(StartWorkflowHandler startWorkflowHandler, ExternalChannelResponseHandler externalChannelResponseHandler,
+                                 NotificationViewedHandler notificationViewedHandler, DigitalWorkFlowHandler digitalWorkFlowHandler,
+                                 AnalogWorkflowHandler analogWorkflowHandler, RefinementHandler refinementHandler, EventHandler eventHandler, WebhookActionsEventHandler webhookActionsEventHandler) {
         this.startWorkflowHandler = startWorkflowHandler;
         this.externalChannelResponseHandler = externalChannelResponseHandler;
         this.notificationViewedHandler = notificationViewedHandler;
@@ -57,6 +57,7 @@ public class PnEventInboundService {
         this.analogWorkflowHandler = analogWorkflowHandler;
         this.refinementHandler = refinementHandler;
         this.eventHandler = eventHandler;
+        this.webhookActionsEventHandler = webhookActionsEventHandler;
     }
 
     @Bean
@@ -68,6 +69,8 @@ public class PnEventInboundService {
            if(eventType != null){
                if(ActionEventType.ACTION_GENERIC.name().equals(eventType)) 
                    return handleAction(message);
+               else if(WebhookActionEventType.WEBHOOK_ACTION_GENERIC.name().equals(eventType))
+                   return "pnDeliveryPushWebhookActionConsumer";
            }else {
                log.error("eventType not present, cannot start scheduled action");
                throw new PnInternalException("eventType not present, cannot start scheduled action");
@@ -110,7 +113,7 @@ public class PnEventInboundService {
             }
             return action;
         } catch (JsonProcessingException ex) {
-            log.error("Exception during json mapping ex={}", ex);
+            log.error("Exception during json mapping ex", ex);
             throw new PnInternalException("Exception during json mapping ex="+ ex);
         }
     }
@@ -183,6 +186,15 @@ public class PnEventInboundService {
             log.info("pnDeliveryPushDigitalNextActionConsumer, message {}", message);
             Action action = message.getPayload();
             digitalWorkFlowHandler.startScheduledNextWorkflow(action.getIun(), action.getRecipientIndex());
+        };
+    }
+
+    @Bean
+    public Consumer<Message<WebhookAction>> pnDeliveryPushWebhookActionConsumer() {
+        return message -> {
+            log.info("pnDeliveryPushWebhookActionConsumer, message={}", message);
+            WebhookAction action = message.getPayload();
+            webhookActionsEventHandler.handleEvent(action);
         };
     }
     

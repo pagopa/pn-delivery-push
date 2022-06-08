@@ -80,6 +80,7 @@ public class PnDeliveryPushConfigs {
     public static class Webhook {
         private Long scheduleInterval;
         private Integer maxLength;
+        private Integer purgeDeletionWaittime;
     }
 
     @Data

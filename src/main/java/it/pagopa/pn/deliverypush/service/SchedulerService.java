@@ -8,8 +8,8 @@ import java.time.Instant;
 public interface SchedulerService {
     void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType);
 
-    void scheduleWebhookEvent(String iun, Integer recIndex, Instant dateToSchedule, WebhookEventType actionType);
+    void scheduleWebhookEvent(String iun, String timelineId, Instant timestamp, String newStatus,
+                              String timelineEventCategory, Instant dateToSchedule, WebhookEventType actionType);
 
-    void scheduleWebhookEvent(String streamId, String eventId, String);
-
+    void scheduleWebhookEvent(String streamId, String eventId, Instant dateToSchedule, WebhookEventType actionType);
 }
