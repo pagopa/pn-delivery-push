@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.util;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElement;
@@ -15,11 +16,17 @@ import java.util.stream.Collectors;
 public class StatusUtils {
 
     private static final NotificationStatus INITIAL_STATUS = NotificationStatus.IN_VALIDATION;
-    private static final Set<TimelineElementCategory> END_OF_DELIVERY_WORKFLOW = new HashSet<>(Arrays.asList(
-      TimelineElementCategory.DIGITAL_SUCCESS_WORKFLOW,
-      TimelineElementCategory.ANALOG_SUCCESS_WORKFLOW
+    private static final Set<TimelineElementCategory> SUCCES_DELIVERY_WORKFLOW_CATEGORY = new HashSet<>(Arrays.asList(
+            //Completato con successo
+            TimelineElementCategory.DIGITAL_SUCCESS_WORKFLOW, 
+            TimelineElementCategory.DIGITAL_FAILURE_WORKFLOW, //Anche in caso di fallimento del digital workflow, la notifica si può considerare consegnata 
+            TimelineElementCategory.ANALOG_SUCCESS_WORKFLOW
     ));
     
+    private static final Set<TimelineElementCategory> FAILURE_DELIVERY_WORKFLOW_CATEGORY = new HashSet<>(List.of(
+            TimelineElementCategory.COMPLETELY_UNREACHABLE
+    ));
+
     private final StateMap stateMap = new StateMap();
 
     public NotificationStatus getCurrentStatus(List<NotificationStatusHistoryElement> statusHistory) {
@@ -35,49 +42,61 @@ public class StatusUtils {
                                                                     int numberOfRecipients, //
                                                                     Instant notificationCreatedAt //
     ) {
+        //La timeline ricevuta in ingresso è relativa a tutta la notifica e non al singolo recipient
         List<TimelineElementInternal> timelineByTimestampSorted = timelineElementList.stream()
                 .sorted(Comparator.comparing(TimelineElement::getTimestamp))
                 .collect(Collectors.toList());
-
+    
         List<NotificationStatusHistoryElement> timelineHistory = new ArrayList<>();
 
         List<String> relatedTimelineElements = new ArrayList<>();
-        Instant currentStateStart = notificationCreatedAt;
-        NotificationStatus currentState = INITIAL_STATUS;
-        int numberOfEndedDeliveryWorkflows = 0;
+        List<TimelineElementCategory> relatedCategoryElements = new ArrayList<>();
 
+        Instant creationDateCurrentState = notificationCreatedAt;
+        NotificationStatus currentState = INITIAL_STATUS;
+        int numberOfCompletedWorkflow = 0;
 
         for (TimelineElementInternal timelineElement : timelineByTimestampSorted) {
             TimelineElementCategory category = timelineElement.getCategory();
             
-            //TODO Questa logica va rivista, qui va inserita la logica per i multiDestinatari atta a gestire il cambio stato
-            if( END_OF_DELIVERY_WORKFLOW.contains( category ) ) {
-                numberOfEndedDeliveryWorkflows += 1;
+            if( SUCCES_DELIVERY_WORKFLOW_CATEGORY.contains( category ) || FAILURE_DELIVERY_WORKFLOW_CATEGORY.contains( category ) ) {
+                //Vengono contati il numero di workflow completate per entrambi i recipient, sia in caso di successo che di fallimento
+                numberOfCompletedWorkflow += 1;
             }
+            
+            relatedCategoryElements.add( timelineElement.getCategory() );
 
             NotificationStatus nextState = computeStateAfterEvent(
-                        currentState, category, numberOfEndedDeliveryWorkflows, numberOfRecipients);
+                        currentState, category, numberOfCompletedWorkflow, numberOfRecipients, relatedCategoryElements);
 
+            //Se lo stato corrente è diverso dal prossimo stato
             if (!Objects.equals(currentState, nextState)) {
+                
                 NotificationStatusHistoryElement statusHistoryElement = NotificationStatusHistoryElement.builder()
                         .status( currentState )
-                        .activeFrom( currentStateStart )
+                        .activeFrom( creationDateCurrentState )
                         .relatedTimelineElements( relatedTimelineElements )
                         .build();
+                
+                //Viene aggiunto alla status history lo stato "precedente"
                 timelineHistory.add(statusHistoryElement);
-
+                //Viene azzerata la relatedTimelineElement
                 relatedTimelineElements = new ArrayList<>();
-                currentStateStart = timelineElement.getTimestamp();
+                relatedCategoryElements = new ArrayList<>();
+                //Ed aggiornata la creationDate
+                creationDateCurrentState = timelineElement.getTimestamp();
             }
-
+            
+            //Viene aggiunto alla relatedTimelineElement l'elemento di timeline 
             relatedTimelineElements.add( timelineElement.getElementId() );
-
+            
+            //Viene aggiornato il currentState nel caso in cui sia cambiato
             currentState = nextState;
         }
-
+                 
         NotificationStatusHistoryElement statusHistoryElement = NotificationStatusHistoryElement.builder()
                 .status( currentState )
-                .activeFrom( currentStateStart )
+                .activeFrom( creationDateCurrentState )
                 .relatedTimelineElements( relatedTimelineElements )
                 .build();
         timelineHistory.add(statusHistoryElement);
@@ -85,30 +104,60 @@ public class StatusUtils {
         return timelineHistory;
     }
 
-    //TODO Questa logica va rivista, qui va inserita la logica per i multiDestinatari atta a gestire il cambio stato
-    private NotificationStatus computeStateAfterEvent(  //
-                                                       NotificationStatus currentState, //
-                                                       TimelineElementCategory timelineElementCategory, //
-                                                       int numberOfEndedDigitalWorkflows, //
-                                                       int numberOfRecipients //
+    private NotificationStatus computeStateAfterEvent( 
+                                                       NotificationStatus currentState, 
+                                                       TimelineElementCategory timelineElementCategory,
+                                                       int numberOfCompletedWorkflow,
+                                                       int numberOfRecipients,
+                                                       List<TimelineElementCategory> relatedCategoryElements
     ) {
         NotificationStatus nextState;
-        if (currentState.equals(NotificationStatus.DELIVERING)) {
-            if( timelineElementCategory.equals(TimelineElementCategory.DIGITAL_SUCCESS_WORKFLOW) ) {
-                if( numberOfEndedDigitalWorkflows == numberOfRecipients ) {
-                    nextState = stateMap.getStateTransition(currentState, timelineElementCategory);
-                }
-                else {
-                    nextState = currentState;
-                }
-            }
-            else {
-                nextState = stateMap.getStateTransition(currentState, timelineElementCategory);
+
+        //(Gli stati ACCEPTED e DELIVERING sono gli stati in cui ci sono differenze di gestione per il multi destinatario, dunque prevedono una logica ad-hoc per il cambio stato)
+        // Se sono nello stato ACCEPTED o DELIVERING e l'elemento di timeline preso in considerazione è uno degli stati di successo o fallimento del workflow ...
+        if ( ( currentState.equals(NotificationStatus.ACCEPTED) || currentState.equals(NotificationStatus.DELIVERING) ) 
+                &&
+             ( SUCCES_DELIVERY_WORKFLOW_CATEGORY.contains(timelineElementCategory) || FAILURE_DELIVERY_WORKFLOW_CATEGORY.contains(timelineElementCategory) )
+        ) {
+            //... e il workflow è stato completato per tutti i recipient della notifica
+            if( numberOfCompletedWorkflow == numberOfRecipients ){
+                //... può essere ottenuto il nextState
+                nextState =  getNextState(currentState, relatedCategoryElements, numberOfRecipients);
+            }else {
+                //... Altrimenti lo stato non cambia, bisogna attendere la fine del workflow per tutti i recipient
+                nextState = currentState;
             }
         } else {
-            nextState = stateMap.getStateTransition(currentState, timelineElementCategory);
+            //... Altrimenti lo stato viene calcolato normalmente dalla mappa
+                nextState = stateMap.getStateTransition(currentState, timelineElementCategory);
         }
+        
         return nextState;
+    }
+
+    private NotificationStatus getNextState(NotificationStatus currentState, List<TimelineElementCategory> relatedCategoryElements, int numberOfRecipient) {
+        int failureWorkflow = 0;
+        
+        //Viene effettuato un ciclo su tutti gli elementi relati allo stato corrente
+        for (TimelineElementCategory category : relatedCategoryElements){
+            
+            //Se almeno per un recipient il workflow è andato a buon fine
+            if( SUCCES_DELIVERY_WORKFLOW_CATEGORY.contains(category) ) {
+                //Viene ottenuto lo stato relato alla category di successo
+                return stateMap.getStateTransition(currentState, category);
+                
+                //Se per tutti i recipient il workflow è fallito
+            }else if( FAILURE_DELIVERY_WORKFLOW_CATEGORY.contains(category) ) {
+                failureWorkflow +=1;
+                if( failureWorkflow == numberOfRecipient) {
+                    
+                    //Viene ottenuto lo stato relato alla category di fallimento
+                    return stateMap.getStateTransition(currentState, category);
+                }
+            }
+        }
+        
+        throw new PnInternalException("situazione anomala");
     }
 
 }

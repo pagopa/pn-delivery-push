@@ -136,17 +136,18 @@ public class AnalogWorkflowHandler {
             } else {
                 log.info("First send address and public registry response address are equals  - iun={} id={}", iun, recIndex);
                 //... se i due indirizzi sono uguali, viene verificata la presenza dell'indirizzo ottenuto dall'investigazione del postino
-                sendWithInvestigationAddress(notification, recIndex, sentAttemptMade, lastSentFeedback.getNewAddress());
+                checkInvestigationAddressAndSend(notification, recIndex, sentAttemptMade, lastSentFeedback.getNewAddress());
             }
         } else {
             log.info("Public registry response address is empty  - iun={} id={}", iun, recIndex);
             //Viene verificata la presenza dell'indirizzo ottenuto dall'investigazione del postino
-            sendWithInvestigationAddress(notification, recIndex, sentAttemptMade, lastSentFeedback.getNewAddress());
+            checkInvestigationAddressAndSend(notification, recIndex, sentAttemptMade, lastSentFeedback.getNewAddress());
         }
     }
 
-    private void sendWithInvestigationAddress(NotificationInt notification, Integer recIndex, int sentAttemptMade, PhysicalAddress newAddress) {
+    private void checkInvestigationAddressAndSend(NotificationInt notification, Integer recIndex, int sentAttemptMade, PhysicalAddress newAddress) {
         log.info("Check address from investigation");
+        //Se l'investigation address ricevuto è presente viene effettuato l'invio, tale invio non prevede un ulteriore investigazione (investigation = false)
         checkAddressAndSend(notification, recIndex, newAddress, false, sentAttemptMade);
     }
 

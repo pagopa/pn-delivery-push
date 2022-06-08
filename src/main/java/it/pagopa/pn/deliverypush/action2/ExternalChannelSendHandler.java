@@ -39,7 +39,7 @@ public class ExternalChannelSendHandler {
      */
     public void sendDigitalNotification(NotificationInt notification, LegalDigitalAddressInt digitalAddress, DigitalAddressSource addressSource, Integer recIndex,
                                         int sentAttemptMade) {
-        log.debug("Start sendDigitalNotification - iun {} id {}", notification.getIun(), recIndex);
+        log.debug("Start sendDigitalNotification - iun={} recipientIndex={}", notification.getIun(), recIndex);
 
         String eventId = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
                 EventId.builder()
@@ -74,11 +74,10 @@ public class ExternalChannelSendHandler {
      * Invio di RACCOMANDATA SEMPLICE quando falliscono tutti i tentativi via PEC
      */
     public void sendNotificationForRegisteredLetter(NotificationInt notification, PhysicalAddress physicalAddress, Integer recIndex) {
-        log.debug("Start sendNotificationForRegisteredLetter - iun {} id {}", notification.getIun(), recIndex);
+        log.debug("Start sendNotificationForRegisteredLetter - iun={} recipientIndex={}", notification.getIun(), recIndex);
         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
 
         if(! isNotificationAlreadyViewed){
-
             String eventId = TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER.buildEventId(
                     EventId.builder()
                             .iun(notification.getIun())
@@ -93,7 +92,7 @@ public class ExternalChannelSendHandler {
                 ExternalChannelSendClient.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER, aarUtils.getAarPdfFromTimeline(notification, recIndex));
             log.info("Registered Letter sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
         }else {
-            log.info("Notification is already viewed, registered Letter will not be sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
+            log.info("Notification is already viewed, registered Letter will not be sent to externalChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
         }
     }
 
@@ -125,7 +124,7 @@ public class ExternalChannelSendHandler {
                     , aarUtils.getAarPdfFromTimeline(notification, recIndex));
             log.info("Registered Letter sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
         }else {
-            log.info("Notification is already viewed, paper notification will not be sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
+            log.info("Notification is already viewed, paper notification will not be sent to externalChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
         }
     }
 
