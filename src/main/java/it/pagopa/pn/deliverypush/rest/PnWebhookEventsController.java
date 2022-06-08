@@ -17,13 +17,20 @@ import java.util.UUID;
 @RestController
 public class PnWebhookEventsController implements EventsApi {
 
+    public static final String HEADER_RETRY_AFTER = "retry-after";
     private final WebhookService webhookService;
 
     public PnWebhookEventsController(WebhookService webhookService) { this.webhookService = webhookService; }
 
     @Override
     public Mono<ResponseEntity<Flux<ProgressResponseElement>>> consumeEventStream(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, UUID streamId, String lastEventId, ServerWebExchange exchange) {
-        return webhookService.getEvents(xPagopaPnCxId, streamId, lastEventId);
+        return webhookService.consumeEventStream(xPagopaPnCxId, streamId, lastEventId)
+                .map(r -> {
+                    var resp = ResponseEntity
+                            .ok(Flux.fromIterable(r.getProgressResponseElementList()));
+                    resp.getHeaders().set(HEADER_RETRY_AFTER, ""+r.getRetryAfter());
+                    return resp;
+                });
     }
 
     @Override

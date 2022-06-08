@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.service;
 
+import it.pagopa.pn.deliverypush.dto.webhook.ProgressResponseElementDto;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequest;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamListElement;
@@ -21,5 +22,5 @@ public interface WebhookService {
 
     Mono<StreamMetadataResponse> updateEventStream(String xPagopaPnCxId, UUID streamId, Mono<StreamCreationRequest> streamCreationRequest);
 
-    Mono<ProgressResponseElement>> getEvents(String xPagopaPnCxId, UUID streamId, String lastEventId);
+    Mono<ProgressResponseElementDto> consumeEventStream(String xPagopaPnCxId, UUID streamId, String lastEventId);
 }

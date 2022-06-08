@@ -3,6 +3,9 @@ package it.pagopa.pn.deliverypush.service.impl;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
+import it.pagopa.pn.deliverypush.abstractions.webhookspool.WebhookAction;
+import it.pagopa.pn.deliverypush.abstractions.webhookspool.WebhookEventType;
+import it.pagopa.pn.deliverypush.abstractions.webhookspool.WebhooksPool;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -12,9 +15,11 @@ import java.time.Instant;
 @Slf4j
 public class SchedulerServiceImpl implements SchedulerService {
     private final ActionsPool actionsPool;
+    private final WebhooksPool webhooksPool;
 
-    public SchedulerServiceImpl(ActionsPool actionsPool) {
+    public SchedulerServiceImpl(ActionsPool actionsPool, WebhooksPool webhooksPool) {
         this.actionsPool = actionsPool;
+        this.webhooksPool = webhooksPool;
     }
 
     @Override
@@ -30,6 +35,17 @@ public class SchedulerServiceImpl implements SchedulerService {
                 .actionId(action.getType().buildActionId(action))
                 .build()
         );
+    }
+
+    @Override
+    public void addWebhookEvent(String iun, String timelineId, Instant timestamp, String newStatus, String   WebhookEventType actionType) {
+        WebhookAction action = WebhookAction.builder()
+                .iun(iun)
+                .timestamp(timestamp)
+                .eventId(eventId)
+                .build();
+
+        this.webhooksPool.addWebhookAction(action, actionType);
     }
 
 }

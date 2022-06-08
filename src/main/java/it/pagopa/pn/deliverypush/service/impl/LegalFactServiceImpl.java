@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.PnSafeStorageClient.SAFE_STORAGE_URL_PREFIX;
+
 @Service
 @Slf4j
 public class LegalFactServiceImpl implements LegalFactService {
@@ -85,6 +87,7 @@ public class LegalFactServiceImpl implements LegalFactService {
     public LegalFactDownloadMetadataResponse getLegalFactMetadata(String iun, LegalFactCategory legalFactType, String legalfactId) {
         log.debug( "getLegalFactMetadata for iun={} and legalfactId={}", iun, legalfactId );
         // la key è la legalfactid
+        legalfactId = legalfactId.replace(SAFE_STORAGE_URL_PREFIX, "");
         FileDownloadResponse fileDownloadResponse = safeStorageClient.getFile(legalfactId, false);
         LegalFactDownloadMetadataResponse response = new LegalFactDownloadMetadataResponse();
 
@@ -99,6 +102,7 @@ public class LegalFactServiceImpl implements LegalFactService {
     public ResponseEntity<Resource> getLegalfact(String iun, LegalFactCategory legalFactType, String legalfactId ) {
         log.debug( "getLegalfact for iun={} and legalfactId={}", iun, legalfactId );
         // la key è la legalfactid
+        legalfactId = legalfactId.replace(SAFE_STORAGE_URL_PREFIX, "");
         FileDownloadResponse fileDownloadResponse = safeStorageClient.getFile(legalfactId, false);
 
         try {
