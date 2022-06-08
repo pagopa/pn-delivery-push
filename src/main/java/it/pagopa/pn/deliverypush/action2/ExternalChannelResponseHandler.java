@@ -1,8 +1,12 @@
 package it.pagopa.pn.deliverypush.action2;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.CourtesyMessageProgressEvent;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.LegalMessageSentDetails;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.PaperProgressStatusEvent;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.SingleStatusUpdate;
 import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
+import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -13,12 +17,14 @@ public class ExternalChannelResponseHandler {
     private final DigitalWorkFlowHandler digitalWorkFlowHandler;
     private final AnalogWorkflowHandler analogWorkflowHandler;
     private final ExternalChannelUtils externalChannelUtils;
+    private final TimelineUtils timelineUtils;
 
     public ExternalChannelResponseHandler(DigitalWorkFlowHandler digitalWorkFlowHandler, AnalogWorkflowHandler analogWorkflowHandler,
-                                          ExternalChannelUtils externalChannelUtils) {
+                                          ExternalChannelUtils externalChannelUtils, TimelineUtils timelineUtils) {
         this.digitalWorkFlowHandler = digitalWorkFlowHandler;
         this.analogWorkflowHandler = analogWorkflowHandler;
         this.externalChannelUtils = externalChannelUtils;
+        this.timelineUtils = timelineUtils;
     }
 
     /**
@@ -27,36 +33,71 @@ public class ExternalChannelResponseHandler {
      *
      * @param response Notification response
      */
-    public void extChannelResponseReceiver(ExtChannelResponse response) {
-        log.info("Get response from external channel with status {} - iun {} eventId {} ", response.getResponseStatus(), response.getIun(), response.getEventId());
-        TimelineElementInternal notificationTimelineElement = externalChannelUtils.getExternalChannelNotificationTimelineElement(response.getIun(), response.getEventId());
+    public void extChannelResponseReceiver(SingleStatusUpdate response) {
+        if (response.getDigitalCourtesy() != null)
+            courtesyUpdate(response.getDigitalCourtesy());
+        else if (response.getDigitalLegal() != null)
+            legalUpdate(response.getDigitalLegal());
+        else if (response.getAnalogMail() != null)
+            paperUpdate(response.getAnalogMail());
+        else
+            handleError(response);
+    }
 
-        log.debug("Get notification element ok, category {} - iun {} eventId {} ", notificationTimelineElement.getCategory(), response.getIun(), response.getEventId());
 
-        if (notificationTimelineElement.getCategory() != null) {
-            switch (notificationTimelineElement.getCategory()) {
-                case SEND_DIGITAL_DOMICILE:
-                    digitalWorkFlowHandler.handleExternalChannelResponse(response, notificationTimelineElement);
-                    break;
-                case SEND_ANALOG_DOMICILE:
-                    analogWorkflowHandler.extChannelResponseHandler(response, notificationTimelineElement);
-                    break;
-                case SEND_SIMPLE_REGISTERED_LETTER:
-                    //Non richiede azioni specifiche
-                    log.info("Received SEND_SIMPLE_REGISTERED_LETTER response for response status {} - iun {} eventId {} ", response.getResponseStatus(), response.getIun(), response.getEventId());
-                    break;
-                default:
-                    handleError(response, notificationTimelineElement);
-                    break;
-            }
-        } else {
-            handleError(response, notificationTimelineElement);
+    private void paperUpdate(PaperProgressStatusEvent event)
+    {
+        try {
+            log.info("Received PaperProgressStatusEvent event for requestId={} - status={} details={} deliveryfailcause={}", event.getRequestId(), event.getStatusCode(), event.getStatusDescription(), event.getDeliveryFailureCause());
+            String iun = timelineUtils.getIunFromTimelineId(event.getRequestId());
+            TimelineElementInternal notificationTimelineElement = externalChannelUtils.getExternalChannelNotificationTimelineElement(iun, event.getRequestId());
+
+            analogWorkflowHandler.extChannelResponseHandler(event, notificationTimelineElement);
+        } catch (PnInternalException e) {
+            log.error("Exception legalUpdate", e);
+            throw e;
+        } catch (Exception e) {
+            log.error("Exception legalUpdate", e);
+            throw new PnInternalException("Exception on legalUpdate", e);
+        }
+
+    }
+
+    private void legalUpdate(LegalMessageSentDetails event)
+    {
+        try {
+            log.info("Received LegalMessageSentDetails event for requestId={} - status={} details={} eventcode={}", event.getRequestId(), event.getStatus(), event.getEventDetails(), event.getEventCode());
+            String iun = timelineUtils.getIunFromTimelineId(event.getRequestId());
+            TimelineElementInternal notificationTimelineElement = externalChannelUtils.getExternalChannelNotificationTimelineElement(iun, event.getRequestId());
+
+            digitalWorkFlowHandler.handleExternalChannelResponse(event, notificationTimelineElement);
+        } catch (PnInternalException e) {
+            log.error("Exception legalUpdate", e);
+            throw e;
+        } catch (Exception e) {
+            log.error("Exception legalUpdate", e);
+            throw new PnInternalException("Exception on legalUpdate", e);
         }
     }
 
-    private void handleError(ExtChannelResponse response, TimelineElementInternal notificationTimelineElement) {
-        log.error("Specified category {} is not possibile - iun {} eventId {}", notificationTimelineElement.getCategory(), response.getIun(), response.getEventId());
-        throw new PnInternalException("Specified category " + notificationTimelineElement.getCategory() + " is not possibile");
+
+    private void courtesyUpdate(CourtesyMessageProgressEvent event)
+    {
+        try {
+            // per ora non è previsto nulla
+            log.info("Received CourtesyMessageProgressEvent event for requestId={} - status={} details={} eventcode={}", event.getRequestId(), event.getStatus(), event.getEventDetails(), event.getEventCode());
+        } catch (PnInternalException e) {
+            log.error("Exception legalUpdate", e);
+            throw e;
+        } catch (Exception e) {
+            log.error("Exception legalUpdate", e);
+            throw new PnInternalException("Exception on legalUpdate", e);
+        }
+    }
+
+    private void handleError(SingleStatusUpdate response) {
+        log.error("None event specified in extchannelevent event={}", response);
+        throw new PnInternalException("None event specified, invalid event update received from external-channel");
     }
 
 }

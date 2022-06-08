@@ -182,6 +182,18 @@ Parameters:
   PnDeliveryPushShedLockDynamoTableArn:
     Type: String
     Description: ARN of dynamodb table containing
+  
+  AlarmSNSTopicArn:
+    Type: String
+    Description: ARN of alarm topic
+
+  ExternalChannelBaseUrl:
+    Type: String
+    Description: url base di external channel
+
+  SandboxSafeStorageBaseUrl:
+    Type: String
+    Description: url base di safe storage
 
 Resources:
 
@@ -194,11 +206,12 @@ Resources:
         MicroServiceUniqueName: !Sub '${ProjectName}-delivery-push'
         CpuValue: 1024
         MemoryAmount: 2GB
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
         ContainerImageURI: !Sub '${ContainerImageUri}'
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
         ContainerEnvEntry2: !Sub 'AWS_BUCKETNAME=${LegalFactsBucketName}'
         ContainerEnvEntry3: !Sub 'PN_CLIENTS_ADDRESSBOOKBASEURL=${AddressBookUrl}'
-        ContainerEnvEntry4: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNELBASEURL=http://${ApplicationLoadBalancerDomain}:8080/external-channel'
+        ContainerEnvEntry4: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNELBASEURL=${ExternalChannelBaseUrl}'
         ContainerEnvEntry5: !Sub 'PN_DELIVERYPUSH_TOPICS_NEWNOTIFICATIONS=${DeliveryPushInputsQueueName}'
         ContainerEnvEntry6: !Sub 'PN_DELIVERYPUSH_TOPICS_TOEXTERNALCHANNELPEC=${ExternalChannelsInputsQueueName}'
         ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_TOEXTERNALCHANNELEMAIL=${ExternalChannelsInputsQueueName}'
@@ -215,20 +228,8 @@ Resources:
         ContainerEnvEntry18: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_REFINEMENTTIMEFORCOMPLETELYUNREACHABLE=${RefinementTimeCompletelyUnreachable}'
         ContainerEnvEntry19: !Sub 'PN_DELIVERYPUSH_DATAVAULTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry20: !Sub 'PN_DELIVERYPUSH_USERATTRIBUTESBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        #ContainerEnvEntry21: !Sub 'SPRING_DATA_CASSANDRA_CONTACTPOINTS=cassandra.${AWS::Region}.${AWS::URLSuffix}:9142'
-# WAIT for real client certificates (PN-565)
-#        ContainerEnvEntry21:
-#          Fn::Join:
-#            - '='
-#            - - CLIENT_CERTIFICATE_PEM
-#              - '{{resolve:secretsmanager:pa_webhook_client_cert:SecretString:client_certificate_pem}}'
-#        ContainerEnvEntry22:
-#          Fn::Join:
-#            - '='
-#            - - CLIENT_KEY_PEM
-#              - '{{resolve:secretsmanager:pa_webhook_client_cert:SecretString:client_key_pem}}'
-        ContainerEnvEntry21: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName}'
-        ContainerEnvEntry22: 'PN_DELIVERYPUSH_FEATUREFLAGS_WORKFLOW=v2'
+        ContainerEnvEntry21: !Sub 'PN_DELIVERYPUSH_SAFESTORAGEBASEURL=${SandboxSafeStorageBaseUrl}'
+        ContainerEnvEntry22: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName}'
         ContainerEnvEntry23: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry24: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
         ContainerEnvEntry25: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'

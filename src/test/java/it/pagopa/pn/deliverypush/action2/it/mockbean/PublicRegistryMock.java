@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action2.it.mockbean;
 
 import it.pagopa.pn.deliverypush.action2.PublicRegistryResponseHandler;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.externalclient.publicregistry.PublicRegistry;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
@@ -13,7 +14,7 @@ public class PublicRegistryMock implements PublicRegistry {
 
     public static final int WAITING_TIME = 100;
     private final PublicRegistryResponseHandler publicRegistryResponseHandler;
-    private Map<String, DigitalAddress> digitalAddressResponse;
+    private Map<String, LegalDigitalAddressInt> digitalAddressResponse;
     private Map<String, PhysicalAddress> physicalAddressResponse;
 
 
@@ -28,7 +29,7 @@ public class PublicRegistryMock implements PublicRegistry {
         this.physicalAddressResponse = new HashMap<>();
     }
 
-    public void addDigital(String key, DigitalAddress value) {
+    public void addDigital(String key, LegalDigitalAddressInt value) {
         this.digitalAddressResponse.put(key,value);
     }
 
@@ -49,7 +50,7 @@ public class PublicRegistryMock implements PublicRegistry {
     }
 
     private void simulateDigitalAddressResponse(String taxId, String correlationId) {
-        DigitalAddress address = this.digitalAddressResponse.get(taxId);
+        LegalDigitalAddressInt address = this.digitalAddressResponse.get(taxId);
 
         PublicRegistryResponse response = PublicRegistryResponse.builder()
                 .correlationId(correlationId)

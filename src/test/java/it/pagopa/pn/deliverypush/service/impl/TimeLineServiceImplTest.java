@@ -339,7 +339,7 @@ class TimeLineServiceImplTest {
                 .digitalAddressSource(DigitalAddressSource.SPECIAL)
                 .digitalAddress(
                         DigitalAddress.builder()
-                                .type(DigitalAddress.TypeEnum.PEC)
+                                .type("PEC")
                                 .build()
                 )
                 .recIndex(0)

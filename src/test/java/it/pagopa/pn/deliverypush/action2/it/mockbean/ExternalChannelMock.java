@@ -1,19 +1,22 @@
 package it.pagopa.pn.deliverypush.action2.it.mockbean;
 
-import it.pagopa.pn.api.dto.events.PnExtChnEmailEvent;
-import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
-import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
-import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.*;
 import it.pagopa.pn.deliverypush.action2.ExternalChannelResponseHandler;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseStatus;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 public class ExternalChannelMock implements ExternalChannelSendClient {
     //DIGITAL
     public static final String EXT_CHANNEL_SEND_FAIL_BOTH = "fail-both";
@@ -27,6 +30,7 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
     //Esempio: La combinazione di EXT_CHANNEL_SEND_NEW_ADDR + EXTCHANNEL_SEND_OK ad esempio significa -> Invio notifica fallito ma con nuovo indirizzo trovato e l'invio a tale indirzzo avrà successo
 
     public static final int WAITING_TIME = 100;
+    private static final Pattern NEW_ADDRESS_INPUT_PATTERN = Pattern.compile("^" + EXT_CHANNEL_SEND_NEW_ADDR + "(.*)$");
 
     ExternalChannelResponseHandler externalChannelHandler;
 
@@ -35,112 +39,129 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
     }
 
     @Override
-    public void sendNotification(PnExtChnEmailEvent event) {
+    public void sendLegalNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, LegalDigitalAddressInt digitalAddress, String timelineEventId) {
+        //Invio messaggio legali necessità di risposta da external channel
+        sendDigitalNotification(digitalAddress.getAddress(), notificationInt, timelineEventId, true);
+    }
+
+
+//    private void simulateExternalChannelPecResponse(PnExtChnPecEvent event) {
+//        ResponseStatus status;
+//=======
+    public void sendCourtesyNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, CourtesyDigitalAddressInt digitalAddress, String timelineEventId) {
         //Invio messaggio di cortesia non necessità di risposta da external channel
+//>>>>>>> develop
+
+        //sendDigitalNotification(digitalAddress.getAddress(), notificationInt, timelineEventId, false);
+
     }
 
-    @Override
-    public void sendNotification(PnExtChnPecEvent event) {
-        new Thread(() -> {
-            try {
-                Thread.sleep(WAITING_TIME);
-            } catch (InterruptedException exc) {
-                throw new RuntimeException( exc );
-            }
-            
-            simulateExternalChannelPecResponse(event);
-        }).start();
-    }
-    
-    private static final Pattern NEW_ADDRESS_INPUT_PATTERN = Pattern.compile("^" + EXT_CHANNEL_SEND_NEW_ADDR + "(.*)$");
+    private void sendDigitalNotification(String address, NotificationInt notificationInt, String timelineEventId, boolean legal){
+        log.info("sendDigitalNotification address:{} requestId:{}", address, timelineEventId);
 
-    @Override
-    public void sendNotification(PnExtChnPaperEvent event) {
-        new Thread(() -> {
-            try {
-                Thread.sleep(WAITING_TIME);
-            } catch (InterruptedException exc) {
-                throw new RuntimeException( exc );
-            }
-            
-            simulateExternalChannelPaperResponse(event);
-        }).start();
-    }
-    
-    private void simulateExternalChannelPecResponse(PnExtChnPecEvent event) {
-        ResponseStatus status;
+        ProgressEventCategory status;
 
-        String pecAddress = event.getPayload().getPecAddress();
-
-        String eventId = event.getHeader().getEventId();
+        String eventId = timelineEventId;
         String retryNumberPart = eventId.replaceFirst(".*([0-9]+)$", "$1");
 
-        if (pecAddress != null) {
-            String domainPart = pecAddress.replaceFirst(".*@", "");
+        if (address != null) {
+            String domainPart = address.replaceFirst(".*@", "");
 
             if (domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_BOTH)
                     || (domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_FIRST) && "1".equals(retryNumberPart))) {
-                status = ResponseStatus.KO;
+                status = ProgressEventCategory.ERROR;
             } else if (domainPart.startsWith(EXT_CHANNEL_WORKS) || domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_FIRST)) {
-                status = ResponseStatus.OK;
+                status = ProgressEventCategory.OK;
             } else {
-                throw new IllegalArgumentException("PecAddress " + pecAddress + " do not match test rule for mocks");
+                throw new IllegalArgumentException("PecAddress " + address + " do not match test rule for mocks");
             }
         } else {
             throw new IllegalArgumentException("PecAddress is null");
         }
 
-        ExtChannelResponse extChannelResponse = ExtChannelResponse.builder()
-                .eventId(event.getHeader().getEventId())
-                .responseStatus(status)
-                .notificationDate(Instant.now())
-                .iun(event.getPayload().getIun())
-                .build();
-        externalChannelHandler.extChannelResponseReceiver(extChannelResponse);
+        SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();
+        if (legal)
+        {
+            LegalMessageSentDetails extChannelResponse = new LegalMessageSentDetails();
+            extChannelResponse.setStatus(status);
+            extChannelResponse.setEventTimestamp(Instant.now());
+            extChannelResponse.setRequestId(timelineEventId);
+
+            singleStatusUpdate.setDigitalLegal(extChannelResponse);
+        }
+        else
+        {
+            CourtesyMessageProgressEvent extChannelResponse = new CourtesyMessageProgressEvent();
+            extChannelResponse.setStatus(status);
+            extChannelResponse.setEventTimestamp(Instant.now());
+            extChannelResponse.setRequestId(timelineEventId);
+
+            singleStatusUpdate.setDigitalCourtesy(extChannelResponse);
+        }
+
+
+        externalChannelHandler.extChannelResponseReceiver(singleStatusUpdate);
     }
 
-    private void simulateExternalChannelPaperResponse(PnExtChnPaperEvent event) {
-        ResponseStatus status;
+//<<<<<<< HEAD
+//    private void simulateExternalChannelPaperResponse(PnExtChnPaperEvent event) {
+//        ResponseStatus status;
+//=======
+
+    @Override
+    public void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, PhysicalAddress physicalAddress, String timelineEventId, ANALOG_TYPE analogType, String aarKey) {
+        log.info("sendAnalogNotification address:{} recipient:{} requestId:{} aarkey:{}", physicalAddress.getAddress(), recipientInt.getDenomination(), timelineEventId, aarKey);
+        String status;
+//>>>>>>> develop
         String newAddress;
 
-        PhysicalAddress destinationAddress = event.getPayload().getDestinationAddress();
+        PhysicalAddress destinationAddress = physicalAddress;
         String street = destinationAddress.getAddress();
 
         Matcher matcher = NEW_ADDRESS_INPUT_PATTERN.matcher(street);
         if (matcher.find()) {
-            status = ResponseStatus.KO;
+            status = "__005__";
             newAddress = matcher.group(1).trim();
         } else if (street.startsWith(EXTCHANNEL_SEND_FAIL)) {
-            status = ResponseStatus.KO;
+            status = "__005__";
             newAddress = null;
         } else if (street.startsWith(EXTCHANNEL_SEND_SUCCESS)) {
-            status = ResponseStatus.OK;
+            status = "__004__";
             newAddress = null;
         } else {
             throw new IllegalArgumentException("Address " + street + " do not match test rule for mocks");
         }
 
 
-        ExtChannelResponse.ExtChannelResponseBuilder responseBuilder = ExtChannelResponse.builder()
-                .iun(event.getPayload().getIun())
-                .notificationDate(Instant.now())
-                .responseStatus(status)
-                .eventId(event.getHeader().getEventId());
-
+        PaperProgressStatusEvent extChannelResponse = new PaperProgressStatusEvent();
+        extChannelResponse.setStatusCode(status);
+        extChannelResponse.setRequestId(timelineEventId);
+        extChannelResponse.setIun(notificationInt.getIun());
+        extChannelResponse.setStatusDateTime(Instant.now());
+        AttachmentDetails attachmentDetails = new AttachmentDetails();
+        attachmentDetails.setUrl("safestorage://urlditest");
+        attachmentDetails.setId("123");
+        attachmentDetails.setDate(Instant.now());
+        attachmentDetails.setDocumentType("ricevuta");
+        extChannelResponse.setAttachments(List.of(attachmentDetails));
         if (newAddress != null) {
 
-            it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress newDestinationAddress = it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress.builder()
-                    .foreignState(destinationAddress.getForeignState())
-                    .zip(destinationAddress.getZip())
-                    .at(destinationAddress.getAt())
-                    .addressDetails(destinationAddress.getAddressDetails())
-                    .municipality(destinationAddress.getMunicipality())
-                    .province(destinationAddress.getProvince())
-                    .address(newAddress)
-                    .build();
-            responseBuilder.analogNewAddressFromInvestigation(newDestinationAddress);
+            DiscoveredAddress newDestinationAddress = new DiscoveredAddress();
+            newDestinationAddress.setCountry(destinationAddress.getForeignState());
+            newDestinationAddress.setCap(destinationAddress.getZip());
+            newDestinationAddress.setNameRow2(destinationAddress.getAt());
+            newDestinationAddress.setAddressRow2(destinationAddress.getAddressDetails());
+            newDestinationAddress.setCity(destinationAddress.getMunicipality());
+            newDestinationAddress.setPr(destinationAddress.getProvince());
+            newDestinationAddress.setAddress(newAddress);
+
+            extChannelResponse.setDiscoveredAddress(newDestinationAddress);
         }
 
-        externalChannelHandler.extChannelResponseReceiver(responseBuilder.build());
+        SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();
+        singleStatusUpdate.setAnalogMail(extChannelResponse);
+
+
+        externalChannelHandler.extChannelResponseReceiver(singleStatusUpdate);
     }
 }

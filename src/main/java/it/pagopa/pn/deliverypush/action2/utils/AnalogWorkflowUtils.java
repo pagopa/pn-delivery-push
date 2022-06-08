@@ -12,6 +12,7 @@ import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -57,8 +58,8 @@ public class AnalogWorkflowUtils {
         return false;
     }
 
-    public void addAnalogFailureAttemptToTimeline(ExtChannelResponse response, int sentAttemptMade, SendPaperDetails sendPaperDetails) {
-        addTimelineElement(timelineUtils.buildAnalogFailureAttemptTimelineElement(response, sentAttemptMade, sendPaperDetails));
+    public void addAnalogFailureAttemptToTimeline(String iun, int sentAttemptMade, List<LegalFactsId> attachmentKeys, PhysicalAddress newAddress, List<String> errors, SendPaperDetails sendPaperDetails) {
+        addTimelineElement(timelineUtils.buildAnalogFailureAttemptTimelineElement(iun, sentAttemptMade, attachmentKeys, newAddress, errors, sendPaperDetails));
     }
 
     private void addTimelineElement(TimelineElementInternal element) {

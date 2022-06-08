@@ -11,8 +11,6 @@ components:
         type:
           type: string
           description: tipo di indirizzo PEC, REM, SERCQ, ...
-          enum:
-          - PEC
         address:
           type: string
           description: account@domain

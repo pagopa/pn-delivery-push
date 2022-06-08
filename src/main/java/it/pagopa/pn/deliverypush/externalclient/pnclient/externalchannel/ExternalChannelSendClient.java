@@ -1,14 +1,25 @@
 package it.pagopa.pn.deliverypush.externalclient.pnclient.externalchannel;
 
 
-import it.pagopa.pn.api.dto.events.PnExtChnEmailEvent;
-import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
-import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 
 public interface ExternalChannelSendClient {
-    void sendNotification(PnExtChnEmailEvent pnExtChnEmailEvent);
 
-    void sendNotification(PnExtChnPecEvent pnExtChnPecEvent);
+    // TODO da spostare in PhysicalAddressInt quando e se ci sarà
+    enum ANALOG_TYPE{
+        REGISTERED_LETTER_890,
+        SIMPLE_REGISTERED_LETTER,
+        AR_REGISTERED_LETTER
+    }
 
-    void sendNotification(PnExtChnPaperEvent pnExtChnPecEvent);
+
+    void sendLegalNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, LegalDigitalAddressInt digitalAddress, String timelineEventId);
+
+    void sendCourtesyNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, CourtesyDigitalAddressInt digitalAddress, String timelineEventId);
+
+    void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, PhysicalAddress physicalAddress, String timelineEventId, ANALOG_TYPE analogType, String aarKey);
 }

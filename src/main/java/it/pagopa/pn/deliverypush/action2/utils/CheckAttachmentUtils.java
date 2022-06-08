@@ -1,29 +1,24 @@
 package it.pagopa.pn.deliverypush.action2.utils;
 
-import it.pagopa.pn.commons.abstractions.FileData;
-import it.pagopa.pn.commons.abstractions.FileStorage;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
+import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-import java.io.InputStream;
 
 @Component
 @Slf4j
 public class CheckAttachmentUtils {
     private final NotificationReceiverValidator validator;
-    private final FileStorage fileStorage;
+    private final PnSafeStorageClient safeStorageClient;
 
-    public CheckAttachmentUtils(NotificationReceiverValidator validator, FileStorage fileStorage) {
+    public CheckAttachmentUtils(NotificationReceiverValidator validator, PnSafeStorageClient safeStorageClient) {
         this.validator = validator;
-        this.fileStorage = fileStorage;
+        this.safeStorageClient = safeStorageClient;
     }
     
     public void validateAttachment(NotificationInt notification ) throws PnValidationException {
@@ -56,36 +51,17 @@ public class CheckAttachmentUtils {
     private void checkAttachment(NotificationDocumentInt attachment) {
         NotificationDocumentInt.Ref ref = attachment.getRef();
 
-        FileData fd = fileStorage.getFileVersion( ref.getKey(),ref.getVersionToken() );
+        FileDownloadResponse fd = safeStorageClient.getFile(ref.getKey(),true);
 
         String attachmentKey = fd.getKey();
 
-        try(InputStream contentStream = fd.getContent() ) {
-
-            long startTime = System.currentTimeMillis();
-            log.debug( "Compute sha256 for attachment with key={} START", attachmentKey);
-            String actualSha256 = DigestUtils.sha256Hex( contentStream );
-            long deltaTime = System.currentTimeMillis() - startTime;
-            log.debug( "Compute sha256 for attachment with key={} END in={}ms", attachmentKey, deltaTime );
-
-            startTime = System.currentTimeMillis();
-            log.debug( "Check preload digest for attachment with key={} START", attachmentKey);
-            validator.checkPreloadedDigests(
-                    attachmentKey,
-                    attachment.getDigests(),
-                    NotificationDocumentInt.Digests.builder()
-                            .sha256( actualSha256 )
-                            .build()
-            );
-            log.debug( "Check preload digest for attachment with key={} END in={}ms", attachmentKey,
-                    System.currentTimeMillis() - startTime );
-
-            log.debug( "Check attachment digest END" );
-
-        } catch (IOException exc) {
-            String msg = "Error validating sha256 for attachment=" + attachmentKey + " version=" + fd.getVersionId();
-            log.error( msg );
-            throw new PnInternalException( msg, exc );
-        }
+        log.debug( "Check preload digest for attachment with key={}", attachmentKey);
+        validator.checkPreloadedDigests(
+                attachmentKey,
+                attachment.getDigests(),
+                NotificationDocumentInt.Digests.builder()
+                        .sha256( fd.getChecksum() )
+                        .build()
+        );
     }
 }

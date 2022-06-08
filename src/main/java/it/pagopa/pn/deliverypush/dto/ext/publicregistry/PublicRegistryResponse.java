@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.dto.ext.publicregistry;
 
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import lombok.*;
 
@@ -11,6 +11,6 @@ import lombok.*;
 @EqualsAndHashCode
 public class PublicRegistryResponse {
     private String correlationId;
-    private DigitalAddress digitalAddress;
+    private LegalDigitalAddressInt digitalAddress;
     private PhysicalAddress physicalAddress;
 }

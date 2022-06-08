@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.rest;
 
 import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFailed;
-import it.pagopa.pn.api.rest.PnDeliveryPushRestConstants;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

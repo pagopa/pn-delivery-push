@@ -44,7 +44,7 @@ public class TimeLineServiceImpl implements TimelineService {
     public void addTimelineElement(TimelineElementInternal dto) {
         //TODO Verificare se possibile ristrutturare il codice per ricevere la Notification in ingresso, invece di effettuare la chiamata a delivery
 
-        log.debug("addTimelineElement - IUN {} and timelineId {}", dto.getIun(), dto.getElementId());
+        log.debug("addTimelineElement - IUN={} and timelineId={}", dto.getIun(), dto.getElementId());
         NotificationInt notification = notificationService.getNotificationByIun(dto.getIun());
 
         if (notification != null) {
@@ -53,14 +53,14 @@ public class TimeLineServiceImpl implements TimelineService {
             confidentialInformationService.saveTimelineConfidentialInformation(dto);
             timelineDao.addTimelineElement(dto);
         } else {
-            log.error("Try to update Timeline and Status for non existing iun {}", dto.getIun());
+            log.error("Try to update Timeline and Status for non existing iun={}", dto.getIun());
             throw new PnInternalException("Try to update Timeline and Status for non existing iun " + dto.getIun());
         }
     }
 
     @Override
     public Optional<TimelineElementInternal> getTimelineElement(String iun, String timelineId) {
-        log.debug("GetTimelineElement - IUN {} and timelineId {}", iun, timelineId);
+        log.debug("GetTimelineElement - IUN={} and timelineId={}", iun, timelineId);
         //TODO Valutare se possibile passare la category della timeline richiesta e in base verificare se sono presenti informazioni confidenziali,
         // dunque se effettuare la richiesta a data-vault
 
@@ -86,13 +86,19 @@ public class TimeLineServiceImpl implements TimelineService {
         
         if(confidentialDto.getDigitalAddress() != null){
             DigitalAddress address = details.getDigitalAddress();
+            if (address == null)
+            {
+                address = DigitalAddress.builder().build();
+                details.setDigitalAddress(address);
+            }
+
             address.setAddress(confidentialDto.getDigitalAddress());
         }
     }
 
     @Override
     public <T> Optional<T> getTimelineElementDetails(String iun, String timelineId, Class<T> timelineDetailsClass) {
-        log.debug("GetTimelineElement - IUN {} and timelineId {}", iun, timelineId);
+        log.debug("GetTimelineElement - IUN={} and timelineId={}", iun, timelineId);
 
         Optional<TimelineElementInternal> row = getTimelineElement(iun, timelineId);
         
@@ -106,7 +112,7 @@ public class TimeLineServiceImpl implements TimelineService {
 
     @Override
     public Set<TimelineElementInternal> getTimeline(String iun) {
-        log.debug("GetTimeline - iun {} ", iun);
+        log.debug("GetTimeline - iun={} ", iun);
         Set<TimelineElementInternal> setTimelineElements =  this.timelineDao.getTimeline(iun);
 
         Optional<Map<String, ConfidentialTimelineElementDtoInt>> mapConfOtp;
@@ -130,7 +136,7 @@ public class TimeLineServiceImpl implements TimelineService {
 
     @Override
     public NotificationHistoryResponse getTimelineAndStatusHistory(String iun, int numberOfRecipients, Instant createdAt) {
-        log.debug("getTimelineAndStatusHistory Start - iun {} ", iun);
+        log.debug("getTimelineAndStatusHistory Start - iun={} ", iun);
         
         Set<TimelineElementInternal> timelineElements = getTimeline(iun);
         
@@ -141,7 +147,7 @@ public class TimeLineServiceImpl implements TimelineService {
 
         NotificationStatus currentStatus = statusUtils.getCurrentStatus( statusHistory );
         
-        log.debug("getTimelineAndStatusHistory Ok - iun {} ", iun);
+        log.debug("getTimelineAndStatusHistory Ok - iun={} ", iun);
 
         return createResponse(timelineElements, statusHistory, currentStatus);
     }
