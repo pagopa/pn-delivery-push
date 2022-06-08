@@ -5,6 +5,7 @@ import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDow
 
 public interface PnSafeStorageClient {
 
+    String SAFE_STORAGE_URL_PREFIX = "safestorage://";
 
     FileDownloadResponse getFile(String fileKey, Boolean metadataOnly) ;
 

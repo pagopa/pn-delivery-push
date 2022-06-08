@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.PnSafeStorageClient.SAFE_STORAGE_URL_PREFIX;
+
 @Service
 @Slf4j
 public class LegalFactServiceImpl implements LegalFactService {
@@ -123,7 +125,7 @@ public class LegalFactServiceImpl implements LegalFactService {
     {
         return iun.replaceAll("[^a-zA-Z0-9]", "")
                 + "_" + legalFactType.getValue()
-                + "_" + legalfactId.replaceAll("[^a-zA-Z0-9]", "")
+                + "_" + legalfactId.replace(SAFE_STORAGE_URL_PREFIX, "").replaceAll("[^a-zA-Z0-9]", "")
                 + ".pdf";
     }
 

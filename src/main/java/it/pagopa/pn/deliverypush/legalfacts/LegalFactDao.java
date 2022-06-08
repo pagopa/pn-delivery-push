@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 
+import static it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.PnSafeStorageClient.SAFE_STORAGE_URL_PREFIX;
+
 @Component
 public class LegalFactDao {
 
@@ -22,7 +24,6 @@ public class LegalFactDao {
     public static final String SAVED = "SAVED";
     public static final String PN_AAR = "PN_AAR";
 
-    private static final String SAFE_STORAGE_URL_PREFIX = "safestorage://";
     private final LegalFactGenerator legalFactBuilder;
 
     private final PnSafeStorageClient safeStorageClient;
