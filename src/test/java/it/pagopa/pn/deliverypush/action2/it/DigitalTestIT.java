@@ -278,7 +278,6 @@ class DigitalTestIT {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-//<<<<<<< HEAD
         String timelineId = TimelineEventId.REFINEMENT.buildEventId(
                 EventId.builder()
                         .iun(iun)
@@ -291,8 +290,6 @@ class DigitalTestIT {
                 Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent())
         );
         
-//=======
-//>>>>>>> develop
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
@@ -482,14 +479,11 @@ class DigitalTestIT {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-//<<<<<<< HEAD
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().untilAsserted(() ->
                 Assertions.assertEquals(NotificationStatus.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
 
-//=======
-//>>>>>>> develop
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
@@ -1162,14 +1156,12 @@ class DigitalTestIT {
         TestUtils.checkGetAddress(iun, recIndex1, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         TestUtils.checkGetAddress(iun, recIndex2, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
-//<<<<<<< HEAD
         //Viene verificato per il primo recipient che il primo tentativo sia avvenuto con il platform address
         TestUtils.checkExternalChannelPecSendFromTimeline( iun, recIndex1, 0, platformAddress1, DigitalAddressSource.PLATFORM,  timelineService );
         
         //Viene verificato per il primo recipient che il secondo tentativo sia avvenuto con il domicilio digitale
         TestUtils.checkExternalChannelPecSendFromTimeline( iun, recIndex1, 0, digitalDomicile1, DigitalAddressSource.SPECIAL, timelineService );
         
-//=======
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
@@ -1183,7 +1175,6 @@ class DigitalTestIT {
         //Viene verificato per il primo recipient che il secondo tentativo sia avvenuto con il domicilio digitale
         TestUtils.checkExternalChannelPecSend(iun, digitalDomicile1.getAddress(), notificationIntsEvents.get(1).getIun(), digitalAddressesEvents.get(1).getAddress());
 
-//>>>>>>> develop
         //Viene verificato per il primo recipient che il workflow abbia avuto successo
         TestUtils.checkSuccessDigitalWorkflowFromTimeline(iun, recIndex1, digitalDomicile1, timelineService);
         
@@ -1191,15 +1182,6 @@ class DigitalTestIT {
         TestUtils.checkRefinement(iun, recIndex1, timelineService);
 
         //Viene verificato per il secondo recipient che il primo tentativo sia avvenuto con il platform address
-//<<<<<<< HEAD
-//        TestUtils.checkExternalChannelPecSendFromTimeline( iun, recIndex2, 0, platformAddress2, DigitalAddressSource.PLATFORM,  timelineService );
-        //Viene verificato per il secondo recipient che il secondo tentativo sia avvenuto con il domicilio digitale
-//        TestUtils.checkExternalChannelPecSendFromTimeline( iun, recIndex2, 0, digitalDomicile2, DigitalAddressSource.SPECIAL,  timelineService );
-        //Viene verificato per il secondo recipient che il terzo tentativo sia avvenuto con il platform address
-//        TestUtils.checkExternalChannelPecSendFromTimeline( iun, recIndex2, 1, platformAddress2, DigitalAddressSource.PLATFORM,  timelineService );
-        //Viene verificato per il secondo recipient che il quarto tentativo sia avvenuto con il domicilio digitale
-//        TestUtils.checkExternalChannelPecSendFromTimeline( iun, recIndex2, 1, digitalDomicile2, DigitalAddressSource.SPECIAL,  timelineService );
-//=======
         TestUtils.checkExternalChannelPecSend(iun, platformAddress2.getAddress(), notificationIntsEvents.get(2).getIun(), digitalAddressesEvents.get(2).getAddress());
         //Viene verificato per il secondo recipient che il secondo tentativo sia avvenuto con il domicilio digitale
         TestUtils.checkExternalChannelPecSend(iun, digitalDomicile2.getAddress(), notificationIntsEvents.get(3).getIun(), digitalAddressesEvents.get(3).getAddress());
@@ -1207,8 +1189,6 @@ class DigitalTestIT {
         TestUtils.checkExternalChannelPecSend(iun, platformAddress2.getAddress(), notificationIntsEvents.get(4).getIun(), digitalAddressesEvents.get(4).getAddress());
         //Viene verificato per il secondo recipient che il quarto tentativo sia avvenuto con il domicilio digitale
         TestUtils.checkExternalChannelPecSend(iun, digitalDomicile2.getAddress(), notificationIntsEvents.get(5).getIun(), digitalAddressesEvents.get(5).getAddress());
-
-//>>>>>>> develop
 
         //Viene verificato per il secondo recipient che il workflow abbia avuto successo
         TestUtils.checkSuccessDigitalWorkflowFromTimeline(iun, recIndex2, digitalDomicile2, timelineService);

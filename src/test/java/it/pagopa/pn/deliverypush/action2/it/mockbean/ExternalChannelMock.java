@@ -45,12 +45,8 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
     }
 
 
-//    private void simulateExternalChannelPecResponse(PnExtChnPecEvent event) {
-//        ResponseStatus status;
-//=======
     public void sendCourtesyNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, CourtesyDigitalAddressInt digitalAddress, String timelineEventId) {
         //Invio messaggio di cortesia non necessità di risposta da external channel
-//>>>>>>> develop
 
         //sendDigitalNotification(digitalAddress.getAddress(), notificationInt, timelineEventId, false);
 
@@ -103,16 +99,10 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
         externalChannelHandler.extChannelResponseReceiver(singleStatusUpdate);
     }
 
-//<<<<<<< HEAD
-//    private void simulateExternalChannelPaperResponse(PnExtChnPaperEvent event) {
-//        ResponseStatus status;
-//=======
-
     @Override
     public void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, PhysicalAddress physicalAddress, String timelineEventId, ANALOG_TYPE analogType, String aarKey) {
         log.info("sendAnalogNotification address:{} recipient:{} requestId:{} aarkey:{}", physicalAddress.getAddress(), recipientInt.getDenomination(), timelineEventId, aarKey);
         String status;
-//>>>>>>> develop
         String newAddress;
 
         PhysicalAddress destinationAddress = physicalAddress;
