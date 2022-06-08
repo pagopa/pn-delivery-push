@@ -2,11 +2,9 @@ package it.pagopa.pn.deliverypush.rest;
 
 import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.api.rest.PnDeliveryPushRestConstants;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.LegalFactsApi;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.LegalFactService;
-import it.pagopa.pn.deliverypush.service.NotificationService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,11 +19,8 @@ import java.util.List;
 public class PnLegalFactsController implements LegalFactsApi {
 
     private final LegalFactService legalFactService;
-    private final NotificationService notificationService;
-    
-    public PnLegalFactsController(LegalFactService legalFactService, NotificationService notificationService) { this.legalFactService = legalFactService;
-        this.notificationService = notificationService;
-    }
+
+    public PnLegalFactsController(LegalFactService legalFactService) { this.legalFactService = legalFactService; }
 
     @Override
     public Mono<ResponseEntity<LegalFactDownloadMetadataResponse>> getLegalFact(
@@ -39,8 +34,6 @@ public class PnLegalFactsController implements LegalFactsApi {
             ServerWebExchange exchange
     ) {
         return Mono.fromSupplier(()-> {
-            NotificationInt notificationInt = notificationService.getNotificationByIun(iun);
-            
             //TODO Da implementare quando disponibile safeStorage
             return ResponseEntity.ok(new LegalFactDownloadMetadataResponse());
         });
