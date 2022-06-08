@@ -1,12 +1,9 @@
 package it.pagopa.pn.deliverypush.action2.it;
 
-import it.pagopa.pn.api.dto.events.PnExtChnEmailEvent;
-import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
-import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
-import it.pagopa.pn.commons.abstractions.FileData;
-import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action2.*;
@@ -14,11 +11,13 @@ import it.pagopa.pn.deliverypush.action2.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action2.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action2.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action2.utils.*;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.PnSafeStorageClient;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.*;
@@ -27,7 +26,6 @@ import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
 import it.pagopa.pn.deliverypush.validator.preloaded_digest_error.DigestEqualityBean;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -38,8 +36,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.validation.ConstraintViolation;
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
@@ -63,6 +60,7 @@ import static org.mockito.Mockito.doThrow;
         LegalfactsMetadataUtils.class,
         DigitalWorkFlowUtils.class,
         CourtesyMessageUtils.class,
+        AarUtils.class,
         CompletelyUnreachableUtils.class,
         ExternalChannelUtils.class,
         AnalogWorkflowUtils.class,
@@ -107,7 +105,7 @@ class ValidationDocumentErrorTestIT {
     private ExternalChannelMock externalChannelMock;
     
     @SpyBean
-    private FileStorage fileStorage;
+    private PnSafeStorageClient safeStorageClient;
 
     @SpyBean
     private NotificationReceiverValidator notificationReceiverValidator;
@@ -153,12 +151,18 @@ class ValidationDocumentErrorTestIT {
         //Mock for get current date
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
         
-        //File mock to return for getFileVersion
-        FileData fileData = FileData.builder()
-                .content( new ByteArrayInputStream("Body".getBytes(StandardCharsets.UTF_8)) )
-                .build();
-        Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
-                .thenReturn( fileData );
+        //File mock to return for getFileAndDownloadContent
+        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
+        fileDownloadResponse.setContentType("application/pdf");
+        fileDownloadResponse.setContentLength(new BigDecimal(0));
+        fileDownloadResponse.setChecksum("123");
+        fileDownloadResponse.setKey("123");
+        fileDownloadResponse.setDownload(new FileDownloadInfo());
+        fileDownloadResponse.getDownload().setUrl("https://www.url.qualcosa.it");
+        fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
+
+        Mockito.when( safeStorageClient.getFile( Mockito.anyString(), Mockito.anyBoolean()))
+                .thenReturn( fileDownloadResponse );
         
         //Clear mock
         pnDeliveryClientMock.clear();
@@ -169,27 +173,27 @@ class ValidationDocumentErrorTestIT {
         pnDataVaultClientMock.clear();
     }
 
-    @Test @Disabled // TODO riabilitare dopo integrazione con safe storage
+    @Test
     void workflowTest() throws IdConflictException {
         
         // GIVEN
         
         // Platform address is present and all sending attempts fail
-        DigitalAddress platformAddress = DigitalAddress.builder()
+        LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
                 .address("platformAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
         
         //Special address is present and all sending attempts fail
-        DigitalAddress digitalDomicile = DigitalAddress.builder()
+        LegalDigitalAddressInt digitalDomicile = LegalDigitalAddressInt.builder()
                 .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
         
         //General address is present and all sending attempts fail
-        DigitalAddress pbDigitalAddress = DigitalAddress.builder()
+        LegalDigitalAddressInt pbDigitalAddress = LegalDigitalAddressInt.builder()
                 .address("pbDigitalAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(DigitalAddress.TypeEnum.PEC)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
@@ -227,9 +231,8 @@ class ValidationDocumentErrorTestIT {
                                 .recIndex(recIndex)
                                 .build())).isPresent());
         
-        Mockito.verify(externalChannelMock, Mockito.times(0)).sendNotification(Mockito.any(PnExtChnEmailEvent.class));
-        Mockito.verify(externalChannelMock, Mockito.times(0)).sendNotification(Mockito.any(PnExtChnPecEvent.class));
-        Mockito.verify(externalChannelMock, Mockito.times(0)).sendNotification(Mockito.any(PnExtChnPaperEvent.class));
+        Mockito.verify(externalChannelMock, Mockito.times(0)).sendLegalNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString());
+        Mockito.verify(externalChannelMock, Mockito.times(0)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddress.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
     }
 
 

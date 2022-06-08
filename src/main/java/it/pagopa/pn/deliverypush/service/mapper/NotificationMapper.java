@@ -1,9 +1,7 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
-import it.pagopa.pn.api.dto.events.ServiceLevelType;
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,13 +18,12 @@ public class NotificationMapper {
         List<NotificationRecipientInt> listNotificationRecipientInt = mapNotificationRecipient(sentNotification.getRecipients());
         List<NotificationDocumentInt> listNotificationDocumentIntInt = mapNotificationDocument(sentNotification.getDocuments());
 
-        ServiceLevelTypeInt lvl = null;
-        if( sentNotification.getPhysicalCommunicationType() != null ) {
-            lvl = ServiceLevelTypeInt.valueOf( sentNotification.getPhysicalCommunicationType().name() );
-        }
+        ServiceLevelTypeInt lvl =  ServiceLevelTypeInt.valueOf( sentNotification.getPhysicalCommunicationType().name());
+
 
         return NotificationInt.builder()
                 .iun(sentNotification.getIun())
+                .subject(sentNotification.getSubject())
                 .paNotificationId(sentNotification.getPaProtocolNumber())
                 .physicalCommunicationType( lvl )
                 .sentAt(sentNotification.getSentAt())
@@ -78,11 +75,11 @@ public class NotificationMapper {
 
             it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationDigitalAddress digitalDomicile = recipient.getDigitalDomicile();
             if(digitalDomicile != null){
-                DigitalAddress.TypeEnum typeEnum = DigitalAddress.TypeEnum.valueOf(digitalDomicile.getType().name());
+                LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE typeEnum = LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.valueOf(digitalDomicile.getType().name());
 
                 notificationRecIntBuilder
                         .digitalDomicile(
-                                DigitalAddress.builder()
+                                LegalDigitalAddressInt.builder()
                                         .address(digitalDomicile.getAddress())
                                         .type(typeEnum)
                                         .build()
@@ -159,6 +156,7 @@ public class NotificationMapper {
         sentNotification.setIun(notification.getIun());
         sentNotification.setPaProtocolNumber(notification.getPaNotificationId());
         sentNotification.setSentAt(notification.getSentAt());
+        sentNotification.setSubject(notification.getSubject());
 
         if( notification.getPhysicalCommunicationType() != null ) {
             sentNotification.setPhysicalCommunicationType(
@@ -216,7 +214,7 @@ public class NotificationMapper {
         NotificationRecipient notificationRecipient = new NotificationRecipient();
         NotificationDigitalAddress notificationDigitalAddress = null;
 
-        DigitalAddress internalDigitalDomicile = recipient.getDigitalDomicile();
+        LegalDigitalAddressInt internalDigitalDomicile = recipient.getDigitalDomicile();
         if(internalDigitalDomicile != null){
             notificationDigitalAddress = new NotificationDigitalAddress();
             notificationDigitalAddress.setAddress(internalDigitalDomicile.getAddress());

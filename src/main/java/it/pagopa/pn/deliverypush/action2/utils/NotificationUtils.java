@@ -1,8 +1,8 @@
 package it.pagopa.pn.deliverypush.action2.utils;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -24,5 +24,5 @@ public class NotificationUtils {
     public NotificationRecipientInt getRecipientFromIndex(NotificationInt notification, int index){
         return notification.getRecipients().get(index);
     }
-    
+
 }

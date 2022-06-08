@@ -2,10 +2,10 @@ package it.pagopa.pn.deliverypush.action2.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfo;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -106,7 +107,7 @@ public class DigitalWorkFlowUtils {
     }
 
     @Nullable
-    public DigitalAddress getAddressFromSource(DigitalAddressSource addressSource, Integer recIndex, NotificationInt notification) {
+    public LegalDigitalAddressInt getAddressFromSource(DigitalAddressSource addressSource, Integer recIndex, NotificationInt notification) {
         log.info("GetAddressFromSource for source {} - iun {} id {}", addressSource, notification.getIun(), recIndex);
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         
@@ -131,10 +132,10 @@ public class DigitalWorkFlowUtils {
         throw new PnInternalException("Specified addressSource " + addressSource + " does not exist - iun " + notification.getIun() + " id " + recipient.getTaxId());
     }
 
-    private DigitalAddress retrievePlatformAddress(NotificationRecipientInt recipient, NotificationSenderInt sender) {
+    private LegalDigitalAddressInt retrievePlatformAddress(NotificationRecipientInt recipient, NotificationSenderInt sender) {
         log.debug("RetrievePlatformAddress for sender {}", sender.getPaId());
 
-        Optional<DigitalAddress> digitalAddressOpt = addressBookService.getPlatformAddresses(recipient.getTaxId(), sender.getPaId());
+        Optional<LegalDigitalAddressInt> digitalAddressOpt = addressBookService.getPlatformAddresses(recipient.getTaxId(), sender.getPaId());
 
         if (digitalAddressOpt.isPresent()) {
             log.debug("Retrive platformAddress ok for recipient {} sender {}", recipient.getTaxId(), sender.getPaId());
@@ -169,8 +170,8 @@ public class DigitalWorkFlowUtils {
         addTimelineElement(timelineUtils.buildAvailabilitySourceTimelineElement(recIndex, iun, source, isAvailable, sentAttemptMade));
     }
 
-    public void addDigitalFeedbackTimelineElement(ExtChannelResponse response, SendDigitalDetails sendDigitalDetails) {
-        addTimelineElement(timelineUtils.buildDigitaFeedbackTimelineElement(response, sendDigitalDetails));
+    public void addDigitalFeedbackTimelineElement(String iun, ResponseStatus status, List<String> errors, SendDigitalDetails sendDigitalDetails) {
+        addTimelineElement(timelineUtils.buildDigitalFeedbackTimelineElement(iun, status, errors, sendDigitalDetails));
     }
 
     private void addTimelineElement(TimelineElementInternal element) {

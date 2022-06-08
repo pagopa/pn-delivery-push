@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action2;
 
 import it.pagopa.pn.deliverypush.action2.utils.PublicRegistryUtils;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import org.junit.jupiter.api.Assertions;
@@ -43,8 +44,8 @@ class PublicRegistryResponseHandlerTest {
         PublicRegistryResponse response =
                 PublicRegistryResponse.builder()
                         .correlationId(iun + "_" + taxId + "1121")
-                        .digitalAddress(DigitalAddress.builder()
-                                .type(DigitalAddress.TypeEnum.PEC)
+                        .digitalAddress(LegalDigitalAddressInt.builder()
+                                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                                 .address("account@dominio.it")
                                 .build()).build();
 
@@ -82,8 +83,8 @@ class PublicRegistryResponseHandlerTest {
         PublicRegistryResponse response =
                 PublicRegistryResponse.builder()
                         .correlationId(iun + "_" + taxId + "1121")
-                        .digitalAddress(DigitalAddress.builder()
-                                .type(DigitalAddress.TypeEnum.PEC)
+                        .digitalAddress(LegalDigitalAddressInt.builder()
+                                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                                 .address("account@dominio.it")
                                 .build()).build();
 

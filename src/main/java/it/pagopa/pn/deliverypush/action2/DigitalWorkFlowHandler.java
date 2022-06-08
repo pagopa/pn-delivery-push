@@ -1,24 +1,28 @@
 package it.pagopa.pn.deliverypush.action2;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.LegalMessageSentDetails;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.ProgressEventCategory;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.action2.utils.DigitalWorkFlowUtils;
 import it.pagopa.pn.deliverypush.action2.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfo;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
+import it.pagopa.pn.deliverypush.service.mapper.LegalDigitalAddressMapper;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -60,51 +64,51 @@ public class DigitalWorkFlowHandler {
      * Handle digital notification Workflow based on already made attempt
      */
     private void nextWorkFlowAction(NotificationInt notification, Integer recIndex, DigitalAddressInfo lastAttemptMade) {
-        log.info("Start Next Digital workflow action - iun {} id {}", notification.getIun(), recIndex);
+        log.info("Start Next Digital workflow action - iun={} id={}", notification.getIun(), recIndex);
         
         String iun = notification.getIun();
         
         //Viene ottenuta la source del prossimo indirizzo da testare, con il numero di tentativi già effettuati per tale sorgente e la data dell'ultimo tentativo
         DigitalAddressInfo nextAddressInfo = digitalWorkFlowUtils.getNextAddressInfo(iun, recIndex, lastAttemptMade);
-        log.debug("Next address source is {} and attempt number already made is {} - iun {} id {}", nextAddressInfo.getDigitalAddressSource(), nextAddressInfo.getSentAttemptMade(), iun, recIndex);
+        log.debug("Next address source is={} and attempt number already made is={} - iun={} id={}", nextAddressInfo.getDigitalAddressSource(), nextAddressInfo.getSentAttemptMade(), iun, recIndex);
 
         if (nextAddressInfo.getSentAttemptMade() < MAX_ATTEMPT_NUMBER) {
             switch (nextAddressInfo.getSentAttemptMade()) {
                 case 0:
-                    log.info("Start first attempt for source {} - iun {} id {}", nextAddressInfo.getDigitalAddressSource(), iun, recIndex);
+                    log.info("Start first attempt for source={} - iun={} id={}", nextAddressInfo.getDigitalAddressSource(), iun, recIndex);
                     checkAndSendNotification(notification, recIndex, nextAddressInfo);
                     break;
                 case 1:
-                    log.info("Start second attempt for source {} - iun {} id {}", nextAddressInfo.getDigitalAddressSource(), iun, recIndex);
+                    log.info("Start second attempt for source={} - iun={} id={}", nextAddressInfo.getDigitalAddressSource(), iun, recIndex);
                     startNextWorkflow7daysAfterLastAttempt(notification, recIndex, nextAddressInfo, lastAttemptMade);
                     break;
                 default:
-                    log.error("Specified attempt {} is not possibile  - iun {} id {}", nextAddressInfo.getSentAttemptMade(), iun, recIndex);
+                    log.error("Specified attempt={} is not possibile  - iun={} id={}", nextAddressInfo.getSentAttemptMade(), iun, recIndex);
                     throw new PnInternalException("Specified attempt " + nextAddressInfo.getSentAttemptMade() + " is not possibile");
             }
         } else {
             //Sono stati già effettuati tutti i tentativi possibili, la notificazione è quindi fallita
-            log.info("All attempts were unsuccessful. Digital workflow is failed.  - iun {} id {}", iun, recIndex);
+            log.info("All attempts were unsuccessful. Digital workflow is failed.  - iun={} id={}", iun, recIndex);
             completionWorkflow.completionDigitalWorkflow(notification, recIndex, instantNowSupplier.get(), null, EndWorkflowStatus.FAILURE);
         }
     }
 
     private void checkAndSendNotification(NotificationInt notification, Integer recIndex, DigitalAddressInfo nextAddressInfo) {
-        log.debug("CheckAndSendNotification  - iun {} id {}", notification.getIun(), recIndex);
+        log.debug("CheckAndSendNotification  - iun={} id={}", notification.getIun(), recIndex);
         
         String iun = notification.getIun();
-        log.debug("Get notification and recipient completed - iun {} id {}", iun, recIndex);
+        log.debug("Get notification and recipient completed - iun={} id={}", iun, recIndex);
 
         if (DigitalAddressSource.GENERAL.equals(nextAddressInfo.getDigitalAddressSource())) {
-            log.debug("Address is general - iun {} id {}", iun, recIndex);
+            log.debug("Address is general - iun={} id={}", iun, recIndex);
             publicRegistrySendHandler.sendRequestForGetDigitalGeneralAddress(notification, recIndex, ContactPhase.SEND_ATTEMPT, nextAddressInfo.getSentAttemptMade());//general address need async call to get it
         } else {
-            log.debug("Address source is not general - iun {} id {}", iun, recIndex);
+            log.debug("Address source is not general - iun={} id={}", iun, recIndex);
 
             //Viene ottenuto l'indirizzo a partire dalla source
-            DigitalAddress destinationAddress = digitalWorkFlowUtils.getAddressFromSource(nextAddressInfo.getDigitalAddressSource(), recIndex, notification);
+            LegalDigitalAddressInt destinationAddress = digitalWorkFlowUtils.getAddressFromSource(nextAddressInfo.getDigitalAddressSource(), recIndex, notification);
             nextAddressInfo = nextAddressInfo.toBuilder().digitalAddress(destinationAddress).build();
-            log.info("Get address completed - iun {} id {}", iun, recIndex);
+            log.info("Get address completed - iun={} id={}", iun, recIndex);
             //Viene Effettuato il check dell'indirizzo e l'eventuale send
             checkAddressAndSend(notification, recIndex, nextAddressInfo);
         }
@@ -115,7 +119,7 @@ public class DigitalWorkFlowHandler {
      * tried address, the notification step is called, else it is scheduled.
      */
     private void startNextWorkflow7daysAfterLastAttempt(NotificationInt notification, Integer recIndex, DigitalAddressInfo nextAddressInfo, DigitalAddressInfo lastAttemptMade) {
-        log.info("StartNextWorkflow7daysAfterLastAttempt - iun {} id {}", notification.getIun(), recIndex);
+        log.info("StartNextWorkflow7daysAfterLastAttempt - iun={} id={}", notification.getIun(), recIndex);
         
         String iun = notification.getIun();
         Instant lastAttemptDate = nextAddressInfo.getLastAttemptDate();
@@ -123,11 +127,11 @@ public class DigitalWorkFlowHandler {
         Instant schedulingDate = lastAttemptDate.plus(pnDeliveryPushConfigs.getTimeParams().getSecondNotificationWorkflowWaitingTime());
         //Vengono aggiunti 7 giorni alla data dell'ultimo tentativo effettuata per questa source
         if (instantNowSupplier.get().isAfter(schedulingDate)) {
-            log.info("Next workflow scheduling date {} is passed. Start next workflow - iun {} id {}", schedulingDate, iun, recIndex);
+            log.info("Next workflow scheduling date={} is passed. Start next workflow - iun={} id={}", schedulingDate, iun, recIndex);
             //Se la data odierna è successiva alla data ottenuta in precedenza, non c'è necessità di schedulare, perchè i 7 giorni necessari di attesa dopo il primo tentativo risultano essere già passati
             checkAndSendNotification(notification, recIndex, nextAddressInfo);
         } else {
-            log.info("Next workflow scheduling date {} is not passed. Need to schedule next workflow - iun {} id {}", schedulingDate, iun, recIndex);
+            log.info("Next workflow scheduling date={} is not passed. Need to schedule next workflow - iun={} id={}", schedulingDate, iun, recIndex);
             //Se la data è minore alla data odierna, bisogna attendere il completamento dei 7 giorni prima partire con un nuovo workflow per questa source
             digitalWorkFlowUtils.addScheduledDigitalWorkflowToTimeline(iun, recIndex, lastAttemptMade);
             schedulerService.scheduleEvent(iun, recIndex, schedulingDate, ActionType.DIGITAL_WORKFLOW_NEXT_ACTION);
@@ -142,11 +146,11 @@ public class DigitalWorkFlowHandler {
      */
     public void handleGeneralAddressResponse(PublicRegistryResponse response, String iun, PublicRegistryCallDetails prCallDetails) {
         Integer recIndex = prCallDetails.getRecIndex();
-        log.info("HandleGeneralAddressResponse - iun {} id {}", iun, recIndex);
+        log.info("HandleGeneralAddressResponse - iun={} id={}", iun, recIndex);
 
         NotificationInt notification = notificationService.getNotificationByIun(iun);
 
-        log.debug("Received general address response, get notification and recipient completed - iun {} id {}", iun, recIndex);
+        log.debug("Received general address response, get notification and recipient completed - iun={} id={}", iun, recIndex);
         DigitalAddressInfo lastAttemptAddressInfo = DigitalAddressInfo.builder()
                 .digitalAddressSource(DigitalAddressSource.GENERAL)
                 .digitalAddress(response.getDigitalAddress())
@@ -160,45 +164,47 @@ public class DigitalWorkFlowHandler {
     private void checkAddressAndSend(NotificationInt notification, Integer recIndex, DigitalAddressInfo addressInfo) {
         String iun = notification.getIun();
 
-        DigitalAddress digitalAddress = addressInfo.getDigitalAddress();
+        LegalDigitalAddressInt digitalAddress = addressInfo.getDigitalAddress();
 
-        log.info("CheckAddressAndSend - iun {} id {}", iun, recIndex);
+        log.info("CheckAddressAndSend - iun={} id={}", iun, recIndex);
 
         if (digitalAddress != null) {
-            log.info("Address is available, send notification to external channel - iun {} id {}", iun, recIndex);
+            log.info("Address is available, send notification to external channel - iun={} id={}", iun, recIndex);
 
             //Se l'indirizzo è disponibile, dunque valorizzato viene inviata la notifica a external channel ...
             digitalWorkFlowUtils.addAvailabilitySourceToTimeline(recIndex, iun, addressInfo.getDigitalAddressSource(), true, addressInfo.getSentAttemptMade());
             externalChannelSendHandler.sendDigitalNotification(notification, digitalAddress, addressInfo.getDigitalAddressSource(), recIndex, addressInfo.getSentAttemptMade());
         } else {
             //... altrimenti si passa alla prossima workflow action
-            log.info("Address is not available, need to start next workflow action - iun {} id {}", iun, recIndex);
+            log.info("Address is not available, need to start next workflow action - iun={} id={}", iun, recIndex);
             digitalWorkFlowUtils.addAvailabilitySourceToTimeline(recIndex, iun, addressInfo.getDigitalAddressSource(), false, addressInfo.getSentAttemptMade());
 
             nextWorkFlowAction(notification, recIndex, addressInfo);
         }
     }
 
-    public void handleExternalChannelResponse(ExtChannelResponse response, TimelineElementInternal timelineElement) {
+    public void handleExternalChannelResponse(LegalMessageSentDetails response, TimelineElementInternal timelineElement) {
         SendDigitalDetails sendDigitalDetails = SmartMapper.mapToClass(timelineElement.getDetails(), SendDigitalDetails.class);
-
-        log.info("HandleExternalChannelResponse - iun {} id {}", response.getIun(), sendDigitalDetails.getRecIndex());
+        String iun = timelineElement.getIun();
+        log.info("HandleExternalChannelResponse - iun={} id={}", iun, sendDigitalDetails.getRecIndex());
         
-        NotificationInt notification = notificationService.getNotificationByIun(response.getIun());
+        NotificationInt notification = notificationService.getNotificationByIun(iun);
         Integer recIndex = sendDigitalDetails.getRecIndex();
-        
-        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(response, sendDigitalDetails);
 
-        if (response.getResponseStatus() != null) {
-            switch (response.getResponseStatus()) {
+        ResponseStatus status = mapDigitalStatusInResponseStatus(response.getStatus());
+        
+        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(iun, status, response.getEventDetails()==null?null:List.of(response.getEventDetails()), sendDigitalDetails);
+
+        if (status != null) {
+            switch (status) {
                 case OK:
-                    log.info("Notification sent successfully, starting completion workflow - iun {} id {}", response.getIun(), recIndex);
+                    log.info("Notification sent successfully, starting completion workflow - iun={} id={}", iun, recIndex);
                     //La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
-                    completionWorkflow.completionDigitalWorkflow(notification, recIndex, response.getNotificationDate(), sendDigitalDetails.getDigitalAddress(), EndWorkflowStatus.SUCCESS);
+                    completionWorkflow.completionDigitalWorkflow(notification, recIndex, response.getEventTimestamp(), LegalDigitalAddressMapper.digitalToLegal(sendDigitalDetails.getDigitalAddress()), EndWorkflowStatus.SUCCESS);
                     break;
                 case KO:
                     //Non è stato possibile effettuare la notificazione, si passa al prossimo step del workflow
-                    log.info("Notification failed, starting next workflow action - iun {} id {}", response.getIun(), recIndex);
+                    log.info("Notification failed, starting next workflow action - iun={} id={}", iun, recIndex);
 
                     DigitalAddressInfo lastAttemptMade = DigitalAddressInfo.builder()
                             .digitalAddressSource(sendDigitalDetails.getDigitalAddressSource())
@@ -207,26 +213,43 @@ public class DigitalWorkFlowHandler {
 
                     nextWorkFlowAction(notification, recIndex, lastAttemptMade);
                     break;
-                default:
-                    handleStatusError(response.getResponseStatus(), response.getIun(), recIndex);
             }
         } else {
-            handleStatusError(response.getResponseStatus(), response.getIun(), recIndex);
+            handleStatusProgress(response.getStatus(), iun, recIndex);
         }
     }
 
-    private void handleStatusError(ResponseStatus status, String iun, Integer recIndex) {
-        log.error("Specified status {} is not possibile - iun {} id {}", status, iun, recIndex);
-        throw new PnInternalException("Specified status" + status + " is not possibile");
+    private void handleStatusProgress(ProgressEventCategory status, String iun, Integer recIndex) {
+        log.info("Specified status={} is not final - iun={} id={}", status, iun, recIndex);
     }
 
     private DigitalAddressInfo getDigitalAddressInfo(ScheduleDigitalWorkflow scheduleDigitalWorkflow) {
         return DigitalAddressInfo.builder()
-                .digitalAddress(scheduleDigitalWorkflow.getDigitalAddress())
+                .digitalAddress(LegalDigitalAddressMapper.digitalToLegal(scheduleDigitalWorkflow.getDigitalAddress()))
                 .digitalAddressSource(scheduleDigitalWorkflow.getDigitalAddressSource())
                 .lastAttemptDate(scheduleDigitalWorkflow.getLastAttemptDate())
                 .sentAttemptMade(scheduleDigitalWorkflow.getSentAttemptMade())
                 .build();
+    }
+
+
+    private ResponseStatus mapDigitalStatusInResponseStatus(ProgressEventCategory digitalStatus)
+    {
+        /* si traduce l'enum
+            [ PROGRESS, OK, RETRIABLE_ERROR, ERROR ]
+        */
+        switch (digitalStatus)
+        {
+            case PROGRESS:
+                return null;
+            case OK:
+                return ResponseStatus.OK;
+            case ERROR:
+            case RETRIABLE_ERROR:
+                return ResponseStatus.KO;
+            default:
+                throw new PnInternalException("Invalid digitalStatus received: " + digitalStatus);
+        }
     }
     
 }

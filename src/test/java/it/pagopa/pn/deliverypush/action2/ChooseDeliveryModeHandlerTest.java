@@ -6,9 +6,7 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action2.utils.ChooseDeliveryModeUtils;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ContactPhase;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
@@ -74,8 +72,8 @@ class ChooseDeliveryModeHandlerTest {
 
 
         Mockito.when(chooseDeliveryUtils.getPlatformAddress(Mockito.any(NotificationInt.class), Mockito.anyInt()))
-                .thenReturn(Optional.of(DigitalAddress.builder()
-                        .type(DigitalAddress.TypeEnum.PEC)
+                .thenReturn(Optional.of(LegalDigitalAddressInt.builder()
+                        .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                         .address("Via di test")
                         .build()));
 
@@ -86,7 +84,7 @@ class ChooseDeliveryModeHandlerTest {
         ArgumentCaptor<DigitalAddressSource> digitalAddressSourceCaptor = ArgumentCaptor.forClass(DigitalAddressSource.class);
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);
 
-        Mockito.verify(externalChannelSendHandler).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(DigitalAddress.class),
+        Mockito.verify(externalChannelSendHandler).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class),
                 digitalAddressSourceCaptor.capture(), Mockito.anyInt(), Mockito.anyInt());
         Assertions.assertEquals(DigitalAddressSource.PLATFORM, digitalAddressSourceCaptor.getValue());
 
@@ -132,7 +130,7 @@ class ChooseDeliveryModeHandlerTest {
         Assertions.assertEquals(DigitalAddressSource.SPECIAL, listDigitalAddressSourceCaptorValues.get(1));
         Assertions.assertTrue(listIsAvailableCaptorValues.get(1));
 
-        Mockito.verify(externalChannelSendHandler).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(DigitalAddress.class),
+        Mockito.verify(externalChannelSendHandler).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class),
                 digitalAddressSourceCaptor.capture(), Mockito.anyInt(), Mockito.anyInt());
 
         Assertions.assertEquals(DigitalAddressSource.SPECIAL, digitalAddressSourceCaptor.getValue());
@@ -180,9 +178,9 @@ class ChooseDeliveryModeHandlerTest {
     void handleGeneralAddressResponseDigital() {
         //GIVEN
         PublicRegistryResponse response = PublicRegistryResponse.builder()
-                .digitalAddress(DigitalAddress.builder()
+                .digitalAddress(LegalDigitalAddressInt.builder()
                         .address("Via nuova")
-                        .type(DigitalAddress.TypeEnum.PEC)
+                        .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                         .build()).build();
 
         NotificationInt notification = getNotification();
@@ -199,7 +197,7 @@ class ChooseDeliveryModeHandlerTest {
         ArgumentCaptor<DigitalAddressSource> digitalAddressSourceCaptor = ArgumentCaptor.forClass(DigitalAddressSource.class);
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);
 
-        Mockito.verify(externalChannelSendHandler).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(DigitalAddress.class),
+        Mockito.verify(externalChannelSendHandler).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class),
                 digitalAddressSourceCaptor.capture(), Mockito.anyInt(), Mockito.anyInt());
         Assertions.assertEquals(DigitalAddressSource.GENERAL, digitalAddressSourceCaptor.getValue());
 
@@ -303,8 +301,8 @@ class ChooseDeliveryModeHandlerTest {
                         NotificationRecipientInt.builder()
                                 .taxId("testIdRecipient")
                                 .denomination("Nome Cognome/Ragione Sociale")
-                                .digitalDomicile(DigitalAddress.builder()
-                                        .type(DigitalAddress.TypeEnum.PEC)
+                                .digitalDomicile(LegalDigitalAddressInt.builder()
+                                        .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                                         .address("account@dominio.it")
                                         .build())
                                 .build()

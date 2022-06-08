@@ -1,9 +1,9 @@
 package it.pagopa.pn.deliverypush.action2.utils;
 
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendCourtesyMessageDetails;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
@@ -48,13 +48,13 @@ public class ChooseDeliveryModeUtils {
         return courtesyMessageUtils.getFirstSentCourtesyMessage(iun, recIndex);
     }
 
-    public Optional<DigitalAddress> getPlatformAddress(NotificationInt notification, Integer recIndex) {
+    public Optional<LegalDigitalAddressInt> getPlatformAddress(NotificationInt notification, Integer recIndex) {
         NotificationRecipientInt notificationRecipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         
         return addressBookService.getPlatformAddresses(notificationRecipient.getTaxId(), notification.getSender().getPaId());
     }
     
-    public DigitalAddress getDigitalDomicile(NotificationInt notification, Integer recIndex){
+    public LegalDigitalAddressInt getDigitalDomicile(NotificationInt notification, Integer recIndex){
         NotificationRecipientInt notificationRecipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         return notificationRecipient.getDigitalDomicile();
     }

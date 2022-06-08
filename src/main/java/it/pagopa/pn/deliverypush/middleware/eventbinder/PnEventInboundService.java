@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.api.dto.events.*;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.SingleStatusUpdate;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.ActionEventType;
 import it.pagopa.pn.deliverypush.action2.*;
@@ -149,42 +150,12 @@ public class PnEventInboundService {
     }
 
     @Bean
-    public Consumer<Message<PnExtChnProgressStatusEventPayload>>  pnExtChannelEventInboundConsumer() {
+    public Consumer<Message<SingleStatusUpdate>>  pnExtChannelEventInboundConsumer() {
         return message -> {
             log.info("External channel event received, message {}", message);
-            
-            PnExtChnProgressStatusEvent evt = PnExtChnProgressStatusEvent.builder()
-                    .payload(message.getPayload())
-                    .header(mapStandardEventHeader(message.getHeaders()))
-                    .build();
 
-            ResponseStatus status = PnExtChnProgressStatus.OK.equals(evt.getPayload().getStatusCode()) ? ResponseStatus.OK : ResponseStatus.KO;
-
-            it.pagopa.pn.api.dto.notification.address.PhysicalAddress newPhysicalAddressExt = evt.getPayload().getNewPhysicalAddress();
-            PhysicalAddress newPhysicalAddress = null;
-            if(newPhysicalAddressExt != null){
-                newPhysicalAddress = PhysicalAddress.builder()
-                        .address(newPhysicalAddressExt.getAddress())
-                        .province(newPhysicalAddressExt.getProvince())
-                        .addressDetails(newPhysicalAddressExt.getAddressDetails())
-                        .municipality(newPhysicalAddressExt.getMunicipality())
-                        .at(newPhysicalAddressExt.getAt())
-                        .zip(newPhysicalAddressExt.getZip())
-                        .foreignState(newPhysicalAddressExt.getForeignState())
-                        .build();
-            }
-            ExtChannelResponse response = ExtChannelResponse.builder()
-                    .responseStatus(status)
-                    .eventId(evt.getPayload().getRequestCorrelationId())
-                    .analogNewAddressFromInvestigation(newPhysicalAddress)
-                    .notificationDate(evt.getPayload().getStatusDate())
-                    .iun(evt.getPayload().getIun())
-                    .attachmentKeys(evt.getPayload().getAttachmentKeys())
-                    .errorList(Collections.singletonList(status.getValue()))
-                    .build();
-
-            externalChannelResponseHandler.extChannelResponseReceiver(response);
-            
+            SingleStatusUpdate singleStatusUpdate = message.getPayload();
+            externalChannelResponseHandler.extChannelResponseReceiver(singleStatusUpdate);
         };
     }
 

@@ -3,7 +3,6 @@ package it.pagopa.pn.deliverypush.action2.it;
 import freemarker.template.Configuration;
 import freemarker.template.Version;
 import freemarker.template._TemplateAPI;
-import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action2.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action2.DigitalWorkFlowHandler;
@@ -17,6 +16,8 @@ import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.userattributes.UserAttributesClient;
 import it.pagopa.pn.deliverypush.legalfacts.*;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.delivery.PnDeliveryClient;
+import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.PnSafeStorageClient;
+import it.pagopa.pn.deliverypush.legalfacts.*;
 import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
@@ -37,8 +38,8 @@ public class AbstractWorkflowTestConfiguration {
     }
     
     @Bean
-    public FileStorage fileStorageTest() {
-        return Mockito.mock(FileStorage.class);
+    public PnSafeStorageClient safeStorageTest() {
+        return Mockito.mock(PnSafeStorageClient.class);
     }
 
     @Bean
@@ -56,10 +57,9 @@ public class AbstractWorkflowTestConfiguration {
     }
     
     @Bean
-    public LegalFactDao LegalFactsTest(FileStorage fileStorage,
-                                       LegalFactGenerator pdfUtils,
-                                       LegalfactsMetadataUtils legalfactMetadataUtils) {
-        return new LegalFactDao(fileStorage, pdfUtils, legalfactMetadataUtils);
+    public LegalFactDao LegalFactsTest(PnSafeStorageClient safeStorageClient,
+                                       LegalFactGenerator pdfUtils) {
+        return new LegalFactDao(pdfUtils, safeStorageClient);
     }
 
     @Bean
