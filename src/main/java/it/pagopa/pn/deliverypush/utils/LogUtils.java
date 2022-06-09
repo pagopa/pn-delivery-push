@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.util;
+package it.pagopa.pn.deliverypush.utils;
 
 import lombok.extern.slf4j.Slf4j;
 

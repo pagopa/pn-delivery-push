@@ -267,7 +267,7 @@ class AnalogWorkflowHandlerTest {
     private NotificationInt getNotificationWithPhysicalAddress() {
         return NotificationInt.builder()
                 .iun("IUN_01")
-                .paNotificationId("protocol_01")
+                .paProtocolNumber("protocol_01")
                 .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()
@@ -289,7 +289,7 @@ class AnalogWorkflowHandlerTest {
     private NotificationInt getNotificationWithoutPhisicalAddress() {
         return NotificationInt.builder()
                 .iun("IUN_01")
-                .paNotificationId("protocol_01")
+                .paProtocolNumber("protocol_01")
                 .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()

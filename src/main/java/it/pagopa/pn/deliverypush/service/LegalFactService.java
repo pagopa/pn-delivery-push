@@ -10,7 +10,8 @@ import java.util.List;
 
 public interface LegalFactService {
 
-    List<LegalFactListElement> getLegalFacts(String iun);
+    List<LegalFactListElement> getLegalFacts(String iun, String senderReceiverId, String mandateId);
+    
     ResponseEntity<Resource> getLegalfact(String iun, LegalFactCategory legalFactType, String legalfactId);
 
     LegalFactDownloadMetadataResponse getLegalFactMetadata(String iun, LegalFactCategory legalFactType, String legalfactId);

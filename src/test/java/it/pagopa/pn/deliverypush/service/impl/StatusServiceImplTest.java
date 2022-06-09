@@ -9,7 +9,7 @@ import it.pagopa.pn.deliverypush.externalclient.pnclient.delivery.PnDeliveryClie
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.StatusService;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
-import it.pagopa.pn.deliverypush.util.StatusUtils;
+import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -175,7 +175,7 @@ class StatusServiceImplTest {
     private NotificationInt getNotification(String iun) {
         return NotificationInt.builder()
                 .iun(iun)
-                .paNotificationId("protocol_01")
+                .paProtocolNumber("protocol_01")
                 .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()

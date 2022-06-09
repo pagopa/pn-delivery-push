@@ -2,6 +2,8 @@ package it.pagopa.pn.deliverypush.externalclient.pnclient.datavault;
 
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.ApiClient;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.api.NotificationsApi;
+import it.pagopa.pn.datavault.generated.openapi.clients.datavault.api.RecipientsApi;
+import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.ConfidentialTimelineElementDto;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import lombok.extern.slf4j.Slf4j;
@@ -16,11 +18,14 @@ import java.util.List;
 @Component
 public class PnDataVaultClientImpl implements PnDataVaultClient{
     private final NotificationsApi pnDataVaultNotificationApi;
+    private final RecipientsApi recipientsApi;
 
     public PnDataVaultClientImpl(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryPushConfigs cfg) {
         ApiClient newApiClient = new ApiClient(restTemplate);
         newApiClient.setBasePath(cfg.getDataVaultBaseUrl());
+        
         this.pnDataVaultNotificationApi = new NotificationsApi( newApiClient );
+        this.recipientsApi = new RecipientsApi( newApiClient );
     }
     
     public ResponseEntity<Void> updateNotificationTimelineByIunAndTimelineElementId(String iun, ConfidentialTimelineElementDto dto){
@@ -51,6 +56,16 @@ public class PnDataVaultClientImpl implements PnDataVaultClient{
 
         log.debug("Response getNotificationTimelineByIunWithHttpInfo - iun={}", iun);
 
+        return resp;
+    }
+
+    public ResponseEntity<List<BaseRecipientDto>> getRecipientDenominationByInternalId(List<String> internalId) {
+        log.debug("Start call getRecipientDenominationByInternalId - internalId={}", internalId);
+
+        ResponseEntity<List<BaseRecipientDto>> resp =  recipientsApi.getRecipientDenominationByInternalIdWithHttpInfo( internalId );
+
+        log.debug("Response getNotificationTimelineByIunWithHttpInfo - internalId={}", internalId);
+        
         return resp;
     }
 

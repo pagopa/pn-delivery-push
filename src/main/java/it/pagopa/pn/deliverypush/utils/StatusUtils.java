@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.util;
+package it.pagopa.pn.deliverypush.utils;
 
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;

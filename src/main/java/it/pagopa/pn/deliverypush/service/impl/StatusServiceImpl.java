@@ -10,7 +10,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationSta
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElement;
 import it.pagopa.pn.deliverypush.service.StatusService;
 import it.pagopa.pn.deliverypush.service.mapper.RequestUpdateStatusDtoMapper;
-import it.pagopa.pn.deliverypush.util.StatusUtils;
+import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -32,7 +32,7 @@ public class StatusServiceImpl implements StatusService {
     
     @Override
     public void checkAndUpdateStatus(TimelineElementInternal dto, Set<TimelineElementInternal> currentTimeline,  NotificationInt notification) {
-        log.debug("Notification is present PaNotificationId {} for iun {}", notification.getPaNotificationId(), dto.getIun());
+        log.debug("Notification is present paProtocolNumber {} for iun {}", notification.getPaProtocolNumber(), dto.getIun());
         
         // - Calcolare lo stato corrente
         NotificationStatus currentState = computeLastStatusHistoryElement(notification, currentTimeline).getStatus();
