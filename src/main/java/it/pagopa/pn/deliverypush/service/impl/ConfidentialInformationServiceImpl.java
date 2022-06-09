@@ -1,15 +1,12 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.ConfidentialTimelineElementDto;
-import it.pagopa.pn.deliverypush.dto.ext.datavault.BaseRecipientDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDtoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.datavault.PnDataVaultClient;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetails;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
-import it.pagopa.pn.deliverypush.service.mapper.BaseRecipientDtoMapper;
 import it.pagopa.pn.deliverypush.service.mapper.ConfidentialTimelineElementDtoMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -104,31 +101,6 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
         } else {
             log.error("getTimelineConfidentialInformation Failed - iun {} ", iun);
             throw new PnInternalException("getTimelineConfidentialInformation Failed - iun " + iun);
-        }
-    }
-
-    @Override
-    public Optional<Map<String, BaseRecipientDtoInt>> getRecipientDenominationByInternalId(List<String> internalId) {
-        ResponseEntity<List<BaseRecipientDto>> resp = pnDataVaultClient.getRecipientDenominationByInternalId(internalId);
-
-        if (resp.getStatusCode().is2xxSuccessful()) {
-            log.debug("getRecipientDenominationByInternalId OK - internalId={} ", internalId);
-            
-            List<BaseRecipientDto> listRecipientDto = resp.getBody();
-            
-            if(listRecipientDto != null && !listRecipientDto.isEmpty() ){
-                return Optional.of(
-                        listRecipientDto.stream()
-                                .map(BaseRecipientDtoMapper::externalToInternal)
-                                .collect(Collectors.toMap(BaseRecipientDtoInt::getInternalId, Function.identity()))
-                );
-            }
-
-            log.debug("getRecipientDenominationByInternalId haven't confidential information - internalId={} ", internalId);
-            return Optional.empty();
-        }else {
-            log.error("getRecipientDenominationByInternalId Failed - internalId={} ", internalId);
-            throw new PnInternalException("getTimelineConfidentialInformation Failed - internalId" + internalId);
         }
     }
 

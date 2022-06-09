@@ -5,7 +5,6 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCatego
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsId;
 import it.pagopa.pn.deliverypush.service.LegalFactService;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +44,7 @@ class PnLegalFactsControllerTest {
                                 .build()
                         ).build()
         );
-        Mockito.when( legalFactService.getLegalFacts( Mockito.anyString() ))
+        Mockito.when( legalFactService.getLegalFacts( Mockito.anyString(), Mockito.anyString(), Mockito.anyString() ))
                 .thenReturn( legalFactsList );
         
         webTestClient.get()
@@ -62,7 +61,7 @@ class PnLegalFactsControllerTest {
                 .expectStatus()
                 .isOk();
         
-        Mockito.verify( legalFactService ).getLegalFacts( Mockito.anyString() );
+        Mockito.verify( legalFactService ).getLegalFacts( Mockito.anyString(), Mockito.anyString(), Mockito.anyString() );
     }
 
     @Test

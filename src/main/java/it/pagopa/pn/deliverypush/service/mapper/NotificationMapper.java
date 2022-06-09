@@ -70,6 +70,7 @@ public class NotificationMapper {
             NotificationRecipientInt.NotificationRecipientIntBuilder notificationRecIntBuilder = NotificationRecipientInt
                     .builder()
                     .taxId(recipient.getTaxId())
+                    .internalId(recipient.getInternalId())
                     .denomination(recipient.getDenomination());
 
             it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationDigitalAddress digitalDomicile = recipient.getDigitalDomicile();

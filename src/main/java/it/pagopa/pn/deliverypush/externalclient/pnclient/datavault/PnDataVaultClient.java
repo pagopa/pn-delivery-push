@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.externalclient.pnclient.datavault;
 
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.ConfidentialTimelineElementDto;
 import org.springframework.http.ResponseEntity;
 
@@ -12,6 +11,4 @@ public interface PnDataVaultClient {
     ResponseEntity<ConfidentialTimelineElementDto> getNotificationTimelineByIunAndTimelineElementId(String iun, String timelineElementId);
 
     ResponseEntity<List<ConfidentialTimelineElementDto>> getNotificationTimelineByIunWithHttpInfo(String iun);
-
-    ResponseEntity<List<BaseRecipientDto>> getRecipientDenominationByInternalId(List<String> internalId);
 }

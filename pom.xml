@@ -206,7 +206,8 @@
 						</goals>
 						<phase>process-resources</phase>
 						<configuration>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/56f05296f06b0f395e7bc57788a65df1d746a5d2/docs/openapi/api-private-v1.yaml</inputSpec>
+							<!-- TODO Modificare con commit id correto -->
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/d73dd1d1520c62b362da70f37e8ca3693245ed0b/docs/openapi/api-private-v1.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
@@ -293,8 +294,8 @@
 						</goals>
 						<phase>process-resources</phase>
 						<configuration>
-							<!-- <inputSpec>https://raw.githubusercontent.com/pagopa/pn-safe-storage/main/docs/openapi/pn-safestorage-v1-api.yaml</inputSpec> -->
-							<inputSpec>${project.basedir}/docs/wsclient/pn-safe-storage/pn-safestorage-v1-api.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-safe-storage/dd57f2498a3b7d4de6f191a1b9a09fc4e0fb8d04/docs/openapi/pn-safestorage-v1-api.yaml</inputSpec>
+							<!-- <inputSpec>${project.basedir}/docs/wsclient/pn-safe-storage/pn-safestorage-v1-api.yaml</inputSpec> -->
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>

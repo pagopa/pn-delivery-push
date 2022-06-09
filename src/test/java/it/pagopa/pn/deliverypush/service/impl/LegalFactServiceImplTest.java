@@ -15,6 +15,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.LegalFactService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.utils.AuthUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -48,7 +49,7 @@ class LegalFactServiceImplTest {
     private PnSafeStorageClient safeStorageClient;
     private NotificationService notificationService;
     private NotificationUtils notificationUtils;
-
+    private AuthUtils authUtils;
     private LegalFactService legalFactService;
 
     @BeforeEach
@@ -57,14 +58,14 @@ class LegalFactServiceImplTest {
         safeStorageClient = Mockito.mock( PnSafeStorageClient.class );
         notificationService = Mockito.mock(NotificationService.class);
         notificationUtils = Mockito.mock(NotificationUtils.class);
-        
+        authUtils = Mockito.mock(AuthUtils.class);
+
         legalFactService = new LegalFactServiceImpl(
                 timelineService,
                 safeStorageClient,
                 notificationService,
                 notificationUtils,
-                mandateService, authUtils);
-
+                authUtils);
     }
 
 
@@ -108,7 +109,7 @@ class LegalFactServiceImplTest {
                 .thenReturn( recipientInt );
         
 
-        List<LegalFactListElement> result = legalFactService.getLegalFacts( IUN );
+        List<LegalFactListElement> result = legalFactService.getLegalFacts( IUN , "taxId", null );
 
         assertEquals( legalFactsExpectedResult, result );
     }

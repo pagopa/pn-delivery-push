@@ -53,7 +53,7 @@ public class PnSafeStorageClientImpl implements PnSafeStorageClient {
 
             String sha256 = DigestUtils.sha256Hex(fileCreationRequest.getContent());
 
-            FileCreationResponse fileCreationResponse = fileUploadApi.createFile( this.cfg.getSafeStorageCxId(),  "SHA-256", sha256,  fileCreationRequest );
+            FileCreationResponse fileCreationResponse = fileUploadApi.createFile( this.cfg.getSafeStorageCxId(), fileCreationRequest );
 
             log.debug("createAndUploadContent create file preloaded sha256:{}", sha256);
 
@@ -73,8 +73,8 @@ public class PnSafeStorageClientImpl implements PnSafeStorageClient {
             headers.add("x-amz-meta-secret", fileCreationResponse.getSecret());
 
             HttpEntity<Resource> req = new HttpEntity<>(new ByteArrayResource(fileCreationRequest.getContent()), headers);
-            ResponseEntity<Object> res = restTemplate.exchange( URI.create(fileCreationResponse.getUploadUrl()),
-                    fileCreationResponse.getUploadMethod()== FileCreationResponse.UploadMethodEnum.POST? HttpMethod.POST:HttpMethod.PUT, req, Object.class);
+            ResponseEntity<String> res = restTemplate.exchange( URI.create(fileCreationResponse.getUploadUrl()),
+                    fileCreationResponse.getUploadMethod()== FileCreationResponse.UploadMethodEnum.POST? HttpMethod.POST:HttpMethod.PUT, req, String.class);
             if (res.getStatusCodeValue() != org.springframework.http.HttpStatus.OK.value())
             {
                 throw new PnInternalException("File upload failed");

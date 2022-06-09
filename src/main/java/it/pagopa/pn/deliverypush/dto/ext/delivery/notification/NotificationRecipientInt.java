@@ -12,6 +12,7 @@ import lombok.*;
 @ToString
 public class NotificationRecipientInt {
     private String taxId;
+    private String internalId;
     private String denomination;
     private LegalDigitalAddressInt digitalDomicile;
     private PhysicalAddress physicalAddress;

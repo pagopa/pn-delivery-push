@@ -24,11 +24,11 @@ public class PnMandateClientImpl implements PnMandateClient{
     }
 
     public List<InternalMandateDto> listMandatesByDelegate(String delegated, String mandateId) {
-        log.debug("Start get mandates for delegated={} and mandateId={}", delegated, mandateId);
+        log.debug("Start get mandates - delegated={} and mandateId={}", delegated, mandateId);
         
         List<InternalMandateDto> listMandateDto =  mandatesApi.listMandatesByDelegate( delegated, mandateId );
         
-        log.debug("Response  - iun={} timelineElementId={}", iun, timelineElementId);
+        log.debug("Response get mandates - delegated={} and mandateId={}", delegated, mandateId);
         
         return listMandateDto;
     }

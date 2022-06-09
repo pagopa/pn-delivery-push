@@ -38,5 +38,4 @@ public class NotificationServiceImpl implements NotificationService {
             throw new PnInternalException("Get notification Failed for - iun " + iun);
         }
     }
-
 }

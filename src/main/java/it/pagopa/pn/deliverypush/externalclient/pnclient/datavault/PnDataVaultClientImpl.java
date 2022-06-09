@@ -3,7 +3,6 @@ package it.pagopa.pn.deliverypush.externalclient.pnclient.datavault;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.ApiClient;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.api.NotificationsApi;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.api.RecipientsApi;
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.ConfidentialTimelineElementDto;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import lombok.extern.slf4j.Slf4j;
@@ -56,16 +55,6 @@ public class PnDataVaultClientImpl implements PnDataVaultClient{
 
         log.debug("Response getNotificationTimelineByIunWithHttpInfo - iun={}", iun);
 
-        return resp;
-    }
-
-    public ResponseEntity<List<BaseRecipientDto>> getRecipientDenominationByInternalId(List<String> internalId) {
-        log.debug("Start call getRecipientDenominationByInternalId - internalId={}", internalId);
-
-        ResponseEntity<List<BaseRecipientDto>> resp =  recipientsApi.getRecipientDenominationByInternalIdWithHttpInfo( internalId );
-
-        log.debug("Response getNotificationTimelineByIunWithHttpInfo - internalId={}", internalId);
-        
         return resp;
     }
 
