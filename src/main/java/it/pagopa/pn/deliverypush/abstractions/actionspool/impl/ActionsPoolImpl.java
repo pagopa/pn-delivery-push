@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.abstractions.actionspool.impl;
 
 import it.pagopa.pn.api.dto.events.StandardEventHeader;
 import it.pagopa.pn.commons.abstractions.MomProducer;
+import it.pagopa.pn.commons.utils.DateFormatUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
@@ -27,6 +28,7 @@ import java.util.Optional;
 @Slf4j
 public class ActionsPoolImpl implements ActionsPool {
 
+    public static final String TIMESLOT_PATTERN = "yyyy-MM-dd'T'HH:mm";
     private final MomProducer<ActionEvent> actionsQueue;
     private final ActionService actionService;
     private final Clock clock;
@@ -106,13 +108,16 @@ public class ActionsPoolImpl implements ActionsPool {
 
         Instant now = clock.instant();
         List<String> uncheckedTimeSlots = computeTimeSlots(lastPollExecuted, now);
+        
         for ( String timeSlot: uncheckedTimeSlots) {
             actionService.findActionsByTimeSlot(timeSlot).stream()
                     .filter(action -> now.isAfter(action.getNotBefore()))
                     .forEach(action -> this.scheduleOne(action, timeSlot));
+
+            Instant instantTimeSlot = DateFormatUtils.getInstantFromString( timeSlot, TIMESLOT_PATTERN);
+            lastFutureActionPoolExecutionTimeDao.updateLastPollTime( instantTimeSlot );
         }
 
-        lastFutureActionPoolExecutionTimeDao.updateLastPollTime( now );
     }
 
     private void scheduleOne( Action action, String timeSlot) {

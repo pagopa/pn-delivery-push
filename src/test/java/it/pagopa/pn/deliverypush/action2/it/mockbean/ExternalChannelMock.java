@@ -29,6 +29,7 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
     public static final String EXT_CHANNEL_SEND_NEW_ADDR = "NEW_ADDR:"; //Invio notifica fallita con nuovo indirizzo da investigazione
     //Esempio: La combinazione di EXT_CHANNEL_SEND_NEW_ADDR + EXTCHANNEL_SEND_OK ad esempio significa -> Invio notifica fallito ma con nuovo indirizzo trovato e l'invio a tale indirzzo avrà successo
 
+    public static final int WAITING_TIME = 100;
     private static final Pattern NEW_ADDRESS_INPUT_PATTERN = Pattern.compile("^" + EXT_CHANNEL_SEND_NEW_ADDR + "(.*)$");
 
     ExternalChannelResponseHandler externalChannelHandler;
@@ -44,11 +45,10 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
     }
 
 
-    @Override
     public void sendCourtesyNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, CourtesyDigitalAddressInt digitalAddress, String timelineEventId) {
         //Invio messaggio di cortesia non necessità di risposta da external channel
 
-        sendDigitalNotification(digitalAddress.getAddress(), notificationInt, timelineEventId, false);
+        //sendDigitalNotification(digitalAddress.getAddress(), notificationInt, timelineEventId, false);
 
     }
 
@@ -98,7 +98,6 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
 
         externalChannelHandler.extChannelResponseReceiver(singleStatusUpdate);
     }
-
 
     @Override
     public void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, PhysicalAddress physicalAddress, String timelineEventId, ANALOG_TYPE analogType, String aarKey) {

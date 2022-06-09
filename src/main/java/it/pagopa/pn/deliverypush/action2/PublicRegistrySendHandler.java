@@ -30,11 +30,10 @@ public class PublicRegistrySendHandler {
 
         String correlationId = publicRegistryUtils.generateCorrelationId(notification.getIun(), recIndex, contactPhase, sentAttemptMade, DeliveryMode.DIGITAL);
         log.info("SendRequestForGetDigitalAddress correlationId {} - iun {} id {}", correlationId, notification.getIun(), recIndex);
-
-        publicRegistryUtils.addPublicRegistryCallToTimeline(notification.getIun(), recIndex, contactPhase, sentAttemptMade, correlationId, DeliveryMode.DIGITAL);
-
+        
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         publicRegistry.sendRequestForGetDigitalAddress(recipient.getTaxId(), correlationId);
+        publicRegistryUtils.addPublicRegistryCallToTimeline(notification.getIun(), recIndex, contactPhase, sentAttemptMade, correlationId, DeliveryMode.DIGITAL);
 
         log.debug("End sendRequestForGetAddress correlationId {} - iun {} id {}", correlationId, notification.getIun(), recIndex);
     }
@@ -45,11 +44,10 @@ public class PublicRegistrySendHandler {
     public void sendRequestForGetPhysicalAddress(NotificationInt notification, Integer recIndex, int sentAttemptMade) {
         String correlationId = publicRegistryUtils.generateCorrelationId(notification.getIun(), recIndex, ContactPhase.SEND_ATTEMPT, sentAttemptMade, DeliveryMode.ANALOG);
         log.info("SendRequestForGetPhysicalAddress correlationId {} - iun {} id {}", correlationId, notification.getIun(), recIndex);
-
-        publicRegistryUtils.addPublicRegistryCallToTimeline(notification.getIun(), recIndex, ContactPhase.SEND_ATTEMPT, sentAttemptMade, correlationId, DeliveryMode.ANALOG);
         
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         publicRegistry.sendRequestForGetPhysicalAddress(recipient.getTaxId(), correlationId);
+        publicRegistryUtils.addPublicRegistryCallToTimeline(notification.getIun(), recIndex, ContactPhase.SEND_ATTEMPT, sentAttemptMade, correlationId, DeliveryMode.ANALOG);
 
         log.debug("End sendRequestForGetPhysicalAddress correlationId {} - iun {} id {}", correlationId, notification.getIun(), recIndex);
     }

@@ -2,7 +2,9 @@ package it.pagopa.pn.deliverypush.action2.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ContactPhase;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DeliveryMode;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PublicRegistryCallDetails;
@@ -25,14 +27,14 @@ public class PublicRegistryUtils {
     }
 
     public String generateCorrelationId(String iun, Integer recIndex, ContactPhase contactPhase, int sentAttemptMade, DeliveryMode deliveryMode) {
-        return String.format(
-                "%s_%d_%s_%s_%d",
-                iun,
-                recIndex,
-                deliveryMode,
-                contactPhase,
-                sentAttemptMade
-        );
+        return TimelineEventId.PUBLIC_REGISTRY_CALL.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .deliveryMode(deliveryMode)
+                        .contactPhase(contactPhase)
+                        .sentAttemptMade(sentAttemptMade)
+                        .build());
     }
 
     public void addPublicRegistryCallToTimeline(String iun, Integer recIndex, ContactPhase contactPhase, int sentAttemptMade, String correlationId, DeliveryMode digital) {
