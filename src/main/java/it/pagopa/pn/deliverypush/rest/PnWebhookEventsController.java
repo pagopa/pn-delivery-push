@@ -5,6 +5,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.api.Streams
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.WebhookService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
@@ -26,10 +27,14 @@ public class PnWebhookEventsController implements EventsApi {
     public Mono<ResponseEntity<Flux<ProgressResponseElement>>> consumeEventStream(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, UUID streamId, String lastEventId, ServerWebExchange exchange) {
         return webhookService.consumeEventStream(xPagopaPnCxId, streamId, lastEventId)
                 .map(r -> {
-                    var resp = ResponseEntity
-                            .ok(Flux.fromIterable(r.getProgressResponseElementList()));
-                    resp.getHeaders().set(HEADER_RETRY_AFTER, ""+r.getRetryAfter());
-                    return resp;
+                    HttpHeaders responseHeaders = new HttpHeaders();
+                    responseHeaders.set(HEADER_RETRY_AFTER,
+                            ""+r.getRetryAfter());
+
+                    return ResponseEntity
+                            .ok()
+                            .headers(responseHeaders)
+                            .body(Flux.fromIterable(r.getProgressResponseElementList()));
                 });
     }
 

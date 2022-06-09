@@ -71,7 +71,9 @@ public class WebhookServiceImpl implements WebhookService {
 
     @Override
     public Mono<StreamMetadataResponse> updateEventStream(String xPagopaPnCxId, UUID streamId, Mono<StreamCreationRequest> streamCreationRequest) {
-        return streamCreationRequest
+        return streamEntityDao.get(xPagopaPnCxId, streamId.toString())
+                .switchIfEmpty(Mono.error(new PnInternalException("Pa " + xPagopaPnCxId + " is not allowed to see this streamId " + streamId)))
+                .then(streamCreationRequest)
                 .map(r -> DtoToEntityStreamMapper.dtoToEntity(xPagopaPnCxId, streamId.toString(), r))
                 .flatMap(streamEntityDao::save)
                 .map(EntityToDtoStreamMapper::entityToDto);
@@ -129,7 +131,7 @@ public class WebhookServiceImpl implements WebhookService {
                     else
                         log.info("purgeEvents streamId={} eventId={} olderThan={} no more event to purge", streamId, eventId, olderThan);
 
-                    return null;
+                    return thereAreMore;
                 })
                 .onErrorResume(e -> {
                     log.error("purgeEvents throws error, rescheduling streamId={} eventId={} olderThan={}", streamId, eventId, olderThan, e);

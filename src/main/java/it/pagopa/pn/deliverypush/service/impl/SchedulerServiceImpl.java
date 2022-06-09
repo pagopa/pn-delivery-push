@@ -52,7 +52,7 @@ public class SchedulerServiceImpl implements SchedulerService {
                 .type(actionType)
                 .build();
 
-        this.webhooksPool.scheduleFutureAction(action, actionType);
+        this.webhooksPool.scheduleFutureAction(action);
     }
 
 
@@ -61,11 +61,12 @@ public class SchedulerServiceImpl implements SchedulerService {
         WebhookAction action = WebhookAction.builder()
                 .streamId(streamId)
                 .eventId(eventId)
+                .iun("nd")
                 .notBefore(dateToSchedule)
                 .type(actionType)
                 .build();
 
-        this.webhooksPool.scheduleFutureAction(action, actionType);
+        this.webhooksPool.scheduleFutureAction(action);
     }
 
 }

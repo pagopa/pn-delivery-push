@@ -66,7 +66,7 @@ public class PnDeliveryPushMiddlewareConfigs {
 
     @Bean
     public SqsWebhookProducer webhookActionsEventProducer(SqsClient sqs, ObjectMapper objMapper) {
-        return new SqsWebhookProducer( sqs, cfg.getTopics().getScheduledActions(), objMapper);
+        return new SqsWebhookProducer( sqs, cfg.getTopics().getExecutedActions(), objMapper);
     }
 }
 

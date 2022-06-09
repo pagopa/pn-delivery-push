@@ -1,9 +1,9 @@
 package it.pagopa.pn.deliverypush.abstractions.webhookspool;
 
 import lombok.*;
+import org.springframework.util.StringUtils;
 
 import java.time.Instant;
-import java.util.Objects;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -35,7 +35,12 @@ public class WebhookAction {
 
     public String getEventId()
     {
-        return Objects.requireNonNullElseGet(eventId, () -> timestamp.toString() + "_" + timelineId);
+        if (StringUtils.hasText(eventId))
+            return eventId;
+        else if (timestamp != null)
+            return timestamp + "_" + timelineId;
+        else
+            return null;
     }
 
 }

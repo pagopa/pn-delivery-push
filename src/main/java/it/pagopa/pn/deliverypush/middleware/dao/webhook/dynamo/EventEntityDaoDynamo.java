@@ -50,17 +50,24 @@ public class EventEntityDaoDynamo implements EventEntityDao {
         return findByStreamId(streamId, eventId, olderThan, 25)  // il batch di cancellazione ne supporta fino a 25
                 .flatMap(res -> {
                     boolean thereAreMore = res.getLastEventIdRead()!=null;
-                    log.info("deleting events count={} thereAreMore={}", res.getEvents(), thereAreMore);
-                    TransactWriteItemsEnhancedRequest.Builder transactWriteItemsEnhancedRequest = TransactWriteItemsEnhancedRequest.builder();
-                    res.getEvents().forEach(ev -> transactWriteItemsEnhancedRequest.addDeleteItem(table, ev));
+                    log.info("deleting events count={} thereAreMore={}", res.getEvents().size(), thereAreMore);
 
-                    // ricorsione per gestire la paginazione
-                    if (thereAreMore)
-                        return Mono.fromFuture(dynamoDbEnhancedClient.transactWriteItems(transactWriteItemsEnhancedRequest.build()))
-                                .then(Mono.just(true));
-                    else
-                        return Mono.fromFuture(dynamoDbEnhancedClient.transactWriteItems(transactWriteItemsEnhancedRequest.build()))
-                                .then(Mono.just(false));
+                    if (res.getEvents().isEmpty())
+                    {
+                        return Mono.just(false);
+                    }
+                    else {
+                        TransactWriteItemsEnhancedRequest.Builder transactWriteItemsEnhancedRequest = TransactWriteItemsEnhancedRequest.builder();
+                        res.getEvents().forEach(ev -> transactWriteItemsEnhancedRequest.addDeleteItem(table, ev));
+
+                        // ricorsione per gestire la paginazione
+                        if (thereAreMore)
+                            return Mono.fromFuture(dynamoDbEnhancedClient.transactWriteItems(transactWriteItemsEnhancedRequest.build()))
+                                    .then(Mono.just(true));
+                        else
+                            return Mono.fromFuture(dynamoDbEnhancedClient.transactWriteItems(transactWriteItemsEnhancedRequest.build()))
+                                    .then(Mono.just(false));
+                    }
                 });
     }
 
@@ -89,7 +96,7 @@ public class EventEntityDaoDynamo implements EventEntityDao {
                     EventEntityBatch eventEntityBatch = new EventEntityBatch();
                     eventEntityBatch.setStreamId(streamId);
                     // se dynamo mi dice che non ha finito di leggere, già so che ne ho altri
-                    if (!page.lastEvaluatedKey().isEmpty())
+                    if (page.lastEvaluatedKey() != null && !page.lastEvaluatedKey().isEmpty())
                         eventEntityBatch.setLastEventIdRead(page.lastEvaluatedKey().get(EventEntity.COL_SK).s());
                     else if (page.items().size() == pagelimit +1)  // caso particolare in cui ce n'erano esattamente limitcount+1 da leggere.
                         eventEntityBatch.setLastEventIdRead(page.items().get(pagelimit-1).getEventId());    //faccio finta di aver letto fino a limitcount
