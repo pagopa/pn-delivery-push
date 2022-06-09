@@ -16,30 +16,22 @@ public class PublicRegistryImpl implements PublicRegistry {
     }
 
     @Override
-    public void sendRequestForGetDigitalAddress(String taxId, String correlationId) {
-        new Thread(() -> {
-            
-            PublicRegistryResponse response = PublicRegistryResponse.builder()
-                    .correlationId(correlationId)
-                    .digitalAddress(null)
-                    .build();
+    public void sendRequestForGetDigitalAddress(String taxId, String correlationId) {         
+        PublicRegistryResponse response = PublicRegistryResponse.builder()
+                .correlationId(correlationId)
+                .digitalAddress(null)
+                .build();
 
-            publicRegistryResponseHandler.handleResponse(response);
-
-        }).start();
+        publicRegistryResponseHandler.handleResponse(response);
     }
 
     @Override
-    public void sendRequestForGetPhysicalAddress(String taxId, String correlationId) {
-        new Thread(() -> {
-            
-            PublicRegistryResponse response = PublicRegistryResponse.builder()
-                    .correlationId(correlationId)
-                    .physicalAddress(null)
-                    .build();
+    public void sendRequestForGetPhysicalAddress(String taxId, String correlationId) {         
+        PublicRegistryResponse response = PublicRegistryResponse.builder()
+                .correlationId(correlationId)
+                .physicalAddress(null)
+                .build();
 
-            publicRegistryResponseHandler.handleResponse(response);
-
-        }).start();
+        publicRegistryResponseHandler.handleResponse(response);
     }
 }
