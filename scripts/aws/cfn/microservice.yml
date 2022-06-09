@@ -238,6 +238,7 @@ Resources:
         ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_FUTUREACTIONDAO_TABLENAME=${FutureActionDynamoTableName}'
         ContainerEnvEntry29: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_TABLENAME=${LastPollForFutureActionDynamoTableName}'
         ContainerEnvEntry30: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_LOCKTABLENAME=${PnDeliveryPushShedLockDynamoTableName}'
+        ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds

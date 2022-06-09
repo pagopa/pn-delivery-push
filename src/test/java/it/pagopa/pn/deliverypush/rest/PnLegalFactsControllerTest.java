@@ -48,7 +48,11 @@ class PnLegalFactsControllerTest {
                 .thenReturn( legalFactsList );
         
         webTestClient.get()
-                .uri( "/delivery-push/" + IUN + "/legal-facts" )
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-push/" + IUN + "/legal-facts" )
+                                .queryParam("mandateId", "mandateId")
+                                .build())
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .headers(httpHeaders -> {

@@ -26,7 +26,7 @@ public class AuthUtils {
 
         log.info("Start Check authorization - iun={} senderRecipientId={} paId={} mandateId={}", iun, senderRecipientId, paId, mandateId);
 
-        if(StringUtils.hasText(mandateId)){
+        if( StringUtils.hasText( mandateId ) ){
             checkMandate(notification, senderRecipientId, mandateId, paId, iun);
         } else {
             checkPaAndRecipients(notification, senderRecipientId, paId, iun);
@@ -52,7 +52,7 @@ public class AuthUtils {
     }
 
     private void verifyMandateData(NotificationInt notification, String senderRecipientId, String mandateId, String paId, String iun, MandateDtoInt mandateDtoInt) {
-        Instant startMandateDate = Instant.parse(mandateDtoInt.getDateFrom());
+        Instant startMandateDate = mandateDtoInt.getDateFrom();
 
         //Viene verificato che la notifica contenente i legalFacts che si vogliono visualizzare non sia stata create in una data precedente all'inizio mandato
         if( notification.getSentAt().isBefore(startMandateDate) ){
@@ -75,6 +75,8 @@ public class AuthUtils {
                     handleError(message);
                 }
             }
+
+            log.info("Request is from delegate, authorization is valid");
         }
     }
 
@@ -87,6 +89,8 @@ public class AuthUtils {
         if( !isRequestFromPa ){
             log.debug("Request is not from notification Pa - iun={} senderRecipientId={} paId={}", iun, senderRecipientId, paId);
             checkRecipients(notification, senderRecipientId);
+        }else {
+            log.info("Request is from PA, authorization is valid");
         }
     }
 
@@ -100,6 +104,8 @@ public class AuthUtils {
         if( !isRequestFromRecipient ){
             String message = String.format("User haven't authorization to get required legal facts - iun=%s user=%s", notification.getIun(), senderRecipientId);
             handleError(message);
+        }else {
+            log.info("Request is from recipient, authorization is valid");
         }
     }
 

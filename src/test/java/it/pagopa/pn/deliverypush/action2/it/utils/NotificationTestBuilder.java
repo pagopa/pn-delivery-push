@@ -11,7 +11,8 @@ public class NotificationTestBuilder {
     private String iun;
     private String paId;
     private List<NotificationRecipientInt> recipients;
-    
+    private Instant sentAt;
+
     public NotificationTestBuilder() {
         recipients = Collections.emptyList();
     }
@@ -42,6 +43,11 @@ public class NotificationTestBuilder {
         return this;
     }
 
+    public NotificationTestBuilder withSentAt(Instant sentAt) {
+        this.sentAt = sentAt;
+        return this;
+    }
+    
     public NotificationInt build() {
         return NotificationInt.builder()
                 .iun(iun)
@@ -55,6 +61,7 @@ public class NotificationTestBuilder {
                         .paTaxId("CFPA-" + paId)
                         .build()
                 )
+                .sentAt( sentAt )
                 .recipients(recipients)
                 .documents(Arrays.asList(
                         NotificationDocumentInt.builder()
