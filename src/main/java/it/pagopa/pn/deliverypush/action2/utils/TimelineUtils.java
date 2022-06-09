@@ -244,17 +244,16 @@ public class TimelineUtils {
 
     public TimelineElementInternal buildPublicRegistryResponseCallTimelineElement(String iun, Integer recIndex, PublicRegistryResponse response) {
         log.debug("buildPublicRegistryResponseCallTimelineElement - iun={} and id={}", iun, recIndex);
-        String correlationId = String.format(
-                "response_%s",
-                response.getCorrelationId()
-        );
+
+        String eventId = TimelineEventId.PUBLIC_REGISTRY_RESPONSE.buildEventId(response.getCorrelationId());
+                
         PublicRegistryResponseDetails details = PublicRegistryResponseDetails.builder()
                 .recIndex(recIndex)
                 .digitalAddress(LegalDigitalAddressMapper.legalToDigital(response.getDigitalAddress()))
                 .physicalAddress(response.getPhysicalAddress())
                 .build();
 
-        return buildTimeline(iun, TimelineElementCategory.PUBLIC_REGISTRY_RESPONSE, correlationId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
+        return buildTimeline(iun, TimelineElementCategory.PUBLIC_REGISTRY_RESPONSE, eventId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
     }
 
 

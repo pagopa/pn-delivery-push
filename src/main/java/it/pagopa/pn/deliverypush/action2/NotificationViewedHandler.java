@@ -46,7 +46,7 @@ public class NotificationViewedHandler {
         
         //I processi collegati alla visualizzazione di una notifica vengono effettuati solo la prima volta che la stessa viene visualizzata
         if(!isNotificationAlreadyViewed){
-            log.info("Notification isn't already viewed, start view notification process");
+            log.info("Start view notification process");
             
             NotificationInt notification = notificationService.getNotificationByIun(iun);
 

@@ -17,7 +17,7 @@ public class CompletelyUnreachableUtils  {
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
     private final NotificationUtils notificationUtils;
-    
+
     public CompletelyUnreachableUtils(PaperNotificationFailedService paperNotificationFailedService, TimelineService timelineService,
                                       TimelineUtils timelineUtils, NotificationUtils notificationUtils) {
         this.paperNotificationFailedService = paperNotificationFailedService;
@@ -56,4 +56,5 @@ public class CompletelyUnreachableUtils  {
     private void addTimelineElement(TimelineElementInternal element) {
         timelineService.addTimelineElement(element);
     }
+
 }

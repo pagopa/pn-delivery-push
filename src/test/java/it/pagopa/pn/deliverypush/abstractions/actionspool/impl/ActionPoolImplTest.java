@@ -1,18 +1,22 @@
 package it.pagopa.pn.deliverypush.abstractions.actionspool.impl;
 
 import it.pagopa.pn.commons.abstractions.MomProducer;
+import it.pagopa.pn.commons.utils.DateFormatUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.LastPollForFutureActionsDao;
 import it.pagopa.pn.deliverypush.service.ActionService;
 import net.javacrumbs.shedlock.core.LockAssert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.anyString;
@@ -48,13 +52,32 @@ class ActionPoolImplTest {
         Mockito.when(clock.instant()).thenReturn( now );
         Mockito.when( lastPollForFutureActionsDao.getLastPollTime() )
                 .thenReturn(Optional.ofNullable(registeredTime));
-        Mockito.doNothing().when(lastPollForFutureActionsDao).updateLastPollTime(Mockito.any(Instant.class));
 
         //WHEN
         service.pollForFutureActions();
 
         //THEN
-        Mockito.verify(actionService, Mockito.times(61)).findActionsByTimeSlot(anyString());
+        
+        //Viene verificato il numero di volte che è stato chiamato l'ActionService 
+        ArgumentCaptor<String> timeSlotCaptor = ArgumentCaptor.forClass(String.class);
+
+        Mockito.verify(actionService, Mockito.times(61)).findActionsByTimeSlot(timeSlotCaptor.capture());
+
+        List<String> timeSlots = timeSlotCaptor.getAllValues();
+        String lastTimeSlot = timeSlots.get(60);
+
+        ArgumentCaptor<Instant> instantArgumentCaptor = ArgumentCaptor.forClass(Instant.class);
+
+        //Viene verificato il numero di volte che è stato chiamato il lastPollForFutureActionsDao
+        Mockito.verify(lastPollForFutureActionsDao, Mockito.times(61)).updateLastPollTime(instantArgumentCaptor.capture());
+
+        List<Instant> instantTimeSlot = instantArgumentCaptor.getAllValues();
+        Instant lastInstantTimeslot = instantTimeSlot.get(60);
+
+        Instant lastTimeSlotConverted = DateFormatUtils.getInstantFromString( lastTimeSlot, ActionsPoolImpl.TIMESLOT_PATTERN );
+        
+        //Viene verificato che l'ultimo timeSlot passato all'ActionService sia uguale all'ultimo timeslot passato a lastPollForFutureActionsDao
+        Assertions.assertEquals( lastTimeSlotConverted, lastInstantTimeslot);
     }
 
     @Test

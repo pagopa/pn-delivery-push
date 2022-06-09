@@ -18,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
@@ -248,7 +249,7 @@ class TimeLineServiceImplTest {
         Assertions.assertEquals(retrievedSendPaperFeedback.getDetails().getRecIndex() , sendPaperFeedbackConfInf.getDetails().getRecIndex());
         Assertions.assertEquals(retrievedSendPaperFeedback.getDetails().getPhysicalAddress() , confInfPhysical.getPhysicalAddress());
     }
-    
+
     @Test
     void getTimelineAndStatusHistory() {
         //GIVEN
@@ -262,12 +263,29 @@ class TimeLineServiceImplTest {
         Mockito.when(timelineDao.getTimeline(Mockito.anyString()))
                 .thenReturn(setTimelineElement);
 
-        List<NotificationStatusHistoryElement> notificationStatusHistoryElements = Collections.singletonList(
-                NotificationStatusHistoryElement.builder()
-                        .status(NotificationStatus.DELIVERING)
-                        .activeFrom(Instant.now())
-                        .build()
-        );
+        Instant activeFromInValidation = Instant.now();
+        
+        NotificationStatusHistoryElement inValidationElement = NotificationStatusHistoryElement.builder()
+                .status(NotificationStatus.IN_VALIDATION)
+                .activeFrom(activeFromInValidation)
+                .build();
+
+        Instant activeFromAccepted = activeFromInValidation.plus(Duration.ofDays(1));
+
+        NotificationStatusHistoryElement acceptedElementElement = NotificationStatusHistoryElement.builder()
+                .status(NotificationStatus.ACCEPTED)
+                .activeFrom(activeFromAccepted)
+                .build();
+
+        Instant activeFromDelivering = activeFromAccepted.plus(Duration.ofDays(1));
+
+        NotificationStatusHistoryElement deliveringElement = NotificationStatusHistoryElement.builder()
+                .status(NotificationStatus.DELIVERING)
+                .activeFrom(activeFromDelivering)
+                .build();
+        
+        List<NotificationStatusHistoryElement> notificationStatusHistoryElements = new ArrayList<>(List.of(inValidationElement, acceptedElementElement, deliveringElement));
+
         Mockito.when(
                 statusUtils.getStatusHistory(Mockito.anySet() ,Mockito.anyInt(), Mockito.any(Instant.class))
         ).thenReturn(notificationStatusHistoryElements);
@@ -275,19 +293,35 @@ class TimeLineServiceImplTest {
         Mockito.when(
                 statusUtils.getCurrentStatus( Mockito.anyList() )
         ).thenReturn(currentStatus);
-        
+
         //WHEN
         NotificationHistoryResponse notificationHistoryResponse = timeLineService.getTimelineAndStatusHistory(iun, numberOfRecipients1, notificationCreatedAt);
-        
+
         //THEN
-        TimelineElement element = notificationHistoryResponse.getTimeline().get(0);
+        
+        //Viene verificato che il numero di elementi restituiti sia 2, dunque che sia stato eliminato l'elemento con category "IN VALIDATION"
+        Assertions.assertEquals(2 , notificationHistoryResponse.getNotificationStatusHistory().size());
+        
+        NotificationStatusHistoryElement firstElement = notificationHistoryResponse.getNotificationStatusHistory().get(0);
+        Assertions.assertEquals(acceptedElementElement.getStatus(), firstElement.getStatus());
+        Assertions.assertEquals(inValidationElement.getActiveFrom(), firstElement.getActiveFrom());
+
+        NotificationStatusHistoryElement secondElement = notificationHistoryResponse.getNotificationStatusHistory().get(1);
+        Assertions.assertEquals(deliveringElement.getStatus(), secondElement.getStatus());
+        Assertions.assertEquals(deliveringElement.getActiveFrom(), secondElement.getActiveFrom());
+        
+        //Verifica timeline 
         List<TimelineElementInternal> timelineElementList = new ArrayList<>(setTimelineElement);
         TimelineElementInternal elementInt = timelineElementList.get(0);
+
+        Assertions.assertEquals(timelineElementList.size() , notificationHistoryResponse.getTimeline().size());
+
+        TimelineElement firstElementReturned = notificationHistoryResponse.getTimeline().get(0);
         
         Assertions.assertEquals( notificationHistoryResponse.getNotificationStatus(), currentStatus );
-        Assertions.assertEquals( elementInt.getElementId(), element.getElementId() );
-        Assertions.assertEquals( elementInt.getDetails().getRecIndex(), element.getDetails().getRecIndex() );
-        Assertions.assertEquals( elementInt.getDetails().getPhysicalAddress().getAddress(), element.getDetails().getPhysicalAddress().getAddress() );
+        Assertions.assertEquals( elementInt.getElementId(), firstElementReturned.getElementId() );
+        Assertions.assertEquals( elementInt.getDetails().getRecIndex(), firstElementReturned.getDetails().getRecIndex() );
+        Assertions.assertEquals( elementInt.getDetails().getPhysicalAddress().getAddress(), firstElementReturned.getDetails().getPhysicalAddress().getAddress() );
 
     }
     

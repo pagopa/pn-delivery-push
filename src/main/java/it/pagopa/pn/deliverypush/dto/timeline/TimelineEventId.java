@@ -59,6 +59,7 @@ public enum TimelineEventId {//NEW
             );
         }
     },
+    
     SEND_DIGITAL_DOMICILE() {
         @Override
         public String buildEventId(EventId eventId) {
@@ -217,6 +218,30 @@ public enum TimelineEventId {//NEW
         }
     },
 
+    PUBLIC_REGISTRY_CALL() {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return String.format(
+                    "%s_%d_%s_%s_%d_%s",
+                    eventId.getIun(),
+                    eventId.getRecIndex(),
+                    eventId.getDeliveryMode(),
+                    eventId.getContactPhase(),
+                    eventId.getSentAttemptMade(),
+                    "public_registry_call"
+            );
+        }
+    },
+
+    PUBLIC_REGISTRY_RESPONSE() {
+        @Override
+        public String buildEventId(String eventId) {
+            return String.format(
+                    "public_registry_response_%s",
+                    eventId
+            );
+        }
+    },
     AAR_GENERATION() {
         @Override
         public String buildEventId(EventId eventId) {
@@ -230,6 +255,10 @@ public enum TimelineEventId {//NEW
     ;
 
     public String buildEventId(EventId eventId) {
+        throw new UnsupportedOperationException("Must be implemented for each action type");
+    }
+
+    public String buildEventId(String eventId) {
         throw new UnsupportedOperationException("Must be implemented for each action type");
     }
 }
