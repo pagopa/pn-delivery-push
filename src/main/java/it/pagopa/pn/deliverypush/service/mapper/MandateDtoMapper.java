@@ -6,7 +6,8 @@ import it.pagopa.pn.mandate.generated.openapi.clients.mandate.model.InternalMand
 import java.time.Instant;
 
 public class MandateDtoMapper {
-
+    private MandateDtoMapper(){}
+    
     public static MandateDtoInt externalToInternal(InternalMandateDto dtoExt){
         return MandateDtoInt.builder()
                 .dateFrom( dtoExt.getDatefrom() != null ? Instant.parse(dtoExt.getDatefrom()) : null )

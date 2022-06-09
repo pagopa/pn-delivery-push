@@ -14,6 +14,7 @@ public class NotificationTestBuilder {
     private Instant sentAt;
 
     public NotificationTestBuilder() {
+        sentAt = Instant.now();
         recipients = Collections.emptyList();
     }
 

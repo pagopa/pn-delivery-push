@@ -357,7 +357,7 @@
 						</goals>
 						<phase>process-resources</phase>
 						<configuration>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-mandate/c64058e17724f81d02ad92af54ee78c0ef5d05fa/docs/openapi/pn-mandate-v1.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-mandate/5642fae853e3c83aa23b81379bba3bf6102d4101/docs/openapi/pn-mandate-v1.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
