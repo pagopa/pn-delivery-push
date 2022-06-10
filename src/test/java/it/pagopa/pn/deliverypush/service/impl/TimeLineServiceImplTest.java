@@ -54,6 +54,9 @@ class TimeLineServiceImplTest {
 
         NotificationInt notification = getNotification(iun);
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notification);
+        StatusService.NotificationStatusUpdate notificationStatuses = new StatusService.NotificationStatusUpdate(NotificationStatus.ACCEPTED, NotificationStatus.ACCEPTED);
+        Mockito.when(statusService.checkAndUpdateStatus(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(notificationStatuses);
+        Mockito.doNothing().when(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
 
         String elementId2 = "elementId2";
         Set<TimelineElementInternal> setTimelineElement = getSendPaperDetailsList(iun, elementId2);
@@ -61,7 +64,8 @@ class TimeLineServiceImplTest {
                 .thenReturn(setTimelineElement);
 
         TimelineElementInternal newElement = getSendPaperFeedbackTimelineElement(iun, elementId);
-        
+        newElement.setCategory(TimelineElementCategory.AAR_GENERATION);
+
         //WHEN
         timeLineService.addTimelineElement(newElement);
         

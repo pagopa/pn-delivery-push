@@ -80,7 +80,7 @@ public class EventEntityDaoDynamo implements EventEntityDao {
     }
 
 
-    public Mono<EventEntityBatch> findByStreamId(String streamId, String eventId, boolean olderThan, int pagelimit) {
+    private Mono<EventEntityBatch> findByStreamId(String streamId, String eventId, boolean olderThan, int pagelimit) {
         Key hashKey = Key.builder()
                 .partitionValue(streamId)
                 .sortValue(eventId)
@@ -89,7 +89,7 @@ public class EventEntityDaoDynamo implements EventEntityDao {
         QueryConditional queryByHashKey = olderThan?sortLessThanOrEqualTo( hashKey ):sortGreaterThan(hashKey) ;
         QueryEnhancedRequest queryEnhancedRequest = QueryEnhancedRequest.builder()
                 .queryConditional(queryByHashKey)
-                .limit(pagelimit+1)    // ne chiedo 1 in più, altrimenti non so se ce ne sono altri se me ne ritorna esattamente quanti richiesti
+                .limit(pagelimit)
                 .scanIndexForward(true)
                 .build();
 
@@ -100,11 +100,9 @@ public class EventEntityDaoDynamo implements EventEntityDao {
                     // se dynamo mi dice che non ha finito di leggere, già so che ne ho altri
                     if (page.lastEvaluatedKey() != null && !page.lastEvaluatedKey().isEmpty())
                         eventEntityBatch.setLastEventIdRead(page.lastEvaluatedKey().get(EventEntity.COL_SK).s());
-                    else if (page.items().size() == pagelimit +1)  // caso particolare in cui ce n'erano esattamente limitcount+1 da leggere.
-                        eventEntityBatch.setLastEventIdRead(page.items().get(pagelimit-1).getEventId());    //faccio finta di aver letto fino a limitcount
 
                     // avevo chiesto 1 in più, ne ritorno 1 in meno nel caso in cui abbia ricevuto limitcount+1 elementi
-                    eventEntityBatch.setEvents(page.items().subList(0, Math.min(page.items().size(), pagelimit)));
+                    eventEntityBatch.setEvents(page.items());
                     return eventEntityBatch;
                 });
     }
