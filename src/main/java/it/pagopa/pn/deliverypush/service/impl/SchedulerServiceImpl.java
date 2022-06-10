@@ -40,16 +40,17 @@ public class SchedulerServiceImpl implements SchedulerService {
 
 
     @Override
-    public void scheduleWebhookEvent(String iun, String timelineId, Instant timestamp, String newStatus,
-                                     String timelineEventCategory, Instant dateToSchedule, WebhookEventType actionType) {
+    public void scheduleWebhookEvent(String paId, String iun, String timelineId, Instant timestamp, String oldStatus, String newStatus, String timelineEventCategory) {
         WebhookAction action = WebhookAction.builder()
                 .iun(iun)
+                .paId(paId)
                 .timestamp(timestamp)
                 .eventId(timestamp + "_" + timelineId)
-                .notBefore(dateToSchedule)
+                .notBefore(Instant.now())
+                .oldStatus(oldStatus)
                 .newStatus(newStatus)
                 .timelineEventCategory(timelineEventCategory)
-                .type(actionType)
+                .type(WebhookEventType.REGISTER_EVENT)
                 .build();
 
         this.webhooksPool.scheduleFutureAction(action);

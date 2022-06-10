@@ -14,10 +14,14 @@ import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper.EntityToSt
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.WebhookService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.server.DelegatingServerHttpResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Base64Utils;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -105,17 +109,48 @@ public class WebhookServiceImpl implements WebhookService {
     }
 
     @Override
-    public Mono<Void> saveEvent(String streamId, String eventId, String iun, String requestId, Instant timestamp, String newStatus, String timelineEventCategory) {
-        EventEntity eventEntity = new EventEntity();
-        eventEntity.setEventId(eventId);
-        eventEntity.setTimestamp(timestamp);
-        eventEntity.setIun(iun);
-        eventEntity.setNewStatus(newStatus);
-        eventEntity.setTimelineEventCategory(timelineEventCategory);
-        eventEntity.setStreamId(streamId);
-        eventEntity.setNotificationRequestId(requestId);
-        return eventEntityDao.save(eventEntity).then();
+    public Mono<Void> saveEvent(String paId, String eventId, String iun, Instant timestamp,
+                                String oldStatus, String newStatus, String timelineEventCategory) {
+        return streamEntityDao.findByPa(paId)
+                .map(stream -> {
+                    // per ogni stream configurato, devo andare a controllare se lo stato devo salvarlo o meno
+                    // c'è il caso in cui lo stato non cambia (e se lo stream vuolo solo i cambi di stato, lo ignoro)
+                    if (StreamCreationRequest.EventTypeEnum.fromValue(stream.getEventType()) == StreamCreationRequest.EventTypeEnum.STATUS
+                        && newStatus.equals(oldStatus))
+                    {
+                        log.debug("skipping saving webhook event for stream={} because old and new status are same status={}", stream.getStreamId(), newStatus);
+                        return Mono.empty();
+                    }
+
+                    // e poi c'è il caso in cui lo stream ha un filtro sugli eventi interessati
+                    // se è nullo/vuoto o contiene lo stato, vuol dire che devo salvarlo
+                    if ((stream.getFilterValues() == null || stream.getFilterValues().isEmpty() || stream.getFilterValues().contains(timelineEventCategory)))
+                    {
+
+                        EventEntity eventEntity = new EventEntity();
+                        eventEntity.setEventId(eventId);
+                        eventEntity.setTimestamp(timestamp);
+                        // Lo iun ci va solo se è stata accettata, quindi escludo gli stati invalidation e refused
+                        if (StringUtils.hasText(newStatus)
+                            && NotificationStatus.fromValue(newStatus) != NotificationStatus.IN_VALIDATION
+                            && NotificationStatus.fromValue(newStatus) != NotificationStatus.REFUSED)
+                            eventEntity.setIun(iun);
+                        eventEntity.setNewStatus(newStatus);
+                        eventEntity.setTimelineEventCategory(timelineEventCategory);
+                        eventEntity.setStreamId(stream.getStreamId());
+                        // il requestId ci va sempre, ed è il base64 dello iun
+                        eventEntity.setNotificationRequestId(Base64Utils.encodeToString(iun.getBytes(StandardCharsets.UTF_8)));
+                        return eventEntityDao.save(eventEntity).then();
+                    }
+                    else {
+                        log.debug("skipping saving webhook event for stream={} because timelineeventcategory is not in list timelineeventcategory={}", stream.getStreamId(), timelineEventCategory);
+                        return Mono.empty();
+                    }
+                })
+                .collectList().then();
     }
+
+
 
     @Override
     public Mono<Void> purgeEvents(String streamId, String eventId, boolean olderThan)
@@ -132,11 +167,6 @@ public class WebhookServiceImpl implements WebhookService {
                         log.info("purgeEvents streamId={} eventId={} olderThan={} no more event to purge", streamId, eventId, olderThan);
 
                     return thereAreMore;
-                })
-                .onErrorResume(e -> {
-                    log.error("purgeEvents throws error, rescheduling streamId={} eventId={} olderThan={}", streamId, eventId, olderThan, e);
-                    schedulerService.scheduleWebhookEvent(streamId, eventId, Instant.now().plusMillis(purgeDeletionWaittime), olderThan?WebhookEventType.PURGE_STREAM_OLDER_THAN:WebhookEventType.PURGE_STREAM);
-                    return Mono.empty();
                 })
                 .then();
     }

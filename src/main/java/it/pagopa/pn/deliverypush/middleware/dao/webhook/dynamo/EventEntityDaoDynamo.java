@@ -30,7 +30,7 @@ public class EventEntityDaoDynamo implements EventEntityDao {
     private final int limitCount;
 
     public EventEntityDaoDynamo(DynamoDbEnhancedAsyncClient dynamoDbEnhancedClient, PnDeliveryPushConfigs cfg) {
-        this.table = dynamoDbEnhancedClient.table(cfg.getWebhookDao().getStreamsTableName(), TableSchema.fromBean(EventEntity.class));
+        this.table = dynamoDbEnhancedClient.table(cfg.getWebhookDao().getEventsTableName(), TableSchema.fromBean(EventEntity.class));
         this.dynamoDbEnhancedClient = dynamoDbEnhancedClient;
         this.limitCount = cfg.getWebhook().getMaxLength();
     }
@@ -38,6 +38,8 @@ public class EventEntityDaoDynamo implements EventEntityDao {
     @Override
     public Mono<EventEntityBatch> findByStreamId(String streamId, String eventId) {
         log.info("findByStreamId streamId={} eventId={}", streamId, eventId);
+        if (eventId == null)
+            eventId = Instant.EPOCH.toString();
         return this.findByStreamId(streamId, eventId, false, limitCount);
     }
 
@@ -84,7 +86,7 @@ public class EventEntityDaoDynamo implements EventEntityDao {
                 .sortValue(eventId)
                 .build();
 
-        QueryConditional queryByHashKey = olderThan?sortLessThan( hashKey ):sortGreaterThanOrEqualTo(hashKey) ;
+        QueryConditional queryByHashKey = olderThan?sortLessThanOrEqualTo( hashKey ):sortGreaterThan(hashKey) ;
         QueryEnhancedRequest queryEnhancedRequest = QueryEnhancedRequest.builder()
                 .queryConditional(queryByHashKey)
                 .limit(pagelimit+1)    // ne chiedo 1 in più, altrimenti non so se ce ne sono altri se me ne ritorna esattamente quanti richiesti

@@ -10,6 +10,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.StatusService;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import it.pagopa.pn.deliverypush.util.StatusUtils;
@@ -31,7 +32,8 @@ class TimeLineServiceImplTest {
     private NotificationService notificationService;
     private StatusService statusService;
     private ConfidentialInformationService confidentialInformationService;
-    
+    private SchedulerService schedulerService;
+
     @BeforeEach
     void setup() {
         timelineDao = Mockito.mock( TimelineDao.class );
@@ -39,8 +41,9 @@ class TimeLineServiceImplTest {
         notificationService = Mockito.mock( NotificationService.class );
         statusService = Mockito.mock( StatusService.class );
         confidentialInformationService = Mockito.mock( ConfidentialInformationService.class );
+        schedulerService = Mockito.mock(SchedulerService.class);
         
-        timeLineService = new TimeLineServiceImpl(timelineDao , statusUtils, notificationService, statusService, confidentialInformationService);
+        timeLineService = new TimeLineServiceImpl(timelineDao , statusUtils, notificationService, statusService, confidentialInformationService, schedulerService);
     }
 
     @Test

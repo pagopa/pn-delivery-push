@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
-import java.time.Instant;
 import java.util.UUID;
 
 @Service
@@ -29,11 +28,12 @@ public class WebhooksPoolImpl implements WebhooksPool {
 
     @Override
     public void scheduleFutureAction(WebhookAction action) {
-        if ( Instant.now().isAfter( action.getNotBefore() )) {
+        // TODO questa logica del "notbefore" andrebbe eseguita con semplicemente un delay in fase di inserimento
+        /*if ( Instant.now().isAfter( action.getNotBefore() )) {
             action = action.toBuilder()
                     .notBefore( Instant.now().plusSeconds(1))
                     .build();
-        }
+        }*/
         addWebhookAction(action);
     }
 

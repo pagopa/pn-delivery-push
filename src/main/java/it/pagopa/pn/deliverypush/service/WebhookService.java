@@ -23,8 +23,8 @@ public interface WebhookService {
 
     Mono<ProgressResponseElementDto> consumeEventStream(String xPagopaPnCxId, UUID streamId, String lastEventId);
 
-    Mono<Void> saveEvent(String streamId, String eventId, String iun, String requestId, Instant timestamp, String newStatus,
-                         String timelineEventCategory);
+    Mono<Void> saveEvent(String paId, String eventId, String iun, Instant timestamp,
+                         String oldStatus, String newStatus, String timelineEventCategory);
 
     Mono<Void> purgeEvents(String streamId, String eventId, boolean olderThan);
 }

@@ -45,7 +45,7 @@ public class SchedulerServiceMock implements SchedulerService {
     }
 
     @Override
-    public void scheduleWebhookEvent(String iun, String timelineId, Instant timestamp, String newStatus, String timelineEventCategory, Instant dateToSchedule, WebhookEventType actionType) {
+    public void scheduleWebhookEvent(String paId, String iun, String timelineId, Instant timestamp, String oldStatus, String newStatus, String timelineEventCategory) {
         // FIXME fare mock
     }
 

@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.abstractions.webhookspool;
 
 import lombok.*;
-import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 
@@ -17,30 +16,21 @@ public class WebhookAction {
 
     private String eventId;
 
+    private String paId;
+
     private String iun;
 
     private Instant notBefore;
 
-    private String requestId;
-
     private Instant timestamp;
 
     private String timelineId;
+
+    private String oldStatus;
 
     private String newStatus;
 
     private String timelineEventCategory;
 
     private WebhookEventType type;
-
-    public String getEventId()
-    {
-        if (StringUtils.hasText(eventId))
-            return eventId;
-        else if (timestamp != null)
-            return timestamp + "_" + timelineId;
-        else
-            return null;
-    }
-
 }

@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.abstractions.webhookspool.WebhookEventType;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
@@ -8,13 +9,11 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
-import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
-import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.service.StatusService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import it.pagopa.pn.deliverypush.util.StatusUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -29,15 +28,17 @@ public class TimeLineServiceImpl implements TimelineService {
     private final ConfidentialInformationService confidentialInformationService;
     private final NotificationService notificationService;
     private final StatusService statusService;
+    private final SchedulerService schedulerService;
     
-    public TimeLineServiceImpl(TimelineDao timelineDao, StatusUtils statusUtils, 
+    public TimeLineServiceImpl(TimelineDao timelineDao, StatusUtils statusUtils,
                                NotificationService notificationService, StatusService statusService,
-                        ConfidentialInformationService confidentialInformationService) {
+                               ConfidentialInformationService confidentialInformationService, SchedulerService schedulerService) {
         this.timelineDao = timelineDao;
         this.statusUtils = statusUtils;
         this.confidentialInformationService = confidentialInformationService;
         this.notificationService = notificationService;
         this.statusService = statusService;
+        this.schedulerService = schedulerService;
     }
 
     @Override
@@ -49,9 +50,12 @@ public class TimeLineServiceImpl implements TimelineService {
 
         if (notification != null) {
             Set<TimelineElementInternal> currentTimeline = getTimeline(dto.getIun());
-            statusService.checkAndUpdateStatus(dto, currentTimeline, notification);
+            StatusService.NotificationStatusUpdate notificationStatuses = statusService.checkAndUpdateStatus(dto, currentTimeline, notification);
             confidentialInformationService.saveTimelineConfidentialInformation(dto);
             timelineDao.addTimelineElement(dto);
+            // genero un messagio per l'aggiunta in sqs in modo da salvarlo in maniera asincrona
+            schedulerService.scheduleWebhookEvent(notification.getSender().getPaId(), dto.getIun(), dto.getElementId(),
+                    dto.getTimestamp(), notificationStatuses.getOldStatus().getValue(), notificationStatuses.getNewStatus().getValue(), dto.getCategory().getValue());
         } else {
             log.error("Try to update Timeline and Status for non existing iun={}", dto.getIun());
             throw new PnInternalException("Try to update Timeline and Status for non existing iun " + dto.getIun());
