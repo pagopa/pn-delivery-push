@@ -48,6 +48,7 @@ class WebhookServiceImplTest {
         webhook.setScheduleInterval(1000L);
         webhook.setMaxLength(10);
         webhook.setPurgeDeletionWaittime(1000);
+        webhook.setReadBufferDelay(1000);
         Mockito.when(pnDeliveryPushConfigs.getWebhook()).thenReturn(webhook);
 
         webhookService = new WebhookServiceImpl(streamEntityDao, eventEntityDao, pnDeliveryPushConfigs, schedulerService);

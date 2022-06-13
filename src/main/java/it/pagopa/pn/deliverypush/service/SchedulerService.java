@@ -10,5 +10,5 @@ public interface SchedulerService {
 
     void scheduleWebhookEvent(String paId, String iun, String timelineId, Instant timestamp, String oldStatus, String newStatus, String timelineEventCategory);
 
-    void scheduleWebhookEvent(String streamId, String eventId, Instant dateToSchedule, WebhookEventType actionType);
+    void scheduleWebhookEvent(String streamId, String eventId, Integer delay, WebhookEventType actionType);
 }

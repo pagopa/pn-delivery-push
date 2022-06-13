@@ -46,7 +46,7 @@ public class SchedulerServiceImpl implements SchedulerService {
                 .paId(paId)
                 .timestamp(timestamp)
                 .eventId(timestamp + "_" + timelineId)
-                .notBefore(Instant.now())
+                //.delay(null)
                 .oldStatus(oldStatus)
                 .newStatus(newStatus)
                 .timelineEventCategory(timelineEventCategory)
@@ -58,12 +58,12 @@ public class SchedulerServiceImpl implements SchedulerService {
 
 
     @Override
-    public void scheduleWebhookEvent(String streamId, String eventId, Instant dateToSchedule, WebhookEventType actionType) {
+    public void scheduleWebhookEvent(String streamId, String eventId, Integer delay, WebhookEventType actionType) {
         WebhookAction action = WebhookAction.builder()
                 .streamId(streamId)
                 .eventId(eventId)
                 .iun("nd")
-                .notBefore(dateToSchedule)
+                .delay(delay)
                 .type(actionType)
                 .build();
 

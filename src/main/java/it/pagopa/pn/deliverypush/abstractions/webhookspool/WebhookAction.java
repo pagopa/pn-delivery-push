@@ -20,7 +20,7 @@ public class WebhookAction {
 
     private String iun;
 
-    private Instant notBefore;
+    private Integer delay;
 
     private Instant timestamp;
 

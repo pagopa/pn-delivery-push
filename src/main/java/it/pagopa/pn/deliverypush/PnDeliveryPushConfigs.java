@@ -81,6 +81,7 @@ public class PnDeliveryPushConfigs {
         private Long scheduleInterval;
         private Integer maxLength;
         private Integer purgeDeletionWaittime;
+        private Integer readBufferDelay;
     }
 
     @Data

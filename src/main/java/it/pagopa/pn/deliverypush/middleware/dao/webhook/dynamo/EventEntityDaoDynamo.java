@@ -98,10 +98,14 @@ public class EventEntityDaoDynamo implements EventEntityDao {
                     EventEntityBatch eventEntityBatch = new EventEntityBatch();
                     eventEntityBatch.setStreamId(streamId);
                     // se dynamo mi dice che non ha finito di leggere, già so che ne ho altri
+                    // NB: nel caso siano presenti esattamente XX elementi (XX=pagelimit)
+                    // dynamo ritorna cmq l'ultima key letta, come se ce ne fossero altri
+                    // anche se non ce ne sono. Questo causerà una nuova richiesta che tornerà vuoto, ma vabbè
+                    // in alternativa, si possono chiedere XX+1 elementi, e tornare solo i primi XX, accettando
+                    // di pagare di più nel caso in cui si verifichi spesso la presenza di "esattamente" XX+1 elementi
                     if (page.lastEvaluatedKey() != null && !page.lastEvaluatedKey().isEmpty())
                         eventEntityBatch.setLastEventIdRead(page.lastEvaluatedKey().get(EventEntity.COL_SK).s());
 
-                    // avevo chiesto 1 in più, ne ritorno 1 in meno nel caso in cui abbia ricevuto limitcount+1 elementi
                     eventEntityBatch.setEvents(page.items());
                     return eventEntityBatch;
                 });

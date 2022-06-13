@@ -35,12 +35,15 @@ public class WebhookServiceImpl implements WebhookService {
     private final SchedulerService schedulerService;
     private final int retryAfter;
     private final int purgeDeletionWaittime;
+    private final int readBufferDelay;
 
     public WebhookServiceImpl(StreamEntityDao streamEntityDao, EventEntityDao eventEntityDao, PnDeliveryPushConfigs pnDeliveryPushConfigs, SchedulerService schedulerService) {
         this.streamEntityDao = streamEntityDao;
         this.eventEntityDao = eventEntityDao;
-        this.retryAfter = pnDeliveryPushConfigs.getWebhook().getScheduleInterval().intValue();
-        this.purgeDeletionWaittime = pnDeliveryPushConfigs.getWebhook().getPurgeDeletionWaittime().intValue();
+        PnDeliveryPushConfigs.Webhook webhookConf = pnDeliveryPushConfigs.getWebhook();
+        this.retryAfter = webhookConf.getScheduleInterval().intValue();
+        this.purgeDeletionWaittime = webhookConf.getPurgeDeletionWaittime().intValue();
+        this.readBufferDelay = webhookConf.getReadBufferDelay();
         this.schedulerService = schedulerService;
     }
 
@@ -56,7 +59,7 @@ public class WebhookServiceImpl implements WebhookService {
     public Mono<Void> deleteEventStream(String xPagopaPnCxId, UUID streamId) {
         return streamEntityDao.delete(xPagopaPnCxId, streamId.toString())
                 .then(Mono.fromSupplier(() -> {
-                    schedulerService.scheduleWebhookEvent(streamId.toString(), null, Instant.now().plusMillis(purgeDeletionWaittime), WebhookEventType.PURGE_STREAM);
+                    schedulerService.scheduleWebhookEvent(streamId.toString(), null, purgeDeletionWaittime, WebhookEventType.PURGE_STREAM);
                     return null;
                 }));
     }
@@ -85,15 +88,20 @@ public class WebhookServiceImpl implements WebhookService {
 
     @Override
     public Mono<ProgressResponseElementDto> consumeEventStream(String xPagopaPnCxId, UUID streamId, String lastEventId) {
+        // per gestire i casi in cui una PA viene a chiedere gli eventi più nuovi di X, glieli ritorno e 1ms DOPO viene scritto un nuovo evento con timestamp più "vecchio" (X -1ms tipo, causa ritardo nella creazione/elaborazione)
+        // quell'evento  verrebbe perso, perchè alla richiesta successiva ritornerei solo quelli più NUOVI di X. Sfruttando la struttura del lastEventId, vado a ricalcolare un istante temporale antecedente
+        // che permette di ritornare anche il record con (X-1ms) se presente. NB: vado a filtrare il record con lastEventId perchè quello SICURAMENTE glielo avevo già tornato.
+        String lastEventIdWithBuffer = computeLastEventIdWithBuffer(lastEventId);
         return streamEntityDao.get(xPagopaPnCxId, streamId.toString())
                 .switchIfEmpty(Mono.error(new PnInternalException("Pa " + xPagopaPnCxId + " is not allowed to see this streamId " + streamId)))
-                .flatMap(stream -> eventEntityDao.findByStreamId(stream.getStreamId(), lastEventId))
+                .flatMap(stream -> eventEntityDao.findByStreamId(stream.getStreamId(), lastEventIdWithBuffer))
                 .map(res -> {
                     // schedulo la pulizia per gli eventi precedenti a quello richiesto
-                    schedulerService.scheduleWebhookEvent(res.getStreamId(), lastEventId, Instant.now().plusMillis(purgeDeletionWaittime), WebhookEventType.PURGE_STREAM_OLDER_THAN);
+                    schedulerService.scheduleWebhookEvent(res.getStreamId(), lastEventIdWithBuffer, purgeDeletionWaittime, WebhookEventType.PURGE_STREAM_OLDER_THAN);
+                    // ritorno gli eventi successivi all'evento di buffer, FILTRANDO quello con lastEventId visto che l'ho sicuramente già ritornato
                     return ProgressResponseElementDto.builder()
                             .retryAfter(res.getLastEventIdRead() == null ? retryAfter : 0)
-                            .progressResponseElementList(res.getEvents().stream().map(ev -> {
+                            .progressResponseElementList(res.getEvents().stream().filter(ev -> !ev.getEventId().equals(lastEventId)).map(ev -> {
                                 ProgressResponseElement progressResponseElement = new ProgressResponseElement();
                                 progressResponseElement.setEventId(ev.getTimestamp().toString());
                                 progressResponseElement.setTimestamp(ev.getTimestamp());
@@ -118,7 +126,7 @@ public class WebhookServiceImpl implements WebhookService {
                     if (StreamCreationRequest.EventTypeEnum.fromValue(stream.getEventType()) == StreamCreationRequest.EventTypeEnum.STATUS
                         && newStatus.equals(oldStatus))
                     {
-                        log.debug("skipping saving webhook event for stream={} because old and new status are same status={}", stream.getStreamId(), newStatus);
+                        log.info("skipping saving webhook event for stream={} because old and new status are same status={}", stream.getStreamId(), newStatus);
                         return Mono.empty();
                     }
 
@@ -143,7 +151,7 @@ public class WebhookServiceImpl implements WebhookService {
                         return eventEntityDao.save(eventEntity).then();
                     }
                     else {
-                        log.debug("skipping saving webhook event for stream={} because timelineeventcategory is not in list timelineeventcategory={}", stream.getStreamId(), timelineEventCategory);
+                        log.info("skipping saving webhook event for stream={} because timelineeventcategory is not in list timelineeventcategory={}", stream.getStreamId(), timelineEventCategory);
                         return Mono.empty();
                     }
                 })
@@ -161,7 +169,7 @@ public class WebhookServiceImpl implements WebhookService {
                     if (thereAreMore)
                     {
                         log.info("purgeEvents streamId={} eventId={} olderThan={} there are more event to purge", streamId, eventId, olderThan);
-                        schedulerService.scheduleWebhookEvent(streamId, eventId, Instant.now().plusMillis(purgeDeletionWaittime), olderThan?WebhookEventType.PURGE_STREAM_OLDER_THAN:WebhookEventType.PURGE_STREAM);
+                        schedulerService.scheduleWebhookEvent(streamId, eventId, purgeDeletionWaittime, olderThan?WebhookEventType.PURGE_STREAM_OLDER_THAN:WebhookEventType.PURGE_STREAM);
                     }
                     else
                         log.info("purgeEvents streamId={} eventId={} olderThan={} no more event to purge", streamId, eventId, olderThan);
@@ -169,5 +177,18 @@ public class WebhookServiceImpl implements WebhookService {
                     return thereAreMore;
                 })
                 .then();
+    }
+
+    private String computeLastEventIdWithBuffer(String lastEventId){
+        // se readBuffedDelay  è minore di 0, di fatto è disabilitato
+        if (readBufferDelay <= 0)
+            return lastEventId;
+
+        if (StringUtils.hasText(lastEventId))
+        {
+            String timestamp = lastEventId.split("_")[0];
+            return Instant.parse(timestamp).minusMillis(readBufferDelay).toString();
+        }
+        return null;
     }
 }

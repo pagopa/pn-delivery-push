@@ -28,12 +28,7 @@ public class WebhooksPoolImpl implements WebhooksPool {
 
     @Override
     public void scheduleFutureAction(WebhookAction action) {
-        // TODO questa logica del "notbefore" andrebbe eseguita con semplicemente un delay in fase di inserimento
-        /*if ( Instant.now().isAfter( action.getNotBefore() )) {
-            action = action.toBuilder()
-                    .notBefore( Instant.now().plusSeconds(1))
-                    .build();
-        }*/
+        // TODO prevedere la gestione del delay passato nella action in fase di inserimento
         addWebhookAction(action);
     }
 
