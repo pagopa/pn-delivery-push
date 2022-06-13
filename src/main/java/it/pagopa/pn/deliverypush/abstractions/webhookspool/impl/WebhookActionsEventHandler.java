@@ -21,10 +21,18 @@ public class WebhookActionsEventHandler {
     public void handleEvent(WebhookAction evt ) {
         log.info( "Received WEBHOOK-ACTION actionType={}", evt.getType());
         try {
-            if (evt.getType() == WebhookEventType.REGISTER_EVENT)
-                doHandleRegisterEvent(evt);
-            else
-                doHandlePurgeEvent(evt);
+            switch (evt.getType())
+            {
+                case REGISTER_EVENT:
+                    doHandleRegisterEvent(evt);
+                    break;
+                case PURGE_STREAM_OLDER_THAN:
+                case PURGE_STREAM:
+                    doHandlePurgeEvent(evt);
+                    break;
+                default:
+                    throw new PnInternalException("Error handling webhook event");
+            }
         } catch (Exception e) {
             log.error("error handling event", e);
             throw new PnInternalException("Error handling webhook event", e);
