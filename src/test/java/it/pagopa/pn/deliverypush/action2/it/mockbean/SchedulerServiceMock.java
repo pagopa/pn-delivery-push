@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action2.it.mockbean;
 
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
+import it.pagopa.pn.deliverypush.abstractions.webhookspool.WebhookEventType;
 import it.pagopa.pn.deliverypush.action2.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action2.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action2.RefinementHandler;
@@ -41,6 +42,16 @@ public class SchedulerServiceMock implements SchedulerService {
                 digitalWorkFlowHandler.startScheduledNextWorkflow(iun, recIndex);
                 break;
         }
+    }
+
+    @Override
+    public void scheduleWebhookEvent(String paId, String iun, String timelineId, Instant timestamp, String oldStatus, String newStatus, String timelineEventCategory) {
+        // non usato come mock
+    }
+
+    @Override
+    public void scheduleWebhookEvent(String streamId, String eventId, Integer delay, WebhookEventType actionType) {
+        // non usato come mock
     }
 
     private void mockSchedulingDate(Instant dateToSchedule) {

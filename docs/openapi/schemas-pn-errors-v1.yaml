@@ -27,6 +27,10 @@ components:
           maxLength: 4096
           pattern: '^.{0,4096}$'
           type: string
+        traceId:
+          description: Internal support identifier associated to error
+          example: 123e4567-e89b-12d3-a456-426614174000
+          type: string
         errors:
           type: array
           minItems: 0
