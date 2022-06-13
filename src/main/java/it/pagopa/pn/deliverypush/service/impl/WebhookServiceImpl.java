@@ -103,7 +103,7 @@ public class WebhookServiceImpl implements WebhookService {
                             .retryAfter(res.getLastEventIdRead() == null ? retryAfter : 0)
                             .progressResponseElementList(res.getEvents().stream().filter(ev -> !ev.getEventId().equals(lastEventId)).map(ev -> {
                                 ProgressResponseElement progressResponseElement = new ProgressResponseElement();
-                                progressResponseElement.setEventId(ev.getTimestamp().toString());
+                                progressResponseElement.setEventId(ev.getEventId());
                                 progressResponseElement.setTimestamp(ev.getTimestamp());
                                 progressResponseElement.setIun(ev.getIun());
                                 progressResponseElement.setNewStatus(NotificationStatus.fromValue(ev.getNewStatus()));
