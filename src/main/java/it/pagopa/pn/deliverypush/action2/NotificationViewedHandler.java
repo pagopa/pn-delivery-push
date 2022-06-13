@@ -25,9 +25,13 @@ public class NotificationViewedHandler {
     private final InstantNowSupplier instantNowSupplier;
     private final NotificationUtils notificationUtils;
     
-    public NotificationViewedHandler(TimelineService timelineService, LegalFactDao legalFactStore,
-                                     PaperNotificationFailedService paperNotificationFailedService, NotificationService notificationService,
-                                     TimelineUtils timelineUtils, InstantNowSupplier instantNowSupplier, NotificationUtils notificationUtils) {
+    public NotificationViewedHandler(TimelineService timelineService,
+                                     LegalFactDao legalFactStore,
+                                     PaperNotificationFailedService paperNotificationFailedService,
+                                     NotificationService notificationService,
+                                     TimelineUtils timelineUtils,
+                                     InstantNowSupplier instantNowSupplier,
+                                     NotificationUtils notificationUtils) {
         this.legalFactStore = legalFactStore;
         this.paperNotificationFailedService = paperNotificationFailedService;
         this.timelineService = timelineService;
@@ -39,9 +43,7 @@ public class NotificationViewedHandler {
     
     public void handleViewNotification(String iun, Integer recIndex) {
         log.debug("Start HandleViewNotification - iun={}", iun);
-
-
-
+        
         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex);
         
         //I processi collegati alla visualizzazione di una notifica vengono effettuati solo la prima volta che la stessa viene visualizzata
@@ -55,7 +57,10 @@ public class NotificationViewedHandler {
             NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
             String legalFactId = legalFactStore.saveNotificationViewedLegalFact(notification, recipient, instantNowSupplier.get());
 
-            addTimelineElement(timelineUtils.buildNotificationViewedTimelineElement(iun, recIndex, legalFactId));
+            addTimelineElement( 
+                    timelineUtils.buildNotificationViewedTimelineElement(notification, recIndex, legalFactId),
+                    notification 
+            ) ;
 
             paperNotificationFailedService.deleteNotificationFailed(recipient.getTaxId(), iun); //Viene eliminata l'eventuale istanza di notifica fallita dal momento che la stessa è stata letta
         } else {
@@ -65,7 +70,7 @@ public class NotificationViewedHandler {
         log.debug("End HandleViewNotification - iun={} id={}", iun, recIndex);
     }
 
-    private void addTimelineElement(TimelineElementInternal element) {
-        timelineService.addTimelineElement(element);
+    private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
+        timelineService.addTimelineElement(element, notification);
     }
 }

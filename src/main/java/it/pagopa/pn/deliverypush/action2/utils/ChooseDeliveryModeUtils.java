@@ -34,14 +34,14 @@ public class ChooseDeliveryModeUtils {
         this.notificationUtils = notificationUtils;
     }
 
-    public void addAvailabilitySourceToTimeline(Integer recIndex, String iun, DigitalAddressSource addressSource, boolean isAvailable) {
-        TimelineElementInternal element = timelineUtils.buildAvailabilitySourceTimelineElement(recIndex, iun, addressSource, isAvailable, ZERO_SENT_ATTEMPT_NUMBER);
-        timelineService.addTimelineElement(element);
+    public void addAvailabilitySourceToTimeline(Integer recIndex, NotificationInt notification, DigitalAddressSource addressSource, boolean isAvailable) {
+        TimelineElementInternal element = timelineUtils.buildAvailabilitySourceTimelineElement(recIndex, notification, addressSource, isAvailable, ZERO_SENT_ATTEMPT_NUMBER);
+        timelineService.addTimelineElement(element, notification);
     }
 
-    public void addScheduleAnalogWorkflowToTimeline(Integer recIndex, String iun) {
-        TimelineElementInternal element = timelineUtils.buildScheduleAnalogWorkflowTimeline(iun, recIndex);
-        timelineService.addTimelineElement(element);
+    public void addScheduleAnalogWorkflowToTimeline(Integer recIndex, NotificationInt notification) {
+        TimelineElementInternal element = timelineUtils.buildScheduleAnalogWorkflowTimeline(notification, recIndex);
+        timelineService.addTimelineElement(element, notification);
     }
 
     public Optional<SendCourtesyMessageDetails> getFirstSentCourtesyMessage(String iun, Integer recIndex) {

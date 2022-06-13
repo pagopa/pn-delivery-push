@@ -63,13 +63,13 @@ public class CompletionWorkFlowHandler {
         if (status != null) {
             switch (status) {
                 case SUCCESS:
-                    addTimelineElement(timelineUtils.buildSuccessDigitalWorkflowTimelineElement(iun, recIndex, address, legalFactId));
-                    scheduleRefinement(iun, recIndex, notificationDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysSuccessDigitalRefinement());
+                    addTimelineElement( timelineUtils.buildSuccessDigitalWorkflowTimelineElement(notification, recIndex, address, legalFactId), notification );
+                    scheduleRefinement(notification, recIndex, notificationDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysSuccessDigitalRefinement());
                     break;
                 case FAILURE:
                     sendSimpleRegisteredLetter(notification, recIndex);
-                    addTimelineElement(timelineUtils.buildFailureDigitalWorkflowTimelineElement(iun, recIndex, legalFactId));
-                    scheduleRefinement(iun, recIndex, notificationDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysFailureDigitalRefinement());
+                    addTimelineElement( timelineUtils.buildFailureDigitalWorkflowTimelineElement(notification, recIndex, legalFactId), notification);
+                    scheduleRefinement(notification, recIndex, notificationDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysFailureDigitalRefinement());
                     break;
                 default:
                     handleError(iun, recIndex, status);
@@ -129,13 +129,13 @@ public class CompletionWorkFlowHandler {
         if (status != null) {
             switch (status) {
                 case SUCCESS:
-                    addTimelineElement(timelineUtils.buildSuccessAnalogWorkflowTimelineElement(iun, recIndex, usedAddress, attachments));
-                    scheduleRefinement(iun, recIndex, notificationDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysSuccessAnalogRefinement());
+                    addTimelineElement( timelineUtils.buildSuccessAnalogWorkflowTimelineElement(notification, recIndex, usedAddress, attachments), notification);
+                    scheduleRefinement(notification, recIndex, notificationDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysSuccessAnalogRefinement());
                     break;
                 case FAILURE:
-                    addTimelineElement(timelineUtils.buildFailureAnalogWorkflowTimelineElement(iun, recIndex, attachments));
+                    addTimelineElement( timelineUtils.buildFailureAnalogWorkflowTimelineElement(notification, recIndex, attachments), notification );
                     completelyUnreachableUtils.handleCompletelyUnreachable(notification, recIndex);
-                    scheduleRefinement(iun, recIndex, notificationDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysFailureAnalogRefinement());
+                    scheduleRefinement(notification, recIndex, notificationDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysFailureAnalogRefinement());
                     break;
                 default:
                     handleError(iun, recIndex, status);
@@ -145,22 +145,21 @@ public class CompletionWorkFlowHandler {
         }
     }
 
-    private void scheduleRefinement(String iun, Integer recIndex, Instant notificationDate, Duration scheduleTime) {
+    private void scheduleRefinement(NotificationInt notification, Integer recIndex, Instant notificationDate, Duration scheduleTime) {
         Instant schedulingDate = notificationDate.plus(scheduleTime);
         log.info("Schedule refinement in {}", schedulingDate);
-        
-        timelineService.addTimelineElement(timelineUtils.buildScheduleRefinement(iun, recIndex));
-        scheduler.scheduleEvent(iun, recIndex, schedulingDate, ActionType.REFINEMENT_NOTIFICATION);
-    }
 
+        addTimelineElement( timelineUtils.buildScheduleRefinement(notification, recIndex), notification );
+        scheduler.scheduleEvent(notification.getIun(), recIndex, schedulingDate, ActionType.REFINEMENT_NOTIFICATION);
+    }
 
     private void handleError(String iun, Integer recIndex, EndWorkflowStatus status) {
         log.error("Specified status {} does not exist. Iun {}, id {}", status, iun, recIndex);
         throw new PnInternalException("Specified status " + status + " does not exist. Iun " + iun + " id" + recIndex);
     }
 
-    private void addTimelineElement(TimelineElementInternal  element) {
-        timelineService.addTimelineElement(element);
+    private void addTimelineElement(TimelineElementInternal  element, NotificationInt notification) {
+        timelineService.addTimelineElement(element, notification);
     }
 
 }

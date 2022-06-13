@@ -30,10 +30,15 @@ public class StartWorkflowHandler {
     private final NotificationUtils notificationUtils;
     private final AarUtils aarUtils;
 
-    public StartWorkflowHandler(LegalFactDao legalFactDao, NotificationService notificationService,
-                                CourtesyMessageUtils courtesyMessageUtils, ChooseDeliveryModeHandler chooseDeliveryType,
-                                TimelineService timelineService, TimelineUtils timelineUtils, CheckAttachmentUtils checkAttachmentUtils,
-                                NotificationUtils notificationUtils, AarUtils aarUtils) {
+    public StartWorkflowHandler(LegalFactDao legalFactDao,
+                                NotificationService notificationService,
+                                CourtesyMessageUtils courtesyMessageUtils,
+                                ChooseDeliveryModeHandler chooseDeliveryType,
+                                TimelineService timelineService,
+                                TimelineUtils timelineUtils,
+                                CheckAttachmentUtils checkAttachmentUtils,
+                                NotificationUtils notificationUtils,
+                                AarUtils aarUtils) {
         this.legalFactDao = legalFactDao;
         this.notificationService = notificationService;
         this.courtesyMessageUtils = courtesyMessageUtils;
@@ -61,7 +66,7 @@ public class StartWorkflowHandler {
 
                 String legalFactId = legalFactDao.saveNotificationReceivedLegalFact(notification);
 
-                addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification, legalFactId));
+                addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification, legalFactId), notification);
 
                 //Start del workflow per ogni recipient della notifica
                 for (NotificationRecipientInt recipient : notification.getRecipients()) {
@@ -94,11 +99,11 @@ public class StartWorkflowHandler {
         List<String> errors =  ex.getValidationErrors().stream()
                 .map(ConstraintViolation::getMessage).collect(Collectors.toList());
         log.info("Notification refused, errors {} - iun {}", errors, notification.getIun());
-        addTimelineElement(timelineUtils.buildRefusedRequestTimelineElement(notification, errors));
+        addTimelineElement( timelineUtils.buildRefusedRequestTimelineElement(notification, errors), notification);
     }
 
-    private void addTimelineElement(TimelineElementInternal element) {
-        timelineService.addTimelineElement(element);
+    private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
+        timelineService.addTimelineElement(element, notification);
     }
 
 }

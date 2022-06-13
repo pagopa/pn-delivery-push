@@ -2,10 +2,12 @@ package it.pagopa.pn.deliverypush.action2;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action2.utils.PublicRegistryUtils;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ContactPhase;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DeliveryMode;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PublicRegistryCallDetails;
+import it.pagopa.pn.deliverypush.service.NotificationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -16,14 +18,18 @@ public class PublicRegistryResponseHandler {
     private final DigitalWorkFlowHandler digitalWorkFlowHandler;
     private final AnalogWorkflowHandler analogWorkflowHandler;
     private final PublicRegistryUtils publicRegistryUtils;
+    private final NotificationService notificationService;
 
     public PublicRegistryResponseHandler(ChooseDeliveryModeHandler chooseDeliveryHandler,
-                                         DigitalWorkFlowHandler digitalWorkFlowHandler, AnalogWorkflowHandler analogWorkflowHandler,
-                                         PublicRegistryUtils publicRegistryUtils) {
+                                         DigitalWorkFlowHandler digitalWorkFlowHandler, 
+                                         AnalogWorkflowHandler analogWorkflowHandler,
+                                         PublicRegistryUtils publicRegistryUtils, 
+                                         NotificationService notificationService) {
         this.chooseDeliveryHandler = chooseDeliveryHandler;
         this.digitalWorkFlowHandler = digitalWorkFlowHandler;
         this.analogWorkflowHandler = analogWorkflowHandler;
         this.publicRegistryUtils = publicRegistryUtils;
+        this.notificationService = notificationService;
     }
 
     /**
@@ -37,11 +43,14 @@ public class PublicRegistryResponseHandler {
         String iun = correlationId.substring(0, correlationId.indexOf("_"));
         log.info("Handle public registry response -  iun {} correlationId {}", iun, response.getCorrelationId());
 
+        NotificationInt notification = notificationService.getNotificationByIun(iun);
+        log.debug("Notification successfully obtained  - iun={}", notification.getIun());
+
         //Viene ottenuto l'oggetto di timeline creato in fase d'invio notifica al public registry
         PublicRegistryCallDetails publicRegistryCallDetails = publicRegistryUtils.getPublicRegistryCallDetail(iun, correlationId);
         Integer recIndex = publicRegistryCallDetails.getRecIndex();
 
-        publicRegistryUtils.addPublicRegistryResponseToTimeline(iun, recIndex, response);
+        publicRegistryUtils.addPublicRegistryResponseToTimeline(notification, recIndex, response);
 
         log.info("public registry response is in contactPhase {} iun {} id {} ", publicRegistryCallDetails.getContactPhase(), iun, recIndex);
 
@@ -51,11 +60,11 @@ public class PublicRegistryResponseHandler {
             switch (contactPhase) {
                 case CHOOSE_DELIVERY:
                     //request has been sent during choose delivery
-                    chooseDeliveryHandler.handleGeneralAddressResponse(response, iun, recIndex);
+                    chooseDeliveryHandler.handleGeneralAddressResponse(response, notification, recIndex);
                     break;
                 case SEND_ATTEMPT:
                     //request has been sent in digital or analog workflow
-                    handleResponseForSendAttempt(response, iun, publicRegistryCallDetails);
+                    handleResponseForSendAttempt(response, notification, publicRegistryCallDetails);
                     break;
                 default:
                     handleContactPhaseError(correlationId, publicRegistryCallDetails);
@@ -71,19 +80,20 @@ public class PublicRegistryResponseHandler {
         throw new PnInternalException("Specified contactPhase " + publicRegistryCallDetails.getContactPhase() + " does not exist for correlationId " + correlationId);
     }
 
-    private void handleResponseForSendAttempt(PublicRegistryResponse response, String iun, PublicRegistryCallDetails publicRegistryCallDetails) {
+    private void handleResponseForSendAttempt(PublicRegistryResponse response, NotificationInt notification, PublicRegistryCallDetails publicRegistryCallDetails) {
         Integer recIndex = publicRegistryCallDetails.getRecIndex();
-
+        String iun = notification.getIun();
+        
         log.info("Start handleResponseForSendAttempt iun {} id {} deliveryMode {}", iun, recIndex, publicRegistryCallDetails.getDeliveryMode());
 
         if (publicRegistryCallDetails.getDeliveryMode() != null) {
 
             switch (publicRegistryCallDetails.getDeliveryMode()) {
                 case DIGITAL:
-                    digitalWorkFlowHandler.handleGeneralAddressResponse(response, iun, publicRegistryCallDetails);
+                    digitalWorkFlowHandler.handleGeneralAddressResponse(response, notification, publicRegistryCallDetails);
                     break;
                 case ANALOG:
-                    analogWorkflowHandler.handlePublicRegistryResponse(iun, recIndex, response, publicRegistryCallDetails.getSentAttemptMade());
+                    analogWorkflowHandler.handlePublicRegistryResponse(notification, recIndex, response, publicRegistryCallDetails.getSentAttemptMade());
                     break;
                 default:
                     handleDeliveryModeError(iun, publicRegistryCallDetails.getDeliveryMode(), recIndex);

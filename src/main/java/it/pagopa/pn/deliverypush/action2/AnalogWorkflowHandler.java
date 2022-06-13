@@ -92,22 +92,20 @@ public class AnalogWorkflowHandler {
     /**
      * Handle get response for public registry call.
      */
-    public void handlePublicRegistryResponse(String iun, Integer recIndex, PublicRegistryResponse response, int sentAttemptMade) {
-        log.info("Handle analog public registry response sentAttemptMade={} - iun={} id={} ", sentAttemptMade, iun, recIndex);
-
-        NotificationInt notification = notificationService.getNotificationByIun(iun);
-
+    public void handlePublicRegistryResponse(NotificationInt notification, Integer recIndex, PublicRegistryResponse response, int sentAttemptMade) {
+        log.info("Handle analog public registry response sentAttemptMade={} - iun={} id={} ", sentAttemptMade, notification.getIun(), recIndex);
+        
         switch (sentAttemptMade) {
             case 0:
-                log.info("Public registry response is for first attempt  - iun={} id={}", iun, recIndex);
+                log.info("Public registry response is for first attempt  - iun={} id={}", notification.getIun(), recIndex);
                 checkAddressAndSend(notification, recIndex, response.getPhysicalAddress(), true, sentAttemptMade);
                 break;
             case 1:
-                log.info("Public registry response is for second attempt  - iun={} id={}", iun, recIndex);
+                log.info("Public registry response is for second attempt  - iun={} id={}", notification.getIun(), recIndex);
                 publicRegistrySecondSendResponse(response, notification, recIndex, sentAttemptMade);
                 break;
             default:
-                handleAttemptError(iun, recIndex, sentAttemptMade);
+                handleAttemptError(notification.getIun(), recIndex, sentAttemptMade);
         }
     }
     
@@ -208,7 +206,7 @@ public class AnalogWorkflowHandler {
                                 .at(rawAddress.getNameRow2())
                                 .build();
                     }
-                    analogWorkflowUtils.addAnalogFailureAttemptToTimeline(iun, sentAttemptMade, legalFactsListEntryIds, newPhysicalAddress, response.getDeliveryFailureCause()==null?null:List.of(response.getDeliveryFailureCause()),  sendPaperDetails);
+                    analogWorkflowUtils.addAnalogFailureAttemptToTimeline(notification, sentAttemptMade, legalFactsListEntryIds, newPhysicalAddress, response.getDeliveryFailureCause()==null?null:List.of(response.getDeliveryFailureCause()),  sendPaperDetails);
                     nextWorkflowStep(notification, recIndex, sentAttemptMade);
                     break;
             }

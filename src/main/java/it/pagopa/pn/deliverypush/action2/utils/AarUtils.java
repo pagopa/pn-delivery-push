@@ -45,7 +45,10 @@ public class AarUtils {
             {
                 String safestoragekey = legalFactDao.saveAAR(notification, notificationUtils.getRecipientFromIndex(notification,recIndex));
 
-                timelineService.addTimelineElement(timelineUtils.buildAarGenerationTimelineElement(notification, recIndex, safestoragekey));
+                timelineService.addTimelineElement( 
+                        timelineUtils.buildAarGenerationTimelineElement(notification, recIndex, safestoragekey),
+                        notification
+                );
             }
             else
                 log.debug("no need to recreate AAR iun={} timelineId={}", notification.getIun(), elementId);

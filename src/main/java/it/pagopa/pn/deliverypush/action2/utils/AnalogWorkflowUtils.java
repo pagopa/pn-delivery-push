@@ -4,7 +4,6 @@ package it.pagopa.pn.deliverypush.action2.utils;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -23,7 +22,9 @@ public class AnalogWorkflowUtils {
     private final TimelineUtils timelineUtils;
     private final NotificationUtils notificationUtils;
     
-    public AnalogWorkflowUtils(TimelineService timelineService, TimelineUtils timelineUtils, NotificationUtils notificationUtils) {
+    public AnalogWorkflowUtils(TimelineService timelineService,
+                               TimelineUtils timelineUtils,
+                               NotificationUtils notificationUtils) {
         this.timelineService = timelineService;
         this.timelineUtils = timelineUtils;
         this.notificationUtils = notificationUtils;
@@ -58,12 +59,14 @@ public class AnalogWorkflowUtils {
         return false;
     }
 
-    public void addAnalogFailureAttemptToTimeline(String iun, int sentAttemptMade, List<LegalFactsId> attachmentKeys, PhysicalAddress newAddress, List<String> errors, SendPaperDetails sendPaperDetails) {
-        addTimelineElement(timelineUtils.buildAnalogFailureAttemptTimelineElement(iun, sentAttemptMade, attachmentKeys, newAddress, errors, sendPaperDetails));
+    public void addAnalogFailureAttemptToTimeline(NotificationInt notification, int sentAttemptMade, List<LegalFactsId> attachmentKeys, PhysicalAddress newAddress, List<String> errors, SendPaperDetails sendPaperDetails) {
+        addTimelineElement( 
+                timelineUtils.buildAnalogFailureAttemptTimelineElement(notification, sentAttemptMade, attachmentKeys, newAddress, errors, sendPaperDetails),
+                notification);
     }
 
-    private void addTimelineElement(TimelineElementInternal element) {
-        timelineService.addTimelineElement(element);
+    private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
+        timelineService.addTimelineElement(element, notification);
     }
 
     public PhysicalAddress getPhysicalAddress(NotificationInt notification, Integer recIndex){

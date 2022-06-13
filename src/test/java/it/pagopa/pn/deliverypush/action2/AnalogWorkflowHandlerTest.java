@@ -140,11 +140,9 @@ class AnalogWorkflowHandlerTest {
                                 .build()
                 )
                 .build();
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
-                .thenReturn(notification);
         
         //WHEN
-        handler.handlePublicRegistryResponse(notification.getIun(), recIndex, response, 0);
+        handler.handlePublicRegistryResponse(notification, recIndex, response, 0);
         
         //THEN
         Mockito.verify(externalChannelSendHandler).sendAnalogNotification(notification,recipient.getPhysicalAddress(), recIndex, true, 0);
@@ -177,13 +175,10 @@ class AnalogWorkflowHandlerTest {
                 .errors(null)
                 .build();
         
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
-                .thenReturn(notification);
-
         Mockito.when(analogWorkflowUtils.getLastTimelineSentFeedback(Mockito.anyString(), Mockito.anyInt())).thenReturn(details);
 
         //WHEN
-        handler.handlePublicRegistryResponse(notification.getIun(), recIndex, response, 1);
+        handler.handlePublicRegistryResponse(notification, recIndex, response, 1);
         
         //THEN
         Mockito.verify(externalChannelSendHandler).sendAnalogNotification(notification,details.getNewAddress(), recIndex, false, 1);
@@ -216,13 +211,11 @@ class AnalogWorkflowHandlerTest {
         
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
-                .thenReturn(notification);
 
         Mockito.when(analogWorkflowUtils.getLastTimelineSentFeedback(Mockito.anyString(), Mockito.anyInt())).thenReturn(details);
         
         //WHEN
-        handler.handlePublicRegistryResponse(notification.getIun(),recIndex,response, 1);
+        handler.handlePublicRegistryResponse(notification,recIndex,response, 1);
         
         //THEN
         Mockito.verify(completionWorkFlow).completionAnalogWorkflow(eq(notification), eq(recIndex), Mockito.any(), Mockito.any(Instant.class), eq(null), eq(EndWorkflowStatus.FAILURE));
@@ -251,14 +244,11 @@ class AnalogWorkflowHandlerTest {
                 .build();
 
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
-
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
-                .thenReturn(notification);
         
         Mockito.when(analogWorkflowUtils.getLastTimelineSentFeedback(Mockito.anyString(), Mockito.anyInt())).thenReturn(details);
 
         //WHEN
-        handler.handlePublicRegistryResponse(notification.getIun(), recIndex,response, 1);
+        handler.handlePublicRegistryResponse(notification, recIndex,response, 1);
 
         //THEN
         Mockito.verify(completionWorkFlow).completionAnalogWorkflow(eq(notification), eq(recIndex), Mockito.any(), Mockito.any(Instant.class), eq(null), eq(EndWorkflowStatus.FAILURE));

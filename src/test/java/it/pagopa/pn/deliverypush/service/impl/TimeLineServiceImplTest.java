@@ -9,7 +9,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
-import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.StatusService;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import it.pagopa.pn.deliverypush.util.StatusUtils;
@@ -28,7 +27,6 @@ class TimeLineServiceImplTest {
     private TimelineDao timelineDao;
     private StatusUtils statusUtils;
     private TimeLineServiceImpl timeLineService;
-    private NotificationService notificationService;
     private StatusService statusService;
     private ConfidentialInformationService confidentialInformationService;
     
@@ -36,11 +34,10 @@ class TimeLineServiceImplTest {
     void setup() {
         timelineDao = Mockito.mock( TimelineDao.class );
         statusUtils = Mockito.mock( StatusUtils.class );
-        notificationService = Mockito.mock( NotificationService.class );
         statusService = Mockito.mock( StatusService.class );
         confidentialInformationService = Mockito.mock( ConfidentialInformationService.class );
         
-        timeLineService = new TimeLineServiceImpl(timelineDao , statusUtils, notificationService, statusService, confidentialInformationService);
+        timeLineService = new TimeLineServiceImpl(timelineDao , statusUtils, statusService, confidentialInformationService);
     }
 
     @Test
@@ -50,7 +47,6 @@ class TimeLineServiceImplTest {
         String elementId = "elementId";
 
         NotificationInt notification = getNotification(iun);
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notification);
 
         String elementId2 = "elementId2";
         Set<TimelineElementInternal> setTimelineElement = getSendPaperDetailsList(iun, elementId2);
@@ -60,7 +56,7 @@ class TimeLineServiceImplTest {
         TimelineElementInternal newElement = getSendPaperFeedbackTimelineElement(iun, elementId);
         
         //WHEN
-        timeLineService.addTimelineElement(newElement);
+        timeLineService.addTimelineElement(newElement, notification);
         
         //THEN
         Mockito.verify(timelineDao).addTimelineElement(newElement);
@@ -75,7 +71,6 @@ class TimeLineServiceImplTest {
         String elementId = "elementId";
 
         NotificationInt notification = getNotification(iun);
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notification);
         
         String elementId2 = "elementId";
         Set<TimelineElementInternal> setTimelineElement = getSendPaperDetailsList(iun, elementId2);
@@ -88,7 +83,7 @@ class TimeLineServiceImplTest {
 
         // WHEN
         assertThrows(PnInternalException.class, () -> {
-            timeLineService.addTimelineElement(newElement);
+            timeLineService.addTimelineElement(newElement, notification);
         });
     }
 

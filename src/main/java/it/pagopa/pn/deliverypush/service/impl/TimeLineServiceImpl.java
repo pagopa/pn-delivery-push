@@ -9,7 +9,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
-import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.StatusService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
@@ -18,7 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,25 +29,21 @@ public class TimeLineServiceImpl implements TimelineService {
     private final TimelineDao timelineDao;
     private final StatusUtils statusUtils;
     private final ConfidentialInformationService confidentialInformationService;
-    private final NotificationService notificationService;
     private final StatusService statusService;
     
-    public TimeLineServiceImpl(TimelineDao timelineDao, StatusUtils statusUtils, 
-                               NotificationService notificationService, StatusService statusService,
-                        ConfidentialInformationService confidentialInformationService) {
+    public TimeLineServiceImpl(TimelineDao timelineDao, 
+                               StatusUtils statusUtils, 
+                               StatusService statusService, 
+                               ConfidentialInformationService confidentialInformationService) {
         this.timelineDao = timelineDao;
         this.statusUtils = statusUtils;
         this.confidentialInformationService = confidentialInformationService;
-        this.notificationService = notificationService;
         this.statusService = statusService;
     }
 
     @Override
-    public void addTimelineElement(TimelineElementInternal dto) {
-        //TODO Verificare se possibile ristrutturare il codice per ricevere la Notification in ingresso, invece di effettuare la chiamata a delivery
-
-        log.debug("addTimelineElement - IUN={} and timelineId={}", dto.getIun(), dto.getElementId());
-        NotificationInt notification = notificationService.getNotificationByIun(dto.getIun());
+    public void addTimelineElement(TimelineElementInternal dto, NotificationInt notification) {
+        log.info("addTimelineElement - IUN={} and timelineId={}", dto.getIun(), dto.getElementId());
 
         if (notification != null) {
             Set<TimelineElementInternal> currentTimeline = getTimeline(dto.getIun());

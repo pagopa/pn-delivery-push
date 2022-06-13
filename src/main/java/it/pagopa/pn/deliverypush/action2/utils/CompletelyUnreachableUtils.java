@@ -18,8 +18,10 @@ public class CompletelyUnreachableUtils  {
     private final TimelineUtils timelineUtils;
     private final NotificationUtils notificationUtils;
 
-    public CompletelyUnreachableUtils(PaperNotificationFailedService paperNotificationFailedService, TimelineService timelineService,
-                                      TimelineUtils timelineUtils, NotificationUtils notificationUtils) {
+    public CompletelyUnreachableUtils(PaperNotificationFailedService paperNotificationFailedService,
+                                      TimelineService timelineService,
+                                      TimelineUtils timelineUtils,
+                                      NotificationUtils notificationUtils) {
         this.paperNotificationFailedService = paperNotificationFailedService;
         this.timelineService = timelineService;
         this.timelineUtils = timelineUtils;
@@ -32,7 +34,9 @@ public class CompletelyUnreachableUtils  {
         if (!isNotificationAlreadyViewed(notification.getIun(), recIndex)) {
             addPaperNotificationFailed(notification, recIndex);
         }
-        addTimelineElement(timelineUtils.buildCompletelyUnreachableTimelineElement(notification.getIun(), recIndex));
+        addTimelineElement( 
+                timelineUtils.buildCompletelyUnreachableTimelineElement(notification, recIndex),
+                notification);
     }
 
     private boolean isNotificationAlreadyViewed(String iun, Integer recIndex) {
@@ -53,8 +57,8 @@ public class CompletelyUnreachableUtils  {
         );
     }
 
-    private void addTimelineElement(TimelineElementInternal element) {
-        timelineService.addTimelineElement(element);
+    private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
+        timelineService.addTimelineElement(element, notification);
     }
 
 }

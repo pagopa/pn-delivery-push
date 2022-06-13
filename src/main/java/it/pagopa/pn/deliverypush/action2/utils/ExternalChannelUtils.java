@@ -11,7 +11,6 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.service.TimelineService;
-import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.CourtesyDigitalAddress;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -55,7 +54,10 @@ public class ExternalChannelUtils {
     }
 
     public void addSendDigitalNotificationToTimeline(NotificationInt notification, LegalDigitalAddressInt digitalAddress, DigitalAddressSource addressSource, Integer recIndex, int sentAttemptMade, String eventId) {
-        addTimelineElement(timelineUtils.buildSendDigitalNotificationTimelineElement(digitalAddress, addressSource, recIndex, notification, sentAttemptMade, eventId));
+        addTimelineElement(
+                timelineUtils.buildSendDigitalNotificationTimelineElement(digitalAddress, addressSource, recIndex, notification, sentAttemptMade, eventId),
+                notification
+        );
     }
 
     /**
@@ -73,7 +75,10 @@ public class ExternalChannelUtils {
     }
 
     public void addSendCourtesyMessageToTimeline(NotificationInt notification, CourtesyDigitalAddressInt courtesyAddress, Integer recIndex, String eventId) {
-        addTimelineElement(timelineUtils.buildSendCourtesyMessageTimelineElement(recIndex, notification.getIun(), courtesyAddress, instantNowSupplier.get(), eventId));
+        addTimelineElement(
+                timelineUtils.buildSendCourtesyMessageTimelineElement(recIndex, notification, courtesyAddress, instantNowSupplier.get(), eventId),
+                notification
+        );
     }
 
     /**
@@ -103,7 +108,10 @@ public class ExternalChannelUtils {
     }
 
     public void addSendSimpleRegisteredLetterToTimeline(NotificationInt notification, PhysicalAddress physicalAddress, Integer recIndex, String eventId) {
-        addTimelineElement(timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification.getIun(), physicalAddress, eventId));
+        addTimelineElement(
+                timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification, physicalAddress, eventId),
+                notification
+        );
     }
 
     /**
@@ -132,7 +140,10 @@ public class ExternalChannelUtils {
     }
 
     public void addSendAnalogNotificationToTimeline(NotificationInt notification, PhysicalAddress physicalAddress, Integer recIndex, boolean investigation, int sentAttemptMade, String eventId) {
-        addTimelineElement(timelineUtils.buildSendAnalogNotificationTimelineElement(physicalAddress, recIndex, notification, investigation, sentAttemptMade, eventId));
+        addTimelineElement(
+                timelineUtils.buildSendAnalogNotificationTimelineElement(physicalAddress, recIndex, notification, investigation, sentAttemptMade, eventId),
+                notification
+        );
     }
 
     public PnExtChnPecEvent buildSendPecRequest(String eventId, NotificationInt notification,
@@ -242,8 +253,8 @@ public class ExternalChannelUtils {
         return String.format(cfg.getWebapp().getDirectAccessUrlTemplate(), iun);
     }
 
-    private void addTimelineElement(TimelineElementInternal element) {
-        timelineService.addTimelineElement(element);
+    private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
+        timelineService.addTimelineElement(element, notification);
     }
 
     public TimelineElementInternal getExternalChannelNotificationTimelineElement(String iun, String eventId) {

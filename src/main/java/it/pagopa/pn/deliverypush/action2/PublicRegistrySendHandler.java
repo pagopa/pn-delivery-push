@@ -33,7 +33,7 @@ public class PublicRegistrySendHandler {
         
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         publicRegistry.sendRequestForGetDigitalAddress(recipient.getTaxId(), correlationId);
-        publicRegistryUtils.addPublicRegistryCallToTimeline(notification.getIun(), recIndex, contactPhase, sentAttemptMade, correlationId, DeliveryMode.DIGITAL);
+        publicRegistryUtils.addPublicRegistryCallToTimeline(notification, recIndex, contactPhase, sentAttemptMade, correlationId, DeliveryMode.DIGITAL);
 
         log.debug("End sendRequestForGetAddress correlationId {} - iun {} id {}", correlationId, notification.getIun(), recIndex);
     }
@@ -47,7 +47,7 @@ public class PublicRegistrySendHandler {
         
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         publicRegistry.sendRequestForGetPhysicalAddress(recipient.getTaxId(), correlationId);
-        publicRegistryUtils.addPublicRegistryCallToTimeline(notification.getIun(), recIndex, ContactPhase.SEND_ATTEMPT, sentAttemptMade, correlationId, DeliveryMode.ANALOG);
+        publicRegistryUtils.addPublicRegistryCallToTimeline(notification, recIndex, ContactPhase.SEND_ATTEMPT, sentAttemptMade, correlationId, DeliveryMode.ANALOG);
 
         log.debug("End sendRequestForGetPhysicalAddress correlationId {} - iun {} id {}", correlationId, notification.getIun(), recIndex);
     }
