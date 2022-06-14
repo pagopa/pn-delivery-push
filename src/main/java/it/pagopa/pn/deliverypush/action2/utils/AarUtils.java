@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.action2.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.legalFacts.PdfInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
@@ -43,13 +44,10 @@ public class AarUtils {
             Optional<TimelineElementInternal> timeline = timelineService.getTimelineElement(notification.getIun(), elementId);
             if (!timeline.isPresent())
             {
-                String safestoragekey = legalFactDao.saveAAR(notification, notificationUtils.getRecipientFromIndex(notification,recIndex));
-
-                //Al momento il numero di pagine è fisso, verrà successivamente cambiato calcolandolo
-                int numberOfPages = 1;
+                PdfInfo pdfInfo = legalFactDao.saveAAR(notification, notificationUtils.getRecipientFromIndex(notification,recIndex));
 
                 timelineService.addTimelineElement(
-                        timelineUtils.buildAarGenerationTimelineElement(notification, recIndex, safestoragekey, numberOfPages),
+                        timelineUtils.buildAarGenerationTimelineElement(notification, recIndex, pdfInfo.getKey(), pdfInfo.getNumberOfPages()),
                         notification
                 );
             }

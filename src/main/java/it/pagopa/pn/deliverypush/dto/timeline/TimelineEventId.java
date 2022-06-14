@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.dto.timeline;
 
-public enum TimelineEventId {//NEW
+public enum TimelineEventId {
 
     REQUEST_ACCEPTED() {
         @Override
