@@ -353,6 +353,9 @@ components:
         generatedAarUrl:
           type: string
           description: Chiave per recupero da safestorage del documento aar
+        numberOfPages:
+          type: integer
+          description: numero di pagine del PDF generato
 
     DigitalAddressSource:
       type: string

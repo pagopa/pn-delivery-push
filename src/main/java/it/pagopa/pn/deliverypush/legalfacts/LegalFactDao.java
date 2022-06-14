@@ -56,7 +56,6 @@ public class LegalFactDao {
             fileCreationRequest.setContent(legalFactBuilder.generateNotificationAAR(notification, recipient));
             FileCreationResponse fileCreationResponse = safeStorageClient.createAndUploadContent(fileCreationRequest);
 
-
             return SAFE_STORAGE_URL_PREFIX + fileCreationResponse.getKey();
         }
         catch ( IOException exc ) {

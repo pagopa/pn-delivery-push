@@ -1,5 +1,17 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
+import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
+import freemarker.cache.StringTemplateLoader;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
+import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StreamUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,20 +20,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.EnumMap;
 import java.util.Map;
-
-import org.jetbrains.annotations.Nullable;
-import org.springframework.stereotype.Component;
-import org.springframework.util.StreamUtils;
-
-import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
-
-import freemarker.cache.StringTemplateLoader;
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
-import lombok.Value;
-import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
@@ -148,7 +146,7 @@ public class DocumentComposition {
         builder.toStream(baos);
         builder.run();
         baos.close();
-
+ 
         return baos.toByteArray();
     }
 

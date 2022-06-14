@@ -107,9 +107,10 @@ public class ExternalChannelUtils {
         );
     }
 
-    public void addSendSimpleRegisteredLetterToTimeline(NotificationInt notification, PhysicalAddress physicalAddress, Integer recIndex, String eventId) {
+    public void addSendSimpleRegisteredLetterToTimeline(NotificationInt notification, PhysicalAddress physicalAddress, Integer recIndex, 
+                                                        String eventId, Integer numberOfPages) {
         addTimelineElement(
-                timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification, physicalAddress, eventId),
+                timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification, physicalAddress, eventId, numberOfPages),
                 notification
         );
     }
@@ -139,9 +140,10 @@ public class ExternalChannelUtils {
                 physicalAddress);
     }
 
-    public void addSendAnalogNotificationToTimeline(NotificationInt notification, PhysicalAddress physicalAddress, Integer recIndex, boolean investigation, int sentAttemptMade, String eventId) {
+    public void addSendAnalogNotificationToTimeline(NotificationInt notification, PhysicalAddress physicalAddress, Integer recIndex, boolean investigation,
+                                                    int sentAttemptMade, String eventId, Integer numberOfPages) {
         addTimelineElement(
-                timelineUtils.buildSendAnalogNotificationTimelineElement(physicalAddress, recIndex, notification, investigation, sentAttemptMade, eventId),
+                timelineUtils.buildSendAnalogNotificationTimelineElement(physicalAddress, recIndex, notification, investigation, sentAttemptMade, eventId, numberOfPages),
                 notification
         );
     }
