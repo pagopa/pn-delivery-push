@@ -188,11 +188,11 @@ Resources:
           AttributeType: "S"
         - AttributeName: "sortKey"
           AttributeType: "S"
-        KeySchema:
-          - AttributeName: "hashKey"
-            KeyType: "HASH"
-          - AttributeName: "sortKey"
-            KeyType: "RANGE"
+      KeySchema:
+        - AttributeName: "hashKey"
+          KeyType: "HASH"
+        - AttributeName: "sortKey"
+          KeyType: "RANGE"
       BillingMode: "PAY_PER_REQUEST"
 
 
