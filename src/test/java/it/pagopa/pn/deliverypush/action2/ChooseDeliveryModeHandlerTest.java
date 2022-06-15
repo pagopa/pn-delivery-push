@@ -13,7 +13,6 @@ import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ContactPhase;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendCourtesyMessageDetails;
-import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,8 +35,6 @@ import static org.mockito.Mockito.times;
 class ChooseDeliveryModeHandlerTest {
 
     @Mock
-    private NotificationService notificationService;
-    @Mock
     private ExternalChannelSendHandler externalChannelSendHandler;
     @Mock
     private SchedulerService schedulerService;
@@ -56,7 +53,7 @@ class ChooseDeliveryModeHandlerTest {
 
     @BeforeEach
     public void setup() {
-        handler = new ChooseDeliveryModeHandler(chooseDeliveryUtils, notificationService,
+        handler = new ChooseDeliveryModeHandler(chooseDeliveryUtils,
                 externalChannelSendHandler, schedulerService,
                 publicRegistrySendHandler, instantNowSupplier, pnDeliveryPushConfigs);
         notificationUtils= new NotificationUtils();

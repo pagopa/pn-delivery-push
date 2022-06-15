@@ -4,7 +4,7 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.dto.legalFacts.PdfInfo;
+import it.pagopa.pn.deliverypush.dto.legalfacts.PdfInfo;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendDigitalFeedback;

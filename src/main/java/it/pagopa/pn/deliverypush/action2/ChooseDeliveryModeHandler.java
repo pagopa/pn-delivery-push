@@ -10,7 +10,6 @@ import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ContactPhase;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendCourtesyMessageDetails;
-import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -22,7 +21,6 @@ import java.util.Optional;
 @Component
 @Slf4j
 public class ChooseDeliveryModeHandler {
-    private final NotificationService notificationService;
     private final ExternalChannelSendHandler externalChannelSendHandler;
     private final SchedulerService schedulerService;
     private final PublicRegistrySendHandler publicRegistrySendHandler;
@@ -30,12 +28,13 @@ public class ChooseDeliveryModeHandler {
     private final InstantNowSupplier instantNowSupplier;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
-    public ChooseDeliveryModeHandler(ChooseDeliveryModeUtils chooseDeliveryUtils, NotificationService notificationService,
-                                     ExternalChannelSendHandler externalChannelSendHandler, SchedulerService schedulerService,
-                                     PublicRegistrySendHandler publicRegistrySendHandler, InstantNowSupplier instantNowSupplier,
+    public ChooseDeliveryModeHandler(ChooseDeliveryModeUtils chooseDeliveryUtils,
+                                     ExternalChannelSendHandler externalChannelSendHandler,
+                                     SchedulerService schedulerService,
+                                     PublicRegistrySendHandler publicRegistrySendHandler,
+                                     InstantNowSupplier instantNowSupplier,
                                      PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         this.chooseDeliveryUtils = chooseDeliveryUtils;
-        this.notificationService = notificationService;
         this.externalChannelSendHandler = externalChannelSendHandler;
         this.schedulerService = schedulerService;
         this.publicRegistrySendHandler = publicRegistrySendHandler;
@@ -53,7 +52,6 @@ public class ChooseDeliveryModeHandler {
     public void chooseDeliveryTypeAndStartWorkflow(NotificationInt notification, Integer recIndex) {
         log.info("Start ChooseDeliveryTypeAndStartWorkflow process - iun={} recipientIndex={}", notification.getIun(), recIndex);
 
-        String iun = notification.getIun();
         Optional<LegalDigitalAddressInt> platformAddressOpt = chooseDeliveryUtils.getPlatformAddress(notification, recIndex);
 
         //Verifico presenza indirizzo di piattaforma, ...

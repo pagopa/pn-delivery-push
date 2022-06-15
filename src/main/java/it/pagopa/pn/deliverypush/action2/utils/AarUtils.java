@@ -3,7 +3,7 @@ package it.pagopa.pn.deliverypush.action2.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.legalFacts.PdfInfo;
+import it.pagopa.pn.deliverypush.dto.legalfacts.PdfInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;

@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.dto.legalFacts;
+package it.pagopa.pn.deliverypush.dto.legalfacts;
 
 import lombok.Builder;
 import lombok.Getter;
