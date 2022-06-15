@@ -2,7 +2,6 @@ package it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity;
 
 
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.TimelineElementCategoryEntityConverter;
-import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.TimelineElementDetailsEntityConverter;
 import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.*;
 
@@ -23,6 +22,7 @@ public class TimelineElementEntity {
     private String iun;
     private String timelineElementId;
     private Instant timestamp;
+    private String paId;
     private TimelineElementCategoryEntity category;
     private List<LegalFactsIdEntity> legalFactIds;
     private TimelineElementDetailsEntity details;
@@ -53,6 +53,10 @@ public class TimelineElementEntity {
         this.timestamp = timestamp;
     }
 
+    @DynamoDbAttribute(value = "paId")
+    public String getPaId() {return paId;}
+    public void setPaId(String paId) {this.paId = paId;}
+
     @DynamoDbAttribute(value = "category")
     @DynamoDbConvertedBy(TimelineElementCategoryEntityConverter.class)
     public TimelineElementCategoryEntity getCategory() {
@@ -69,9 +73,7 @@ public class TimelineElementEntity {
     public void setLegalFactIds(List<LegalFactsIdEntity> legalFactIds) {
         this.legalFactIds = legalFactIds;
     }
-
-
-
+    
     @DynamoDbAttribute(value = "details") @DynamoDbIgnoreNulls
     public TimelineElementDetailsEntity getDetails() {
         return details;
@@ -79,7 +81,6 @@ public class TimelineElementEntity {
     public void setDetails(TimelineElementDetailsEntity details) {
         this.details = details;
     }
-
 
 }
 

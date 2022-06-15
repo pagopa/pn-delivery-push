@@ -309,6 +309,12 @@ components:
         investigation:
           type: boolean
           description: E' richiesta investigazione indirizzo fisico alternativo
+        numberOfPages:
+          type: integer
+          description: numero pagine pdf inviato
+        foreignState:
+          type: string
+          description: Denominazione paese estero
           
     SendPaperFeedbackDetails:
       type: object
@@ -343,6 +349,12 @@ components:
           description: Index destinatario notifica digitale
         physicalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
+        numberOfPages:
+          type: integer
+          description: numero pagine pdf inviato
+        foreignState:
+          type: string
+          description: Denominazione paese estero
 
     AarGenerationDetails:
       type: object

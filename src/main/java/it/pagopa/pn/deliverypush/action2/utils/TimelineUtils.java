@@ -51,7 +51,7 @@ public class TimelineUtils {
                 .timestamp(Instant.now())
                 .elementId(elementId)
                 .details(details)
-                .padId(notification.getSender().getPaId())
+                .paId(notification.getSender().getPaId())
                 .build();
     }
     
@@ -143,12 +143,12 @@ public class TimelineUtils {
         SimpleRegisteredLetterDetails details = SimpleRegisteredLetterDetails.builder()
                 .recIndex(recIndex)
                 .physicalAddress(address)
+                .numberOfPages(numberOfPages)
+                .foreignState(address.getForeignState())
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.timelineInternalBuilder()
-                .legalFactsIds( Collections.emptyList() )
-                .foreignState( address.getForeignState() )
-                .numberOfPages( numberOfPages );
+                .legalFactsIds( Collections.emptyList() );
         
         return buildTimeline(notification, TimelineElementCategory.SEND_SIMPLE_REGISTERED_LETTER, eventId, SmartMapper.mapToClass(details, TimelineElementDetails.class) , timelineBuilder);
     }
@@ -179,12 +179,12 @@ public class TimelineUtils {
                 .serviceLevel(serviceLevel)
                 .sentAttemptMade(sentAttemptMade)
                 .investigation(investigation)
+                .numberOfPages(numberOfPages)
+                .foreignState(address.getForeignState())
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.timelineInternalBuilder()
-                .legalFactsIds( Collections.emptyList() )
-                .foreignState( address.getForeignState() )
-                .numberOfPages( numberOfPages );
+                .legalFactsIds( Collections.emptyList() );
 
         return buildTimeline(notification, TimelineElementCategory.SEND_ANALOG_DOMICILE, eventId, SmartMapper.mapToClass(details, TimelineElementDetails.class), timelineBuilder);
     }

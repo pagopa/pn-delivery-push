@@ -1,11 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.timelinedao;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineEntityDao;
@@ -20,7 +16,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -46,10 +41,15 @@ class TimelineEntityDaoDynamoTestIT {
         TimelineElementEntity elementToInsert = TimelineElementEntity.builder()
                 .iun("pa1-1")
                 .timelineElementId("elementId1")
+                .paId("paid001")
                 .category(TimelineElementCategoryEntity.SEND_DIGITAL_DOMICILE)
-                .details(TimelineElementDetailsEntity.builder()
-                        .recIndex(0)
-                        .build())
+                .details(
+                        TimelineElementDetailsEntity.builder()
+                                .recIndex(0)
+                                .foreignState("IT")
+                                .numberOfPages("1")
+                                .build()
+                )
                 .legalFactIds(
                         Collections.singletonList(
                                 LegalFactsIdEntity.builder()
@@ -59,23 +59,27 @@ class TimelineEntityDaoDynamoTestIT {
                         )
                 )
                 .build();
-
-        removeElementFromDb(elementToInsert);
-
-        //WHEN
-        timelineEntityDao.put(elementToInsert);
         
-        //THEN
-        Key key = Key.builder()
-                .partitionValue(elementToInsert.getIun())
-                .sortValue(elementToInsert.getTimelineElementId())
-                .build();
+        try{
+            //WHEN
+            timelineEntityDao.put(elementToInsert);
 
-        Optional<TimelineElementEntity> elementFromDbOpt =  timelineEntityDao.get(key);
+            //THEN
+            Key key = Key.builder()
+                    .partitionValue(elementToInsert.getIun())
+                    .sortValue(elementToInsert.getTimelineElementId())
+                    .build();
 
-        Assertions.assertTrue(elementFromDbOpt.isPresent());
-        TimelineElementEntity elementFromDb = elementFromDbOpt.get();
-        Assertions.assertEquals(elementToInsert, elementFromDb);
+            Optional<TimelineElementEntity> elementFromDbOpt =  timelineEntityDao.get(key);
+
+            Assertions.assertTrue(elementFromDbOpt.isPresent());
+            TimelineElementEntity elementFromDb = elementFromDbOpt.get();
+            Assertions.assertEquals(elementToInsert, elementFromDb);
+            
+        }finally {
+           // removeElementFromDb(elementToInsert);
+        }
+
     }
 
     @Test
