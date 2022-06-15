@@ -277,10 +277,10 @@ components:
     ############################################################################################
     queryLastEventId:
       description: >-
-        Identificativo dell'ultimo evento memorizzato dal chiamante
+        Identificativo dell'ultimo evento memorizzato dal chiamante, se non passato si intende dal primo evento presente nello stream
       name: lastEventId
       in: query
-      required: true
+      required: false
       schema:
         type: string
     pathStreamId:

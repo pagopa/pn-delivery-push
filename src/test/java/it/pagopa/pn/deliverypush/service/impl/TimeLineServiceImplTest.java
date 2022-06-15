@@ -9,6 +9,8 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
+import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.StatusService;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import it.pagopa.pn.deliverypush.util.StatusUtils;
@@ -29,15 +31,17 @@ class TimeLineServiceImplTest {
     private TimeLineServiceImpl timeLineService;
     private StatusService statusService;
     private ConfidentialInformationService confidentialInformationService;
-    
+    private SchedulerService schedulerService;
+
     @BeforeEach
     void setup() {
         timelineDao = Mockito.mock( TimelineDao.class );
         statusUtils = Mockito.mock( StatusUtils.class );
         statusService = Mockito.mock( StatusService.class );
         confidentialInformationService = Mockito.mock( ConfidentialInformationService.class );
+        schedulerService = Mockito.mock(SchedulerService.class);
         
-        timeLineService = new TimeLineServiceImpl(timelineDao , statusUtils, statusService, confidentialInformationService);
+        timeLineService = new TimeLineServiceImpl(timelineDao , statusUtils, statusService, confidentialInformationService, schedulerService);
     }
 
     @Test
@@ -47,6 +51,9 @@ class TimeLineServiceImplTest {
         String elementId = "elementId";
 
         NotificationInt notification = getNotification(iun);
+        StatusService.NotificationStatusUpdate notificationStatuses = new StatusService.NotificationStatusUpdate(NotificationStatus.ACCEPTED, NotificationStatus.ACCEPTED);
+        Mockito.when(statusService.checkAndUpdateStatus(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(notificationStatuses);
+        Mockito.doNothing().when(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
 
         String elementId2 = "elementId2";
         Set<TimelineElementInternal> setTimelineElement = getSendPaperDetailsList(iun, elementId2);
@@ -54,7 +61,8 @@ class TimeLineServiceImplTest {
                 .thenReturn(setTimelineElement);
 
         TimelineElementInternal newElement = getSendPaperFeedbackTimelineElement(iun, elementId);
-        
+        newElement.setCategory(TimelineElementCategory.AAR_GENERATION);
+
         //WHEN
         timeLineService.addTimelineElement(newElement, notification);
         

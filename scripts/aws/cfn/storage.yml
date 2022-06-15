@@ -160,7 +160,41 @@ Resources:
         - AttributeName: "_id"
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
-  
+
+  # WebhookStreams table
+  PnDeliveryPushWebhookStreamsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${ProjectName}-WebhookStreams'
+      AttributeDefinitions:
+        - AttributeName: "hashKey"
+          AttributeType: "S"
+        - AttributeName: "sortKey"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "hashKey"
+          KeyType: "HASH"
+        - AttributeName: "sortKey"
+          KeyType: "RANGE"
+      BillingMode: "PAY_PER_REQUEST"
+
+  # WebhookEvents table
+  PnDeliveryPushWebhookEventsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${ProjectName}-WebhookEvents'
+      AttributeDefinitions:
+        - AttributeName: "hashKey"
+          AttributeType: "S"
+        - AttributeName: "sortKey"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "hashKey"
+          KeyType: "HASH"
+        - AttributeName: "sortKey"
+          KeyType: "RANGE"
+      BillingMode: "PAY_PER_REQUEST"
+
 
   ## KINESIS SOURCE STREAM FOR TIMELINE Change Data Capture
   TimelineCdcKinesis:
@@ -250,7 +284,22 @@ Outputs:
   PnDeliveryPushShedLockDynamoTableArn:
     Description: ARN of dynamodb table containing
     Value: !Sub '${PnDeliveryPushShedLockTable.Arn}'
-  
+
+
+  PnDeliveryPushWebhookStreamsTableName:
+    Description: Name of dynamodb table containing
+    Value: !Ref PnDeliveryPushWebhookStreamsTable
+  PnDeliveryPushWebhookStreamsTableArn:
+    Description: ARN of dynamodb table containing
+    Value: !Sub '${PnDeliveryPushWebhookStreamsTable.Arn}'
+
+  PnDeliveryPushWebhookEventsTableName:
+    Description: Name of dynamodb table containing
+    Value: !Ref PnDeliveryPushWebhookEventsTable
+  PnDeliveryPushWebhookEventsTableArn:
+    Description: ARN of dynamodb table containing
+    Value: !Sub '${PnDeliveryPushWebhookEventsTable.Arn}'
+
   
   # Timeline Change Data Capture kinesis stream
   TimelineCdcKinesisStreamName:

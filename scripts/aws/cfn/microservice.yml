@@ -182,7 +182,24 @@ Parameters:
   PnDeliveryPushShedLockDynamoTableArn:
     Type: String
     Description: ARN of dynamodb table containing
-  
+
+
+  PnDeliveryPushWebhookStreamsTableName:
+    Type: String
+    Description: Name of dynamodb table containing
+
+  PnDeliveryPushWebhookStreamsTableArn:
+    Type: String
+    Description: ARN of dynamodb table containing
+
+  PnDeliveryPushWebhookEventsTableName:
+    Type: String
+    Description: Name of dynamodb table containing
+
+  PnDeliveryPushWebhookEventsTableArn:
+    Type: String
+    Description: ARN of dynamodb table containing
+
   AlarmSNSTopicArn:
     Type: String
     Description: ARN of alarm topic
@@ -238,6 +255,8 @@ Resources:
         ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_FUTUREACTIONDAO_TABLENAME=${FutureActionDynamoTableName}'
         ContainerEnvEntry29: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_TABLENAME=${LastPollForFutureActionDynamoTableName}'
         ContainerEnvEntry30: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_LOCKTABLENAME=${PnDeliveryPushShedLockDynamoTableName}'
+        ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_EVENTSTABLENAME=${PnDeliveryPushWebhookEventsTableName}'
+        ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_STREAMSTABLENAME=${PnDeliveryPushWebhookStreamsTableName}'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
@@ -320,6 +339,8 @@ Resources:
               - !Sub "${FutureActionDynamoTableArn}"
               - !Sub "${LastPollForFutureActionDynamoTableArn}"
               - !Sub "${PnDeliveryPushShedLockDynamoTableArn}"
+              - !Sub "${PnDeliveryPushWebhookStreamsTableArn}"
+              - !Sub "${PnDeliveryPushWebhookEventsTableArn}"
 
   # Expose PN-Delivery-push microservice public API with API-GW for B2B usage
   DeliveryPushMicroservicePublicAPI:
