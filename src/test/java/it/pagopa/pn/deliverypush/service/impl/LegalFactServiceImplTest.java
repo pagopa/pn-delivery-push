@@ -5,13 +5,20 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
+import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.details.GetAddressInfoDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.PnSafeStorageClient;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactDownloadMetadataResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsId;
 import it.pagopa.pn.deliverypush.service.LegalFactService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -81,16 +88,16 @@ class LegalFactServiceImplTest {
                 ).build()
         );
         
-        Set<TimelineElementInternal> timelineElementsResult = Collections.singleton( TimelineElementInternal.timelineInternalBuilder()
+        Set<TimelineElementInternal> timelineElementsResult = Collections.singleton( TimelineElementInternal.builder()
                 .iun( IUN )
-                .details( TimelineElementDetails.builder()
+                .details( GetAddressInfoDetailsInt.builder()
                         .recIndex(0)
                         .build() )
-                .category( TimelineElementCategory.REQUEST_ACCEPTED )
+                .category( TimelineElementCategoryInt.GET_ADDRESS )
                 .elementId( "element_id" )
-                .legalFactsIds( Collections.singletonList( LegalFactsId.builder()
+                .legalFactsIds( Collections.singletonList( LegalFactsIdInt.builder()
                                 .key( KEY )
-                                .category( LegalFactCategory.SENDER_ACK )
+                                .category( LegalFactCategoryInt.SENDER_ACK )
                         .build())
                 ).build()
         );

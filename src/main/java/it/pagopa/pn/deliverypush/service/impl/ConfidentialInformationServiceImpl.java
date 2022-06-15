@@ -4,8 +4,8 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.ConfidentialTimelineElementDto;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDtoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.datavault.PnDataVaultClient;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetails;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.mapper.ConfidentialTimelineElementDtoMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +30,8 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
     @Override
     public void saveTimelineConfidentialInformation(TimelineElementInternal timelineElement) {
         String iun = timelineElement.getIun();
-        if (checkPresenceConfidentialInformation(timelineElement)){
+        
+        if ( checkPresenceConfidentialInformation(timelineElement) ){
 
             ConfidentialTimelineElementDtoInt dtoInt = getConfidentialDtoFromTimeline(timelineElement);
 
@@ -47,20 +48,41 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
     }
 
     private ConfidentialTimelineElementDtoInt getConfidentialDtoFromTimeline(TimelineElementInternal timelineElement) {
-        TimelineElementDetails details = timelineElement.getDetails();
+        TimelineElementDetailsInt details = timelineElement.getDetails();
         
-        ConfidentialTimelineElementDtoInt.ConfidentialTimelineElementDtoIntBuilder dtoIntBuilder = ConfidentialTimelineElementDtoInt.builder()
-                .timelineElementId(timelineElement.getElementId())
-                .physicalAddress(details.getPhysicalAddress())
-                .newPhysicalAddress(details.getNewAddress());
-
-        if (details.getDigitalAddress() != null){
-            dtoIntBuilder.digitalAddress(details.getDigitalAddress().getAddress());
+        ConfidentialTimelineElementDtoInt.ConfidentialTimelineElementDtoIntBuilder builder = ConfidentialTimelineElementDtoInt.builder();
+        
+        if( details instanceof CourtesyAddressRelatedTimelineElement ){
+            CourtesyAddressRelatedTimelineElement courtesyDetails = (CourtesyAddressRelatedTimelineElement) details;
+            if(courtesyDetails.getDigitalAddress() != null){
+                builder.digitalAddress(courtesyDetails.getDigitalAddress().getAddress());
+            }
         }
 
-        return dtoIntBuilder.build();
-    }
+        if( details instanceof DigitalAddressRelatedTimelineElement ){
+            DigitalAddressRelatedTimelineElement digitalDetails = (DigitalAddressRelatedTimelineElement) details;
+            if(digitalDetails.getDigitalAddress() != null){
+                builder.digitalAddress(digitalDetails.getDigitalAddress().getAddress());
+            }
+        }
 
+        if( details instanceof PhysicalAddressRelatedTimelineElement ){
+            PhysicalAddressRelatedTimelineElement physicalDetails = (PhysicalAddressRelatedTimelineElement) details;
+            if(physicalDetails.getPhysicalAddress() != null){
+                builder.physicalAddress(physicalDetails.getPhysicalAddress());
+            }
+        }
+
+        if( details instanceof NewAddressRelatedTimelineElement){
+            NewAddressRelatedTimelineElement newAddressDetails = (NewAddressRelatedTimelineElement) details;
+            if( newAddressDetails.getNewAddress() != null ){
+                builder.newPhysicalAddress(newAddressDetails.getNewAddress());
+            }
+        }
+        
+        return builder.build();
+    }
+    
     @Override
     public Optional<ConfidentialTimelineElementDtoInt> getTimelineElementConfidentialInformation(String iun, String timelineElementId) {
         ResponseEntity<ConfidentialTimelineElementDto> resp = pnDataVaultClient.getNotificationTimelineByIunAndTimelineElementId(iun, timelineElementId);
@@ -105,7 +127,13 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
     }
 
     private boolean checkPresenceConfidentialInformation(TimelineElementInternal timelineElementInternal) {
-        TimelineElementDetails details = timelineElementInternal.getDetails();
-        return details.getNewAddress() != null || details.getDigitalAddress() != null || details.getPhysicalAddress() != null;
+        TimelineElementDetailsInt details = timelineElementInternal.getDetails();
+
+        return details instanceof CourtesyAddressRelatedTimelineElement ||
+                details instanceof DigitalAddressRelatedTimelineElement ||
+                details instanceof PhysicalAddressRelatedTimelineElement ||
+                details instanceof NewAddressRelatedTimelineElement;
     }
+    
+    
 }

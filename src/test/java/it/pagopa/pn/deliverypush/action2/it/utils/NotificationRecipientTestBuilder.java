@@ -1,14 +1,13 @@
 package it.pagopa.pn.deliverypush.action2.it.utils;
 
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 
 
 public class NotificationRecipientTestBuilder {
     private String taxId;
-    private PhysicalAddress physicalAddress;
+    private PhysicalAddressInt physicalAddress;
     private LegalDigitalAddressInt digitalDomicile;
 
     public static NotificationRecipientTestBuilder builder() {
@@ -20,7 +19,7 @@ public class NotificationRecipientTestBuilder {
         return this;
     }
 
-    public NotificationRecipientTestBuilder withPhysicalAddress(PhysicalAddress physicalAddress) {
+    public NotificationRecipientTestBuilder withPhysicalAddress(PhysicalAddressInt physicalAddress) {
         this.physicalAddress = physicalAddress;
         return this;
     }

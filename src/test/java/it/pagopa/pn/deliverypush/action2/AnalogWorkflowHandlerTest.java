@@ -1,14 +1,17 @@
 package it.pagopa.pn.deliverypush.action2;
 
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.action2.utils.*;
+import it.pagopa.pn.deliverypush.action2.utils.AnalogWorkflowUtils;
+import it.pagopa.pn.deliverypush.action2.utils.EndWorkflowStatus;
+import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
+import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendPaperFeedbackDetails;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ServiceLevel;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.ServiceLevelInt;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -135,7 +138,7 @@ class AnalogWorkflowHandlerTest {
         PublicRegistryResponse response = PublicRegistryResponse.builder()
                 .correlationId("corrId")
                 .physicalAddress(
-                        PhysicalAddress.builder()
+                        PhysicalAddressInt.builder()
                                 .address("test address")
                                 .build()
                 )
@@ -158,18 +161,18 @@ class AnalogWorkflowHandlerTest {
 
         PublicRegistryResponse response = PublicRegistryResponse.builder()
                 .correlationId("corrId")
-                .physicalAddress(PhysicalAddress.builder()
+                .physicalAddress(PhysicalAddressInt.builder()
                         .address("test address 2")
                         .build())
                 .build();
 
-        SendPaperFeedbackDetails details = SendPaperFeedbackDetails.builder()
-                .physicalAddress(PhysicalAddress.builder()
+         SendAnalogFeedbackDetailsInt details =  SendAnalogFeedbackDetailsInt.builder()
+                .physicalAddress(PhysicalAddressInt.builder()
                         .address("test address 2")
                         .build())
                 .sentAttemptMade(0)
-                .serviceLevel(ServiceLevel.SIMPLE_REGISTERED_LETTER)
-                .newAddress(PhysicalAddress.builder()
+                .serviceLevel(ServiceLevelInt.SIMPLE_REGISTERED_LETTER)
+                .newAddress(PhysicalAddressInt.builder()
                         .address("test address 3")
                         .build())
                 .errors(null)
@@ -194,17 +197,17 @@ class AnalogWorkflowHandlerTest {
 
         PublicRegistryResponse response = PublicRegistryResponse.builder()
                 .correlationId("corrId")
-                .physicalAddress(PhysicalAddress.builder()
+                .physicalAddress(PhysicalAddressInt.builder()
                         .address("test address 2")
                         .build())
                 .build();
 
-        SendPaperFeedbackDetails details = SendPaperFeedbackDetails.builder()
-                .physicalAddress(PhysicalAddress.builder()
+         SendAnalogFeedbackDetailsInt details =  SendAnalogFeedbackDetailsInt.builder()
+                .physicalAddress(PhysicalAddressInt.builder()
                         .address("test address 2")
                         .build())
                 .sentAttemptMade(0)
-                .serviceLevel(ServiceLevel.SIMPLE_REGISTERED_LETTER)
+                .serviceLevel(ServiceLevelInt.SIMPLE_REGISTERED_LETTER)
                 .newAddress(null)
                 .errors(null)
                 .build();
@@ -233,12 +236,12 @@ class AnalogWorkflowHandlerTest {
                 .correlationId("corrId")
                 .build();
 
-        SendPaperFeedbackDetails details = SendPaperFeedbackDetails.builder()
-                .physicalAddress(PhysicalAddress.builder()
+         SendAnalogFeedbackDetailsInt details =  SendAnalogFeedbackDetailsInt.builder()
+                .physicalAddress(PhysicalAddressInt.builder()
                         .address("test address 2")
                         .build())
                 .sentAttemptMade(0)
-                .serviceLevel(ServiceLevel.SIMPLE_REGISTERED_LETTER)
+                .serviceLevel(ServiceLevelInt.SIMPLE_REGISTERED_LETTER)
                 .newAddress(null)
                 .errors(null)
                 .build();
@@ -267,7 +270,7 @@ class AnalogWorkflowHandlerTest {
                                 .taxId("testIdRecipient")
                                 .denomination("Nome Cognome/Ragione Sociale")
                                 .physicalAddress(
-                                        PhysicalAddress.builder()
+                                        PhysicalAddressInt.builder()
                                                 .address("test address")
                                                 .build()
                                 )

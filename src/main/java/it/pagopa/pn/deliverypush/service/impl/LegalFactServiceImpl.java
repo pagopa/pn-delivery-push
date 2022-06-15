@@ -6,11 +6,14 @@ import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.details.RecipientRelatedTimelineElementDetails;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.LegalFactService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.mapper.LegalFactIdMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.Resource;
@@ -55,12 +58,12 @@ public class LegalFactServiceImpl implements LegalFactService {
         List<LegalFactListElement> legalFacts = timelineElements
                 .stream()
                 .filter( timeEl -> timeEl.getLegalFactsIds() != null )
-                .sorted( Comparator.comparing( TimelineElement::getTimestamp ))
+                .sorted( Comparator.comparing(TimelineElementInternal::getTimestamp))
                 .flatMap( timeEl -> timeEl.getLegalFactsIds().stream().map(
                         lfId -> LegalFactListElement.builder()
                                 .taxId( readRecipientId( timeEl, notification ) )
                                 .iun( iun )
-                                .legalFactsId( lfId )
+                                .legalFactsId( LegalFactIdMapper.internalToExternal(lfId) )
                                 .build()
                         ))
                 .collect(Collectors.toList());
@@ -71,16 +74,17 @@ public class LegalFactServiceImpl implements LegalFactService {
     private String readRecipientId( TimelineElementInternal timelineElement, NotificationInt notification ) {
         String recipientId = null;
         //TODO Verificare se è necessario restituire il taxId o se può bastare il recIndex
-        
+
         if (timelineElement != null) {
-            TimelineElementDetails details = timelineElement.getDetails();             
-            Integer recIndex = details.getRecIndex();
-            
-            if(recIndex != null){
+            TimelineElementDetailsInt details = timelineElement.getDetails();
+            if ( details instanceof RecipientRelatedTimelineElementDetails) {
+
+                int recIndex = ((RecipientRelatedTimelineElementDetails) details).getRecIndex();
                 NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
                 recipientId = recipient.getTaxId();
             }
         }
+
         return recipientId;
     }
 

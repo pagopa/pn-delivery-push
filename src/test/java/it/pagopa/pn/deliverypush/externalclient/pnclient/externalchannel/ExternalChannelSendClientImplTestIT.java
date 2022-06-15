@@ -2,8 +2,12 @@ package it.pagopa.pn.deliverypush.externalclient.pnclient.externalchannel;
 
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.api.PaperMessagesApi;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
+import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,7 +57,7 @@ class ExternalChannelSendClientImplTestIT {
         //Given
         NotificationInt notificationInt = mock(NotificationInt.class);
         NotificationRecipientInt recipientInt = mock(NotificationRecipientInt.class);
-        PhysicalAddress physicalAddress = mock(PhysicalAddress.class);
+        PhysicalAddressInt physicalAddress = mock(PhysicalAddressInt.class);
         String eventid = "rtyuiokjhgvcbnjmk4567890";
 
         Mockito.when( restTemplate.exchange( Mockito.any(RequestEntity.class),Mockito.any(ParameterizedTypeReference.class)))

@@ -10,8 +10,12 @@ import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.Dig
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.DigitalNotificationRequest;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.PaperEngageRequest;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
+import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.util.LogUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +28,6 @@ import javax.annotation.PostConstruct;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
-import java.util.Locale;
 
 @Component
 @Slf4j
@@ -64,7 +67,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
     }
 
     @Override
-    public void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, PhysicalAddress physicalAddress, String timelineEventId, ANALOG_TYPE analogType, String aarKey) {
+    public void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, PhysicalAddressInt physicalAddress, String timelineEventId, ANALOG_TYPE analogType, String aarKey) {
         log.info("sendAnalogNotification address={} recipient={} requestId={} aarkey={}", LogUtils.maskGeneric(physicalAddress.getAddress()), LogUtils.maskGeneric(recipientInt.getDenomination()), timelineEventId, aarKey);
 
         PaperEngageRequest paperEngageRequest = new PaperEngageRequest();
@@ -93,7 +96,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
     }
 
     @Override
-    public void sendLegalNotification(NotificationInt notificationInt,  NotificationRecipientInt recipientInt, LegalDigitalAddressInt digitalAddress, String timelineEventId)
+    public void sendLegalNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, LegalDigitalAddressInt digitalAddress, String timelineEventId)
     {
         if (digitalAddress.getType() == LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
             sendNotificationPEC(timelineEventId, notificationInt, recipientInt, digitalAddress);
@@ -102,7 +105,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
     }
 
     @Override
-    public void sendCourtesyNotification(NotificationInt notificationInt,  NotificationRecipientInt recipientInt, CourtesyDigitalAddressInt digitalAddress, String timelineEventId)
+    public void sendCourtesyNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, CourtesyDigitalAddressInt digitalAddress, String timelineEventId)
     {
         if (digitalAddress.getType() == CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL)
             sendNotificationEMAIL(timelineEventId, notificationInt, recipientInt, digitalAddress);

@@ -1,14 +1,19 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.RequestUpdateStatusDto;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRequestAcceptedDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.delivery.PnDeliveryClient;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElement;
 import it.pagopa.pn.deliverypush.service.StatusService;
-import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import it.pagopa.pn.deliverypush.util.StatusUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,11 +69,11 @@ class StatusServiceImplTest {
         
         
         String id1 = "sender_ack";
-        TimelineElementInternal dto = TimelineElementInternal.timelineInternalBuilder()
+        TimelineElementInternal dto = TimelineElementInternal.builder()
                 .iun(iun)
                 .elementId(id1)
-                .category(TimelineElementCategory.REQUEST_ACCEPTED)
-                .details(SmartMapper.mapToClass(new NotificationRequestAccepted(), TimelineElementDetails.class))
+                .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
+                .details(NotificationRequestAcceptedDetailsInt.builder().build())
                 .timestamp(Instant.now())
                 .build();
 
@@ -111,11 +116,11 @@ class StatusServiceImplTest {
 
 
         String id1 = "sender_ack";
-        TimelineElementInternal dto = TimelineElementInternal.timelineInternalBuilder()
+        TimelineElementInternal dto = TimelineElementInternal.builder()
                 .iun(iun)
                 .elementId(id1)
-                .category(TimelineElementCategory.REQUEST_ACCEPTED)
-                .details(SmartMapper.mapToClass(new NotificationRequestAccepted(), TimelineElementDetails.class))
+                .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
+                .details( NotificationRequestAcceptedDetailsInt.builder().build() )
                 .timestamp(Instant.now())
                 .build();
 
@@ -131,9 +136,9 @@ class StatusServiceImplTest {
     
     private List<TimelineElementInternal> getListTimelineElementInternal(String iun){
         List<TimelineElementInternal> timelineElementList = new ArrayList<>();
-        SendPaperDetails details = SendPaperDetails.builder()
+         SendAnalogDetailsInt details =  SendAnalogDetailsInt.builder()
                 .physicalAddress(
-                        PhysicalAddress.builder()
+                        PhysicalAddressInt.builder()
                                 .province("province")
                                 .municipality("munic")
                                 .at("at")
@@ -143,9 +148,9 @@ class StatusServiceImplTest {
                 .recIndex(0)
                 .sentAttemptMade(0)
                 .build();
-        TimelineElementInternal timelineElementInternal = TimelineElementInternal.timelineInternalBuilder()
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
                 .iun(iun)
-                .details(SmartMapper.mapToClass(details, TimelineElementDetails.class))
+                .details( details )
                 .build();
 
         timelineElementList.add(timelineElementInternal);
@@ -154,9 +159,9 @@ class StatusServiceImplTest {
     }
 
     private TimelineElementInternal getTimelineElement(String iun) {
-        SendPaperFeedbackDetails details = SendPaperFeedbackDetails.builder()
+         SendAnalogFeedbackDetailsInt details =  SendAnalogFeedbackDetailsInt.builder()
                 .newAddress(
-                        PhysicalAddress.builder()
+                        PhysicalAddressInt.builder()
                                 .province("province")
                                 .municipality("munic")
                                 .at("at")
@@ -165,9 +170,9 @@ class StatusServiceImplTest {
                 .recIndex(0)
                 .sentAttemptMade(0)
                 .build();
-        return TimelineElementInternal.timelineInternalBuilder()
+        return TimelineElementInternal.builder()
                 .iun(iun)
-                .details(SmartMapper.mapToClass(details, TimelineElementDetails.class))
+                .details( details )
                 .build();
     }
 

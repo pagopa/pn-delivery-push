@@ -1,11 +1,11 @@
 package it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
+import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsId;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetails;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.LegalFactsIdEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementDetailsEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementEntity;
@@ -24,18 +24,20 @@ public class EntityToDtoTimelineMapper {
     }
     
     public TimelineElementInternal entityToDto(TimelineElementEntity entity ) {
-        return TimelineElementInternal.timelineInternalBuilder()
+        TimelineElementCategoryInt category = entity.getCategory() != null ? TimelineElementCategoryInt.valueOf(entity.getCategory().getValue()) : null;
+
+        return TimelineElementInternal.builder()
                 .iun(entity.getIun())
                 .elementId( entity.getTimelineElementId() )
-                .category( entity.getCategory() != null ? TimelineElementCategory.valueOf(entity.getCategory().getValue()) : null )
+                .category( category )
                 .timestamp( entity.getTimestamp() )
-                .details( parseDetailsFromEntity( entity.getDetails() ))
+                .details( parseDetailsFromEntity( entity.getDetails(), category) )
                 .legalFactsIds( convertLegalFactsFromEntity( entity.getLegalFactIds() ) )
                 .build();
     }
 
-    private List<LegalFactsId> convertLegalFactsFromEntity(List<LegalFactsIdEntity>  entity ) {
-        List<LegalFactsId> legalFactsIds = null;
+    private List<LegalFactsIdInt> convertLegalFactsFromEntity(List<LegalFactsIdEntity>  entity ) {
+        List<LegalFactsIdInt> legalFactsIds = null;
         
         if (entity != null){
             legalFactsIds = entity.stream().map( this::mapOneLegalFact ).collect(Collectors.toList());
@@ -44,14 +46,15 @@ public class EntityToDtoTimelineMapper {
         return legalFactsIds;
     }
 
-    private LegalFactsId mapOneLegalFact(LegalFactsIdEntity legalFactsIdEntity) {
+    private LegalFactsIdInt mapOneLegalFact(LegalFactsIdEntity legalFactsIdEntity) {
         String legalFactCategoryName = legalFactsIdEntity.getCategory().getValue();
-        return  new LegalFactsId()
+        return LegalFactsIdInt.builder()
                 .key(legalFactsIdEntity.getKey())
-                .category( LegalFactCategory.valueOf( legalFactCategoryName ) );
+                .category( LegalFactCategoryInt.valueOf( legalFactCategoryName ) )
+                .build();
     }
 
-    private TimelineElementDetails parseDetailsFromEntity(TimelineElementDetailsEntity entity) {
-        return SmartMapper.mapToClass(entity, TimelineElementDetails.class );
+    private TimelineElementDetailsInt parseDetailsFromEntity(TimelineElementDetailsEntity entity, TimelineElementCategoryInt category) {
+        return SmartMapper.mapToClass(entity, category.getDetailsJavaClass() );
     }
 }

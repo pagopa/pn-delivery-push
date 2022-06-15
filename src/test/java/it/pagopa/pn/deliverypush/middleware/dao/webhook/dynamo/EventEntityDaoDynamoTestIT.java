@@ -2,9 +2,8 @@ package it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo;
 
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.NotificationStatus;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.TimelineElementCategory;
-import it.pagopa.pn.deliverypush.middleware.dao.actiondao.ActionDao;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.EventEntity;
@@ -26,7 +25,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = {
@@ -319,7 +319,7 @@ class EventEntityDaoDynamoTestIT {
         event.setNewStatus(NotificationStatus.ACCEPTED.getValue());
         event.setIun(UUID.randomUUID().toString());
         event.setNotificationRequestId("");
-        event.setTimelineEventCategory(TimelineElementCategory.AAR_GENERATION.getValue());
+        event.setTimelineEventCategory(TimelineElementCategoryInt.AAR_GENERATION.getValue());
         return event;
     }
 }

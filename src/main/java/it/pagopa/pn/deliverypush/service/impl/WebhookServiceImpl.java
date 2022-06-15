@@ -14,7 +14,6 @@ import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper.EntityToSt
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.WebhookService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.server.DelegatingServerHttpResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.StringUtils;

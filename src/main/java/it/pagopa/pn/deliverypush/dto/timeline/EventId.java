@@ -1,8 +1,8 @@
 package it.pagopa.pn.deliverypush.dto.timeline;
 
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ContactPhase;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DeliveryMode;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
 import lombok.*;
 
 
@@ -15,9 +15,9 @@ import lombok.*;
 public class EventId {
     private String iun;
     private Integer recIndex;
-    private DigitalAddressSource source;
+    private DigitalAddressSourceInt source;
     private int index;
-    private ContactPhase contactPhase;
+    private ContactPhaseInt contactPhase;
     private int sentAttemptMade;
-    private DeliveryMode deliveryMode;
+    private DeliveryModeInt deliveryMode;
 }

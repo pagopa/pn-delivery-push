@@ -1,11 +1,10 @@
 package it.pagopa.pn.deliverypush.action2.it.mockbean;
 
 import it.pagopa.pn.deliverypush.action2.PublicRegistryResponseHandler;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.externalclient.publicregistry.PublicRegistry;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +14,7 @@ public class PublicRegistryMock implements PublicRegistry {
     public static final int WAITING_TIME = 100;
     private final PublicRegistryResponseHandler publicRegistryResponseHandler;
     private Map<String, LegalDigitalAddressInt> digitalAddressResponse;
-    private Map<String, PhysicalAddress> physicalAddressResponse;
+    private Map<String, PhysicalAddressInt> physicalAddressResponse;
 
 
     public PublicRegistryMock(
@@ -33,7 +32,7 @@ public class PublicRegistryMock implements PublicRegistry {
         this.digitalAddressResponse.put(key,value);
     }
 
-    public void addPhysical(String key, PhysicalAddress value) {
+    public void addPhysical(String key, PhysicalAddressInt value) {
         this.physicalAddressResponse.put(key,value);
     }
     
@@ -72,7 +71,7 @@ public class PublicRegistryMock implements PublicRegistry {
     }
 
     private void simulatePhysicalAddressResponse(String taxId, String correlationId) {
-        PhysicalAddress address = this.physicalAddressResponse.get(taxId);
+        PhysicalAddressInt address = this.physicalAddressResponse.get(taxId);
 
         PublicRegistryResponse response = PublicRegistryResponse.builder()
                 .correlationId(correlationId)

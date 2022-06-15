@@ -9,14 +9,18 @@ import it.pagopa.pn.deliverypush.action2.utils.DigitalWorkFlowUtils;
 import it.pagopa.pn.deliverypush.action2.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfo;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.PublicRegistryCallDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.ScheduleDigitalWorkflowDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalDetailsInt;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
-import it.pagopa.pn.deliverypush.service.mapper.LegalDigitalAddressMapper;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -54,7 +58,7 @@ public class DigitalWorkFlowHandler {
     }
 
     public void startScheduledNextWorkflow(String iun, Integer recIndex) {
-        ScheduleDigitalWorkflow scheduleDigitalWorkflow = digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(iun, recIndex);
+        ScheduleDigitalWorkflowDetailsInt scheduleDigitalWorkflow = digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(iun, recIndex);
         NotificationInt notification = notificationService.getNotificationByIun(iun);
         DigitalAddressInfo digitalAddressInfo = getDigitalAddressInfo(scheduleDigitalWorkflow);
         nextWorkFlowAction(notification, recIndex, digitalAddressInfo);
@@ -99,9 +103,9 @@ public class DigitalWorkFlowHandler {
         String iun = notification.getIun();
         log.debug("Get notification and recipient completed - iun={} id={}", iun, recIndex);
 
-        if (DigitalAddressSource.GENERAL.equals(nextAddressInfo.getDigitalAddressSource())) {
+        if (DigitalAddressSourceInt.GENERAL.equals(nextAddressInfo.getDigitalAddressSource())) {
             log.debug("Address is general - iun={} id={}", iun, recIndex);
-            publicRegistrySendHandler.sendRequestForGetDigitalGeneralAddress(notification, recIndex, ContactPhase.SEND_ATTEMPT, nextAddressInfo.getSentAttemptMade());//general address need async call to get it
+            publicRegistrySendHandler.sendRequestForGetDigitalGeneralAddress(notification, recIndex, ContactPhaseInt.SEND_ATTEMPT, nextAddressInfo.getSentAttemptMade());//general address need async call to get it
         } else {
             log.debug("Address source is not general - iun={} id={}", iun, recIndex);
 
@@ -142,14 +146,14 @@ public class DigitalWorkFlowHandler {
      * Handle response to request for get special address. If address is present in response, send notification to this address else startNewWorkflow action.
      *
      * @param response Get special address response
-     * @param iun      Notification unique identifier
+     * @param notification      Notification
      */
-    public void handleGeneralAddressResponse(PublicRegistryResponse response, NotificationInt notification, PublicRegistryCallDetails prCallDetails) {
+    public void handleGeneralAddressResponse(PublicRegistryResponse response, NotificationInt notification, PublicRegistryCallDetailsInt prCallDetails) {
         Integer recIndex = prCallDetails.getRecIndex();
         log.info("HandleGeneralAddressResponse - iun={} id={}", notification.getIun(), recIndex);
         
         DigitalAddressInfo lastAttemptAddressInfo = DigitalAddressInfo.builder()
-                .digitalAddressSource(DigitalAddressSource.GENERAL)
+                .digitalAddressSource(DigitalAddressSourceInt.GENERAL)
                 .digitalAddress(response.getDigitalAddress())
                 .sentAttemptMade(prCallDetails.getSentAttemptMade())
                 .lastAttemptDate(prCallDetails.getSendDate())
@@ -181,14 +185,14 @@ public class DigitalWorkFlowHandler {
     }
 
     public void handleExternalChannelResponse(LegalMessageSentDetails response, TimelineElementInternal timelineElement) {
-        SendDigitalDetails sendDigitalDetails = SmartMapper.mapToClass(timelineElement.getDetails(), SendDigitalDetails.class);
+        SendDigitalDetailsInt sendDigitalDetails = SmartMapper.mapToClass(timelineElement.getDetails(), SendDigitalDetailsInt.class);
         String iun = timelineElement.getIun();
         log.info("HandleExternalChannelResponse - iun={} id={}", iun, sendDigitalDetails.getRecIndex());
         
         NotificationInt notification = notificationService.getNotificationByIun(iun);
         Integer recIndex = sendDigitalDetails.getRecIndex();
 
-        ResponseStatus status = mapDigitalStatusInResponseStatus(response.getStatus());
+        ResponseStatusInt status = mapDigitalStatusInResponseStatus(response.getStatus());
         
         digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(notification, status, response.getEventDetails()==null?null:List.of(response.getEventDetails()), sendDigitalDetails);
 
@@ -197,7 +201,7 @@ public class DigitalWorkFlowHandler {
                 case OK:
                     log.info("Notification sent successfully, starting completion workflow - iun={} id={}", iun, recIndex);
                     //La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
-                    completionWorkflow.completionDigitalWorkflow(notification, recIndex, response.getEventTimestamp(), LegalDigitalAddressMapper.digitalToLegal(sendDigitalDetails.getDigitalAddress()), EndWorkflowStatus.SUCCESS);
+                    completionWorkflow.completionDigitalWorkflow(notification, recIndex, response.getEventTimestamp(), sendDigitalDetails.getDigitalAddress(), EndWorkflowStatus.SUCCESS);
                     break;
                 case KO:
                     //Non è stato possibile effettuare la notificazione, si passa al prossimo step del workflow
@@ -220,9 +224,9 @@ public class DigitalWorkFlowHandler {
         log.info("Specified status={} is not final - iun={} id={}", status, iun, recIndex);
     }
 
-    private DigitalAddressInfo getDigitalAddressInfo(ScheduleDigitalWorkflow scheduleDigitalWorkflow) {
+    private DigitalAddressInfo getDigitalAddressInfo(ScheduleDigitalWorkflowDetailsInt scheduleDigitalWorkflow) {
         return DigitalAddressInfo.builder()
-                .digitalAddress(LegalDigitalAddressMapper.digitalToLegal(scheduleDigitalWorkflow.getDigitalAddress()))
+                .digitalAddress(scheduleDigitalWorkflow.getDigitalAddress())
                 .digitalAddressSource(scheduleDigitalWorkflow.getDigitalAddressSource())
                 .lastAttemptDate(scheduleDigitalWorkflow.getLastAttemptDate())
                 .sentAttemptMade(scheduleDigitalWorkflow.getSentAttemptMade())
@@ -230,7 +234,7 @@ public class DigitalWorkFlowHandler {
     }
 
 
-    private ResponseStatus mapDigitalStatusInResponseStatus(ProgressEventCategory digitalStatus)
+    private ResponseStatusInt mapDigitalStatusInResponseStatus(ProgressEventCategory digitalStatus)
     {
         /* si traduce l'enum
             [ PROGRESS, OK, RETRIABLE_ERROR, ERROR ]
@@ -240,10 +244,10 @@ public class DigitalWorkFlowHandler {
             case PROGRESS:
                 return null;
             case OK:
-                return ResponseStatus.OK;
+                return ResponseStatusInt.OK;
             case ERROR:
             case RETRIABLE_ERROR:
-                return ResponseStatus.KO;
+                return ResponseStatusInt.KO;
             default:
                 throw new PnInternalException("Invalid digitalStatus received: " + digitalStatus);
         }

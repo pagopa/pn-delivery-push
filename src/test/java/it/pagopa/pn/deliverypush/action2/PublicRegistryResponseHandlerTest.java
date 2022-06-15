@@ -2,10 +2,13 @@ package it.pagopa.pn.deliverypush.action2;
 
 import it.pagopa.pn.deliverypush.action2.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action2.utils.PublicRegistryUtils;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.PublicRegistryCallDetailsInt;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,8 +58,8 @@ class PublicRegistryResponseHandlerTest {
                                 .build()).build();
 
 
-        PublicRegistryCallDetails publicRegistryCallDetails = PublicRegistryCallDetails.builder()
-                .contactPhase(ContactPhase.CHOOSE_DELIVERY)
+        PublicRegistryCallDetailsInt publicRegistryCallDetails = PublicRegistryCallDetailsInt.builder()
+                .contactPhase(ContactPhaseInt.CHOOSE_DELIVERY)
                 .deliveryMode(null)
                 .recIndex(recIndex)
                 .build();
@@ -99,9 +102,9 @@ class PublicRegistryResponseHandlerTest {
                                 .build()).build();
 
 
-        PublicRegistryCallDetails publicRegistryCallDetails = PublicRegistryCallDetails.builder()
-                .contactPhase(ContactPhase.SEND_ATTEMPT)
-                .deliveryMode(DeliveryMode.DIGITAL)
+        PublicRegistryCallDetailsInt publicRegistryCallDetails = PublicRegistryCallDetailsInt.builder()
+                .contactPhase(ContactPhaseInt.SEND_ATTEMPT)
+                .deliveryMode(DeliveryModeInt.DIGITAL)
                 .sentAttemptMade(1)
                 .recIndex(recIndex)
                 .build();
@@ -122,7 +125,7 @@ class PublicRegistryResponseHandlerTest {
 
         ArgumentCaptor<NotificationInt> notificationIntArgumentCaptor = ArgumentCaptor.forClass(NotificationInt.class);
 
-        Mockito.verify(digitalWorkFlowHandler).handleGeneralAddressResponse(Mockito.any(PublicRegistryResponse.class), notificationIntArgumentCaptor.capture(), Mockito.any(PublicRegistryCallDetails.class));
+        Mockito.verify(digitalWorkFlowHandler).handleGeneralAddressResponse(Mockito.any(PublicRegistryResponse.class), notificationIntArgumentCaptor.capture(), Mockito.any(PublicRegistryCallDetailsInt.class));
 
         Assertions.assertEquals(iun, notificationIntArgumentCaptor.getValue().getIun());
 
@@ -140,15 +143,15 @@ class PublicRegistryResponseHandlerTest {
                 PublicRegistryResponse.builder()
                         .correlationId(iun + "_" + taxId + "1121")
                         .physicalAddress(
-                                PhysicalAddress.builder()
+                                PhysicalAddressInt.builder()
                                         .address("testaddress")
                                         .build()
                         ).build();
 
 
-        PublicRegistryCallDetails publicRegistryCallDetails = PublicRegistryCallDetails.builder()
-                .contactPhase(ContactPhase.SEND_ATTEMPT)
-                .deliveryMode(DeliveryMode.ANALOG)
+        PublicRegistryCallDetailsInt publicRegistryCallDetails = PublicRegistryCallDetailsInt.builder()
+                .contactPhase(ContactPhaseInt.SEND_ATTEMPT)
+                .deliveryMode(DeliveryModeInt.ANALOG)
                 .sentAttemptMade(1)
                 .recIndex(recIndex)
                 .build();

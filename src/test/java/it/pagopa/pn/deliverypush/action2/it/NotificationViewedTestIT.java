@@ -10,15 +10,15 @@ import it.pagopa.pn.deliverypush.action2.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action2.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action2.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action2.utils.*;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
-import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.*;
@@ -57,7 +57,6 @@ import static org.mockito.ArgumentMatchers.eq;
         ExternalChannelResponseHandler.class,
         RefinementHandler.class,
         NotificationViewedHandler.class,
-        LegalfactsMetadataUtils.class,
         DigitalWorkFlowUtils.class,
         CourtesyMessageUtils.class,
         CompletelyUnreachableUtils.class,
@@ -260,7 +259,7 @@ class NotificationViewedTestIT {
         Assertions.assertTrue(timelineElementInternalOpt.isPresent());
         TimelineElementInternal timelineElement = timelineElementInternalOpt.get();
         Assertions.assertEquals(iun, timelineElement.getIun());
-        Assertions.assertEquals(recIndex, timelineElement.getDetails().getRecIndex());
+        Assertions.assertEquals(recIndex, ((NotificationViewedDetailsInt) timelineElement.getDetails()).getRecIndex());
     }
 
     @Test

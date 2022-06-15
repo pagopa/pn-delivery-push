@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.action2.it.utils;
 
 
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 
 public class PhysicalAddressBuilder {
     String address;
@@ -15,8 +15,8 @@ public class PhysicalAddressBuilder {
         return this;
     }
 
-    public PhysicalAddress build() {
-        return PhysicalAddress.builder()
+    public PhysicalAddressInt build() {
+        return PhysicalAddressInt.builder()
                 .at("Presso")
                 .address(address)
                 .zip("00100")

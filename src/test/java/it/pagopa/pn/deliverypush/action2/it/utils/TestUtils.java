@@ -3,14 +3,18 @@ package it.pagopa.pn.deliverypush.action2.it.utils;
 import it.pagopa.pn.deliverypush.action2.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action2.it.mockbean.ExternalChannelMock;
 import it.pagopa.pn.deliverypush.action2.utils.EndWorkflowStatus;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.CourtesyDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElement;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.util.StatusUtils;
 import org.junit.jupiter.api.Assertions;
@@ -53,17 +57,17 @@ public class TestUtils {
                             .recIndex(recIndex)
                             .index(index)
                             .build());
-            Optional<SendCourtesyMessageDetails> sendCourtesyMessageDetailsOpt = timelineService.getTimelineElementDetails(iun, eventId, SendCourtesyMessageDetails.class);
+            Optional<SendCourtesyMessageDetailsInt> sendCourtesyMessageDetailsOpt = timelineService.getTimelineElementDetails(iun, eventId, SendCourtesyMessageDetailsInt.class);
 
             Assertions.assertTrue(sendCourtesyMessageDetailsOpt.isPresent());
-            SendCourtesyMessageDetails sendCourtesyMessageDetails = sendCourtesyMessageDetailsOpt.get();
+            SendCourtesyMessageDetailsInt sendCourtesyMessageDetails = sendCourtesyMessageDetailsOpt.get();
             Assertions.assertEquals(digitalAddress.getAddress(), sendCourtesyMessageDetails.getDigitalAddress().getAddress());
-            Assertions.assertEquals(digitalAddress.getType().getValue(), sendCourtesyMessageDetails.getDigitalAddress().getType());
+            Assertions.assertEquals(digitalAddress.getType(), sendCourtesyMessageDetails.getDigitalAddress().getType());
             index++;
         }
     }
 
-    public static void checkGetAddress(String iun, Integer recIndex, Boolean isAvailable, DigitalAddressSource source, int sentAttempt, TimelineService timelineService) {
+    public static void checkGetAddress(String iun, Integer recIndex, Boolean isAvailable, DigitalAddressSourceInt source, int sentAttempt, TimelineService timelineService) {
         String correlationId = TimelineEventId.GET_ADDRESS.buildEventId(
                 EventId.builder()
                         .iun(iun)
@@ -72,12 +76,12 @@ public class TestUtils {
                         .index(sentAttempt)
                         .build());
 
-        Optional<GetAddressInfo> getAddressInfoOpt = timelineService.getTimelineElementDetails(iun, correlationId, GetAddressInfo.class);
+        Optional<GetAddressInfoDetailsInt> getAddressInfoOpt = timelineService.getTimelineElementDetails(iun, correlationId, GetAddressInfoDetailsInt.class);
         Assertions.assertTrue(getAddressInfoOpt.isPresent());
-        Assertions.assertEquals(isAvailable, getAddressInfoOpt.get().getIsAvailable());
+        Assertions.assertEquals(isAvailable, getAddressInfoOpt.get().isAvailable());
     }
 
-    public static void checkSendPaperToExtChannel(String iun, Integer recIndex, PhysicalAddress physicalAddress, int sendAttempt, TimelineService timelineService) {
+    public static void checkSendPaperToExtChannel(String iun, Integer recIndex, PhysicalAddressInt physicalAddress, int sendAttempt, TimelineService timelineService) {
         String eventIdFirstSend = TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(
                 EventId.builder()
                         .iun(iun)
@@ -85,9 +89,9 @@ public class TestUtils {
                         .index(sendAttempt)
                         .build());
 
-        Optional<SendPaperDetails> sendPaperDetailsOpt = timelineService.getTimelineElementDetails(iun, eventIdFirstSend, SendPaperDetails.class);
+        Optional<SendAnalogDetailsInt> sendPaperDetailsOpt = timelineService.getTimelineElementDetails(iun, eventIdFirstSend,  SendAnalogDetailsInt.class);
         Assertions.assertTrue(sendPaperDetailsOpt.isPresent());
-        SendPaperDetails sendPaperDetails = sendPaperDetailsOpt.get();
+         SendAnalogDetailsInt sendPaperDetails = sendPaperDetailsOpt.get();
         Assertions.assertEquals(physicalAddress, sendPaperDetails.getPhysicalAddress());
     }
 
@@ -99,7 +103,7 @@ public class TestUtils {
                         .index(sendAttempt)
                         .build());
 
-        Optional<SendPaperDetails> sendPaperDetailsOpt = timelineService.getTimelineElementDetails(iun, eventIdFirstSend, SendPaperDetails.class);
+        Optional< SendAnalogDetailsInt> sendPaperDetailsOpt = timelineService.getTimelineElementDetails(iun, eventIdFirstSend,  SendAnalogDetailsInt.class);
         Assertions.assertFalse(sendPaperDetailsOpt.isPresent());
     }
     
@@ -118,7 +122,7 @@ public class TestUtils {
         ArgumentCaptor<NotificationInt> notificationCaptor = ArgumentCaptor.forClass(NotificationInt.class);
 
         Mockito.verify(completionWorkflow, Mockito.times(1)).completionAnalogWorkflow(
-                notificationCaptor.capture(), recIndexCaptor.capture(), Mockito.any(), Mockito.any(Instant.class), Mockito.any(PhysicalAddress.class), endWorkflowStatusArgumentCaptor.capture()
+                notificationCaptor.capture(), recIndexCaptor.capture(), Mockito.any(), Mockito.any(Instant.class), Mockito.any(PhysicalAddressInt.class), endWorkflowStatusArgumentCaptor.capture()
         );
         Assertions.assertEquals(recIndex, recIndexCaptor.getValue());
         Assertions.assertEquals(iun, notificationCaptor.getValue().getIun());
@@ -162,7 +166,7 @@ public class TestUtils {
         
         Assertions.assertTrue(timelineElementOpt.isPresent());
         TimelineElementInternal timelineElementInternal = timelineElementOpt.get();
-        Assertions.assertEquals(address.getAddress(), timelineElementInternal.getDetails().getDigitalAddress().getAddress());
+        Assertions.assertEquals(address.getAddress(), ((DigitalSuccessWorkflowDetailsInt) timelineElementInternal.getDetails()).getDigitalAddress().getAddress());
     }
 
     public static void checkFailDigitalWorkflow(String iun, Integer recIndex, TimelineService timelineService, CompletionWorkFlowHandler completionWorkflow) {
@@ -204,7 +208,7 @@ public class TestUtils {
     }
 
     public static void checkExternalChannelPecSendFromTimeline(String iun, int recIndex, int sendAttemptMade, LegalDigitalAddressInt digitalAddress,
-                                                               DigitalAddressSource addressSource, TimelineService timelineService) {
+                                                               DigitalAddressSourceInt addressSource, TimelineService timelineService) {
         String timelineEventId = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
                 EventId.builder()
                         .iun(iun)
@@ -218,7 +222,7 @@ public class TestUtils {
         
         Assertions.assertTrue(timelineElementInternal.isPresent());
         TimelineElementInternal timelineElement = timelineElementInternal.get();
-        Assertions.assertEquals( digitalAddress.getAddress(), timelineElement.getDetails().getDigitalAddress().getAddress() );
+        Assertions.assertEquals( digitalAddress.getAddress(), ((SendDigitalDetailsInt) timelineElement.getDetails()).getDigitalAddress().getAddress() );
     }
     
     public static NotificationStatus getNotificationStatus(NotificationInt notification, TimelineService timelineService, StatusUtils statusUtils){

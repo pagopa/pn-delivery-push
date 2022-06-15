@@ -2,12 +2,12 @@ package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.dto.webhook.ProgressResponseElementDto;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequest;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamListElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.EventEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.StreamEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.EventEntityBatch;
@@ -236,7 +236,7 @@ class WebhookServiceImplTest {
         EventEntity eventEntity = new EventEntity();
         eventEntity.setEventId(Instant.now() + "_" + "timeline_event_id");
         eventEntity.setTimestamp(Instant.now());
-        eventEntity.setTimelineEventCategory(TimelineElementCategory.AAR_GENERATION.getValue());
+        eventEntity.setTimelineEventCategory(TimelineElementCategoryInt.AAR_GENERATION.getValue());
         eventEntity.setNewStatus(NotificationStatus.ACCEPTED.getValue());
         eventEntity.setIun("");
         eventEntity.setNotificationRequestId("");
@@ -248,7 +248,7 @@ class WebhookServiceImplTest {
         eventEntity = new EventEntity();
         eventEntity.setEventId(Instant.now().plusMillis(1) + "_" + "timeline_event_id2");
         eventEntity.setTimestamp(Instant.now());
-        eventEntity.setTimelineEventCategory(TimelineElementCategory.AAR_GENERATION.getValue());
+        eventEntity.setTimelineEventCategory(TimelineElementCategoryInt.AAR_GENERATION.getValue());
         eventEntity.setNewStatus(NotificationStatus.ACCEPTED.getValue());
         eventEntity.setIun("");
         eventEntity.setNotificationRequestId("");
@@ -334,7 +334,7 @@ class WebhookServiceImplTest {
         EventEntity eventEntity = new EventEntity();
         eventEntity.setEventId(Instant.now() + "_" + "timeline_event_id");
         eventEntity.setTimestamp(Instant.now());
-        eventEntity.setTimelineEventCategory(TimelineElementCategory.AAR_GENERATION.getValue());
+        eventEntity.setTimelineEventCategory(TimelineElementCategoryInt.AAR_GENERATION.getValue());
         eventEntity.setNewStatus(NotificationStatus.ACCEPTED.getValue());
         eventEntity.setIun("");
         eventEntity.setNotificationRequestId("");
@@ -377,7 +377,7 @@ class WebhookServiceImplTest {
         entity.setTitle("2");
         entity.setPaId(xpagopacxid);
         entity.setEventType(StreamMetadataResponse.EventTypeEnum.TIMELINE.toString());
-        entity.setFilterValues(Set.of(TimelineElementCategory.ANALOG_FAILURE_WORKFLOW.getValue()));
+        entity.setFilterValues(Set.of(TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW.getValue()));
         entity.setActivationDate(Instant.now());
 
         list.add(entity);
@@ -386,7 +386,7 @@ class WebhookServiceImplTest {
         EventEntity eventEntity = new EventEntity();
         eventEntity.setEventId(Instant.now() + "_" + "timeline_event_id");
         eventEntity.setTimestamp(Instant.now());
-        eventEntity.setTimelineEventCategory(TimelineElementCategory.AAR_GENERATION.getValue());
+        eventEntity.setTimelineEventCategory(TimelineElementCategoryInt.AAR_GENERATION.getValue());
         eventEntity.setNewStatus(NotificationStatus.ACCEPTED.getValue());
         eventEntity.setIun("");
         eventEntity.setNotificationRequestId("");

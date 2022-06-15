@@ -7,7 +7,7 @@ import it.pagopa.pn.deliverypush.dto.legalfacts.PdfInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.AarGenerationDetails;
+import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
@@ -59,7 +59,7 @@ public class AarUtils {
     }
 
 
-    public AarGenerationDetails getAarGenerationDetails(NotificationInt notification, Integer recIndex) {
+    public AarGenerationDetailsInt getAarGenerationDetails(NotificationInt notification, Integer recIndex) {
         // ricostruisco il timelineid della  genrazione dell'aar
         String aarGenerationEventId = TimelineEventId.AAR_GENERATION.buildEventId(
                 EventId.builder()
@@ -68,8 +68,8 @@ public class AarUtils {
                         .build()
         );
 
-        Optional<AarGenerationDetails> detailOpt = 
-                timelineService.getTimelineElementDetails(notification.getIun(), aarGenerationEventId, AarGenerationDetails.class);
+        Optional<AarGenerationDetailsInt> detailOpt = 
+                timelineService.getTimelineElementDetails(notification.getIun(), aarGenerationEventId, AarGenerationDetailsInt.class);
 
         if (detailOpt.isEmpty() || !StringUtils.hasText(detailOpt.get().getGeneratedAarUrl()) || detailOpt.get().getNumberOfPages() == null ) 
             throw new PnInternalException("cannot retreieve AAR pdf safestoragekey");

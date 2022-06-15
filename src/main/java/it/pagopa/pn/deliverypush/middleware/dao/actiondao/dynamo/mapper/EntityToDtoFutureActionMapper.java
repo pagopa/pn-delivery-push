@@ -23,7 +23,7 @@ public class EntityToDtoFutureActionMapper {
 
         if(entity.getNewPhysicalAddress() != null){
             builder.newPhysicalAddress(
-                    PhysicalAddress.builder()
+                    PhysicalAddressInt.builder()
                             .address(entity.getNewPhysicalAddress().getAddress())
                             .at(entity.getNewPhysicalAddress().getAt())
                             .addressDetails(entity.getNewPhysicalAddress().getAddressDetails())

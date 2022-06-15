@@ -1,8 +1,9 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.*;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -90,7 +91,7 @@ public class NotificationMapper {
             if(physicalAddress != null){
                 notificationRecIntBuilder
                         .physicalAddress(
-                                PhysicalAddress.builder()
+                                PhysicalAddressInt.builder()
                                         .at(physicalAddress.getAt())
                                         .address(physicalAddress.getAddress())
                                         .addressDetails(physicalAddress.getAddressDetails())
@@ -222,7 +223,7 @@ public class NotificationMapper {
         }
 
         NotificationPhysicalAddress physicalAddress = null;
-        PhysicalAddress internalPhysicalAddress = recipient.getPhysicalAddress();
+        PhysicalAddressInt internalPhysicalAddress = recipient.getPhysicalAddress();
         if(internalPhysicalAddress != null){
             physicalAddress = new NotificationPhysicalAddress();
             physicalAddress.setAddress(internalPhysicalAddress.getAddress());

@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.CourtesyChannelType;
 import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.CourtesyDigitalAddress;
 

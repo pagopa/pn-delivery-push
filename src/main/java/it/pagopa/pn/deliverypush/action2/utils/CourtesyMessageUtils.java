@@ -1,12 +1,12 @@
 package it.pagopa.pn.deliverypush.action2.utils;
 
 import it.pagopa.pn.deliverypush.action2.ExternalChannelSendHandler;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendCourtesyMessageDetails;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
@@ -69,9 +69,9 @@ public class CourtesyMessageUtils {
         );
     }
     
-    public Optional<SendCourtesyMessageDetails> getFirstSentCourtesyMessage(String iun, Integer recIndex) {
+    public Optional<SendCourtesyMessageDetailsInt> getFirstSentCourtesyMessage(String iun, Integer recIndex) {
         String timeLineCourtesyId = getTimelineElementId(recIndex, iun, 0);
         log.debug("Get courtesy message for timelineCourtesyId {} - IUN {} id {}", timeLineCourtesyId, iun, recIndex);
-        return timelineService.getTimelineElementDetails(iun, timeLineCourtesyId, SendCourtesyMessageDetails.class);
+        return timelineService.getTimelineElementDetails(iun, timeLineCourtesyId, SendCourtesyMessageDetailsInt.class);
     }
 }

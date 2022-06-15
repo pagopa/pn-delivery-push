@@ -1,10 +1,12 @@
 package it.pagopa.pn.deliverypush.action2.it.mockbean;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action2.NotificationViewedHandler;
 import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.details.RecipientRelatedTimelineElementDetails;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +47,7 @@ public class TimelineDaoMock implements TimelineDao {
     @Override
     public void addTimelineElement(TimelineElementInternal dto) {
         
-        if( dto.getDetails() != null && dto.getDetails().getRecIndex() != null ){
+        if( dto.getDetails() != null && dto.getDetails() instanceof RecipientRelatedTimelineElementDetails){
             
             NotificationRecipientInt notificationRecipientInt = getRecipientInt(dto);
             String simulateViewNotificationString = SIMULATE_VIEW_NOTIFICATION + dto.getElementId();
@@ -53,7 +55,7 @@ public class TimelineDaoMock implements TimelineDao {
 
             if(notificationRecipientInt.getTaxId().startsWith(simulateViewNotificationString)){
                 //Viene simulata la visualizzazione della notifica prima di uno specifico inserimento in timeline
-                notificationViewedHandler.handleViewNotification( dto.getIun(), dto.getDetails().getRecIndex() );
+                notificationViewedHandler.handleViewNotification( dto.getIun(), ((RecipientRelatedTimelineElementDetails) dto.getDetails()).getRecIndex() );
             }else if(notificationRecipientInt.getTaxId().startsWith(simulateRecipientWaitString)){
                 //Viene simulata l'attesa in un determinato stato (elemento di timeline) per uno specifico recipient. 
                 // L'attesa dura fino all'inserimento in timeline di un determinato elemento per un altro recipient
@@ -68,8 +70,12 @@ public class TimelineDaoMock implements TimelineDao {
     }
 
     private NotificationRecipientInt getRecipientInt(TimelineElementInternal row) {
-        NotificationInt notificationInt = this.notificationService.getNotificationByIun(row.getIun());
-        return notificationUtils.getRecipientFromIndex(notificationInt, row.getDetails().getRecIndex());
+        if(row.getDetails() instanceof RecipientRelatedTimelineElementDetails){
+            NotificationInt notificationInt = this.notificationService.getNotificationByIun(row.getIun());
+            return notificationUtils.getRecipientFromIndex(notificationInt, ((RecipientRelatedTimelineElementDetails) row.getDetails()).getRecIndex());
+        }else {
+            throw new PnInternalException("There isn't recipient index for timeline element");
+        }
     }
 
     @Override

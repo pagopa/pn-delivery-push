@@ -2,10 +2,9 @@ package it.pagopa.pn.deliverypush.util;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -16,15 +15,15 @@ import java.util.stream.Collectors;
 public class StatusUtils {
 
     private static final NotificationStatus INITIAL_STATUS = NotificationStatus.IN_VALIDATION;
-    private static final Set<TimelineElementCategory> SUCCES_DELIVERY_WORKFLOW_CATEGORY = new HashSet<>(Arrays.asList(
+    private static final Set<TimelineElementCategoryInt> SUCCES_DELIVERY_WORKFLOW_CATEGORY = new HashSet<>(Arrays.asList(
             //Completato con successo
-            TimelineElementCategory.DIGITAL_SUCCESS_WORKFLOW, 
-            TimelineElementCategory.DIGITAL_FAILURE_WORKFLOW, //Anche in caso di fallimento del digital workflow, la notifica si può considerare consegnata 
-            TimelineElementCategory.ANALOG_SUCCESS_WORKFLOW
+            TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW,
+            TimelineElementCategoryInt.DIGITAL_FAILURE_WORKFLOW, //Anche in caso di fallimento del digital workflow, la notifica si può considerare consegnata 
+            TimelineElementCategoryInt.ANALOG_SUCCESS_WORKFLOW
     ));
     
-    private static final Set<TimelineElementCategory> FAILURE_DELIVERY_WORKFLOW_CATEGORY = new HashSet<>(List.of(
-            TimelineElementCategory.COMPLETELY_UNREACHABLE
+    private static final Set<TimelineElementCategoryInt> FAILURE_DELIVERY_WORKFLOW_CATEGORY = new HashSet<>(List.of(
+            TimelineElementCategoryInt.COMPLETELY_UNREACHABLE
     ));
 
     private final StateMap stateMap = new StateMap();
@@ -44,20 +43,20 @@ public class StatusUtils {
     ) {
         //La timeline ricevuta in ingresso è relativa a tutta la notifica e non al singolo recipient
         List<TimelineElementInternal> timelineByTimestampSorted = timelineElementList.stream()
-                .sorted(Comparator.comparing(TimelineElement::getTimestamp))
+                .sorted(Comparator.comparing(TimelineElementInternal::getTimestamp))
                 .collect(Collectors.toList());
     
         List<NotificationStatusHistoryElement> timelineHistory = new ArrayList<>();
 
         List<String> relatedTimelineElements = new ArrayList<>();
-        List<TimelineElementCategory> relatedCategoryElements = new ArrayList<>();
+        List<TimelineElementCategoryInt> relatedCategoryElements = new ArrayList<>();
 
         Instant creationDateCurrentState = notificationCreatedAt;
         NotificationStatus currentState = INITIAL_STATUS;
         int numberOfCompletedWorkflow = 0;
 
         for (TimelineElementInternal timelineElement : timelineByTimestampSorted) {
-            TimelineElementCategory category = timelineElement.getCategory();
+            TimelineElementCategoryInt category = timelineElement.getCategory();
             
             if( SUCCES_DELIVERY_WORKFLOW_CATEGORY.contains( category ) || FAILURE_DELIVERY_WORKFLOW_CATEGORY.contains( category ) ) {
                 //Vengono contati il numero di workflow completate per entrambi i recipient, sia in caso di successo che di fallimento
@@ -106,10 +105,10 @@ public class StatusUtils {
 
     private NotificationStatus computeStateAfterEvent( 
                                                        NotificationStatus currentState, 
-                                                       TimelineElementCategory timelineElementCategory,
+                                                       TimelineElementCategoryInt timelineElementCategory,
                                                        int numberOfCompletedWorkflow,
                                                        int numberOfRecipients,
-                                                       List<TimelineElementCategory> relatedCategoryElements
+                                                       List<TimelineElementCategoryInt> relatedCategoryElements
     ) {
         NotificationStatus nextState;
 
@@ -135,11 +134,11 @@ public class StatusUtils {
         return nextState;
     }
 
-    private NotificationStatus getNextState(NotificationStatus currentState, List<TimelineElementCategory> relatedCategoryElements, int numberOfRecipient) {
+    private NotificationStatus getNextState(NotificationStatus currentState, List<TimelineElementCategoryInt> relatedCategoryElements, int numberOfRecipient) {
         int failureWorkflow = 0;
         
         //Viene effettuato un ciclo su tutti gli elementi relati allo stato corrente
-        for (TimelineElementCategory category : relatedCategoryElements){
+        for (TimelineElementCategoryInt category : relatedCategoryElements){
             
             //Se almeno per un recipient il workflow è andato a buon fine
             if( SUCCES_DELIVERY_WORKFLOW_CATEGORY.contains(category) ) {

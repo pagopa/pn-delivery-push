@@ -34,7 +34,7 @@ class PnTimelineControllerTest {
         List<TimelineElement> timelineElements = Collections.singletonList(TimelineElement.builder()
                 .timestamp( Instant.now() )
                 .elementId( "element_id" )
-                .category( TimelineElementCategory.REQUEST_ACCEPTED)
+                .category( TimelineElementCategory.REQUEST_ACCEPTED )
                 .details(TimelineElementDetails.builder().build())
                 .build()
         );

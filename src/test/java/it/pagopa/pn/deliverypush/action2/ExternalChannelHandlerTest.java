@@ -6,10 +6,10 @@ import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.Pro
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.SingleStatusUpdate;
 import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
-import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,21 +46,21 @@ class ExternalChannelHandlerTest {
         SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();
         singleStatusUpdate.setDigitalLegal(extChannelResponse);
 
-        SendDigitalDetails details = SendDigitalDetails.builder()
+        SendDigitalDetailsInt details = SendDigitalDetailsInt.builder()
                 .recIndex(0)
                 .digitalAddress(
-                        DigitalAddress.builder()
+                        LegalDigitalAddressInt.builder()
                                 .address("TEST")
-                                .type("PEC").build())
+                                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC).build())
                 .build();
 
-        TimelineElementDetails genericDetails = SmartMapper.mapToClass(details, TimelineElementDetails.class);
 
         Mockito.when(externalChannelUtils.getExternalChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(TimelineElementInternal.timelineInternalBuilder()
-                        .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE)
-                        .details(genericDetails)
+                .thenReturn(TimelineElementInternal.builder()
+                        .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                        .details(details)
                         .build());
+        
         Mockito.when(timelineUtils.getIunFromTimelineId(Mockito.anyString())).thenReturn("iun");
 
         handler.extChannelResponseReceiver(singleStatusUpdate);
@@ -82,8 +82,8 @@ class ExternalChannelHandlerTest {
         Mockito.when(timelineUtils.getIunFromTimelineId(Mockito.anyString())).thenReturn("iun");
 
         Mockito.when(externalChannelUtils.getExternalChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(TimelineElementInternal.timelineInternalBuilder()
-                        .category(TimelineElementCategory.SEND_ANALOG_DOMICILE)
+                .thenReturn(TimelineElementInternal.builder()
+                        .category(TimelineElementCategoryInt.SEND_ANALOG_DOMICILE)
                         .build());
 
         handler.extChannelResponseReceiver(singleStatusUpdate);

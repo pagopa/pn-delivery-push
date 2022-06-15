@@ -12,16 +12,20 @@ import it.pagopa.pn.deliverypush.action2.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action2.it.utils.PhysicalAddressBuilder;
 import it.pagopa.pn.deliverypush.action2.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action2.utils.*;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.CourtesyDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.PnSafeStorageClient;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
-import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.util.StatusUtils;
@@ -66,7 +70,6 @@ import static org.awaitility.Awaitility.with;
         AarUtils.class,
         ExternalChannelUtils.class,
         CompletelyUnreachableUtils.class,
-        LegalfactsMetadataUtils.class,
         AnalogWorkflowUtils.class,
         TimelineUtils.class,
         PublicRegistryUtils.class,
@@ -211,7 +214,7 @@ class AnalogTestIT {
        - Viene visualizzata la notifica in fase d'invio del messaggio di cortesia, questo comporta che nessun invio analogico successivo avvenga
      */
 
-        PhysicalAddress paPhysicalAddress = PhysicalAddressBuilder.builder()
+        PhysicalAddressInt paPhysicalAddress = PhysicalAddressBuilder.builder()
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
@@ -254,8 +257,8 @@ class AnalogTestIT {
                         EventId.builder()
                                 .iun(iun)
                                 .recIndex(recIndex)
-                                .deliveryMode(DeliveryMode.ANALOG)
-                                .contactPhase(ContactPhase.SEND_ATTEMPT)
+                                .deliveryMode(DeliveryModeInt.ANALOG)
+                                .contactPhase(ContactPhaseInt.SEND_ATTEMPT)
                                 .sentAttemptMade(1)
                                 .build()
                 )
@@ -270,19 +273,19 @@ class AnalogTestIT {
         TestUtils.checkSendCourtesyAddresses(iun, recIndex, listCourtesyAddress, timelineService, externalChannelMock);
 
         //Viene verificato che gli indirizzi PLATFORM SPECIAL E GENERAL non siano presenti
-        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito dalla PA
         TestUtils.checkSendPaperToExtChannel(iun, recIndex, paPhysicalAddress, 0, timelineService);
 
-        ArgumentCaptor<PhysicalAddress> pnPhysicalAddressArgumentCaptor = ArgumentCaptor.forClass(PhysicalAddress.class);
+        ArgumentCaptor<PhysicalAddressInt> pnPhysicalAddressArgumentCaptor = ArgumentCaptor.forClass(PhysicalAddressInt.class);
 
         Mockito.verify(externalChannelMock, Mockito.times(1)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), pnPhysicalAddressArgumentCaptor.capture(), Mockito.anyString(), Mockito.any(), Mockito.anyString());
 
 
-        PhysicalAddress pnExtChnPaperEvent = pnPhysicalAddressArgumentCaptor.getValue();
+        PhysicalAddressInt pnExtChnPaperEvent = pnPhysicalAddressArgumentCaptor.getValue();
         Assertions.assertEquals(paPhysicalAddress.getAddress(), pnExtChnPaperEvent.getAddress());
 
         //Viene verificato che la notifica sia stata visualizzata
@@ -306,7 +309,7 @@ class AnalogTestIT {
        - Viene visualizzata la notifica in fase d'invio del messaggio di cortesia, questo comporta che nessun invio analogico avvenga
      */
 
-        PhysicalAddress paPhysicalAddress = PhysicalAddressBuilder.builder()
+        PhysicalAddressInt paPhysicalAddress = PhysicalAddressBuilder.builder()
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
@@ -360,13 +363,13 @@ class AnalogTestIT {
         TestUtils.checkSendCourtesyAddresses(iun, recIndex, listCourtesyAddress, timelineService, externalChannelMock);
 
         //Viene verificato che gli indirizzi PLATFORM SPECIAL E GENERAL non siano presenti
-        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificata l'assenza degli invii verso external channel
         TestUtils.checkNotSendPaperToExtChannel(iun, recIndex, 0, timelineService);
-        Mockito.verify(externalChannelMock, Mockito.times(0)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddress.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+        Mockito.verify(externalChannelMock, Mockito.times(0)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
 
         //Viene verificato che la notifica sia stata visualizzata
         Assertions.assertTrue(timelineService.getTimelineElement(
@@ -391,7 +394,7 @@ class AnalogTestIT {
        - Public Registry Indirizzo fisico non trovato (Ottenuto non valorizzando nessun indirizzo fisico per il recipient in PUB_REGISTRY_PHYSICAL)
      */
 
-        PhysicalAddress paPhysicalAddress = PhysicalAddressBuilder.builder()
+        PhysicalAddressInt paPhysicalAddress = PhysicalAddressBuilder.builder()
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
@@ -431,9 +434,9 @@ class AnalogTestIT {
         TestUtils.checkSendCourtesyAddresses(iun, recIndex, listCourtesyAddress, timelineService, externalChannelMock);
 
         //Viene verificato che gli indirizzi PLATFORM SPECIAL E GENERAL non siano presenti
-        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito dalla PA
         TestUtils.checkSendPaperToExtChannel(iun, recIndex, paPhysicalAddress, 0, timelineService);
@@ -441,7 +444,7 @@ class AnalogTestIT {
         //checkSendToExtChannel(iun, TestUtils.PHYSICAL_ADDRESS_FAILURE_BOTH, 1);
         
         //Viene verificato l'effettivo invio delle due notifiche verso externalChannel
-        Mockito.verify(externalChannelMock, Mockito.times(2)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddress.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+        Mockito.verify(externalChannelMock, Mockito.times(2)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
 
         String eventIdFirstSend = TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(
                 EventId.builder()
@@ -450,10 +453,10 @@ class AnalogTestIT {
                         .index(0)
                         .build());
 
-        Optional<SendPaperDetails> sendPaperDetailsOpt = timelineService.getTimelineElementDetails(iun, eventIdFirstSend, SendPaperDetails.class);
+        Optional<SendAnalogDetailsInt> sendPaperDetailsOpt = timelineService.getTimelineElementDetails(iun, eventIdFirstSend, SendAnalogDetailsInt.class);
         Assertions.assertTrue(sendPaperDetailsOpt.isPresent());
 
-        SendPaperDetails sendPaperDetails = sendPaperDetailsOpt.get();
+        SendAnalogDetailsInt sendPaperDetails = sendPaperDetailsOpt.get();
         Assertions.assertEquals( paPhysicalAddress.getAddress() , sendPaperDetails.getPhysicalAddress().getAddress() );
         Assertions.assertEquals( paPhysicalAddress.getForeignState() , sendPaperDetails.getPhysicalAddress().getForeignState());
         Assertions.assertEquals(1, sendPaperDetails.getNumberOfPages());
@@ -498,7 +501,7 @@ class AnalogTestIT {
          con invio di una seconda notifica (all'indirizzo ottenuto dall'investigazione) con successo (ottenuto concatenando all'indirizzo ExternalChannelMock.EXTCHANNEL_SEND_OK)
 ì    */
 
-        PhysicalAddress publicRegistryAddress = PhysicalAddressBuilder.builder()
+        PhysicalAddressInt publicRegistryAddress = PhysicalAddressBuilder.builder()
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS + " Via Nuova")
                 .build();
 
@@ -532,9 +535,9 @@ class AnalogTestIT {
         TestUtils.checkSendCourtesyAddresses(iun, recIndex, Collections.emptyList(), timelineService, externalChannelMock);
 
         //Viene verificato che gli indirizzi PLATFORM SPECIAL E GENERAL non siano presenti
-        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito da publicRegistry
         TestUtils.checkSendPaperToExtChannel(iun, recIndex, publicRegistryAddress, 0, timelineService);
@@ -545,7 +548,7 @@ class AnalogTestIT {
         */
 
         //Vengono verificati il numero di send verso external channel
-        Mockito.verify(externalChannelMock, Mockito.times(2)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddress.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+        Mockito.verify(externalChannelMock, Mockito.times(2)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
 
         TestUtils.checkSuccessAnalogWorkflow(iun, recIndex, timelineService, completionWorkflow);
 
@@ -576,7 +579,7 @@ class AnalogTestIT {
        - Public Registry Indirizzo fisico non trovato (Ottenuto non valorizzando nessun indirizzo fisico per il recipient in PUB_REGISTRY_PHYSICAL)
      */
 
-        PhysicalAddress paPhysicalAddress1 = PhysicalAddressBuilder.builder()
+        PhysicalAddressInt paPhysicalAddress1 = PhysicalAddressBuilder.builder()
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
@@ -590,7 +593,7 @@ class AnalogTestIT {
                 .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL )
                 .build());
 
-        PhysicalAddress paPhysicalAddress2 = PhysicalAddressBuilder.builder()
+        PhysicalAddressInt paPhysicalAddress2 = PhysicalAddressBuilder.builder()
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
@@ -637,14 +640,14 @@ class AnalogTestIT {
                 .sendCourtesyNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(CourtesyDigitalAddressInt.class), Mockito.anyString());
 
         //Viene verificata la presenza degli indirizzi per il primo recipient
-        TestUtils.checkGetAddress(iun, recIndex1, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex1, false, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex1, false, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex1, false, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex1, false, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex1, false, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificata la presenza degli indirizzi per il secondo recipient
-        TestUtils.checkGetAddress(iun, recIndex2, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex2, false, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex2, false, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex2, false, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex2, false, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex2, false, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         
         //Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito dalla PA per il rec1
         TestUtils.checkSendPaperToExtChannel(iun, recIndex1, paPhysicalAddress1, 0, timelineService);
@@ -700,7 +703,7 @@ class AnalogTestIT {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
         
-        PhysicalAddress paPhysicalAddress1 = PhysicalAddressBuilder.builder()
+        PhysicalAddressInt paPhysicalAddress1 = PhysicalAddressBuilder.builder()
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
@@ -714,7 +717,7 @@ class AnalogTestIT {
                 .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL )
                 .build());
 
-        PhysicalAddress paPhysicalAddress2 = PhysicalAddressBuilder.builder()
+        PhysicalAddressInt paPhysicalAddress2 = PhysicalAddressBuilder.builder()
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
@@ -757,12 +760,12 @@ class AnalogTestIT {
         TestUtils.checkSendCourtesyAddressFromTimeline(iun, recIndex1, listCourtesyAddressRecipient1, timelineService, externalChannelMock);
 
         //Viene verificata la presenza degli indirizzi per il primo recipient
-        TestUtils.checkGetAddress(iun, recIndex1, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex1, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificata la presenza degli indirizzi per il secondo recipient
-        TestUtils.checkGetAddress(iun, recIndex2, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex2, false, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex2, false, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex2, false, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex2, false, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex2, false, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato che il workflow sia stato completato con successo per il primo recipient
         Assertions.assertTrue(timelineService.getTimelineElement(
@@ -840,7 +843,7 @@ class AnalogTestIT {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        PhysicalAddress paPhysicalAddress1 = PhysicalAddressBuilder.builder()
+        PhysicalAddressInt paPhysicalAddress1 = PhysicalAddressBuilder.builder()
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
@@ -854,7 +857,7 @@ class AnalogTestIT {
                 .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL )
                 .build());
 
-        PhysicalAddress paPhysicalAddress2 = PhysicalAddressBuilder.builder()
+        PhysicalAddressInt paPhysicalAddress2 = PhysicalAddressBuilder.builder()
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
@@ -896,9 +899,9 @@ class AnalogTestIT {
         TestUtils.checkSendCourtesyAddressFromTimeline(iun, rec1Index, listCourtesyAddressRecipient1, timelineService, externalChannelMock);
 
         //Viene verificato che gli indirizzi PLATFORM SPECIAL E GENERAL non siano presenti
-        TestUtils.checkGetAddress(iun, rec1Index, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, rec1Index, false, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, rec1Index, false, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, rec1Index, false, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, rec1Index, false, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, rec1Index, false, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito dalla PA
         TestUtils.checkSendPaperToExtChannel(iun, rec1Index, paPhysicalAddress1, 0, timelineService);
@@ -909,7 +912,7 @@ class AnalogTestIT {
         Mockito.verify(externalChannelMock, Mockito.times(2)).sendAnalogNotification(
                 Mockito.any(NotificationInt.class),
                 Mockito.any(NotificationRecipientInt.class),
-                Mockito.any(PhysicalAddress.class),
+                Mockito.any(PhysicalAddressInt.class),
                 Mockito.any(String.class),
                 Mockito.any(ExternalChannelSendClient.ANALOG_TYPE.class),
                 Mockito.any(String.class)
@@ -973,7 +976,7 @@ class AnalogTestIT {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        PhysicalAddress paPhysicalAddress1 = PhysicalAddressBuilder.builder()
+        PhysicalAddressInt paPhysicalAddress1 = PhysicalAddressBuilder.builder()
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
@@ -1043,9 +1046,9 @@ class AnalogTestIT {
         TestUtils.checkSendCourtesyAddressFromTimeline(iun, rec1Index, listCourtesyAddressRecipient1, timelineService, externalChannelMock);
 
         //Viene verificato che gli indirizzi PLATFORM SPECIAL E GENERAL non siano presenti
-        TestUtils.checkGetAddress(iun, rec1Index, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, rec1Index, false, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, rec1Index, false, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, rec1Index, false, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, rec1Index, false, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, rec1Index, false, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito dalla PA
         TestUtils.checkSendPaperToExtChannel(iun, rec1Index, paPhysicalAddress1, 0, timelineService);
@@ -1056,7 +1059,7 @@ class AnalogTestIT {
         Mockito.verify(externalChannelMock, Mockito.times(2)).sendAnalogNotification(
                 Mockito.any(NotificationInt.class),
                 Mockito.any(NotificationRecipientInt.class),
-                Mockito.any(PhysicalAddress.class),
+                Mockito.any(PhysicalAddressInt.class),
                 Mockito.any(String.class),
                 Mockito.any(ExternalChannelSendClient.ANALOG_TYPE.class),
                 Mockito.any(String.class)
