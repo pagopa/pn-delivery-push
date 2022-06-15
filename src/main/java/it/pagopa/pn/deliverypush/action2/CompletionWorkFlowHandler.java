@@ -7,11 +7,14 @@ import it.pagopa.pn.deliverypush.action2.utils.CompletelyUnreachableUtils;
 import it.pagopa.pn.deliverypush.action2.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -82,10 +85,10 @@ public class CompletionWorkFlowHandler {
     private String generatePecDeliveryWorkflowLegalFact(NotificationInt notification, Integer recIndex) {
         Set<TimelineElementInternal> timeline = timelineService.getTimeline(notification.getIun());
         
-        List<SendDigitalFeedback> listFeedbackFromExtChannel = timeline.stream()
+        List<SendDigitalFeedbackDetailsInt> listFeedbackFromExtChannel = timeline.stream()
                 .filter(timelineElement -> filterTimelineForTaxId(timelineElement, recIndex))
                 .map(timelineElement -> 
-                   SmartMapper.mapToClass(timelineElement.getDetails(), SendDigitalFeedback.class))
+                   SmartMapper.mapToClass(timelineElement.getDetails(), SendDigitalFeedbackDetailsInt.class))
                 .collect(Collectors.toList());
 
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
@@ -96,7 +99,7 @@ public class CompletionWorkFlowHandler {
     private boolean filterTimelineForTaxId(TimelineElementInternal el, Integer recIndex) {
         boolean availableCategory = TimelineElementCategory.SEND_DIGITAL_FEEDBACK.equals(el.getCategory());
         if (availableCategory) {
-            SendDigitalFeedback details = SmartMapper.mapToClass(el.getDetails(), SendDigitalFeedback.class);
+            SendDigitalFeedbackDetailsInt details = SmartMapper.mapToClass(el.getDetails(), SendDigitalFeedbackDetailsInt.class);
             return recIndex.equals(details.getRecIndex());
         }
         return false;
@@ -109,7 +112,7 @@ public class CompletionWorkFlowHandler {
         //Al termine del workflow digitale se non si è riusciti ad contattare in nessun modo il recipient, viene inviata una raccomanda semplice
 
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
-        PhysicalAddress physicalAddress = recipient.getPhysicalAddress();
+        PhysicalAddressInt physicalAddress = recipient.getPhysicalAddress();
 
         if (physicalAddress != null) {
             log.info("Sending simple registered letter  - iun {} id {}", notification.getIun(), recIndex);
@@ -122,7 +125,7 @@ public class CompletionWorkFlowHandler {
     /**
      * Handle necessary steps to complete analog workflow.
      */
-    public void completionAnalogWorkflow(NotificationInt notification, Integer recIndex, List<LegalFactsId> attachments, Instant notificationDate, PhysicalAddress usedAddress, EndWorkflowStatus status) {
+    public void completionAnalogWorkflow(NotificationInt notification, Integer recIndex, List<LegalFactsIdInt> attachments, Instant notificationDate, PhysicalAddressInt usedAddress, EndWorkflowStatus status) {
         log.info("Analog workflow completed with status {} IUN {} id {}", status, notification.getIun(), recIndex);
         String iun = notification.getIun();
         

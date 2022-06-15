@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 
 public class LegalDigitalAddressMapper {

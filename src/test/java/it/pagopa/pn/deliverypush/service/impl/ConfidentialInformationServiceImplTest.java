@@ -7,8 +7,8 @@ import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.Confiden
 import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDtoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.datavault.PnDataVaultClient;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendPaperDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto. SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetails;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
@@ -186,9 +186,9 @@ class ConfidentialInformationServiceImplTest {
     }
     
     private TimelineElementInternal getSendPaperDetailsTimelineElement(String iun, String elementId) {
-        SendPaperDetails details = SendPaperDetails.builder()
+         SendAnalogDetailsInt details =  SendAnalogDetailsInt.builder()
                 .physicalAddress(
-                        PhysicalAddress.builder()
+                        PhysicalAddressInt.builder()
                                 .province("province")
                                 .municipality("munic")
                                 .at("at")
@@ -198,7 +198,7 @@ class ConfidentialInformationServiceImplTest {
                 .recIndex(0)
                 .sentAttemptMade(0)
                 .build();
-        return TimelineElementInternal.timelineInternalBuilder()
+        return TimelineElementInternal.builder()
                 .elementId(elementId)
                 .iun(iun)
                 .details(SmartMapper.mapToClass(details, TimelineElementDetails.class))

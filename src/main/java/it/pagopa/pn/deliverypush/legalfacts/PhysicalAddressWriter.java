@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -9,7 +9,7 @@ import java.util.List;
 @Component
 public class PhysicalAddressWriter {
 
-    public String nullSafePhysicalAddressToString(PhysicalAddress physicalAddress, String recipientDenomination, String separator ) {
+    public String nullSafePhysicalAddressToString(PhysicalAddressInt physicalAddress, String recipientDenomination, String separator ) {
         String result = null;
 
         if ( recipientDenomination != null && physicalAddress != null) {
@@ -21,7 +21,7 @@ public class PhysicalAddressWriter {
         return result;
     }
 
-    private List<String> toStandardAddressString(String recipientDenomination , PhysicalAddress physicalAddress) {
+    private List<String> toStandardAddressString(String recipientDenomination , PhysicalAddressInt physicalAddress) {
         List<String> standardAddressString = new ArrayList<>();
 
         standardAddressString.add( recipientDenomination );

@@ -4,8 +4,8 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocum
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseStatus;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendDigitalFeedback;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -168,12 +168,12 @@ public class LegalFactGenerator {
     
      */
 
-    public byte[] generatePecDeliveryWorkflowLegalFact(List<SendDigitalFeedback> feedbackFromExtChannelList, NotificationInt notification, NotificationRecipientInt recipient) throws IOException {
+    public byte[] generatePecDeliveryWorkflowLegalFact(List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList, NotificationInt notification, NotificationRecipientInt recipient) throws IOException {
 
         List<PecDeliveryInfo> pecDeliveries = feedbackFromExtChannelList.stream()
                 .map( feedbackFromExtChannel -> {
 
-                    ResponseStatus status = feedbackFromExtChannel.getResponseStatus();
+                    ResponseStatusInt status = feedbackFromExtChannel.getResponseStatus();
                     Instant notificationDate = feedbackFromExtChannel.getNotificationDate();
 
                     return new PecDeliveryInfo(
@@ -182,7 +182,7 @@ public class LegalFactGenerator {
                             feedbackFromExtChannel.getDigitalAddress().getAddress(),
                             notificationDate,
                             instantWriter.instantToDate(notificationDate),
-                            ResponseStatus.OK.equals( status )
+                            ResponseStatusInt.OK.equals( status )
                     );
                 })
                 .sorted( Comparator.comparing( PecDeliveryInfo::getOrderBy ))

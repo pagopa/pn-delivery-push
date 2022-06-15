@@ -97,7 +97,8 @@ public class TimeLineServiceImpl implements TimelineService {
     @Override
     public <T> Optional<T> getTimelineElementDetails(String iun, String timelineId, Class<T> timelineDetailsClass) {
         log.debug("GetTimelineElement - IUN={} and timelineId={}", iun, timelineId);
-
+        
+        //TODO Da cambiare
         Optional<TimelineElementInternal> row = getTimelineElement(iun, timelineId);
         
         if(row.isPresent()){

@@ -1,10 +1,10 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.CourtesyDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.userattributes.UserAttributesClient;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
 import it.pagopa.pn.deliverypush.service.mapper.CourtesyCourtesyDigitalAddressMapper;
 import it.pagopa.pn.deliverypush.service.mapper.LegalLegalDigitalAddressMapper;
@@ -87,7 +87,7 @@ public class AddressBookServiceImpl implements AddressBookService {
     }
 
     @Override
-    public Optional<PhysicalAddress> getResidentialAddress(String taxId, String senderId) {
+    public Optional<PhysicalAddressInt> getResidentialAddress(String taxId, String senderId) {
         log.error("Call to Unsupported method, getResidentialAddress for sendId {} ", senderId);
         throw new UnsupportedOperationException("getResidentialAddress is not supported yet");
     }

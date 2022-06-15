@@ -4,16 +4,16 @@ import it.pagopa.pn.deliverypush.action2.utils.AarUtils;
 import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
 import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.CourtesyDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.AarGenerationDetails;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -38,7 +38,7 @@ public class ExternalChannelSendHandler {
      * Send pec notification to external channel
      * Messaggio con valore legale (PEC)
      */
-    public void sendDigitalNotification(NotificationInt notification, LegalDigitalAddressInt digitalAddress, DigitalAddressSource addressSource, Integer recIndex,
+    public void sendDigitalNotification(NotificationInt notification, LegalDigitalAddressInt digitalAddress, DigitalAddressSourceInt addressSource, Integer recIndex,
                                         int sentAttemptMade) {
         log.debug("Start sendDigitalNotification - iun={} recipientIndex={}", notification.getIun(), recIndex);
 
@@ -73,7 +73,7 @@ public class ExternalChannelSendHandler {
      * to use when all pec send fails
      * Invio di RACCOMANDATA SEMPLICE quando falliscono tutti i tentativi via PEC
      */
-    public void sendNotificationForRegisteredLetter(NotificationInt notification, PhysicalAddress physicalAddress, Integer recIndex) {
+    public void sendNotificationForRegisteredLetter(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex) {
         log.debug("Start sendNotificationForRegisteredLetter - iun={} recipientIndex={}", notification.getIun(), recIndex);
         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
 
@@ -85,7 +85,7 @@ public class ExternalChannelSendHandler {
                             .build()
             );
 
-            AarGenerationDetails aarGenerationDetails = aarUtils.getAarGenerationDetails(notification, recIndex);
+            AarGenerationDetailsInt aarGenerationDetails = aarUtils.getAarGenerationDetails(notification, recIndex);
             
             // la tipologia qui è sempre raccomandata semplice SR
             externalChannel.sendAnalogNotification(
@@ -110,7 +110,7 @@ public class ExternalChannelSendHandler {
      * AR o 890
      *
      */
-    public void sendAnalogNotification(NotificationInt notification, PhysicalAddress physicalAddress, Integer recIndex, boolean investigation, int sentAttemptMade) {
+    public void sendAnalogNotification(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex, boolean investigation, int sentAttemptMade) {
         log.debug("Start sendAnalogNotification - iun {} id {}", notification.getIun(), recIndex);
 
         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
@@ -125,7 +125,7 @@ public class ExternalChannelSendHandler {
                             .build()
             );
 
-            AarGenerationDetails aarGenerationDetails = aarUtils.getAarGenerationDetails(notification, recIndex);
+            AarGenerationDetailsInt aarGenerationDetails = aarUtils.getAarGenerationDetails(notification, recIndex);
 
             // c'è una discrepanza nella nomenclatura tra l'enum serviceleveltype.SIMPLE_REGISTERED_LETTER che si traduce in AR e non SR.
             // Cmq se non è 890, si intende AR.

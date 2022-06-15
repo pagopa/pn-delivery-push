@@ -6,7 +6,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendPaperFeedbackDetails;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ServiceLevel;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -135,7 +135,7 @@ class AnalogWorkflowHandlerTest {
         PublicRegistryResponse response = PublicRegistryResponse.builder()
                 .correlationId("corrId")
                 .physicalAddress(
-                        PhysicalAddress.builder()
+                        PhysicalAddressInt.builder()
                                 .address("test address")
                                 .build()
                 )
@@ -158,18 +158,18 @@ class AnalogWorkflowHandlerTest {
 
         PublicRegistryResponse response = PublicRegistryResponse.builder()
                 .correlationId("corrId")
-                .physicalAddress(PhysicalAddress.builder()
+                .physicalAddress(PhysicalAddressInt.builder()
                         .address("test address 2")
                         .build())
                 .build();
 
-        SendPaperFeedbackDetails details = SendPaperFeedbackDetails.builder()
-                .physicalAddress(PhysicalAddress.builder()
+         SendAnalogFeedbackDetailsInt details =  SendAnalogFeedbackDetailsInt.builder()
+                .physicalAddress(PhysicalAddressInt.builder()
                         .address("test address 2")
                         .build())
                 .sentAttemptMade(0)
                 .serviceLevel(ServiceLevel.SIMPLE_REGISTERED_LETTER)
-                .newAddress(PhysicalAddress.builder()
+                .newAddress(PhysicalAddressInt.builder()
                         .address("test address 3")
                         .build())
                 .errors(null)
@@ -194,13 +194,13 @@ class AnalogWorkflowHandlerTest {
 
         PublicRegistryResponse response = PublicRegistryResponse.builder()
                 .correlationId("corrId")
-                .physicalAddress(PhysicalAddress.builder()
+                .physicalAddress(PhysicalAddressInt.builder()
                         .address("test address 2")
                         .build())
                 .build();
 
-        SendPaperFeedbackDetails details = SendPaperFeedbackDetails.builder()
-                .physicalAddress(PhysicalAddress.builder()
+         SendAnalogFeedbackDetailsInt details =  SendAnalogFeedbackDetailsInt.builder()
+                .physicalAddress(PhysicalAddressInt.builder()
                         .address("test address 2")
                         .build())
                 .sentAttemptMade(0)
@@ -233,8 +233,8 @@ class AnalogWorkflowHandlerTest {
                 .correlationId("corrId")
                 .build();
 
-        SendPaperFeedbackDetails details = SendPaperFeedbackDetails.builder()
-                .physicalAddress(PhysicalAddress.builder()
+         SendAnalogFeedbackDetailsInt details =  SendAnalogFeedbackDetailsInt.builder()
+                .physicalAddress(PhysicalAddressInt.builder()
                         .address("test address 2")
                         .build())
                 .sentAttemptMade(0)
@@ -267,7 +267,7 @@ class AnalogWorkflowHandlerTest {
                                 .taxId("testIdRecipient")
                                 .denomination("Nome Cognome/Ragione Sociale")
                                 .physicalAddress(
-                                        PhysicalAddress.builder()
+                                        PhysicalAddressInt.builder()
                                                 .address("test address")
                                                 .build()
                                 )

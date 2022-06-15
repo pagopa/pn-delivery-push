@@ -1,15 +1,19 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalDetailsInt;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DownstreamId;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetails;
 import org.junit.jupiter.api.Test;
 
 class SmartMapperTest {
     //TODO DA Definire test
     @Test
     void mapToClass() {
-        SendDigitalDetails sendDigitalDetails = SendDigitalDetails.builder()
+        SendDigitalDetailsInt sendDigitalDetails = SendDigitalDetailsInt.builder()
                 .recIndex(0)
-                .digitalAddressSource(DigitalAddressSource.PLATFORM)
+                .digitalAddressSource(DigitalAddressSourceInt.PLATFORM)
                 .digitalAddress(DigitalAddress.builder()
                         .type("PEC")
                         .address("testAddress@gmail.com")
@@ -29,7 +33,7 @@ class SmartMapperTest {
     void mapToClass2() {
         TimelineElementDetails timelineElementDetails = TimelineElementDetails.builder()
                 .recIndex(0)
-                .digitalAddressSource(DigitalAddressSource.PLATFORM)
+                .digitalAddressSource(DigitalAddressSourceInt.PLATFORM)
                 .digitalAddress(DigitalAddress.builder()
                         .type("PEC")
                         .address("testAddress@gmail.com")
@@ -42,7 +46,7 @@ class SmartMapperTest {
                 .investigation(true)
                 .build();
 
-        SendDigitalDetails details = SmartMapper.mapToClass(timelineElementDetails, SendDigitalDetails.class);
+        SendDigitalDetailsInt details = SmartMapper.mapToClass(timelineElementDetails, SendDigitalDetailsInt.class);
         System.out.println("details "+ details);
     }
 }

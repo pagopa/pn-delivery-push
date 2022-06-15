@@ -24,32 +24,32 @@ class StatusUtilsTest {
     void getTimelineHistoryTest() {
 
         // GIVEN a timeline
-        TimelineElementInternal timelineElement1 = TimelineElementInternal.timelineInternalBuilder()
+        TimelineElementInternal timelineElement1 = TimelineElementInternal.builder()
                 .elementId("el1")
                 .timestamp(Instant.parse("2021-09-16T15:24:00.00Z"))
                 .category(TimelineElementCategory.REQUEST_ACCEPTED)
                 .build();
-        TimelineElementInternal timelineElement3 = TimelineElementInternal.timelineInternalBuilder()
+        TimelineElementInternal timelineElement3 = TimelineElementInternal.builder()
                 .elementId("el3")
                 .timestamp((Instant.parse("2021-09-16T15:26:00.00Z")))
                 .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE)
                 .build();
-        TimelineElementInternal timelineElement4 = TimelineElementInternal.timelineInternalBuilder()
+        TimelineElementInternal timelineElement4 = TimelineElementInternal.builder()
                 .elementId("el4")
                 .timestamp((Instant.parse("2021-09-16T15:27:00.00Z")))
                 .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE_FEEDBACK)
                 .build();
-        TimelineElementInternal timelineElement5 = TimelineElementInternal.timelineInternalBuilder()
+        TimelineElementInternal timelineElement5 = TimelineElementInternal.builder()
                 .elementId("el5")
                 .timestamp((Instant.parse("2021-09-16T15:28:00.00Z")))
                 .category(TimelineElementCategory.DIGITAL_SUCCESS_WORKFLOW)
                 .build();
-        TimelineElementInternal timelineElement6 = TimelineElementInternal.timelineInternalBuilder()
+        TimelineElementInternal timelineElement6 = TimelineElementInternal.builder()
                 .elementId("el6")
                 .timestamp((Instant.parse("2021-09-16T17:00:00.00Z")))
                 .category(TimelineElementCategory.NOTIFICATION_VIEWED)
                 .build();
-        TimelineElementInternal timelineElement7 = TimelineElementInternal.timelineInternalBuilder()
+        TimelineElementInternal timelineElement7 = TimelineElementInternal.builder()
                 .elementId("el7")
                 .timestamp((Instant.parse("2021-09-16T17:30:00.00Z")))
                 .category(TimelineElementCategory.PAYMENT)
@@ -134,47 +134,47 @@ class StatusUtilsTest {
     @Test
     void getTimelineHistoryMoreRecipientTest() {
         // GIVEN a timeline
-        TimelineElementInternal timelineElement1 = TimelineElementInternal.timelineInternalBuilder()
+        TimelineElementInternal timelineElement1 = TimelineElementInternal.builder()
                 .elementId("el1")
                 .timestamp((Instant.parse("2021-09-16T15:24:00.00Z")))
                 .category(TimelineElementCategory.REQUEST_ACCEPTED)
                 .build();
-        TimelineElementInternal timelineElement3 = TimelineElementInternal.timelineInternalBuilder()
+        TimelineElementInternal timelineElement3 = TimelineElementInternal.builder()
                 .elementId("el3")
                 .timestamp((Instant.parse("2021-09-16T15:25:00.00Z")))
                 .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE)
                 .build();
-        TimelineElementInternal timelineElement4 = TimelineElementInternal.timelineInternalBuilder()
+        TimelineElementInternal timelineElement4 = TimelineElementInternal.builder()
                 .elementId("el4")
                 .timestamp((Instant.parse("2021-09-16T15:27:00.00Z")))
                 .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE_FEEDBACK)
                 .build();
-        TimelineElementInternal timelineElement5 = TimelineElementInternal.timelineInternalBuilder()
+        TimelineElementInternal timelineElement5 = TimelineElementInternal.builder()
                 .elementId("el5")
                 .timestamp((Instant.parse("2021-09-16T15:28:00.00Z")))
                 .category(TimelineElementCategory.GET_ADDRESS)
                 .build();
-        TimelineElementInternal timelineElement3_1 = TimelineElementInternal.timelineInternalBuilder()
+        TimelineElementInternal timelineElement3_1 = TimelineElementInternal.builder()
                 .elementId("el6")
                 .timestamp((Instant.parse("2021-09-16T15:29:00.00Z")))
                 .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE)
                 .build();
-        TimelineElementInternal timelineElement4_1 = TimelineElementInternal.timelineInternalBuilder()
+        TimelineElementInternal timelineElement4_1 = TimelineElementInternal.builder()
                 .elementId("el7")
                 .timestamp((Instant.parse("2021-09-16T15:30:00.00Z")))
                 .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE_FEEDBACK)
                 .build();
-        TimelineElementInternal timelineElement5_1 = TimelineElementInternal.timelineInternalBuilder()
+        TimelineElementInternal timelineElement5_1 = TimelineElementInternal.builder()
                 .elementId("el8")
                 .timestamp((Instant.parse("2021-09-16T15:31:00.00Z")))
                 .category(TimelineElementCategory.DIGITAL_SUCCESS_WORKFLOW)
                 .build();
-        TimelineElementInternal timelineElement6 = TimelineElementInternal.timelineInternalBuilder()
+        TimelineElementInternal timelineElement6 = TimelineElementInternal.builder()
                 .elementId("el9")
                 .timestamp((Instant.parse("2021-09-16T17:00:00.00Z")))
                 .category(TimelineElementCategory.NOTIFICATION_VIEWED)
                 .build();
-        TimelineElementInternal timelineElement7 = TimelineElementInternal.timelineInternalBuilder()
+        TimelineElementInternal timelineElement7 = TimelineElementInternal.builder()
                 .elementId("el10")
                 .timestamp((Instant.parse("2021-09-16T17:30:00.00Z")))
                 .category(TimelineElementCategory.PAYMENT)
@@ -235,17 +235,17 @@ class StatusUtilsTest {
     @Test
     void getTimelineHistoryErrorTest() {
         // creare TimelineElement
-        TimelineElementInternal timelineElement1 = TimelineElementInternal.timelineInternalBuilder()
+        TimelineElementInternal timelineElement1 = TimelineElementInternal.builder()
                 .elementId("el1")
                 .timestamp((Instant.parse("2021-09-16T15:24:00.00Z")))
                 .category(TimelineElementCategory.REQUEST_ACCEPTED)
                 .build();
-        TimelineElementInternal timelineElement2 = TimelineElementInternal.timelineInternalBuilder()
+        TimelineElementInternal timelineElement2 = TimelineElementInternal.builder()
                 .elementId("el2")
                 .timestamp((Instant.parse("2021-09-16T15:25:00.00Z")))
                 .category(TimelineElementCategory.NOTIFICATION_VIEWED)
                 .build();
-        TimelineElementInternal timelineElement3 = TimelineElementInternal.timelineInternalBuilder()
+        TimelineElementInternal timelineElement3 = TimelineElementInternal.builder()
                 .elementId("el3")
                 .timestamp((Instant.parse("2021-09-16T15:26:00.00Z")))
                 .category(TimelineElementCategory.PAYMENT)

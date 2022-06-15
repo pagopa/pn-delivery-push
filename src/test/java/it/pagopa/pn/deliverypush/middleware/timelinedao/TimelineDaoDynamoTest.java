@@ -3,8 +3,8 @@ package it.pagopa.pn.deliverypush.middleware.timelinedao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationRequestAccepted;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendDigitalDetails;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetails;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
@@ -51,7 +51,7 @@ class TimelineDaoDynamoTest {
         String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
 
         String id1 = "sender_ack";
-        TimelineElementInternal row1 = TimelineElementInternal.timelineInternalBuilder()
+        TimelineElementInternal row1 = TimelineElementInternal.builder()
                 .iun(iun)
                 .elementId(id1)
                 .category(TimelineElementCategory.REQUEST_ACCEPTED)
@@ -59,11 +59,11 @@ class TimelineDaoDynamoTest {
                 .timestamp(Instant.now())
                 .build();
         String id2 = "SendDigitalDetails";
-        TimelineElementInternal row2 = TimelineElementInternal.timelineInternalBuilder()
+        TimelineElementInternal row2 = TimelineElementInternal.builder()
                 .iun(iun)
                 .elementId(id2)
                 .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE)
-                .details(SmartMapper.mapToClass(new SendDigitalDetails(), TimelineElementDetails.class))
+                .details(SmartMapper.mapToClass(new SendDigitalDetailsInt(), TimelineElementDetails.class))
                 .timestamp(Instant.now())
                 .build();
         
@@ -94,7 +94,7 @@ class TimelineDaoDynamoTest {
         String iun = "iun1";
 
         String id1 = "sender_ack";
-        TimelineElementInternal row1 = TimelineElementInternal.timelineInternalBuilder()
+        TimelineElementInternal row1 = TimelineElementInternal.builder()
                 .iun(iun)
                 .elementId(id1)
                 .category(TimelineElementCategory.REQUEST_ACCEPTED)
@@ -102,11 +102,11 @@ class TimelineDaoDynamoTest {
                 .timestamp(Instant.now())
                 .build();
         String id2 = "SendDigitalDetails";
-        TimelineElementInternal row2 = TimelineElementInternal.timelineInternalBuilder()
+        TimelineElementInternal row2 = TimelineElementInternal.builder()
                 .iun(iun)
                 .elementId(id2)
                 .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE)
-                .details(SmartMapper.mapToClass(new SendDigitalDetails(), TimelineElementDetails.class))
+                .details(SmartMapper.mapToClass(new SendDigitalDetailsInt(), TimelineElementDetails.class))
                 .timestamp(Instant.now())
                 .build();
 

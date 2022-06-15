@@ -46,7 +46,7 @@ class ExternalChannelHandlerTest {
         SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();
         singleStatusUpdate.setDigitalLegal(extChannelResponse);
 
-        SendDigitalDetails details = SendDigitalDetails.builder()
+        SendDigitalDetailsInt details = SendDigitalDetailsInt.builder()
                 .recIndex(0)
                 .digitalAddress(
                         DigitalAddress.builder()
@@ -57,7 +57,7 @@ class ExternalChannelHandlerTest {
         TimelineElementDetails genericDetails = SmartMapper.mapToClass(details, TimelineElementDetails.class);
 
         Mockito.when(externalChannelUtils.getExternalChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(TimelineElementInternal.timelineInternalBuilder()
+                .thenReturn(TimelineElementInternal.builder()
                         .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE)
                         .details(genericDetails)
                         .build());
@@ -82,7 +82,7 @@ class ExternalChannelHandlerTest {
         Mockito.when(timelineUtils.getIunFromTimelineId(Mockito.anyString())).thenReturn("iun");
 
         Mockito.when(externalChannelUtils.getExternalChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(TimelineElementInternal.timelineInternalBuilder()
+                .thenReturn(TimelineElementInternal.builder()
                         .category(TimelineElementCategory.SEND_ANALOG_DOMICILE)
                         .build());
 

@@ -3,13 +3,17 @@ package it.pagopa.pn.deliverypush.action2.utils;
 import it.pagopa.pn.api.dto.events.*;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
+import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,26 +38,7 @@ public class ExternalChannelUtils {
         this.notificationUtils = notificationUtils;
     }
 
-    /**
-     * Generate and send pec notification request to external channel
-     */
-    public PnExtChnPecEvent getExtChannelPecEvent(NotificationInt notification, DigitalAddress digitalAddress, DigitalAddressSource addressSource, Integer recIndex,
-                                                  int sentAttemptMade) {
-        String eventId = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
-                EventId.builder()
-                        .iun(notification.getIun())
-                        .recIndex(recIndex)
-                        .source(addressSource)
-                        .index(sentAttemptMade)
-                        .build()
-        );
-        log.info("SendDigitalNotification to external channel - iun {} id {} eventId{}", notification.getIun(), recIndex, eventId);
-        NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
-        
-        return buildSendPecRequest(eventId, notification, recipient, digitalAddress);
-    }
-
-    public void addSendDigitalNotificationToTimeline(NotificationInt notification, LegalDigitalAddressInt digitalAddress, DigitalAddressSource addressSource, Integer recIndex, int sentAttemptMade, String eventId) {
+    public void addSendDigitalNotificationToTimeline(NotificationInt notification, LegalDigitalAddressInt digitalAddress, DigitalAddressSourceInt addressSource, Integer recIndex, int sentAttemptMade, String eventId) {
         addTimelineElement(
                 timelineUtils.buildSendDigitalNotificationTimelineElement(digitalAddress, addressSource, recIndex, notification, sentAttemptMade, eventId),
                 notification
@@ -84,7 +69,7 @@ public class ExternalChannelUtils {
     /**
      * Generate and send simple registered letter notification request to external channel
      */
-    public PnExtChnPaperEvent getExtChannelPaperRequest(NotificationInt notification, PhysicalAddress physicalAddress, Integer recIndex) {
+    public PnExtChnPaperEvent getExtChannelPaperRequest(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex) {
         String eventId = TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())
@@ -107,7 +92,7 @@ public class ExternalChannelUtils {
         );
     }
 
-    public void addSendSimpleRegisteredLetterToTimeline(NotificationInt notification, PhysicalAddress physicalAddress, Integer recIndex, 
+    public void addSendSimpleRegisteredLetterToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex, 
                                                         String eventId, Integer numberOfPages) {
         addTimelineElement(
                 timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification, physicalAddress, eventId, numberOfPages),
@@ -118,7 +103,7 @@ public class ExternalChannelUtils {
     /**
      * Generate and send analog notification request to external channel
      */
-    public PnExtChnPaperEvent getExtChannelPaperRequest(NotificationInt notification, PhysicalAddress physicalAddress, Integer recIndex, boolean investigation, int sentAttemptMade) {
+    public PnExtChnPaperEvent getExtChannelPaperRequest(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex, boolean investigation, int sentAttemptMade) {
         String eventId = TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())
@@ -140,7 +125,7 @@ public class ExternalChannelUtils {
                 physicalAddress);
     }
 
-    public void addSendAnalogNotificationToTimeline(NotificationInt notification, PhysicalAddress physicalAddress, Integer recIndex, boolean investigation,
+    public void addSendAnalogNotificationToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex, boolean investigation,
                                                     int sentAttemptMade, String eventId, Integer numberOfPages) {
         addTimelineElement(
                 timelineUtils.buildSendAnalogNotificationTimelineElement(physicalAddress, recIndex, notification, investigation, sentAttemptMade, eventId, numberOfPages),
@@ -183,7 +168,7 @@ public class ExternalChannelUtils {
             CommunicationType communicationType,
             ServiceLevelTypeInt serviceLevelType,
             boolean investigation,
-            PhysicalAddress address
+            PhysicalAddressInt address
     ) {
         final String accessUrl = getAccessUrl(notification.getIun());
 

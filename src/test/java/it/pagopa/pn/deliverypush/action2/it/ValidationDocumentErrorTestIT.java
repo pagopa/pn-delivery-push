@@ -11,13 +11,13 @@ import it.pagopa.pn.deliverypush.action2.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action2.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action2.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action2.utils.*;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.PnSafeStorageClient;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.*;
@@ -232,7 +232,7 @@ class ValidationDocumentErrorTestIT {
                                 .build())).isPresent());
         
         Mockito.verify(externalChannelMock, Mockito.times(0)).sendLegalNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString());
-        Mockito.verify(externalChannelMock, Mockito.times(0)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddress.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+        Mockito.verify(externalChannelMock, Mockito.times(0)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
     }
 
 

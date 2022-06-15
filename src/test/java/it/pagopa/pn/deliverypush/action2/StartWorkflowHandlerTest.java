@@ -1,11 +1,10 @@
 package it.pagopa.pn.deliverypush.action2;
 
 import it.pagopa.pn.deliverypush.action2.utils.*;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;

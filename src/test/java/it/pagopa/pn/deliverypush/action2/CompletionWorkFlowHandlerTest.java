@@ -7,11 +7,11 @@ import it.pagopa.pn.deliverypush.action2.utils.CompletelyUnreachableUtils;
 import it.pagopa.pn.deliverypush.action2.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
@@ -113,7 +113,7 @@ class CompletionWorkFlowHandlerTest {
         handler.completionDigitalWorkflow(notification, recIndex, notificationDate, recipient.getDigitalDomicile(), EndWorkflowStatus.FAILURE);
 
         //THEN
-        Mockito.verify(externalChannelSendHandler).sendNotificationForRegisteredLetter(Mockito.any(NotificationInt.class), Mockito.any(PhysicalAddress.class), Mockito.anyInt());
+        Mockito.verify(externalChannelSendHandler).sendNotificationForRegisteredLetter(Mockito.any(NotificationInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyInt());
 
         Mockito.verify(timelineUtils).buildFailureDigitalWorkflowTimelineElement(Mockito.any(NotificationInt.class),
                 Mockito.anyInt(), Mockito.anyString());
@@ -144,7 +144,7 @@ class CompletionWorkFlowHandlerTest {
         handler.completionAnalogWorkflow(notification, recIndex, null, notificationDate, recipient.getPhysicalAddress(), EndWorkflowStatus.SUCCESS);
         
         //THEN
-        Mockito.verify(timelineUtils).buildSuccessAnalogWorkflowTimelineElement(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.any(PhysicalAddress.class), Mockito.any());
+        Mockito.verify(timelineUtils).buildSuccessAnalogWorkflowTimelineElement(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.any(PhysicalAddressInt.class), Mockito.any());
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
         Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyInt(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
@@ -196,7 +196,7 @@ class CompletionWorkFlowHandlerTest {
                                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                                         .address("account@dominio.it")
                                         .build())
-                                .physicalAddress(PhysicalAddress.builder()
+                                .physicalAddress(PhysicalAddressInt.builder()
                                         .address("test address")
                                         .build())
                                 .build()

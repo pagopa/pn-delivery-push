@@ -4,9 +4,9 @@ import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action2.utils.PublicRegistryUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
 import it.pagopa.pn.deliverypush.externalclient.publicregistry.PublicRegistry;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ContactPhase;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DeliveryMode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -26,14 +26,14 @@ public class PublicRegistrySendHandler {
     /**
      * Send get request to public registry for get digital address
      **/
-    public void sendRequestForGetDigitalGeneralAddress(NotificationInt notification, Integer recIndex, ContactPhase contactPhase, int sentAttemptMade) {
+    public void sendRequestForGetDigitalGeneralAddress(NotificationInt notification, Integer recIndex, ContactPhaseInt contactPhase, int sentAttemptMade) {
 
-        String correlationId = publicRegistryUtils.generateCorrelationId(notification.getIun(), recIndex, contactPhase, sentAttemptMade, DeliveryMode.DIGITAL);
+        String correlationId = publicRegistryUtils.generateCorrelationId(notification.getIun(), recIndex, contactPhase, sentAttemptMade, DeliveryModeInt.DIGITAL);
         log.info("SendRequestForGetDigitalAddress correlationId {} - iun {} id {}", correlationId, notification.getIun(), recIndex);
         
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         publicRegistry.sendRequestForGetDigitalAddress(recipient.getTaxId(), correlationId);
-        publicRegistryUtils.addPublicRegistryCallToTimeline(notification, recIndex, contactPhase, sentAttemptMade, correlationId, DeliveryMode.DIGITAL);
+        publicRegistryUtils.addPublicRegistryCallToTimeline(notification, recIndex, contactPhase, sentAttemptMade, correlationId, DeliveryModeInt.DIGITAL);
 
         log.debug("End sendRequestForGetAddress correlationId {} - iun {} id {}", correlationId, notification.getIun(), recIndex);
     }
@@ -42,12 +42,12 @@ public class PublicRegistrySendHandler {
      * Send get request to public registry for physical address
      **/
     public void sendRequestForGetPhysicalAddress(NotificationInt notification, Integer recIndex, int sentAttemptMade) {
-        String correlationId = publicRegistryUtils.generateCorrelationId(notification.getIun(), recIndex, ContactPhase.SEND_ATTEMPT, sentAttemptMade, DeliveryMode.ANALOG);
+        String correlationId = publicRegistryUtils.generateCorrelationId(notification.getIun(), recIndex, ContactPhaseInt.SEND_ATTEMPT, sentAttemptMade, DeliveryModeInt.ANALOG);
         log.info("SendRequestForGetPhysicalAddress correlationId {} - iun {} id {}", correlationId, notification.getIun(), recIndex);
         
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         publicRegistry.sendRequestForGetPhysicalAddress(recipient.getTaxId(), correlationId);
-        publicRegistryUtils.addPublicRegistryCallToTimeline(notification, recIndex, ContactPhase.SEND_ATTEMPT, sentAttemptMade, correlationId, DeliveryMode.ANALOG);
+        publicRegistryUtils.addPublicRegistryCallToTimeline(notification, recIndex, ContactPhaseInt.SEND_ATTEMPT, sentAttemptMade, correlationId, DeliveryModeInt.ANALOG);
 
         log.debug("End sendRequestForGetPhysicalAddress correlationId {} - iun {} id {}", correlationId, notification.getIun(), recIndex);
     }

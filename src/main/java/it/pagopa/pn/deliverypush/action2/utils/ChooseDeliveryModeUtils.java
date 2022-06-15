@@ -1,11 +1,11 @@
 package it.pagopa.pn.deliverypush.action2.utils;
 
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendCourtesyMessageDetails;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +34,7 @@ public class ChooseDeliveryModeUtils {
         this.notificationUtils = notificationUtils;
     }
 
-    public void addAvailabilitySourceToTimeline(Integer recIndex, NotificationInt notification, DigitalAddressSource addressSource, boolean isAvailable) {
+    public void addAvailabilitySourceToTimeline(Integer recIndex, NotificationInt notification, DigitalAddressSourceInt addressSource, boolean isAvailable) {
         TimelineElementInternal element = timelineUtils.buildAvailabilitySourceTimelineElement(recIndex, notification, addressSource, isAvailable, ZERO_SENT_ATTEMPT_NUMBER);
         timelineService.addTimelineElement(element, notification);
     }
@@ -44,7 +44,7 @@ public class ChooseDeliveryModeUtils {
         timelineService.addTimelineElement(element, notification);
     }
 
-    public Optional<SendCourtesyMessageDetails> getFirstSentCourtesyMessage(String iun, Integer recIndex) {
+    public Optional<SendCourtesyMessageDetailsInt> getFirstSentCourtesyMessage(String iun, Integer recIndex) {
         return courtesyMessageUtils.getFirstSentCourtesyMessage(iun, recIndex);
     }
 

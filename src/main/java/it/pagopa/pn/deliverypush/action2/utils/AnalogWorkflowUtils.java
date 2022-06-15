@@ -2,10 +2,14 @@ package it.pagopa.pn.deliverypush.action2.utils;
 
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -34,12 +38,12 @@ public class AnalogWorkflowUtils {
      * Get external channel last feedback information from timeline
      ** @return last sent feedback information
      */
-    public SendPaperFeedbackDetails getLastTimelineSentFeedback(String iun, Integer recIndex) {
+    public SendAnalogFeedbackDetailsInt getLastTimelineSentFeedback(String iun, Integer recIndex) {
         Set<TimelineElementInternal> timeline = timelineService.getTimeline(iun);
 
-        Optional<SendPaperFeedbackDetails> sendPaperFeedbackDetailsOpt = timeline.stream()
+        Optional< SendAnalogFeedbackDetailsInt> sendPaperFeedbackDetailsOpt = timeline.stream()
                 .filter(timelineElement -> filterLastAttemptDateInTimeline(timelineElement, recIndex))
-                .map(timelineElement -> SmartMapper.mapToClass(timelineElement.getDetails(), SendPaperFeedbackDetails.class))
+                .map(timelineElement -> SmartMapper.mapToClass(timelineElement.getDetails(),  SendAnalogFeedbackDetailsInt.class))
                 .findFirst();
 
         if (sendPaperFeedbackDetailsOpt.isPresent()) {
@@ -53,13 +57,14 @@ public class AnalogWorkflowUtils {
     private boolean filterLastAttemptDateInTimeline(TimelineElementInternal el, Integer recIndex) {
         boolean availableAddressCategory = TimelineElementCategory.SEND_PAPER_FEEDBACK.equals(el.getCategory());
         if (availableAddressCategory) {
-            SendPaperFeedbackDetails details = SmartMapper.mapToClass(el.getDetails(), SendPaperFeedbackDetails.class);
+             SendAnalogFeedbackDetailsInt details = SmartMapper.mapToClass(el.getDetails(),  SendAnalogFeedbackDetailsInt.class);
             return recIndex.equals(details.getRecIndex());
         }
         return false;
     }
 
-    public void addAnalogFailureAttemptToTimeline(NotificationInt notification, int sentAttemptMade, List<LegalFactsId> attachmentKeys, PhysicalAddress newAddress, List<String> errors, SendPaperDetails sendPaperDetails) {
+    public void addAnalogFailureAttemptToTimeline(NotificationInt notification, int sentAttemptMade, List<LegalFactsIdInt> attachmentKeys,
+                                                  PhysicalAddressInt newAddress, List<String> errors, SendAnalogDetailsInt sendPaperDetails) {
         addTimelineElement( 
                 timelineUtils.buildAnalogFailureAttemptTimelineElement(notification, sentAttemptMade, attachmentKeys, newAddress, errors, sendPaperDetails),
                 notification);
@@ -69,7 +74,7 @@ public class AnalogWorkflowUtils {
         timelineService.addTimelineElement(element, notification);
     }
 
-    public PhysicalAddress getPhysicalAddress(NotificationInt notification, Integer recIndex){
+    public PhysicalAddressInt getPhysicalAddress(NotificationInt notification, Integer recIndex){
         NotificationRecipientInt notificationRecipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         return notificationRecipient.getPhysicalAddress();
     }

@@ -1,11 +1,11 @@
 package it.pagopa.pn.deliverypush.rest;
 
+import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
+import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsId;
 import it.pagopa.pn.deliverypush.service.LegalFactService;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,7 @@ class PnLegalFactsControllerTest {
         List<LegalFactListElement> legalFactsList = Collections.singletonList( LegalFactListElement.builder()
                         .iun( IUN )
                         .taxId( "taxId" )
-                        .legalFactsId( LegalFactsId.builder()
+                        .legalFactsId( LegalFactsIdInt.builder()
                                 .category( LegalFactCategory.SENDER_ACK )
                                 .key( "key" )
                                 .build()
@@ -71,7 +71,7 @@ class PnLegalFactsControllerTest {
         ResponseEntity<Resource> legalFactResult = ResponseEntity.ok()
                 .body( new InputStreamResource( InputStream.nullInputStream()) );
 
-        Mockito.when( legalFactService.getLegalfact( Mockito.anyString(), Mockito.eq(LegalFactCategory.SENDER_ACK), Mockito.anyString() ) )
+        Mockito.when( legalFactService.getLegalfact( Mockito.anyString(), Mockito.eq(LegalFactCategoryInt.SENDER_ACK), Mockito.anyString() ) )
                         .thenReturn( legalFactResult );
 
         String uri = "/delivery-push/legalfacts/" + IUN + "/" + LegalFactCategory.SENDER_ACK + "/" + LEGAL_FACT_ID;

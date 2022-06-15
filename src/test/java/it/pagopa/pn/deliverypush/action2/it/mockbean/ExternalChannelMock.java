@@ -2,12 +2,12 @@ package it.pagopa.pn.deliverypush.action2.it.mockbean;
 
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.*;
 import it.pagopa.pn.deliverypush.action2.ExternalChannelResponseHandler;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.CourtesyDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -72,7 +72,7 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
     }
 
     @Override
-    public void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, PhysicalAddress physicalAddress, String timelineEventId, ANALOG_TYPE analogType, String aarKey) {
+    public void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, PhysicalAddressInt physicalAddress, String timelineEventId, ANALOG_TYPE analogType, String aarKey) {
         log.info("sendAnalogNotification address:{} recipient:{} requestId:{} aarkey:{}", physicalAddress.getAddress(), recipientInt.getDenomination(), timelineEventId, aarKey);
 
         new Thread(() -> {
@@ -132,11 +132,11 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
         externalChannelHandler.extChannelResponseReceiver(singleStatusUpdate);
     }
 
-    private void simulateExternalChannelAnalogResponse(NotificationInt notificationInt, PhysicalAddress physicalAddress, String timelineEventId) {
+    private void simulateExternalChannelAnalogResponse(NotificationInt notificationInt, PhysicalAddressInt physicalAddress, String timelineEventId) {
         String status;
         String newAddress;
 
-        PhysicalAddress destinationAddress = physicalAddress;
+        PhysicalAddressInt destinationAddress = physicalAddress;
         String street = destinationAddress.getAddress();
 
         Matcher matcher = NEW_ADDRESS_INPUT_PATTERN.matcher(street);

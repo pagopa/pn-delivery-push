@@ -5,12 +5,15 @@ import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action2.utils.ChooseDeliveryModeUtils;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ContactPhase;
+import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendCourtesyMessageDetails;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -73,8 +76,8 @@ class ChooseDeliveryModeHandlerTest {
 
 
         Mockito.when(chooseDeliveryUtils.getPlatformAddress(Mockito.any(NotificationInt.class), Mockito.anyInt()))
-                .thenReturn(Optional.of(LegalDigitalAddressInt.builder()
-                        .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                .thenReturn(Optional.of(DigitalAddressInt.builder()
+                        .type(DigitalAddressInt.DigitalAddressType.PEC)
                         .address("Via di test")
                         .build()));
 
@@ -82,18 +85,18 @@ class ChooseDeliveryModeHandlerTest {
         handler.chooseDeliveryTypeAndStartWorkflow(notification, recIndex);
 
         //THEN
-        ArgumentCaptor<DigitalAddressSource> digitalAddressSourceCaptor = ArgumentCaptor.forClass(DigitalAddressSource.class);
+        ArgumentCaptor<DigitalAddressSource> digitalAddressSourceCaptor = ArgumentCaptor.forClass(DigitalAddressSourceInt.class);
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);
 
         Mockito.verify(externalChannelSendHandler).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class),
                 digitalAddressSourceCaptor.capture(), Mockito.anyInt(), Mockito.anyInt());
-        Assertions.assertEquals(DigitalAddressSource.PLATFORM, digitalAddressSourceCaptor.getValue());
+        Assertions.assertEquals(DigitalAddressSourceInt.PLATFORM, digitalAddressSourceCaptor.getValue());
 
         Mockito.verify(chooseDeliveryUtils).addAvailabilitySourceToTimeline(Mockito.anyInt(), Mockito.any(NotificationInt.class),
                 digitalAddressSourceCaptor.capture(), isAvailableCaptor.capture());
 
         Assertions.assertTrue(isAvailableCaptor.getValue());
-        Assertions.assertEquals(DigitalAddressSource.PLATFORM, digitalAddressSourceCaptor.getValue());
+        Assertions.assertEquals(DigitalAddressSourceInt.PLATFORM, digitalAddressSourceCaptor.getValue());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -113,7 +116,7 @@ class ChooseDeliveryModeHandlerTest {
         handler.chooseDeliveryTypeAndStartWorkflow(notification, recIndex);
 
         //THEN
-        ArgumentCaptor<DigitalAddressSource> digitalAddressSourceCaptor = ArgumentCaptor.forClass(DigitalAddressSource.class);
+        ArgumentCaptor<DigitalAddressSource> digitalAddressSourceCaptor = ArgumentCaptor.forClass(DigitalAddressSourceInt.class);
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);
 
         //Viene verificato che il metodo è stato chiamato 2 volte
@@ -124,17 +127,17 @@ class ChooseDeliveryModeHandlerTest {
         List<Boolean> listIsAvailableCaptorValues = isAvailableCaptor.getAllValues();
 
         //Vengono verificati i valori per la prima invocazione
-        Assertions.assertEquals(DigitalAddressSource.PLATFORM, listDigitalAddressSourceCaptorValues.get(0));
+        Assertions.assertEquals(DigitalAddressSourceInt.PLATFORM, listDigitalAddressSourceCaptorValues.get(0));
         Assertions.assertFalse(listIsAvailableCaptorValues.get(0));
 
         //Vengono verificati i valori per la seconda invocazione
-        Assertions.assertEquals(DigitalAddressSource.SPECIAL, listDigitalAddressSourceCaptorValues.get(1));
+        Assertions.assertEquals(DigitalAddressSourceInt.SPECIAL, listDigitalAddressSourceCaptorValues.get(1));
         Assertions.assertTrue(listIsAvailableCaptorValues.get(1));
 
         Mockito.verify(externalChannelSendHandler).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class),
                 digitalAddressSourceCaptor.capture(), Mockito.anyInt(), Mockito.anyInt());
 
-        Assertions.assertEquals(DigitalAddressSource.SPECIAL, digitalAddressSourceCaptor.getValue());
+        Assertions.assertEquals(DigitalAddressSourceInt.SPECIAL, digitalAddressSourceCaptor.getValue());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -152,7 +155,7 @@ class ChooseDeliveryModeHandlerTest {
         handler.chooseDeliveryTypeAndStartWorkflow(notification, recIndex);
 
         //THEN
-        ArgumentCaptor<DigitalAddressSource> digitalAddressSourceCaptor = ArgumentCaptor.forClass(DigitalAddressSource.class);
+        ArgumentCaptor<DigitalAddressSource> digitalAddressSourceCaptor = ArgumentCaptor.forClass(DigitalAddressSourceInt.class);
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);
 
         //Viene verificato che il metodo è stato chiamato 2 volte
@@ -163,15 +166,15 @@ class ChooseDeliveryModeHandlerTest {
         List<Boolean> listIsAvailableCaptorValues = isAvailableCaptor.getAllValues();
 
         //Vengono verificati i valori per la prima invocazione
-        Assertions.assertEquals(DigitalAddressSource.PLATFORM, listDigitalAddressSourceCaptorValues.get(0));
+        Assertions.assertEquals(DigitalAddressSourceInt.PLATFORM, listDigitalAddressSourceCaptorValues.get(0));
         Assertions.assertFalse(listIsAvailableCaptorValues.get(0));
 
         //Vengono verificati i valori per la seconda invocazione
-        Assertions.assertEquals(DigitalAddressSource.SPECIAL, listDigitalAddressSourceCaptorValues.get(1));
+        Assertions.assertEquals(DigitalAddressSourceInt.SPECIAL, listDigitalAddressSourceCaptorValues.get(1));
         Assertions.assertFalse(listIsAvailableCaptorValues.get(1));
 
         Mockito.verify(publicRegistrySendHandler).sendRequestForGetDigitalGeneralAddress(Mockito.any(NotificationInt.class), Mockito.anyInt(),
-                Mockito.any(ContactPhase.class), Mockito.anyInt());
+                Mockito.any(ContactPhaseInt.class), Mockito.anyInt());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -192,18 +195,18 @@ class ChooseDeliveryModeHandlerTest {
         handler.handleGeneralAddressResponse(response, notification, recIndex);
 
         //THEN
-        ArgumentCaptor<DigitalAddressSource> digitalAddressSourceCaptor = ArgumentCaptor.forClass(DigitalAddressSource.class);
+        ArgumentCaptor<DigitalAddressSource> digitalAddressSourceCaptor = ArgumentCaptor.forClass(DigitalAddressSourceInt.class);
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);
 
         Mockito.verify(externalChannelSendHandler).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class),
                 digitalAddressSourceCaptor.capture(), Mockito.anyInt(), Mockito.anyInt());
-        Assertions.assertEquals(DigitalAddressSource.GENERAL, digitalAddressSourceCaptor.getValue());
+        Assertions.assertEquals(DigitalAddressSourceInt.GENERAL, digitalAddressSourceCaptor.getValue());
 
         Mockito.verify(chooseDeliveryUtils).addAvailabilitySourceToTimeline(Mockito.anyInt(), Mockito.any(NotificationInt.class),
                 digitalAddressSourceCaptor.capture(), isAvailableCaptor.capture());
 
         Assertions.assertTrue(isAvailableCaptor.getValue());
-        Assertions.assertEquals(DigitalAddressSource.GENERAL, digitalAddressSourceCaptor.getValue());
+        Assertions.assertEquals(DigitalAddressSourceInt.GENERAL, digitalAddressSourceCaptor.getValue());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -218,7 +221,7 @@ class ChooseDeliveryModeHandlerTest {
                 .digitalAddress(null).build();
 
         Instant courtesyMessageDate = Instant.now();
-        SendCourtesyMessageDetails sendCourtesyMessageDetails = SendCourtesyMessageDetails.builder()
+        SendCourtesyMessageDetailsInt sendCourtesyMessageDetails = SendCourtesyMessageDetailsInt.builder()
                 .sendDate(courtesyMessageDate)
                 .build();
 
@@ -233,14 +236,14 @@ class ChooseDeliveryModeHandlerTest {
         handler.handleGeneralAddressResponse(response, notification, recIndex);
 
         //THEN
-        ArgumentCaptor<DigitalAddressSource> digitalAddressSourceCaptor = ArgumentCaptor.forClass(DigitalAddressSource.class);
+        ArgumentCaptor<DigitalAddressSource> digitalAddressSourceCaptor = ArgumentCaptor.forClass(DigitalAddressSourceInt.class);
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);
 
         Mockito.verify(chooseDeliveryUtils).addAvailabilitySourceToTimeline(Mockito.anyInt(), Mockito.any(NotificationInt.class),
                 digitalAddressSourceCaptor.capture(), isAvailableCaptor.capture());
 
         Assertions.assertFalse(isAvailableCaptor.getValue());
-        Assertions.assertEquals(DigitalAddressSource.GENERAL, digitalAddressSourceCaptor.getValue());
+        Assertions.assertEquals(DigitalAddressSourceInt.GENERAL, digitalAddressSourceCaptor.getValue());
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
 
@@ -268,14 +271,14 @@ class ChooseDeliveryModeHandlerTest {
         handler.handleGeneralAddressResponse(response, notification, recIndex);
 
         //THEN
-        ArgumentCaptor<DigitalAddressSource> digitalAddressSourceCaptor = ArgumentCaptor.forClass(DigitalAddressSource.class);
+        ArgumentCaptor<DigitalAddressSource> digitalAddressSourceCaptor = ArgumentCaptor.forClass(DigitalAddressSourceInt.class);
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);
 
         Mockito.verify(chooseDeliveryUtils).addAvailabilitySourceToTimeline(Mockito.anyInt(), Mockito.any(NotificationInt.class),
                 digitalAddressSourceCaptor.capture(), isAvailableCaptor.capture());
 
         Assertions.assertFalse(isAvailableCaptor.getValue());
-        Assertions.assertEquals(DigitalAddressSource.GENERAL, digitalAddressSourceCaptor.getValue());
+        Assertions.assertEquals(DigitalAddressSourceInt.GENERAL, digitalAddressSourceCaptor.getValue());
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
 

@@ -1,9 +1,8 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.CourtesyDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.userattributes.UserAttributesClient;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
 import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.CourtesyChannelType;
 import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.CourtesyDigitalAddress;

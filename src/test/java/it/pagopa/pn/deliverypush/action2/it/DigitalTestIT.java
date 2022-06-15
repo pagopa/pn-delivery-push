@@ -1,9 +1,6 @@
 package it.pagopa.pn.deliverypush.action2.it;
 
-import it.pagopa.pn.api.dto.events.PnExtChnPaperEvent;
-import it.pagopa.pn.api.dto.events.PnExtChnPecEvent;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.ConfidentialTimelineElementDto;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
@@ -16,21 +13,16 @@ import it.pagopa.pn.deliverypush.action2.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action2.it.utils.PhysicalAddressBuilder;
 import it.pagopa.pn.deliverypush.action2.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action2.utils.*;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.CourtesyDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.PnSafeStorageClient;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.legalfacts.LegalfactsMetadataUtils;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.*;
@@ -291,13 +283,13 @@ class DigitalTestIT {
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         //Viene verificata la disponibilità degli indirizzi per il secondo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
 
 
         //Viene verificato il numero di send PEC verso external channel
@@ -325,7 +317,7 @@ class DigitalTestIT {
         TestUtils.checkFailDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow);
 
         //Viene verificato il mancato invio della registered letter, dal momento che non è presente la notifica è stata già visualizzata
-        Mockito.verify(externalChannelMock, Mockito.never()).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddress.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+        Mockito.verify(externalChannelMock, Mockito.never()).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
 
         //Viene verificato che sia avvenuto il perfezionamento
         TestUtils.checkRefinement(iun, recIndex, timelineService);
@@ -386,13 +378,13 @@ class DigitalTestIT {
         );
 
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         //Viene verificata la disponibilità degli indirizzi per il secondo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
@@ -420,11 +412,11 @@ class DigitalTestIT {
         TestUtils.checkFailDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow);
 
         //Viene verificato l'invio della registered letter
-        ArgumentCaptor<PhysicalAddress> pnPhysicalAddressArgumentCaptor = ArgumentCaptor.forClass(PhysicalAddress.class);
+        ArgumentCaptor<PhysicalAddressInt> pnPhysicalAddressArgumentCaptor = ArgumentCaptor.forClass(PhysicalAddressInt.class);
         ArgumentCaptor<NotificationInt> pnNotificationIntArgumentCaptor = ArgumentCaptor.forClass(NotificationInt.class);
 
         Mockito.verify(externalChannelMock).sendAnalogNotification(pnNotificationIntArgumentCaptor.capture(), Mockito.any(NotificationRecipientInt.class), pnPhysicalAddressArgumentCaptor.capture(), Mockito.anyString(), Mockito.any(), Mockito.anyString());
-        PhysicalAddress physicalAddress = pnPhysicalAddressArgumentCaptor.getValue();
+        PhysicalAddressInt physicalAddress = pnPhysicalAddressArgumentCaptor.getValue();
         NotificationInt notificationInt = pnNotificationIntArgumentCaptor.getValue();
 
         Assertions.assertEquals(iun, notificationInt.getIun());
@@ -485,13 +477,13 @@ class DigitalTestIT {
         );
 
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         //Viene verificata la disponibilità degli indirizzi per il secondo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
@@ -519,7 +511,7 @@ class DigitalTestIT {
         TestUtils.checkFailDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow);
 
         //Viene verificato il mancato invio della registered letter, dal momento che non è presente il physicalAddress per il recipient
-        Mockito.verify(externalChannelMock, Mockito.never()).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddress.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+        Mockito.verify(externalChannelMock, Mockito.never()).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
 
         //Viene verificato che sia avvenuto il perfezionamento
         TestUtils.checkRefinement(iun, recIndex, timelineService);
@@ -563,9 +555,9 @@ class DigitalTestIT {
         );
 
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
@@ -621,8 +613,8 @@ class DigitalTestIT {
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
@@ -690,9 +682,9 @@ class DigitalTestIT {
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
@@ -751,7 +743,7 @@ class DigitalTestIT {
         );
         
         //Viene verificata la presenza dell'indirizzo di piattaforma
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         //Viene verificato che sia stata effettuata una sola chiamata ad external channel
         Mockito.verify(externalChannelMock, Mockito.times(1)).sendLegalNotification(Mockito.any(NotificationInt.class), Mockito.any(), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString());
 
@@ -805,8 +797,8 @@ class DigitalTestIT {
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
@@ -878,13 +870,13 @@ class DigitalTestIT {
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         //Viene verificata la disponibilità degli indirizzi per il secondo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
@@ -964,11 +956,11 @@ class DigitalTestIT {
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         //Viene verificata la disponibilità degli indirizzi per il secondo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
@@ -1044,12 +1036,12 @@ class DigitalTestIT {
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         //Viene verificata la disponibilità degli indirizzi per il secondo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
@@ -1153,14 +1145,14 @@ class DigitalTestIT {
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo per il primo recipient
-        TestUtils.checkGetAddress(iun, recIndex1, true, DigitalAddressSource.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex2, true, DigitalAddressSource.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex1, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex2, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato per il primo recipient che il primo tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSendFromTimeline( iun, recIndex1, 0, platformAddress1, DigitalAddressSource.PLATFORM,  timelineService );
+        TestUtils.checkExternalChannelPecSendFromTimeline( iun, recIndex1, 0, platformAddress1, DigitalAddressSourceInt.PLATFORM,  timelineService );
         
         //Viene verificato per il primo recipient che il secondo tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSendFromTimeline( iun, recIndex1, 0, digitalDomicile1, DigitalAddressSource.SPECIAL, timelineService );
+        TestUtils.checkExternalChannelPecSendFromTimeline( iun, recIndex1, 0, digitalDomicile1, DigitalAddressSourceInt.SPECIAL, timelineService );
         
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);

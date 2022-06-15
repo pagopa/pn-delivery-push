@@ -24,7 +24,7 @@ public class EntityToDtoTimelineMapper {
     }
     
     public TimelineElementInternal entityToDto(TimelineElementEntity entity ) {
-        return TimelineElementInternal.timelineInternalBuilder()
+        return TimelineElementInternal.builder()
                 .iun(entity.getIun())
                 .elementId( entity.getTimelineElementId() )
                 .category( entity.getCategory() != null ? TimelineElementCategory.valueOf(entity.getCategory().getValue()) : null )
@@ -34,8 +34,8 @@ public class EntityToDtoTimelineMapper {
                 .build();
     }
 
-    private List<LegalFactsId> convertLegalFactsFromEntity(List<LegalFactsIdEntity>  entity ) {
-        List<LegalFactsId> legalFactsIds = null;
+    private List<LegalFactsIdInt> convertLegalFactsFromEntity(List<LegalFactsIdEntity>  entity ) {
+        List<LegalFactsIdInt> legalFactsIds = null;
         
         if (entity != null){
             legalFactsIds = entity.stream().map( this::mapOneLegalFact ).collect(Collectors.toList());
@@ -44,11 +44,11 @@ public class EntityToDtoTimelineMapper {
         return legalFactsIds;
     }
 
-    private LegalFactsId mapOneLegalFact(LegalFactsIdEntity legalFactsIdEntity) {
+    private LegalFactsIdInt mapOneLegalFact(LegalFactsIdEntity legalFactsIdEntity) {
         String legalFactCategoryName = legalFactsIdEntity.getCategory().getValue();
-        return  new LegalFactsId()
+        return  new LegalFactsIdInt()
                 .key(legalFactsIdEntity.getKey())
-                .category( LegalFactCategory.valueOf( legalFactCategoryName ) );
+                .category( LegalFactCategoryInt.valueOf( legalFactCategoryName ) );
     }
 
     private TimelineElementDetails parseDetailsFromEntity(TimelineElementDetailsEntity entity) {

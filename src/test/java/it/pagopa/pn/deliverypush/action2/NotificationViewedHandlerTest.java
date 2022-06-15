@@ -3,7 +3,7 @@ package it.pagopa.pn.deliverypush.action2;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;

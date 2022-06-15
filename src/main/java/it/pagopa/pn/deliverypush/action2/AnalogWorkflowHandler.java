@@ -7,10 +7,15 @@ import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action2.utils.AnalogWorkflowUtils;
 import it.pagopa.pn.deliverypush.action2.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action2.utils.InstantNowSupplier;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
+import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -32,9 +37,13 @@ public class AnalogWorkflowHandler {
     private final InstantNowSupplier instantNowSupplier;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     
-    public AnalogWorkflowHandler(NotificationService notificationService, ExternalChannelSendHandler externalChannelSendHandler,
-                                 CompletionWorkFlowHandler completionWorkFlow, AnalogWorkflowUtils analogWorkflowUtils,
-                                 PublicRegistrySendHandler publicRegistrySendHandler, InstantNowSupplier instantNowSupplier, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
+    public AnalogWorkflowHandler(NotificationService notificationService,
+                                 ExternalChannelSendHandler externalChannelSendHandler,
+                                 CompletionWorkFlowHandler completionWorkFlow,
+                                 AnalogWorkflowUtils analogWorkflowUtils,
+                                 PublicRegistrySendHandler publicRegistrySendHandler,
+                                 InstantNowSupplier instantNowSupplier, 
+                                 PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         this.notificationService = notificationService;
         this.externalChannelSendHandler = externalChannelSendHandler;
         this.completionWorkFlow = completionWorkFlow;
@@ -62,7 +71,7 @@ public class AnalogWorkflowHandler {
             case 0:
                 log.info("Handle first send attempt - iun={} id={}", iun, recIndex);
 
-                PhysicalAddress paProvidedAddress = analogWorkflowUtils.getPhysicalAddress(notification, recIndex);
+                PhysicalAddressInt paProvidedAddress = analogWorkflowUtils.getPhysicalAddress(notification, recIndex);
 
                 if (paProvidedAddress != null) {
                     log.info("Start send notification with Pa address - iun={} id={}", iun, recIndex);
@@ -119,13 +128,13 @@ public class AnalogWorkflowHandler {
         log.info("Start publicRegistrySecondSendResponse  - iun={} id={}", iun, recIndex);
 
         //Vengono ottenute le informazioni del primo invio effettuato tramite external channel dalla timeline
-        SendPaperFeedbackDetails lastSentFeedback = analogWorkflowUtils.getLastTimelineSentFeedback(iun, recIndex);
+         SendAnalogFeedbackDetailsInt lastSentFeedback = analogWorkflowUtils.getLastTimelineSentFeedback(iun, recIndex);
         log.debug("getLastTimelineSentFeedback completed  - iun={} id={}", iun, recIndex);
 
         //Se l'indirizzo fornito da public registry è presente ...
         if (response.getPhysicalAddress() != null) {
 
-            PhysicalAddress lastUsedAddress = lastSentFeedback.getPhysicalAddress();
+            PhysicalAddressInt lastUsedAddress = lastSentFeedback.getPhysicalAddress();
 
             //... e risulta diverso da quello utilizzato nel primo tentativo, viene inviata seconda notifica ad external channel con questo indirizzo
             if (!response.getPhysicalAddress().equals(lastUsedAddress)) {
@@ -143,13 +152,13 @@ public class AnalogWorkflowHandler {
         }
     }
 
-    private void checkInvestigationAddressAndSend(NotificationInt notification, Integer recIndex, int sentAttemptMade, PhysicalAddress newAddress) {
+    private void checkInvestigationAddressAndSend(NotificationInt notification, Integer recIndex, int sentAttemptMade, PhysicalAddressInt newAddress) {
         log.info("Check address from investigation");
         //Se l'investigation address ricevuto è presente viene effettuato l'invio, tale invio non prevede un ulteriore investigazione (investigation = false)
         checkAddressAndSend(notification, recIndex, newAddress, false, sentAttemptMade);
     }
 
-    private void checkAddressAndSend(NotificationInt notification, Integer recIndex, PhysicalAddress address, boolean investigation, int sentAttemptMade) {
+    private void checkAddressAndSend(NotificationInt notification, Integer recIndex, PhysicalAddressInt address, boolean investigation, int sentAttemptMade) {
         //Se l'indirizzo passato è valorizzato viene inviata la notifica ad externalChannel...
         if (address != null) {
             log.info("Have a valid address, send notification to external channel  - iun={} id={}", notification.getIun(), recIndex);
@@ -162,18 +171,18 @@ public class AnalogWorkflowHandler {
     }
 
     public void extChannelResponseHandler(PaperProgressStatusEvent response, TimelineElementInternal notificationTimelineElement) {
-        SendPaperDetails sendPaperDetails = SmartMapper.mapToClass(notificationTimelineElement.getDetails(), SendPaperDetails.class);
+         SendAnalogDetailsInt sendPaperDetails = SmartMapper.mapToClass(notificationTimelineElement.getDetails(),  SendAnalogDetailsInt.class);
 
         String iun = response.getIun();
         NotificationInt notification = notificationService.getNotificationByIun(iun);
         Integer recIndex = sendPaperDetails.getRecIndex();
-        ResponseStatus status = mapPaperStatusInResponseStatus(response.getStatusCode());
-        List<LegalFactsId> legalFactsListEntryIds;
+        ResponseStatusInt status = mapPaperStatusInResponseStatus(response.getStatusCode());
+        List<LegalFactsIdInt> legalFactsListEntryIds;
         if ( response.getAttachments() != null ) {
             legalFactsListEntryIds = response.getAttachments().stream()
-                    .map( k -> LegalFactsId.builder()
+                    .map( k -> LegalFactsIdInt.builder()
                             .key( k.getUrl() )
-                            .category( LegalFactCategory.ANALOG_DELIVERY )
+                            .category( LegalFactCategoryInt.ANALOG_DELIVERY )
                             .build()
                     ).collect(Collectors.toList());
         } else {
@@ -191,11 +200,11 @@ public class AnalogWorkflowHandler {
                 case KO:
                     // External channel non è riuscito a effettuare la notificazione, si passa al prossimo step del workflow
                     int sentAttemptMade = sendPaperDetails.getSentAttemptMade() + 1;
-                    PhysicalAddress newPhysicalAddress = null;
+                    PhysicalAddressInt newPhysicalAddress = null;
                     if (response.getDiscoveredAddress() != null)
                     {
                         DiscoveredAddress rawAddress = response.getDiscoveredAddress();
-                        newPhysicalAddress = PhysicalAddress.builder()
+                        newPhysicalAddress = PhysicalAddressInt.builder()
                                 .address(rawAddress.getAddress())
                                 .addressDetails(rawAddress.getAddressRow2())
                                 .municipality(rawAddress.getCity())
@@ -220,7 +229,7 @@ public class AnalogWorkflowHandler {
         log.error("Specified response={} is not final  - iun={} id={}", event.getStatusCode(), iun, recIndex);
     }
 
-    private ResponseStatus mapPaperStatusInResponseStatus(String paperStatus)
+    private ResponseStatusInt mapPaperStatusInResponseStatus(String paperStatus)
     {
         /* Codifica sintetica dello stato dell'esito._  <br/>
                 - __001__ Stampato  <br/>
@@ -240,10 +249,10 @@ public class AnalogWorkflowHandler {
             return null;
         }
         if (this.pnDeliveryPushConfigs.getExternalChannel().getAnalogCodesSuccess().contains(paperStatus)){
-            return ResponseStatus.OK;
+            return ResponseStatusInt.OK;
         }
         if (this.pnDeliveryPushConfigs.getExternalChannel().getAnalogCodesFail().contains(paperStatus)){
-            return  ResponseStatus.KO;
+            return  ResponseStatusInt.KO;
         }
 
         throw new PnInternalException("Invalid received paper status:" + paperStatus);

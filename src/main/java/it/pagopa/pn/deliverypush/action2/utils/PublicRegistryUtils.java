@@ -6,9 +6,9 @@ import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ContactPhase;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DeliveryMode;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PublicRegistryCallDetails;
+import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.PublicRegistryCallDetailsInt;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -27,7 +27,7 @@ public class PublicRegistryUtils {
         this.timelineUtils = timelineUtils;
     }
 
-    public String generateCorrelationId(String iun, Integer recIndex, ContactPhase contactPhase, int sentAttemptMade, DeliveryMode deliveryMode) {
+    public String generateCorrelationId(String iun, Integer recIndex, ContactPhaseInt contactPhase, int sentAttemptMade, DeliveryModeInt deliveryMode) {
         return TimelineEventId.PUBLIC_REGISTRY_CALL.buildEventId(
                 EventId.builder()
                         .iun(iun)
@@ -38,16 +38,17 @@ public class PublicRegistryUtils {
                         .build());
     }
 
-    public void addPublicRegistryCallToTimeline(NotificationInt notification, Integer recIndex, ContactPhase contactPhase, int sentAttemptMade, String correlationId, DeliveryMode digital) {
+    public void addPublicRegistryCallToTimeline(NotificationInt notification, Integer recIndex, ContactPhaseInt contactPhase, 
+                                                int sentAttemptMade, String correlationId, DeliveryModeInt digital) {
         addTimelineElement( 
                 timelineUtils.buildPublicRegistryCallTimelineElement(notification, recIndex, correlationId, digital, contactPhase, sentAttemptMade), 
                 notification
         );
     }
 
-    public PublicRegistryCallDetails getPublicRegistryCallDetail(String iun, String correlationId) {
+    public PublicRegistryCallDetailsInt getPublicRegistryCallDetail(String iun, String correlationId) {
         //Viene ottenuto l'oggetto di timeline creato in fase d'invio notifica al public registry
-        Optional<PublicRegistryCallDetails> optTimeLinePublicRegistrySend = timelineService.getTimelineElementDetails(iun, correlationId, PublicRegistryCallDetails.class);
+        Optional<PublicRegistryCallDetailsInt> optTimeLinePublicRegistrySend = timelineService.getTimelineElementDetails(iun, correlationId, PublicRegistryCallDetailsInt.class);
 
         if (optTimeLinePublicRegistrySend.isPresent()) {
             return optTimeLinePublicRegistrySend.get();

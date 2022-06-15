@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.action2.it.mockbean;
 
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.CourtesyDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.userattributes.UserAttributesClient;
 import it.pagopa.pn.deliverypush.service.mapper.CourtesyCourtesyDigitalAddressMapper;
 import it.pagopa.pn.deliverypush.service.mapper.LegalLegalDigitalAddressMapper;

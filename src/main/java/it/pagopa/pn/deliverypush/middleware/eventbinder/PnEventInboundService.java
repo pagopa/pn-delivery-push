@@ -7,15 +7,14 @@ package it.pagopa.pn.deliverypush.middleware.eventbinder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.pagopa.pn.api.dto.events.*;
+import it.pagopa.pn.api.dto.events.PnDeliveryNewNotificationEvent;
+import it.pagopa.pn.api.dto.events.PnDeliveryNotificationViewedEvent;
+import it.pagopa.pn.api.dto.events.StandardEventHeader;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.SingleStatusUpdate;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.ActionEventType;
 import it.pagopa.pn.deliverypush.action2.*;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.function.context.MessageRoutingCallback;
@@ -26,7 +25,6 @@ import org.springframework.messaging.MessageHeaders;
 import org.springframework.util.StringUtils;
 
 import java.time.Instant;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;

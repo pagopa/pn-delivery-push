@@ -44,7 +44,7 @@ public class StatusUtils {
     ) {
         //La timeline ricevuta in ingresso è relativa a tutta la notifica e non al singolo recipient
         List<TimelineElementInternal> timelineByTimestampSorted = timelineElementList.stream()
-                .sorted(Comparator.comparing(TimelineElement::getTimestamp))
+                .sorted(Comparator.comparing(TimelineElementInternal::getTimestamp))
                 .collect(Collectors.toList());
     
         List<NotificationStatusHistoryElement> timelineHistory = new ArrayList<>();

@@ -10,7 +10,7 @@ import it.pagopa.pn.deliverypush.action2.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action2.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action2.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action2.utils.*;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;

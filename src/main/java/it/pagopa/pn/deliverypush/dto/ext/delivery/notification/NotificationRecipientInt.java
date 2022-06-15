@@ -1,7 +1,8 @@
 package it.pagopa.pn.deliverypush.dto.ext.delivery.notification;
 
 
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import lombok.*;
 
 @NoArgsConstructor
@@ -14,6 +15,6 @@ public class NotificationRecipientInt {
     private String taxId;
     private String denomination;
     private LegalDigitalAddressInt digitalDomicile;
-    private PhysicalAddress physicalAddress;
+    private PhysicalAddressInt physicalAddress;
     private NotificationPaymentInfoInt payment;
 }

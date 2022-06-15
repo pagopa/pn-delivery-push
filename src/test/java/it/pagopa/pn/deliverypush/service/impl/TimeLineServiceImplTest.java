@@ -133,7 +133,7 @@ class TimeLineServiceImplTest {
                 .thenReturn(Optional.of(confidentialTimelineElementDtoInt));
 
         //WHEN
-        Optional<SendDigitalDetails> detailsOpt = timeLineService.getTimelineElementDetails(iun, timelineId, SendDigitalDetails.class);
+        Optional<SendDigitalDetailsInt> detailsOpt = timeLineService.getTimelineElementDetails(iun, timelineId, SendDigitalDetailsInt.class);
 
         //THEN
         Assertions.assertTrue(detailsOpt.isPresent());
@@ -152,7 +152,7 @@ class TimeLineServiceImplTest {
                 .thenReturn(Optional.empty());
 
         //WHEN
-        Optional<SendDigitalDetails> detailsOpt = timeLineService.getTimelineElementDetails(iun, timelineId, SendDigitalDetails.class);
+        Optional<SendDigitalDetailsInt> detailsOpt = timeLineService.getTimelineElementDetails(iun, timelineId, SendDigitalDetailsInt.class);
 
         //THEN
         Assertions.assertFalse(detailsOpt.isPresent());
@@ -209,7 +209,7 @@ class TimeLineServiceImplTest {
         ConfidentialTimelineElementDtoInt confInfPhysical = ConfidentialTimelineElementDtoInt.builder()
                 .timelineElementId(timelineId3)
                 .physicalAddress(
-                        PhysicalAddress.builder()
+                        PhysicalAddressInt.builder()
                                 .at("at")
                                 .municipality("muni")
                                 .province("NA")
@@ -330,8 +330,8 @@ class TimeLineServiceImplTest {
     }
     
     private TimelineElementInternal getSendDigitalTimelineElement(String iun, String timelineId) {
-        SendDigitalDetails details = SendDigitalDetails.builder()
-                .digitalAddressSource(DigitalAddressSource.SPECIAL)
+        SendDigitalDetailsInt details = SendDigitalDetailsInt.builder()
+                .digitalAddressSource(DigitalAddressSourceInt.SPECIAL)
                 .digitalAddress(
                         DigitalAddress.builder()
                                 .type("PEC")
@@ -339,7 +339,7 @@ class TimeLineServiceImplTest {
                 )
                 .recIndex(0)
                 .build();
-        return TimelineElementInternal.timelineInternalBuilder()
+        return TimelineElementInternal.builder()
                 .elementId(timelineId)
                 .iun(iun)
                 .details(SmartMapper.mapToClass(details, TimelineElementDetails.class))
@@ -354,9 +354,9 @@ class TimeLineServiceImplTest {
     }
 
     private TimelineElementInternal getSendPaperDetailsTimelineElement(String iun, String elementId) {
-        SendPaperDetails details = SendPaperDetails.builder()
+         SendAnalogDetailsInt details =  SendAnalogDetailsInt.builder()
                 .physicalAddress(
-                        PhysicalAddress.builder()
+                        PhysicalAddressInt.builder()
                                 .province("province")
                                 .municipality("munic")
                                 .at("at")
@@ -366,7 +366,7 @@ class TimeLineServiceImplTest {
                 .recIndex(0)
                 .sentAttemptMade(0)
                 .build();
-        return TimelineElementInternal.timelineInternalBuilder()
+        return TimelineElementInternal.builder()
                 .elementId(elementId)
                 .iun(iun)
                 .details(SmartMapper.mapToClass(details, TimelineElementDetails.class))
@@ -374,9 +374,9 @@ class TimeLineServiceImplTest {
     }
 
     private TimelineElementInternal getSendPaperFeedbackTimelineElement(String iun, String elementId) {
-        SendPaperFeedbackDetails details = SendPaperFeedbackDetails.builder()
+         SendAnalogFeedbackDetailsInt details =  SendAnalogFeedbackDetailsInt.builder()
                 .newAddress(
-                        PhysicalAddress.builder()
+                        PhysicalAddressInt.builder()
                                 .province("province")
                                 .municipality("munic")
                                 .at("at")
@@ -385,7 +385,7 @@ class TimeLineServiceImplTest {
                 .recIndex(0)
                 .sentAttemptMade(0)
                 .build();
-        return TimelineElementInternal.timelineInternalBuilder()
+        return TimelineElementInternal.builder()
                 .elementId(elementId)
                 .iun(iun)
                 .details(SmartMapper.mapToClass(details, TimelineElementDetails.class))
@@ -393,10 +393,10 @@ class TimeLineServiceImplTest {
     }
     
     private TimelineElementInternal getScheduleAnalogWorkflowTimelineElement(String iun, String timelineId) {
-        ScheduleAnalogWorkflow details = ScheduleAnalogWorkflow.builder()
+        ScheduleAnalogWorkflowDetailsInt details = ScheduleAnalogWorkflowDetailsInt.builder()
                 .recIndex(0)
                 .build();
-        return TimelineElementInternal.timelineInternalBuilder()
+        return TimelineElementInternal.builder()
                 .elementId(timelineId)
                 .iun(iun)
                 .details(SmartMapper.mapToClass(details, TimelineElementDetails.class))

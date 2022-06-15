@@ -31,7 +31,7 @@ public class DtoToEntityTimelineMapper {
                 .build();
     }
 
-    private List<LegalFactsIdEntity> convertLegalFactsToEntity(List<LegalFactsId>  dto ) {
+    private List<LegalFactsIdEntity> convertLegalFactsToEntity(List<LegalFactsIdInt>  dto ) {
         List<LegalFactsIdEntity> legalFactsIds = null;
 
         if (dto != null){
@@ -41,7 +41,7 @@ public class DtoToEntityTimelineMapper {
         return legalFactsIds;
     }
 
-    private LegalFactsIdEntity mapOneLegalFact(LegalFactsId legalFactsId) {
+    private LegalFactsIdEntity mapOneLegalFact(LegalFactsIdInt legalFactsId) {
         LegalFactsIdEntity entity = new LegalFactsIdEntity();
         entity.setKey( legalFactsId.getKey() );
         entity.setCategory(LegalFactCategoryEntity.valueOf( legalFactsId.getCategory().getValue()));

@@ -1,5 +1,19 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
+import freemarker.template.Configuration;
+import freemarker.template.Version;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseStatus;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendDigitalFeedback;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,17 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import freemarker.template.Configuration;
-import freemarker.template.Version;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseStatus;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendDigitalFeedback;
 
 class LegalFactPdfGeneratorTest {
 	private static final String TEST_DIR_NAME = "target" + File.separator + "generated-test-PDF";
@@ -66,7 +69,7 @@ class LegalFactPdfGeneratorTest {
 	@Test 
 	void generatePecDeliveryWorkflowLegalFactTest_OK() throws IOException {
 		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_OK.pdf");
-		List<SendDigitalFeedback> feedbackFromExtChannelList = buildFeedbackFromECList( ResponseStatus.OK);
+		List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList = buildFeedbackFromECList( ResponseStatusInt.OK);
 		NotificationInt notification = buildNotification();
 		NotificationRecipientInt recipient = buildRecipients().get(0);
 		Files.write(filePath, pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification, recipient));
@@ -76,7 +79,7 @@ class LegalFactPdfGeneratorTest {
 	@Test 
 	void generatePecDeliveryWorkflowLegalFactTest_KO() throws IOException {
 		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_KO.pdf");
-		List<SendDigitalFeedback> feedbackFromExtChannelList = buildFeedbackFromECList(ResponseStatus.KO);
+		List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList = buildFeedbackFromECList(ResponseStatusInt.KO);
 		NotificationInt notification = buildNotification();
 		NotificationRecipientInt recipient = buildRecipients().get(0);
 		Files.write(filePath, pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification, recipient));
@@ -98,8 +101,8 @@ class LegalFactPdfGeneratorTest {
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
 
-	private List<SendDigitalFeedback> buildFeedbackFromECList(ResponseStatus status) {
-		SendDigitalFeedback sdf = SendDigitalFeedback.builder()
+	private List<SendDigitalFeedbackDetailsInt> buildFeedbackFromECList(ResponseStatusInt status) {
+		SendDigitalFeedbackDetailsInt sdf = SendDigitalFeedbackDetailsInt.builder()
 				.recIndex( 0 )
 				.digitalAddress(DigitalAddress.builder()
 						.type("PEC")
@@ -110,7 +113,7 @@ class LegalFactPdfGeneratorTest {
 				.build();
 	
 		
-		List<SendDigitalFeedback> result = new ArrayList<SendDigitalFeedback>();
+		List<SendDigitalFeedbackDetailsInt> result = new ArrayList<SendDigitalFeedbackDetailsInt>();
 		result.add(sdf);
 		return result;
 	}
@@ -147,7 +150,7 @@ class LegalFactPdfGeneratorTest {
 						.address("test@dominioPec.it")
 						.type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
 						.build())
-				.physicalAddress(new PhysicalAddress(
+				.physicalAddress(new PhysicalAddressInt(
 						"Palazzo dell'Inquisizione",
 						"corso Italia 666",
 						"Piano Terra (piatta)",

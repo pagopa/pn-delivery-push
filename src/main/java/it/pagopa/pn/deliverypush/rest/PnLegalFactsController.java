@@ -1,7 +1,11 @@
 package it.pagopa.pn.deliverypush.rest;
 
+import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.LegalFactsApi;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactDownloadMetadataResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElement;
 import it.pagopa.pn.deliverypush.service.LegalFactService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
@@ -54,7 +58,7 @@ public class PnLegalFactsController implements LegalFactsApi {
     private LegalFactListElement convert(LegalFactListElement element){
         LegalFactListElement legalFactListElement = new LegalFactListElement();
         
-        LegalFactsId legalFactsId = getLegalFactsId(element);
+        LegalFactsIdInt legalFactsId = getLegalFactsId(element);
         legalFactListElement.setLegalFactsId(legalFactsId);
         legalFactListElement.setIun(element.getIun());
         legalFactListElement.setTaxId(element.getTaxId());
@@ -62,8 +66,8 @@ public class PnLegalFactsController implements LegalFactsApi {
         return legalFactListElement;
     }
 
-    private LegalFactsId getLegalFactsId(LegalFactListElement element) {
-        LegalFactsId legalFactsId = new LegalFactsId();
+    private LegalFactsIdInt getLegalFactsId(LegalFactListElement element) {
+        LegalFactsIdInt legalFactsId = new LegalFactsIdInt();
         legalFactsId.setKey(element.getLegalFactsId().getKey());
         LegalFactCategory category = element.getLegalFactsId().getCategory();
         

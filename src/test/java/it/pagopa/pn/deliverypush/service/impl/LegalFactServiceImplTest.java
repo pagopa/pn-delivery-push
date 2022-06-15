@@ -5,7 +5,7 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.action2.utils.NotificationUtils;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
@@ -74,23 +74,23 @@ class LegalFactServiceImplTest {
         List<LegalFactListElement> legalFactsExpectedResult = Collections.singletonList( LegalFactListElement.builder()
                 .iun( IUN )
                 .taxId( TAX_ID )
-                .legalFactsId( LegalFactsId.builder()
+                .legalFactsId( LegalFactsIdInt.builder()
                         .key( KEY )
-                        .category( LegalFactCategory.SENDER_ACK )
+                        .category( LegalFactCategoryInt.SENDER_ACK )
                         .build()
                 ).build()
         );
         
-        Set<TimelineElementInternal> timelineElementsResult = Collections.singleton( TimelineElementInternal.timelineInternalBuilder()
+        Set<TimelineElementInternal> timelineElementsResult = Collections.singleton( TimelineElementInternal.builder()
                 .iun( IUN )
                 .details( TimelineElementDetails.builder()
                         .recIndex(0)
                         .build() )
                 .category( TimelineElementCategory.REQUEST_ACCEPTED )
                 .elementId( "element_id" )
-                .legalFactsIds( Collections.singletonList( LegalFactsId.builder()
+                .legalFactsIds( Collections.singletonList( LegalFactsIdInt.builder()
                                 .key( KEY )
-                                .category( LegalFactCategory.SENDER_ACK )
+                                .category( LegalFactCategoryInt.SENDER_ACK )
                         .build())
                 ).build()
         );
@@ -132,7 +132,7 @@ class LegalFactServiceImplTest {
         Mockito.when( notificationService.getNotificationByIun( Mockito.anyString() ) )
                 .thenReturn( newNotification() );
 
-        ResponseEntity<Resource> result = legalFactService.getLegalfact( IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID);
+        ResponseEntity<Resource> result = legalFactService.getLegalfact( IUN, LegalFactCategoryInt.RECIPIENT_ACCESS, LEGAL_FACT_ID);
         //Then
         assertNotNull( result );
     }
@@ -157,7 +157,7 @@ class LegalFactServiceImplTest {
         Mockito.when( notificationService.getNotificationByIun( Mockito.anyString() ) )
                 .thenReturn( newNotification() );
 
-        assertThrows(PnInternalException.class, () -> legalFactService.getLegalfact( IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID));
+        assertThrows(PnInternalException.class, () -> legalFactService.getLegalfact( IUN, LegalFactCategoryInt.RECIPIENT_ACCESS, LEGAL_FACT_ID));
     }
 
     @Test
@@ -192,7 +192,7 @@ class LegalFactServiceImplTest {
         Mockito.when( notificationService.getNotificationByIun( Mockito.anyString() ) )
                 .thenReturn( newNotification() );
 
-        ResponseEntity<Resource> result = legalFactService.getLegalfact( IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID);
+        ResponseEntity<Resource> result = legalFactService.getLegalfact( IUN, LegalFactCategoryInt.RECIPIENT_ACCESS, LEGAL_FACT_ID);
         //Then
         assertNotNull( result );
     }
@@ -229,7 +229,7 @@ class LegalFactServiceImplTest {
         Mockito.when( notificationService.getNotificationByIun( Mockito.anyString() ) )
                 .thenReturn( newNotification() );
 
-        LegalFactDownloadMetadataResponse result = legalFactService.getLegalFactMetadata( IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID);
+        LegalFactDownloadMetadataResponse result = legalFactService.getLegalFactMetadata( IUN, LegalFactCategoryInt.RECIPIENT_ACCESS, LEGAL_FACT_ID);
         //Then
         assertNotNull( result );
         assertNotNull(result.getFilename());
