@@ -20,7 +20,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.*;
-import it.pagopa.pn.deliverypush.util.StatusUtils;
+import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
 import it.pagopa.pn.deliverypush.validator.preloaded_digest_error.DigestEqualityBean;
 import org.junit.jupiter.api.Assertions;

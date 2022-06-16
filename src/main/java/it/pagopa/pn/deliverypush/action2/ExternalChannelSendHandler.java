@@ -38,8 +38,12 @@ public class ExternalChannelSendHandler {
      * Send pec notification to external channel
      * Messaggio con valore legale (PEC)
      */
-    public void sendDigitalNotification(NotificationInt notification, LegalDigitalAddressInt digitalAddress, DigitalAddressSourceInt addressSource, Integer recIndex,
-                                        int sentAttemptMade) {
+    public void sendDigitalNotification(NotificationInt notification, 
+                                        LegalDigitalAddressInt digitalAddress,
+                                        DigitalAddressSourceInt addressSource,
+                                        Integer recIndex,
+                                        int sentAttemptMade
+    ) {
         log.debug("Start sendDigitalNotification - iun={} recipientIndex={}", notification.getIun(), recIndex);
 
         String eventId = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(

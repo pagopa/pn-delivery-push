@@ -2,10 +2,12 @@ package it.pagopa.pn.deliverypush.dto.address;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Getter
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString
 @SuperBuilder( toBuilder = true )

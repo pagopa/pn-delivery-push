@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.util;
+package it.pagopa.pn.deliverypush.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;

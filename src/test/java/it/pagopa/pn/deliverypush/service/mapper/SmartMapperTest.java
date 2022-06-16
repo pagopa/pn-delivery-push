@@ -11,9 +11,8 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement
 import org.junit.jupiter.api.Test;
 
 class SmartMapperTest {
-    //TODO DA Definire test
     @Test
-    void mapToClass() {
+    void fromInternalToExternalSendDigitalDetails() {
         SendDigitalDetailsInt sendDigitalDetails = SendDigitalDetailsInt.builder()
                 .recIndex(0)
                 .digitalAddressSource(DigitalAddressSourceInt.PLATFORM)
@@ -33,7 +32,7 @@ class SmartMapperTest {
     }
 
     @Test
-    void mapToClass2() {
+    void fromExternalToInternalSendDigitalDetails() {
         TimelineElementDetails timelineElementDetails = TimelineElementDetails.builder()
                 .recIndex(0)
                 .digitalAddressSource(DigitalAddressSource.PLATFORM)

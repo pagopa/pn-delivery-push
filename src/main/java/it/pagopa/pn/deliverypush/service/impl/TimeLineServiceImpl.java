@@ -19,7 +19,7 @@ import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.StatusService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.TimelineElementMapper;
-import it.pagopa.pn.deliverypush.util.StatusUtils;
+import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -58,8 +58,10 @@ public class TimeLineServiceImpl implements TimelineService {
         if (notification != null) {
             Set<TimelineElementInternal> currentTimeline = getTimeline(dto.getIun());
             StatusService.NotificationStatusUpdate notificationStatuses = statusService.checkAndUpdateStatus(dto, currentTimeline, notification);
+            
+            //Vengono salvate le informazioni confidenziali in sicuro, dal momento che successivamente non saranno salvate a DB
             confidentialInformationService.saveTimelineConfidentialInformation(dto);
-            removeConfidentialInformationFromTimelineElement(dto);
+            
             timelineDao.addTimelineElement(dto);
             // genero un messagio per l'aggiunta in sqs in modo da salvarlo in maniera asincrona
             schedulerService.scheduleWebhookEvent(notification.getSender().getPaId(),
@@ -75,10 +77,7 @@ public class TimeLineServiceImpl implements TimelineService {
             throw new PnInternalException("Try to update Timeline and Status for non existing iun " + dto.getIun());
         }
     }
-
-    private void removeConfidentialInformationFromTimelineElement(TimelineElementInternal dto) {
-    }
-
+    
     @Override
     public Optional<TimelineElementInternal> getTimelineElement(String iun, String timelineId) {
         log.debug("GetTimelineElement - IUN={} and timelineId={}", iun, timelineId);
@@ -88,48 +87,14 @@ public class TimeLineServiceImpl implements TimelineService {
             TimelineElementInternal timelineElementInt = timelineElementInternalOpt.get();
             
             confidentialInformationService.getTimelineElementConfidentialInformation(iun, timelineId).ifPresent(
-                    confidentialDto -> enrichTimelineElementWithConfidentialInformation(timelineElementInt.getDetails(), confidentialDto)
+                    confidentialDto -> enrichTimelineElementWithConfidentialInformation(
+                            timelineElementInt.getDetails(), confidentialDto
+                    )
             );
             
             return Optional.of(timelineElementInt);
         }
         return Optional.empty();
-    }
-
-    private void enrichTimelineElementWithConfidentialInformation(TimelineElementDetailsInt details,
-                                                                  ConfidentialTimelineElementDtoInt confidentialDto) {
-        if( details instanceof CourtesyAddressRelatedTimelineElement){
-            CourtesyDigitalAddressInt address = ((CourtesyAddressRelatedTimelineElement) details).getDigitalAddress();
-
-            if (address == null)
-            {
-                address = CourtesyDigitalAddressInt.builder().build();
-            }
-
-            address = address.toBuilder().address(confidentialDto.getDigitalAddress()).build();
-            ((CourtesyAddressRelatedTimelineElement) details).setDigitalAddress(address);
-        }
-
-        if( details instanceof DigitalAddressRelatedTimelineElement && confidentialDto.getDigitalAddress() != null){
-            
-            LegalDigitalAddressInt address = ((DigitalAddressRelatedTimelineElement) details).getDigitalAddress();
-            
-            if (address == null)
-            {
-                address = LegalDigitalAddressInt.builder().build();
-            }
-
-            address = address.toBuilder().address(confidentialDto.getDigitalAddress()).build();
-            ((DigitalAddressRelatedTimelineElement) details).setDigitalAddress(address);
-        }
-
-        if( details instanceof PhysicalAddressRelatedTimelineElement){
-            ((PhysicalAddressRelatedTimelineElement) details).setPhysicalAddress(confidentialDto.getPhysicalAddress());
-        }
-
-        if( details instanceof NewAddressRelatedTimelineElement){
-            ((NewAddressRelatedTimelineElement) details).setNewAddress(confidentialDto.getNewPhysicalAddress());
-        }
     }
 
     @Override
@@ -141,7 +106,9 @@ public class TimeLineServiceImpl implements TimelineService {
             TimelineElementInternal timelineElement = timelineElementOpt.get();
             
             confidentialInformationService.getTimelineElementConfidentialInformation(iun, timelineId).ifPresent(
-                    confidentialDto -> enrichTimelineElementWithConfidentialInformation(timelineElement.getDetails(), confidentialDto)
+                    confidentialDto -> enrichTimelineElementWithConfidentialInformation(
+                            timelineElement.getDetails(), confidentialDto
+                    )
             );
             
             return Optional.of(timelineDetailsClass.cast(timelineElement.getDetails()));
@@ -243,5 +210,42 @@ public class TimeLineServiceImpl implements TimelineService {
                 .build();
         return this.timelineDao.getTimelineElement(iun, timelineEventId.buildEventId(eventId)).isPresent();
     }
+
+    public void enrichTimelineElementWithConfidentialInformation(TimelineElementDetailsInt details,
+                                                                 ConfidentialTimelineElementDtoInt confidentialDto) {
+        if( details instanceof CourtesyAddressRelatedTimelineElement){
+            CourtesyDigitalAddressInt address = ((CourtesyAddressRelatedTimelineElement) details).getDigitalAddress();
+
+            if (address == null)
+            {
+                address = CourtesyDigitalAddressInt.builder().build();
+            }
+
+            address = address.toBuilder().address(confidentialDto.getDigitalAddress()).build();
+            ((CourtesyAddressRelatedTimelineElement) details).setDigitalAddress(address);
+        }
+
+        if( details instanceof DigitalAddressRelatedTimelineElement && confidentialDto.getDigitalAddress() != null){
+
+            LegalDigitalAddressInt address = ((DigitalAddressRelatedTimelineElement) details).getDigitalAddress();
+
+            if (address == null)
+            {
+                address = LegalDigitalAddressInt.builder().build();
+            }
+
+            address = address.toBuilder().address(confidentialDto.getDigitalAddress()).build();
+            ((DigitalAddressRelatedTimelineElement) details).setDigitalAddress(address);
+        }
+
+        if( details instanceof PhysicalAddressRelatedTimelineElement){
+            ((PhysicalAddressRelatedTimelineElement) details).setPhysicalAddress(confidentialDto.getPhysicalAddress());
+        }
+
+        if( details instanceof NewAddressRelatedTimelineElement){
+            ((NewAddressRelatedTimelineElement) details).setNewAddress(confidentialDto.getNewPhysicalAddress());
+        }
+    }
+
 
 }

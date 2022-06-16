@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface ConfidentialInformationService {
     
     void saveTimelineConfidentialInformation(TimelineElementInternal timelineElementInternal);
-
+    
     Optional<ConfidentialTimelineElementDtoInt> getTimelineElementConfidentialInformation(String iun, String timelineElementId);
 
     Optional<Map<String, ConfidentialTimelineElementDtoInt>> getTimelineConfidentialInformation(String iun);

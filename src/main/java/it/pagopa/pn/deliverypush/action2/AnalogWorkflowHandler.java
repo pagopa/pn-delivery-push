@@ -175,6 +175,7 @@ public class AnalogWorkflowHandler {
 
         String iun = response.getIun();
         NotificationInt notification = notificationService.getNotificationByIun(iun);
+        
         Integer recIndex = sendPaperDetails.getRecIndex();
         ResponseStatusInt status = mapPaperStatusInResponseStatus(response.getStatusCode());
         List<LegalFactsIdInt> legalFactsListEntryIds;
