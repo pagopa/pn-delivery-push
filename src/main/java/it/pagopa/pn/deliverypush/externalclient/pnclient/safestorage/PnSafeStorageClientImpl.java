@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage;
 
+import com.amazonaws.util.Base64;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.api.FileDownloadApi;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.api.FileUploadApi;
@@ -20,6 +21,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @Component
@@ -70,7 +72,7 @@ public class PnSafeStorageClientImpl implements PnSafeStorageClient {
         try {
             MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
             headers.add("Content-type", fileCreationRequest.getContentType());
-            headers.add("x-amz-checksum-sha256", sha256);
+            headers.add("x-amz-checksum-sha256", Base64.encodeAsString(sha256.getBytes(StandardCharsets.UTF_8)));
             headers.add("x-amz-meta-secret", fileCreationResponse.getSecret());
 
             HttpEntity<Resource> req = new HttpEntity<>(new ByteArrayResource(fileCreationRequest.getContent()), headers);
