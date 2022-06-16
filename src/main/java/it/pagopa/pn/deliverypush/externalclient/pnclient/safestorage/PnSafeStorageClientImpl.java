@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage;
 
-import com.amazonaws.util.Base64;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.api.FileDownloadApi;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.api.FileUploadApi;
@@ -8,7 +7,6 @@ import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCre
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -22,10 +20,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @Component
