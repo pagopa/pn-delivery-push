@@ -13,7 +13,6 @@ import org.mockserver.client.MockServerClient;
 import org.mockserver.integration.ClientAndServer;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.RequestEntity;
@@ -108,12 +107,12 @@ class PnSafeStorageClientImplTestIT {
         fileCreationResponse.setUploadUrl("http://localhost:9998" + path);
 
         ResponseEntity<FileCreationResponse> response = ResponseEntity.ok( fileCreationResponse);
-        ResponseEntity<Object> resp1 = ResponseEntity.ok("");
+        ResponseEntity<String> resp1 = ResponseEntity.ok("");
 
         Mockito.when( restTemplate.exchange( Mockito.any(RequestEntity.class),Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(response);
 
-        Mockito.when( restTemplate.exchange( Mockito.any(URI.class), Mockito.any(HttpMethod.class), Mockito.any( HttpEntity.class), Mockito.eq(Object.class)))
+        Mockito.when( restTemplate.exchange( Mockito.any(URI.class), Mockito.any(HttpMethod.class), Mockito.any( HttpEntity.class), Mockito.eq(String.class)))
                 .thenReturn(resp1);
 
         new MockServerClient("localhost", 9998)

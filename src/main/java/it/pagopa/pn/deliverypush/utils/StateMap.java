@@ -53,7 +53,7 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.REFINEMENT, NotificationStatus.DELIVERING)
                 .withTimelineGoToState(TimelineElementCategoryInt.SCHEDULE_ANALOG_WORKFLOW, NotificationStatus.DELIVERING) //Con i MultiDestinatari potrebbe essere schedulato l'analog workflow anche in delivering
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_COURTESY_MESSAGE, NotificationStatus.DELIVERING) //Con i MultiDestinatari potrebbe essere inviato il messaggio di cortesia in delivering
-
+                .withTimelineGoToState(TimelineElementCategoryInt.AAR_GENERATION, NotificationStatus.DELIVERING) //Multi Destinatari
 
                 //STATE CHANGE
                 .withTimelineGoToState(TimelineElementCategoryInt.COMPLETELY_UNREACHABLE, NotificationStatus.UNREACHABLE)
@@ -99,6 +99,7 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.REFINEMENT, NotificationStatus.VIEWED)
                 .withTimelineGoToState(TimelineElementCategoryInt.SCHEDULE_ANALOG_WORKFLOW, NotificationStatus.VIEWED )
                 .withTimelineGoToState(TimelineElementCategoryInt.DIGITAL_FAILURE_WORKFLOW, NotificationStatus.VIEWED )
+                .withTimelineGoToState(TimelineElementCategoryInt.AAR_GENERATION, NotificationStatus.VIEWED) //Multi Destinatari
 
         
                 //STATE CHANGE

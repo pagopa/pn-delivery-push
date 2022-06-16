@@ -339,8 +339,7 @@
 						</goals>
 						<phase>process-resources</phase>
 						<configuration>
-							<!-- <inputSpec>https://raw.githubusercontent.com/pagopa/pn-safe-storage/main/docs/openapi/pn-safestorage-v1-api.yaml</inputSpec> -->
-							<inputSpec>${project.basedir}/docs/wsclient/pn-safe-storage/pn-safestorage-v1-api.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-safe-storage/2691c2ca0c54a9e09e391f46993755a87a484c49/docs/openapi/pn-safestorage-v1-api.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
