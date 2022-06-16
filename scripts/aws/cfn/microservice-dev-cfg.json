@@ -1,6 +1,5 @@
 {
   "Parameters" : {
-    "CorsAllowedDomains" : "http://localhost:8090,https://portale-pa-develop.fe.dev.pn.pagopa.it/,https://portale-pf-develop.fe.dev.pn.pagopa.it/,https://www.dev.pn.pagopa.it",
     "AddressBookUrl": "https://zkkwwk0v41.execute-api.eu-central-1.amazonaws.com/mock/develop/addresses/",
     "PhysicalPersonPortalUrl": "https://portale-develop.fe.dev.pn.pagopa.it/",
     "PecSecondAttemptWaitTime": "70s",
