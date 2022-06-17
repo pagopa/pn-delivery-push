@@ -1,8 +1,6 @@
 package it.pagopa.pn.deliverypush.action2;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.LegalMessageSentDetails;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.ProgressEventCategory;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.action2.utils.DigitalWorkFlowUtils;
@@ -12,6 +10,8 @@ import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfo;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelProgressEventCat;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -19,9 +19,9 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.PublicRegistryCallDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ScheduleDigitalWorkflowDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalDetailsInt;
+import it.pagopa.pn.deliverypush.service.ExternalChannelService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
-import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -33,7 +33,7 @@ import java.util.List;
 public class DigitalWorkFlowHandler {
     public static final int MAX_ATTEMPT_NUMBER = 2;
 
-    private final ExternalChannelSendHandler externalChannelSendHandler;
+    private final ExternalChannelService externalChannelService;
     private final NotificationService notificationService;
     private final SchedulerService schedulerService;
     private final DigitalWorkFlowUtils digitalWorkFlowUtils;
@@ -42,12 +42,15 @@ public class DigitalWorkFlowHandler {
     private final InstantNowSupplier instantNowSupplier;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
-    public DigitalWorkFlowHandler(ExternalChannelSendHandler externalChannelSendHandler,
-                                  NotificationService notificationService, SchedulerService schedulerService,
-                                  DigitalWorkFlowUtils digitalWorkFlowUtils, CompletionWorkFlowHandler completionWorkflow,
-                                  PublicRegistrySendHandler publicRegistryHandler, InstantNowSupplier instantNowSupplier,
+    public DigitalWorkFlowHandler(ExternalChannelService externalChannelService,
+                                  NotificationService notificationService,
+                                  SchedulerService schedulerService,
+                                  DigitalWorkFlowUtils digitalWorkFlowUtils,
+                                  CompletionWorkFlowHandler completionWorkflow,
+                                  PublicRegistrySendHandler publicRegistryHandler,
+                                  InstantNowSupplier instantNowSupplier,
                                   PnDeliveryPushConfigs pnDeliveryPushConfigs) {
-        this.externalChannelSendHandler = externalChannelSendHandler;
+        this.externalChannelService = externalChannelService;
         this.notificationService = notificationService;
         this.schedulerService = schedulerService;
         this.digitalWorkFlowUtils = digitalWorkFlowUtils;
@@ -174,7 +177,7 @@ public class DigitalWorkFlowHandler {
 
             //Se l'indirizzo è disponibile, dunque valorizzato viene inviata la notifica a external channel ...
             digitalWorkFlowUtils.addAvailabilitySourceToTimeline(recIndex, notification, addressInfo.getDigitalAddressSource(), true, addressInfo.getSentAttemptMade());
-            externalChannelSendHandler.sendDigitalNotification(notification, digitalAddress, addressInfo.getDigitalAddressSource(), recIndex, addressInfo.getSentAttemptMade());
+            externalChannelService.sendDigitalNotification(notification, digitalAddress, addressInfo.getDigitalAddressSource(), recIndex, addressInfo.getSentAttemptMade());
         } else {
             //... altrimenti si passa alla prossima workflow action
             log.info("Address is not available, need to start next workflow action - iun={} id={}", iun, recIndex);
@@ -184,10 +187,14 @@ public class DigitalWorkFlowHandler {
         }
     }
 
-    public void handleExternalChannelResponse(LegalMessageSentDetails response, TimelineElementInternal timelineElement) {
-        SendDigitalDetailsInt sendDigitalDetails = SmartMapper.mapToClass(timelineElement.getDetails(), SendDigitalDetailsInt.class);
-        String iun = timelineElement.getIun();
-        log.info("HandleExternalChannelResponse - iun={} id={}", iun, sendDigitalDetails.getRecIndex());
+    public void handleExternalChannelResponse(ExtChannelDigitalSentResponseInt response) {
+        String iun = response.getIun();
+        log.info("HandleExternalChannelResponse - iun={} requestId={}", iun, response.getRequestId());
+
+        TimelineElementInternal sendDigitalTimelineElement = 
+                digitalWorkFlowUtils.getSendDigitalDetailsTimelineElement(iun, response.getRequestId());
+
+        SendDigitalDetailsInt sendDigitalDetails = (SendDigitalDetailsInt) sendDigitalTimelineElement.getDetails();
         
         NotificationInt notification = notificationService.getNotificationByIun(iun);
         Integer recIndex = sendDigitalDetails.getRecIndex();
@@ -209,7 +216,7 @@ public class DigitalWorkFlowHandler {
 
                     DigitalAddressInfo lastAttemptMade = DigitalAddressInfo.builder()
                             .digitalAddressSource(sendDigitalDetails.getDigitalAddressSource())
-                            .lastAttemptDate(timelineElement.getTimestamp())
+                            .lastAttemptDate(sendDigitalTimelineElement.getTimestamp())
                             .build();
 
                     nextWorkFlowAction(notification, recIndex, lastAttemptMade);
@@ -220,7 +227,7 @@ public class DigitalWorkFlowHandler {
         }
     }
 
-    private void handleStatusProgress(ProgressEventCategory status, String iun, Integer recIndex) {
+    private void handleStatusProgress(ExtChannelProgressEventCat status, String iun, Integer recIndex) {
         log.info("Specified status={} is not final - iun={} id={}", status, iun, recIndex);
     }
 
@@ -234,7 +241,7 @@ public class DigitalWorkFlowHandler {
     }
 
 
-    private ResponseStatusInt mapDigitalStatusInResponseStatus(ProgressEventCategory digitalStatus)
+    private ResponseStatusInt mapDigitalStatusInResponseStatus(ExtChannelProgressEventCat digitalStatus)
     {
         /* si traduce l'enum
             [ PROGRESS, OK, RETRIABLE_ERROR, ERROR ]

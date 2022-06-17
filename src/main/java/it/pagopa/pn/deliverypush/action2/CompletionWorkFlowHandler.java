@@ -16,6 +16,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
+import it.pagopa.pn.deliverypush.service.ExternalChannelService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
@@ -33,20 +34,24 @@ import java.util.stream.Collectors;
 public class CompletionWorkFlowHandler {
     private final NotificationUtils notificationUtils;
     private final SchedulerService scheduler;
-    private final ExternalChannelSendHandler externalChannelSendHandler;
+    private final ExternalChannelService externalChannelService;
     private final TimelineService timelineService;
     private final CompletelyUnreachableUtils completelyUnreachableUtils;
     private final TimelineUtils timelineUtils;
     private final LegalFactDao legalFactDao;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
-    public CompletionWorkFlowHandler(NotificationUtils notificationUtils, SchedulerService scheduler,
-                                     ExternalChannelSendHandler externalChannelSendHandler, TimelineService timelineService,
-                                     CompletelyUnreachableUtils completelyUnreachableUtils, TimelineUtils timelineUtils,
-                                     LegalFactDao legalFactDao, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
+    public CompletionWorkFlowHandler(NotificationUtils notificationUtils,
+                                     SchedulerService scheduler,
+                                     ExternalChannelService externalChannelService,
+                                     TimelineService timelineService,
+                                     CompletelyUnreachableUtils completelyUnreachableUtils,
+                                     TimelineUtils timelineUtils,
+                                     LegalFactDao legalFactDao,
+                                     PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         this.notificationUtils = notificationUtils;
         this.scheduler = scheduler;
-        this.externalChannelSendHandler = externalChannelSendHandler;
+        this.externalChannelService = externalChannelService;
         this.timelineService = timelineService;
         this.completelyUnreachableUtils = completelyUnreachableUtils;
         this.timelineUtils = timelineUtils;
@@ -116,7 +121,7 @@ public class CompletionWorkFlowHandler {
 
         if (physicalAddress != null) {
             log.info("Sending simple registered letter  - iun {} id {}", notification.getIun(), recIndex);
-            externalChannelSendHandler.sendNotificationForRegisteredLetter(notification, physicalAddress, recIndex);
+            externalChannelService.sendNotificationForRegisteredLetter(notification, physicalAddress, recIndex);
         } else {
             log.info("Simple registered letter can't be send, there isn't physical address for recipient. iun {} id {}", notification.getIun(), recIndex);
         }

@@ -15,7 +15,9 @@ public class RefinementHandler {
     private final TimelineUtils timelineUtils;
     private final NotificationService notificationService;
 
-    public RefinementHandler(TimelineService timelineService, TimelineUtils timelineUtils, NotificationService notificationService) {
+    public RefinementHandler(TimelineService timelineService,
+                             TimelineUtils timelineUtils,
+                             NotificationService notificationService) {
         this.timelineService = timelineService;
         this.timelineUtils = timelineUtils;
         this.notificationService = notificationService;

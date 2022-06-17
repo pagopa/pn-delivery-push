@@ -10,6 +10,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
+import it.pagopa.pn.deliverypush.service.ExternalChannelService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -21,7 +22,7 @@ import java.util.Optional;
 @Component
 @Slf4j
 public class ChooseDeliveryModeHandler {
-    private final ExternalChannelSendHandler externalChannelSendHandler;
+    private final ExternalChannelService externalChannelService;
     private final SchedulerService schedulerService;
     private final PublicRegistrySendHandler publicRegistrySendHandler;
     private final ChooseDeliveryModeUtils chooseDeliveryUtils;
@@ -29,13 +30,13 @@ public class ChooseDeliveryModeHandler {
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     public ChooseDeliveryModeHandler(ChooseDeliveryModeUtils chooseDeliveryUtils,
-                                     ExternalChannelSendHandler externalChannelSendHandler, 
+                                     ExternalChannelService externalChannelService, 
                                      SchedulerService schedulerService,
                                      PublicRegistrySendHandler publicRegistrySendHandler,
                                      InstantNowSupplier instantNowSupplier,
                                      PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         this.chooseDeliveryUtils = chooseDeliveryUtils;
-        this.externalChannelSendHandler = externalChannelSendHandler;
+        this.externalChannelService = externalChannelService;
         this.schedulerService = schedulerService;
         this.publicRegistrySendHandler = publicRegistrySendHandler;
         this.instantNowSupplier = instantNowSupplier;
@@ -116,7 +117,7 @@ public class ChooseDeliveryModeHandler {
      */
     public void startDigitalWorkflow(NotificationInt notification, LegalDigitalAddressInt digitalAddress, DigitalAddressSourceInt addressSource, Integer recIndex) {
         log.info("Starting digital workflow sending notification to external channel - iun={} id={} ", notification.getIun(), recIndex);
-        externalChannelSendHandler.sendDigitalNotification(notification, digitalAddress, addressSource, recIndex, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER);
+        externalChannelService.sendDigitalNotification(notification, digitalAddress, addressSource, recIndex, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER);
     }
 
     /**

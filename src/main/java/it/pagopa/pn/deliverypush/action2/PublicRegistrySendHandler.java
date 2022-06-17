@@ -17,7 +17,9 @@ public class PublicRegistrySendHandler {
     private final PublicRegistry publicRegistry;
     private final NotificationUtils notificationUtils;
     
-    public PublicRegistrySendHandler(PublicRegistryUtils publicRegistryUtils, PublicRegistry publicRegistry, NotificationUtils notificationUtils) {
+    public PublicRegistrySendHandler(PublicRegistryUtils publicRegistryUtils,
+                                     PublicRegistry publicRegistry,
+                                     NotificationUtils notificationUtils) {
         this.publicRegistryUtils = publicRegistryUtils;
         this.publicRegistry = publicRegistry;
         this.notificationUtils = notificationUtils;

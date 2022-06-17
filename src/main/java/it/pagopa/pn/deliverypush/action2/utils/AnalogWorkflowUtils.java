@@ -33,7 +33,19 @@ public class AnalogWorkflowUtils {
         this.timelineUtils = timelineUtils;
         this.notificationUtils = notificationUtils;
     }
+    
+    public SendAnalogDetailsInt getSendAnalogNotificationDetails(String iun, String eventId){
+        
+        Optional<SendAnalogDetailsInt> sendPaperDetailsOpt = timelineService.getTimelineElementDetails(iun, eventId, SendAnalogDetailsInt.class);
 
+        if( sendPaperDetailsOpt.isPresent() ){
+            return sendPaperDetailsOpt.get();
+        }else {
+            String error = String.format("There isn't timeline element -iun=%s requestId=%s", iun, eventId);
+            log.error(error);
+            throw new PnInternalException(error);
+        }
+    }
     /**
      * Get external channel last feedback information from timeline
      ** @return last sent feedback information

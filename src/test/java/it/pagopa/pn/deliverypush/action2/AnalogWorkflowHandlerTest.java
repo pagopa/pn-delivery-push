@@ -12,6 +12,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSende
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ServiceLevelInt;
+import it.pagopa.pn.deliverypush.service.ExternalChannelService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +30,7 @@ class AnalogWorkflowHandlerTest {
     @Mock
     private NotificationService notificationService;
     @Mock
-    private ExternalChannelSendHandler externalChannelSendHandler;
+    private ExternalChannelService externalChannelService;
     @Mock
     private CompletionWorkFlowHandler completionWorkFlow;
     @Mock
@@ -40,14 +41,14 @@ class AnalogWorkflowHandlerTest {
     private InstantNowSupplier instantNowSupplier;
     @Mock
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
-
+    
     private AnalogWorkflowHandler handler;
     
     private NotificationUtils notificationUtils;
 
     @BeforeEach
     public void setup() {
-        handler = new AnalogWorkflowHandler(notificationService, externalChannelSendHandler,
+        handler = new AnalogWorkflowHandler(notificationService, externalChannelService,
                 completionWorkFlow, analogWorkflowUtils,
                 publicRegistrySendHandler, instantNowSupplier, pnDeliveryPushConfigs);
         notificationUtils= new NotificationUtils();
@@ -71,7 +72,7 @@ class AnalogWorkflowHandlerTest {
         handler.startAnalogWorkflow(notification.getIun(),recIndex);
         
         //THEN
-        Mockito.verify(externalChannelSendHandler).sendAnalogNotification(notification, recipient.getPhysicalAddress(), recIndex, true, 0);
+        Mockito.verify(externalChannelService).sendAnalogNotification(notification, recipient.getPhysicalAddress(), recIndex, true, 0);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -148,7 +149,7 @@ class AnalogWorkflowHandlerTest {
         handler.handlePublicRegistryResponse(notification, recIndex, response, 0);
         
         //THEN
-        Mockito.verify(externalChannelSendHandler).sendAnalogNotification(notification,recipient.getPhysicalAddress(), recIndex, true, 0);
+        Mockito.verify(externalChannelService).sendAnalogNotification(notification,recipient.getPhysicalAddress(), recIndex, true, 0);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -184,7 +185,7 @@ class AnalogWorkflowHandlerTest {
         handler.handlePublicRegistryResponse(notification, recIndex, response, 1);
         
         //THEN
-        Mockito.verify(externalChannelSendHandler).sendAnalogNotification(notification,details.getNewAddress(), recIndex, false, 1);
+        Mockito.verify(externalChannelService).sendAnalogNotification(notification,details.getNewAddress(), recIndex, false, 1);
     }
 
     @ExtendWith(MockitoExtension.class)

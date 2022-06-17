@@ -167,6 +167,20 @@ public class DigitalWorkFlowUtils {
         }
     }
 
+    public TimelineElementInternal getSendDigitalDetailsTimelineElement(String iun, String eventId) {
+
+        Optional<TimelineElementInternal> sendDigitalTimelineElement = timelineService.getTimelineElement(iun, eventId);
+        
+        if (sendDigitalTimelineElement.isPresent()) {
+            return sendDigitalTimelineElement.get();
+        } else {
+            String error = String.format("SendDigital timeline element not exist -iun=%s requestId=%s", iun, eventId);
+            log.error(error);
+            throw new PnInternalException(error);
+        }
+    }
+    
+
     public void addScheduledDigitalWorkflowToTimeline(NotificationInt notification, Integer recIndex, DigitalAddressInfo lastAttemptMade) {
         addTimelineElement(
                 timelineUtils.buildScheduleDigitalWorkflowTimeline(notification, recIndex, lastAttemptMade),
@@ -204,4 +218,7 @@ public class DigitalWorkFlowUtils {
                 throw new PnInternalException(" BUG: add support to next for " + source.getClass() + "::" + source.name());
         }
     }
+
+
+
 }

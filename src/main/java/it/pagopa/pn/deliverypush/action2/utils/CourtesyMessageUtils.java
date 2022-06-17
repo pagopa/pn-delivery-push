@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.action2.utils;
 
-import it.pagopa.pn.deliverypush.action2.ExternalChannelSendHandler;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -8,6 +7,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
+import it.pagopa.pn.deliverypush.service.ExternalChannelService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -18,14 +18,14 @@ import java.util.Optional;
 @Slf4j
 public class CourtesyMessageUtils {
     private final AddressBookService addressBookService;
-    private final ExternalChannelSendHandler externalChannelSendHandler;
+    private final ExternalChannelService externalChannelService;
     private final TimelineService timelineService;
     private final NotificationUtils notificationUtils;
 
 
-    public CourtesyMessageUtils(AddressBookService addressBookService, ExternalChannelSendHandler externalChannelSendHandler, TimelineService timelineService, NotificationUtils notificationUtils) {
+    public CourtesyMessageUtils(AddressBookService addressBookService, ExternalChannelService externalChannelService, TimelineService timelineService, NotificationUtils notificationUtils) {
         this.addressBookService = addressBookService;
-        this.externalChannelSendHandler = externalChannelSendHandler;
+        this.externalChannelService = externalChannelService;
         this.timelineService = timelineService;
         this.notificationUtils = notificationUtils;
 
@@ -57,7 +57,7 @@ public class CourtesyMessageUtils {
 
         //... Per ogni indirizzo di cortesia ottenuto viene inviata la notifica del messaggio di cortesia tramite external channel
         String eventId = getTimelineElementId(recIndex, notification.getIun(), courtesyAddrIndex);
-        externalChannelSendHandler.sendCourtesyNotification(notification, courtesyAddress, recIndex, eventId);
+        externalChannelService.sendCourtesyNotification(notification, courtesyAddress, recIndex, eventId);
     }
 
     private String getTimelineElementId(Integer recIndex, String iun, int index) {

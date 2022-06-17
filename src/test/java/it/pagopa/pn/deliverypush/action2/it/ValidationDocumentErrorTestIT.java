@@ -53,7 +53,7 @@ import static org.mockito.Mockito.doThrow;
         CompletionWorkFlowHandler.class,
         PublicRegistryResponseHandler.class,
         PublicRegistrySendHandler.class,
-        ExternalChannelSendHandler.class,
+        ExternalChannelServiceImpl.class,
         ExternalChannelResponseHandler.class,
         RefinementHandler.class,
         DigitalWorkFlowUtils.class,

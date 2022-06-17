@@ -1,15 +1,18 @@
 package it.pagopa.pn.deliverypush.action2;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.CourtesyMessageProgressEvent;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.LegalMessageSentDetails;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.PaperProgressStatusEvent;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.SingleStatusUpdate;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.*;
 import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.AttachmentDetailsInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelAnalogSentResponseInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelProgressEventCat;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -19,8 +22,10 @@ public class ExternalChannelResponseHandler {
     private final ExternalChannelUtils externalChannelUtils;
     private final TimelineUtils timelineUtils;
 
-    public ExternalChannelResponseHandler(DigitalWorkFlowHandler digitalWorkFlowHandler, AnalogWorkflowHandler analogWorkflowHandler,
-                                          ExternalChannelUtils externalChannelUtils, TimelineUtils timelineUtils) {
+    public ExternalChannelResponseHandler(DigitalWorkFlowHandler digitalWorkFlowHandler,
+                                          AnalogWorkflowHandler analogWorkflowHandler,
+                                          ExternalChannelUtils externalChannelUtils,
+                                          TimelineUtils timelineUtils) {
         this.digitalWorkFlowHandler = digitalWorkFlowHandler;
         this.analogWorkflowHandler = analogWorkflowHandler;
         this.externalChannelUtils = externalChannelUtils;
@@ -48,11 +53,12 @@ public class ExternalChannelResponseHandler {
     private void paperUpdate(PaperProgressStatusEvent event)
     {
         try {
-            log.info("Received PaperProgressStatusEvent event for requestId={} - status={} details={} deliveryfailcause={}", event.getRequestId(), event.getStatusCode(), event.getStatusDescription(), event.getDeliveryFailureCause());
-            String iun = timelineUtils.getIunFromTimelineId(event.getRequestId());
-            TimelineElementInternal notificationTimelineElement = externalChannelUtils.getExternalChannelNotificationTimelineElement(iun, event.getRequestId());
-
-            analogWorkflowHandler.extChannelResponseHandler(event, notificationTimelineElement);
+            ExtChannelAnalogSentResponseInt analogSentResponseInt = mapExternalToInternal(event);
+            
+            log.info("Received PaperProgressStatusEvent event for requestId={} - status={} details={} deliveryfailcause={}",
+                    analogSentResponseInt.getRequestId(), analogSentResponseInt.getStatusCode(), analogSentResponseInt.getStatusDescription(), analogSentResponseInt.getDeliveryFailureCause());
+            
+            analogWorkflowHandler.extChannelResponseHandler(analogSentResponseInt);
         } catch (PnInternalException e) {
             log.error("Exception legalUpdate", e);
             throw e;
@@ -63,14 +69,59 @@ public class ExternalChannelResponseHandler {
 
     }
 
+    private ExtChannelAnalogSentResponseInt mapExternalToInternal(PaperProgressStatusEvent event) {
+        ExtChannelAnalogSentResponseInt.ExtChannelAnalogSentResponseIntBuilder builder = ExtChannelAnalogSentResponseInt.builder()
+                .statusCode(event.getStatusCode())
+                .deliveryFailureCause(event.getDeliveryFailureCause())
+                .iun(event.getIun())
+                .requestId(event.getRequestId())
+                .statusDateTime(event.getStatusDateTime())
+                .statusDescription(event.getStatusDescription())
+                ;
+        
+        if ( event.getDiscoveredAddress() != null){
+            DiscoveredAddress rawAddress = event.getDiscoveredAddress();
+
+            builder.discoveredAddress(
+                    PhysicalAddressInt.builder()
+                            .address(rawAddress.getAddress())
+                            .addressDetails(rawAddress.getAddressRow2())
+                            .municipality(rawAddress.getCity())
+                            .municipalityDetails(rawAddress.getCity2())
+                            .province(rawAddress.getPr())
+                            .zip(rawAddress.getCap())
+                            .foreignState(rawAddress.getCountry())
+                            .at(rawAddress.getNameRow2())
+                    .build()
+            );
+        }
+        
+        if ( event.getAttachments() != null){
+            builder.attachments(
+                    event.getAttachments().stream().map(
+                            att -> AttachmentDetailsInt.builder()
+                                        .date(att.getDate())
+                                        .id(att.getId())
+                                        .documentType(att.getDocumentType())
+                                        .url(att.getUrl())
+                                        .build()
+                    ).collect(Collectors.toList())
+            );
+        }
+        
+        return builder.build();
+    }
+
     private void legalUpdate(LegalMessageSentDetails event)
     {
         try {
-            log.info("Received LegalMessageSentDetails event for requestId={} - status={} details={} eventcode={}", event.getRequestId(), event.getStatus(), event.getEventDetails(), event.getEventCode());
             String iun = timelineUtils.getIunFromTimelineId(event.getRequestId());
-            TimelineElementInternal notificationTimelineElement = externalChannelUtils.getExternalChannelNotificationTimelineElement(iun, event.getRequestId());
 
-            digitalWorkFlowHandler.handleExternalChannelResponse(event, notificationTimelineElement);
+            ExtChannelDigitalSentResponseInt digitalSentResponseInt = mapExternalToInternal(event, iun);
+            log.info("Received LegalMessageSentDetails event for requestId={} - status={} details={} eventcode={}", 
+                    digitalSentResponseInt.getRequestId(), digitalSentResponseInt.getStatus(), digitalSentResponseInt.getEventDetails(), digitalSentResponseInt.getEventCode());
+            
+            digitalWorkFlowHandler.handleExternalChannelResponse(digitalSentResponseInt);
         } catch (PnInternalException e) {
             log.error("Exception legalUpdate", e);
             throw e;
@@ -78,6 +129,17 @@ public class ExternalChannelResponseHandler {
             log.error("Exception legalUpdate", e);
             throw new PnInternalException("Exception on legalUpdate", e);
         }
+    }
+
+    private ExtChannelDigitalSentResponseInt mapExternalToInternal(LegalMessageSentDetails event, String iun) {
+        return ExtChannelDigitalSentResponseInt.builder()
+                .iun(iun)
+                .eventDetails(event.getEventDetails())
+                .eventTimestamp(event.getEventTimestamp())
+                .status( ExtChannelProgressEventCat.valueOf(event.getStatus().getValue()))
+                .eventCode(event.getEventCode())
+                .requestId(event.getRequestId())
+                .build();
     }
 
 

@@ -53,7 +53,7 @@ import static org.mockito.ArgumentMatchers.eq;
         CompletionWorkFlowHandler.class,
         PublicRegistryResponseHandler.class,
         PublicRegistrySendHandler.class,
-        ExternalChannelSendHandler.class,
+        ExternalChannelServiceImpl.class,
         ExternalChannelResponseHandler.class,
         RefinementHandler.class,
         NotificationViewedHandler.class,

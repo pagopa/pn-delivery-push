@@ -19,7 +19,6 @@ import it.pagopa.pn.deliverypush.abstractions.webhookspool.impl.WebhookActionEve
 import it.pagopa.pn.deliverypush.abstractions.webhookspool.impl.WebhookActionsEventHandler;
 import it.pagopa.pn.deliverypush.action2.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.function.context.MessageRoutingCallback;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,7 +35,6 @@ import static it.pagopa.pn.api.dto.events.StandardEventHeader.*;
 
 @Configuration
 @Slf4j
-@ConditionalOnProperty( name = "pn.delivery-push.featureflags.workflow", havingValue = "v2")
 public class PnEventInboundService {
     private final StartWorkflowHandler startWorkflowHandler;
     private final ExternalChannelResponseHandler externalChannelResponseHandler;

@@ -6,10 +6,8 @@ import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.Pro
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.SingleStatusUpdate;
 import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
-import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelAnalogSentResponseInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,27 +43,12 @@ class ExternalChannelHandlerTest {
         extChannelResponse.setRequestId("iun_event_idx_0");
         SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();
         singleStatusUpdate.setDigitalLegal(extChannelResponse);
-
-        SendDigitalDetailsInt details = SendDigitalDetailsInt.builder()
-                .recIndex(0)
-                .digitalAddress(
-                        LegalDigitalAddressInt.builder()
-                                .address("TEST")
-                                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC).build())
-                .build();
-
-
-        Mockito.when(externalChannelUtils.getExternalChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(TimelineElementInternal.builder()
-                        .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
-                        .details(details)
-                        .build());
         
         Mockito.when(timelineUtils.getIunFromTimelineId(Mockito.anyString())).thenReturn("iun");
 
         handler.extChannelResponseReceiver(singleStatusUpdate);
 
-        Mockito.verify(digitalWorkFlowHandler).handleExternalChannelResponse(Mockito.any(LegalMessageSentDetails.class), Mockito.any(TimelineElementInternal.class));
+        Mockito.verify(digitalWorkFlowHandler).handleExternalChannelResponse(Mockito.any(ExtChannelDigitalSentResponseInt.class));
 
     }
 
@@ -79,15 +62,8 @@ class ExternalChannelHandlerTest {
         SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();
         singleStatusUpdate.setAnalogMail(extChannelResponse);
 
-        Mockito.when(timelineUtils.getIunFromTimelineId(Mockito.anyString())).thenReturn("iun");
-
-        Mockito.when(externalChannelUtils.getExternalChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(TimelineElementInternal.builder()
-                        .category(TimelineElementCategoryInt.SEND_ANALOG_DOMICILE)
-                        .build());
-
         handler.extChannelResponseReceiver(singleStatusUpdate);
 
-        Mockito.verify(analogWorkflowHandler).extChannelResponseHandler(Mockito.any(PaperProgressStatusEvent.class), Mockito.any(TimelineElementInternal.class));
+        Mockito.verify(analogWorkflowHandler).extChannelResponseHandler(Mockito.any(ExtChannelAnalogSentResponseInt.class));
     }
 }

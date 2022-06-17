@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.action2;
+package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.deliverypush.action2.utils.AarUtils;
 import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
@@ -14,19 +14,21 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
+import it.pagopa.pn.deliverypush.service.ExternalChannelService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Service;
 
-@Component
 @Slf4j
-public class ExternalChannelSendHandler {
+@Service
+public class ExternalChannelServiceImpl implements ExternalChannelService {
     private final ExternalChannelUtils externalChannelUtils;
     private final ExternalChannelSendClient externalChannel;
     private final NotificationUtils notificationUtils;
     private final AarUtils aarUtils;
     private final TimelineUtils timelineUtils;
 
-    public ExternalChannelSendHandler(ExternalChannelUtils externalChannelUtils, ExternalChannelSendClient externalChannel, NotificationUtils notificationUtils, AarUtils aarUtils, TimelineUtils timelineUtils) {
+    public ExternalChannelServiceImpl(ExternalChannelUtils externalChannelUtils, ExternalChannelSendClient externalChannel, NotificationUtils notificationUtils, AarUtils aarUtils, TimelineUtils timelineUtils) {
         this.externalChannelUtils = externalChannelUtils;
         this.externalChannel = externalChannel;
         this.notificationUtils = notificationUtils;
@@ -38,7 +40,8 @@ public class ExternalChannelSendHandler {
      * Send pec notification to external channel
      * Messaggio con valore legale (PEC)
      */
-    public void sendDigitalNotification(NotificationInt notification, 
+    @Override
+    public void sendDigitalNotification(NotificationInt notification,
                                         LegalDigitalAddressInt digitalAddress,
                                         DigitalAddressSourceInt addressSource,
                                         Integer recIndex,
@@ -54,7 +57,7 @@ public class ExternalChannelSendHandler {
                         .index(sentAttemptMade)
                         .build()
         );
-        
+
         externalChannel.sendLegalNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), digitalAddress, eventId);
         externalChannelUtils.addSendDigitalNotificationToTimeline(notification, digitalAddress, addressSource, recIndex, sentAttemptMade, eventId);
     }
@@ -64,9 +67,10 @@ public class ExternalChannelSendHandler {
      * Messaggio senza valore legale (EMAIL, SMS)
      *
      */
+    @Override
     public void sendCourtesyNotification(NotificationInt notification, CourtesyDigitalAddressInt courtesyAddress, Integer recIndex, String eventId) {
         log.debug("Start sendCourtesyNotification - iun {} id {}", notification.getIun(), recIndex);
-        
+
         externalChannel.sendCourtesyNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), courtesyAddress, eventId);
         externalChannelUtils.addSendCourtesyMessageToTimeline(notification, courtesyAddress, recIndex, eventId);
     }
@@ -76,6 +80,7 @@ public class ExternalChannelSendHandler {
      * to use when all pec send fails
      * Invio di RACCOMANDATA SEMPLICE quando falliscono tutti i tentativi via PEC
      */
+    @Override
     public void sendNotificationForRegisteredLetter(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex) {
         log.debug("Start sendNotificationForRegisteredLetter - iun={} recipientIndex={}", notification.getIun(), recIndex);
         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
@@ -89,13 +94,13 @@ public class ExternalChannelSendHandler {
             );
 
             AarGenerationDetailsInt aarGenerationDetails = aarUtils.getAarGenerationDetails(notification, recIndex);
-            
+
             // la tipologia qui è sempre raccomandata semplice SR
             externalChannel.sendAnalogNotification(
-                    notification, 
+                    notification,
                     notificationUtils.getRecipientFromIndex(notification,recIndex),
-                    physicalAddress, 
-                    eventId, 
+                    physicalAddress,
+                    eventId,
                     ExternalChannelSendClient.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER,
                     aarGenerationDetails.getGeneratedAarUrl()
             );
@@ -113,13 +118,14 @@ public class ExternalChannelSendHandler {
      * AR o 890
      *
      */
+    @Override
     public void sendAnalogNotification(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex, boolean investigation, int sentAttemptMade) {
         log.debug("Start sendAnalogNotification - iun {} id {}", notification.getIun(), recIndex);
 
         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
 
         if( !isNotificationAlreadyViewed ){
-            
+
             String eventId = TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(
                     EventId.builder()
                             .iun(notification.getIun())

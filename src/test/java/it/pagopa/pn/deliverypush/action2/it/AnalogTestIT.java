@@ -62,7 +62,7 @@ import static org.awaitility.Awaitility.with;
         PublicRegistryResponseHandler.class,
         ExternalChannelResponseHandler.class,
         PublicRegistrySendHandler.class,
-        ExternalChannelSendHandler.class,
+        ExternalChannelServiceImpl.class,
         RefinementHandler.class,
         NotificationViewedHandler.class,
         DigitalWorkFlowUtils.class,
