@@ -10,6 +10,6 @@
     "WebhookScanInterval": "60000",
     "WebhookMaxLength": "10",
     "SandboxSafeStorageBaseUrl": "https://14ej9p2krd.execute-api.eu-south-1.amazonaws.com/dev",
-    "ExternalChannelBaseUrl": "https://p0kt6b8wsi.execute-api.eu-south-1.amazonaws.com/dev/"
+    "ExternalChannelBaseUrl": "https://w0t7lzj7a1.execute-api.eu-south-1.amazonaws.com/dev"
   }
 }
