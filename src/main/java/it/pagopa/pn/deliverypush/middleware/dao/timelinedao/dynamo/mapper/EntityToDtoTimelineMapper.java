@@ -26,6 +26,7 @@ public class EntityToDtoTimelineMapper {
     public TimelineElementInternal entityToDto(TimelineElementEntity entity ) {
         TimelineElementCategoryInt category = entity.getCategory() != null ? TimelineElementCategoryInt.valueOf(entity.getCategory().getValue()) : null;
 
+        assert category != null;
         return TimelineElementInternal.builder()
                 .iun(entity.getIun())
                 .elementId( entity.getTimelineElementId() )
@@ -55,6 +56,6 @@ public class EntityToDtoTimelineMapper {
     }
 
     private TimelineElementDetailsInt parseDetailsFromEntity(TimelineElementDetailsEntity entity, TimelineElementCategoryInt category) {
-        return SmartMapper.mapToClass(entity, category.getDetailsJavaClass() );
+        return SmartMapper.mapToClass(entity, category.getDetailsJavaClass());
     }
 }

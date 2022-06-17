@@ -9,6 +9,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Setter
 @Builder(toBuilder = true)
 @EqualsAndHashCode
 @ToString

@@ -7,6 +7,7 @@ import lombok.*;
 @Builder(toBuilder = true)
 @EqualsAndHashCode
 @Getter
+@Setter
 @ToString
 public class ScheduleRefinementDetailsInt implements RecipientRelatedTimelineElementDetails {
     private int recIndex;

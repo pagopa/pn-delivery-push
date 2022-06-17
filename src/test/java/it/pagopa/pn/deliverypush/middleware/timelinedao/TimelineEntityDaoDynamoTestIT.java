@@ -47,7 +47,7 @@ class TimelineEntityDaoDynamoTestIT {
                         TimelineElementDetailsEntity.builder()
                                 .recIndex(0)
                                 .foreignState("IT")
-                                .numberOfPages("1")
+                                .numberOfPages(1)
                                 .build()
                 )
                 .legalFactIds(

@@ -34,8 +34,9 @@ public class PublicRegistrySendHandler {
         log.info("SendRequestForGetDigitalAddress correlationId {} - iun {} id {}", correlationId, notification.getIun(), recIndex);
         
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
-        publicRegistry.sendRequestForGetDigitalAddress(recipient.getTaxId(), correlationId);
+
         publicRegistryUtils.addPublicRegistryCallToTimeline(notification, recIndex, contactPhase, sentAttemptMade, correlationId, DeliveryModeInt.DIGITAL);
+        publicRegistry.sendRequestForGetDigitalAddress(recipient.getTaxId(), correlationId);
 
         log.debug("End sendRequestForGetAddress correlationId {} - iun {} id {}", correlationId, notification.getIun(), recIndex);
     }
@@ -48,8 +49,9 @@ public class PublicRegistrySendHandler {
         log.info("SendRequestForGetPhysicalAddress correlationId {} - iun {} id {}", correlationId, notification.getIun(), recIndex);
         
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
-        publicRegistry.sendRequestForGetPhysicalAddress(recipient.getTaxId(), correlationId);
+
         publicRegistryUtils.addPublicRegistryCallToTimeline(notification, recIndex, ContactPhaseInt.SEND_ATTEMPT, sentAttemptMade, correlationId, DeliveryModeInt.ANALOG);
+        publicRegistry.sendRequestForGetPhysicalAddress(recipient.getTaxId(), correlationId);
 
         log.debug("End sendRequestForGetPhysicalAddress correlationId {} - iun {} id {}", correlationId, notification.getIun(), recIndex);
     }

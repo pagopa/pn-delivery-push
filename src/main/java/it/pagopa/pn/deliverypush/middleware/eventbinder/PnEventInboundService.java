@@ -7,11 +7,8 @@ package it.pagopa.pn.deliverypush.middleware.eventbinder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.pagopa.pn.api.dto.events.PnDeliveryNewNotificationEvent;
-import it.pagopa.pn.api.dto.events.PnDeliveryNotificationViewedEvent;
-import it.pagopa.pn.api.dto.events.StandardEventHeader;
+import it.pagopa.pn.api.dto.events.*;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.SingleStatusUpdate;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.ActionEventType;
 import it.pagopa.pn.deliverypush.abstractions.webhookspool.WebhookAction;
@@ -44,10 +41,11 @@ public class PnEventInboundService {
     private final RefinementHandler refinementHandler;
     private final EventHandler eventHandler;
     private final WebhookActionsEventHandler webhookActionsEventHandler;
-
+    private final ExternalChannelResponseHandlerOld externalChannelResponseHandlerOld;
+    
     public PnEventInboundService(StartWorkflowHandler startWorkflowHandler, ExternalChannelResponseHandler externalChannelResponseHandler,
                                  NotificationViewedHandler notificationViewedHandler, DigitalWorkFlowHandler digitalWorkFlowHandler,
-                                 AnalogWorkflowHandler analogWorkflowHandler, RefinementHandler refinementHandler, EventHandler eventHandler, WebhookActionsEventHandler webhookActionsEventHandler) {
+                                 AnalogWorkflowHandler analogWorkflowHandler, RefinementHandler refinementHandler, EventHandler eventHandler, WebhookActionsEventHandler webhookActionsEventHandler, ExternalChannelResponseHandlerOld externalChannelResponseHandlerOld) {
         this.startWorkflowHandler = startWorkflowHandler;
         this.externalChannelResponseHandler = externalChannelResponseHandler;
         this.notificationViewedHandler = notificationViewedHandler;
@@ -56,6 +54,7 @@ public class PnEventInboundService {
         this.refinementHandler = refinementHandler;
         this.eventHandler = eventHandler;
         this.webhookActionsEventHandler = webhookActionsEventHandler;
+        this.externalChannelResponseHandlerOld = externalChannelResponseHandlerOld;
     }
 
     @Bean
@@ -161,7 +160,7 @@ public class PnEventInboundService {
         };
     }
 
-    @Bean
+/*    @Bean
     public Consumer<Message<SingleStatusUpdate>>  pnExtChannelEventInboundConsumer() {
         return message -> {
             try {
@@ -174,8 +173,29 @@ public class PnEventInboundService {
                 throw ex;
             }
         };
-    }
+    }*/
+
     
+    /**
+     * @deprecated
+     * Deprecata in attesa di un mock di externalChannel con le nuove api
+     */
+    @Deprecated(since = "PN-612", forRemoval = true)
+    @Bean
+    public Consumer<Message<PnExtChnProgressStatusEventPayload>>  pnExtChannelEventInboundConsumer() {
+        return message -> {
+            log.info("External channel event received, message {}", message);
+            
+            PnExtChnProgressStatusEvent evt = PnExtChnProgressStatusEvent.builder()
+                    .payload(message.getPayload())
+                    .header(mapStandardEventHeader(message.getHeaders()))
+                    .build();
+
+            externalChannelResponseHandlerOld.extChannelResponseReceiver(evt);
+        };
+    }
+
+
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushAnalogWorkflowConsumer() {
         return message -> {

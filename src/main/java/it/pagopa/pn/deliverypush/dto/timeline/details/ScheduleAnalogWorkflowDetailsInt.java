@@ -7,6 +7,7 @@ import lombok.*;
 @Builder(toBuilder = true)
 @EqualsAndHashCode
 @Getter
+@Setter
 @ToString
 public class ScheduleAnalogWorkflowDetailsInt implements RecipientRelatedTimelineElementDetails {
     private int recIndex;

@@ -50,8 +50,9 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
     private ConfidentialTimelineElementDtoInt getConfidentialDtoFromTimeline(TimelineElementInternal timelineElement) {
         TimelineElementDetailsInt details = timelineElement.getDetails();
         
-        ConfidentialTimelineElementDtoInt.ConfidentialTimelineElementDtoIntBuilder builder = ConfidentialTimelineElementDtoInt.builder();
-        
+        ConfidentialTimelineElementDtoInt.ConfidentialTimelineElementDtoIntBuilder builder = ConfidentialTimelineElementDtoInt.builder()
+                        .timelineElementId(timelineElement.getElementId());
+
         if( details instanceof CourtesyAddressRelatedTimelineElement ){
             CourtesyAddressRelatedTimelineElement courtesyDetails = (CourtesyAddressRelatedTimelineElement) details;
             if(courtesyDetails.getDigitalAddress() != null){

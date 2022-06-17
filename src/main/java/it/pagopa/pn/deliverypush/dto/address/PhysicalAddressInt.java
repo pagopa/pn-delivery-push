@@ -7,6 +7,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
+@Setter
+@Getter
 @ToString
 public class PhysicalAddressInt {
     private String at;

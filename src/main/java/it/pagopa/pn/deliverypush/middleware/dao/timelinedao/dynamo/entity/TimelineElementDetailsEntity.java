@@ -37,6 +37,6 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("investigation")})) private Boolean investigation;
     @Getter(onMethod=@__({@DynamoDbAttribute("newAddress")})) private PhysicalAddressEntity newAddress;
     @Getter(onMethod=@__({@DynamoDbAttribute("generatedAarUrl")})) private String generatedAarUrl;
-    @Getter(onMethod=@__({@DynamoDbAttribute("numberOfPages")})) private String numberOfPages;
+    @Getter(onMethod=@__({@DynamoDbAttribute("numberOfPages")})) private Integer numberOfPages;
     @Getter(onMethod=@__({@DynamoDbAttribute("foreignState")})) private String foreignState;
 }

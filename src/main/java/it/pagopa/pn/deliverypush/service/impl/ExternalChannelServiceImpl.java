@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
+@ConditionalOnProperty( name = "pn.delivery-push.featureflags.externalchannel", havingValue = "new")
 public class ExternalChannelServiceImpl implements ExternalChannelService {
     private final ExternalChannelUtils externalChannelUtils;
     private final ExternalChannelSendClient externalChannel;
