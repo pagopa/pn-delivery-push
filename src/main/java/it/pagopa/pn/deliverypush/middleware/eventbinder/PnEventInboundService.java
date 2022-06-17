@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.api.dto.events.*;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.SingleStatusUpdate;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.ActionEventType;
 import it.pagopa.pn.deliverypush.abstractions.webhookspool.WebhookAction;
@@ -160,7 +161,7 @@ public class PnEventInboundService {
         };
     }
 
-/*    @Bean
+    @Bean
     public Consumer<Message<SingleStatusUpdate>>  pnExtChannelEventInboundConsumer() {
         return message -> {
             try {
@@ -173,14 +174,15 @@ public class PnEventInboundService {
                 throw ex;
             }
         };
-    }*/
+    }
 
+    
     
     /**
      * @deprecated
      * Deprecata in attesa di un mock di externalChannel con le nuove api
      */
-    @Deprecated(since = "PN-612", forRemoval = true)
+ /*   @Deprecated(since = "PN-612", forRemoval = true)
     @Bean
     public Consumer<Message<PnExtChnProgressStatusEventPayload>>  pnExtChannelEventInboundConsumer() {
         return message -> {
@@ -194,7 +196,7 @@ public class PnEventInboundService {
             externalChannelResponseHandlerOld.extChannelResponseReceiver(evt);
         };
     }
-
+*/
 
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushAnalogWorkflowConsumer() {
