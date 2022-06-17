@@ -13,6 +13,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
+import it.pagopa.pn.deliverypush.service.ExternalChannelService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -35,7 +36,7 @@ class CompletionWorkFlowHandlerTest {
     @Mock
     private SchedulerService scheduler;
     @Mock
-    private ExternalChannelSendHandler externalChannelSendHandler;
+    private ExternalChannelService externalChannelService;
     @Mock
     private TimelineService timelineService;
     @Mock
@@ -55,7 +56,7 @@ class CompletionWorkFlowHandlerTest {
     public void setup() {
         notificationUtils= new NotificationUtils();
         handler = new CompletionWorkFlowHandler(notificationUtils, scheduler,
-                externalChannelSendHandler, timelineService, completelyUnreachableUtils, timelineUtils, legalFactDao
+                externalChannelService, timelineService, completelyUnreachableUtils, timelineUtils, legalFactDao
                 ,pnDeliveryPushConfigs);
     }
 
@@ -113,7 +114,7 @@ class CompletionWorkFlowHandlerTest {
         handler.completionDigitalWorkflow(notification, recIndex, notificationDate, recipient.getDigitalDomicile(), EndWorkflowStatus.FAILURE);
 
         //THEN
-        Mockito.verify(externalChannelSendHandler).sendNotificationForRegisteredLetter(Mockito.any(NotificationInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyInt());
+        Mockito.verify(externalChannelService).sendNotificationForRegisteredLetter(Mockito.any(NotificationInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyInt());
 
         Mockito.verify(timelineUtils).buildFailureDigitalWorkflowTimelineElement(Mockito.any(NotificationInt.class),
                 Mockito.anyInt(), Mockito.anyString());
