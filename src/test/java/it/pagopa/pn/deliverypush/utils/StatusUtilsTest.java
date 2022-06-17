@@ -1,9 +1,9 @@
 package it.pagopa.pn.deliverypush.utils;
 
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusHistoryElementInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElement;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,7 +62,7 @@ class StatusUtilsTest {
         // WHEN ask for status history
         Instant notificationCreatedAt = Instant.parse("2021-09-16T15:20:00.00Z");
         
-        List<NotificationStatusHistoryElement> actualStatusHistory = statusUtils.getStatusHistory(
+        List<NotificationStatusHistoryElementInt> actualStatusHistory = statusUtils.getStatusHistory(
                 timelineElementList, 1,
                 notificationCreatedAt
         );
@@ -71,8 +71,8 @@ class StatusUtilsTest {
         Assertions.assertEquals( 6, actualStatusHistory.size(), "Check length");
 
         //  ... 1st initial status
-        Assertions.assertEquals( NotificationStatusHistoryElement.builder()
-                        .status(NotificationStatus.IN_VALIDATION)
+        Assertions.assertEquals( NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.IN_VALIDATION)
                         .activeFrom(notificationCreatedAt)
                         .relatedTimelineElements(List.of())
                         .build(),
@@ -81,8 +81,8 @@ class StatusUtilsTest {
         );
 
         //  ... 2nd initial status
-        Assertions.assertEquals( NotificationStatusHistoryElement.builder()
-                        .status(NotificationStatus.ACCEPTED)
+        Assertions.assertEquals( NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.ACCEPTED)
                         .activeFrom( timelineElement1.getTimestamp() )
                         .relatedTimelineElements(List.of("el1"))
                         .build(),
@@ -91,8 +91,8 @@ class StatusUtilsTest {
         );
 
         //  ... 3rd initial status
-        Assertions.assertEquals( NotificationStatusHistoryElement.builder()
-                        .status(NotificationStatus.DELIVERING)
+        Assertions.assertEquals( NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.DELIVERING)
                         .activeFrom( timelineElement3.getTimestamp() )
                         .relatedTimelineElements( Arrays.asList(  "el3", "el4" ))
                         .build(),
@@ -101,8 +101,8 @@ class StatusUtilsTest {
         );
 
         //  ... 4th initial status
-        Assertions.assertEquals( NotificationStatusHistoryElement.builder()
-                        .status(NotificationStatus.DELIVERED)
+        Assertions.assertEquals( NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.DELIVERED)
                         .activeFrom( timelineElement5.getTimestamp() )
                         .relatedTimelineElements(List.of("el5"))
                         .build(),
@@ -111,8 +111,8 @@ class StatusUtilsTest {
         );
 
         //  ... 5th initial status
-        Assertions.assertEquals( NotificationStatusHistoryElement.builder()
-                        .status(NotificationStatus.VIEWED)
+        Assertions.assertEquals( NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.VIEWED)
                         .activeFrom( timelineElement6.getTimestamp() )
                         .relatedTimelineElements(List.of("el6"))
                         .build(),
@@ -121,8 +121,8 @@ class StatusUtilsTest {
         );
 
         //  ... 6th initial status
-        Assertions.assertEquals( NotificationStatusHistoryElement.builder()
-                        .status(NotificationStatus.PAID)
+        Assertions.assertEquals( NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.PAID)
                         .activeFrom( timelineElement7.getTimestamp() )
                         .relatedTimelineElements(List.of("el7"))
                         .build(),
@@ -185,46 +185,46 @@ class StatusUtilsTest {
                 timelineElement5_1, timelineElement6, timelineElement7);
 
 
-        // creare List<NotificationStatusHistoryElement>
+        // creare List<NotificationStatusHistoryElementInt>
         Instant notificationCreatedAt = Instant.parse("2021-09-16T15:20:00.00Z");
         
-        NotificationStatusHistoryElement historyElement = NotificationStatusHistoryElement.builder()
-                .status(NotificationStatus.IN_VALIDATION)
+        NotificationStatusHistoryElementInt historyElement = NotificationStatusHistoryElementInt.builder()
+                .status(NotificationStatusInt.IN_VALIDATION)
                 .activeFrom(notificationCreatedAt)
                 .relatedTimelineElements(List.of())
                 .build();
 
-        NotificationStatusHistoryElement historyElement1 = NotificationStatusHistoryElement.builder()
-                .status(NotificationStatus.ACCEPTED)
+        NotificationStatusHistoryElementInt historyElement1 = NotificationStatusHistoryElementInt.builder()
+                .status(NotificationStatusInt.ACCEPTED)
                 .activeFrom((Instant.parse("2021-09-16T15:24:00.00Z")))
                 .relatedTimelineElements(List.of("el1"))
                 .build();
 
-        NotificationStatusHistoryElement historyElement2 = NotificationStatusHistoryElement.builder()
-                .status(NotificationStatus.DELIVERING)
+        NotificationStatusHistoryElementInt historyElement2 = NotificationStatusHistoryElementInt.builder()
+                .status(NotificationStatusInt.DELIVERING)
                 .activeFrom((Instant.parse("2021-09-16T15:25:00.00Z")))
                 .relatedTimelineElements( Arrays.asList( "el3", "el4", "el5", "el6", "el7" ))
                 .build();
-        NotificationStatusHistoryElement historyElement4_1 = NotificationStatusHistoryElement.builder()
-                .status(NotificationStatus.DELIVERED)
+        NotificationStatusHistoryElementInt historyElement4_1 = NotificationStatusHistoryElementInt.builder()
+                .status(NotificationStatusInt.DELIVERED)
                 .activeFrom((Instant.parse("2021-09-16T15:31:00.00Z")))
                 .relatedTimelineElements(List.of("el8"))
                 .build();
-        NotificationStatusHistoryElement historyElement5 = NotificationStatusHistoryElement.builder()
-                .status(NotificationStatus.VIEWED)
+        NotificationStatusHistoryElementInt historyElement5 = NotificationStatusHistoryElementInt.builder()
+                .status(NotificationStatusInt.VIEWED)
                 .activeFrom((Instant.parse("2021-09-16T17:00:00.00Z")))
                 .relatedTimelineElements(List.of("el9"))
                 .build();
-        NotificationStatusHistoryElement historyElement6 = NotificationStatusHistoryElement.builder()
-                .status(NotificationStatus.PAID)
+        NotificationStatusHistoryElementInt historyElement6 = NotificationStatusHistoryElementInt.builder()
+                .status(NotificationStatusInt.PAID)
                 .activeFrom((Instant.parse("2021-09-16T17:30:00.00Z")))
                 .relatedTimelineElements(List.of("el10"))
                 .build();
-        List<NotificationStatusHistoryElement> historyElementList = Arrays.asList(historyElement,historyElement1,
+        List<NotificationStatusHistoryElementInt> historyElementList = Arrays.asList(historyElement,historyElement1,
                 historyElement2, historyElement4_1, historyElement5, historyElement6);
 
         // chiamare metodo di test
-        List<NotificationStatusHistoryElement> resHistoryElementList = statusUtils.getStatusHistory(
+        List<NotificationStatusHistoryElementInt> resHistoryElementList = statusUtils.getStatusHistory(
                 timelineElementList, 1,
                 notificationCreatedAt
         );
@@ -256,36 +256,36 @@ class StatusUtilsTest {
 
         Instant notificationCreatedAt = Instant.parse("2021-09-16T15:23:00.00Z");
         
-        NotificationStatusHistoryElement historyElement1 = NotificationStatusHistoryElement.builder()
-                .status(NotificationStatus.IN_VALIDATION)
+        NotificationStatusHistoryElementInt historyElement1 = NotificationStatusHistoryElementInt.builder()
+                .status(NotificationStatusInt.IN_VALIDATION)
                 .relatedTimelineElements(List.of())
                 .activeFrom(notificationCreatedAt)
                 .build();
 
-        NotificationStatusHistoryElement historyElement2 = NotificationStatusHistoryElement.builder()
-                .status(NotificationStatus.ACCEPTED)
+        NotificationStatusHistoryElementInt historyElement2 = NotificationStatusHistoryElementInt.builder()
+                .status(NotificationStatusInt.ACCEPTED)
                 .activeFrom((Instant.parse("2021-09-16T15:24:00.00Z")))
                 .relatedTimelineElements(List.of("el1"))
                 .build();
 
-        NotificationStatusHistoryElement historyElement3 = NotificationStatusHistoryElement.builder()
-                .status(NotificationStatus.VIEWED)
+        NotificationStatusHistoryElementInt historyElement3 = NotificationStatusHistoryElementInt.builder()
+                .status(NotificationStatusInt.VIEWED)
                 .activeFrom((Instant.parse("2021-09-16T15:25:00.00Z")))
                 .relatedTimelineElements(List.of("el2"))
                 .build();
 
-        NotificationStatusHistoryElement historyElement4 = NotificationStatusHistoryElement.builder()
-                .status(NotificationStatus.PAID)
+        NotificationStatusHistoryElementInt historyElement4 = NotificationStatusHistoryElementInt.builder()
+                .status(NotificationStatusInt.PAID)
                 .activeFrom((Instant.parse("2021-09-16T15:26:00.00Z")))
                 .relatedTimelineElements(List.of("el3"))
                 .build();
 
-        List<NotificationStatusHistoryElement> historyElementList = Arrays.asList(
+        List<NotificationStatusHistoryElementInt> historyElementList = Arrays.asList(
                 historyElement1, historyElement2, historyElement3, historyElement4
         );
 
         // chiamare metodo di test
-        List<NotificationStatusHistoryElement> resHistoryElementList = statusUtils.getStatusHistory(
+        List<NotificationStatusHistoryElementInt> resHistoryElementList = statusUtils.getStatusHistory(
                 timelineElementList, 2,
                 notificationCreatedAt
         );
@@ -296,24 +296,24 @@ class StatusUtilsTest {
     @Test
     void emptyTimelineInitialStateTest() {
         //
-        Assertions.assertEquals(NotificationStatus.IN_VALIDATION, statusUtils.getCurrentStatus(Collections.emptyList()));
+        Assertions.assertEquals(NotificationStatusInt.IN_VALIDATION, statusUtils.getCurrentStatus(Collections.emptyList()));
     }
 
     @Test
     void getCurrentStatusTest() {
-        List<NotificationStatusHistoryElement>  statusHistory = new ArrayList<>();
-        NotificationStatusHistoryElement statusHistoryDelivering = NotificationStatusHistoryElement.builder()
+        List<NotificationStatusHistoryElementInt>  statusHistory = new ArrayList<>();
+        NotificationStatusHistoryElementInt statusHistoryDelivering = NotificationStatusHistoryElementInt.builder()
                 .activeFrom(Instant.now())
-                .status(NotificationStatus.DELIVERING)
+                .status(NotificationStatusInt.DELIVERING)
                 .build();
-        NotificationStatusHistoryElement statusHistoryAccepted = NotificationStatusHistoryElement.builder()
+        NotificationStatusHistoryElementInt statusHistoryAccepted = NotificationStatusHistoryElementInt.builder()
                 .activeFrom(Instant.now())
-                .status(NotificationStatus.ACCEPTED)
+                .status(NotificationStatusInt.ACCEPTED)
                 .build();
         statusHistory.add(statusHistoryDelivering);
         statusHistory.add(statusHistoryAccepted);
 
-        Assertions.assertEquals(NotificationStatus.ACCEPTED, statusUtils.getCurrentStatus(statusHistory));
+        Assertions.assertEquals(NotificationStatusInt.ACCEPTED, statusUtils.getCurrentStatus(statusHistory));
     }
 
 }

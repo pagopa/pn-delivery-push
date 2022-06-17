@@ -8,6 +8,8 @@ import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDt
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusHistoryElementInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
@@ -56,7 +58,7 @@ class TimeLineServiceImplTest {
         String elementId = "elementId";
 
         NotificationInt notification = getNotification(iun);
-        StatusService.NotificationStatusUpdate notificationStatuses = new StatusService.NotificationStatusUpdate(NotificationStatus.ACCEPTED, NotificationStatus.ACCEPTED);
+        StatusService.NotificationStatusUpdate notificationStatuses = new StatusService.NotificationStatusUpdate(NotificationStatusInt.ACCEPTED, NotificationStatusInt.ACCEPTED);
         Mockito.when(statusService.checkAndUpdateStatus(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(notificationStatuses);
         Mockito.doNothing().when(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
 
@@ -271,7 +273,7 @@ class TimeLineServiceImplTest {
         String iun = "iun";
         int numberOfRecipients1 = 1;
         Instant notificationCreatedAt = Instant.now();
-        NotificationStatus currentStatus = NotificationStatus.DELIVERING;
+        NotificationStatusInt currentStatus = NotificationStatusInt.DELIVERING;
 
         String elementId1 = "elementId1";
         Set<TimelineElementInternal> setTimelineElement = getSendPaperDetailsList(iun, elementId1);
@@ -280,26 +282,26 @@ class TimeLineServiceImplTest {
 
         Instant activeFromInValidation = Instant.now();
         
-        NotificationStatusHistoryElement inValidationElement = NotificationStatusHistoryElement.builder()
-                .status(NotificationStatus.IN_VALIDATION)
+        NotificationStatusHistoryElementInt inValidationElement = NotificationStatusHistoryElementInt.builder()
+                .status(NotificationStatusInt.IN_VALIDATION)
                 .activeFrom(activeFromInValidation)
                 .build();
 
         Instant activeFromAccepted = activeFromInValidation.plus(Duration.ofDays(1));
 
-        NotificationStatusHistoryElement acceptedElementElement = NotificationStatusHistoryElement.builder()
-                .status(NotificationStatus.ACCEPTED)
+        NotificationStatusHistoryElementInt acceptedElementElement = NotificationStatusHistoryElementInt.builder()
+                .status(NotificationStatusInt.ACCEPTED)
                 .activeFrom(activeFromAccepted)
                 .build();
 
         Instant activeFromDelivering = activeFromAccepted.plus(Duration.ofDays(1));
 
-        NotificationStatusHistoryElement deliveringElement = NotificationStatusHistoryElement.builder()
-                .status(NotificationStatus.DELIVERING)
+        NotificationStatusHistoryElementInt deliveringElement = NotificationStatusHistoryElementInt.builder()
+                .status(NotificationStatusInt.DELIVERING)
                 .activeFrom(activeFromDelivering)
                 .build();
         
-        List<NotificationStatusHistoryElement> notificationStatusHistoryElements = new ArrayList<>(List.of(inValidationElement, acceptedElementElement, deliveringElement));
+        List<NotificationStatusHistoryElementInt> notificationStatusHistoryElements = new ArrayList<>(List.of(inValidationElement, acceptedElementElement, deliveringElement));
 
         Mockito.when(
                 statusUtils.getStatusHistory(Mockito.anySet() ,Mockito.anyInt(), Mockito.any(Instant.class))
@@ -318,11 +320,11 @@ class TimeLineServiceImplTest {
         Assertions.assertEquals(2 , notificationHistoryResponse.getNotificationStatusHistory().size());
         
         NotificationStatusHistoryElement firstElement = notificationHistoryResponse.getNotificationStatusHistory().get(0);
-        Assertions.assertEquals(acceptedElementElement.getStatus(), firstElement.getStatus());
+        Assertions.assertEquals(acceptedElementElement.getStatus(), NotificationStatusInt.valueOf(firstElement.getStatus().getValue()) );
         Assertions.assertEquals(inValidationElement.getActiveFrom(), firstElement.getActiveFrom());
 
         NotificationStatusHistoryElement secondElement = notificationHistoryResponse.getNotificationStatusHistory().get(1);
-        Assertions.assertEquals(deliveringElement.getStatus(), secondElement.getStatus());
+        Assertions.assertEquals(deliveringElement.getStatus(), NotificationStatusInt.valueOf(secondElement.getStatus().getValue()));
         Assertions.assertEquals(deliveringElement.getActiveFrom(), secondElement.getActiveFrom());
         
         //Verifica timeline 
@@ -333,7 +335,7 @@ class TimeLineServiceImplTest {
 
         TimelineElement firstElementReturned = notificationHistoryResponse.getTimeline().get(0);
         
-        Assertions.assertEquals( notificationHistoryResponse.getNotificationStatus(), currentStatus );
+        Assertions.assertEquals( notificationHistoryResponse.getNotificationStatus(), NotificationStatus.valueOf(currentStatus.getValue()) );
         Assertions.assertEquals( elementInt.getElementId(), firstElementReturned.getElementId() );
         
         SendAnalogDetailsInt details = (SendAnalogDetailsInt) elementInt.getDetails();

@@ -1,10 +1,10 @@
 package it.pagopa.pn.deliverypush.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusHistoryElementInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElement;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 @Component
 public class StatusUtils {
 
-    private static final NotificationStatus INITIAL_STATUS = NotificationStatus.IN_VALIDATION;
+    private static final NotificationStatusInt INITIAL_STATUS = NotificationStatusInt.IN_VALIDATION;
     private static final Set<TimelineElementCategoryInt> SUCCES_DELIVERY_WORKFLOW_CATEGORY = new HashSet<>(Arrays.asList(
             //Completato con successo
             TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW,
@@ -28,7 +28,7 @@ public class StatusUtils {
 
     private final StateMap stateMap = new StateMap();
 
-    public NotificationStatus getCurrentStatus(List<NotificationStatusHistoryElement> statusHistory) {
+    public NotificationStatusInt getCurrentStatus(List<NotificationStatusHistoryElementInt> statusHistory) {
         if (!statusHistory.isEmpty()) {
             return statusHistory.get(statusHistory.size() - 1).getStatus();
         } else {
@@ -36,7 +36,7 @@ public class StatusUtils {
         }
     }
     
-    public List<NotificationStatusHistoryElement> getStatusHistory( //
+    public List<NotificationStatusHistoryElementInt> getStatusHistory( //
                                                                     Set<TimelineElementInternal> timelineElementList, //
                                                                     int numberOfRecipients, //
                                                                     Instant notificationCreatedAt //
@@ -46,13 +46,13 @@ public class StatusUtils {
                 .sorted(Comparator.comparing(TimelineElementInternal::getTimestamp))
                 .collect(Collectors.toList());
     
-        List<NotificationStatusHistoryElement> timelineHistory = new ArrayList<>();
+        List<NotificationStatusHistoryElementInt> timelineHistory = new ArrayList<>();
 
         List<String> relatedTimelineElements = new ArrayList<>();
         List<TimelineElementCategoryInt> relatedCategoryElements = new ArrayList<>();
 
         Instant creationDateCurrentState = notificationCreatedAt;
-        NotificationStatus currentState = INITIAL_STATUS;
+        NotificationStatusInt currentState = INITIAL_STATUS;
         int numberOfCompletedWorkflow = 0;
 
         for (TimelineElementInternal timelineElement : timelineByTimestampSorted) {
@@ -65,13 +65,13 @@ public class StatusUtils {
             
             relatedCategoryElements.add( timelineElement.getCategory() );
 
-            NotificationStatus nextState = computeStateAfterEvent(
+            NotificationStatusInt nextState = computeStateAfterEvent(
                         currentState, category, numberOfCompletedWorkflow, numberOfRecipients, relatedCategoryElements);
 
             //Se lo stato corrente è diverso dal prossimo stato
             if (!Objects.equals(currentState, nextState)) {
                 
-                NotificationStatusHistoryElement statusHistoryElement = NotificationStatusHistoryElement.builder()
+                NotificationStatusHistoryElementInt statusHistoryElement = NotificationStatusHistoryElementInt.builder()
                         .status( currentState )
                         .activeFrom( creationDateCurrentState )
                         .relatedTimelineElements( relatedTimelineElements )
@@ -93,7 +93,7 @@ public class StatusUtils {
             currentState = nextState;
         }
                  
-        NotificationStatusHistoryElement statusHistoryElement = NotificationStatusHistoryElement.builder()
+        NotificationStatusHistoryElementInt statusHistoryElement = NotificationStatusHistoryElementInt.builder()
                 .status( currentState )
                 .activeFrom( creationDateCurrentState )
                 .relatedTimelineElements( relatedTimelineElements )
@@ -103,18 +103,18 @@ public class StatusUtils {
         return timelineHistory;
     }
 
-    private NotificationStatus computeStateAfterEvent( 
-                                                       NotificationStatus currentState, 
+    private NotificationStatusInt computeStateAfterEvent( 
+                                                       NotificationStatusInt currentState, 
                                                        TimelineElementCategoryInt timelineElementCategory,
                                                        int numberOfCompletedWorkflow,
                                                        int numberOfRecipients,
                                                        List<TimelineElementCategoryInt> relatedCategoryElements
     ) {
-        NotificationStatus nextState;
+        NotificationStatusInt nextState;
 
         //(Gli stati ACCEPTED e DELIVERING sono gli stati in cui ci sono differenze di gestione per il multi destinatario, dunque prevedono una logica ad-hoc per il cambio stato)
         // Se sono nello stato ACCEPTED o DELIVERING e l'elemento di timeline preso in considerazione è uno degli stati di successo o fallimento del workflow ...
-        if ( ( currentState.equals(NotificationStatus.ACCEPTED) || currentState.equals(NotificationStatus.DELIVERING) ) 
+        if ( ( currentState.equals(NotificationStatusInt.ACCEPTED) || currentState.equals(NotificationStatusInt.DELIVERING) ) 
                 &&
              ( SUCCES_DELIVERY_WORKFLOW_CATEGORY.contains(timelineElementCategory) || FAILURE_DELIVERY_WORKFLOW_CATEGORY.contains(timelineElementCategory) )
         ) {
@@ -134,7 +134,7 @@ public class StatusUtils {
         return nextState;
     }
 
-    private NotificationStatus getNextState(NotificationStatus currentState, List<TimelineElementCategoryInt> relatedCategoryElements, int numberOfRecipient) {
+    private NotificationStatusInt getNextState(NotificationStatusInt currentState, List<TimelineElementCategoryInt> relatedCategoryElements, int numberOfRecipient) {
         int failureWorkflow = 0;
         
         //Viene effettuato un ciclo su tutti gli elementi relati allo stato corrente

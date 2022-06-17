@@ -1,8 +1,8 @@
 package it.pagopa.pn.deliverypush.service;
 
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -13,8 +13,8 @@ public interface StatusService {
     @Data
     @AllArgsConstructor
     class NotificationStatusUpdate{
-        private NotificationStatus oldStatus;
-        private NotificationStatus newStatus;
+        private NotificationStatusInt oldStatus;
+        private NotificationStatusInt newStatus;
     }
     /**
      * controlla e aggiorna lo stato

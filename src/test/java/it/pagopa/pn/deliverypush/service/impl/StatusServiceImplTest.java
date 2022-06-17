@@ -5,14 +5,14 @@ import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusHistoryElementInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRequestAcceptedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.delivery.PnDeliveryClient;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElement;
 import it.pagopa.pn.deliverypush.service.StatusService;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,16 +45,16 @@ class StatusServiceImplTest {
         // GIVEN
         String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
         
-        List<NotificationStatusHistoryElement> firstListReturn = new ArrayList<>();
-        NotificationStatusHistoryElement element = NotificationStatusHistoryElement.builder()
-                .status(NotificationStatus.DELIVERING)
+        List<NotificationStatusHistoryElementInt> firstListReturn = new ArrayList<>();
+        NotificationStatusHistoryElementInt element = NotificationStatusHistoryElementInt.builder()
+                .status(NotificationStatusInt.DELIVERING)
                 .build();
         firstListReturn.add(element);
 
-        NotificationStatusHistoryElement element2 = NotificationStatusHistoryElement.builder()
-                .status(NotificationStatus.ACCEPTED)
+        NotificationStatusHistoryElementInt element2 = NotificationStatusHistoryElementInt.builder()
+                .status(NotificationStatusInt.ACCEPTED)
                 .build();
-        List<NotificationStatusHistoryElement> secondListReturn = new ArrayList<>(firstListReturn);
+        List<NotificationStatusHistoryElementInt> secondListReturn = new ArrayList<>(firstListReturn);
         secondListReturn.add(element2);
 
         Mockito.when(statusUtils.getStatusHistory(Mockito.any(), Mockito.anyInt(), Mockito.any() ))
@@ -92,16 +92,16 @@ class StatusServiceImplTest {
         // GIVEN
         String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
 
-        List<NotificationStatusHistoryElement> firstListReturn = new ArrayList<>();
-        NotificationStatusHistoryElement element = NotificationStatusHistoryElement.builder()
-                .status(NotificationStatus.ACCEPTED)
+        List<NotificationStatusHistoryElementInt> firstListReturn = new ArrayList<>();
+        NotificationStatusHistoryElementInt element = NotificationStatusHistoryElementInt.builder()
+                .status(NotificationStatusInt.ACCEPTED)
                 .build();
         firstListReturn.add(element);
 
-        NotificationStatusHistoryElement element2 = NotificationStatusHistoryElement.builder()
-                .status(NotificationStatus.ACCEPTED)
+        NotificationStatusHistoryElementInt element2 = NotificationStatusHistoryElementInt.builder()
+                .status(NotificationStatusInt.ACCEPTED)
                 .build();
-        List<NotificationStatusHistoryElement> secondListReturn = new ArrayList<>(firstListReturn);
+        List<NotificationStatusHistoryElementInt> secondListReturn = new ArrayList<>(firstListReturn);
         secondListReturn.add(element2);
 
         Mockito.when(statusUtils.getStatusHistory(Mockito.any(), Mockito.anyInt(), Mockito.any() ))

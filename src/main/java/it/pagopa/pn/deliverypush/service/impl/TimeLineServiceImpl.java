@@ -5,19 +5,21 @@ import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusHistoryElementInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.StatusService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.mapper.NotificationStatusHistoryElementMapper;
 import it.pagopa.pn.deliverypush.service.mapper.TimelineElementMapper;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -147,26 +149,26 @@ public class TimeLineServiceImpl implements TimelineService {
         
         Set<TimelineElementInternal> timelineElements = getTimeline(iun);
         
-        List<NotificationStatusHistoryElement> statusHistory = statusUtils
+        List<NotificationStatusHistoryElementInt> statusHistory = statusUtils
                 .getStatusHistory( timelineElements, numberOfRecipients, createdAt );
 
         removeNotToBeReturnedElements(statusHistory);
 
-        NotificationStatus currentStatus = statusUtils.getCurrentStatus( statusHistory );
+        NotificationStatusInt currentStatus = statusUtils.getCurrentStatus( statusHistory );
         
         log.debug("getTimelineAndStatusHistory Ok - iun={} ", iun);
 
         return createResponse(timelineElements, statusHistory, currentStatus);
     }
 
-    private void removeNotToBeReturnedElements(List<NotificationStatusHistoryElement> statusHistory) {
+    private void removeNotToBeReturnedElements(List<NotificationStatusHistoryElementInt> statusHistory) {
         
         //Viene eliminato l'elemento InValidation dalla response
         Optional<Instant> inValidationStatusActiveFromOpt = Optional.empty();
         
-        for(NotificationStatusHistoryElement element : statusHistory){
+        for(NotificationStatusHistoryElementInt element : statusHistory){
             
-            if(NotificationStatus.IN_VALIDATION.equals( element.getStatus() )){
+            if(NotificationStatusInt.IN_VALIDATION.equals( element.getStatus() )){
                 inValidationStatusActiveFromOpt = Optional.of(element.getActiveFrom());
                 statusHistory.remove(element);
                 break;
@@ -180,7 +182,7 @@ public class TimeLineServiceImpl implements TimelineService {
 
             statusHistory.stream()
                     .filter(
-                            statusHistoryElement -> NotificationStatus.ACCEPTED.equals( statusHistoryElement.getStatus() )
+                            statusHistoryElement -> NotificationStatusInt.ACCEPTED.equals( statusHistoryElement.getStatus() )
                     ).findFirst()
                     .ifPresent(
                             el -> el.setActiveFrom(inValidationStatusActiveFrom)
@@ -188,8 +190,8 @@ public class TimeLineServiceImpl implements TimelineService {
         }
     }
 
-    private NotificationHistoryResponse createResponse(Set<TimelineElementInternal> timelineElements, List<NotificationStatusHistoryElement> statusHistory,
-                                                       NotificationStatus currentStatus) {
+    private NotificationHistoryResponse createResponse(Set<TimelineElementInternal> timelineElements, List<NotificationStatusHistoryElementInt> statusHistory,
+                                                       NotificationStatusInt currentStatus) {
 
         List<TimelineElement> timelineList = timelineElements.stream()
                 .map(TimelineElementMapper::internalToExternal)
@@ -197,8 +199,12 @@ public class TimeLineServiceImpl implements TimelineService {
         
         return NotificationHistoryResponse.builder()
                 .timeline(timelineList)
-                .notificationStatusHistory(statusHistory)
-                .notificationStatus(currentStatus)
+                .notificationStatusHistory(
+                        statusHistory.stream().map(
+                                NotificationStatusHistoryElementMapper::internalToExternal
+                        ).collect(Collectors.toList())
+                )
+                .notificationStatus(currentStatus != null ? NotificationStatus.valueOf(currentStatus.getValue()) : null)
                 .build();
     }
 

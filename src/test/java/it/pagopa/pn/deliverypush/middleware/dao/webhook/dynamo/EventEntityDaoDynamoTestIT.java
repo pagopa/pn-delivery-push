@@ -2,8 +2,8 @@ package it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo;
 
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.NotificationStatus;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.EventEntity;
@@ -316,7 +316,7 @@ class EventEntityDaoDynamoTestIT {
         EventEntity event = new EventEntity();
         event.setEventId(eventId);
         event.setStreamId(streamId);
-        event.setNewStatus(NotificationStatus.ACCEPTED.getValue());
+        event.setNewStatus(NotificationStatusInt.ACCEPTED.getValue());
         event.setIun(UUID.randomUUID().toString());
         event.setNotificationRequestId("");
         event.setTimelineEventCategory(TimelineElementCategoryInt.AAR_GENERATION.getValue());

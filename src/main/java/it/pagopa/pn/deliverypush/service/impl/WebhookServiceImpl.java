@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.service.impl;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.webhookspool.WebhookEventType;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.webhook.ProgressResponseElementDto;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.*;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.EventEntityDao;
@@ -105,7 +106,7 @@ public class WebhookServiceImpl implements WebhookService {
                                 progressResponseElement.setEventId(ev.getEventId());
                                 progressResponseElement.setTimestamp(ev.getTimestamp());
                                 progressResponseElement.setIun(ev.getIun());
-                                progressResponseElement.setNewStatus(NotificationStatus.fromValue(ev.getNewStatus()));
+                                progressResponseElement.setNewStatus(ev.getNewStatus() != null ? NotificationStatus.valueOf(ev.getNewStatus()) : null);
                                 progressResponseElement.setNotificationRequestId(ev.getNotificationRequestId());
                                 progressResponseElement.setTimelineEventCategory(TimelineElementCategory.fromValue(ev.getTimelineEventCategory()));
                                 return progressResponseElement;
@@ -139,8 +140,8 @@ public class WebhookServiceImpl implements WebhookService {
                         eventEntity.setTimestamp(timestamp);
                         // Lo iun ci va solo se è stata accettata, quindi escludo gli stati invalidation e refused
                         if (StringUtils.hasText(newStatus)
-                            && NotificationStatus.fromValue(newStatus) != NotificationStatus.IN_VALIDATION
-                            && NotificationStatus.fromValue(newStatus) != NotificationStatus.REFUSED)
+                            && NotificationStatusInt.valueOf(newStatus) != NotificationStatusInt.IN_VALIDATION
+                            && NotificationStatusInt.valueOf(newStatus) != NotificationStatusInt.REFUSED)
                             eventEntity.setIun(iun);
                         eventEntity.setNewStatus(newStatus);
                         eventEntity.setTimelineEventCategory(timelineEventCategory);

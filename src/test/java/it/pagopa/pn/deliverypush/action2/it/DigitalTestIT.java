@@ -19,12 +19,11 @@ import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.PnSafeStorageClient;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
-import it.pagopa.pn.deliverypush.service.ExternalChannelService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
@@ -375,7 +374,7 @@ class DigitalTestIT {
 
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatus.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
@@ -489,7 +488,7 @@ class DigitalTestIT {
 
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatus.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
 
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
@@ -567,7 +566,7 @@ class DigitalTestIT {
 
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatus.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
 
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
@@ -625,7 +624,7 @@ class DigitalTestIT {
 
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatus.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
@@ -694,7 +693,7 @@ class DigitalTestIT {
 
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatus.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
@@ -755,7 +754,7 @@ class DigitalTestIT {
 
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatus.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
         
         //Viene verificata la presenza dell'indirizzo di piattaforma
@@ -809,7 +808,7 @@ class DigitalTestIT {
 
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatus.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
@@ -882,7 +881,7 @@ class DigitalTestIT {
 
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatus.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
@@ -968,7 +967,7 @@ class DigitalTestIT {
 
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatus.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
@@ -1048,7 +1047,7 @@ class DigitalTestIT {
 
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatus.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
@@ -1157,7 +1156,7 @@ class DigitalTestIT {
 
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatus.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo per il primo recipient
