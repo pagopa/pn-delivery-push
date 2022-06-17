@@ -11,7 +11,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.TimelineService;
-import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -55,7 +54,7 @@ public class AnalogWorkflowUtils {
 
         Optional< SendAnalogFeedbackDetailsInt> sendPaperFeedbackDetailsOpt = timeline.stream()
                 .filter(timelineElement -> filterLastAttemptDateInTimeline(timelineElement, recIndex))
-                .map(timelineElement -> SmartMapper.mapToClass(timelineElement.getDetails(),  SendAnalogFeedbackDetailsInt.class))
+                .map(timelineElement -> (SendAnalogFeedbackDetailsInt) timelineElement.getDetails())
                 .findFirst();
 
         if (sendPaperFeedbackDetailsOpt.isPresent()) {
@@ -69,7 +68,7 @@ public class AnalogWorkflowUtils {
     private boolean filterLastAttemptDateInTimeline(TimelineElementInternal el, Integer recIndex) {
         boolean availableAddressCategory = TimelineElementCategoryInt.SEND_PAPER_FEEDBACK.equals(el.getCategory());
         if (availableAddressCategory) {
-             SendAnalogFeedbackDetailsInt details = SmartMapper.mapToClass(el.getDetails(),  SendAnalogFeedbackDetailsInt.class);
+             SendAnalogFeedbackDetailsInt details = (SendAnalogFeedbackDetailsInt) el.getDetails();
             return recIndex.equals(details.getRecIndex());
         }
         return false;

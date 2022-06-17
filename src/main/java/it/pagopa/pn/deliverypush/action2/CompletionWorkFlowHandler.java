@@ -92,13 +92,11 @@ public class CompletionWorkFlowHandler {
         
         List<SendDigitalFeedbackDetailsInt> listFeedbackFromExtChannel = timeline.stream()
                 .filter(timelineElement -> filterTimelineForTaxId(timelineElement, recIndex))
-                .map(timelineElement -> 
-                   SmartMapper.mapToClass(timelineElement.getDetails(), SendDigitalFeedbackDetailsInt.class))
+                .map(timelineElement -> (SendDigitalFeedbackDetailsInt) timelineElement.getDetails())
                 .collect(Collectors.toList());
 
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         return legalFactDao.savePecDeliveryWorkflowLegalFact(listFeedbackFromExtChannel, notification, recipient);
-
     }
 
     private boolean filterTimelineForTaxId(TimelineElementInternal el, Integer recIndex) {

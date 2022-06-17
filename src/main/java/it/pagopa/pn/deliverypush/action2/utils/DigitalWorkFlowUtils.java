@@ -17,7 +17,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
-import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
@@ -82,7 +81,7 @@ public class DigitalWorkFlowUtils {
     private Instant getLastAttemptDateForSource(Integer recIndex, DigitalAddressSourceInt nextAddressSource, Set<TimelineElementInternal> timeline) {
         Optional<GetAddressInfoDetailsInt> lastAddressAttemptOpt = timeline.stream()
                 .filter(timelineElement -> filterTimelineForRecIndexAndSource(timelineElement, recIndex, nextAddressSource))
-                .map(timelineElement -> SmartMapper.mapToClass(timelineElement.getDetails(), GetAddressInfoDetailsInt.class))
+                .map(timelineElement -> (GetAddressInfoDetailsInt) timelineElement.getDetails())
                 .max(Comparator.comparing(GetAddressInfoDetailsInt::getAttemptDate));
 
         if (lastAddressAttemptOpt.isPresent()) {
@@ -105,7 +104,7 @@ public class DigitalWorkFlowUtils {
         boolean availableAddressCategory = TimelineElementCategoryInt.GET_ADDRESS.equals(el.getCategory());
         
         if (availableAddressCategory) {
-            GetAddressInfoDetailsInt getAddressInfo = SmartMapper.mapToClass(el.getDetails(), GetAddressInfoDetailsInt.class);
+            GetAddressInfoDetailsInt getAddressInfo = (GetAddressInfoDetailsInt) el.getDetails();
             return recIndex.equals(getAddressInfo.getRecIndex()) && source.equals(getAddressInfo.getDigitalAddressSource());
         }
         return false;
