@@ -16,9 +16,6 @@ import java.util.stream.Collectors;
 
 @Component
 public class EntityToDtoTimelineMapper {
-
-    public EntityToDtoTimelineMapper() {
-    }
     
     public TimelineElementInternal entityToDto(TimelineElementEntity entity ) {
         TimelineElementCategoryInt category = entity.getCategory() != null ? TimelineElementCategoryInt.valueOf(entity.getCategory().getValue()) : null;

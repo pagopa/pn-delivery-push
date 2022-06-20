@@ -12,9 +12,6 @@ import java.util.stream.Collectors;
 
 @Component
 public class DtoToEntityTimelineMapper {
-
-    public DtoToEntityTimelineMapper() {
-    }
     
     public TimelineElementEntity dtoToEntity(TimelineElementInternal dto) {
         return TimelineElementEntity.builder()
