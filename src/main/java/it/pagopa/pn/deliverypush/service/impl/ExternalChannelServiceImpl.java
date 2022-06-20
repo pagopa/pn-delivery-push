@@ -150,7 +150,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
 
             externalChannelUtils.addSendAnalogNotificationToTimeline(notification, physicalAddress, recIndex, investigation, sentAttemptMade, eventId, aarGenerationDetails.getNumberOfPages());
 
-            log.info("Registered Letter sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
+            log.info("Paper notification sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
         } else {
             log.info("Notification is already viewed, paper notification will not be sent to externalChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
         }

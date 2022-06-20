@@ -5,6 +5,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.DigitalAddressEntity;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.PhysicalAddressEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementDetailsEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.DtoToEntityTimelineMapper;
@@ -50,8 +51,35 @@ public class TimelineDaoDynamo implements TimelineDao {
     @NotNull
     private TimelineElementDetailsEntity cloneWithoutSensitiveInformation(TimelineElementDetailsEntity details) {
         TimelineElementDetailsEntity newDetails = details.toBuilder().build();
-        newDetails.setPhysicalAddress( null );
-        newDetails.setNewAddress( null );
+
+        PhysicalAddressEntity physicalAddress = newDetails.getPhysicalAddress();
+        if( physicalAddress != null ) {
+            newDetails.setPhysicalAddress( physicalAddress.toBuilder()
+                            .at(null)
+                            .municipalityDetails(null)
+                            .zip(null)
+                            .addressDetails(null)
+                            .province(null)
+                            .municipality(null)
+                            .address(null)
+                    .build());
+        }
+        
+        newDetails.setPhysicalAddress( physicalAddress );
+
+        PhysicalAddressEntity newAddress = newDetails.getNewAddress();
+        if( newAddress != null ) {
+            newDetails.setPhysicalAddress( newAddress.toBuilder()
+                    .at(null)
+                    .municipalityDetails(null)
+                    .zip(null)
+                    .addressDetails(null)
+                    .province(null)
+                    .municipality(null)
+                    .address(null)
+                    .build());
+        }
+        newDetails.setNewAddress( newAddress );
 
         DigitalAddressEntity digitalAddress = newDetails.getDigitalAddress();
         if( digitalAddress != null ) {

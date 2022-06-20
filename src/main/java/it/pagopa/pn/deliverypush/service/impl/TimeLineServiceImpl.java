@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.service.impl;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusHistoryElementInt;
@@ -245,11 +246,50 @@ public class TimeLineServiceImpl implements TimelineService {
         }
 
         if( details instanceof PhysicalAddressRelatedTimelineElement){
-            ((PhysicalAddressRelatedTimelineElement) details).setPhysicalAddress(confidentialDto.getPhysicalAddress());
+            PhysicalAddressInt physicalAddress = ((PhysicalAddressRelatedTimelineElement) details).getPhysicalAddress();
+
+            if (physicalAddress == null)
+            {
+                physicalAddress = PhysicalAddressInt.builder().build();
+            }
+
+            physicalAddress = physicalAddress.toBuilder()
+                    .at(confidentialDto.getPhysicalAddress().getAt())
+                    .address(confidentialDto.getPhysicalAddress().getAddress())
+                    .municipality(confidentialDto.getPhysicalAddress().getMunicipality())
+                    .province(confidentialDto.getPhysicalAddress().getProvince())
+                    .addressDetails(confidentialDto.getPhysicalAddress().getAddressDetails())
+                    .zip(confidentialDto.getPhysicalAddress().getZip())
+                    .municipalityDetails(confidentialDto.getPhysicalAddress().getMunicipalityDetails())
+                    .build();
+            
+            ((PhysicalAddressRelatedTimelineElement) details).setPhysicalAddress(physicalAddress);
         }
 
         if( details instanceof NewAddressRelatedTimelineElement){
-            ((NewAddressRelatedTimelineElement) details).setNewAddress(confidentialDto.getNewPhysicalAddress());
+            
+            if( confidentialDto.getNewPhysicalAddress() != null ){
+                
+                PhysicalAddressInt newAddress = ((NewAddressRelatedTimelineElement) details).getNewAddress();
+
+                if (newAddress == null)
+                {
+                    newAddress = PhysicalAddressInt.builder().build();
+                }
+
+                newAddress = newAddress.toBuilder()
+                        .at(confidentialDto.getNewPhysicalAddress().getAt())
+                        .address(confidentialDto.getNewPhysicalAddress().getAddress())
+                        .municipality(confidentialDto.getNewPhysicalAddress().getMunicipality())
+                        .province(confidentialDto.getNewPhysicalAddress().getProvince())
+                        .addressDetails(confidentialDto.getNewPhysicalAddress().getAddressDetails())
+                        .zip(confidentialDto.getNewPhysicalAddress().getZip())
+                        .municipalityDetails(confidentialDto.getNewPhysicalAddress().getMunicipalityDetails())
+                        .build();
+
+                ((NewAddressRelatedTimelineElement) details).setNewAddress(newAddress);
+                
+            }
         }
     }
 

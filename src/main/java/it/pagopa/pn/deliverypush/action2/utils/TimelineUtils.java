@@ -177,7 +177,6 @@ public class TimelineUtils {
                 .serviceLevel(serviceLevel)
                 .sentAttemptMade(sentAttemptMade)
                 .investigation(investigation)
-                .foreignState( address.getForeignState() )
                 .numberOfPages( numberOfPages )
                 .build();
 

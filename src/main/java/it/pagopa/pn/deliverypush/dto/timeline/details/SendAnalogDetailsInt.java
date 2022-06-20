@@ -16,6 +16,5 @@ public class SendAnalogDetailsInt implements RecipientRelatedTimelineElementDeta
     private ServiceLevelInt serviceLevel;
     private Integer sentAttemptMade;
     private boolean investigation;
-    private String foreignState;
     private Integer numberOfPages;
 }

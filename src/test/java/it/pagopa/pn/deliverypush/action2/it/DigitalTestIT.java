@@ -37,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.math.BigDecimal;
@@ -87,6 +88,9 @@ import static org.awaitility.Awaitility.await;
         PaperNotificationFailedDaoMock.class,
         PnDataVaultClientMock.class,
         DigitalTestIT.SpringTestConfiguration.class
+})
+@TestPropertySource(properties = {
+        "pn.delivery-push.featureflags.externalchannel=new",
 })
 class DigitalTestIT {
     
