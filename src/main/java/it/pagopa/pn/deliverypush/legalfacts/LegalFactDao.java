@@ -4,6 +4,7 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.legalfacts.PdfInfo;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendDigitalFeedback;
@@ -46,18 +47,23 @@ public class LegalFactDao {
         return SAFE_STORAGE_URL_PREFIX + fileCreationResponse.getKey();
     }
 
-    public String saveAAR(NotificationInt notification,
+    public PdfInfo saveAAR(NotificationInt notification,
                           NotificationRecipientInt recipient) {
         try {
+            byte[] pdfByte = legalFactBuilder.generateNotificationAAR(notification, recipient);
+            int numberOfPages = legalFactBuilder.getNumberOfPages(pdfByte);
+            
             FileCreationWithContentRequest fileCreationRequest = new FileCreationWithContentRequest();
             fileCreationRequest.setContentType(LEGALFACTS_MEDIATYPE_STRING);
             fileCreationRequest.setDocumentType(PN_AAR);
             fileCreationRequest.setStatus(SAVED);
-            fileCreationRequest.setContent(legalFactBuilder.generateNotificationAAR(notification, recipient));
+            fileCreationRequest.setContent(pdfByte);
             FileCreationResponse fileCreationResponse = safeStorageClient.createAndUploadContent(fileCreationRequest);
-
-
-            return SAFE_STORAGE_URL_PREFIX + fileCreationResponse.getKey();
+            
+            return PdfInfo.builder()
+                    .key( SAFE_STORAGE_URL_PREFIX + fileCreationResponse.getKey() )
+                    .numberOfPages( numberOfPages )
+                    .build();
         }
         catch ( IOException exc ) {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "AAR",  notification.getIun(), "N/A");

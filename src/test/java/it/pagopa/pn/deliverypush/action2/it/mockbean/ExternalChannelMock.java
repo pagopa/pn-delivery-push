@@ -8,13 +8,17 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.context.annotation.Lazy;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.awaitility.Awaitility.await;
 
 @Slf4j
 public class ExternalChannelMock implements ExternalChannelSendClient {
@@ -32,10 +36,13 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
     public static final int WAITING_TIME = 100;
     private static final Pattern NEW_ADDRESS_INPUT_PATTERN = Pattern.compile("^" + EXT_CHANNEL_SEND_NEW_ADDR + "(.*)$");
 
-    ExternalChannelResponseHandler externalChannelHandler;
-
-    public ExternalChannelMock(@Lazy ExternalChannelResponseHandler externalChannelHandler) {
+    private ExternalChannelResponseHandler externalChannelHandler;
+    private TimelineService timelineService;
+    
+    public ExternalChannelMock(@Lazy ExternalChannelResponseHandler externalChannelHandler,
+                               @Lazy TimelineService timelineService) {
         this.externalChannelHandler = externalChannelHandler;
+        this.timelineService = timelineService;
     }
 
     @Override
@@ -49,11 +56,37 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
         //Invio messaggio di cortesia non necessità di risposta da external channel
 
         //sendDigitalNotification(digitalAddress.getAddress(), notificationInt, timelineEventId, false);
-
     }
 
     private void sendDigitalNotification(String address, NotificationInt notificationInt, String timelineEventId, boolean legal){
         log.info("sendDigitalNotification address:{} requestId:{}", address, timelineEventId);
+        new Thread(() -> {
+            // Viene atteso fino a che l'ultimo elemento di timeline sia stato inserito per procedere con le successive verifiche
+            await().untilAsserted(() ->
+                    Assertions.assertTrue(timelineService.getTimelineElement(notificationInt.getIun(), timelineEventId).isPresent())
+            );
+            
+            simulateExternalChannelDigitalResponse(address, timelineEventId, legal);
+
+        }).start();
+    }
+
+    @Override
+    public void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, PhysicalAddress physicalAddress, String timelineEventId, ANALOG_TYPE analogType, String aarKey) {
+        log.info("sendAnalogNotification address:{} recipient:{} requestId:{} aarkey:{}", physicalAddress.getAddress(), recipientInt.getDenomination(), timelineEventId, aarKey);
+
+        new Thread(() -> {
+            // Viene atteso fino a che l'ultimo elemento di timeline sia stato inserito per procedere con le successive verifiche
+            await().untilAsserted(() ->
+                    Assertions.assertTrue(timelineService.getTimelineElement(notificationInt.getIun(), timelineEventId).isPresent())
+            );
+            
+            simulateExternalChannelAnalogResponse(notificationInt, physicalAddress, timelineEventId);
+        }).start();
+
+    }
+
+    private void simulateExternalChannelDigitalResponse(String address, String timelineEventId, boolean legal) {
 
         ProgressEventCategory status;
 
@@ -99,9 +132,7 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
         externalChannelHandler.extChannelResponseReceiver(singleStatusUpdate);
     }
 
-    @Override
-    public void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, PhysicalAddress physicalAddress, String timelineEventId, ANALOG_TYPE analogType, String aarKey) {
-        log.info("sendAnalogNotification address:{} recipient:{} requestId:{} aarkey:{}", physicalAddress.getAddress(), recipientInt.getDenomination(), timelineEventId, aarKey);
+    private void simulateExternalChannelAnalogResponse(NotificationInt notificationInt, PhysicalAddress physicalAddress, String timelineEventId) {
         String status;
         String newAddress;
 

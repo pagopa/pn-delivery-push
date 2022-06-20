@@ -8,10 +8,8 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddre
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ContactPhase;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendCourtesyMessageDetails;
-import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -23,7 +21,6 @@ import java.util.Optional;
 @Component
 @Slf4j
 public class ChooseDeliveryModeHandler {
-    private final NotificationService notificationService;
     private final ExternalChannelSendHandler externalChannelSendHandler;
     private final SchedulerService schedulerService;
     private final PublicRegistrySendHandler publicRegistrySendHandler;
@@ -31,12 +28,13 @@ public class ChooseDeliveryModeHandler {
     private final InstantNowSupplier instantNowSupplier;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
-    public ChooseDeliveryModeHandler(ChooseDeliveryModeUtils chooseDeliveryUtils, NotificationService notificationService,
-                                     ExternalChannelSendHandler externalChannelSendHandler, SchedulerService schedulerService,
-                                     PublicRegistrySendHandler publicRegistrySendHandler, InstantNowSupplier instantNowSupplier,
+    public ChooseDeliveryModeHandler(ChooseDeliveryModeUtils chooseDeliveryUtils,
+                                     ExternalChannelSendHandler externalChannelSendHandler,
+                                     SchedulerService schedulerService,
+                                     PublicRegistrySendHandler publicRegistrySendHandler,
+                                     InstantNowSupplier instantNowSupplier,
                                      PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         this.chooseDeliveryUtils = chooseDeliveryUtils;
-        this.notificationService = notificationService;
         this.externalChannelSendHandler = externalChannelSendHandler;
         this.schedulerService = schedulerService;
         this.publicRegistrySendHandler = publicRegistrySendHandler;
@@ -54,7 +52,6 @@ public class ChooseDeliveryModeHandler {
     public void chooseDeliveryTypeAndStartWorkflow(NotificationInt notification, Integer recIndex) {
         log.info("Start ChooseDeliveryTypeAndStartWorkflow process - iun={} recipientIndex={}", notification.getIun(), recIndex);
 
-        String iun = notification.getIun();
         Optional<LegalDigitalAddressInt> platformAddressOpt = chooseDeliveryUtils.getPlatformAddress(notification, recIndex);
 
         //Verifico presenza indirizzo di piattaforma, ...
@@ -62,11 +59,11 @@ public class ChooseDeliveryModeHandler {
             log.info("Platform address is present, Digital workflow can be started - iun={} recipientIndex={}", notification.getIun(), recIndex);
             LegalDigitalAddressInt platformAddress = platformAddressOpt.get();
 
-            chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, iun, DigitalAddressSource.PLATFORM, true);
+            chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, notification, DigitalAddressSource.PLATFORM, true);
             startDigitalWorkflow(notification, platformAddress, DigitalAddressSource.PLATFORM, recIndex);
         } else {
             log.info("Platform address isn't present - iun={} recipientIndex={}", notification.getIun(), recIndex);
-            chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, iun, DigitalAddressSource.PLATFORM, false);
+            chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, notification, DigitalAddressSource.PLATFORM, false);
 
             // ... se non lo trovo, verifico presenza indirizzo speciale, ...
             LegalDigitalAddressInt specialAddress = chooseDeliveryUtils.getDigitalDomicile(notification, recIndex);
@@ -74,10 +71,10 @@ public class ChooseDeliveryModeHandler {
                 log.info("Special address is present, Digital workflow can be started  - iun={} id={}", notification.getIun(), recIndex);
 
                 startDigitalWorkflow(notification, specialAddress, DigitalAddressSource.SPECIAL, recIndex);
-                chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, iun, DigitalAddressSource.SPECIAL, true);
+                chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, notification, DigitalAddressSource.SPECIAL, true);
             } else {
                 log.info("Special address isn't present, need to get General address async - iun={} recipientIndex={}", notification.getIun(), recIndex);
-                chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, iun, DigitalAddressSource.SPECIAL, false);
+                chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, notification, DigitalAddressSource.SPECIAL, false);
 
                 // ... se non lo trovo, lancio ricerca asincrona dell'indirizzo generale
                 publicRegistrySendHandler.sendRequestForGetDigitalGeneralAddress(notification, recIndex, ContactPhase.CHOOSE_DELIVERY, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER);
@@ -92,25 +89,21 @@ public class ChooseDeliveryModeHandler {
      * available, in this case analog workflow will be started
      *
      * @param response Response for get general address
-     * @param iun      Notification unique identifier
+     * @param Notification      Notification
      * @param recIndex    User identifier
      */
-    public void handleGeneralAddressResponse(PublicRegistryResponse response, String iun, Integer recIndex) {
-        log.info("HandleGeneralAddressResponse in choose phase  - iun={} id={}", iun, recIndex);
+    public void handleGeneralAddressResponse(PublicRegistryResponse response, NotificationInt notification, Integer recIndex) {
+        log.info("HandleGeneralAddressResponse in choose phase  - iun={} id={}", notification.getIun(), recIndex);
 
         if (response.getDigitalAddress() != null) {
-            log.info("General address is present, Digital workflow can be started  - iun={} id={}", iun, recIndex);
+            log.info("General address is present, Digital workflow can be started  - iun={} id={}", notification.getIun(), recIndex);
 
-            NotificationInt notification = notificationService.getNotificationByIun(iun);
-            
-            log.debug("Notification and recipient successfully obtained  - iun={} id={}", iun, recIndex);
-
-            chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, iun, DigitalAddressSource.GENERAL, true);
+            chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, notification, DigitalAddressSource.GENERAL, true);
             startDigitalWorkflow(notification, response.getDigitalAddress(), DigitalAddressSource.GENERAL, recIndex);
         } else {
-            log.info("General address is not present, digital workflow can't be started. Starting Analog Workflow  - iun={} id={}", iun, recIndex);
-            chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, iun, DigitalAddressSource.GENERAL, false);
-            scheduleAnalogWorkflow(iun, recIndex);
+            log.info("General address is not present, digital workflow can't be started. Starting Analog Workflow  - iun={} id={}", notification.getIun(), recIndex);
+            chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, notification, DigitalAddressSource.GENERAL, false);
+            scheduleAnalogWorkflow(notification, recIndex);
         }
     }
 
@@ -132,7 +125,8 @@ public class ChooseDeliveryModeHandler {
      * @param iun   Notification unique identifier
      * @param recIndex User identifier
      */
-    public void scheduleAnalogWorkflow(String iun, Integer recIndex) {
+    public void scheduleAnalogWorkflow(NotificationInt notification, Integer recIndex) {
+        String iun = notification.getIun();
         log.debug("Scheduling analog workflow for iun={} id={} ", iun, recIndex);
 
         Optional<SendCourtesyMessageDetails> sendCourtesyMessageDetailsOpt = chooseDeliveryUtils.getFirstSentCourtesyMessage(iun, recIndex);
@@ -148,7 +142,7 @@ public class ChooseDeliveryModeHandler {
             schedulingDate = instantNowSupplier.get();
             log.info("Courtesy message is not present, analog workflow can be started now  - iun={} id={} ", iun, recIndex);
         }
-        chooseDeliveryUtils.addScheduleAnalogWorkflowToTimeline(recIndex, iun);
+        chooseDeliveryUtils.addScheduleAnalogWorkflowToTimeline(recIndex, notification);
         schedulerService.scheduleEvent(iun, recIndex, schedulingDate, ActionType.ANALOG_WORKFLOW);
     }
 }

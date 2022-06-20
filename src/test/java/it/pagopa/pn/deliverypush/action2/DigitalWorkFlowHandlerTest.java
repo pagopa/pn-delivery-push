@@ -13,7 +13,6 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddre
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelResponse;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
@@ -163,7 +162,7 @@ class DigitalWorkFlowHandlerTest {
         //THEN
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);
 
-        Mockito.verify(digitalWorkFlowUtils).addAvailabilitySourceToTimeline(Mockito.anyInt(), Mockito.anyString(),
+        Mockito.verify(digitalWorkFlowUtils).addAvailabilitySourceToTimeline(Mockito.anyInt(), Mockito.any(NotificationInt.class),
                 Mockito.any(DigitalAddressSource.class), isAvailableCaptor.capture(), Mockito.anyInt());
 
         Mockito.verify(externalChannelSendHandler).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class),
@@ -229,7 +228,7 @@ class DigitalWorkFlowHandlerTest {
         //THEN
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);
 
-        Mockito.verify(digitalWorkFlowUtils).addAvailabilitySourceToTimeline(Mockito.anyInt(), Mockito.anyString(),
+        Mockito.verify(digitalWorkFlowUtils).addAvailabilitySourceToTimeline(Mockito.anyInt(), Mockito.any(NotificationInt.class),
                 Mockito.any(DigitalAddressSource.class), isAvailableCaptor.capture(), Mockito.anyInt());
 
         Assertions.assertFalse(isAvailableCaptor.getValue());
@@ -403,7 +402,7 @@ class DigitalWorkFlowHandlerTest {
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);
         ArgumentCaptor<DigitalAddressSource> addressSourceCaptor = ArgumentCaptor.forClass(DigitalAddressSource.class);
 
-        Mockito.verify(digitalWorkFlowUtils).addAvailabilitySourceToTimeline(Mockito.anyInt(), Mockito.anyString(),
+        Mockito.verify(digitalWorkFlowUtils).addAvailabilitySourceToTimeline(Mockito.anyInt(), Mockito.any(NotificationInt.class),
                 addressSourceCaptor.capture(), isAvailableCaptor.capture(), Mockito.anyInt());
         Assertions.assertEquals(addressSource, addressSourceCaptor.getValue());
         Assertions.assertTrue(isAvailableCaptor.getValue());
@@ -433,16 +432,14 @@ class DigitalWorkFlowHandlerTest {
                 .build();
 
         NotificationInt notification = getNotification();
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
-                .thenReturn(notification);
 
         //WHEN
-        handler.handleGeneralAddressResponse(response, "iun", details);
+        handler.handleGeneralAddressResponse(response, notification, details);
 
         //THEN
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);
 
-        Mockito.verify(digitalWorkFlowUtils).addAvailabilitySourceToTimeline(Mockito.anyInt(), Mockito.anyString(),
+        Mockito.verify(digitalWorkFlowUtils).addAvailabilitySourceToTimeline(Mockito.anyInt(), Mockito.any(NotificationInt.class),
                 Mockito.any(DigitalAddressSource.class), isAvailableCaptor.capture(), Mockito.anyInt());
 
         Mockito.verify(externalChannelSendHandler).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class),
@@ -496,7 +493,7 @@ class DigitalWorkFlowHandlerTest {
         handler.handleExternalChannelResponse(extChannelResponse, element);
 
         //THEN
-        Mockito.verify(digitalWorkFlowUtils).addDigitalFeedbackTimelineElement(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any(SendDigitalDetails.class));
+        Mockito.verify(digitalWorkFlowUtils).addDigitalFeedbackTimelineElement(Mockito.any(NotificationInt.class), Mockito.any(), Mockito.any(), Mockito.any(SendDigitalDetails.class));
     }
 
     private NotificationInt getNotification() {

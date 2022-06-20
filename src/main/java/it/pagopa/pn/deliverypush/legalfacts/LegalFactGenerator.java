@@ -1,16 +1,5 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
-import java.io.IOException;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Component;
-
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
@@ -19,6 +8,12 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseStatus;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendDigitalFeedback;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.time.Instant;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -283,7 +278,10 @@ public class LegalFactGenerator {
                 DocumentComposition.TemplateType.AAR_NOTIFICATION_SMS,
                 templateModel
         );
+    }
 
+    public int getNumberOfPages( byte[] pdfBytes ) {
+        return documentComposition.getNumberOfPageFromPdfBytes( pdfBytes );
     }
 }
 

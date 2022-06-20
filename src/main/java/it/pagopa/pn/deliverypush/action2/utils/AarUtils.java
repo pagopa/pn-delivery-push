@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.action2.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.legalfacts.PdfInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
@@ -43,9 +44,12 @@ public class AarUtils {
             Optional<TimelineElementInternal> timeline = timelineService.getTimelineElement(notification.getIun(), elementId);
             if (!timeline.isPresent())
             {
-                String safestoragekey = legalFactDao.saveAAR(notification, notificationUtils.getRecipientFromIndex(notification,recIndex));
+                PdfInfo pdfInfo = legalFactDao.saveAAR(notification, notificationUtils.getRecipientFromIndex(notification,recIndex));
 
-                timelineService.addTimelineElement(timelineUtils.buildAarGenerationTimelineElement(notification, recIndex, safestoragekey));
+                timelineService.addTimelineElement(
+                        timelineUtils.buildAarGenerationTimelineElement(notification, recIndex, pdfInfo.getKey(), pdfInfo.getNumberOfPages()),
+                        notification
+                );
             }
             else
                 log.debug("no need to recreate AAR iun={} timelineId={}", notification.getIun(), elementId);
@@ -54,7 +58,8 @@ public class AarUtils {
         }
     }
 
-    public String getAarPdfFromTimeline(NotificationInt notification, Integer recIndex) {
+
+    public AarGenerationDetails getAarGenerationDetails(NotificationInt notification, Integer recIndex) {
         // ricostruisco il timelineid della  genrazione dell'aar
         String aarGenerationEventId = TimelineEventId.AAR_GENERATION.buildEventId(
                 EventId.builder()
@@ -63,12 +68,12 @@ public class AarUtils {
                         .build()
         );
 
-        Optional<AarGenerationDetails> detail = timelineService
-                .getTimelineElementDetails(notification.getIun(), aarGenerationEventId, AarGenerationDetails.class);
+        Optional<AarGenerationDetails> detailOpt = 
+                timelineService.getTimelineElementDetails(notification.getIun(), aarGenerationEventId, AarGenerationDetails.class);
 
-        if (detail.isEmpty() || !StringUtils.hasText(detail.get().getGeneratedAarUrl()))
+        if (detailOpt.isEmpty() || !StringUtils.hasText(detailOpt.get().getGeneratedAarUrl()) || detailOpt.get().getNumberOfPages() == null ) 
             throw new PnInternalException("cannot retreieve AAR pdf safestoragekey");
-
-        return detail.get().getGeneratedAarUrl();
+        
+        return detailOpt.get();
     }
 }

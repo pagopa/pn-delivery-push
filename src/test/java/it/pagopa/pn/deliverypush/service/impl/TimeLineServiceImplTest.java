@@ -29,7 +29,6 @@ class TimeLineServiceImplTest {
     private TimelineDao timelineDao;
     private StatusUtils statusUtils;
     private TimeLineServiceImpl timeLineService;
-    private NotificationService notificationService;
     private StatusService statusService;
     private ConfidentialInformationService confidentialInformationService;
     private SchedulerService schedulerService;
@@ -38,12 +37,11 @@ class TimeLineServiceImplTest {
     void setup() {
         timelineDao = Mockito.mock( TimelineDao.class );
         statusUtils = Mockito.mock( StatusUtils.class );
-        notificationService = Mockito.mock( NotificationService.class );
         statusService = Mockito.mock( StatusService.class );
         confidentialInformationService = Mockito.mock( ConfidentialInformationService.class );
         schedulerService = Mockito.mock(SchedulerService.class);
         
-        timeLineService = new TimeLineServiceImpl(timelineDao , statusUtils, notificationService, statusService, confidentialInformationService, schedulerService);
+        timeLineService = new TimeLineServiceImpl(timelineDao , statusUtils, statusService, confidentialInformationService, schedulerService);
     }
 
     @Test
@@ -53,7 +51,6 @@ class TimeLineServiceImplTest {
         String elementId = "elementId";
 
         NotificationInt notification = getNotification(iun);
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notification);
         StatusService.NotificationStatusUpdate notificationStatuses = new StatusService.NotificationStatusUpdate(NotificationStatus.ACCEPTED, NotificationStatus.ACCEPTED);
         Mockito.when(statusService.checkAndUpdateStatus(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(notificationStatuses);
         Mockito.doNothing().when(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
@@ -67,7 +64,7 @@ class TimeLineServiceImplTest {
         newElement.setCategory(TimelineElementCategory.AAR_GENERATION);
 
         //WHEN
-        timeLineService.addTimelineElement(newElement);
+        timeLineService.addTimelineElement(newElement, notification);
         
         //THEN
         Mockito.verify(timelineDao).addTimelineElement(newElement);
@@ -82,7 +79,6 @@ class TimeLineServiceImplTest {
         String elementId = "elementId";
 
         NotificationInt notification = getNotification(iun);
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notification);
         
         String elementId2 = "elementId";
         Set<TimelineElementInternal> setTimelineElement = getSendPaperDetailsList(iun, elementId2);
@@ -95,7 +91,7 @@ class TimeLineServiceImplTest {
 
         // WHEN
         assertThrows(PnInternalException.class, () -> {
-            timeLineService.addTimelineElement(newElement);
+            timeLineService.addTimelineElement(newElement, notification);
         });
     }
 

@@ -24,6 +24,7 @@ public class DtoToEntityTimelineMapper {
         return TimelineElementEntity.builder()
                 .iun( dto.getIun() )
                 .timelineElementId( dto.getElementId() )
+                .paId( dto.getPaId() )
                 .category( TimelineElementCategoryEntity.valueOf(dto.getCategory().getValue()) )
                 .timestamp( dto.getTimestamp() )
                 .details( dtoToDetailsEntity( dto.getDetails() ) )

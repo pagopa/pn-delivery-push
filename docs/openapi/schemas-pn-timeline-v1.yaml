@@ -309,6 +309,9 @@ components:
         investigation:
           type: boolean
           description: E' richiesta investigazione indirizzo fisico alternativo
+        numberOfPages:
+          type: integer
+          description: numero pagine pdf inviato
           
     SendPaperFeedbackDetails:
       type: object
@@ -343,6 +346,9 @@ components:
           description: Index destinatario notifica digitale
         physicalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
+        numberOfPages:
+          type: integer
+          description: numero pagine pdf inviato
 
     AarGenerationDetails:
       type: object
@@ -353,6 +359,9 @@ components:
         generatedAarUrl:
           type: string
           description: Chiave per recupero da safestorage del documento aar
+        numberOfPages:
+          type: integer
+          description: numero di pagine del PDF generato
 
     DigitalAddressSource:
       type: string

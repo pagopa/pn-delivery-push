@@ -1,20 +1,6 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.EnumMap;
-import java.util.Map;
-
-import org.jetbrains.annotations.Nullable;
-import org.springframework.stereotype.Component;
-import org.springframework.util.StreamUtils;
-
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
-
 import freemarker.cache.StringTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -22,6 +8,16 @@ import freemarker.template.TemplateException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StreamUtils;
+
+import java.io.*;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.EnumMap;
+import java.util.Map;
 
 @Component
 @Slf4j
@@ -148,8 +144,17 @@ public class DocumentComposition {
         builder.toStream(baos);
         builder.run();
         baos.close();
-
+ 
         return baos.toByteArray();
+    }
+    
+    public int getNumberOfPageFromPdfBytes(byte[] pdf ){
+        try{
+            return PDDocument.load(pdf).getNumberOfPages();
+        }catch (IOException ex){
+            log.error("Exception in getNumberOfPageFromPdfBytes for pdf - ex", ex);
+            throw new PnInternalException( "Cannot get numberOfPages for pdf " + this.getClass(), ex );
+        }
     }
 
 }

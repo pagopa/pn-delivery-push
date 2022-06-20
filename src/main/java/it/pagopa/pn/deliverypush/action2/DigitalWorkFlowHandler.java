@@ -133,7 +133,7 @@ public class DigitalWorkFlowHandler {
         } else {
             log.info("Next workflow scheduling date={} is not passed. Need to schedule next workflow - iun={} id={}", schedulingDate, iun, recIndex);
             //Se la data è minore alla data odierna, bisogna attendere il completamento dei 7 giorni prima partire con un nuovo workflow per questa source
-            digitalWorkFlowUtils.addScheduledDigitalWorkflowToTimeline(iun, recIndex, lastAttemptMade);
+            digitalWorkFlowUtils.addScheduledDigitalWorkflowToTimeline(notification, recIndex, lastAttemptMade);
             schedulerService.scheduleEvent(iun, recIndex, schedulingDate, ActionType.DIGITAL_WORKFLOW_NEXT_ACTION);
         }
     }
@@ -144,13 +144,10 @@ public class DigitalWorkFlowHandler {
      * @param response Get special address response
      * @param iun      Notification unique identifier
      */
-    public void handleGeneralAddressResponse(PublicRegistryResponse response, String iun, PublicRegistryCallDetails prCallDetails) {
+    public void handleGeneralAddressResponse(PublicRegistryResponse response, NotificationInt notification, PublicRegistryCallDetails prCallDetails) {
         Integer recIndex = prCallDetails.getRecIndex();
-        log.info("HandleGeneralAddressResponse - iun={} id={}", iun, recIndex);
-
-        NotificationInt notification = notificationService.getNotificationByIun(iun);
-
-        log.debug("Received general address response, get notification and recipient completed - iun={} id={}", iun, recIndex);
+        log.info("HandleGeneralAddressResponse - iun={} id={}", notification.getIun(), recIndex);
+        
         DigitalAddressInfo lastAttemptAddressInfo = DigitalAddressInfo.builder()
                 .digitalAddressSource(DigitalAddressSource.GENERAL)
                 .digitalAddress(response.getDigitalAddress())
@@ -172,12 +169,12 @@ public class DigitalWorkFlowHandler {
             log.info("Address is available, send notification to external channel - iun={} id={}", iun, recIndex);
 
             //Se l'indirizzo è disponibile, dunque valorizzato viene inviata la notifica a external channel ...
-            digitalWorkFlowUtils.addAvailabilitySourceToTimeline(recIndex, iun, addressInfo.getDigitalAddressSource(), true, addressInfo.getSentAttemptMade());
+            digitalWorkFlowUtils.addAvailabilitySourceToTimeline(recIndex, notification, addressInfo.getDigitalAddressSource(), true, addressInfo.getSentAttemptMade());
             externalChannelSendHandler.sendDigitalNotification(notification, digitalAddress, addressInfo.getDigitalAddressSource(), recIndex, addressInfo.getSentAttemptMade());
         } else {
             //... altrimenti si passa alla prossima workflow action
             log.info("Address is not available, need to start next workflow action - iun={} id={}", iun, recIndex);
-            digitalWorkFlowUtils.addAvailabilitySourceToTimeline(recIndex, iun, addressInfo.getDigitalAddressSource(), false, addressInfo.getSentAttemptMade());
+            digitalWorkFlowUtils.addAvailabilitySourceToTimeline(recIndex, notification, addressInfo.getDigitalAddressSource(), false, addressInfo.getSentAttemptMade());
 
             nextWorkFlowAction(notification, recIndex, addressInfo);
         }
@@ -193,7 +190,7 @@ public class DigitalWorkFlowHandler {
 
         ResponseStatus status = mapDigitalStatusInResponseStatus(response.getStatus());
         
-        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(iun, status, response.getEventDetails()==null?null:List.of(response.getEventDetails()), sendDigitalDetails);
+        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(notification, status, response.getEventDetails()==null?null:List.of(response.getEventDetails()), sendDigitalDetails);
 
         if (status != null) {
             switch (status) {

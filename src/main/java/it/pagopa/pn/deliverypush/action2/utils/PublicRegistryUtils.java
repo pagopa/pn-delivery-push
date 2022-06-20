@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action2.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -37,8 +38,11 @@ public class PublicRegistryUtils {
                         .build());
     }
 
-    public void addPublicRegistryCallToTimeline(String iun, Integer recIndex, ContactPhase contactPhase, int sentAttemptMade, String correlationId, DeliveryMode digital) {
-        addTimelineElement(timelineUtils.buildPublicRegistryCallTimelineElement(iun, recIndex, correlationId, digital, contactPhase, sentAttemptMade));
+    public void addPublicRegistryCallToTimeline(NotificationInt notification, Integer recIndex, ContactPhase contactPhase, int sentAttemptMade, String correlationId, DeliveryMode digital) {
+        addTimelineElement( 
+                timelineUtils.buildPublicRegistryCallTimelineElement(notification, recIndex, correlationId, digital, contactPhase, sentAttemptMade), 
+                notification
+        );
     }
 
     public PublicRegistryCallDetails getPublicRegistryCallDetail(String iun, String correlationId) {
@@ -53,12 +57,15 @@ public class PublicRegistryUtils {
         }
     }
 
-    public void addPublicRegistryResponseToTimeline(String iun,Integer recIndex, PublicRegistryResponse response) {
-        addTimelineElement(timelineUtils.buildPublicRegistryResponseCallTimelineElement(iun, recIndex, response));
+    public void addPublicRegistryResponseToTimeline(NotificationInt notification, Integer recIndex, PublicRegistryResponse response) {
+        addTimelineElement( 
+                timelineUtils.buildPublicRegistryResponseCallTimelineElement(notification, recIndex, response),
+                notification
+        );
     }
 
-    private void addTimelineElement(TimelineElementInternal element) {
-        timelineService.addTimelineElement(element);
+    private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
+        timelineService.addTimelineElement(element, notification);
     }
 
 }

@@ -162,20 +162,29 @@ public class DigitalWorkFlowUtils {
         }
     }
 
-    public void addScheduledDigitalWorkflowToTimeline(String iun, Integer recIndex, DigitalAddressInfo lastAttemptMade) {
-        addTimelineElement(timelineUtils.buildScheduleDigitalWorkflowTimeline(iun, recIndex, lastAttemptMade));
+    public void addScheduledDigitalWorkflowToTimeline(NotificationInt notification, Integer recIndex, DigitalAddressInfo lastAttemptMade) {
+        addTimelineElement(
+                timelineUtils.buildScheduleDigitalWorkflowTimeline(notification, recIndex, lastAttemptMade),
+                notification
+        );
     }
 
-    public void addAvailabilitySourceToTimeline(Integer recIndex, String iun, DigitalAddressSource source, boolean isAvailable, int sentAttemptMade) {
-        addTimelineElement(timelineUtils.buildAvailabilitySourceTimelineElement(recIndex, iun, source, isAvailable, sentAttemptMade));
+    public void addAvailabilitySourceToTimeline(Integer recIndex, NotificationInt notification, DigitalAddressSource source, boolean isAvailable, int sentAttemptMade) {
+        addTimelineElement(
+                timelineUtils.buildAvailabilitySourceTimelineElement(recIndex, notification, source, isAvailable, sentAttemptMade),
+                notification
+        );
     }
 
-    public void addDigitalFeedbackTimelineElement(String iun, ResponseStatus status, List<String> errors, SendDigitalDetails sendDigitalDetails) {
-        addTimelineElement(timelineUtils.buildDigitalFeedbackTimelineElement(iun, status, errors, sendDigitalDetails));
+    public void addDigitalFeedbackTimelineElement(NotificationInt notification, ResponseStatus status, List<String> errors, SendDigitalDetails sendDigitalDetails) {
+        addTimelineElement(
+                timelineUtils.buildDigitalFeedbackTimelineElement(notification, status, errors, sendDigitalDetails),
+                notification
+        );
     }
 
-    private void addTimelineElement(TimelineElementInternal element) {
-        timelineService.addTimelineElement(element);
+    private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
+        timelineService.addTimelineElement(element, notification);
     }
 
     public static DigitalAddressSource nextSource(DigitalAddressSource source) {

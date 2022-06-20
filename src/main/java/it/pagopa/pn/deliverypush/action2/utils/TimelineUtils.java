@@ -20,7 +20,6 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -35,20 +34,24 @@ public class TimelineUtils {
         this.timelineService = timelineService;
     }
 
-    public TimelineElementInternal buildTimeline(String iun, TimelineElementCategory category, String elementId, TimelineElementDetails details) {
-        return buildTimeline( iun, category, elementId, details, Collections.emptyList() );
+    public TimelineElementInternal buildTimeline(NotificationInt notification, TimelineElementCategory category, String elementId, TimelineElementDetails details) {
+        
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.timelineInternalBuilder()
+                .legalFactsIds(Collections.emptyList());
+                
+        return buildTimeline( notification, category, elementId, details, timelineBuilder);
     }
 
-    public TimelineElementInternal buildTimeline(String iun, TimelineElementCategory category, String elementId,
-                                         TimelineElementDetails details,  List<LegalFactsId> legalFactsListEntryIds) {
-
-        return TimelineElementInternal.timelineInternalBuilder()
-                .iun(iun)
+    public TimelineElementInternal buildTimeline(NotificationInt notification, TimelineElementCategory category, String elementId,
+                                         TimelineElementDetails details,  TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder) {
+        
+        return timelineBuilder
+                .iun(notification.getIun())
                 .category(category)
                 .timestamp(Instant.now())
                 .elementId(elementId)
                 .details(details)
-                .legalFactsIds( legalFactsListEntryIds )
+                .paId(notification.getSender().getPaId())
                 .build();
     }
     
@@ -61,22 +64,25 @@ public class TimelineUtils {
                         .build());
         NotificationRequestAccepted details = NotificationRequestAccepted.builder().build();
 
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.timelineInternalBuilder()
+                .legalFactsIds( singleLegalFactId( legalFactId, LegalFactCategory.SENDER_ACK ) );
+
         return buildTimeline(
-                notification.getIun(),
+                notification,
                 TimelineElementCategory.REQUEST_ACCEPTED,
                 elementId,
                 SmartMapper.mapToClass(details, TimelineElementDetails.class),
-                singleLegalFactId( legalFactId, LegalFactCategory.SENDER_ACK )
+                timelineBuilder
             );
     }
 
-    public TimelineElementInternal buildAvailabilitySourceTimelineElement(Integer recIndex, String iun, DigitalAddressSource source, boolean isAvailable,
+    public TimelineElementInternal buildAvailabilitySourceTimelineElement(Integer recIndex, NotificationInt notification, DigitalAddressSource source, boolean isAvailable,
                                                                           int sentAttemptMade) {
-        log.debug("buildAvailabilitySourceTimelineElement - IUN={} and id={}", iun, recIndex);
+        log.debug("buildAvailabilitySourceTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
 
         String elementId = TimelineEventId.GET_ADDRESS.buildEventId(
                 EventId.builder()
-                        .iun(iun)
+                        .iun(notification.getIun())
                         .recIndex(recIndex)
                         .source(source)
                         .index(sentAttemptMade)
@@ -90,16 +96,16 @@ public class TimelineUtils {
                 .attemptDate(instantNowSupplier.get())
                 .build();
         
-        return buildTimeline(iun, TimelineElementCategory.GET_ADDRESS, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
+        return buildTimeline(notification, TimelineElementCategory.GET_ADDRESS, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
     }
 
 
-    public TimelineElementInternal buildDigitalFeedbackTimelineElement(String iun, ResponseStatus status, List<String> errors, SendDigitalDetails sendDigitalDetails) {
-        log.debug("buildDigitaFeedbackTimelineElement - IUN={} and id={}", iun, sendDigitalDetails.getRecIndex());
+    public TimelineElementInternal buildDigitalFeedbackTimelineElement(NotificationInt notification, ResponseStatus status, List<String> errors, SendDigitalDetails sendDigitalDetails) {
+        log.debug("buildDigitaFeedbackTimelineElement - IUN={} and id={}", notification.getIun(), sendDigitalDetails.getRecIndex());
 
         String elementId = TimelineEventId.SEND_DIGITAL_FEEDBACK.buildEventId(
                 EventId.builder()
-                        .iun(iun)
+                        .iun(notification.getIun())
                         .recIndex(sendDigitalDetails.getRecIndex())
                         .index(sendDigitalDetails.getRetryNumber())
                         .source(sendDigitalDetails.getDigitalAddressSource())
@@ -114,11 +120,11 @@ public class TimelineUtils {
                 .notificationDate(instantNowSupplier.get())
                 .build();
 
-        return buildTimeline(iun, TimelineElementCategory.SEND_DIGITAL_FEEDBACK, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
+        return buildTimeline(notification, TimelineElementCategory.SEND_DIGITAL_FEEDBACK, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
     }
 
-    public TimelineElementInternal buildSendCourtesyMessageTimelineElement(Integer recIndex, String iun, CourtesyDigitalAddressInt address, Instant sendDate, String eventId) {
-        log.debug("buildSendCourtesyMessageTimelineElement - IUN={} and id={}", iun, recIndex);
+    public TimelineElementInternal buildSendCourtesyMessageTimelineElement(Integer recIndex, NotificationInt notification, CourtesyDigitalAddressInt address, Instant sendDate, String eventId) {
+        log.debug("buildSendCourtesyMessageTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
 
         SendCourtesyMessageDetails details = SendCourtesyMessageDetails.builder()
                 .recIndex(recIndex)
@@ -126,19 +132,24 @@ public class TimelineUtils {
                 .sendDate(sendDate)
                 .build();
 
-        return buildTimeline(iun, TimelineElementCategory.SEND_COURTESY_MESSAGE, eventId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
+        return buildTimeline(notification, TimelineElementCategory.SEND_COURTESY_MESSAGE, eventId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
     }
 
 
-    public TimelineElementInternal buildSendSimpleRegisteredLetterTimelineElement(Integer recIndex, String iun, PhysicalAddress address, String eventId) {
-        log.debug("buildSendSimpleRegisteredLetterTimelineElement - IUN={} and id={}", iun, recIndex);
+    public TimelineElementInternal buildSendSimpleRegisteredLetterTimelineElement(Integer recIndex, NotificationInt notification, PhysicalAddress address,
+                                                                                  String eventId, Integer numberOfPages) {
+        log.debug("buildSendSimpleRegisteredLetterTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
 
         SimpleRegisteredLetterDetails details = SimpleRegisteredLetterDetails.builder()
                 .recIndex(recIndex)
                 .physicalAddress(address)
+                .numberOfPages(numberOfPages)
                 .build();
 
-        return buildTimeline(iun, TimelineElementCategory.SEND_SIMPLE_REGISTERED_LETTER, eventId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.timelineInternalBuilder()
+                .legalFactsIds( Collections.emptyList() );
+        
+        return buildTimeline(notification, TimelineElementCategory.SEND_SIMPLE_REGISTERED_LETTER, eventId, SmartMapper.mapToClass(details, TimelineElementDetails.class) , timelineBuilder);
     }
 
 
@@ -152,32 +163,36 @@ public class TimelineUtils {
                 .digitalAddressSource(addressSource)
                 .build();
 
-        return buildTimeline(notification.getIun(), TimelineElementCategory.SEND_DIGITAL_DOMICILE, eventId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
+        return buildTimeline(notification, TimelineElementCategory.SEND_DIGITAL_DOMICILE, eventId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
     }
 
 
     public TimelineElementInternal buildSendAnalogNotificationTimelineElement(PhysicalAddress address, Integer recIndex, NotificationInt notification, boolean investigation,
-                                                                              int sentAttemptMade, String eventId) {
+                                                                              int sentAttemptMade, String eventId, Integer numberOfPages) {
         log.debug("buildSendAnalogNotificationTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
         ServiceLevel serviceLevel = notification.getPhysicalCommunicationType() != null ? ServiceLevel.valueOf(notification.getPhysicalCommunicationType().name()) : null;
+        
         SendPaperDetails details = SendPaperDetails.builder()
                 .recIndex(recIndex)
                 .physicalAddress(address)
                 .serviceLevel(serviceLevel)
                 .sentAttemptMade(sentAttemptMade)
                 .investigation(investigation)
+                .numberOfPages(numberOfPages)
                 .build();
 
-        return buildTimeline(notification.getIun(), TimelineElementCategory.SEND_ANALOG_DOMICILE, eventId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.timelineInternalBuilder()
+                .legalFactsIds( Collections.emptyList() );
+
+        return buildTimeline(notification, TimelineElementCategory.SEND_ANALOG_DOMICILE, eventId, SmartMapper.mapToClass(details, TimelineElementDetails.class), timelineBuilder);
     }
-
-
-    public TimelineElementInternal buildSuccessDigitalWorkflowTimelineElement(String iun, Integer recIndex, LegalDigitalAddressInt address, String legalFactId) {
-        log.debug("buildSuccessDigitalWorkflowTimelineElement - IUN={} and id={}", iun, recIndex);
+    
+    public TimelineElementInternal buildSuccessDigitalWorkflowTimelineElement(NotificationInt notification, Integer recIndex, LegalDigitalAddressInt address, String legalFactId) {
+        log.debug("buildSuccessDigitalWorkflowTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
 
         String elementId = TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.buildEventId(
                 EventId.builder()
-                        .iun(iun)
+                        .iun(notification.getIun())
                         .recIndex(recIndex)
                         .build());
         
@@ -186,17 +201,19 @@ public class TimelineUtils {
                 .digitalAddress(LegalDigitalAddressMapper.legalToDigital(address))
                 .build();
 
-        List<LegalFactsId> legalFactIds = singleLegalFactId(legalFactId, LegalFactCategory.DIGITAL_DELIVERY);
-        return buildTimeline(iun, TimelineElementCategory.DIGITAL_SUCCESS_WORKFLOW, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class), legalFactIds);
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.timelineInternalBuilder()
+                .legalFactsIds( singleLegalFactId(legalFactId, LegalFactCategory.DIGITAL_DELIVERY) );
+
+        return buildTimeline(notification, TimelineElementCategory.DIGITAL_SUCCESS_WORKFLOW, elementId,
+                SmartMapper.mapToClass(details, TimelineElementDetails.class), timelineBuilder);
     }
-
-
-    public TimelineElementInternal buildFailureDigitalWorkflowTimelineElement(String iun, Integer recIndex, String legalFactId) {
-        log.debug("buildFailureDigitalWorkflowTimelineElement - IUN={} and id={}", iun, recIndex);
+    
+    public TimelineElementInternal buildFailureDigitalWorkflowTimelineElement(NotificationInt notification, Integer recIndex, String legalFactId) {
+        log.debug("buildFailureDigitalWorkflowTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
 
         String elementId = TimelineEventId.DIGITAL_FAILURE_WORKFLOW.buildEventId(
                 EventId.builder()
-                        .iun(iun)
+                        .iun(notification.getIun())
                         .recIndex(recIndex)
                         .build());
         
@@ -204,46 +221,59 @@ public class TimelineUtils {
                 .recIndex(recIndex)
                 .build();
 
-        List<LegalFactsId> legalFactIds = singleLegalFactId(legalFactId, LegalFactCategory.DIGITAL_DELIVERY);
-        return buildTimeline(iun, TimelineElementCategory.DIGITAL_FAILURE_WORKFLOW, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class), legalFactIds);
+
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.timelineInternalBuilder()
+                .legalFactsIds( singleLegalFactId(legalFactId, LegalFactCategory.DIGITAL_DELIVERY) );
+        
+        return buildTimeline(notification, TimelineElementCategory.DIGITAL_FAILURE_WORKFLOW, elementId,
+                SmartMapper.mapToClass(details, TimelineElementDetails.class), timelineBuilder);
     }
 
 
-    public TimelineElementInternal buildSuccessAnalogWorkflowTimelineElement(String iun, Integer recIndex, PhysicalAddress address, List<LegalFactsId> attachments) {
-        log.debug("buildSuccessAnalogWorkflowTimelineElement - iun={} and id={}", iun, recIndex);
+    public TimelineElementInternal buildSuccessAnalogWorkflowTimelineElement(NotificationInt notification, Integer recIndex, PhysicalAddress address, List<LegalFactsId> attachments) {
+        log.debug("buildSuccessAnalogWorkflowTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
 
         String elementId = TimelineEventId.ANALOG_SUCCESS_WORKFLOW.buildEventId(
                 EventId.builder()
-                        .iun(iun)
+                        .iun(notification.getIun())
                         .recIndex(recIndex)
                         .build());
+        
         AnalogSuccessWorkflow details = AnalogSuccessWorkflow.builder()
                 .recIndex(recIndex)
                 .physicalAddress(address)
                 .build();
 
-        return buildTimeline(iun, TimelineElementCategory.ANALOG_SUCCESS_WORKFLOW, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class), attachments);
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.timelineInternalBuilder()
+                .legalFactsIds( attachments );
+
+        return buildTimeline(notification, TimelineElementCategory.ANALOG_SUCCESS_WORKFLOW, elementId,
+                SmartMapper.mapToClass(details, TimelineElementDetails.class), timelineBuilder);
     }
 
 
-    public TimelineElementInternal buildFailureAnalogWorkflowTimelineElement(String iun, Integer recIndex, List<LegalFactsId> attachments) {
-        log.debug("buildFailureAnalogWorkflowTimelineElement - iun={} and id={}", iun, recIndex);
+    public TimelineElementInternal buildFailureAnalogWorkflowTimelineElement(NotificationInt notification, Integer recIndex, List<LegalFactsId> attachments) {
+        log.debug("buildFailureAnalogWorkflowTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
 
         String elementId = TimelineEventId.ANALOG_FAILURE_WORKFLOW.buildEventId(
                 EventId.builder()
-                        .iun(iun)
+                        .iun(notification.getIun())
                         .recIndex(recIndex)
                         .build());
         AnalogFailureWorkflow details = AnalogFailureWorkflow.builder()
                 .recIndex(recIndex)
                 .build();
 
-        return buildTimeline(iun, TimelineElementCategory.ANALOG_FAILURE_WORKFLOW, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class), attachments);
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.timelineInternalBuilder()
+                .legalFactsIds( attachments );
+
+        return buildTimeline(notification, TimelineElementCategory.ANALOG_FAILURE_WORKFLOW, elementId,
+                SmartMapper.mapToClass(details, TimelineElementDetails.class), timelineBuilder);
     }
 
 
-    public TimelineElementInternal buildPublicRegistryResponseCallTimelineElement(String iun, Integer recIndex, PublicRegistryResponse response) {
-        log.debug("buildPublicRegistryResponseCallTimelineElement - iun={} and id={}", iun, recIndex);
+    public TimelineElementInternal buildPublicRegistryResponseCallTimelineElement(NotificationInt notification, Integer recIndex, PublicRegistryResponse response) {
+        log.debug("buildPublicRegistryResponseCallTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
 
         String eventId = TimelineEventId.PUBLIC_REGISTRY_RESPONSE.buildEventId(response.getCorrelationId());
                 
@@ -253,12 +283,12 @@ public class TimelineUtils {
                 .physicalAddress(response.getPhysicalAddress())
                 .build();
 
-        return buildTimeline(iun, TimelineElementCategory.PUBLIC_REGISTRY_RESPONSE, eventId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
+        return buildTimeline(notification, TimelineElementCategory.PUBLIC_REGISTRY_RESPONSE, eventId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
     }
 
 
-    public TimelineElementInternal  buildPublicRegistryCallTimelineElement(String iun, Integer recIndex, String eventId, DeliveryMode deliveryMode, ContactPhase contactPhase, int sentAttemptMade) {
-        log.debug("buildPublicRegistryCallTimelineElement - iun={} and id={}", iun, recIndex);
+    public TimelineElementInternal  buildPublicRegistryCallTimelineElement(NotificationInt notification, Integer recIndex, String eventId, DeliveryMode deliveryMode, ContactPhase contactPhase, int sentAttemptMade) {
+        log.debug("buildPublicRegistryCallTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
 
         PublicRegistryCallDetails details = PublicRegistryCallDetails.builder()
                 .recIndex(recIndex)
@@ -268,16 +298,16 @@ public class TimelineUtils {
                 .sendDate(instantNowSupplier.get())
                 .build();
 
-        return buildTimeline(iun, TimelineElementCategory.PUBLIC_REGISTRY_CALL, eventId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
+        return buildTimeline(notification, TimelineElementCategory.PUBLIC_REGISTRY_CALL, eventId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
     }
 
 
-    public TimelineElementInternal buildAnalogFailureAttemptTimelineElement(String iun, int sentAttemptMade, List<LegalFactsId> legalFactsListEntryIds, PhysicalAddress newAddress, List<String> errors, SendPaperDetails sendPaperDetails) {
-        log.debug("buildAnalogFailureAttemptTimelineElement - iun={} and id={}", iun, sendPaperDetails.getRecIndex());
+    public TimelineElementInternal buildAnalogFailureAttemptTimelineElement(NotificationInt notification, int sentAttemptMade, List<LegalFactsId> legalFactsListEntryIds, PhysicalAddress newAddress, List<String> errors, SendPaperDetails sendPaperDetails) {
+        log.debug("buildAnalogFailureAttemptTimelineElement - iun={} and id={}", notification.getIun(), sendPaperDetails.getRecIndex());
 
         String elementId = TimelineEventId.SEND_PAPER_FEEDBACK.buildEventId(
                 EventId.builder()
-                        .iun(iun)
+                        .iun(notification.getIun())
                         .recIndex(sendPaperDetails.getRecIndex())
                         .index(sentAttemptMade)
                         .build()
@@ -292,46 +322,52 @@ public class TimelineUtils {
                 .errors(errors)
                 .build();
 
-        return buildTimeline( iun, TimelineElementCategory.SEND_PAPER_FEEDBACK,
-                                                                            elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class), legalFactsListEntryIds );
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.timelineInternalBuilder()
+                .legalFactsIds( legalFactsListEntryIds );
+
+        return buildTimeline( notification, TimelineElementCategory.SEND_PAPER_FEEDBACK, elementId,
+                SmartMapper.mapToClass(details, TimelineElementDetails.class), timelineBuilder );
     }
 
-    public TimelineElementInternal  buildNotificationViewedTimelineElement(String iun, Integer recIndex, String legalFactId) {
-        log.debug("buildNotificationViewedTimelineElement - iun={} and id={}", iun, recIndex);
+    public TimelineElementInternal  buildNotificationViewedTimelineElement(NotificationInt notification, Integer recIndex, String legalFactId) {
+        log.debug("buildNotificationViewedTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
 
         String elementId = TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
                 EventId.builder()
-                        .iun(iun)
+                        .iun(notification.getIun())
                         .recIndex(recIndex)
                         .build());
         NotificationViewedDetails details = NotificationViewedDetails.builder()
                 .recIndex(recIndex)
                 .build();
 
-        List<LegalFactsId> legalFactIds = singleLegalFactId( legalFactId, LegalFactCategory.RECIPIENT_ACCESS );
-        return buildTimeline(iun, TimelineElementCategory.NOTIFICATION_VIEWED, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class), legalFactIds);
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.timelineInternalBuilder()
+                .legalFactsIds( singleLegalFactId( legalFactId, LegalFactCategory.RECIPIENT_ACCESS ) );
+
+        return buildTimeline(notification, TimelineElementCategory.NOTIFICATION_VIEWED, elementId,
+                SmartMapper.mapToClass(details, TimelineElementDetails.class), timelineBuilder);
     }
 
-    public TimelineElementInternal  buildCompletelyUnreachableTimelineElement(String iun, Integer recIndex) {
-        log.debug("buildCompletelyUnreachableTimelineElement - iun={} and id={}", iun, recIndex);
+    public TimelineElementInternal  buildCompletelyUnreachableTimelineElement(NotificationInt notification, Integer recIndex) {
+        log.debug("buildCompletelyUnreachableTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
 
         String elementId = TimelineEventId.COMPLETELY_UNREACHABLE.buildEventId(
                 EventId.builder()
-                        .iun(iun)
+                        .iun(notification.getIun())
                         .recIndex(recIndex)
                         .build());
         CompletelyUnreachableDetails details = CompletelyUnreachableDetails.builder()
                 .recIndex(recIndex)
                 .build();
 
-        return buildTimeline(iun, TimelineElementCategory.COMPLETELY_UNREACHABLE, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
+        return buildTimeline(notification, TimelineElementCategory.COMPLETELY_UNREACHABLE, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
     }
 
-    public TimelineElementInternal  buildScheduleDigitalWorkflowTimeline(String iun, Integer recIndex, DigitalAddressInfo lastAttemptInfo) {
-        log.debug("buildScheduledActionTimeline - iun={} and id={}", iun, recIndex);
+    public TimelineElementInternal  buildScheduleDigitalWorkflowTimeline(NotificationInt notification, Integer recIndex, DigitalAddressInfo lastAttemptInfo) {
+        log.debug("buildScheduledActionTimeline - iun={} and id={}", notification.getIun(), recIndex);
         String elementId = TimelineEventId.SCHEDULE_DIGITAL_WORKFLOW.buildEventId(
                 EventId.builder()
-                        .iun(iun)
+                        .iun(notification.getIun())
                         .recIndex(recIndex)
                         .build());
         
@@ -343,14 +379,14 @@ public class TimelineUtils {
                 .sentAttemptMade(lastAttemptInfo.getSentAttemptMade())
                 .build();
 
-        return buildTimeline(iun, TimelineElementCategory.SCHEDULE_DIGITAL_WORKFLOW, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
+        return buildTimeline(notification, TimelineElementCategory.SCHEDULE_DIGITAL_WORKFLOW, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
     }
 
-    public TimelineElementInternal  buildScheduleAnalogWorkflowTimeline(String iun, Integer recIndex) {
-        log.debug("buildScheduleAnalogWorkflowTimeline - iun={} and id={}", iun, recIndex);
+    public TimelineElementInternal buildScheduleAnalogWorkflowTimeline(NotificationInt notification, Integer recIndex) {
+        log.debug("buildScheduleAnalogWorkflowTimeline - iun={} and id={}", notification.getIun(), recIndex);
         String elementId = TimelineEventId.SCHEDULE_ANALOG_WORKFLOW.buildEventId(
                 EventId.builder()
-                        .iun(iun)
+                        .iun(notification.getIun())
                         .recIndex(recIndex)
                         .build());
 
@@ -358,38 +394,42 @@ public class TimelineUtils {
                 .recIndex(recIndex)
                 .build();
 
-        return buildTimeline(iun, TimelineElementCategory.SCHEDULE_ANALOG_WORKFLOW, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
+        return buildTimeline(notification, TimelineElementCategory.SCHEDULE_ANALOG_WORKFLOW, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
     }
 
-    public TimelineElementInternal  buildRefinementTimelineElement(String iun, Integer recIndex) {
-        log.debug("buildRefinementTimelineElement - iun={} and id={}", iun, recIndex);
+    public TimelineElementInternal  buildRefinementTimelineElement(NotificationInt notification, Integer recIndex) {
+        log.debug("buildRefinementTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
+        
         String elementId = TimelineEventId.REFINEMENT.buildEventId(
                 EventId.builder()
-                        .iun(iun)
+                        .iun(notification.getIun())
                         .recIndex(recIndex)
                         .build());
+        
         RefinementDetails details = RefinementDetails.builder()
                 .recIndex(recIndex)
                 .build();
 
-        return buildTimeline(iun, TimelineElementCategory.REFINEMENT, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
+        return buildTimeline(notification, TimelineElementCategory.REFINEMENT, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
     }
     
-    public TimelineElementInternal  buildScheduleRefinement(String iun, Integer recIndex) {
-        log.debug("buildScheduleRefinement - iun={} and id={}", iun, recIndex);
+    public TimelineElementInternal buildScheduleRefinement(NotificationInt notification, Integer recIndex) {
+        log.debug("buildScheduleRefinement - iun={} and id={}", notification.getIun(), recIndex);
+        
         String elementId = TimelineEventId.SCHEDULE_REFINEMENT_WORKFLOW.buildEventId(
                 EventId.builder()
-                        .iun(iun)
+                        .iun(notification.getIun())
                         .recIndex(recIndex)
                         .build());
+        
         ScheduleRefinement details = ScheduleRefinement.builder()
                 .recIndex(recIndex)
                 .build();
 
-        return buildTimeline(iun, TimelineElementCategory.SCHEDULE_REFINEMENT, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
+        return buildTimeline(notification, TimelineElementCategory.SCHEDULE_REFINEMENT, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
     }
 
-    public TimelineElementInternal  buildRefusedRequestTimelineElement(NotificationInt notification, List<String> errors) {
+    public TimelineElementInternal buildRefusedRequestTimelineElement(NotificationInt notification, List<String> errors) {
         log.debug("buildRefusedRequestTimelineElement - iun={}", notification.getIun());
 
         String elementId = TimelineEventId.REQUEST_REFUSED.buildEventId(
@@ -401,11 +441,11 @@ public class TimelineUtils {
                 .errors(errors)
                 .build();
 
-        return buildTimeline(notification.getIun(), TimelineElementCategory.REQUEST_REFUSED, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
+        return buildTimeline(notification, TimelineElementCategory.REQUEST_REFUSED, elementId, SmartMapper.mapToClass(details, TimelineElementDetails.class));
     }
 
 
-    public TimelineElementInternal  buildAarGenerationTimelineElement(NotificationInt notification, Integer recIndex, String legalFactId) {
+    public TimelineElementInternal buildAarGenerationTimelineElement(NotificationInt notification, Integer recIndex, String legalFactId, Integer numberOfPages) {
         log.debug("buildAarGenerationTimelineElement - iun={}", notification.getIun());
 
         String elementId = TimelineEventId.AAR_GENERATION.buildEventId(
@@ -416,10 +456,11 @@ public class TimelineUtils {
         AarGenerationDetails details = AarGenerationDetails.builder()
                 .recIndex(recIndex)
                 .generatedAarUrl(legalFactId)
+                .numberOfPages(numberOfPages)
                 .build();
 
         return buildTimeline(
-                notification.getIun(),
+                notification,
                 TimelineElementCategory.AAR_GENERATION,
                 elementId,
                 SmartMapper.mapToClass(details, TimelineElementDetails.class)
