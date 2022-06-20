@@ -2,7 +2,6 @@ package it.pagopa.pn.deliverypush.action2;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.*;
-import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.AttachmentDetailsInt;
@@ -19,16 +18,13 @@ import java.util.stream.Collectors;
 public class ExternalChannelResponseHandler {
     private final DigitalWorkFlowHandler digitalWorkFlowHandler;
     private final AnalogWorkflowHandler analogWorkflowHandler;
-    private final ExternalChannelUtils externalChannelUtils;
     private final TimelineUtils timelineUtils;
 
     public ExternalChannelResponseHandler(DigitalWorkFlowHandler digitalWorkFlowHandler,
                                           AnalogWorkflowHandler analogWorkflowHandler,
-                                          ExternalChannelUtils externalChannelUtils,
                                           TimelineUtils timelineUtils) {
         this.digitalWorkFlowHandler = digitalWorkFlowHandler;
         this.analogWorkflowHandler = analogWorkflowHandler;
-        this.externalChannelUtils = externalChannelUtils;
         this.timelineUtils = timelineUtils;
     }
 

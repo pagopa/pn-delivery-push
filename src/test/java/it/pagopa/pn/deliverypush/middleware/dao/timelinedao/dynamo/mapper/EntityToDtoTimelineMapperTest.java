@@ -17,7 +17,7 @@ class EntityToDtoTimelineMapperTest {
     
     @Test
     void entityToDtoSendAnalogDomicile() {
-        mapper = new EntityToDtoTimelineMapper(null);
+        mapper = new EntityToDtoTimelineMapper();
 
         TimelineElementEntity entity = TimelineElementEntity.builder()
                 .paId("PaId")
@@ -52,7 +52,7 @@ class EntityToDtoTimelineMapperTest {
     
     @Test
     void entityToDto() {
-        mapper = new EntityToDtoTimelineMapper(null);
+        mapper = new EntityToDtoTimelineMapper();
         
         TimelineElementEntity entity = TimelineElementEntity.builder()
                 .paId("PaId")

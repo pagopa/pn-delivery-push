@@ -4,7 +4,6 @@ import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.Leg
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.PaperProgressStatusEvent;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.ProgressEventCategory;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.SingleStatusUpdate;
-import it.pagopa.pn.deliverypush.action2.utils.ExternalChannelUtils;
 import it.pagopa.pn.deliverypush.action2.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelAnalogSentResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
@@ -23,15 +22,13 @@ class ExternalChannelHandlerTest {
     @Mock
     private AnalogWorkflowHandler analogWorkflowHandler;
     @Mock
-    private ExternalChannelUtils externalChannelUtils;
-    @Mock
     private TimelineUtils timelineUtils;
 
     private ExternalChannelResponseHandler handler;
 
     @BeforeEach
     public void setup() {
-        handler = new ExternalChannelResponseHandler(digitalWorkFlowHandler, analogWorkflowHandler, externalChannelUtils, timelineUtils);
+        handler = new ExternalChannelResponseHandler(digitalWorkFlowHandler, analogWorkflowHandler, timelineUtils);
     }
 
     @ExtendWith(MockitoExtension.class)

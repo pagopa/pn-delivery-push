@@ -33,10 +33,9 @@ class TimelineDaoDynamoTest {
 
     @BeforeEach
     void setup() {
-        ObjectMapper objMapper = new ObjectMapper();
 
-        DtoToEntityTimelineMapper dto2Entity = new DtoToEntityTimelineMapper(objMapper);
-        EntityToDtoTimelineMapper entity2dto = new EntityToDtoTimelineMapper(objMapper);
+        DtoToEntityTimelineMapper dto2Entity = new DtoToEntityTimelineMapper();
+        EntityToDtoTimelineMapper entity2dto = new EntityToDtoTimelineMapper();
         entityDao = new TestMyTimelineEntityDao();
 
         dao = new TimelineDaoDynamo(entityDao, dto2Entity, entity2dto);

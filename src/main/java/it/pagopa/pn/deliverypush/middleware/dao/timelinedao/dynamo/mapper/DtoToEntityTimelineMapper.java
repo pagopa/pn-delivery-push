@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
@@ -13,11 +12,10 @@ import java.util.stream.Collectors;
 
 @Component
 public class DtoToEntityTimelineMapper {
-    private final ObjectMapper objectMapper;
 
-    public DtoToEntityTimelineMapper(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
+    public DtoToEntityTimelineMapper() {
     }
+    
     public TimelineElementEntity dtoToEntity(TimelineElementInternal dto) {
         return TimelineElementEntity.builder()
                 .iun( dto.getIun() )
