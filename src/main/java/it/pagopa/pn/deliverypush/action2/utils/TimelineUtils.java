@@ -144,7 +144,6 @@ public class TimelineUtils {
                 .recIndex(recIndex)
                 .physicalAddress(address)
                 .numberOfPages(numberOfPages)
-                .foreignState(address.getForeignState())
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.timelineInternalBuilder()
@@ -180,7 +179,6 @@ public class TimelineUtils {
                 .sentAttemptMade(sentAttemptMade)
                 .investigation(investigation)
                 .numberOfPages(numberOfPages)
-                .foreignState(address.getForeignState())
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.timelineInternalBuilder()

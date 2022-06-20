@@ -312,9 +312,6 @@ components:
         numberOfPages:
           type: integer
           description: numero pagine pdf inviato
-        foreignState:
-          type: string
-          description: Denominazione paese estero
           
     SendPaperFeedbackDetails:
       type: object
@@ -352,9 +349,6 @@ components:
         numberOfPages:
           type: integer
           description: numero pagine pdf inviato
-        foreignState:
-          type: string
-          description: Denominazione paese estero
 
     AarGenerationDetails:
       type: object
