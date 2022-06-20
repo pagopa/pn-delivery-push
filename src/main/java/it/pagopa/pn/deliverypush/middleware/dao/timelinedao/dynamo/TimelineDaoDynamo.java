@@ -65,11 +65,9 @@ public class TimelineDaoDynamo implements TimelineDao {
                     .build());
         }
         
-        newDetails.setPhysicalAddress( physicalAddress );
-
         PhysicalAddressEntity newAddress = newDetails.getNewAddress();
         if( newAddress != null ) {
-            newDetails.setPhysicalAddress( newAddress.toBuilder()
+            newDetails.setNewAddress( newAddress.toBuilder()
                     .at(null)
                     .municipalityDetails(null)
                     .zip(null)
@@ -79,7 +77,6 @@ public class TimelineDaoDynamo implements TimelineDao {
                     .address(null)
                     .build());
         }
-        newDetails.setNewAddress( newAddress );
 
         DigitalAddressEntity digitalAddress = newDetails.getDigitalAddress();
         if( digitalAddress != null ) {
