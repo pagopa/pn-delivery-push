@@ -220,7 +220,8 @@ public class TimeLineServiceImpl implements TimelineService {
 
     public void enrichTimelineElementWithConfidentialInformation(TimelineElementDetailsInt details,
                                                                  ConfidentialTimelineElementDtoInt confidentialDto) {
-        if( details instanceof CourtesyAddressRelatedTimelineElement){
+        
+        if( details instanceof CourtesyAddressRelatedTimelineElement && confidentialDto.getDigitalAddress() != null ){
             CourtesyDigitalAddressInt address = ((CourtesyAddressRelatedTimelineElement) details).getDigitalAddress();
 
             if (address == null)
@@ -242,55 +243,43 @@ public class TimeLineServiceImpl implements TimelineService {
             }
 
             address = address.toBuilder().address(confidentialDto.getDigitalAddress()).build();
+            
             ((DigitalAddressRelatedTimelineElement) details).setDigitalAddress(address);
         }
 
-        if( details instanceof PhysicalAddressRelatedTimelineElement){
+        if( details instanceof PhysicalAddressRelatedTimelineElement && confidentialDto.getPhysicalAddress() != null ) {
             PhysicalAddressInt physicalAddress = ((PhysicalAddressRelatedTimelineElement) details).getPhysicalAddress();
 
-            if (physicalAddress == null)
-            {
-                physicalAddress = PhysicalAddressInt.builder().build();
-            }
+            physicalAddress = getPhysicalAddress(physicalAddress, confidentialDto.getPhysicalAddress());
 
-            physicalAddress = physicalAddress.toBuilder()
-                    .at(confidentialDto.getPhysicalAddress().getAt())
-                    .address(confidentialDto.getPhysicalAddress().getAddress())
-                    .municipality(confidentialDto.getPhysicalAddress().getMunicipality())
-                    .province(confidentialDto.getPhysicalAddress().getProvince())
-                    .addressDetails(confidentialDto.getPhysicalAddress().getAddressDetails())
-                    .zip(confidentialDto.getPhysicalAddress().getZip())
-                    .municipalityDetails(confidentialDto.getPhysicalAddress().getMunicipalityDetails())
-                    .build();
-            
             ((PhysicalAddressRelatedTimelineElement) details).setPhysicalAddress(physicalAddress);
         }
 
-        if( details instanceof NewAddressRelatedTimelineElement){
+        if( details instanceof NewAddressRelatedTimelineElement && confidentialDto.getNewPhysicalAddress() != null ){
             
-            if( confidentialDto.getNewPhysicalAddress() != null ){
-                
-                PhysicalAddressInt newAddress = ((NewAddressRelatedTimelineElement) details).getNewAddress();
+            PhysicalAddressInt newAddress = ((NewAddressRelatedTimelineElement) details).getNewAddress();
 
-                if (newAddress == null)
-                {
-                    newAddress = PhysicalAddressInt.builder().build();
-                }
+            newAddress = getPhysicalAddress(newAddress, confidentialDto.getNewPhysicalAddress());
 
-                newAddress = newAddress.toBuilder()
-                        .at(confidentialDto.getNewPhysicalAddress().getAt())
-                        .address(confidentialDto.getNewPhysicalAddress().getAddress())
-                        .municipality(confidentialDto.getNewPhysicalAddress().getMunicipality())
-                        .province(confidentialDto.getNewPhysicalAddress().getProvince())
-                        .addressDetails(confidentialDto.getNewPhysicalAddress().getAddressDetails())
-                        .zip(confidentialDto.getNewPhysicalAddress().getZip())
-                        .municipalityDetails(confidentialDto.getNewPhysicalAddress().getMunicipalityDetails())
-                        .build();
-
-                ((NewAddressRelatedTimelineElement) details).setNewAddress(newAddress);
-                
-            }
+            ((NewAddressRelatedTimelineElement) details).setNewAddress(newAddress);
+            
         }
+    }
+
+    private PhysicalAddressInt getPhysicalAddress(PhysicalAddressInt physicalAddress, PhysicalAddressInt physicalAddress2) {
+        if (physicalAddress == null) {
+            physicalAddress = PhysicalAddressInt.builder().build();
+        }
+
+        return physicalAddress.toBuilder()
+                .at(physicalAddress2.getAt())
+                .address(physicalAddress2.getAddress())
+                .municipality(physicalAddress2.getMunicipality())
+                .province(physicalAddress2.getProvince())
+                .addressDetails(physicalAddress2.getAddressDetails())
+                .zip(physicalAddress2.getZip())
+                .municipalityDetails(physicalAddress2.getMunicipalityDetails())
+                .build();
     }
 
 
