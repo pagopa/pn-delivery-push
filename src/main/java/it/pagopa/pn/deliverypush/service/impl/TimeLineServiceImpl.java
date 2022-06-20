@@ -224,12 +224,7 @@ public class TimeLineServiceImpl implements TimelineService {
         if( details instanceof CourtesyAddressRelatedTimelineElement && confidentialDto.getDigitalAddress() != null ){
             CourtesyDigitalAddressInt address = ((CourtesyAddressRelatedTimelineElement) details).getDigitalAddress();
 
-            if (address == null)
-            {
-                address = CourtesyDigitalAddressInt.builder().build();
-            }
-
-            address = address.toBuilder().address(confidentialDto.getDigitalAddress()).build();
+            address = getCourtesyDigitalAddress(confidentialDto, address);
             ((CourtesyAddressRelatedTimelineElement) details).setDigitalAddress(address);
         }
 
@@ -237,13 +232,8 @@ public class TimeLineServiceImpl implements TimelineService {
 
             LegalDigitalAddressInt address = ((DigitalAddressRelatedTimelineElement) details).getDigitalAddress();
 
-            if (address == null)
-            {
-                address = LegalDigitalAddressInt.builder().build();
-            }
+            address = getDigitalAddress(confidentialDto, address);
 
-            address = address.toBuilder().address(confidentialDto.getDigitalAddress()).build();
-            
             ((DigitalAddressRelatedTimelineElement) details).setDigitalAddress(address);
         }
 
@@ -264,6 +254,26 @@ public class TimeLineServiceImpl implements TimelineService {
             ((NewAddressRelatedTimelineElement) details).setNewAddress(newAddress);
             
         }
+    }
+
+    private LegalDigitalAddressInt getDigitalAddress(ConfidentialTimelineElementDtoInt confidentialDto, LegalDigitalAddressInt address) {
+        if (address == null)
+        {
+            address = LegalDigitalAddressInt.builder().build();
+        }
+
+        address = address.toBuilder().address(confidentialDto.getDigitalAddress()).build();
+        return address;
+    }
+
+    private CourtesyDigitalAddressInt getCourtesyDigitalAddress(ConfidentialTimelineElementDtoInt confidentialDto, CourtesyDigitalAddressInt address) {
+        if (address == null)
+        {
+            address = CourtesyDigitalAddressInt.builder().build();
+        }
+
+        address = address.toBuilder().address(confidentialDto.getDigitalAddress()).build();
+        return address;
     }
 
     private PhysicalAddressInt getPhysicalAddress(PhysicalAddressInt physicalAddress, PhysicalAddressInt physicalAddress2) {

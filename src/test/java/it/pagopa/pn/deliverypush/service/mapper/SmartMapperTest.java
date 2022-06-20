@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DownstreamId;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetails;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class SmartMapperTest {
@@ -28,7 +29,9 @@ class SmartMapperTest {
                 .build();
 
         TimelineElementDetails details = SmartMapper.mapToClass(sendDigitalDetails, TimelineElementDetails.class);
-        System.out.println("details "+ details);
+        
+        Assertions.assertEquals(sendDigitalDetails.getRecIndex(), details.getRecIndex());
+        Assertions.assertEquals(sendDigitalDetails.getDigitalAddress().getAddress(), details.getDigitalAddress().getAddress() );
     }
 
     @Test
@@ -49,6 +52,8 @@ class SmartMapperTest {
                 .build();
 
         SendDigitalDetailsInt details = SmartMapper.mapToClass(timelineElementDetails, SendDigitalDetailsInt.class);
-        System.out.println("details "+ details);
+
+        Assertions.assertEquals(timelineElementDetails.getRecIndex(), details.getRecIndex());
+        Assertions.assertEquals(timelineElementDetails.getDigitalAddress().getAddress(), details.getDigitalAddress().getAddress() );
     }
 }

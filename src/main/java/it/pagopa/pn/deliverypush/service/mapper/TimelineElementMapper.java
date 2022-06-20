@@ -8,7 +8,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement
 import java.util.stream.Collectors;
 
 public class TimelineElementMapper {
-    private TimelineElementMapper(){};
+    private TimelineElementMapper(){}
     
     public static TimelineElement internalToExternal(TimelineElementInternal internalDto) {
         TimelineElement.TimelineElementBuilder builder = TimelineElement.builder()
