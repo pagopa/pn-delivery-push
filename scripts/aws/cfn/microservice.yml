@@ -355,6 +355,7 @@ Resources:
         ServiceApiPath: 'delivery-push'
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
 
   # Expose PN-Delivery-push microservice public API with API-GW for WEB usage
   DeliveryPushMicroservicePublicWebAPI:
@@ -369,17 +370,19 @@ Resources:
         ServiceApiPath: 'delivery-push'
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
 
   # Expose PN-Delivery-push microservice public API with API-GW for IO usage
-  # DeliveryPushMicroservicePublicIoAPI:
-  #   Type: AWS::CloudFormation::Stack
-  #   Properties:
-  #     TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service.yaml"
-  #     Parameters:
-  #       MicroServiceUniqueName: !Sub '${ProjectName}-delivery-push'
-  #       IntendedUsage: IO
-  #       DnsName: !Ref IoApiDnsName
-  #       ProjectName: !Ref ProjectName
-  #       ServiceApiPath: 'delivery-push'
-  #       NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
-  #       ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
+  DeliveryPushMicroservicePublicIoAPI:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service.yaml"
+      Parameters:
+        MicroServiceUniqueName: !Sub '${ProjectName}-delivery-push'
+        IntendedUsage: IO
+        DnsName: !Ref IoApiDnsName
+        ProjectName: !Ref ProjectName
+        ServiceApiPath: 'delivery-push'
+        NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
+        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
