@@ -114,6 +114,7 @@ public class ChooseDeliveryModeHandler {
      *
      * @param notification   Public Administration notification request
      * @param digitalAddress User address
+     * @param addressSource Address source ( PLATFORM, SPECIAL, GENERAL );
      * @param recIndex      User identifier
      */
     public void startDigitalWorkflow(NotificationInt notification, LegalDigitalAddressInt digitalAddress, DigitalAddressSourceInt addressSource, Integer recIndex) {

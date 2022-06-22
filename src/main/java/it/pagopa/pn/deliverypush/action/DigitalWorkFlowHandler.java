@@ -151,6 +151,7 @@ public class DigitalWorkFlowHandler {
      *
      * @param response Get special address response
      * @param notification      Notification
+     * @param prCallDetails     Public registry call details
      */
     public void handleGeneralAddressResponse(PublicRegistryResponse response, NotificationInt notification, PublicRegistryCallDetailsInt prCallDetails) {
         Integer recIndex = prCallDetails.getRecIndex();
