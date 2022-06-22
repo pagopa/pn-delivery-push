@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils;
 
 import it.pagopa.pn.api.dto.events.StandardEventHeader;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.MessageHeaders;
 
@@ -22,13 +23,19 @@ public class HandleEventUtils {
     }
     
     public static StandardEventHeader mapStandardEventHeader(MessageHeaders headers) {
-        return StandardEventHeader.builder()
-                .eventId((String) headers.get(PN_EVENT_HEADER_EVENT_ID))
-                .iun((String) headers.get(PN_EVENT_HEADER_IUN))
-                .eventType((String) headers.get(PN_EVENT_HEADER_EVENT_TYPE))
-                .createdAt(mapInstant(headers.get(PN_EVENT_HEADER_CREATED_AT)))
-                .publisher((String) headers.get(PN_EVENT_HEADER_PUBLISHER))
-                .build();
+        if(headers != null){
+            return StandardEventHeader.builder()
+                    .eventId((String) headers.get(PN_EVENT_HEADER_EVENT_ID))
+                    .iun((String) headers.get(PN_EVENT_HEADER_IUN))
+                    .eventType((String) headers.get(PN_EVENT_HEADER_EVENT_TYPE))
+                    .createdAt(mapInstant(headers.get(PN_EVENT_HEADER_CREATED_AT)))
+                    .publisher((String) headers.get(PN_EVENT_HEADER_PUBLISHER))
+                    .build();
+        } else {
+            String msg = "Headers cannot be null in mapStandardEventHeader";
+            log.error(msg);
+            throw new PnInternalException(msg);            
+        }
     }
 
     private static Instant mapInstant(Object createdAt) {
