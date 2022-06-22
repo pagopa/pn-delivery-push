@@ -6,17 +6,21 @@ import freemarker.template._TemplateAPI;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.DigitalWorkFlowHandler;
-import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
 import it.pagopa.pn.deliverypush.action.RefinementHandler;
-import it.pagopa.pn.deliverypush.action.it.mockbean.UserAttributesClientMock;
 import it.pagopa.pn.deliverypush.action.it.mockbean.PnDeliveryClientMock;
 import it.pagopa.pn.deliverypush.action.it.mockbean.PublicRegistryMock;
 import it.pagopa.pn.deliverypush.action.it.mockbean.SchedulerServiceMock;
+import it.pagopa.pn.deliverypush.action.it.mockbean.UserAttributesClientMock;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.userattributes.UserAttributesClient;
-import it.pagopa.pn.deliverypush.legalfacts.*;
+import it.pagopa.pn.deliverypush.legalfacts.CustomInstantWriter;
+import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
+import it.pagopa.pn.deliverypush.legalfacts.PhysicalAddressWriter;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.userattributes.UserAttributesClient;
+import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
+import it.pagopa.pn.deliverypush.service.impl.LegalFactsServiceImpl;
 import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
@@ -56,9 +60,9 @@ public class AbstractWorkflowTestConfiguration {
     }
     
     @Bean
-    public LegalFactDao LegalFactsTest(PnSafeStorageClient safeStorageClient,
-                                       LegalFactGenerator pdfUtils) {
-        return new LegalFactDao(pdfUtils, safeStorageClient);
+    public LegalFactsServiceImpl LegalFactsTest(PnSafeStorageClient safeStorageClient,
+                                                LegalFactGenerator pdfUtils) {
+        return new LegalFactsServiceImpl(pdfUtils, safeStorageClient);
     }
 
     @Bean

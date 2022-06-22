@@ -6,7 +6,7 @@ import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
+import it.pagopa.pn.deliverypush.service.LegalFactsService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class NotificationViewedHandler {
 
-    private final LegalFactDao legalFactStore;
+    private final LegalFactsService legalFactStore;
     private final PaperNotificationFailedService paperNotificationFailedService;
     private final TimelineService timelineService;
     private final NotificationService notificationService;
@@ -26,7 +26,7 @@ public class NotificationViewedHandler {
     private final NotificationUtils notificationUtils;
     
     public NotificationViewedHandler(TimelineService timelineService,
-                                     LegalFactDao legalFactStore,
+                                     LegalFactsService legalFactStore,
                                      PaperNotificationFailedService paperNotificationFailedService,
                                      NotificationService notificationService,
                                      TimelineUtils timelineUtils,

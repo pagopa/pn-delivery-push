@@ -7,65 +7,34 @@ package it.pagopa.pn.deliverypush.middleware.queue.consumer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.pagopa.pn.api.dto.events.*;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.SingleStatusUpdate;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.ActionEventType;
-import it.pagopa.pn.deliverypush.abstractions.webhookspool.WebhookAction;
 import it.pagopa.pn.deliverypush.abstractions.webhookspool.impl.WebhookActionEventType;
-import it.pagopa.pn.deliverypush.abstractions.webhookspool.impl.WebhookActionsEventHandler;
-import it.pagopa.pn.deliverypush.action.*;
-import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
-import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandlerOld;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.function.context.MessageRoutingCallback;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageHeaders;
 import org.springframework.util.StringUtils;
 
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
-
-import static it.pagopa.pn.api.dto.events.StandardEventHeader.*;
 
 @Configuration
 @Slf4j
 public class PnEventInboundService {
-    private final StartWorkflowHandler startWorkflowHandler;
-    private final ExternalChannelResponseHandler externalChannelResponseHandler;
-    private final NotificationViewedHandler notificationViewedHandler;
-    private final DigitalWorkFlowHandler digitalWorkFlowHandler;
-    private final AnalogWorkflowHandler analogWorkflowHandler;
-    private final RefinementHandler refinementHandler;
     private final EventHandler eventHandler;
-    private final WebhookActionsEventHandler webhookActionsEventHandler;
-    private final ExternalChannelResponseHandlerOld externalChannelResponseHandlerOld;
-    
-    public PnEventInboundService(StartWorkflowHandler startWorkflowHandler, ExternalChannelResponseHandler externalChannelResponseHandler,
-                                 NotificationViewedHandler notificationViewedHandler, DigitalWorkFlowHandler digitalWorkFlowHandler,
-                                 AnalogWorkflowHandler analogWorkflowHandler, RefinementHandler refinementHandler, EventHandler eventHandler, WebhookActionsEventHandler webhookActionsEventHandler, ExternalChannelResponseHandlerOld externalChannelResponseHandlerOld) {
-        this.startWorkflowHandler = startWorkflowHandler;
-        this.externalChannelResponseHandler = externalChannelResponseHandler;
-        this.notificationViewedHandler = notificationViewedHandler;
-        this.digitalWorkFlowHandler = digitalWorkFlowHandler;
-        this.analogWorkflowHandler = analogWorkflowHandler;
-        this.refinementHandler = refinementHandler;
+
+    public PnEventInboundService(EventHandler eventHandler) {
         this.eventHandler = eventHandler;
-        this.webhookActionsEventHandler = webhookActionsEventHandler;
-        this.externalChannelResponseHandlerOld = externalChannelResponseHandlerOld;
     }
 
     @Bean
     public MessageRoutingCallback customRouter() {
        return message -> {
-           log.info("messaggio ricevuto da customRouter "+message);
+           log.debug("messaggio ricevuto da customRouter "+message);
            String eventType = (String) message.getHeaders().get("eventType");
-           log.info("messaggio ricevuto da customRouter eventType={}", eventType );
+           log.debug("messaggio ricevuto da customRouter eventType={}", eventType );
            if(eventType != null){
                if(ActionEventType.ACTION_GENERIC.name().equals(eventType)) 
                    return handleAction(message);
@@ -115,148 +84,6 @@ public class PnEventInboundService {
         } catch (JsonProcessingException ex) {
             log.error("Exception during json mapping ex", ex);
             throw new PnInternalException("Exception during json mapping ex="+ ex);
-        }
-    }
-
-    @Bean
-    public Consumer<Message<PnDeliveryNewNotificationEvent.Payload>> pnDeliveryNewNotificationEventConsumer() {
-        return message -> {
-            try{
-                log.info("New notification event received, message {}", message);
-
-                PnDeliveryNewNotificationEvent pnDeliveryNewNotificationEvent = PnDeliveryNewNotificationEvent.builder()
-                        .payload(message.getPayload())
-                        .header(mapStandardEventHeader(message.getHeaders()))
-                        .build();
-
-                String iun = pnDeliveryNewNotificationEvent.getHeader().getIun();
-
-                startWorkflowHandler.startWorkflow(iun);
-
-            }catch (Exception ex){
-                handleException(message.getHeaders(), ex);
-                throw ex;
-            }
-        };
-    }
-
-    @Bean
-    public Consumer<Message<PnDeliveryNotificationViewedEvent.Payload>> pnDeliveryNotificationViewedEventConsumer() {
-        return message -> {
-            try {
-                log.info("Notification viewed event received, message {}", message);
-
-                PnDeliveryNotificationViewedEvent pnDeliveryNewNotificationEvent = PnDeliveryNotificationViewedEvent.builder()
-                        .payload(message.getPayload())
-                        .header(mapStandardEventHeader(message.getHeaders()))
-                        .build();
-
-                String iun = pnDeliveryNewNotificationEvent.getHeader().getIun();
-                int recipientIndex = pnDeliveryNewNotificationEvent.getPayload().getRecipientIndex();
-                log.info("pnDeliveryNotificationViewedEventConsumer - iun {}", iun);
-
-                notificationViewedHandler.handleViewNotification(iun, recipientIndex);
-            } catch (Exception ex) {
-                handleException(message.getHeaders(), ex);
-                throw ex;
-            }
-        };
-    }
-
-    @Bean
-    public Consumer<Message<SingleStatusUpdate>>  pnExtChannelEventInboundConsumer() {
-        return message -> {
-            try {
-                log.info("External channel event received, message {}", message);
-
-                SingleStatusUpdate singleStatusUpdate = message.getPayload();
-                externalChannelResponseHandler.extChannelResponseReceiver(singleStatusUpdate);
-            } catch (Exception ex) {
-                handleException(message.getHeaders(), ex);
-                throw ex;
-            }
-        };
-    }
-
-    
-    /**
-     * @deprecated
-     * Deprecata in attesa di un mock di externalChannel con le nuove api
-     */
-/*
-    @Deprecated(since = "PN-612", forRemoval = true)
-    @Bean
-    public Consumer<Message<PnExtChnProgressStatusEventPayload>>  pnExtChannelEventInboundConsumer() {
-        return message -> {
-            log.info("External channel event received, message {}", message);
-            
-            PnExtChnProgressStatusEvent evt = PnExtChnProgressStatusEvent.builder()
-                    .payload(message.getPayload())
-                    .header(mapStandardEventHeader(message.getHeaders()))
-                    .build();
-
-            externalChannelResponseHandlerOld.extChannelResponseReceiver(evt);
-        };
-    }
-*/
-
-
-    @Bean
-    public Consumer<Message<Action>> pnDeliveryPushAnalogWorkflowConsumer() {
-        return message -> {
-            log.info("pnDeliveryPushAnalogWorkflowConsumer, message {}", message);
-            Action action = message.getPayload();
-            analogWorkflowHandler.startAnalogWorkflow(action.getIun(), action.getRecipientIndex());
-        };
-    }
-
-    @Bean
-    public Consumer<Message<Action>> pnDeliveryPushRefinementConsumer() {
-        return message -> {
-            log.info("pnDeliveryPushRefinementConsumer, message {}", message);
-            Action action = message.getPayload();
-            refinementHandler.handleRefinement(action.getIun(), action.getRecipientIndex());
-        };
-    }
-
-    @Bean
-    public Consumer<Message<Action>> pnDeliveryPushDigitalNextActionConsumer() {
-        return message -> {
-            log.info("pnDeliveryPushDigitalNextActionConsumer, message {}", message);
-            Action action = message.getPayload();
-            digitalWorkFlowHandler.startScheduledNextWorkflow(action.getIun(), action.getRecipientIndex());
-        };
-    }
-
-    @Bean
-    public Consumer<Message<WebhookAction>> pnDeliveryPushWebhookActionConsumer() {
-        return message -> {
-            log.info("pnDeliveryPushWebhookActionConsumer, message={}", message);
-            WebhookAction action = message.getPayload();
-            webhookActionsEventHandler.handleEvent(action);
-        };
-    }
-    
-    private StandardEventHeader mapStandardEventHeader(MessageHeaders headers) {
-        return StandardEventHeader.builder()
-                .eventId((String) headers.get(PN_EVENT_HEADER_EVENT_ID))
-                .iun((String) headers.get(PN_EVENT_HEADER_IUN))
-                .eventType((String) headers.get(PN_EVENT_HEADER_EVENT_TYPE))
-                .createdAt(mapInstant(headers.get(PN_EVENT_HEADER_CREATED_AT)))
-                .publisher((String) headers.get(PN_EVENT_HEADER_PUBLISHER))
-                .build();
-    }
-
-    private Instant mapInstant(Object createdAt) {
-        return createdAt != null ? Instant.parse((CharSequence) createdAt) : null;
-    }
-    
-    private void handleException(MessageHeaders headers, Exception ex) {
-        if(headers != null){
-            StandardEventHeader standardEventHeader = mapStandardEventHeader(headers);
-            log.error("Generic exception for iun={} ex={}", standardEventHeader.getIun(), ex);
-        }else {
-            log.error("Generic exception ex={}", ex);
         }
     }
     

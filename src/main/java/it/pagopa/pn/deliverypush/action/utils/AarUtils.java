@@ -8,7 +8,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
-import it.pagopa.pn.deliverypush.legalfacts.LegalFactDao;
+import it.pagopa.pn.deliverypush.service.LegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -19,13 +19,13 @@ import java.util.Optional;
 @Component
 @Slf4j
 public class AarUtils {
-    private final LegalFactDao legalFactDao;
+    private final LegalFactsService legalFactsService;
     private final TimelineUtils timelineUtils;
     private final TimelineService timelineService;
     private final NotificationUtils notificationUtils;
 
-    public AarUtils(TimelineService timelineService, TimelineUtils timelineUtils, LegalFactDao legalFactDao, NotificationUtils notificationUtils) {
-        this.legalFactDao = legalFactDao;
+    public AarUtils(TimelineService timelineService, TimelineUtils timelineUtils, LegalFactsService legalFactsService, NotificationUtils notificationUtils) {
+        this.legalFactsService = legalFactsService;
         this.timelineUtils = timelineUtils;
         this.timelineService = timelineService;
         this.notificationUtils = notificationUtils;
@@ -44,7 +44,7 @@ public class AarUtils {
             Optional<TimelineElementInternal> timeline = timelineService.getTimelineElement(notification.getIun(), elementId);
             if (!timeline.isPresent())
             {
-                PdfInfo pdfInfo = legalFactDao.saveAAR(notification, notificationUtils.getRecipientFromIndex(notification,recIndex));
+                PdfInfo pdfInfo = legalFactsService.saveAAR(notification, notificationUtils.getRecipientFromIndex(notification,recIndex));
 
                 timelineService.addTimelineElement(
                         timelineUtils.buildAarGenerationTimelineElement(notification, recIndex, pdfInfo.getKey(), pdfInfo.getNumberOfPages()),
