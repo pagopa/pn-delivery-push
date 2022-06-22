@@ -257,8 +257,6 @@ Resources:
         ContainerEnvEntry30: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_LOCKTABLENAME=${PnDeliveryPushShedLockDynamoTableName}'
         ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_EVENTSTABLENAME=${PnDeliveryPushWebhookEventsTableName}'
         ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_STREAMSTABLENAME=${PnDeliveryPushWebhookStreamsTableName}'
-        ContainerEnvEntry33: 'PN_DELIVERYPUSH_EXTERNALCHANNELSENDERPEC=non_dovrebbe_essere_richiesto@pagopa_pec.it'
-        ContainerEnvEntry34: 'PN_DELIVERYPUSH_EXTERNALCHANNELSENDEREMAIL=non_dovrebbe_essere_richiesto@pagopaemail.it'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
