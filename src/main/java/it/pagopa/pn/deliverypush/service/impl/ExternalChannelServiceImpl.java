@@ -155,5 +155,4 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
             log.info("Notification is already viewed, paper notification will not be sent to externalChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
         }
     }
-
 }
