@@ -54,7 +54,7 @@ public enum TimelineElementCategoryEntity {
 
     AAR_GENERATION("AAR_GENERATION");
 
-    private String value;
+    private final String value;
 
     TimelineElementCategoryEntity(String value) {
         this.value = value;

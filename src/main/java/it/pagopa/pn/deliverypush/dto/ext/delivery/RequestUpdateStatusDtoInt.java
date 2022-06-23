@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.dto.ext.delivery;
 
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import lombok.*;
 
 import javax.validation.constraints.Pattern;
@@ -14,5 +14,5 @@ import javax.validation.constraints.Pattern;
 public class RequestUpdateStatusDtoInt {
     @Pattern( regexp = "[A-Za-z0-9-_]+")
     private String iun;
-    private NotificationStatus nextState;
+    private NotificationStatusInt nextState;
 }

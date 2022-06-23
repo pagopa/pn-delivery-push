@@ -1,8 +1,8 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ class PhysicalAddressWriterTest {
 				.recipients( Collections.singletonList(
 						NotificationRecipientInt.builder()
 								.denomination( "denomination" )
-								.physicalAddress(PhysicalAddress.builder()
+								.physicalAddress(PhysicalAddressInt.builder()
 										.address( "address" )
 										.municipality( "municipality" )
 										.addressDetails( "addressDetail" )

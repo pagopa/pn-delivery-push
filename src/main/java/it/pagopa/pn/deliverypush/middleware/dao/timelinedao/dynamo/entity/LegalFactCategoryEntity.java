@@ -9,7 +9,7 @@ public enum LegalFactCategoryEntity {
 
     RECIPIENT_ACCESS("RECIPIENT_ACCESS");
 
-    private String value;
+    private final String value;
 
     LegalFactCategoryEntity(String value) {
         this.value = value;

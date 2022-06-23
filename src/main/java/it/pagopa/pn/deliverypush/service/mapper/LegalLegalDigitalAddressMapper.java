@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.LegalChannelType;
 import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.LegalDigitalAddress;
 

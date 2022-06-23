@@ -4,16 +4,14 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.RequestUpdateStatusDto;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.RequestUpdateStatusDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusHistoryElementInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.externalclient.pnclient.delivery.PnDeliveryClient;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElement;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.service.StatusService;
 import it.pagopa.pn.deliverypush.service.mapper.RequestUpdateStatusDtoMapper;
-import it.pagopa.pn.deliverypush.util.StatusUtils;
+import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -37,18 +35,18 @@ public class StatusServiceImpl implements StatusService {
         log.debug("Notification is present PaNotificationId {} for iun {}", notification.getPaNotificationId(), dto.getIun());
         
         // - Calcolare lo stato corrente
-        NotificationStatus currentState = computeLastStatusHistoryElement(notification, currentTimeline).getStatus();
+        NotificationStatusInt currentState = computeLastStatusHistoryElement(notification, currentTimeline).getStatus();
         log.debug("CurrentState is {} for iun {}", currentState, dto.getIun());
 
         currentTimeline.add(dto);
 
         // - Calcolare il nuovo stato
-        NotificationStatusHistoryElement nextState = computeLastStatusHistoryElement(notification, currentTimeline);
+        NotificationStatusHistoryElementInt nextState = computeLastStatusHistoryElement(notification, currentTimeline);
 
         log.debug("Next state is {} for iun {}", nextState.getStatus(), dto.getIun());
 
         // - se i due stati differiscono
-        if (!currentState.equals(nextState.getStatus()) && !nextState.getStatus().equals(NotificationStatus.REFUSED)){
+        if (!currentState.equals(nextState.getStatus()) && !nextState.getStatus().equals(NotificationStatusInt.REFUSED)){
             
             RequestUpdateStatusDtoInt requestDto = getRequestUpdateStatusDto(dto.getIun(), nextState.getStatus());
             updateStatus(requestDto);
@@ -69,18 +67,18 @@ public class StatusServiceImpl implements StatusService {
         }
     }
     
-    private RequestUpdateStatusDtoInt getRequestUpdateStatusDto(String iun, NotificationStatus nextState) {
+    private RequestUpdateStatusDtoInt getRequestUpdateStatusDto(String iun, NotificationStatusInt nextState) {
         return RequestUpdateStatusDtoInt.builder()
                 .iun(iun)
                 .nextState(nextState)
                 .build();
     }
 
-    private NotificationStatusHistoryElement computeLastStatusHistoryElement(NotificationInt notification, Set<TimelineElementInternal> currentTimeline) {
+    private NotificationStatusHistoryElementInt computeLastStatusHistoryElement(NotificationInt notification, Set<TimelineElementInternal> currentTimeline) {
         int numberOfRecipient = notification.getRecipients().size();
         Instant notificationCreatedAt = notification.getSentAt();
 
-        List<NotificationStatusHistoryElement> historyElementList = statusUtils.getStatusHistory(
+        List<NotificationStatusHistoryElementInt> historyElementList = statusUtils.getStatusHistory(
                 currentTimeline,
                 numberOfRecipient,
                 notificationCreatedAt);

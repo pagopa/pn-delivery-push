@@ -27,14 +27,7 @@ public class FutureActionEntity {
     private Instant notBefore;
     private ActionType type;
     private Integer recipientIndex;
-    /*
-    private String taxId;
-    private DigitalAddressSource digitalAddressSource;
-    private Integer retryNumber;
-    private PnExtChnProgressStatus responseStatus;
-    private PhysicalAddressConv newPhysicalAddress;
-    private List<String> attachmentKeys;
-*/
+
     @DynamoDbPartitionKey
     @DynamoDbAttribute(value = FIELD_TIME_SLOT )
     public String getTimeSlot() {

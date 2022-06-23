@@ -3,8 +3,8 @@ package it.pagopa.pn.deliverypush.service.mapper;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.AddressDto;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.AnalogDomicile;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.ConfidentialTimelineElementDto;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDtoInt;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 
 public class ConfidentialTimelineElementDtoMapper {
     private ConfidentialTimelineElementDtoMapper(){};
@@ -21,7 +21,7 @@ public class ConfidentialTimelineElementDtoMapper {
             );
         }
 
-        PhysicalAddress physicalAddressInt = dtoInt.getPhysicalAddress();
+        PhysicalAddressInt physicalAddressInt = dtoInt.getPhysicalAddress();
         if (physicalAddressInt != null){
             dtoExtBuilder.physicalAddress(
                     AnalogDomicile.builder()
@@ -36,7 +36,7 @@ public class ConfidentialTimelineElementDtoMapper {
             );
         }
 
-        PhysicalAddress newPhysicalAddressInt = dtoInt.getNewPhysicalAddress();
+        PhysicalAddressInt newPhysicalAddressInt = dtoInt.getNewPhysicalAddress();
         if (newPhysicalAddressInt != null){
             dtoExtBuilder.newPhysicalAddress(
                     AnalogDomicile.builder()
@@ -65,7 +65,7 @@ public class ConfidentialTimelineElementDtoMapper {
         AnalogDomicile physicalAddress = dtoExt.getPhysicalAddress();
         if (physicalAddress != null){
             dtoIntBuilder.physicalAddress(
-                PhysicalAddress.builder()
+                PhysicalAddressInt.builder()
                         .address(physicalAddress.getAddress())
                         .addressDetails(physicalAddress.getAddressDetails())
                         .at(physicalAddress.getAt())
@@ -80,7 +80,7 @@ public class ConfidentialTimelineElementDtoMapper {
         AnalogDomicile newPhysicalAddress = dtoExt.getNewPhysicalAddress();
         if (newPhysicalAddress != null){
             dtoIntBuilder.newPhysicalAddress(
-                    PhysicalAddress.builder()
+                    PhysicalAddressInt.builder()
                             .address(newPhysicalAddress.getAddress())
                             .addressDetails(newPhysicalAddress.getAddressDetails())
                             .at(newPhysicalAddress.getAt())

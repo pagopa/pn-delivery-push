@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.dto.ext.datavault;
 
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import lombok.*;
 
 @NoArgsConstructor
@@ -12,6 +12,6 @@ import lombok.*;
 public class ConfidentialTimelineElementDtoInt {
     private String timelineElementId;
     private String digitalAddress;
-    private PhysicalAddress physicalAddress;
-    private PhysicalAddress newPhysicalAddress;
+    private PhysicalAddressInt physicalAddress;
+    private PhysicalAddressInt newPhysicalAddress;
 }

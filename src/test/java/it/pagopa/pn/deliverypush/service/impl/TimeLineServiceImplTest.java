@@ -1,19 +1,26 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusHistoryElementInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
-import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.StatusService;
-import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
-import it.pagopa.pn.deliverypush.util.StatusUtils;
+import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,7 +58,7 @@ class TimeLineServiceImplTest {
         String elementId = "elementId";
 
         NotificationInt notification = getNotification(iun);
-        StatusService.NotificationStatusUpdate notificationStatuses = new StatusService.NotificationStatusUpdate(NotificationStatus.ACCEPTED, NotificationStatus.ACCEPTED);
+        StatusService.NotificationStatusUpdate notificationStatuses = new StatusService.NotificationStatusUpdate(NotificationStatusInt.ACCEPTED, NotificationStatusInt.ACCEPTED);
         Mockito.when(statusService.checkAndUpdateStatus(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(notificationStatuses);
         Mockito.doNothing().when(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
 
@@ -60,8 +67,7 @@ class TimeLineServiceImplTest {
         Mockito.when(timelineDao.getTimeline(Mockito.anyString()))
                 .thenReturn(setTimelineElement);
 
-        TimelineElementInternal newElement = getSendPaperFeedbackTimelineElement(iun, elementId);
-        newElement.setCategory(TimelineElementCategory.AAR_GENERATION);
+        TimelineElementInternal newElement = getAarGenerationTimelineElement(iun, elementId);
 
         //WHEN
         timeLineService.addTimelineElement(newElement, notification);
@@ -119,8 +125,10 @@ class TimeLineServiceImplTest {
         //THEN
         Assertions.assertTrue(retrievedElement.isPresent());
         Assertions.assertEquals(retrievedElement.get().getElementId(), daoElement.getElementId());
-        Assertions.assertEquals(retrievedElement.get().getDetails().getDigitalAddress().getType(), daoElement.getDetails().getDigitalAddress().getType());
-        Assertions.assertEquals(retrievedElement.get().getDetails().getDigitalAddress().getAddress(), confidentialTimelineElementDtoInt.getDigitalAddress());
+        Assertions.assertEquals( retrievedElement.get().getDetails(), daoElement.getDetails());
+
+        SendDigitalDetailsInt details = (SendDigitalDetailsInt) retrievedElement.get().getDetails();
+        Assertions.assertEquals(details.getDigitalAddress().getAddress(), confidentialTimelineElementDtoInt.getDigitalAddress());
     }
 
     @Test
@@ -141,13 +149,14 @@ class TimeLineServiceImplTest {
                 .thenReturn(Optional.of(confidentialTimelineElementDtoInt));
 
         //WHEN
-        Optional<SendDigitalDetails> detailsOpt = timeLineService.getTimelineElementDetails(iun, timelineId, SendDigitalDetails.class);
+        Optional<SendDigitalDetailsInt> detailsOpt = timeLineService.getTimelineElementDetails(iun, timelineId, SendDigitalDetailsInt.class);
 
         //THEN
         Assertions.assertTrue(detailsOpt.isPresent());
-        Assertions.assertEquals(detailsOpt.get().getRecIndex(), daoElement.getDetails().getRecIndex());
-        Assertions.assertEquals(detailsOpt.get().getDigitalAddress().getType(), daoElement.getDetails().getDigitalAddress().getType());
-        Assertions.assertEquals(detailsOpt.get().getDigitalAddress().getAddress(), confidentialTimelineElementDtoInt.getDigitalAddress());
+        SendDigitalDetailsInt details = detailsOpt.get();
+        Assertions.assertEquals( daoElement.getDetails(), details);
+        Assertions.assertEquals( daoElement.getDetails(), details);
+        Assertions.assertEquals(confidentialTimelineElementDtoInt.getDigitalAddress(), details.getDigitalAddress().getAddress());
     }
 
     @Test
@@ -160,7 +169,7 @@ class TimeLineServiceImplTest {
                 .thenReturn(Optional.empty());
 
         //WHEN
-        Optional<SendDigitalDetails> detailsOpt = timeLineService.getTimelineElementDetails(iun, timelineId, SendDigitalDetails.class);
+        Optional<SendDigitalDetailsInt> detailsOpt = timeLineService.getTimelineElementDetails(iun, timelineId, SendDigitalDetailsInt.class);
 
         //THEN
         Assertions.assertFalse(detailsOpt.isPresent());
@@ -185,7 +194,8 @@ class TimeLineServiceImplTest {
         //THEN
         Assertions.assertTrue(retrievedElement.isPresent());
         Assertions.assertEquals(retrievedElement.get().getElementId(), daoElement.getElementId());
-        Assertions.assertEquals(retrievedElement.get().getDetails().getRecIndex(), daoElement.getDetails().getRecIndex());
+        
+        Assertions.assertEquals(retrievedElement.get().getDetails(), daoElement.getDetails());
     }
 
     @Test
@@ -217,7 +227,7 @@ class TimeLineServiceImplTest {
         ConfidentialTimelineElementDtoInt confInfPhysical = ConfidentialTimelineElementDtoInt.builder()
                 .timelineElementId(timelineId3)
                 .physicalAddress(
-                        PhysicalAddress.builder()
+                        PhysicalAddressInt.builder()
                                 .at("at")
                                 .municipality("muni")
                                 .province("NA")
@@ -244,13 +254,17 @@ class TimeLineServiceImplTest {
 
         TimelineElementInternal retrievedSendDigital = getSpecificElementFromList(listElement, sendDigitalConfInf.getElementId());
         Assertions.assertNotNull(retrievedSendDigital);
-        Assertions.assertEquals(retrievedSendDigital.getDetails().getRecIndex() , sendDigitalConfInf.getDetails().getRecIndex());
-        Assertions.assertEquals(retrievedSendDigital.getDetails().getDigitalAddress().getAddress() , confInfDigital.getDigitalAddress());
+        
+        SendDigitalDetailsInt details = (SendDigitalDetailsInt) retrievedSendDigital.getDetails();
+        Assertions.assertEquals(details, sendDigitalConfInf.getDetails());
+        Assertions.assertEquals(details.getDigitalAddress().getAddress() , confInfDigital.getDigitalAddress());
 
         TimelineElementInternal retrievedSendPaperFeedback = getSpecificElementFromList(listElement, sendPaperFeedbackConfInf.getElementId());
         Assertions.assertNotNull(retrievedSendPaperFeedback);
-        Assertions.assertEquals(retrievedSendPaperFeedback.getDetails().getRecIndex() , sendPaperFeedbackConfInf.getDetails().getRecIndex());
-        Assertions.assertEquals(retrievedSendPaperFeedback.getDetails().getPhysicalAddress() , confInfPhysical.getPhysicalAddress());
+        
+        SendAnalogFeedbackDetailsInt details1 = (SendAnalogFeedbackDetailsInt) retrievedSendPaperFeedback.getDetails();
+        Assertions.assertEquals(details1, sendPaperFeedbackConfInf.getDetails());
+        Assertions.assertEquals(details1.getPhysicalAddress() , confInfPhysical.getPhysicalAddress());
     }
 
     @Test
@@ -259,35 +273,35 @@ class TimeLineServiceImplTest {
         String iun = "iun";
         int numberOfRecipients1 = 1;
         Instant notificationCreatedAt = Instant.now();
-        NotificationStatus currentStatus = NotificationStatus.DELIVERING;
+        NotificationStatusInt currentStatus = NotificationStatusInt.DELIVERING;
 
-        String elementId2 = "elementId2";
-        Set<TimelineElementInternal> setTimelineElement = getSendPaperDetailsList(iun, elementId2);
+        String elementId1 = "elementId1";
+        Set<TimelineElementInternal> setTimelineElement = getSendPaperDetailsList(iun, elementId1);
         Mockito.when(timelineDao.getTimeline(Mockito.anyString()))
                 .thenReturn(setTimelineElement);
 
         Instant activeFromInValidation = Instant.now();
         
-        NotificationStatusHistoryElement inValidationElement = NotificationStatusHistoryElement.builder()
-                .status(NotificationStatus.IN_VALIDATION)
+        NotificationStatusHistoryElementInt inValidationElement = NotificationStatusHistoryElementInt.builder()
+                .status(NotificationStatusInt.IN_VALIDATION)
                 .activeFrom(activeFromInValidation)
                 .build();
 
         Instant activeFromAccepted = activeFromInValidation.plus(Duration.ofDays(1));
 
-        NotificationStatusHistoryElement acceptedElementElement = NotificationStatusHistoryElement.builder()
-                .status(NotificationStatus.ACCEPTED)
+        NotificationStatusHistoryElementInt acceptedElementElement = NotificationStatusHistoryElementInt.builder()
+                .status(NotificationStatusInt.ACCEPTED)
                 .activeFrom(activeFromAccepted)
                 .build();
 
         Instant activeFromDelivering = activeFromAccepted.plus(Duration.ofDays(1));
 
-        NotificationStatusHistoryElement deliveringElement = NotificationStatusHistoryElement.builder()
-                .status(NotificationStatus.DELIVERING)
+        NotificationStatusHistoryElementInt deliveringElement = NotificationStatusHistoryElementInt.builder()
+                .status(NotificationStatusInt.DELIVERING)
                 .activeFrom(activeFromDelivering)
                 .build();
         
-        List<NotificationStatusHistoryElement> notificationStatusHistoryElements = new ArrayList<>(List.of(inValidationElement, acceptedElementElement, deliveringElement));
+        List<NotificationStatusHistoryElementInt> notificationStatusHistoryElements = new ArrayList<>(List.of(inValidationElement, acceptedElementElement, deliveringElement));
 
         Mockito.when(
                 statusUtils.getStatusHistory(Mockito.anySet() ,Mockito.anyInt(), Mockito.any(Instant.class))
@@ -306,11 +320,11 @@ class TimeLineServiceImplTest {
         Assertions.assertEquals(2 , notificationHistoryResponse.getNotificationStatusHistory().size());
         
         NotificationStatusHistoryElement firstElement = notificationHistoryResponse.getNotificationStatusHistory().get(0);
-        Assertions.assertEquals(acceptedElementElement.getStatus(), firstElement.getStatus());
+        Assertions.assertEquals(acceptedElementElement.getStatus(), NotificationStatusInt.valueOf(firstElement.getStatus().getValue()) );
         Assertions.assertEquals(inValidationElement.getActiveFrom(), firstElement.getActiveFrom());
 
         NotificationStatusHistoryElement secondElement = notificationHistoryResponse.getNotificationStatusHistory().get(1);
-        Assertions.assertEquals(deliveringElement.getStatus(), secondElement.getStatus());
+        Assertions.assertEquals(deliveringElement.getStatus(), NotificationStatusInt.valueOf(secondElement.getStatus().getValue()));
         Assertions.assertEquals(deliveringElement.getActiveFrom(), secondElement.getActiveFrom());
         
         //Verifica timeline 
@@ -321,10 +335,12 @@ class TimeLineServiceImplTest {
 
         TimelineElement firstElementReturned = notificationHistoryResponse.getTimeline().get(0);
         
-        Assertions.assertEquals( notificationHistoryResponse.getNotificationStatus(), currentStatus );
+        Assertions.assertEquals( notificationHistoryResponse.getNotificationStatus(), NotificationStatus.valueOf(currentStatus.getValue()) );
         Assertions.assertEquals( elementInt.getElementId(), firstElementReturned.getElementId() );
-        Assertions.assertEquals( elementInt.getDetails().getRecIndex(), firstElementReturned.getDetails().getRecIndex() );
-        Assertions.assertEquals( elementInt.getDetails().getPhysicalAddress().getAddress(), firstElementReturned.getDetails().getPhysicalAddress().getAddress() );
+        
+        SendAnalogDetailsInt details = (SendAnalogDetailsInt) elementInt.getDetails();
+        Assertions.assertEquals( firstElementReturned.getDetails().getRecIndex(), details.getRecIndex());
+        Assertions.assertEquals( firstElementReturned.getDetails().getPhysicalAddress().getAddress(), details.getPhysicalAddress().getAddress() );
 
     }
     
@@ -338,19 +354,19 @@ class TimeLineServiceImplTest {
     }
     
     private TimelineElementInternal getSendDigitalTimelineElement(String iun, String timelineId) {
-        SendDigitalDetails details = SendDigitalDetails.builder()
-                .digitalAddressSource(DigitalAddressSource.SPECIAL)
+        SendDigitalDetailsInt details = SendDigitalDetailsInt.builder()
+                .digitalAddressSource(DigitalAddressSourceInt.SPECIAL)
                 .digitalAddress(
-                        DigitalAddress.builder()
-                                .type("PEC")
+                        LegalDigitalAddressInt.builder()
+                                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                                 .build()
                 )
                 .recIndex(0)
                 .build();
-        return TimelineElementInternal.timelineInternalBuilder()
+        return TimelineElementInternal.builder()
                 .elementId(timelineId)
                 .iun(iun)
-                .details(SmartMapper.mapToClass(details, TimelineElementDetails.class))
+                .details( details )
                 .build();
     }
 
@@ -362,9 +378,9 @@ class TimeLineServiceImplTest {
     }
 
     private TimelineElementInternal getSendPaperDetailsTimelineElement(String iun, String elementId) {
-        SendPaperDetails details = SendPaperDetails.builder()
+         SendAnalogDetailsInt details =  SendAnalogDetailsInt.builder()
                 .physicalAddress(
-                        PhysicalAddress.builder()
+                        PhysicalAddressInt.builder()
                                 .province("province")
                                 .municipality("munic")
                                 .at("at")
@@ -374,17 +390,31 @@ class TimeLineServiceImplTest {
                 .recIndex(0)
                 .sentAttemptMade(0)
                 .build();
-        return TimelineElementInternal.timelineInternalBuilder()
+        return TimelineElementInternal.builder()
                 .elementId(elementId)
                 .iun(iun)
-                .details(SmartMapper.mapToClass(details, TimelineElementDetails.class))
+                .details( details )
                 .build();
     }
 
+    private TimelineElementInternal getAarGenerationTimelineElement(String iun, String elementId) {
+        AarGenerationDetailsInt details =  AarGenerationDetailsInt.builder()
+                .recIndex(0)
+                .generatedAarUrl("url")
+                .numberOfPages(1)
+                .build();
+        return TimelineElementInternal.builder()
+                .elementId(elementId)
+                .category(TimelineElementCategoryInt.AAR_GENERATION)
+                .iun(iun)
+                .details( details )
+                .build();
+    }
+    
     private TimelineElementInternal getSendPaperFeedbackTimelineElement(String iun, String elementId) {
-        SendPaperFeedbackDetails details = SendPaperFeedbackDetails.builder()
+         SendAnalogFeedbackDetailsInt details =  SendAnalogFeedbackDetailsInt.builder()
                 .newAddress(
-                        PhysicalAddress.builder()
+                        PhysicalAddressInt.builder()
                                 .province("province")
                                 .municipality("munic")
                                 .at("at")
@@ -393,21 +423,21 @@ class TimeLineServiceImplTest {
                 .recIndex(0)
                 .sentAttemptMade(0)
                 .build();
-        return TimelineElementInternal.timelineInternalBuilder()
+        return TimelineElementInternal.builder()
                 .elementId(elementId)
                 .iun(iun)
-                .details(SmartMapper.mapToClass(details, TimelineElementDetails.class))
+                .details( details )
                 .build();
     }
     
     private TimelineElementInternal getScheduleAnalogWorkflowTimelineElement(String iun, String timelineId) {
-        ScheduleAnalogWorkflow details = ScheduleAnalogWorkflow.builder()
+        ScheduleAnalogWorkflowDetailsInt details = ScheduleAnalogWorkflowDetailsInt.builder()
                 .recIndex(0)
                 .build();
-        return TimelineElementInternal.timelineInternalBuilder()
+        return TimelineElementInternal.builder()
                 .elementId(timelineId)
                 .iun(iun)
-                .details(SmartMapper.mapToClass(details, TimelineElementDetails.class))
+                .details( details )
                 .build();
     }
     

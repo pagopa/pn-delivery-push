@@ -4,8 +4,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsId;
-import it.pagopa.pn.deliverypush.service.LegalFactService;
-import org.junit.jupiter.api.Disabled;
+import it.pagopa.pn.deliverypush.service.GetLegalFactService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +31,7 @@ class PnLegalFactsControllerTest {
     WebTestClient webTestClient;
 
     @MockBean
-    private LegalFactService legalFactService;
+    private GetLegalFactService getLegalFactService;
 
     @Test
     void getLegalFactsSuccess() {
@@ -45,7 +44,7 @@ class PnLegalFactsControllerTest {
                                 .build()
                         ).build()
         );
-        Mockito.when( legalFactService.getLegalFacts( Mockito.anyString() ))
+        Mockito.when( getLegalFactService.getLegalFacts( Mockito.anyString() ))
                 .thenReturn( legalFactsList );
         
         webTestClient.get()
@@ -62,7 +61,7 @@ class PnLegalFactsControllerTest {
                 .expectStatus()
                 .isOk();
         
-        Mockito.verify( legalFactService ).getLegalFacts( Mockito.anyString() );
+        Mockito.verify(getLegalFactService).getLegalFacts( Mockito.anyString() );
     }
 
     @Test
@@ -71,7 +70,7 @@ class PnLegalFactsControllerTest {
         ResponseEntity<Resource> legalFactResult = ResponseEntity.ok()
                 .body( new InputStreamResource( InputStream.nullInputStream()) );
 
-        Mockito.when( legalFactService.getLegalfact( Mockito.anyString(), Mockito.eq(LegalFactCategory.SENDER_ACK), Mockito.anyString() ) )
+        Mockito.when( getLegalFactService.getLegalfact( Mockito.anyString(), Mockito.eq(LegalFactCategory.SENDER_ACK), Mockito.anyString() ) )
                         .thenReturn( legalFactResult );
 
         String uri = "/delivery-push/legalfacts/" + IUN + "/" + LegalFactCategory.SENDER_ACK + "/" + LEGAL_FACT_ID;
@@ -85,6 +84,6 @@ class PnLegalFactsControllerTest {
                 .expectStatus()
                 .isOk();
 
-        Mockito.verify( legalFactService ).getLegalfact( Mockito.anyString(), Mockito.eq(LegalFactCategory.SENDER_ACK), Mockito.anyString() );
+        Mockito.verify(getLegalFactService).getLegalfact( Mockito.anyString(), Mockito.eq(LegalFactCategory.SENDER_ACK), Mockito.anyString() );
     }
 }

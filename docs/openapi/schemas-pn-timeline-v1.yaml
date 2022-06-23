@@ -73,45 +73,45 @@ components:
     TimelineElementDetails:
       description: The raw event payload that will be different based on the event.
       oneOf:
-        - "$ref": "#/components/schemas/NotificationRequestAccepted"
-        - "$ref": "#/components/schemas/AnalogFailureWorkflow"
-        - "$ref": "#/components/schemas/AnalogSuccessWorkflow"
+        - "$ref": "#/components/schemas/NotificationRequestAcceptedDetails"
+        - "$ref": "#/components/schemas/AnalogFailureWorkflowDetails"
+        - "$ref": "#/components/schemas/AnalogSuccessWorkflowDetails"
         - "$ref": "#/components/schemas/CompletelyUnreachableDetails"
-        - "$ref": "#/components/schemas/DigitalFailureWorkflow"
-        - "$ref": "#/components/schemas/DigitalSuccessWorkflow"
-        - "$ref": "#/components/schemas/GetAddressInfo"
+        - "$ref": "#/components/schemas/DigitalFailureWorkflowDetails"
+        - "$ref": "#/components/schemas/DigitalSuccessWorkflowDetails"
+        - "$ref": "#/components/schemas/GetAddressInfoDetails"
         - "$ref": "#/components/schemas/NotificationViewedDetails"
         - "$ref": "#/components/schemas/PublicRegistryCallDetails"
         - "$ref": "#/components/schemas/PublicRegistryResponseDetails"
         - "$ref": "#/components/schemas/RefinementDetails"
         - "$ref": "#/components/schemas/RequestRefusedDetails"
-        - "$ref": "#/components/schemas/ScheduleAnalogWorkflow"
-        - "$ref": "#/components/schemas/ScheduleDigitalWorkflow"
-        - "$ref": "#/components/schemas/ScheduleRefinement"
+        - "$ref": "#/components/schemas/ScheduleAnalogWorkflowDetails"
+        - "$ref": "#/components/schemas/ScheduleDigitalWorkflowDetails"
+        - "$ref": "#/components/schemas/ScheduleRefinementDetails"
         - "$ref": "#/components/schemas/SendCourtesyMessageDetails"
         - "$ref": "#/components/schemas/SendDigitalDetails"
-        - "$ref": "#/components/schemas/SendDigitalFeedback"
-        - "$ref": "#/components/schemas/SendPaperDetails"
-        - "$ref": "#/components/schemas/SendPaperFeedbackDetails"
+        - "$ref": "#/components/schemas/SendDigitalFeedbackDetails"
+        - "$ref": "#/components/schemas/SendAnalogDetails"
+        - "$ref": "#/components/schemas/SendAnalogFeedbackDetails"
         - "$ref": "#/components/schemas/SimpleRegisteredLetterDetails"
         - "$ref": "#/components/schemas/AarGenerationDetails"
 
 
-    NotificationRequestAccepted:
+    NotificationRequestAcceptedDetails:
       type: object
       properties:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
           
-    AnalogFailureWorkflow:
+    AnalogFailureWorkflowDetails:
       type: object
       properties:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
           
-    AnalogSuccessWorkflow:
+    AnalogSuccessWorkflowDetails:
       type: object
       properties:
         recIndex:
@@ -120,14 +120,14 @@ components:
         physicalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
           
-    DigitalFailureWorkflow:
+    DigitalFailureWorkflowDetails:
       type: object
       properties:
         recIndex: 
           type: integer
           description: Index destinatario notifica digitale
           
-    DigitalSuccessWorkflow:
+    DigitalSuccessWorkflowDetails:
       type: object
       properties:
         recIndex:
@@ -143,7 +143,7 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           
-    GetAddressInfo: 
+    GetAddressInfoDetails: 
       type: object
       properties:
         recIndex:
@@ -212,14 +212,14 @@ components:
             type: string
             description: Motivazioni che hanno portato al rifiuto della notifica
             
-    ScheduleAnalogWorkflow:
+    ScheduleAnalogWorkflowDetails:
       type: object
       properties:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
           
-    ScheduleDigitalWorkflow:
+    ScheduleDigitalWorkflowDetails:
       type: object
       properties:
         recIndex:
@@ -235,7 +235,7 @@ components:
           type: string
           format: date-time
             
-    ScheduleRefinement:
+    ScheduleRefinementDetails:
       type: object
       properties:
         recIndex:
@@ -272,7 +272,7 @@ components:
         downstreamId:
           "$ref": "#/components/schemas/DownstreamId"
           
-    SendDigitalFeedback:
+    SendDigitalFeedbackDetails:
       type: object
       properties:
         recIndex:
@@ -293,7 +293,7 @@ components:
             type: string
             description: Lista errori, vuota in caso di successo
             
-    SendPaperDetails:
+    SendAnalogDetails:
       type: object
       properties:
         recIndex:
@@ -312,8 +312,8 @@ components:
         numberOfPages:
           type: integer
           description: numero pagine pdf inviato
-          
-    SendPaperFeedbackDetails:
+
+    SendAnalogFeedbackDetails:
       type: object
       properties:
         recIndex:

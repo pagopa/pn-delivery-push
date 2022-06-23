@@ -7,7 +7,7 @@ public enum DigitalAddressSourceEntity {
 
     GENERAL("GENERAL");
 
-    private String value;
+    private final String value;
 
     DigitalAddressSourceEntity(String value) {
         this.value = value;

@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity;
 
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ServiceLevel;
 import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
@@ -34,10 +33,9 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("downstreamId")})) private DownstreamIdEntity downstreamId;
     @Getter(onMethod=@__({@DynamoDbAttribute("responseStatus")})) private ResponseStatusEntity responseStatus;
     @Getter(onMethod=@__({@DynamoDbAttribute("notificationDate")})) private Instant notificationDate;
-    @Getter(onMethod=@__({@DynamoDbAttribute("serviceLevel")})) private ServiceLevel serviceLevel;
+    @Getter(onMethod=@__({@DynamoDbAttribute("serviceLevel")})) private ServiceLevelEntity serviceLevel;
     @Getter(onMethod=@__({@DynamoDbAttribute("investigation")})) private Boolean investigation;
     @Getter(onMethod=@__({@DynamoDbAttribute("newAddress")})) private PhysicalAddressEntity newAddress;
     @Getter(onMethod=@__({@DynamoDbAttribute("generatedAarUrl")})) private String generatedAarUrl;
-    @Getter(onMethod=@__({@DynamoDbAttribute("numberOfPages")})) private String numberOfPages;
-    @Getter(onMethod=@__({@DynamoDbAttribute("foreignState")})) private String foreignState;
+    @Getter(onMethod=@__({@DynamoDbAttribute("numberOfPages")})) private Integer numberOfPages;
 }

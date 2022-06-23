@@ -1,8 +1,9 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
-import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.FileCreationWithContentRequest;
-import it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage.PnSafeStorageClient;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.FileCreationWithContentRequest;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
+import it.pagopa.pn.deliverypush.service.impl.SaveLegalFactsServiceImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,7 @@ import static org.mockito.Mockito.when;
 
 
 class LegalFactUtilsTest {
-    private LegalFactDao legalFactDao;
+    private SaveLegalFactsServiceImpl legalFactsService;
     private LegalFactGenerator pdfUtils;
     private PnSafeStorageClient safeStorageClient;
 
@@ -22,7 +23,7 @@ class LegalFactUtilsTest {
     public void setup() {
         pdfUtils = Mockito.mock(LegalFactGenerator.class);
         safeStorageClient = Mockito.mock(PnSafeStorageClient.class);
-        legalFactDao = new LegalFactDao(
+        legalFactsService = new SaveLegalFactsServiceImpl(
                 pdfUtils,
                 safeStorageClient
                 );
@@ -45,7 +46,7 @@ class LegalFactUtilsTest {
         when(safeStorageClient.createAndUploadContent(Mockito.any())).thenReturn(response);
 
         //When
-        legalFactDao.saveLegalFact(legalFact);
+        legalFactsService.saveLegalFact(legalFact);
 
         //Then
         ArgumentCaptor<FileCreationWithContentRequest> argCapture = ArgumentCaptor.forClass(FileCreationWithContentRequest.class);
@@ -82,8 +83,8 @@ class LegalFactUtilsTest {
         when(safeStorageClient.createAndUploadContent(Mockito.any())).thenReturn(response);
 
         //When
-        legalFactDao.saveLegalFact(legalFact1);
-        legalFactDao.saveLegalFact(legalFact2);
+        legalFactsService.saveLegalFact(legalFact1);
+        legalFactsService.saveLegalFact(legalFact2);
 
         //Then
         Mockito.verify(safeStorageClient, Mockito.times(2)).createAndUploadContent(

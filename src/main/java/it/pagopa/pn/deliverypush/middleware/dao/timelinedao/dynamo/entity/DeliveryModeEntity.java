@@ -5,7 +5,7 @@ public enum DeliveryModeEntity {
 
     ANALOG("ANALOG");
 
-    private String value;
+    private final String value;
 
     DeliveryModeEntity(String value) {
         this.value = value;

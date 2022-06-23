@@ -22,18 +22,5 @@ public class Action {
 
     // Required and used for SEND_PEC and RECEIVE_PEC ActionType
     private Integer recipientIndex;
-    
-    /*
-    // Required and used for SEND_PEC and RECEIVE_PEC ActionType
-    private DigitalAddressSource digitalAddressSource;
 
-    // Required and used for SEND_PEC and RECEIVE_PEC ActionType
-    private Integer retryNumber;
-
-    // Required and used only for RECEIVE_PEC ActionType
-    private PnExtChnProgressStatus responseStatus;
-    
-    // Required and used only for RECEIVER_PAPER ActionType
-    private List<String> attachmentKeys;
-*/
 }

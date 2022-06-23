@@ -1,32 +1,41 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.DownstreamIdInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalDetailsInt;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DownstreamId;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetails;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class SmartMapperTest {
-    //TODO DA Definire test
     @Test
-    void mapToClass() {
-        SendDigitalDetails sendDigitalDetails = SendDigitalDetails.builder()
+    void fromInternalToExternalSendDigitalDetails() {
+        SendDigitalDetailsInt sendDigitalDetails = SendDigitalDetailsInt.builder()
                 .recIndex(0)
-                .digitalAddressSource(DigitalAddressSource.PLATFORM)
-                .digitalAddress(DigitalAddress.builder()
-                        .type("PEC")
+                .digitalAddressSource(DigitalAddressSourceInt.PLATFORM)
+                .digitalAddress(LegalDigitalAddressInt.builder()
+                        .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                         .address("testAddress@gmail.com")
                         .build())
                 .retryNumber(0)
-                .downstreamId(DownstreamId.builder()
+                .downstreamId(DownstreamIdInt.builder()
                         .messageId("messageId")
                         .systemId("systemId")
                         .build())
                 .build();
 
         TimelineElementDetails details = SmartMapper.mapToClass(sendDigitalDetails, TimelineElementDetails.class);
-        System.out.println("details "+ details);
+        
+        Assertions.assertEquals(sendDigitalDetails.getRecIndex(), details.getRecIndex());
+        Assertions.assertEquals(sendDigitalDetails.getDigitalAddress().getAddress(), details.getDigitalAddress().getAddress() );
     }
 
     @Test
-    void mapToClass2() {
+    void fromExternalToInternalSendDigitalDetails() {
         TimelineElementDetails timelineElementDetails = TimelineElementDetails.builder()
                 .recIndex(0)
                 .digitalAddressSource(DigitalAddressSource.PLATFORM)
@@ -42,7 +51,9 @@ class SmartMapperTest {
                 .investigation(true)
                 .build();
 
-        SendDigitalDetails details = SmartMapper.mapToClass(timelineElementDetails, SendDigitalDetails.class);
-        System.out.println("details "+ details);
+        SendDigitalDetailsInt details = SmartMapper.mapToClass(timelineElementDetails, SendDigitalDetailsInt.class);
+
+        Assertions.assertEquals(timelineElementDetails.getRecIndex(), details.getRecIndex());
+        Assertions.assertEquals(timelineElementDetails.getDigitalAddress().getAddress(), details.getDigitalAddress().getAddress() );
     }
 }

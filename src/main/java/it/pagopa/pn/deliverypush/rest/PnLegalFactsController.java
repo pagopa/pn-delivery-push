@@ -2,7 +2,7 @@ package it.pagopa.pn.deliverypush.rest;
 
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.LegalFactsApi;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
-import it.pagopa.pn.deliverypush.service.LegalFactService;
+import it.pagopa.pn.deliverypush.service.GetLegalFactService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,9 +17,9 @@ import java.util.List;
 @RestController
 public class PnLegalFactsController implements LegalFactsApi {
 
-    private final LegalFactService legalFactService;
+    private final GetLegalFactService getLegalFactService;
 
-    public PnLegalFactsController(LegalFactService legalFactService) { this.legalFactService = legalFactService; }
+    public PnLegalFactsController(GetLegalFactService getLegalFactService) { this.getLegalFactService = getLegalFactService; }
 
     @Override
     public Mono<ResponseEntity<LegalFactDownloadMetadataResponse>> getLegalFact(
@@ -32,7 +32,7 @@ public class PnLegalFactsController implements LegalFactsApi {
             List<String> xPagopaPnCxGroups,
             ServerWebExchange exchange
     ) {
-        return Mono.fromSupplier(() -> ResponseEntity.ok(legalFactService.getLegalFactMetadata(iun, legalFactType, legalFactId)));
+        return Mono.fromSupplier(() -> ResponseEntity.ok(getLegalFactService.getLegalFactMetadata(iun, legalFactType, legalFactId)));
     }
 
     @Override
@@ -45,7 +45,7 @@ public class PnLegalFactsController implements LegalFactsApi {
             ServerWebExchange exchange
     ) {
         return Mono.fromSupplier(() -> {
-             List<LegalFactListElement> legalFacts = legalFactService.getLegalFacts(iun);
+             List<LegalFactListElement> legalFacts = getLegalFactService.getLegalFacts(iun);
              Flux<LegalFactListElement> fluxFacts = Flux.fromStream(legalFacts.stream().map(this::convert));
              return ResponseEntity.ok(fluxFacts);
          });
@@ -76,6 +76,6 @@ public class PnLegalFactsController implements LegalFactsApi {
     public ResponseEntity<Resource> getLegalFact(@PathVariable(value="iun") String iun,
                                                  @PathVariable(value="type") LegalFactCategory legalFactType,
                                                  @PathVariable(value="id") String legalfactId) {
-        return legalFactService.getLegalfact( iun, legalFactType, legalfactId );
+        return getLegalFactService.getLegalfact( iun, legalFactType, legalfactId );
     }
 }
