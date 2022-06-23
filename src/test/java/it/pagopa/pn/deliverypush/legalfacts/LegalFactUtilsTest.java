@@ -3,7 +3,7 @@ package it.pagopa.pn.deliverypush.legalfacts;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
-import it.pagopa.pn.deliverypush.service.impl.LegalFactsServiceImpl;
+import it.pagopa.pn.deliverypush.service.impl.SaveLegalFactsServiceImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,7 @@ import static org.mockito.Mockito.when;
 
 
 class LegalFactUtilsTest {
-    private LegalFactsServiceImpl legalFactsService;
+    private SaveLegalFactsServiceImpl legalFactsService;
     private LegalFactGenerator pdfUtils;
     private PnSafeStorageClient safeStorageClient;
 
@@ -23,7 +23,7 @@ class LegalFactUtilsTest {
     public void setup() {
         pdfUtils = Mockito.mock(LegalFactGenerator.class);
         safeStorageClient = Mockito.mock(PnSafeStorageClient.class);
-        legalFactsService = new LegalFactsServiceImpl(
+        legalFactsService = new SaveLegalFactsServiceImpl(
                 pdfUtils,
                 safeStorageClient
                 );

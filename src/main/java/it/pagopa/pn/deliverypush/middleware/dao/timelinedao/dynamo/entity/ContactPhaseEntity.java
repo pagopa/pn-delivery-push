@@ -5,7 +5,7 @@ public enum ContactPhaseEntity {
 
     SEND_ATTEMPT("SEND_ATTEMPT");
 
-    private String value;
+    private final String value;
 
     ContactPhaseEntity(String value) {
         this.value = value;

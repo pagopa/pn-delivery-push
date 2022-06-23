@@ -7,7 +7,7 @@ import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.service.LegalFactsService;
+import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class StartWorkflowHandler {
-    private final LegalFactsService legalFactsService;
+    private final SaveLegalFactsService saveLegalFactsService;
     private final NotificationService notificationService;
     private final CourtesyMessageUtils courtesyMessageUtils;
     private final ChooseDeliveryModeHandler chooseModeHandler;
@@ -31,7 +31,7 @@ public class StartWorkflowHandler {
     private final AarUtils aarUtils;
 
     public StartWorkflowHandler(
-            LegalFactsService legalFactsService,
+            SaveLegalFactsService saveLegalFactsService,
             NotificationService notificationService,
             CourtesyMessageUtils courtesyMessageUtils,
             ChooseDeliveryModeHandler chooseDeliveryType,
@@ -41,7 +41,7 @@ public class StartWorkflowHandler {
             NotificationUtils notificationUtils,
             AarUtils aarUtils
     ) {
-        this.legalFactsService = legalFactsService;
+        this.saveLegalFactsService = saveLegalFactsService;
         this.notificationService = notificationService;
         this.courtesyMessageUtils = courtesyMessageUtils;
         this.chooseModeHandler = chooseDeliveryType;
@@ -66,7 +66,7 @@ public class StartWorkflowHandler {
                 //Validazione degli allegati della notifica
                 checkAttachmentUtils.validateAttachment(notification);
 
-                String legalFactId = legalFactsService.saveNotificationReceivedLegalFact(notification);
+                String legalFactId = saveLegalFactsService.saveNotificationReceivedLegalFact(notification);
 
                 addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification, legalFactId), notification);
 

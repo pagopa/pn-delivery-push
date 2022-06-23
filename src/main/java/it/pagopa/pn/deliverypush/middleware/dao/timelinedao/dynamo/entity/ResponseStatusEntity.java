@@ -5,7 +5,7 @@ public enum ResponseStatusEntity {
 
     KO("KO");
 
-    private String value;
+    private final String value;
 
     ResponseStatusEntity(String value) {
         this.value = value;

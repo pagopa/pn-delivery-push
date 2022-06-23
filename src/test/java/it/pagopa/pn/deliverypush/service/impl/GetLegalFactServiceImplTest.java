@@ -19,7 +19,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCatego
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactDownloadMetadataResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsId;
-import it.pagopa.pn.deliverypush.service.LegalFactService;
+import it.pagopa.pn.deliverypush.service.GetLegalFactService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,7 +40,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class LegalFactServiceImplTest {
+class GetLegalFactServiceImplTest {
 
     private static final String IUN = "fake_iun";
     private static final int REC_INDEX = 0;
@@ -56,7 +56,7 @@ class LegalFactServiceImplTest {
     private NotificationService notificationService;
     private NotificationUtils notificationUtils;
 
-    private LegalFactService legalFactService;
+    private GetLegalFactService getLegalFactService;
 
     @BeforeEach
     void setup() {
@@ -65,7 +65,7 @@ class LegalFactServiceImplTest {
         notificationService = Mockito.mock(NotificationService.class);
         notificationUtils = Mockito.mock(NotificationUtils.class);
         
-        legalFactService = new LegalFactServiceImpl(
+        getLegalFactService = new GetLegalFactServiceImpl(
                 timelineService,
                 safeStorageClient,
                 notificationService,
@@ -115,7 +115,7 @@ class LegalFactServiceImplTest {
                 .thenReturn( recipientInt );
         
 
-        List<LegalFactListElement> result = legalFactService.getLegalFacts( IUN );
+        List<LegalFactListElement> result = getLegalFactService.getLegalFacts( IUN );
 
         assertEquals( legalFactsExpectedResult, result );
     }
@@ -139,7 +139,7 @@ class LegalFactServiceImplTest {
         Mockito.when( notificationService.getNotificationByIun( Mockito.anyString() ) )
                 .thenReturn( newNotification() );
 
-        ResponseEntity<Resource> result = legalFactService.getLegalfact( IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID);
+        ResponseEntity<Resource> result = getLegalFactService.getLegalfact( IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID);
         //Then
         assertNotNull( result );
     }
@@ -164,7 +164,7 @@ class LegalFactServiceImplTest {
         Mockito.when( notificationService.getNotificationByIun( Mockito.anyString() ) )
                 .thenReturn( newNotification() );
 
-        assertThrows(PnInternalException.class, () -> legalFactService.getLegalfact( IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID));
+        assertThrows(PnInternalException.class, () -> getLegalFactService.getLegalfact( IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID));
     }
 
     @Test
@@ -199,7 +199,7 @@ class LegalFactServiceImplTest {
         Mockito.when( notificationService.getNotificationByIun( Mockito.anyString() ) )
                 .thenReturn( newNotification() );
 
-        ResponseEntity<Resource> result = legalFactService.getLegalfact( IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID);
+        ResponseEntity<Resource> result = getLegalFactService.getLegalfact( IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID);
         //Then
         assertNotNull( result );
     }
@@ -236,7 +236,7 @@ class LegalFactServiceImplTest {
         Mockito.when( notificationService.getNotificationByIun( Mockito.anyString() ) )
                 .thenReturn( newNotification() );
 
-        LegalFactDownloadMetadataResponse result = legalFactService.getLegalFactMetadata( IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID);
+        LegalFactDownloadMetadataResponse result = getLegalFactService.getLegalFactMetadata( IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID);
         //Then
         assertNotNull( result );
         assertNotNull(result.getFilename());

@@ -9,7 +9,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetails
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
-import it.pagopa.pn.deliverypush.service.LegalFactsService;
+import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +21,7 @@ import static it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safes
 
 @Slf4j
 @Service
-public class LegalFactsServiceImpl implements LegalFactsService {
+public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
 
     private static final String SAVE_LEGAL_FACT_EXCEPTION_MESSAGE = "Generating %s legal fact for IUN=%s and recipientId=%s";
     public static final String LEGALFACTS_MEDIATYPE_STRING = "application/pdf";
@@ -33,8 +33,8 @@ public class LegalFactsServiceImpl implements LegalFactsService {
 
     private final PnSafeStorageClient safeStorageClient;
 
-    public LegalFactsServiceImpl(LegalFactGenerator legalFactBuilder,
-                        PnSafeStorageClient safeStorageClient) {
+    public SaveLegalFactsServiceImpl(LegalFactGenerator legalFactBuilder,
+                                     PnSafeStorageClient safeStorageClient) {
         this.legalFactBuilder = legalFactBuilder;
         this.safeStorageClient = safeStorageClient;
     }

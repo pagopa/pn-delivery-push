@@ -7,7 +7,7 @@ import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
-import it.pagopa.pn.deliverypush.service.LegalFactsService;
+import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -31,7 +31,7 @@ class NotificationViewedHandlerTest {
     @Mock
     private PaperNotificationFailedService paperNotificationFailedService;
     @Mock
-    private LegalFactsService legalFactStore;
+    private SaveLegalFactsService legalFactStore;
     @Mock
     private InstantNowSupplier instantNowSupplier;
     @Mock

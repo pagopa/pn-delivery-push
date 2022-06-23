@@ -46,8 +46,15 @@ class TimelineEntityDaoDynamoTestIT {
                 .details(
                         TimelineElementDetailsEntity.builder()
                                 .recIndex(0)
-                                .foreignState("IT")
                                 .numberOfPages(1)
+                                .physicalAddress(
+                                        PhysicalAddressEntity.builder()
+                                                .foreignState("IT")
+                                                .address("Indirizzo")
+                                                .at("At")
+                                                .addressDetails("Dettaglio")
+                                                .build()
+                                )
                                 .build()
                 )
                 .legalFactIds(

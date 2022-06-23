@@ -8,7 +8,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetails
 import java.time.Instant;
 import java.util.List;
 
-public interface LegalFactsService {
+public interface SaveLegalFactsService {
     PdfInfo saveAAR(NotificationInt notification, NotificationRecipientInt recipient);
 
     String saveNotificationReceivedLegalFact(NotificationInt notification);

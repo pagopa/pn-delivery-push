@@ -20,7 +20,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsI
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
-import it.pagopa.pn.deliverypush.service.LegalFactsService;
+import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.*;
@@ -138,7 +138,7 @@ class NotificationViewedTestIT {
     private NotificationViewedHandler notificationViewedHandler;
 
     @SpyBean
-    private LegalFactsService legalFactStore;
+    private SaveLegalFactsService legalFactStore;
 
     @SpyBean
     private PaperNotificationFailedService paperNotificationFailedService;

@@ -8,9 +8,10 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
-public interface LegalFactService {
+public interface GetLegalFactService {
 
     List<LegalFactListElement> getLegalFacts(String iun);
+    
     ResponseEntity<Resource> getLegalfact(String iun, LegalFactCategory legalFactType, String legalfactId);
 
     LegalFactDownloadMetadataResponse getLegalFactMetadata(String iun, LegalFactCategory legalFactType, String legalfactId);

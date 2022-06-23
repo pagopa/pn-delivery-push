@@ -5,7 +5,7 @@ public enum ServiceLevelEntity {
 
     REGISTERED_LETTER_890("REGISTERED_LETTER_890");
 
-    private String value;
+    private final String value;
 
     ServiceLevelEntity(String value) {
         this.value = value;

@@ -30,12 +30,12 @@ class EntityToDtoTimelineMapperTest {
                                         PhysicalAddressEntity.builder()
                                                 .address("addr")
                                                 .at("at")
+                                                .foreignState("IT")
                                                 .build()
                                 )
                                 .serviceLevel(ServiceLevelEntity.REGISTERED_LETTER_890)
                                 .sentAttemptMade(0)
                                 .investigation(true)
-                                .foreignState("IT")
                                 .build()  
                 )
                 .build();
@@ -48,6 +48,7 @@ class EntityToDtoTimelineMapperTest {
         Assertions.assertEquals(entity.getDetails().getInvestigation(), details.isInvestigation());
         Assertions.assertEquals(entity.getDetails().getServiceLevel().getValue(), details.getServiceLevel().getValue());
         Assertions.assertEquals(entity.getDetails().getPhysicalAddress().getAddress(), details.getPhysicalAddress().getAddress());
+        Assertions.assertEquals(entity.getDetails().getPhysicalAddress().getForeignState(), details.getPhysicalAddress().getForeignState());
     }
     
     @Test

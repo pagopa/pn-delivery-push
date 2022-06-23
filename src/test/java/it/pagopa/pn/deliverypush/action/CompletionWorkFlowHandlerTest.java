@@ -40,7 +40,7 @@ class CompletionWorkFlowHandlerTest {
     @Mock
     private TimelineUtils timelineUtils;
     @Mock
-    private LegalFactsService legalFactsService;
+    private SaveLegalFactsService saveLegalFactsService;
     @Mock
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
     
@@ -52,7 +52,7 @@ class CompletionWorkFlowHandlerTest {
     public void setup() {
         notificationUtils= new NotificationUtils();
         handler = new CompletionWorkFlowHandler(notificationUtils, scheduler,
-                externalChannelService, timelineService, completelyUnreachableUtils, timelineUtils, legalFactsService
+                externalChannelService, timelineService, completelyUnreachableUtils, timelineUtils, saveLegalFactsService
                 ,pnDeliveryPushConfigs);
     }
 
@@ -68,7 +68,7 @@ class CompletionWorkFlowHandlerTest {
         times.setSchedulingDaysSuccessDigitalRefinement(Duration.ofSeconds(1));
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
 
-        Mockito.when( legalFactsService.savePecDeliveryWorkflowLegalFact(
+        Mockito.when( saveLegalFactsService.savePecDeliveryWorkflowLegalFact(
                 Mockito.anyList(), Mockito.any( NotificationInt.class ), Mockito.any( NotificationRecipientInt.class )
         )).thenReturn( "" );
 
@@ -100,7 +100,7 @@ class CompletionWorkFlowHandlerTest {
         times.setSchedulingDaysFailureDigitalRefinement(Duration.ofSeconds(1));
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
 
-        Mockito.when( legalFactsService.savePecDeliveryWorkflowLegalFact(
+        Mockito.when( saveLegalFactsService.savePecDeliveryWorkflowLegalFact(
                     Mockito.anyList(), Mockito.any( NotificationInt.class ), Mockito.any( NotificationRecipientInt.class )
                 )).thenReturn( "" );
 

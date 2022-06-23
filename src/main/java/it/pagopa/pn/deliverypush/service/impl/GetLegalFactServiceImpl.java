@@ -10,7 +10,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.RecipientRelatedTimelineEl
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
-import it.pagopa.pn.deliverypush.service.LegalFactService;
+import it.pagopa.pn.deliverypush.service.GetLegalFactService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.LegalFactIdMapper;
@@ -32,17 +32,17 @@ import static it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safes
 
 @Service
 @Slf4j
-public class LegalFactServiceImpl implements LegalFactService {
+public class GetLegalFactServiceImpl implements GetLegalFactService {
 
     private final TimelineService timelineService;
     private final PnSafeStorageClient safeStorageClient;
     private final NotificationService notificationService;
     private final NotificationUtils notificationUtils;
 
-    public LegalFactServiceImpl(TimelineService timelineService,
-                                PnSafeStorageClient safeStorageClient,
-                                NotificationService notificationService,
-                                NotificationUtils notificationUtils) {
+    public GetLegalFactServiceImpl(TimelineService timelineService,
+                                   PnSafeStorageClient safeStorageClient,
+                                   NotificationService notificationService,
+                                   NotificationUtils notificationUtils) {
         this.timelineService = timelineService;
         this.safeStorageClient = safeStorageClient;
         this.notificationService = notificationService;

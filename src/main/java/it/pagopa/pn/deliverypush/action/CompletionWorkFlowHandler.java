@@ -16,7 +16,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.ExternalChannelService;
-import it.pagopa.pn.deliverypush.service.LegalFactsService;
+import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
@@ -38,7 +38,7 @@ public class CompletionWorkFlowHandler {
     private final TimelineService timelineService;
     private final CompletelyUnreachableUtils completelyUnreachableUtils;
     private final TimelineUtils timelineUtils;
-    private final LegalFactsService legalFactsService;
+    private final SaveLegalFactsService saveLegalFactsService;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     public CompletionWorkFlowHandler(NotificationUtils notificationUtils,
@@ -47,7 +47,7 @@ public class CompletionWorkFlowHandler {
                                      TimelineService timelineService,
                                      CompletelyUnreachableUtils completelyUnreachableUtils,
                                      TimelineUtils timelineUtils,
-                                     LegalFactsService legalFactsService,
+                                     SaveLegalFactsService saveLegalFactsService,
                                      PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         this.notificationUtils = notificationUtils;
         this.scheduler = scheduler;
@@ -55,7 +55,7 @@ public class CompletionWorkFlowHandler {
         this.timelineService = timelineService;
         this.completelyUnreachableUtils = completelyUnreachableUtils;
         this.timelineUtils = timelineUtils;
-        this.legalFactsService = legalFactsService;
+        this.saveLegalFactsService = saveLegalFactsService;
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
     }
 
@@ -96,7 +96,7 @@ public class CompletionWorkFlowHandler {
                 .collect(Collectors.toList());
 
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
-        return legalFactsService.savePecDeliveryWorkflowLegalFact(listFeedbackFromExtChannel, notification, recipient);
+        return saveLegalFactsService.savePecDeliveryWorkflowLegalFact(listFeedbackFromExtChannel, notification, recipient);
     }
 
     private boolean filterTimelineForTaxId(TimelineElementInternal el, Integer recIndex) {
