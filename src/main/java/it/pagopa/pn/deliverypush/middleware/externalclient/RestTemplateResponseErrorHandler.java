@@ -10,13 +10,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.client.ResponseErrorHandler;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.Series.CLIENT_ERROR;
 import static org.springframework.http.HttpStatus.Series.SERVER_ERROR;
@@ -57,9 +54,9 @@ public class RestTemplateResponseErrorHandler
         log.error("Error in call url={} method={} status code={} body={}", url, method, response.getStatusCode(), body);
         
         if (response.getStatusCode().series() == SERVER_ERROR) {
-            throw new PnHttpServerResponseException("Error in call "+ url + " status code "+ response.getStatusCode() );
+            throw new PnHttpServerResponseException("Error in call "+ url + " status code "+ response.getStatusCode() + " Body=" + body );
         } else if (response.getStatusCode().series() == CLIENT_ERROR) {
-            throw new PnHttpClientResponseException("Error in call "+ url + " status code "+ response.getStatusCode() );
+            throw new PnHttpClientResponseException("Error in call "+ url + " status code "+ response.getStatusCode() + " Body=" + body );
         }
     }
 }
