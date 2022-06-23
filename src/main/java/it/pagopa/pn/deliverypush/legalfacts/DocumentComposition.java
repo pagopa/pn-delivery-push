@@ -149,8 +149,8 @@ public class DocumentComposition {
     }
     
     public int getNumberOfPageFromPdfBytes(byte[] pdf ){
-        try{
-            return PDDocument.load(pdf).getNumberOfPages();
+        try(PDDocument document = PDDocument.load(pdf)){
+            return document.getNumberOfPages();
         }catch (IOException ex){
             log.error("Exception in getNumberOfPageFromPdfBytes for pdf - ex", ex);
             throw new PnInternalException( "Cannot get numberOfPages for pdf " + this.getClass(), ex );
