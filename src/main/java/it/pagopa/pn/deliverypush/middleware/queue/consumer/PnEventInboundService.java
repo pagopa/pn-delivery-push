@@ -46,9 +46,9 @@ public class PnEventInboundService {
            String trace_id = "";
 
            if (messageHeaders.containsKey("iun"))
-               trace_id = "trace_id:" + messageHeaders.get("iun", String.class);
+               trace_id = messageHeaders.get("iun", String.class);
            else if (messageHeaders.containsKey("aws_messageId"))
-               trace_id = "trace_id:" + messageHeaders.get("aws_messageId", String.class);
+               trace_id = messageHeaders.get("aws_messageId", String.class);
            else
             trace_id = "trace_id:" + UUID.randomUUID().toString();
 
