@@ -52,7 +52,7 @@ public class PnEventInboundService {
                    eventType = "SEND_PAPER_RESPONSE";
                }
                else {
-                   log.error("eventType not present, cannot start scheduled action");
+                   log.error("eventType not present, cannot start scheduled action headers={} payload={}", message.getHeaders(), message.getPayload());
                    throw new PnInternalException("eventType not present, cannot start scheduled action");
                }
            }
