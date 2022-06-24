@@ -8,6 +8,7 @@ package it.pagopa.pn.deliverypush.middleware.queue.consumer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.ActionEventType;
 import it.pagopa.pn.deliverypush.abstractions.webhookspool.impl.WebhookActionEventType;
 import lombok.extern.slf4j.Slf4j;
@@ -19,14 +20,19 @@ import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @Configuration
 @Slf4j
 public class PnEventInboundService {
     private final EventHandler eventHandler;
+    private final PnDeliveryPushConfigs cfg;
+    private final String externalChannelEventQueueName;
 
-    public PnEventInboundService(EventHandler eventHandler) {
+    public PnEventInboundService(EventHandler eventHandler, PnDeliveryPushConfigs cfg) {
         this.eventHandler = eventHandler;
+        this.cfg = cfg;
+        this.externalChannelEventQueueName = cfg.getTopics().getFromExternalChannel();
     }
 
     @Bean
@@ -41,8 +47,14 @@ public class PnEventInboundService {
                else if(WebhookActionEventType.WEBHOOK_ACTION_GENERIC.name().equals(eventType))
                    return "pnDeliveryPushWebhookActionConsumer";
            }else {
-               log.error("eventType not present, cannot start scheduled action");
-               throw new PnInternalException("eventType not present, cannot start scheduled action");
+               String queueName = (String) message.getHeaders().get("aws_receivedQueue");
+               if( Objects.equals( queueName, externalChannelEventQueueName) ) {
+                   eventType = "SEND_PAPER_RESPONSE";
+               }
+               else {
+                   log.error("eventType not present, cannot start scheduled action");
+                   throw new PnInternalException("eventType not present, cannot start scheduled action");
+               }
            }
 
            String handlerName = eventHandler.getHandler().get(eventType);
