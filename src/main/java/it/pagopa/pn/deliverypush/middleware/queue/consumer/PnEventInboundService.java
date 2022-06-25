@@ -8,19 +8,23 @@ package it.pagopa.pn.deliverypush.middleware.queue.consumer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.log.MDCWebFilter;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.ActionEventType;
 import it.pagopa.pn.deliverypush.abstractions.webhookspool.impl.WebhookActionEventType;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.cloud.function.context.MessageRoutingCallback;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageHeaders;
 import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 @Configuration
 @Slf4j
@@ -38,31 +42,47 @@ public class PnEventInboundService {
     @Bean
     public MessageRoutingCallback customRouter() {
        return message -> {
-           log.debug("messaggio ricevuto da customRouter "+message);
-           String eventType = (String) message.getHeaders().get("eventType");
-           log.debug("messaggio ricevuto da customRouter eventType={}", eventType );
-           if(eventType != null){
-               if(ActionEventType.ACTION_GENERIC.name().equals(eventType)) 
-                   return handleAction(message);
-               else if(WebhookActionEventType.WEBHOOK_ACTION_GENERIC.name().equals(eventType))
-                   return "pnDeliveryPushWebhookActionConsumer";
-           }else {
-               String queueName = (String) message.getHeaders().get("aws_receivedQueue");
-               if( Objects.equals( queueName, externalChannelEventQueueName) ) {
-                   eventType = "SEND_PAPER_RESPONSE";
-               }
-               else {
-                   log.error("eventType not present, cannot start scheduled action headers={} payload={}", message.getHeaders(), message.getPayload());
-                   throw new PnInternalException("eventType not present, cannot start scheduled action");
-               }
-           }
+           MessageHeaders messageHeaders = message.getHeaders();
+           String trace_id = "";
 
-           String handlerName = eventHandler.getHandler().get(eventType);
-           if( ! StringUtils.hasText( handlerName) ) {
-               log.error("undefined handler for eventType={}", eventType);
-           }
-           return handlerName;
+           if (messageHeaders.containsKey("iun"))
+               trace_id = messageHeaders.get("iun", String.class);
+           else if (messageHeaders.containsKey("aws_messageId"))
+               trace_id = messageHeaders.get("aws_messageId", String.class);
+           else
+            trace_id = "trace_id:" + UUID.randomUUID().toString();
+
+           MDC.put(MDCWebFilter.MDC_TRACE_ID_KEY, trace_id);
+
+           return handleMessage(message);
        };
+    }
+
+    private String handleMessage(Message<?> message) {
+        log.debug("messaggio ricevuto da customRouter "+message);
+        String eventType = (String) message.getHeaders().get("eventType");
+        log.debug("messaggio ricevuto da customRouter eventType={}", eventType );
+        if(eventType != null){
+            if(ActionEventType.ACTION_GENERIC.name().equals(eventType))
+                return handleAction(message);
+            else if(WebhookActionEventType.WEBHOOK_ACTION_GENERIC.name().equals(eventType))
+                return "pnDeliveryPushWebhookActionConsumer";
+        }else {
+            String queueName = (String) message.getHeaders().get("aws_receivedQueue");
+            if( Objects.equals( queueName, externalChannelEventQueueName) ) {
+                eventType = "SEND_PAPER_RESPONSE";
+            }
+            else {
+                log.error("eventType not present, cannot start scheduled action headers={} payload={}", message.getHeaders(), message.getPayload());
+                throw new PnInternalException("eventType not present, cannot start scheduled action");
+            }
+        }
+
+        String handlerName = eventHandler.getHandler().get(eventType);
+        if( ! StringUtils.hasText( handlerName) ) {
+            log.error("undefined handler for eventType={}", eventType);
+        }
+        return handlerName;
     }
 
     private String handleAction(Message<?> message) {
