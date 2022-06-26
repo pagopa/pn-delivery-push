@@ -215,6 +215,10 @@ Parameters:
   SandboxSafeStorageBaseUrl:
     Type: String
     Description: url base di safe storage
+  
+  Version:
+    Type: String
+    Description: 'keep track of used projects commitIds'
 
 Resources:
 
