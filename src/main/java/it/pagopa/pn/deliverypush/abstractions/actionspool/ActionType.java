@@ -16,7 +16,7 @@ public enum ActionType {
         @Override
         public String buildActionId(Action action) {
             return String.format(
-                    "%s_digital_workflow_e_%d",
+                    "%s_digital_workflow_e_%d!v1",
                     action.getIun(),
                     action.getRecipientIndex()
             );
@@ -27,7 +27,7 @@ public enum ActionType {
         @Override
         public String buildActionId(Action action) {
             return String.format(
-                    "%s_refinement_notification_%d",
+                    "%s_refinement_notification_%d!v1",
                     action.getIun(),
                     action.getRecipientIndex()
             );

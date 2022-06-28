@@ -45,7 +45,7 @@ public class SchedulerServiceImpl implements SchedulerService {
                 .iun(iun)
                 .paId(paId)
                 .timestamp(timestamp)
-                .eventId(timestamp + "_" + timelineId)
+                .eventId(timestamp + "_" + timelineId + "#v1")
                 //.delay(null)
                 .oldStatus(oldStatus)
                 .newStatus(newStatus)
