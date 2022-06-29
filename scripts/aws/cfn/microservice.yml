@@ -222,6 +222,14 @@ Parameters:
   LogsExporterRoleArn:
     Type: String
     Description: ARN of the role used to write to external logs bucket
+  
+  TimelineCdcKinesisStreamArn:
+    Type: String
+    Description: kinesis stream Arn for timeline dynamo table
+  
+  TimelineCdcKinesisKeyArn:
+    Type: String
+    Description: KMS key arn for timeline stream decryption
 
   Version:
     Type: String
@@ -415,3 +423,16 @@ Resources:
         LogsExporterRoleArn: !Ref LogsExporterRoleArn
         StreamNamePrefix: pnDeliveryPush
         LogGroupName: '/ecs/pn-delivery-push'
+
+  # Export cdc to Log analysis account
+  StreamTimelineCdcToExternalBucket:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/kinesis-source-stream-to-logs-bucket.yaml"
+      Parameters:
+        ProjectName: !Ref ProjectName
+        SourceKinesisDataStreamArn: !Ref TimelineCdcKinesisStreamArn
+        SourceKinesisDataStreamKeyArn: !Ref TimelineCdcKinesisKeyArn
+        LogsBucketName: !Ref LogsBucketName
+        LogsExporterRoleArn: !Ref LogsExporterRoleArn
+        StreamNamePrefix: pnTimelineCdc
