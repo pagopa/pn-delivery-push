@@ -128,7 +128,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                 notificationUtils.getRecipientFromIndex(notification, recIndex),
                 physicalAddress,
                 eventId,
-                ExternalChannelSendClient.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER,
+                PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER,
                 aarGenerationDetails.getGeneratedAarUrl()
         );
 
@@ -181,7 +181,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                 notificationUtils.getRecipientFromIndex(notification, recIndex),
                 physicalAddress,
                 eventId,
-                notification.getPhysicalCommunicationType()== ServiceLevelTypeInt.REGISTERED_LETTER_890 ? ExternalChannelSendClient.ANALOG_TYPE.REGISTERED_LETTER_890 : ExternalChannelSendClient.ANALOG_TYPE.AR_REGISTERED_LETTER,
+                notification.getPhysicalCommunicationType()== ServiceLevelTypeInt.REGISTERED_LETTER_890 ? PhysicalAddressInt.ANALOG_TYPE.REGISTERED_LETTER_890 : PhysicalAddressInt.ANALOG_TYPE.AR_REGISTERED_LETTER,
                 aarGenerationDetails.getGeneratedAarUrl()
         );
 
