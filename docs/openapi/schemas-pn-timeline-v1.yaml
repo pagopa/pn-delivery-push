@@ -31,8 +31,8 @@ components:
         - COMPLETELY_UNREACHABLE
         - REQUEST_REFUSED
         - AAR_GENERATION
-
-    
+        - NOT_HANDLED
+        
     DownstreamId:
       description: identificativo del messaggio nel sistema a valle
       type: object
@@ -95,6 +95,7 @@ components:
         - "$ref": "#/components/schemas/SendAnalogFeedbackDetails"
         - "$ref": "#/components/schemas/SimpleRegisteredLetterDetails"
         - "$ref": "#/components/schemas/AarGenerationDetails"
+        - "$ref": "#/components/schemas/NotHandledDetails"
 
 
     NotificationRequestAcceptedDetails:
@@ -362,6 +363,19 @@ components:
         numberOfPages:
           type: integer
           description: numero di pagine del PDF generato
+      
+    NotHandledDetails:
+      type: object
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+        reasonCode:
+          type: string
+          description: Codice motivazione casistica non gestita
+        reason:
+          type: string
+          description: Motivazione casistica non gestita
 
     DigitalAddressSource:
       type: string

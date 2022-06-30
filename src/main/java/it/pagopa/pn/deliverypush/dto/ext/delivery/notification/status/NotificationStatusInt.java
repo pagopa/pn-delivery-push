@@ -1,10 +1,8 @@
 package it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status;
 
 import lombok.Getter;
-import lombok.ToString;
 
 @Getter
-@ToString
 public enum NotificationStatusInt {
     IN_VALIDATION("IN_VALIDATION"),
 
@@ -22,11 +20,19 @@ public enum NotificationStatusInt {
 
     UNREACHABLE("UNREACHABLE"),
 
-    REFUSED("REFUSED");
+    REFUSED("REFUSED"),
+
+    CANCELLED("CANCELLED");
 
     private final String value;
 
     NotificationStatusInt(String value) {
         this.value = value;
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
+
 }
