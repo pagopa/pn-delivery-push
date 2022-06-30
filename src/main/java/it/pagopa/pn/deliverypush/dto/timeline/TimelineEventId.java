@@ -11,6 +11,7 @@ public enum TimelineEventId {
             );
         }
     },
+    
     SEND_COURTESY_MESSAGE() {
         @Override
         public String buildEventId(EventId eventId) {
@@ -22,6 +23,7 @@ public enum TimelineEventId {
             );
         }
     },
+    
     GET_ADDRESS() {
         @Override
         public String buildEventId(EventId eventId) {
@@ -39,7 +41,7 @@ public enum TimelineEventId {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
-                    "%s_send_digital_feedback_%d_attempt_%d_source%s",
+                    "%s_send_digital_feedback_%d_attempt_%d_source_%s",
                     eventId.getIun(),
                     eventId.getRecIndex(),
                     eventId.getIndex(),
