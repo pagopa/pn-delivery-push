@@ -1,10 +1,12 @@
 package it.pagopa.pn.deliverypush.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusHistoryElementInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -28,6 +30,14 @@ public class StatusUtils {
 
     private final StateMap stateMap = new StateMap();
 
+    public NotificationStatusInt getCurrentStatusFromNotification(NotificationInt notification, TimelineService timelineService) {
+        Set<TimelineElementInternal> timelineElements =  timelineService.getTimeline(notification.getIun());
+
+        List<NotificationStatusHistoryElementInt> statusHistory = getStatusHistory( timelineElements, notification.getRecipients().size(), notification.getSentAt() );
+
+        return getCurrentStatus( statusHistory );
+    }
+    
     public NotificationStatusInt getCurrentStatus(List<NotificationStatusHistoryElementInt> statusHistory) {
         if (!statusHistory.isEmpty()) {
             return statusHistory.get(statusHistory.size() - 1).getStatus();

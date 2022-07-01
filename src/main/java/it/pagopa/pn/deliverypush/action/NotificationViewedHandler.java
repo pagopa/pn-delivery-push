@@ -5,11 +5,13 @@ import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
+import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +26,7 @@ public class NotificationViewedHandler {
     private final TimelineUtils timelineUtils;
     private final InstantNowSupplier instantNowSupplier;
     private final NotificationUtils notificationUtils;
+    private final StatusUtils statusUtils;
     
     public NotificationViewedHandler(TimelineService timelineService,
                                      SaveLegalFactsService legalFactStore,
@@ -31,7 +34,9 @@ public class NotificationViewedHandler {
                                      NotificationService notificationService,
                                      TimelineUtils timelineUtils,
                                      InstantNowSupplier instantNowSupplier,
-                                     NotificationUtils notificationUtils) {
+                                     NotificationUtils notificationUtils, 
+                                     StatusUtils statusUtils
+    ) {
         this.legalFactStore = legalFactStore;
         this.paperNotificationFailedService = paperNotificationFailedService;
         this.timelineService = timelineService;
@@ -39,6 +44,7 @@ public class NotificationViewedHandler {
         this.timelineUtils = timelineUtils;
         this.instantNowSupplier = instantNowSupplier;
         this.notificationUtils = notificationUtils;
+        this.statusUtils = statusUtils;
     }
     
     public void handleViewNotification(String iun, Integer recIndex) {
@@ -47,27 +53,39 @@ public class NotificationViewedHandler {
         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex);
         
         //I processi collegati alla visualizzazione di una notifica vengono effettuati solo la prima volta che la stessa viene visualizzata
-        if(!isNotificationAlreadyViewed){
+        if( !isNotificationAlreadyViewed ){
             log.info("Start view notification process");
             
             NotificationInt notification = notificationService.getNotificationByIun(iun);
+            NotificationStatusInt currentStatus = statusUtils.getCurrentStatusFromNotification(notification, timelineService);
+            
+            //Una notifica annullata non può essere perfezionata per visione
+            if( !NotificationStatusInt.CANCELLED.equals(currentStatus) ){
 
-            log.debug("handleViewNotification get recipient ok - iun={} id={}", iun, recIndex);
-
-            NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
-            String legalFactId = legalFactStore.saveNotificationViewedLegalFact(notification, recipient, instantNowSupplier.get());
-
-            addTimelineElement( 
-                    timelineUtils.buildNotificationViewedTimelineElement(notification, recIndex, legalFactId),
-                    notification 
-            ) ;
-
-            paperNotificationFailedService.deleteNotificationFailed(recipient.getTaxId(), iun); //Viene eliminata l'eventuale istanza di notifica fallita dal momento che la stessa è stata letta
+                handleViewNotification(iun, recIndex, notification);
+                
+            }else {
+                log.debug("Notification is in status {}, can't start view Notification process - iun={} id={}", currentStatus, iun, recIndex);
+            }
         } else {
-            log.debug("Notification is already viewed");
+            log.debug("Notification is already viewed - iun={} id={}", iun, recIndex);
         }
 
         log.debug("End HandleViewNotification - iun={} id={}", iun, recIndex);
+    }
+
+    private void handleViewNotification(String iun, Integer recIndex, NotificationInt notification) {
+        log.debug("handleViewNotification get recipient ok - iun={} id={}", iun, recIndex);
+
+        NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
+        String legalFactId = legalFactStore.saveNotificationViewedLegalFact(notification, recipient, instantNowSupplier.get());
+
+        addTimelineElement(
+                timelineUtils.buildNotificationViewedTimelineElement(notification, recIndex, legalFactId),
+                notification
+        ) ;
+
+        paperNotificationFailedService.deleteNotificationFailed(recipient.getTaxId(), iun); //Viene eliminata l'eventuale istanza di notifica fallita dal momento che la stessa è stata letta
     }
 
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
