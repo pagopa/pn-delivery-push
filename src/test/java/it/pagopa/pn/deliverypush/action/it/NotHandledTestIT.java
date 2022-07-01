@@ -12,6 +12,7 @@ import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action.utils.*;
+import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -20,6 +21,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.Notificati
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotHandledDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
@@ -91,7 +93,7 @@ import static org.awaitility.Awaitility.await;
 @TestPropertySource(properties = {
         "pn.delivery-push.featureflags.externalchannel=new",
 })
-public class NotHandledTestIT {
+class NotHandledTestIT {
     
     @TestConfiguration
     static class SpringTestConfiguration extends AbstractWorkflowTestConfiguration {
@@ -209,12 +211,13 @@ public class NotHandledTestIT {
     }
 
     @Test
-    void completeFailWithRegisteredLetter() {
+    void completeFailRegisteredLetterNotHandled() {
         /*
        - Platform address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
        - Special address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il digitalDomicile del recipient con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
        - General address presente e invio fallito per entrambi gli invii (Ottenuto non valorizzando il pbDigitalAddress per il recipient in PUB_REGISTRY_DIGITAL con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-        */
+       - Invio Registered letter non avviene perchè NON GESTITO
+       */
 
         LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
                 .address("platformAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
@@ -278,6 +281,166 @@ public class NotHandledTestIT {
         Assertions.assertFalse(sendSimpleRegisteredLetterOpt.isPresent());
 
         //Viene verificata la presenza dell'elemento di timeline NOT_HANDLED
+        notHandledVerification(iun, recIndex);
+    }
+
+    @Test
+    void sendAnalogNotHandled() {
+ /*
+       - Platform address vuoto (Ottenuto non valorizzando il platformAddress in addressBookEntry)
+       - Special address vuoto (Ottenuto non valorizzando il digitalDomicile del recipient)
+       - General address vuoto (Ottenuto non valorizzando nessun digital address per il recipient in PUB_REGISTRY_DIGITAL)
+       
+       - Indirizzo courtesy message presente, dunque inviato (Ottenuto valorizzando il courtesyAddress del addressBookEntry)
+       - Pa physical address presente con struttura indirizzo che porta al fallimento dell'invio tramite external channel (Ottenuto inserendo nell'indirizzo ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR)
+         e invio di una seconda notifica (all'indirizzo ottenuto dall'investigazione) con successivo fallimento (ottenuto concatenando all'indirizzo ExternalChannelMock.EXTCHANNEL_SEND_FAIL) 
+       - Public Registry Indirizzo fisico non trovato (Ottenuto non valorizzando nessun indirizzo fisico per il recipient in PUB_REGISTRY_PHYSICAL)
+     */
+
+        PhysicalAddressInt paPhysicalAddress = PhysicalAddressBuilder.builder()
+                .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
+                .build();
+
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
+                .withTaxId("TAXID01")
+                .withPhysicalAddress(paPhysicalAddress)
+                .build();
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withIun("IUN01")
+                .withPaId("paId01")
+                .withNotificationRecipient(recipient)
+                .build();
+
+
+        List<CourtesyDigitalAddressInt> listCourtesyAddress = Collections.singletonList(CourtesyDigitalAddressInt.builder()
+                .address("test@works.it")
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL)
+                .build());
+
+        pnDeliveryClientMock.addNotification(notification);
+        addressBookMock.addCourtesyDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), listCourtesyAddress);
+
+        String iun = notification.getIun();
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+
+        //Start del workflow
+        startWorkflowHandler.startWorkflow(iun);
+
+        // Viene atteso fino a che lo stato non passi in CANCELLED
+        await().untilAsserted(() ->
+                Assertions.assertEquals(NotificationStatusInt.CANCELLED, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        );
+
+        //Viene verificato che sia stato inviato un messaggio ad ogni indirizzo presente nei courtesyaddress
+        TestUtils.checkSendCourtesyAddresses(iun, recIndex, listCourtesyAddress, timelineService, externalChannelMock);
+        
+        //Viene verificato che non ci sia stato nessun invio verso externalChannel
+        Mockito.verify(externalChannelMock, Mockito.times(0)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+
+        checkNotSendAnalogNotification(iun, recIndex);
+
+        //Viene verificata la presenza dell'elemento di timeline NOT_HANDLED
+        notHandledVerification(iun, recIndex);
+    }
+
+    @Test
+    void twoRecipientSendAnalogNotHandled() {
+ /*     PRIMO RECIPIENT
+       - Platform address vuoto (Ottenuto non valorizzando il platformAddress in addressBookEntry)
+       - Special address vuoto (Ottenuto non valorizzando il digitalDomicile del recipient)
+       - General address vuoto (Ottenuto non valorizzando nessun digital address per il recipient in PUB_REGISTRY_DIGITAL)
+       
+       - Indirizzo courtesy message presente, dunque inviato (Ottenuto valorizzando il courtesyAddress del addressBookEntry)
+       - Pa physical address presente con struttura indirizzo che porta al fallimento dell'invio tramite external channel (Ottenuto inserendo nell'indirizzo ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR)
+         e invio di una seconda notifica (all'indirizzo ottenuto dall'investigazione) con successivo fallimento (ottenuto concatenando all'indirizzo ExternalChannelMock.EXTCHANNEL_SEND_FAIL) 
+       - Public Registry Indirizzo fisico non trovato (Ottenuto non valorizzando nessun indirizzo fisico per il recipient in PUB_REGISTRY_PHYSICAL)
+        
+         SECONDO RECIPIENT
+       - Platform address vuoto (Ottenuto non valorizzando il platformAddress in addressBookEntry)
+       - Special address vuoto (Ottenuto non valorizzando il digitalDomicile del recipient)
+       - General address vuoto (Ottenuto non valorizzando nessun digital address per il recipient in PUB_REGISTRY_DIGITAL)
+       
+       - Indirizzo courtesy message presente, dunque inviato (Ottenuto valorizzando il courtesyAddress del addressBookEntry)
+       - Pa physical address presente con struttura indirizzo che porta al fallimento dell'invio tramite external channel (Ottenuto inserendo nell'indirizzo ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR)
+         e invio di una seconda notifica (all'indirizzo ottenuto dall'investigazione) con successivo fallimento (ottenuto concatenando all'indirizzo ExternalChannelMock.EXTCHANNEL_SEND_FAIL) 
+       - Public Registry Indirizzo fisico non trovato (Ottenuto non valorizzando nessun indirizzo fisico per il recipient in PUB_REGISTRY_PHYSICAL)
+     */
+
+        PhysicalAddressInt paPhysicalAddress1 = PhysicalAddressBuilder.builder()
+                .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
+                .build();
+
+        NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder()
+                .withTaxId("TAXID01")
+                .withPhysicalAddress(paPhysicalAddress1)
+                .build();
+
+        List<CourtesyDigitalAddressInt> listCourtesyAddressRecipient1 = Collections.singletonList(CourtesyDigitalAddressInt.builder()
+                .address("test@mail.it")
+                .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL )
+                .build());
+
+        PhysicalAddressInt paPhysicalAddress2 = PhysicalAddressBuilder.builder()
+                .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
+                .build();
+
+        NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder()
+                .withTaxId("TAXID02")
+                .withPhysicalAddress(paPhysicalAddress2)
+                .build();
+
+        List<CourtesyDigitalAddressInt> listCourtesyAddressRecipient2 = Collections.singletonList(CourtesyDigitalAddressInt.builder()
+                .address("test2@mail.it")
+                .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL )
+                .build());
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withIun("IUN01")
+                .withPaId("paId01")
+                .withNotificationRecipient( List.of(recipient1, recipient2) )
+                .build();
+
+        pnDeliveryClientMock.addNotification(notification);
+        addressBookMock.addCourtesyDigitalAddresses(recipient1.getTaxId(), notification.getSender().getPaId(), listCourtesyAddressRecipient1);
+        addressBookMock.addCourtesyDigitalAddresses(recipient2.getTaxId(), notification.getSender().getPaId(), listCourtesyAddressRecipient2);
+
+        String iun = notification.getIun();
+        Integer recIndex1 = notificationUtils.getRecipientIndex(notification, recipient1.getTaxId());
+        Integer recIndex2 = notificationUtils.getRecipientIndex(notification, recipient2.getTaxId());
+
+        //Start del workflow
+        startWorkflowHandler.startWorkflow(iun);
+
+        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
+        await().untilAsserted(() ->
+                Assertions.assertEquals(NotificationStatusInt.CANCELLED, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        );
+
+        //Viene verificato che sia stato inviato un messaggio ad ogni indirizzo presente nei courtesyaddress per il recipient1
+        TestUtils.checkSendCourtesyAddressFromTimeline(iun, recIndex1, listCourtesyAddressRecipient1, timelineService, externalChannelMock);
+
+        //Viene verificato che sia stato inviato un messaggio ad ogni indirizzo presente nei courtesyaddress per il recipient2
+        TestUtils.checkSendCourtesyAddressFromTimeline(iun, recIndex2, listCourtesyAddressRecipient2, timelineService, externalChannelMock);
+
+        //Viene verificato l'effettivo invio del messaggio di cortesia verso external channel
+        Mockito.verify(externalChannelMock, Mockito.times(listCourtesyAddressRecipient1.size() + listCourtesyAddressRecipient2.size()))
+                .sendCourtesyNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(CourtesyDigitalAddressInt.class), Mockito.anyString());
+
+        //Viene verificato che non ci sia stato nessun invio verso externalChannel
+        Mockito.verify(externalChannelMock, Mockito.times(0)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+
+        checkNotSendAnalogNotification(iun, recIndex1);
+        checkNotSendAnalogNotification(iun, recIndex2);
+
+        //Viene verificata la presenza dell'elemento di timeline NOT_HANDLED
+        notHandledVerification(iun, recIndex1);
+
+        //Viene verificata la presenza dell'elemento di timeline NOT_HANDLED
+        notHandledVerification(iun, recIndex2);
+    }
+
+    private void notHandledVerification(String iun, Integer recIndex) {
         String eventIdNotHandled = TimelineEventId.NOT_HANDLED.buildEventId(
                 EventId.builder()
                         .iun(iun)
@@ -287,13 +450,22 @@ public class NotHandledTestIT {
         Optional<NotHandledDetailsInt> notHandledDetailsOpt = timelineService.getTimelineElementDetails(iun, eventIdNotHandled, NotHandledDetailsInt.class);
         Assertions.assertTrue(notHandledDetailsOpt.isPresent());
         NotHandledDetailsInt notHandledDetails = notHandledDetailsOpt.get();
-        
-        Assertions.assertEquals(0, notHandledDetails.getRecIndex());
+
+        Assertions.assertEquals(recIndex, notHandledDetails.getRecIndex());
         Assertions.assertEquals(NotHandledDetailsInt.PAPER_MESSAGE_NOT_HANDLED_CODE, notHandledDetails.getReasonCode());
         Assertions.assertEquals(NotHandledDetailsInt.PAPER_MESSAGE_NOT_HANDLED_REASON, notHandledDetails.getReason());
-        
-        //Viene verificato che sia avvenuto il perfezionamento
-        TestUtils.checkRefinement(iun, recIndex, timelineService);
     }
-    
+
+    private void checkNotSendAnalogNotification(String iun, Integer recIndex) {
+        String eventIdSendAnalog = TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .index(0)
+                        .build());
+
+        Optional<SendAnalogDetailsInt> sendPaperDetailsOpt = timelineService.getTimelineElementDetails(iun, eventIdSendAnalog, SendAnalogDetailsInt.class);
+        Assertions.assertFalse(sendPaperDetailsOpt.isPresent());
+    }
+
 }

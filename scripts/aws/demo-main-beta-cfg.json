@@ -9,6 +9,7 @@
     "RecipientTimeoutDelayDigital": "2m",
     "RefinementTimeCompletelyUnreachable": "4m",
     "WebhookScanInterval": "60000",
-    "WebhookMaxLength": "10"
+    "WebhookMaxLength": "10",
+    "PnDeliveryPushPaperMessageNotHandled": true
   }
 }

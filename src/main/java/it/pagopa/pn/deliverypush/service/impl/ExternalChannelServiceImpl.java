@@ -92,24 +92,18 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     @Override
     public void sendNotificationForRegisteredLetter(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex) {
         log.debug("Start sendNotificationForRegisteredLetter - iun={} recipientIndex={}", notification.getIun(), recIndex);
-        
-        if( Boolean.FALSE.equals( pnDeliveryPushConfigs.getPaperMessageNotHandled()) ){
-            
-            boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
+                 
+        boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
 
-            if(! isNotificationAlreadyViewed){
+        if(! isNotificationAlreadyViewed){
 
-                sendRegisteredLetterToExternalChannel(notification, physicalAddress, recIndex);
+            sendRegisteredLetterToExternalChannel(notification, physicalAddress, recIndex);
 
-                log.info("Registered Letter sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
-            }else {
-                log.info("Notification is already viewed, registered Letter will not be sent to externalChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
-            }
-            
+            log.info("Registered Letter sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
         }else {
-            log.info("Paper message is not handled, registered Letter will not be sent to externalChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
-            externalChannelUtils.addPaperNotificationNotHandledToTimeline(notification, recIndex);
+            log.info("Notification is already viewed, registered Letter will not be sent to externalChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
         }
+
     }
 
     private void sendRegisteredLetterToExternalChannel(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex) {
