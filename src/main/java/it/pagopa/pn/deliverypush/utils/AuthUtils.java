@@ -1,8 +1,8 @@
 package it.pagopa.pn.deliverypush.utils;
 
-import it.pagopa.pn.commons.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.mandate.MandateDtoInt;
+import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.service.MandateService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

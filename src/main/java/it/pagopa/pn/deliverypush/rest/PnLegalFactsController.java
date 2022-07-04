@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.rest;
 
-import it.pagopa.pn.commons.exceptions.PnNotFoundException;
+import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.LegalFactsApi;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.GetLegalFactService;
@@ -36,7 +36,7 @@ public class PnLegalFactsController implements LegalFactsApi {
             ServerWebExchange exchange) {
         
         return Mono.fromSupplier(() ->
-                ResponseEntity.ok(legalFactService.getLegalFactMetadata(iun, legalFactType, legalFactId))
+                ResponseEntity.ok(getLegalFactService.getLegalFactMetadata(iun, legalFactType, legalFactId))
         );
     }
 
@@ -51,7 +51,7 @@ public class PnLegalFactsController implements LegalFactsApi {
             ServerWebExchange exchange) {
         
         return Mono.fromSupplier(() -> {
-            List<LegalFactListElement> legalFacts = legalFactService.getLegalFacts(iun, xPagopaPnCxId, mandateId);
+            List<LegalFactListElement> legalFacts = getLegalFactService.getLegalFacts(iun, xPagopaPnCxId, mandateId);
             Flux<LegalFactListElement> fluxFacts = Flux.fromStream(legalFacts.stream().map(this::convert));
             return ResponseEntity.ok(fluxFacts);
         });

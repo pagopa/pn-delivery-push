@@ -68,7 +68,7 @@ class GetLegalFactServiceImplTest {
 
         authUtils = Mockito.mock(AuthUtils.class);
 
-        legalFactService = new GetLegalFactServiceImpl(
+        getLegalFactService = new GetLegalFactServiceImpl(
                 timelineService,
                 safeStorageClient,
                 notificationService,
@@ -117,7 +117,7 @@ class GetLegalFactServiceImplTest {
                 .thenReturn( recipientInt );
         
 
-        List<LegalFactListElement> result = legalFactService.getLegalFacts( IUN , "taxId", null );
+        List<LegalFactListElement> result = getLegalFactService.getLegalFacts( IUN , "taxId", null );
 
         assertEquals( legalFactsExpectedResult, result );
     }
@@ -250,7 +250,7 @@ class GetLegalFactServiceImplTest {
     private NotificationInt newNotification() {
         return NotificationInt.builder()
                 .iun("IUN_01")
-                .paNotificationId("protocol_01")
+                .paProtocolNumber("protocol_01")
                 .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()

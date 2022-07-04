@@ -245,7 +245,7 @@
 						</goals>
 						<phase>process-resources</phase>
 						<configuration>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/56f05296f06b0f395e7bc57788a65df1d746a5d2/docs/openapi/api-private-v1.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/ee6589aba0663741e87940626ec0b3ec68aae67c/docs/openapi/api-private-v1.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
@@ -395,7 +395,7 @@
 						</goals>
 						<phase>process-resources</phase>
 						<configuration>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-mandate/5642fae853e3c83aa23b81379bba3bf6102d4101/docs/openapi/pn-mandate-v1.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-mandate/2b60e6362e9cf82271c043d4272d6af59bb27ee4/docs/openapi/pn-mandate-v1.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
@@ -412,6 +412,7 @@
 							</configOptions>
 						</configuration>
 					</execution>
+					
 				</executions>
 			</plugin>
 		</plugins>

@@ -9,7 +9,6 @@ public class NotificationRecipientTestBuilder {
     private String taxId;
     private PhysicalAddressInt physicalAddress;
     private String internalId;
-    private PhysicalAddress physicalAddress;
     private LegalDigitalAddressInt digitalDomicile;
     
     public static NotificationRecipientTestBuilder builder() {

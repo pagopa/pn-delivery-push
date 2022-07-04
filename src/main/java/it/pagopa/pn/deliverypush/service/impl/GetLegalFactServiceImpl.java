@@ -41,7 +41,7 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
     private final NotificationUtils notificationUtils;
     private final AuthUtils authUtils;
     
-    public LegalFactServiceImpl(TimelineService timelineService,
+    public GetLegalFactServiceImpl(TimelineService timelineService,
                                 PnSafeStorageClient safeStorageClient,
                                 NotificationService notificationService,
                                 NotificationUtils notificationUtils,

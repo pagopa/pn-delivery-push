@@ -1,12 +1,12 @@
 package it.pagopa.pn.deliverypush.utils;
 
 import com.amazonaws.util.Base64;
-import it.pagopa.pn.commons.exceptions.PnNotFoundException;
-import it.pagopa.pn.deliverypush.action2.it.utils.NotificationRecipientTestBuilder;
-import it.pagopa.pn.deliverypush.action2.it.utils.NotificationTestBuilder;
+import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
+import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.mandate.MandateDtoInt;
+import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.service.MandateService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

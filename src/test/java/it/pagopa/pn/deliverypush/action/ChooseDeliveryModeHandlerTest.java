@@ -310,7 +310,7 @@ class ChooseDeliveryModeHandlerTest {
     private NotificationInt getNotificationWithoutDigitalDomicile() {
         return NotificationInt.builder()
                 .iun("IUN_01")
-                .paNotificationId("protocol_01")
+                .paProtocolNumber("protocol_01")
                 .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()
