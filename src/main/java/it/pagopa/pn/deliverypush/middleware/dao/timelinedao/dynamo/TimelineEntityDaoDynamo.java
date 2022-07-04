@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo;
 
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementEntity;
@@ -16,8 +17,10 @@ import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import static software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional.keyEqualTo;
 
@@ -72,8 +75,8 @@ public class TimelineEntityDaoDynamo  extends AbstractDynamoKeyValueStore<Timeli
         try {
             table.putItem(request);
         }catch (ConditionalCheckFailedException ex){
-            log.error("Conditional check exception on PaperNotificationFailedEntityDaoDynamo putIfAbsent ", ex);
-            throw new IdConflictException(value);
+            log.error("Conditional check exception on TimelineEntityDaoDynamo putIfAbsent", ex);
+            throw new IdConflictException( Collections.singletonMap("timelineElementId", value.getTimelineElementId()) );
         }
     }
 }

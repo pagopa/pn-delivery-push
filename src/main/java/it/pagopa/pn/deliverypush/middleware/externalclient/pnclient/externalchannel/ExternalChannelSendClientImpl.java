@@ -127,6 +127,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
             DigitalNotificationRequest digitalNotificationRequestDto = new DigitalNotificationRequest();
             digitalNotificationRequestDto.setChannel(DigitalNotificationRequest.ChannelEnum.PEC);
             digitalNotificationRequestDto.setRequestId(requestId);
+            digitalNotificationRequestDto.setCorrelationId(requestId);
             digitalNotificationRequestDto.setEventType(EVENT_TYPE_LEGAL);
             digitalNotificationRequestDto.setMessageContentType(DigitalNotificationRequest.MessageContentTypeEnum.HTML);
             digitalNotificationRequestDto.setQos(DigitalNotificationRequest.QosEnum.BATCH);
@@ -155,6 +156,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
             DigitalCourtesyMailRequest digitalNotificationRequestDto = new DigitalCourtesyMailRequest();
             digitalNotificationRequestDto.setChannel(DigitalCourtesyMailRequest.ChannelEnum.EMAIL);
             digitalNotificationRequestDto.setRequestId(requestId);
+            digitalNotificationRequestDto.setCorrelationId(requestId);
             digitalNotificationRequestDto.setEventType(EVENT_TYPE_COURTESY);
             digitalNotificationRequestDto.setQos(DigitalCourtesyMailRequest.QosEnum.BATCH);
             digitalNotificationRequestDto.setReceiverDigitalAddress(digitalAddress.getAddress());
@@ -182,6 +184,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
             DigitalCourtesySmsRequest digitalNotificationRequestDto = new DigitalCourtesySmsRequest();
             digitalNotificationRequestDto.setChannel(DigitalCourtesySmsRequest.ChannelEnum.SMS);
             digitalNotificationRequestDto.setRequestId(requestId);
+            digitalNotificationRequestDto.setCorrelationId(requestId);
             digitalNotificationRequestDto.setEventType(EVENT_TYPE_COURTESY);
             digitalNotificationRequestDto.setQos(DigitalCourtesySmsRequest.QosEnum.BATCH);
             digitalNotificationRequestDto.setReceiverDigitalAddress(digitalAddress.getAddress());

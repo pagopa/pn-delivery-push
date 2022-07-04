@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -138,7 +139,7 @@ class TimelineDaoDynamoTest {
                     .build();
 
             if (this.store.put(key, timelineElementEntity) != null) {
-                throw new IdConflictException(key);
+                throw new IdConflictException(Collections.singletonMap("errorKey", key.toString()));
             }
         }
 
