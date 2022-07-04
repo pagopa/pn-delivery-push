@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.deliverypush.dto.ext.mandate.MandateDtoInt;
-import it.pagopa.pn.deliverypush.externalclient.pnclient.mandate.PnMandateClient;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.mandate.PnMandateClient;
 import it.pagopa.pn.deliverypush.service.MandateService;
 import it.pagopa.pn.deliverypush.service.mapper.MandateDtoMapper;
 import it.pagopa.pn.mandate.generated.openapi.clients.mandate.model.InternalMandateDto;

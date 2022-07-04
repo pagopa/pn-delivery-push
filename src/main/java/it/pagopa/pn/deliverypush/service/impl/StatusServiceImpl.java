@@ -32,7 +32,7 @@ public class StatusServiceImpl implements StatusService {
     
     @Override
     public NotificationStatusUpdate checkAndUpdateStatus(TimelineElementInternal dto, Set<TimelineElementInternal> currentTimeline, NotificationInt notification) {
-        log.debug("Notification is present PaNotificationId {} for iun {}", notification.getPaProtocolNumber(), dto.getIun());
+        log.debug("Notification is present paProtocolNumber {} for iun {}", notification.getPaProtocolNumber(), dto.getIun());
         
         // - Calcolare lo stato corrente
         NotificationStatusInt currentState = computeLastStatusHistoryElement(notification, currentTimeline).getStatus();

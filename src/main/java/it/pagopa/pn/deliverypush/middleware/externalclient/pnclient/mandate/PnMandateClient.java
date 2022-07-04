@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.externalclient.pnclient.mandate;
+package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.mandate;
 
 import it.pagopa.pn.mandate.generated.openapi.clients.mandate.model.InternalMandateDto;
 

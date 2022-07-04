@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.externalclient.pnclient.mandate;
+package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.mandate;
 
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.mandate.generated.openapi.clients.mandate.ApiClient;
@@ -28,7 +28,11 @@ public class PnMandateClientImpl implements PnMandateClient{
         
         List<InternalMandateDto> listMandateDto =  mandatesApi.listMandatesByDelegate( delegated, mandateId );
         
-        log.debug("Response get mandates - delegated={} and mandateId={}", delegated, mandateId);
+        if( listMandateDto != null && !listMandateDto.isEmpty()){
+            log.debug("Response get mandates - delegated={} and mandateId={} response size={}", delegated, mandateId, listMandateDto.size());
+        }else {
+            log.debug("Response get mandates is empty - delegated={} and mandateId={}", delegated, mandateId);
+        }
         
         return listMandateDto;
     }
