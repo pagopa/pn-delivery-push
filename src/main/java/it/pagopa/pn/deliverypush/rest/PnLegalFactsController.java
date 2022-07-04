@@ -4,11 +4,8 @@ import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.LegalFactsApi;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.GetLegalFactService;
-import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
@@ -36,10 +33,11 @@ public class PnLegalFactsController implements LegalFactsApi {
             ServerWebExchange exchange) {
         
         return Mono.fromSupplier(() ->
-                ResponseEntity.ok(getLegalFactService.getLegalFactMetadata(iun, legalFactType, legalFactId))
+                ResponseEntity.ok(getLegalFactService.getLegalFactMetadata(iun, legalFactType, legalFactId, xPagopaPnCxId, mandateId ))
         );
     }
-
+    
+    //TODO Da analizzare, il FE non dovrebbe utilizzarlo, probabilmente può essere eliminato
     @Override
     public Mono<ResponseEntity<Flux<LegalFactListElement>>> getNotificationLegalFacts(
             String xPagopaPnUid,
@@ -76,13 +74,6 @@ public class PnLegalFactsController implements LegalFactsApi {
         legalFactsId.setCategory(category);
         
         return legalFactsId;
-    }
-
-    @GetMapping(PnDeliveryPushRestConstants.LEGAL_FACT_BY_ID)
-    public ResponseEntity<Resource> getLegalFact(@PathVariable(value="iun") String iun,
-                                                 @PathVariable(value="type") LegalFactCategory legalFactType,
-                                                 @PathVariable(value="id") String legalfactId) {
-        return getLegalFactService.getLegalfact( iun, legalFactType, legalfactId );
     }
 
     @ExceptionHandler({PnNotFoundException.class})

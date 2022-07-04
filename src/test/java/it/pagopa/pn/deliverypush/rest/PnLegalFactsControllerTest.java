@@ -1,23 +1,17 @@
 package it.pagopa.pn.deliverypush.rest;
 
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsId;
+import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.GetLegalFactService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,7 +28,7 @@ class PnLegalFactsControllerTest {
     private GetLegalFactService getLegalFactService;
 
     @Test
-    void getLegalFactsSuccess() {
+    void getNotificationLegalFactsSuccess() {
         List<LegalFactListElement> legalFactsList = Collections.singletonList( LegalFactListElement.builder()
                         .iun( IUN )
                         .taxId( "taxId" )
@@ -69,25 +63,92 @@ class PnLegalFactsControllerTest {
     }
 
     @Test
-    void getLegalFactSuccess() {
+    void getNotificationLegalFactsError() {
+        Mockito.when( getLegalFactService.getLegalFacts( Mockito.anyString(), Mockito.anyString(), Mockito.anyString() ))
+                        .thenThrow( new PnNotFoundException("No auth") );
 
-        ResponseEntity<Resource> legalFactResult = ResponseEntity.ok()
-                .body( new InputStreamResource( InputStream.nullInputStream()) );
-
-        Mockito.when( getLegalFactService.getLegalfact( Mockito.anyString(), Mockito.eq(LegalFactCategory.SENDER_ACK), Mockito.anyString() ) )
-                        .thenReturn( legalFactResult );
-
-        String uri = "/delivery-push/legalfacts/" + IUN + "/" + LegalFactCategory.SENDER_ACK + "/" + LEGAL_FACT_ID;
-
-        System.out.println("uri "+ uri);
-        
         webTestClient.get()
-                .uri(uri)
-                .accept( MediaType.ALL )
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-push/" + IUN + "/legal-facts" )
+                                .queryParam("mandateId", "mandateId")
+                                .build())
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .headers(httpHeaders -> {
+                    httpHeaders.set("x-pagopa-pn-uid","test");
+                    httpHeaders.set("x-pagopa-pn-cx-type", CxTypeAuthFleet.PA.getValue());
+                    httpHeaders.set("x-pagopa-pn-cx-id","test");
+                    httpHeaders.set("x-pagopa-pn-cx-groups", Collections.singletonList("test").toString());
+                })
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+
+        Mockito.verify( getLegalFactService ).getLegalFacts( Mockito.anyString(), Mockito.anyString(), Mockito.anyString() );
+    }
+
+    @Test
+    void getLegalFactsOk() {
+        LegalFactDownloadMetadataResponse legalFactDownloadMetadataResponse = 
+                new LegalFactDownloadMetadataResponse()
+                    .filename("filename.pdf")
+                            .url("url.com");
+        
+        Mockito.when( getLegalFactService.getLegalFactMetadata( Mockito.anyString(), Mockito.any(LegalFactCategory.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString() ))
+                .thenReturn( legalFactDownloadMetadataResponse );
+        
+        String legalFactType = LegalFactCategory.SENDER_ACK.getValue();
+        String legalFactsId = "id100";
+
+        webTestClient.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-push/" + IUN + "/legal-facts/"+legalFactType+"/"+legalFactsId )
+                                .queryParam("mandateId", "mandateId")
+                                .build())
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .headers(httpHeaders -> {
+                    httpHeaders.set("x-pagopa-pn-uid","test");
+                    httpHeaders.set("x-pagopa-pn-cx-type", CxTypeAuthFleet.PA.getValue());
+                    httpHeaders.set("x-pagopa-pn-cx-id","test");
+                    httpHeaders.set("x-pagopa-pn-cx-groups", Collections.singletonList("test").toString());
+                })
                 .exchange()
                 .expectStatus()
                 .isOk();
 
-        Mockito.verify(getLegalFactService).getLegalfact( Mockito.anyString(), Mockito.eq(LegalFactCategory.SENDER_ACK), Mockito.anyString() );
+        Mockito.verify( getLegalFactService ).getLegalFactMetadata( Mockito.anyString(),  Mockito.any(LegalFactCategory.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString() );
+    }
+
+    @Test
+    void getLegalFactsKo() {
+
+        Mockito.when( getLegalFactService.getLegalFactMetadata( Mockito.anyString(), Mockito.any(LegalFactCategory.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString() ))
+                .thenThrow( new PnNotFoundException("No auth"));
+
+        String legalFactType = LegalFactCategory.SENDER_ACK.getValue();
+        String legalFactsId = "id100";
+
+        webTestClient.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-push/" + IUN + "/legal-facts/"+legalFactType+"/"+legalFactsId )
+                                .queryParam("mandateId", "mandateId")
+                                .build())
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .headers(httpHeaders -> {
+                    httpHeaders.set("x-pagopa-pn-uid","test");
+                    httpHeaders.set("x-pagopa-pn-cx-type", CxTypeAuthFleet.PA.getValue());
+                    httpHeaders.set("x-pagopa-pn-cx-id","test");
+                    httpHeaders.set("x-pagopa-pn-cx-groups", Collections.singletonList("test").toString());
+                })
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+
+        Mockito.verify( getLegalFactService ).getLegalFactMetadata( Mockito.anyString(),  Mockito.any(LegalFactCategory.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString() );
     }
 }
