@@ -98,7 +98,7 @@ public class AuthUtils {
         //La richiesta non proviene dalla PA va quindi verificato se proviene da uno dei destinatari della notifica
          
         boolean isRequestFromRecipient = notification.getRecipients().stream().anyMatch(
-                recipient -> recipient.getInternalId().equals(senderRecipientId)
+                recipient -> recipient.getInternalId().equals(senderRecipientId) //L'id ricevuto in ingresso viene considerato come anonimizzato
         );
         
         if( !isRequestFromRecipient ){
