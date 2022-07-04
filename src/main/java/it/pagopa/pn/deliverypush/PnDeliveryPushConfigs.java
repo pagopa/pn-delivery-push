@@ -36,6 +36,8 @@ public class PnDeliveryPushConfigs {
 
     private String userAttributesBaseUrl;
 
+    private String mandateBaseUrl;
+
     private TimeParams timeParams;
 
     private Topics topics;

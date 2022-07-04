@@ -44,11 +44,15 @@ class PnLegalFactsControllerTest {
                                 .build()
                         ).build()
         );
-        Mockito.when( getLegalFactService.getLegalFacts( Mockito.anyString() ))
+        Mockito.when( getLegalFactService.getLegalFacts( Mockito.anyString(), Mockito.anyString(), Mockito.anyString() ))
                 .thenReturn( legalFactsList );
         
         webTestClient.get()
-                .uri( "/delivery-push/" + IUN + "/legal-facts" )
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-push/" + IUN + "/legal-facts" )
+                                .queryParam("mandateId", "mandateId")
+                                .build())
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .headers(httpHeaders -> {
@@ -61,7 +65,7 @@ class PnLegalFactsControllerTest {
                 .expectStatus()
                 .isOk();
         
-        Mockito.verify(getLegalFactService).getLegalFacts( Mockito.anyString() );
+        Mockito.verify( getLegalFactService ).getLegalFacts( Mockito.anyString(), Mockito.anyString(), Mockito.anyString() );
     }
 
     @Test

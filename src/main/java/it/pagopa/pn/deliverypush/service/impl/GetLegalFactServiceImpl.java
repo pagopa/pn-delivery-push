@@ -14,6 +14,7 @@ import it.pagopa.pn.deliverypush.service.GetLegalFactService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.LegalFactIdMapper;
+import it.pagopa.pn.deliverypush.utils.AuthUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.Resource;
@@ -38,23 +39,30 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
     private final PnSafeStorageClient safeStorageClient;
     private final NotificationService notificationService;
     private final NotificationUtils notificationUtils;
-
-    public GetLegalFactServiceImpl(TimelineService timelineService,
-                                   PnSafeStorageClient safeStorageClient,
-                                   NotificationService notificationService,
-                                   NotificationUtils notificationUtils) {
+    private final AuthUtils authUtils;
+    
+    public LegalFactServiceImpl(TimelineService timelineService,
+                                PnSafeStorageClient safeStorageClient,
+                                NotificationService notificationService,
+                                NotificationUtils notificationUtils,
+                                AuthUtils authUtils) {
         this.timelineService = timelineService;
         this.safeStorageClient = safeStorageClient;
         this.notificationService = notificationService;
         this.notificationUtils = notificationUtils;
+        this.authUtils = authUtils;
     }
 
     @Override
     @NotNull
-    public List<LegalFactListElement> getLegalFacts(String iun) {
+    public List<LegalFactListElement> getLegalFacts(String iun, String senderReceiverId, String mandateId) {
         log.debug( "Retrieve timeline elements for iun={}", iun );
         Set<TimelineElementInternal> timelineElements = timelineService.getTimeline(iun);
+        
         NotificationInt notification = notificationService.getNotificationByIun(iun);
+
+        authUtils.checkAuthorization(notification, senderReceiverId, mandateId);
+        
         List<LegalFactListElement> legalFacts = timelineElements
                 .stream()
                 .filter( timeEl -> timeEl.getLegalFactsIds() != null )

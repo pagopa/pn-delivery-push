@@ -8,8 +8,10 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 public class NotificationRecipientTestBuilder {
     private String taxId;
     private PhysicalAddressInt physicalAddress;
+    private String internalId;
+    private PhysicalAddress physicalAddress;
     private LegalDigitalAddressInt digitalDomicile;
-
+    
     public static NotificationRecipientTestBuilder builder() {
         return new NotificationRecipientTestBuilder();
     }
@@ -24,14 +26,20 @@ public class NotificationRecipientTestBuilder {
         return this;
     }
 
+    public NotificationRecipientTestBuilder withInternalId(String internalId) {
+        this.internalId = internalId;
+        return this;
+    }
+
     public NotificationRecipientTestBuilder withDigitalDomicile(LegalDigitalAddressInt digitalDomicile) {
         this.digitalDomicile = digitalDomicile;
         return this;
     }
-
+    
     public NotificationRecipientInt build() {
         return NotificationRecipientInt.builder()
                 .taxId(taxId)
+                .internalId(internalId)
                 .denomination("Name_and_surname_of_" + taxId)
                 .physicalAddress(physicalAddress)
                 .digitalDomicile(digitalDomicile)
