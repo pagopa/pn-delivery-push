@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -84,7 +85,7 @@ public class NotificationMapper {
         return list;
     }
     
-
+    //Utilizzata a livello di test
     public static SentNotification internalToExternal(NotificationInt notification) {
         SentNotification sentNotification = new SentNotification();
 
@@ -92,7 +93,13 @@ public class NotificationMapper {
         sentNotification.setPaProtocolNumber(notification.getPaNotificationId());
         sentNotification.setSentAt(notification.getSentAt());
         sentNotification.setSubject(notification.getSubject());
-
+        sentNotification.setAmount(notification.getAmount());
+                
+        ZonedDateTime time = DateFormatUtils.parseInstantToZonedDateTime(notification.getPaymentExpirationDate());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String formattedString = time.format(formatter);
+        sentNotification.setPaymentExpirationDate(formattedString);
+        
         if( notification.getPhysicalCommunicationType() != null ) {
             sentNotification.setPhysicalCommunicationType(
                     SentNotification.PhysicalCommunicationTypeEnum.valueOf( notification.getPhysicalCommunicationType().name() )
@@ -143,6 +150,5 @@ public class NotificationMapper {
         document.setRef(ref);
         return document;
     }
-    
     
 }

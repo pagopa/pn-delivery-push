@@ -4,7 +4,7 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalRegistry.PnExternalRegistryClient;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
 import it.pagopa.pn.deliverypush.service.IoService;
 import it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.model.SendMessageRequest;
 import it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.model.SendMessageResponse;
@@ -57,9 +57,15 @@ public class IoServiceImpl implements IoService {
 
         sendMessageRequest.setSenderDenomination(notification.getSender().getPaDenomination());
         sendMessageRequest.setIun(notification.getIun());
-        sendMessageRequest.setNoticeNumber(recipientInt.getPayment().getNoticeCode());
-        sendMessageRequest.setCreditorTaxId(recipientInt.getPayment().getCreditorTaxId());
         sendMessageRequest.setSubject(notification.getSubject());
+        
+        if(recipientInt.getPayment() != null){
+            sendMessageRequest.setNoticeNumber(recipientInt.getPayment().getNoticeCode());
+            sendMessageRequest.setCreditorTaxId(recipientInt.getPayment().getCreditorTaxId());
+        }else {
+            log.warn("Recipient haven't payment information - iun={}", notification.getIun());
+        }
+
         return sendMessageRequest;
     }
 }

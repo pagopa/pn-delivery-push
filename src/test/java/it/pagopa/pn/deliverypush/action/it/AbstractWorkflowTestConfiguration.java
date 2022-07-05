@@ -17,6 +17,8 @@ import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.legalfacts.PhysicalAddressWriter;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClientImpl;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.userattributes.UserAttributesClient;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
@@ -96,6 +98,11 @@ public class AbstractWorkflowTestConfiguration {
     @Bean
     public NotificationReceiverValidator notificationReceiverValidatorTest() {
         return Mockito.mock(NotificationReceiverValidator.class);
+    }
+
+    @Bean
+    public PnExternalRegistryClient pnExternalRegistryClientTest() {
+        return Mockito.mock(PnExternalRegistryClientImpl.class);
     }
 
 }

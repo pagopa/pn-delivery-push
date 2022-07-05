@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalRegistry;
+package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry;
 
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.ApiClient;

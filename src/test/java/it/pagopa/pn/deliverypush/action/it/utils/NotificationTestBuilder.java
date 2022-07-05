@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.it.utils;
 
+import it.pagopa.pn.commons.utils.DateFormatUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 
 import java.time.Instant;
@@ -54,7 +55,7 @@ public class NotificationTestBuilder {
                 .subject("subject not very long but not too short")
                 .sentAt(Instant.now())
                 .amount(18)
-                .paymentExpirationDate(Instant.now())
+                .paymentExpirationDate(DateFormatUtils.parseDate("2002-08-12").toInstant())
                 .physicalCommunicationType(ServiceLevelTypeInt.SIMPLE_REGISTERED_LETTER)
                 .sender(NotificationSenderInt.builder()
                         .paId(paId)
