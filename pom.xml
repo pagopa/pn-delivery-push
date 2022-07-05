@@ -381,6 +381,7 @@
 								<openApiNullable>false</openApiNullable>
 								<useAbstractionForFiles>true</useAbstractionForFiles>
 								<useBeanValidation>false</useBeanValidation>
+								<additionalModelTypeAnnotations>@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)</additionalModelTypeAnnotations>
 							</configOptions>
 							<modelPackage>${project.groupId}.pn-delivery.microservice.client.externalchannel.v1.dto</modelPackage>
 							<apiPackage>${project.groupId}.pn-delivery.microservice.client.externalchannel.v1.api</apiPackage>
