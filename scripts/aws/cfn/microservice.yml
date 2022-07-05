@@ -286,7 +286,6 @@ Resources:
         ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_STREAMSTABLENAME=${PnDeliveryPushWebhookStreamsTableName}'
         ContainerEnvEntry33: !Sub 'PN_DELIVERYPUSH_PAPERMESSAGENOTHANDLED=${PnDeliveryPushPaperMessageNotHandled}'
         ContainerEnvEntry34: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-x
         MappedPaths: '/delivery-push/*,/delivery-push-private/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
