@@ -67,7 +67,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
     }
 
     @Override
-    public void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, PhysicalAddressInt physicalAddress, String timelineEventId, ANALOG_TYPE analogType, String aarKey) {
+    public void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, PhysicalAddressInt physicalAddress, String timelineEventId, PhysicalAddressInt.ANALOG_TYPE analogType, String aarKey) {
         log.info("[enter] sendAnalogNotification address={} recipient={} requestId={} aarkey={}", LogUtils.maskGeneric(physicalAddress.getAddress()), LogUtils.maskGeneric(recipientInt.getDenomination()), timelineEventId, aarKey);
 
         PaperEngageRequest paperEngageRequest = new PaperEngageRequest();
@@ -208,7 +208,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
     }
 
 
-    private String getProductType(ANALOG_TYPE serviceLevelType, String country)
+    private String getProductType(PhysicalAddressInt.ANALOG_TYPE serviceLevelType, String country)
     {
         /*
           Tipo prodotto di cui viene chiesto il recapito:

@@ -181,6 +181,8 @@ class DigitalTestIT {
         webapp.setDirectAccessUrlTemplate("test");
         Mockito.when(pnDeliveryPushConfigs.getWebapp()).thenReturn(webapp);
 
+        Mockito.when(pnDeliveryPushConfigs.getPaperMessageNotHandled()).thenReturn(false);
+        
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
         //File mock to return for getFileAndDownloadContent

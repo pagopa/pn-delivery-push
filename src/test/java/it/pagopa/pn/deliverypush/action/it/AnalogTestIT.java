@@ -11,8 +11,6 @@ import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilde
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
-import it.pagopa.pn.deliverypush.action.utils.CourtesyMessageUtils;
-import it.pagopa.pn.deliverypush.action.StartWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
@@ -26,7 +24,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
@@ -175,6 +172,8 @@ class AnalogTestIT {
         PnDeliveryPushConfigs.Webapp webapp = new PnDeliveryPushConfigs.Webapp();
         webapp.setDirectAccessUrlTemplate("test");
         Mockito.when(pnDeliveryPushConfigs.getWebapp()).thenReturn(webapp);
+
+        Mockito.when(pnDeliveryPushConfigs.getPaperMessageNotHandled()).thenReturn(false);
 
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
@@ -923,7 +922,7 @@ class AnalogTestIT {
                 Mockito.any(NotificationRecipientInt.class),
                 Mockito.any(PhysicalAddressInt.class),
                 Mockito.any(String.class),
-                Mockito.any(ExternalChannelSendClient.ANALOG_TYPE.class),
+                Mockito.any(PhysicalAddressInt.ANALOG_TYPE.class),
                 Mockito.any(String.class)
             );
 
@@ -1070,7 +1069,7 @@ class AnalogTestIT {
                 Mockito.any(NotificationRecipientInt.class),
                 Mockito.any(PhysicalAddressInt.class),
                 Mockito.any(String.class),
-                Mockito.any(ExternalChannelSendClient.ANALOG_TYPE.class),
+                Mockito.any(PhysicalAddressInt.ANALOG_TYPE.class),
                 Mockito.any(String.class)
         );
         //Viene verificato che il workflow sia fallito

@@ -7,6 +7,7 @@ import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotHandledDetailsInt;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -54,6 +55,18 @@ public class ExternalChannelUtils {
                                                     int sentAttemptMade, String eventId, Integer numberOfPages) {
         addTimelineElement(
                 timelineUtils.buildSendAnalogNotificationTimelineElement(physicalAddress, recIndex, notification, investigation, sentAttemptMade, eventId, numberOfPages),
+                notification
+        );
+    }
+
+    public void addPaperNotificationNotHandledToTimeline(NotificationInt notification, Integer recIndex) {
+        addTimelineElement(
+                timelineUtils.buildNotHandledTimelineElement(
+                        notification,
+                        recIndex,
+                        NotHandledDetailsInt.PAPER_MESSAGE_NOT_HANDLED_CODE,
+                        NotHandledDetailsInt.PAPER_MESSAGE_NOT_HANDLED_REASON
+                ),
                 notification
         );
     }

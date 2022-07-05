@@ -62,6 +62,8 @@ public class PnDeliveryPushConfigs {
 
     private ExternalChannel externalChannel;
 
+    private Boolean paperMessageNotHandled;
+
     @Data
     public static class Topics {
 

@@ -444,8 +444,7 @@ public class TimelineUtils {
 
         return buildTimeline(notification, TimelineElementCategoryInt.REQUEST_REFUSED, elementId, details);
     }
-
-
+    
     public TimelineElementInternal buildAarGenerationTimelineElement(NotificationInt notification, Integer recIndex, String legalFactId, Integer numberOfPages) {
         log.debug("buildAarGenerationTimelineElement - iun={}", notification.getIun());
 
@@ -463,6 +462,30 @@ public class TimelineUtils {
         return buildTimeline(
                 notification,
                 TimelineElementCategoryInt.AAR_GENERATION,
+                elementId,
+                details
+        );
+    }
+
+    public TimelineElementInternal buildNotHandledTimelineElement(NotificationInt notification, Integer recIndex,
+                                                                  String reasonCode, String reason) {
+        log.debug("buildNotHandledTimelineElement - iun={} id={}", notification.getIun(), recIndex);
+
+        String elementId = TimelineEventId.NOT_HANDLED.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build());
+
+        NotHandledDetailsInt details = NotHandledDetailsInt.builder()
+                .recIndex(recIndex)
+                .reasonCode(reasonCode)
+                .reason(reason)
+                .build();
+
+        return buildTimeline(
+                notification,
+                TimelineElementCategoryInt.NOT_HANDLED,
                 elementId,
                 details
         );
@@ -486,6 +509,9 @@ public class TimelineUtils {
         Optional<TimelineElementInternal> timelineOpt = timelineService.getTimelineElement(iun, elementId);
         return timelineOpt.isPresent();
     }
+    
+    
+    
 
     public String getIunFromTimelineId(String timelineId)
     {
