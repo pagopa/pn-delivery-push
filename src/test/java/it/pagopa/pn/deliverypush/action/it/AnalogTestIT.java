@@ -250,7 +250,7 @@ class AnalogTestIT {
 
         List<CourtesyDigitalAddressInt> listCourtesyAddress = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
-                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL)
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL)
                 .build());
 
         pnDeliveryClientMock.addNotification(notification);
@@ -345,7 +345,7 @@ class AnalogTestIT {
 
         List<CourtesyDigitalAddressInt> listCourtesyAddress = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
-                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL)
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL)
                 .build());
 
         pnDeliveryClientMock.addNotification(notification);
@@ -421,7 +421,7 @@ class AnalogTestIT {
 
         List<CourtesyDigitalAddressInt> listCourtesyAddress = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test@works.it")
-                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL)
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL)
                 .build());
 
         pnDeliveryClientMock.addNotification(notification);
@@ -599,7 +599,7 @@ class AnalogTestIT {
         
         List<CourtesyDigitalAddressInt> listCourtesyAddressRecipient1 = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test@mail.it")
-                .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL )
+                .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL )
                 .build());
 
         PhysicalAddressInt paPhysicalAddress2 = PhysicalAddressBuilder.builder()
@@ -613,7 +613,7 @@ class AnalogTestIT {
 
         List<CourtesyDigitalAddressInt> listCourtesyAddressRecipient2 = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test2@mail.it")
-                .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL )
+                .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL )
                 .build());
 
         NotificationInt notification = NotificationTestBuilder.builder()
@@ -723,7 +723,7 @@ class AnalogTestIT {
 
         List<CourtesyDigitalAddressInt> listCourtesyAddressRecipient1 = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test@mail.it")
-                .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL )
+                .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL )
                 .build());
 
         PhysicalAddressInt paPhysicalAddress2 = PhysicalAddressBuilder.builder()
@@ -737,7 +737,7 @@ class AnalogTestIT {
 
         List<CourtesyDigitalAddressInt> listCourtesyAddressRecipient2 = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test2@mail.it")
-                .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL )
+                .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL )
                 .build());
 
         NotificationInt notification = NotificationTestBuilder.builder()
@@ -863,7 +863,7 @@ class AnalogTestIT {
 
         List<CourtesyDigitalAddressInt> listCourtesyAddressRecipient1 = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test@mail.it")
-                .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL )
+                .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL )
                 .build());
 
         PhysicalAddressInt paPhysicalAddress2 = PhysicalAddressBuilder.builder()
@@ -877,7 +877,7 @@ class AnalogTestIT {
 
         List<CourtesyDigitalAddressInt> listCourtesyAddressRecipient2 = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test2@mail.it")
-                .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL )
+                .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL )
                 .build());
 
         NotificationInt notification = NotificationTestBuilder.builder()
@@ -1016,7 +1016,7 @@ class AnalogTestIT {
 
         List<CourtesyDigitalAddressInt> listCourtesyAddressRecipient1 = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test@mail.it")
-                .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL )
+                .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL )
                 .build());
         
         NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder()
@@ -1025,7 +1025,7 @@ class AnalogTestIT {
 
         List<CourtesyDigitalAddressInt> listCourtesyAddressRecipient2 = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test2@mail.it")
-                .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL )
+                .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL )
                 .build());
 
         NotificationInt notification = NotificationTestBuilder.builder()

@@ -1,9 +1,12 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
+import it.pagopa.pn.commons.utils.DateFormatUtils;
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,6 +21,12 @@ public class NotificationMapper {
         List<NotificationDocumentInt> listNotificationDocumentIntInt = mapNotificationDocument(sentNotification.getDocuments());
 
         ServiceLevelTypeInt lvl =  ServiceLevelTypeInt.valueOf( sentNotification.getPhysicalCommunicationType().name());
+        
+        Instant paymentExpirationDate = null;
+        if( sentNotification.getPaymentExpirationDate() != null ){
+            ZonedDateTime dateTime = DateFormatUtils.parseDate(sentNotification.getPaymentExpirationDate());
+            paymentExpirationDate = dateTime.toInstant();
+        }
         
         return NotificationInt.builder()
                 .iun(sentNotification.getIun())
@@ -36,7 +45,7 @@ public class NotificationMapper {
                 .documents(listNotificationDocumentIntInt)
                 .recipients(listNotificationRecipientInt)
                 .amount(sentNotification.getAmount())
-                .paymentExpirationDate(sentNotification.getPaymentExpirationDate())
+                .paymentExpirationDate(paymentExpirationDate)
                 .build();
     }
 

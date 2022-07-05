@@ -106,7 +106,7 @@ class ExternalChannelSendClientImplTestIT {
         Mockito.when( restTemplate.exchange( Mockito.any(RequestEntity.class),Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn( ResponseEntity.ok("") );
         when(notificationInt.getSender()).thenReturn(new NotificationSenderInt());
-        when(addressInt.getType()).thenReturn(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL);
+        when(addressInt.getType()).thenReturn(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL);
         when(addressInt.getAddress()).thenReturn("email@email.it");
 
         //When
@@ -126,7 +126,7 @@ class ExternalChannelSendClientImplTestIT {
         Mockito.when( restTemplate.exchange( Mockito.any(RequestEntity.class),Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn( ResponseEntity.ok("") );
         when(notificationInt.getSender()).thenReturn(new NotificationSenderInt());
-        when(addressInt.getType()).thenReturn(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.SMS);
+        when(addressInt.getType()).thenReturn(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.SMS);
 
         //When
 

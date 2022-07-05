@@ -22,5 +22,5 @@ public class NotificationInt {
     private List<NotificationDocumentInt> documents ;
     private ServiceLevelTypeInt physicalCommunicationType;
     private Integer amount;
-    private String paymentExpirationDate;
+    private Instant paymentExpirationDate;
 }
