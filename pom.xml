@@ -245,7 +245,7 @@
 						</goals>
 						<phase>process-resources</phase>
 						<configuration>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/56f05296f06b0f395e7bc57788a65df1d746a5d2/docs/openapi/api-private-v1.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/2a2b393c484ee639937a90e2f3b0b21e27ece616/docs/openapi/api-private-v1.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
@@ -386,6 +386,35 @@
 							<apiPackage>${project.groupId}.pn-delivery.microservice.client.externalchannel.v1.api</apiPackage>
 						</configuration>
 					</execution>
+
+					<!-- OPEN API CLIENT PN-EXTERNAL-REGISTRY -->
+					<execution>
+						<id>generate-client-pn-external-registry</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<phase>process-resources</phase>
+						<configuration>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-external-registries/a36cebedf24db6ada3f59e6bd3a21a7f7a168d7c/docs/openapi/pn-io-message-v1.yaml</inputSpec>
+							<generatorName>java</generatorName>
+							<library>resttemplate</library>
+							<generateApiTests>false</generateApiTests>
+							<generateModelTests>false</generateModelTests>
+							<typeMappings><typeMapping>OffsetDateTime=Instant</typeMapping></typeMappings>
+							<importMappings><importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping></importMappings>
+							<configOptions>
+								<apiPackage>it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.api</apiPackage>
+								<modelPackage>it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.model</modelPackage>
+								<dateLibrary>java8</dateLibrary>
+								<annotationLibrary>none</annotationLibrary>
+								<documentationProvider>source</documentationProvider>
+								<openApiNullable>false</openApiNullable>
+								<useAbstractionForFiles>true</useAbstractionForFiles>
+								<useBeanValidation>false</useBeanValidation>
+							</configOptions>
+						</configuration>
+					</execution>
+
 				</executions>
 			</plugin>
 		</plugins>

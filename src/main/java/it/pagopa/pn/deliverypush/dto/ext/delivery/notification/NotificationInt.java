@@ -21,4 +21,6 @@ public class NotificationInt {
     private List<NotificationRecipientInt> recipients ;
     private List<NotificationDocumentInt> documents ;
     private ServiceLevelTypeInt physicalCommunicationType;
+    private Integer amount;
+    private String paymentExpirationDate;
 }
