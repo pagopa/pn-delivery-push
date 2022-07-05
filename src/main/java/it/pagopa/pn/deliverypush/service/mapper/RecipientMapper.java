@@ -6,6 +6,7 @@ import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import org.jetbrains.annotations.NotNull;
 
 public class RecipientMapper {
     private RecipientMapper(){}
@@ -103,61 +104,19 @@ public class RecipientMapper {
 
         LegalDigitalAddressInt internalDigitalDomicile = recipient.getDigitalDomicile();
         if(internalDigitalDomicile != null){
-            notificationDigitalAddress = new NotificationDigitalAddress();
-            notificationDigitalAddress.setAddress(internalDigitalDomicile.getAddress());
-            notificationDigitalAddress.setType(NotificationDigitalAddress.TypeEnum.valueOf(internalDigitalDomicile.getType().getValue()));
+            notificationDigitalAddress = getNotificationDigitalAddress(internalDigitalDomicile);
         }
 
         NotificationPhysicalAddress physicalAddress = null;
         PhysicalAddressInt internalPhysicalAddress = recipient.getPhysicalAddress();
         if(internalPhysicalAddress != null){
-            physicalAddress = new NotificationPhysicalAddress();
-            physicalAddress.setAddress(internalPhysicalAddress.getAddress());
-            physicalAddress.setAddressDetails(internalPhysicalAddress.getAddressDetails());
-            physicalAddress.setAt(internalPhysicalAddress.getAt());
-            physicalAddress.setMunicipality(internalPhysicalAddress.getMunicipality());
-            physicalAddress.setForeignState(internalPhysicalAddress.getForeignState());
-            physicalAddress.setProvince(internalPhysicalAddress.getProvince());
-            physicalAddress.setZip(internalPhysicalAddress.getZip());
+            physicalAddress = getNotificationPhysicalAddress(internalPhysicalAddress);
         }
 
         NotificationPaymentInfo payment = null;
         NotificationPaymentInfoInt paymentInternal = recipient.getPayment();
         if(paymentInternal != null){
-            payment = new NotificationPaymentInfo();
-
-            NotificationPaymentAttachment pagoPaForm = null;
-            if(paymentInternal.getPagoPaForm() != null){
-                NotificationDocumentInt pagoPaFormInternal = paymentInternal.getPagoPaForm();
-                pagoPaForm = new NotificationPaymentAttachment();
-
-                NotificationAttachmentDigests digests = new NotificationAttachmentDigests();
-                digests.setSha256(pagoPaFormInternal.getDigests().getSha256());
-                pagoPaForm.setDigests(digests);
-
-                NotificationAttachmentBodyRef ref = new NotificationAttachmentBodyRef();
-                ref.setKey(pagoPaFormInternal.getRef().getKey());
-                ref.setVersionToken(pagoPaFormInternal.getRef().getVersionToken());
-                pagoPaForm.setRef(ref);
-            }
-            payment.setPagoPaForm(pagoPaForm);
-
-            NotificationPaymentAttachment f24flatRate = null;
-            if (paymentInternal.getF24flatRate() != null){
-                NotificationDocumentInt f24FlatRateInternal = paymentInternal.getF24flatRate();
-
-                f24flatRate = new NotificationPaymentAttachment();
-
-                NotificationAttachmentDigests digests = new NotificationAttachmentDigests();
-                digests.setSha256(f24FlatRateInternal.getDigests().getSha256());
-                f24flatRate.setDigests(digests);
-
-                NotificationAttachmentBodyRef ref = new NotificationAttachmentBodyRef();
-                ref.setKey(f24FlatRateInternal.getRef().getKey());
-                ref.setVersionToken(f24FlatRateInternal.getRef().getVersionToken());
-                f24flatRate.setRef(ref);
-            }
-            payment.setF24flatRate(f24flatRate);
+            payment = getNotificationPaymentInfo(paymentInternal);
         }
 
         notificationRecipient.setTaxId(recipient.getTaxId());
@@ -169,5 +128,68 @@ public class RecipientMapper {
         
         return notificationRecipient;
     }
-    
+
+    @NotNull
+    private static NotificationDigitalAddress getNotificationDigitalAddress(LegalDigitalAddressInt internalDigitalDomicile) {
+        NotificationDigitalAddress notificationDigitalAddress;
+        notificationDigitalAddress = new NotificationDigitalAddress();
+        notificationDigitalAddress.setAddress(internalDigitalDomicile.getAddress());
+        notificationDigitalAddress.setType(NotificationDigitalAddress.TypeEnum.valueOf(internalDigitalDomicile.getType().getValue()));
+        return notificationDigitalAddress;
+    }
+
+    @NotNull
+    private static NotificationPaymentInfo getNotificationPaymentInfo(NotificationPaymentInfoInt paymentInternal) {
+        NotificationPaymentInfo payment;
+        payment = new NotificationPaymentInfo();
+
+        NotificationPaymentAttachment pagoPaForm = null;
+        if(paymentInternal.getPagoPaForm() != null){
+            NotificationDocumentInt pagoPaFormInternal = paymentInternal.getPagoPaForm();
+            pagoPaForm = new NotificationPaymentAttachment();
+
+            NotificationAttachmentDigests digests = new NotificationAttachmentDigests();
+            digests.setSha256(pagoPaFormInternal.getDigests().getSha256());
+            pagoPaForm.setDigests(digests);
+
+            NotificationAttachmentBodyRef ref = new NotificationAttachmentBodyRef();
+            ref.setKey(pagoPaFormInternal.getRef().getKey());
+            ref.setVersionToken(pagoPaFormInternal.getRef().getVersionToken());
+            pagoPaForm.setRef(ref);
+        }
+        payment.setPagoPaForm(pagoPaForm);
+
+        NotificationPaymentAttachment f24flatRate = null;
+        if (paymentInternal.getF24flatRate() != null){
+            NotificationDocumentInt f24FlatRateInternal = paymentInternal.getF24flatRate();
+
+            f24flatRate = new NotificationPaymentAttachment();
+
+            NotificationAttachmentDigests digests = new NotificationAttachmentDigests();
+            digests.setSha256(f24FlatRateInternal.getDigests().getSha256());
+            f24flatRate.setDigests(digests);
+
+            NotificationAttachmentBodyRef ref = new NotificationAttachmentBodyRef();
+            ref.setKey(f24FlatRateInternal.getRef().getKey());
+            ref.setVersionToken(f24FlatRateInternal.getRef().getVersionToken());
+            f24flatRate.setRef(ref);
+        }
+        payment.setF24flatRate(f24flatRate);
+        return payment;
+    }
+
+    @NotNull
+    private static NotificationPhysicalAddress getNotificationPhysicalAddress(PhysicalAddressInt internalPhysicalAddress) {
+        NotificationPhysicalAddress physicalAddress;
+        physicalAddress = new NotificationPhysicalAddress();
+        physicalAddress.setAddress(internalPhysicalAddress.getAddress());
+        physicalAddress.setAddressDetails(internalPhysicalAddress.getAddressDetails());
+        physicalAddress.setAt(internalPhysicalAddress.getAt());
+        physicalAddress.setMunicipality(internalPhysicalAddress.getMunicipality());
+        physicalAddress.setForeignState(internalPhysicalAddress.getForeignState());
+        physicalAddress.setProvince(internalPhysicalAddress.getProvince());
+        physicalAddress.setZip(internalPhysicalAddress.getZip());
+        return physicalAddress;
+    }
+
 }
