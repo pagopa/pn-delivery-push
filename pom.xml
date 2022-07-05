@@ -245,7 +245,7 @@
 						</goals>
 						<phase>process-resources</phase>
 						<configuration>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/d477d37062c72fe805c0414b8398679db4f0eb6f/docs/openapi/api-private-v1.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/724a492df6de8be5931916e2a26dc56f1f54abce/docs/openapi/api-private-v1.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
@@ -304,7 +304,6 @@
 						</goals>
 						<phase>process-resources</phase>
 						<configuration>
-							<!--TODO Da settare commit corretta una volta effettuato il merge della modifica -->
 							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-user-attributes/acde392a14cd2cf7a99378d6131580fdd133caf6/docs/openapi/pn-address-book-api-v1.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
