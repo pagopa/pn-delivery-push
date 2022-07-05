@@ -53,7 +53,7 @@ public class CourtesyMessageUtils {
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         
         //Vengono ottenuti tutti gli indirizzi di cortesia per il recipient ...
-        addressBookService.getCourtesyAddress(recipient.getTaxId(), notification.getSender().getPaId())
+        addressBookService.getCourtesyAddress(recipient.getInternalId(), notification.getSender().getPaId())
                 .ifPresent(listCourtesyAddresses -> {
                     int courtesyAddrIndex = 0;
                     for (CourtesyDigitalAddressInt courtesyAddress : listCourtesyAddresses) {

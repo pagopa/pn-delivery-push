@@ -28,11 +28,11 @@ public class AddressBookServiceImpl implements AddressBookService {
     }
 
     @Override
-    public Optional<LegalDigitalAddressInt> getPlatformAddresses(String taxId, String senderId) {
-        ResponseEntity<List<LegalDigitalAddress>> resp = userAttributesClient.getLegalAddressBySender(taxId, senderId);
+    public Optional<LegalDigitalAddressInt> getPlatformAddresses(String taxIdAnon, String senderId) {
+        ResponseEntity<List<LegalDigitalAddress>> resp = userAttributesClient.getLegalAddressBySender(taxIdAnon, senderId);
 
         if (resp.getStatusCode().is2xxSuccessful()) {
-            log.debug("GetLegalAddress OK - senderId {}", senderId);
+            log.info("GetLegalAddress OK - senderId {}", senderId);
             List<LegalDigitalAddress> legalDigitalAddresses = resp.getBody();
             
             if(legalDigitalAddresses != null && !legalDigitalAddresses.isEmpty()){
@@ -59,16 +59,16 @@ public class AddressBookServiceImpl implements AddressBookService {
             return Optional.empty();
         } else {
             log.error("GetLegalAddress Failed  senderId {}", senderId);
-            throw new PnInternalException("GetLegalAddress Failed taxId "+ taxId +" senderId "+ senderId);
+            throw new PnInternalException("GetLegalAddress Failed taxIdAnon "+ taxIdAnon +" senderId "+ senderId);
         }
     }
 
     @Override
-    public Optional<List<CourtesyDigitalAddressInt>> getCourtesyAddress(String taxId, String senderId) {
-        ResponseEntity<List<CourtesyDigitalAddress>> resp = userAttributesClient.getCourtesyAddressBySender(taxId, senderId);
+    public Optional<List<CourtesyDigitalAddressInt>> getCourtesyAddress(String taxIdAnon, String senderId) {
+        ResponseEntity<List<CourtesyDigitalAddress>> resp = userAttributesClient.getCourtesyAddressBySender(taxIdAnon, senderId);
 
         if (resp.getStatusCode().is2xxSuccessful()) {
-            log.debug("getCourtesyAddress OK - senderId {}", senderId);
+            log.info("getCourtesyAddress OK - senderId {}", senderId);
             List<CourtesyDigitalAddress> courtesyDigitalAddresses = resp.getBody();
 
             if(courtesyDigitalAddresses != null && !courtesyDigitalAddresses.isEmpty()){
@@ -82,7 +82,7 @@ public class AddressBookServiceImpl implements AddressBookService {
             return Optional.empty();
         } else {
             log.error("getCourtesyAddress Failed senderId {}", senderId);
-            throw new PnInternalException("getCourtesyAddress Failed taxId "+ taxId +" senderId "+ senderId);
+            throw new PnInternalException("getCourtesyAddress Failed taxIdAnon "+ taxIdAnon +" senderId "+ senderId);
         }
     }
 

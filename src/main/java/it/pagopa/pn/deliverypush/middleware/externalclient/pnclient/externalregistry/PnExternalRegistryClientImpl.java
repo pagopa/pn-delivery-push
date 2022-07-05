@@ -19,18 +19,18 @@ public class PnExternalRegistryClientImpl implements PnExternalRegistryClient{
 
     public PnExternalRegistryClientImpl(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryPushConfigs cfg) {
         it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.ApiClient newApiClient = new ApiClient(restTemplate);
-        newApiClient.setBasePath(cfg.getUserAttributesBaseUrl());
+        newApiClient.setBasePath(cfg.getExternalRegistryBaseUrl());
         this.sendIoMessageApi = new SendIoMessageApi( newApiClient );
     }
     
     @Override
     public ResponseEntity<SendMessageResponse> sendIOMessage(SendMessageRequest sendMessageRequest) {
 
-        log.debug("Start sendIOMessage - iun={}", sendMessageRequest.getIun());
+        log.info("Start sendIOMessage - iun={}", sendMessageRequest.getIun());
 
         ResponseEntity<SendMessageResponse> resp = sendIoMessageApi.sendIOMessageWithHttpInfo(sendMessageRequest);
         
-        log.debug("Response sendIOMessage - iun={}", sendMessageRequest.getIun());
+        log.info("Response sendIOMessage - iun={}", sendMessageRequest.getIun());
 
         return resp;
     }
