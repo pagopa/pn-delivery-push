@@ -20,22 +20,23 @@ public class AuthUtils {
         this.mandateService = mandateService;
     }
 
-    public void checkAuthorization(NotificationInt notification, String senderRecipientId, String mandateId) {
+    //Viene verificata l'autorizzazione di accesso ad una determinata risorsa da parte del sender/recipient o se presente del delegato
+    public void checkUserAndMandateAuthorization(NotificationInt notification, String senderRecipientId, String mandateId) {
         String paId = notification.getSender().getPaId();
         String iun = notification.getIun();
 
         log.info("Start Check authorization - iun={} senderRecipientId={} paId={} mandateId={}", iun, senderRecipientId, paId, mandateId);
 
         if( StringUtils.hasText( mandateId ) ){
-            checkMandate(notification, senderRecipientId, mandateId, paId, iun);
+            checkAuthForMandate(notification, senderRecipientId, mandateId, paId, iun);
         } else {
-            checkPaAndRecipients(notification, senderRecipientId, paId, iun);
+            checkAuthForSenderAndRecipients(notification, senderRecipientId, paId, iun);
         }
 
         log.info("End Check authorization - iun={} senderRecipientId={} paId={} mandateId={}", iun, senderRecipientId, paId, mandateId);
     }
 
-    private void checkMandate(NotificationInt notification, String senderRecipientId, String mandateId, String paId, String iun) {
+    private void checkAuthForMandate(NotificationInt notification, String senderRecipientId, String mandateId, String paId, String iun) {
         //È presente il mandateId viene verificata la delega
         log.debug("Start Check mandate - iun={} senderRecipientIdcxId={} paId={} mandateId={}", iun, senderRecipientId, paId, mandateId);
 
@@ -43,7 +44,7 @@ public class AuthUtils {
 
         if( !listMandateIdDto.isEmpty() && listMandateIdDto.get(0) != null ){
             log.debug("Mandate is present - iun={} senderRecipientId={} paId={} mandateId={}", iun, senderRecipientId, paId, mandateId);
-            verifyMandateData(notification, senderRecipientId, mandateId, paId, iun, listMandateIdDto.get(0));
+            verifyMandateAuth(notification, senderRecipientId, mandateId, paId, iun, listMandateIdDto.get(0));
 
         }else {
             String message = String.format("Unable to find valid mandate - iun=%s delegate=%s with mandateId=%s", iun, senderRecipientId, mandateId);
@@ -51,7 +52,7 @@ public class AuthUtils {
         }
     }
 
-    private void verifyMandateData(NotificationInt notification, String senderRecipientId, String mandateId, String paId, String iun, MandateDtoInt mandateDtoInt) {
+    private void verifyMandateAuth(NotificationInt notification, String senderRecipientId, String mandateId, String paId, String iun, MandateDtoInt mandateDtoInt) {
         Instant startMandateDate = mandateDtoInt.getDateFrom();
 
         //Viene verificato che la notifica contenente i legalFacts che si vogliono visualizzare non sia stata create in una data precedente all'inizio mandato
@@ -80,29 +81,29 @@ public class AuthUtils {
         }
     }
 
-    private void checkPaAndRecipients(NotificationInt notification, String senderRecipientId, String paId, String iun) {
+    private void checkAuthForSenderAndRecipients(NotificationInt notification, String senderRecipientId, String paId, String iun) {
         log.debug("Start Check request is from PA or from recipients - iun={} senderRecipientId={} paId={}", iun, senderRecipientId, paId);
         
-        boolean isRequestFromPa = paId.equals(senderRecipientId);
+        boolean isRequestFromSender = paId.equals(senderRecipientId);
         
         //Viene verificato se la richiesta proviene dalla Pa indicata nella notifica
-        if( !isRequestFromPa ){
+        if( !isRequestFromSender ){
             log.debug("Request is not from notification Pa - iun={} senderRecipientId={} paId={}", iun, senderRecipientId, paId);
-            checkRecipients(notification, senderRecipientId);
+            checkAuthForRecipients(notification, senderRecipientId);
         }else {
             log.info("Request is from PA, authorization is valid");
         }
     }
 
-    private void checkRecipients(NotificationInt notification, String senderRecipientId) {
+    private void checkAuthForRecipients(NotificationInt notification, String recipientId) {
         //La richiesta non proviene dalla PA va quindi verificato se proviene da uno dei destinatari della notifica
          
         boolean isRequestFromRecipient = notification.getRecipients().stream().anyMatch(
-                recipient -> recipient.getInternalId().equals(senderRecipientId)
+                recipient -> recipient.getInternalId().equals(recipientId)
         );
         
         if( !isRequestFromRecipient ){
-            String message = String.format("User haven't authorization to get required legal facts - iun=%s user=%s", notification.getIun(), senderRecipientId);
+            String message = String.format("User haven't authorization to get required legal facts - iun=%s user=%s", notification.getIun(), recipientId);
             handleError(message);
         }else {
             log.info("Request is from recipient, authorization is valid");

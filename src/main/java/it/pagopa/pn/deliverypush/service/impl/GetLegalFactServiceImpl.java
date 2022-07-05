@@ -56,7 +56,7 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
         log.debug( "getLegalFactMetadata for iun={} and legalfactId={}", iun, legalfactId );
 
         NotificationInt notification = notificationService.getNotificationByIun(iun);
-        authUtils.checkAuthorization(notification, senderReceiverId, mandateId);
+        authUtils.checkUserAndMandateAuthorization(notification, senderReceiverId, mandateId);
 
         // la key è la legalfactid
         FileDownloadResponse fileDownloadResponse = safeStorageClient.getFile(legalfactId, false);
@@ -78,7 +78,7 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
         
         NotificationInt notification = notificationService.getNotificationByIun(iun);
 
-        authUtils.checkAuthorization(notification, senderReceiverId, mandateId);
+        authUtils.checkUserAndMandateAuthorization(notification, senderReceiverId, mandateId);
         
         List<LegalFactListElement> legalFacts = timelineElements
                 .stream()
