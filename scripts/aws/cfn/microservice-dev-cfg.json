@@ -8,6 +8,7 @@
     "RefinementTimeCompletelyUnreachable": "4m",
     "WebhookScanInterval": "60000",
     "WebhookMaxLength": "10",
+    "PnDeliveryPushPaperMessageNotHandled": "true",
     "SandboxSafeStorageBaseUrl": "https://14ej9p2krd.execute-api.eu-south-1.amazonaws.com/dev",
     "ExternalChannelBaseUrl": "https://w0t7lzj7a1.execute-api.eu-south-1.amazonaws.com/dev"
   }
