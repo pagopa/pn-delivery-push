@@ -11,8 +11,10 @@ public class NotificationTestBuilder {
     private String iun;
     private String paId;
     private List<NotificationRecipientInt> recipients;
-    
+    private Instant sentAt;
+
     public NotificationTestBuilder() {
+        sentAt = Instant.now();
         recipients = Collections.emptyList();
     }
 
@@ -47,10 +49,15 @@ public class NotificationTestBuilder {
         return this;
     }
 
+    public NotificationTestBuilder withSentAt(Instant sentAt) {
+        this.sentAt = sentAt;
+        return this;
+    }
+    
     public NotificationInt build() {
         return NotificationInt.builder()
                 .iun(iun)
-                .paNotificationId("protocol_01")
+                .paProtocolNumber("protocol_01")
                 .subject("subject not very long but not too short")
                 .sentAt(Instant.now())
                 .physicalCommunicationType(ServiceLevelTypeInt.SIMPLE_REGISTERED_LETTER)
@@ -60,6 +67,7 @@ public class NotificationTestBuilder {
                         .paTaxId("CFPA-" + paId)
                         .build()
                 )
+                .sentAt( sentAt )
                 .recipients(recipients)
                 .documents(Arrays.asList(
                         NotificationDocumentInt.builder()

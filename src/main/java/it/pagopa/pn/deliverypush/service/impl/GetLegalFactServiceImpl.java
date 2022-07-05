@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -14,13 +13,9 @@ import it.pagopa.pn.deliverypush.service.GetLegalFactService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.LegalFactIdMapper;
+import it.pagopa.pn.deliverypush.utils.AuthUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -38,23 +33,53 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
     private final PnSafeStorageClient safeStorageClient;
     private final NotificationService notificationService;
     private final NotificationUtils notificationUtils;
-
+    private final AuthUtils authUtils;
+    
     public GetLegalFactServiceImpl(TimelineService timelineService,
-                                   PnSafeStorageClient safeStorageClient,
-                                   NotificationService notificationService,
-                                   NotificationUtils notificationUtils) {
+                                PnSafeStorageClient safeStorageClient,
+                                NotificationService notificationService,
+                                NotificationUtils notificationUtils,
+                                AuthUtils authUtils) {
         this.timelineService = timelineService;
         this.safeStorageClient = safeStorageClient;
         this.notificationService = notificationService;
         this.notificationUtils = notificationUtils;
+        this.authUtils = authUtils;
     }
 
     @Override
+    public LegalFactDownloadMetadataResponse getLegalFactMetadata(String iun,
+                                                                  LegalFactCategory legalFactType,
+                                                                  String legalfactId,
+                                                                  String senderReceiverId,
+                                                                  String mandateId) {
+        log.debug( "getLegalFactMetadata for iun={} and legalfactId={}", iun, legalfactId );
+
+        NotificationInt notification = notificationService.getNotificationByIun(iun);
+        authUtils.checkUserAndMandateAuthorization(notification, senderReceiverId, mandateId);
+
+        // la key è la legalfactid
+        FileDownloadResponse fileDownloadResponse = safeStorageClient.getFile(legalfactId, false);
+        LegalFactDownloadMetadataResponse response = new LegalFactDownloadMetadataResponse();
+
+        response.setFilename(buildLegalFactFilename(iun, legalFactType, legalfactId));
+        response.setContentLength(fileDownloadResponse.getContentLength());
+        response.setRetryAfter(fileDownloadResponse.getDownload() != null ? fileDownloadResponse.getDownload().getRetryAfter() : null);
+        response.setUrl(fileDownloadResponse.getDownload().getUrl());
+
+        return response;
+    }
+    
+    @Override
     @NotNull
-    public List<LegalFactListElement> getLegalFacts(String iun) {
+    public List<LegalFactListElement> getLegalFacts(String iun, String senderReceiverId, String mandateId) {
         log.debug( "Retrieve timeline elements for iun={}", iun );
         Set<TimelineElementInternal> timelineElements = timelineService.getTimeline(iun);
+        
         NotificationInt notification = notificationService.getNotificationByIun(iun);
+
+        authUtils.checkUserAndMandateAuthorization(notification, senderReceiverId, mandateId);
+        
         List<LegalFactListElement> legalFacts = timelineElements
                 .stream()
                 .filter( timeEl -> timeEl.getLegalFactsIds() != null )
@@ -86,36 +111,6 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
         }
 
         return recipientId;
-    }
-
-    public LegalFactDownloadMetadataResponse getLegalFactMetadata(String iun, LegalFactCategory legalFactType, String legalfactId) {
-        log.debug( "getLegalFactMetadata for iun={} and legalfactId={}", iun, legalfactId );
-        // la key è la legalfactid
-        FileDownloadResponse fileDownloadResponse = safeStorageClient.getFile(legalfactId, false);
-        LegalFactDownloadMetadataResponse response = new LegalFactDownloadMetadataResponse();
-
-        response.setFilename(buildLegalFactFilename(iun, legalFactType, legalfactId));
-        response.setContentLength(fileDownloadResponse.getContentLength());
-        response.setRetryAfter(fileDownloadResponse.getDownload().getRetryAfter());
-        response.setUrl(fileDownloadResponse.getDownload().getUrl());
-
-        return response;
-    }
-
-    public ResponseEntity<Resource> getLegalfact(String iun, LegalFactCategory legalFactType, String legalfactId ) {
-        log.debug( "getLegalfact for iun={} and legalfactId={}", iun, legalfactId );
-        // la key è la legalfactid
-        FileDownloadResponse fileDownloadResponse = safeStorageClient.getFile(legalfactId, false);
-
-        try {
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + buildLegalFactFilename(iun, legalFactType, legalfactId))
-                    .contentType(MediaType.parseMediaType(fileDownloadResponse.getContentType()))
-                    .body( new UrlResource(fileDownloadResponse.getDownload().getUrl()) );
-        } catch (Exception e) {
-            log.error("cannot stream content", e);
-            throw new PnInternalException("Cannot get legal fact content", e);
-        }
     }
 
     /**
