@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.utils.AarUtils;
 import it.pagopa.pn.deliverypush.action.utils.ExternalChannelUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
@@ -28,13 +29,20 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     private final NotificationUtils notificationUtils;
     private final AarUtils aarUtils;
     private final TimelineUtils timelineUtils;
-
-    public ExternalChannelServiceImpl(ExternalChannelUtils externalChannelUtils, ExternalChannelSendClient externalChannel, NotificationUtils notificationUtils, AarUtils aarUtils, TimelineUtils timelineUtils) {
+    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
+    
+    public ExternalChannelServiceImpl(ExternalChannelUtils externalChannelUtils,
+                                      ExternalChannelSendClient externalChannel,
+                                      NotificationUtils notificationUtils,
+                                      AarUtils aarUtils,
+                                      TimelineUtils timelineUtils, 
+                                      PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         this.externalChannelUtils = externalChannelUtils;
         this.externalChannel = externalChannel;
         this.notificationUtils = notificationUtils;
         this.aarUtils = aarUtils;
         this.timelineUtils = timelineUtils;
+        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
     }
 
     /**
@@ -83,34 +91,41 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     @Override
     public void sendNotificationForRegisteredLetter(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex) {
         log.debug("Start sendNotificationForRegisteredLetter - iun={} recipientIndex={}", notification.getIun(), recIndex);
+                 
         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
 
         if(! isNotificationAlreadyViewed){
-            String eventId = TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER.buildEventId(
-                    EventId.builder()
-                            .iun(notification.getIun())
-                            .recIndex(recIndex)
-                            .build()
-            );
 
-            AarGenerationDetailsInt aarGenerationDetails = aarUtils.getAarGenerationDetails(notification, recIndex);
-
-            // la tipologia qui è sempre raccomandata semplice SR
-            externalChannel.sendAnalogNotification(
-                    notification,
-                    notificationUtils.getRecipientFromIndex(notification,recIndex),
-                    physicalAddress,
-                    eventId,
-                    ExternalChannelSendClient.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER,
-                    aarGenerationDetails.getGeneratedAarUrl()
-            );
-
-            externalChannelUtils.addSendSimpleRegisteredLetterToTimeline(notification, physicalAddress, recIndex, eventId, aarGenerationDetails.getNumberOfPages());
+            sendRegisteredLetterToExternalChannel(notification, physicalAddress, recIndex);
 
             log.info("Registered Letter sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
         }else {
             log.info("Notification is already viewed, registered Letter will not be sent to externalChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
         }
+
+    }
+
+    private void sendRegisteredLetterToExternalChannel(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex) {
+        String eventId = TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build()
+        );
+
+        AarGenerationDetailsInt aarGenerationDetails = aarUtils.getAarGenerationDetails(notification, recIndex);
+
+        // la tipologia qui è sempre raccomandata semplice SR
+        externalChannel.sendAnalogNotification(
+                notification,
+                notificationUtils.getRecipientFromIndex(notification, recIndex),
+                physicalAddress,
+                eventId,
+                PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER,
+                aarGenerationDetails.getGeneratedAarUrl()
+        );
+
+        externalChannelUtils.addSendSimpleRegisteredLetterToTimeline(notification, physicalAddress, recIndex, eventId, aarGenerationDetails.getNumberOfPages());
     }
 
     /**
@@ -122,36 +137,47 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     public void sendAnalogNotification(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex, boolean investigation, int sentAttemptMade) {
         log.debug("Start sendAnalogNotification - iun {} id {}", notification.getIun(), recIndex);
 
-        boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
+        if( Boolean.FALSE.equals( pnDeliveryPushConfigs.getPaperMessageNotHandled()) ){
+            
+            boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
 
-        if( !isNotificationAlreadyViewed ){
+            if( !isNotificationAlreadyViewed ){
 
-            String eventId = TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(
-                    EventId.builder()
-                            .iun(notification.getIun())
-                            .recIndex(recIndex)
-                            .index(sentAttemptMade)
-                            .build()
-            );
+                sendAnalogToExternalChannel(notification, physicalAddress, recIndex, investigation, sentAttemptMade);
 
-            AarGenerationDetailsInt aarGenerationDetails = aarUtils.getAarGenerationDetails(notification, recIndex);
+                log.info("Paper notification sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
+            } else {
+                log.info("Notification is already viewed, paper notification will not be sent to externalChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
+            }
 
-            // c'è una discrepanza nella nomenclatura tra l'enum serviceleveltype.SIMPLE_REGISTERED_LETTER che si traduce in AR e non SR.
-            // Cmq se non è 890, si intende AR.
-            externalChannel.sendAnalogNotification(
-                    notification,
-                    notificationUtils.getRecipientFromIndex(notification,recIndex),
-                    physicalAddress,
-                    eventId,
-                    notification.getPhysicalCommunicationType()== ServiceLevelTypeInt.REGISTERED_LETTER_890 ? ExternalChannelSendClient.ANALOG_TYPE.REGISTERED_LETTER_890 : ExternalChannelSendClient.ANALOG_TYPE.AR_REGISTERED_LETTER,
-                    aarGenerationDetails.getGeneratedAarUrl()
-            );
-
-            externalChannelUtils.addSendAnalogNotificationToTimeline(notification, physicalAddress, recIndex, investigation, sentAttemptMade, eventId, aarGenerationDetails.getNumberOfPages());
-
-            log.info("Paper notification sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
-        } else {
-            log.info("Notification is already viewed, paper notification will not be sent to externalChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
+        }else {
+            log.info("Paper message is not handled, paper notification will not be sent to externalChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
+            externalChannelUtils.addPaperNotificationNotHandledToTimeline(notification, recIndex);
         }
+    }
+
+    private void sendAnalogToExternalChannel(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex, boolean investigation, int sentAttemptMade) {
+        String eventId = TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .index(sentAttemptMade)
+                        .build()
+        );
+
+        AarGenerationDetailsInt aarGenerationDetails = aarUtils.getAarGenerationDetails(notification, recIndex);
+
+        // c'è una discrepanza nella nomenclatura tra l'enum serviceleveltype.SIMPLE_REGISTERED_LETTER che si traduce in AR e non SR.
+        // Cmq se non è 890, si intende AR.
+        externalChannel.sendAnalogNotification(
+                notification,
+                notificationUtils.getRecipientFromIndex(notification, recIndex),
+                physicalAddress,
+                eventId,
+                notification.getPhysicalCommunicationType()== ServiceLevelTypeInt.REGISTERED_LETTER_890 ? PhysicalAddressInt.ANALOG_TYPE.REGISTERED_LETTER_890 : PhysicalAddressInt.ANALOG_TYPE.AR_REGISTERED_LETTER,
+                aarGenerationDetails.getGeneratedAarUrl()
+        );
+
+        externalChannelUtils.addSendAnalogNotificationToTimeline(notification, physicalAddress, recIndex, investigation, sentAttemptMade, eventId, aarGenerationDetails.getNumberOfPages());
     }
 }

@@ -9,7 +9,6 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel.ExternalChannelSendClientImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -68,7 +67,7 @@ class ExternalChannelSendClientImplTestIT {
 
         //When
 
-        assertDoesNotThrow(() -> externalChannelSendClient.sendAnalogNotification( notificationInt, recipientInt, physicalAddress, eventid, ExternalChannelSendClient.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER, "frtghyuiugfdfghj" ));
+        assertDoesNotThrow(() -> externalChannelSendClient.sendAnalogNotification( notificationInt, recipientInt, physicalAddress, eventid, PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER, "frtghyuiugfdfghj" ));
 
         //Then
 

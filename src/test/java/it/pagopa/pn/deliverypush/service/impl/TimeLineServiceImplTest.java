@@ -444,7 +444,7 @@ class TimeLineServiceImplTest {
     private NotificationInt getNotification(String iun) {
         return NotificationInt.builder()
                 .iun(iun)
-                .paNotificationId("protocol_01")
+                .paProtocolNumber("protocol_01")
                 .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()

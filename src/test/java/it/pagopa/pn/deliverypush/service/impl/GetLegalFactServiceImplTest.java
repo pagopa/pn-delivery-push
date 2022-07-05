@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
@@ -14,19 +13,18 @@ import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.GetAddressInfoDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactDownloadMetadataResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsId;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.service.GetLegalFactService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.utils.AuthUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ResponseEntity;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,7 +36,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class GetLegalFactServiceImplTest {
 
@@ -55,7 +54,7 @@ class GetLegalFactServiceImplTest {
     private PnSafeStorageClient safeStorageClient;
     private NotificationService notificationService;
     private NotificationUtils notificationUtils;
-
+    private AuthUtils authUtils;
     private GetLegalFactService getLegalFactService;
 
     @BeforeEach
@@ -64,17 +63,16 @@ class GetLegalFactServiceImplTest {
         safeStorageClient = Mockito.mock( PnSafeStorageClient.class );
         notificationService = Mockito.mock(NotificationService.class);
         notificationUtils = Mockito.mock(NotificationUtils.class);
-        
+
+        authUtils = Mockito.mock(AuthUtils.class);
+
         getLegalFactService = new GetLegalFactServiceImpl(
                 timelineService,
                 safeStorageClient,
                 notificationService,
-                notificationUtils
-        );
-
+                notificationUtils,
+                authUtils);
     }
-
-
 
     @Test
     void getLegalFactsSuccess() {
@@ -115,93 +113,9 @@ class GetLegalFactServiceImplTest {
                 .thenReturn( recipientInt );
         
 
-        List<LegalFactListElement> result = getLegalFactService.getLegalFacts( IUN );
+        List<LegalFactListElement> result = getLegalFactService.getLegalFacts( IUN , "taxId", null );
 
         assertEquals( legalFactsExpectedResult, result );
-    }
-
-    @Test
-    void getLegalFactSuccess() {
-        //Given
-
-        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
-        fileDownloadResponse.setContentType("application/pdf");
-        fileDownloadResponse.setContentLength(new BigDecimal(0));
-        fileDownloadResponse.setChecksum("123");
-        fileDownloadResponse.setKey("123");
-        fileDownloadResponse.setDownload(new FileDownloadInfo());
-        fileDownloadResponse.getDownload().setUrl("https://www.url.qualcosa.it");
-        fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
-
-        //When
-        Mockito.when( safeStorageClient.getFile( Mockito.anyString(), Mockito.eq(false) ) )
-                .thenReturn( fileDownloadResponse );
-        Mockito.when( notificationService.getNotificationByIun( Mockito.anyString() ) )
-                .thenReturn( newNotification() );
-
-        ResponseEntity<Resource> result = getLegalFactService.getLegalfact( IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID);
-        //Then
-        assertNotNull( result );
-    }
-
-
-    @Test
-    void getLegalFactBadUrl() {
-        //Given
-
-        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
-        fileDownloadResponse.setContentType("application/pdf");
-        fileDownloadResponse.setContentLength(new BigDecimal(0));
-        fileDownloadResponse.setChecksum("123");
-        fileDownloadResponse.setKey("123");
-        fileDownloadResponse.setDownload(new FileDownloadInfo());
-        fileDownloadResponse.getDownload().setUrl("error not a url");
-        fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
-
-        //When
-        Mockito.when( safeStorageClient.getFile( Mockito.anyString(), Mockito.eq(false) ) )
-                .thenReturn( fileDownloadResponse );
-        Mockito.when( notificationService.getNotificationByIun( Mockito.anyString() ) )
-                .thenReturn( newNotification() );
-
-        assertThrows(PnInternalException.class, () -> getLegalFactService.getLegalfact( IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID));
-    }
-
-    @Test
-    void getAnalogLegalFactSuccess() {
-        //Given
-        NotificationAttachment.Ref ref = NotificationAttachment.Ref.builder()
-                .key( KEY )
-                .versionToken( VERSION_TOKEN )
-                .build();
-
-
-        String[] urls = new String[1];
-        try {
-            Path path = Files.createTempFile( null,null );
-            urls[0] =  new File(path.toString()).toURI().toURL().toString();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
-        fileDownloadResponse.setContentType("application/pdf");
-        fileDownloadResponse.setContentLength(new BigDecimal(0));
-        fileDownloadResponse.setChecksum("123");
-        fileDownloadResponse.setKey("123");
-        fileDownloadResponse.setDownload(new FileDownloadInfo());
-        fileDownloadResponse.getDownload().setUrl("https://www.url.qualcosa.it");
-        fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
-
-        //When
-        Mockito.when( safeStorageClient.getFile( Mockito.anyString(), Mockito.eq(false) ) )
-                .thenReturn( fileDownloadResponse );
-
-        Mockito.when( notificationService.getNotificationByIun( Mockito.anyString() ) )
-                .thenReturn( newNotification() );
-
-        ResponseEntity<Resource> result = getLegalFactService.getLegalfact( IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID);
-        //Then
-        assertNotNull( result );
     }
 
     @Test
@@ -236,7 +150,7 @@ class GetLegalFactServiceImplTest {
         Mockito.when( notificationService.getNotificationByIun( Mockito.anyString() ) )
                 .thenReturn( newNotification() );
 
-        LegalFactDownloadMetadataResponse result = getLegalFactService.getLegalFactMetadata( IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID);
+        LegalFactDownloadMetadataResponse result = getLegalFactService.getLegalFactMetadata( IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID, "taxId", null);
         //Then
         assertNotNull( result );
         assertNotNull(result.getFilename());
@@ -248,7 +162,7 @@ class GetLegalFactServiceImplTest {
     private NotificationInt newNotification() {
         return NotificationInt.builder()
                 .iun("IUN_01")
-                .paNotificationId("protocol_01")
+                .paProtocolNumber("protocol_01")
                 .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()

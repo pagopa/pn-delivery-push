@@ -45,6 +45,7 @@ paths:
         - $ref: '#/components/parameters/cxIdAuthFleet'
         - $ref: '#/components/parameters/cxGroupsAuthFleet'
         - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
       responses:
         '200':
           description: OK
@@ -73,6 +74,7 @@ paths:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactType'
         - $ref: '#/components/parameters/pathLegalFactId'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
       responses:
         '200':
           description: OK
@@ -99,6 +101,17 @@ components:
     uidAuthFleet:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/uidAuthFleet'
 
+
+    ############################################################################################
+    ###                        PARAMETRI RICERCA LEGAL FACTS                                 ###
+    ############################################################################################
+    legalFactsSearchMandateId:
+      name: mandateId
+      in: query
+      required: false
+      description: identificativo della delega
+      schema:
+        type: string
 
     ############################################################################################
     ###                        PARAMETRI RICERCA NOTIFICA ACCETTATA                         ###

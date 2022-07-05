@@ -32,7 +32,7 @@ public class NotificationMapper {
         return NotificationInt.builder()
                 .iun(sentNotification.getIun())
                 .subject(sentNotification.getSubject())
-                .paNotificationId(sentNotification.getPaProtocolNumber())
+                .paProtocolNumber(sentNotification.getPaProtocolNumber())
                 .physicalCommunicationType( lvl )
                 .sentAt(sentNotification.getSentAt())
                 .sender(
@@ -40,7 +40,6 @@ public class NotificationMapper {
                                 .paTaxId( sentNotification.getSenderTaxId() )
                                 .paId(sentNotification.getSenderPaId())
                                 .paDenomination(sentNotification.getSenderDenomination())
-                                .paTaxId(sentNotification.getSenderTaxId())
                                 .build()
                 )
                 .documents(listNotificationDocumentIntInt)
@@ -90,7 +89,7 @@ public class NotificationMapper {
         SentNotification sentNotification = new SentNotification();
 
         sentNotification.setIun(notification.getIun());
-        sentNotification.setPaProtocolNumber(notification.getPaNotificationId());
+        sentNotification.setPaProtocolNumber(notification.getPaProtocolNumber());
         sentNotification.setSentAt(notification.getSentAt());
         sentNotification.setSubject(notification.getSubject());
         sentNotification.setAmount(notification.getAmount());

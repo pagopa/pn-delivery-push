@@ -36,6 +36,8 @@ public class PnDeliveryPushConfigs {
 
     private String userAttributesBaseUrl;
 
+    private String mandateBaseUrl;
+
     private TimeParams timeParams;
 
     private Topics topics;
@@ -59,6 +61,8 @@ public class PnDeliveryPushConfigs {
     private LastPollForFutureActionDao lastPollForFutureActionDao;
 
     private ExternalChannel externalChannel;
+
+    private Boolean paperMessageNotHandled;
 
     @Data
     public static class Topics {

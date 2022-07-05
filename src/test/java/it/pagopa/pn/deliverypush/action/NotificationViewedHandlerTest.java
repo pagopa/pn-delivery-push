@@ -7,10 +7,12 @@ import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
-import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
+import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,16 +38,18 @@ class NotificationViewedHandlerTest {
     private InstantNowSupplier instantNowSupplier;
     @Mock
     private TimelineService timelineService;
-    
+    @Mock
+    private StatusUtils statusUtils;
+
     private NotificationViewedHandler handler;
-    private NotificationUtils notificationUtils;
 
     @BeforeEach
     public void setup() {
-        notificationUtils = new NotificationUtils();
+        NotificationUtils notificationUtils = new NotificationUtils();
+        
         handler = new NotificationViewedHandler(timelineService, legalFactStore,
                 paperNotificationFailedService, notificationService,
-                timelineUtils, instantNowSupplier, notificationUtils);
+                timelineUtils, instantNowSupplier, notificationUtils, statusUtils);
     }
     
     @ExtendWith(MockitoExtension.class)
@@ -59,7 +63,9 @@ class NotificationViewedHandlerTest {
         Mockito.when(timelineUtils.checkNotificationIsAlreadyViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
-        
+        Mockito.when(statusUtils.getCurrentStatusFromNotification(Mockito.any(NotificationInt.class), Mockito.any()))
+                .thenReturn(NotificationStatusInt.DELIVERING);
+
         //WHEN
         handler.handleViewNotification(notification.getIun(),0);
         
@@ -91,11 +97,35 @@ class NotificationViewedHandlerTest {
 
         Mockito.verify(paperNotificationFailedService, Mockito.never()).deleteNotificationFailed(recipientInt.getTaxId(), iun);
     }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void handleNotificationInCancelledStatus() {
+        //GIVEN
+        String iun = "test_iun";
+        NotificationInt notification = getNotification(iun);
+        NotificationRecipientInt recipientInt = notification.getRecipients().get(0);
+
+        Mockito.when(timelineUtils.checkNotificationIsAlreadyViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
+        Mockito.when(statusUtils.getCurrentStatusFromNotification(Mockito.any(NotificationInt.class), Mockito.any()))
+                .thenReturn(NotificationStatusInt.CANCELLED);
+
+        //WHEN
+        handler.handleViewNotification(notification.getIun(),0);
+
+        //THEN
+        Mockito.verify(timelineService, Mockito.never()).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
+
+        Mockito.verify(legalFactStore, Mockito.never()).saveNotificationViewedLegalFact(eq(notification),Mockito.any(NotificationRecipientInt.class), Mockito.any(Instant.class));
+
+        Mockito.verify(paperNotificationFailedService, Mockito.never()).deleteNotificationFailed(recipientInt.getTaxId(), iun);
+    }
     
     private NotificationInt getNotification(String iun) {
         return NotificationInt.builder()
                 .iun(iun)
-                .paNotificationId("protocol_01")
+                .paProtocolNumber("protocol_01")
                 .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()

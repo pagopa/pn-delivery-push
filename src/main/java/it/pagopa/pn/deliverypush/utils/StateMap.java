@@ -34,6 +34,7 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_DOMICILE, NotificationStatusInt.DELIVERING)
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_VIEWED, NotificationStatusInt.VIEWED)
                 .withTimelineGoToState(TimelineElementCategoryInt.COMPLETELY_UNREACHABLE, NotificationStatusInt.UNREACHABLE) //Casista tutti gli indirizzi digitali e analogici non sono presenti
+                .withTimelineGoToState(TimelineElementCategoryInt.NOT_HANDLED, NotificationStatusInt.CANCELLED)
         ;
 
         // Delivering state
@@ -61,6 +62,7 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW, NotificationStatusInt.DELIVERED)
                 .withTimelineGoToState(TimelineElementCategoryInt.DIGITAL_FAILURE_WORKFLOW, NotificationStatusInt.DELIVERED)
                 .withTimelineGoToState(TimelineElementCategoryInt.ANALOG_SUCCESS_WORKFLOW, NotificationStatusInt.DELIVERED)
+                .withTimelineGoToState(TimelineElementCategoryInt.NOT_HANDLED, NotificationStatusInt.CANCELLED)
         ;
 
         // Delivered state
@@ -100,7 +102,7 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.SCHEDULE_ANALOG_WORKFLOW, NotificationStatusInt.VIEWED )
                 .withTimelineGoToState(TimelineElementCategoryInt.DIGITAL_FAILURE_WORKFLOW, NotificationStatusInt.VIEWED )
                 .withTimelineGoToState(TimelineElementCategoryInt.AAR_GENERATION, NotificationStatusInt.VIEWED) //Multi Destinatari
-
+                .withTimelineGoToState(TimelineElementCategoryInt.NOT_HANDLED, NotificationStatusInt.VIEWED)
         
                 //STATE CHANGE
                 .withTimelineGoToState(TimelineElementCategoryInt.PAYMENT, NotificationStatusInt.PAID)
@@ -113,9 +115,11 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_VIEWED, NotificationStatusInt.VIEWED)
                 .withTimelineGoToState(TimelineElementCategoryInt.REFINEMENT, NotificationStatusInt.EFFECTIVE_DATE)
         ;
-
+        
+        //FINAL STATE
         this.fromState(NotificationStatusInt.PAID);
         this.fromState(NotificationStatusInt.REFUSED);
+        this.fromState(NotificationStatusInt.CANCELLED);
     }
 
     NotificationStatusInt getStateTransition(NotificationStatusInt fromStatus, TimelineElementCategoryInt timelineRowType) throws PnInternalException {

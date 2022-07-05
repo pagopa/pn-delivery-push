@@ -13,5 +13,4 @@ public interface ConfidentialInformationService {
     Optional<ConfidentialTimelineElementDtoInt> getTimelineElementConfidentialInformation(String iun, String timelineElementId);
 
     Optional<Map<String, ConfidentialTimelineElementDtoInt>> getTimelineConfidentialInformation(String iun);
-
 }
