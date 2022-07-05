@@ -239,6 +239,7 @@ class AnalogTestIT {
 
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId)
+                .withInternalId("ANON_"+taxId)
                 .withPhysicalAddress(paPhysicalAddress)
                 .build();
 
@@ -254,7 +255,7 @@ class AnalogTestIT {
                 .build());
 
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.addCourtesyDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), listCourtesyAddress);
+        addressBookMock.addCourtesyDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), listCourtesyAddress);
 
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
@@ -334,6 +335,7 @@ class AnalogTestIT {
 
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId)
+                .withInternalId("ANON_"+taxId)
                 .withPhysicalAddress(paPhysicalAddress)
                 .build();
 
@@ -349,7 +351,7 @@ class AnalogTestIT {
                 .build());
 
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.addCourtesyDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), listCourtesyAddress);
+        addressBookMock.addCourtesyDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), listCourtesyAddress);
 
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
@@ -407,8 +409,10 @@ class AnalogTestIT {
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
+        String taxid01 = "TAXID01";
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
-                .withTaxId("TAXID01")
+                .withTaxId(taxid01)
+                .withInternalId("ANON_"+taxid01)
                 .withPhysicalAddress(paPhysicalAddress)
                 .build();
 
@@ -425,7 +429,7 @@ class AnalogTestIT {
                 .build());
 
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.addCourtesyDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), listCourtesyAddress);
+        addressBookMock.addCourtesyDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), listCourtesyAddress);
 
         String iun = notification.getIun();
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
@@ -592,8 +596,11 @@ class AnalogTestIT {
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
+        String taxid01 = "TAXID01";
+        
         NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder()
-                .withTaxId("TAXID01")
+                .withTaxId(taxid01)
+                .withInternalId("ANON_"+taxid01)
                 .withPhysicalAddress(paPhysicalAddress1)
                 .build();
         
@@ -606,8 +613,10 @@ class AnalogTestIT {
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
+        String taxid02 = "TAXID02";
         NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder()
-                .withTaxId("TAXID02")
+                .withTaxId(taxid02)
+                .withInternalId("ANON_"+taxid02)
                 .withPhysicalAddress(paPhysicalAddress2)
                 .build();
 
@@ -623,8 +632,8 @@ class AnalogTestIT {
                 .build();
 
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.addCourtesyDigitalAddresses(recipient1.getTaxId(), notification.getSender().getPaId(), listCourtesyAddressRecipient1);
-        addressBookMock.addCourtesyDigitalAddresses(recipient2.getTaxId(), notification.getSender().getPaId(), listCourtesyAddressRecipient2);
+        addressBookMock.addCourtesyDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient1);
+        addressBookMock.addCourtesyDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient2);
 
         String iun = notification.getIun();
         Integer recIndex1 = notificationUtils.getRecipientIndex(notification, recipient1.getTaxId());
@@ -716,8 +725,10 @@ class AnalogTestIT {
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
+        String taxid01 = "TAXID01";
         NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder()
-                .withTaxId("TAXID01")
+                .withTaxId(taxid01)
+                .withInternalId("ANON_"+taxid01)
                 .withPhysicalAddress(paPhysicalAddress1)
                 .build();
 
@@ -730,8 +741,10 @@ class AnalogTestIT {
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
+        String taxid02 = "TAXID02";
         NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder()
-                .withTaxId("TAXID02")
+                .withTaxId(taxid02)
+                .withInternalId("ANON_"+taxid02)
                 .withPhysicalAddress(paPhysicalAddress2)
                 .build();
 
@@ -748,10 +761,10 @@ class AnalogTestIT {
 
         pnDeliveryClientMock.addNotification(notification);
         
-        addressBookMock.addLegalDigitalAddresses(recipient1.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
+        addressBookMock.addLegalDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
         
-        addressBookMock.addCourtesyDigitalAddresses(recipient1.getTaxId(), notification.getSender().getPaId(), listCourtesyAddressRecipient1);
-        addressBookMock.addCourtesyDigitalAddresses(recipient2.getTaxId(), notification.getSender().getPaId(), listCourtesyAddressRecipient2);
+        addressBookMock.addCourtesyDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient1);
+        addressBookMock.addCourtesyDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient2);
 
         String iun = notification.getIun();
         Integer recIndex1 = notificationUtils.getRecipientIndex(notification, recipient1.getTaxId());
@@ -856,8 +869,10 @@ class AnalogTestIT {
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
+        String taxid01 = "TAXID01";
         NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder()
-                .withTaxId("TAXID01")
+                .withTaxId(taxid01)
+                .withInternalId("ANON_"+taxid01)
                 .withPhysicalAddress(paPhysicalAddress1)
                 .build();
 
@@ -870,8 +885,10 @@ class AnalogTestIT {
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
+        String taxid02 = "TAXID02";
         NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder()
-                .withTaxId("TAXID02")
+                .withTaxId(taxid02)
+                .withInternalId("ANON_"+taxid02)
                 .withPhysicalAddress(paPhysicalAddress2)
                 .build();
 
@@ -888,10 +905,10 @@ class AnalogTestIT {
 
         pnDeliveryClientMock.addNotification(notification);
 
-        addressBookMock.addLegalDigitalAddresses(recipient2.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
+        addressBookMock.addLegalDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
-        addressBookMock.addCourtesyDigitalAddresses(recipient1.getTaxId(), notification.getSender().getPaId(), listCourtesyAddressRecipient1);
-        addressBookMock.addCourtesyDigitalAddresses(recipient2.getTaxId(), notification.getSender().getPaId(), listCourtesyAddressRecipient2);
+        addressBookMock.addCourtesyDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient1);
+        addressBookMock.addCourtesyDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient2);
 
         String iun = notification.getIun();
         Integer rec1Index = notificationUtils.getRecipientIndex(notification, recipient1.getTaxId());
@@ -1011,6 +1028,7 @@ class AnalogTestIT {
         
         NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId)
+                .withInternalId("ANON_"+taxId)
                 .withPhysicalAddress(paPhysicalAddress1)
                 .build();
 
@@ -1018,9 +1036,11 @@ class AnalogTestIT {
                 .address("test@mail.it")
                 .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL )
                 .build());
-        
+
+        String taxid02 = "TAXID02";
         NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder()
-                .withTaxId("TAXID02")
+                .withTaxId(taxid02)
+                .withInternalId("ANON_"+taxid02)
                 .build();
 
         List<CourtesyDigitalAddressInt> listCourtesyAddressRecipient2 = Collections.singletonList(CourtesyDigitalAddressInt.builder()
@@ -1036,10 +1056,10 @@ class AnalogTestIT {
 
         pnDeliveryClientMock.addNotification(notification);
 
-        addressBookMock.addLegalDigitalAddresses(recipient2.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
+        addressBookMock.addLegalDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
-        addressBookMock.addCourtesyDigitalAddresses(recipient1.getTaxId(), notification.getSender().getPaId(), listCourtesyAddressRecipient1);
-        addressBookMock.addCourtesyDigitalAddresses(recipient2.getTaxId(), notification.getSender().getPaId(), listCourtesyAddressRecipient2);
+        addressBookMock.addCourtesyDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient1);
+        addressBookMock.addCourtesyDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient2);
 
         Integer rec1Index = notificationUtils.getRecipientIndex(notification, recipient1.getTaxId());
 

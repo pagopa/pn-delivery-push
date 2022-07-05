@@ -302,8 +302,10 @@ class NotHandledTestIT {
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
+        String taxId = "TAXID01";
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
-                .withTaxId("TAXID01")
+                .withTaxId(taxId)
+                .withInternalId("ANON_"+taxId)
                 .withPhysicalAddress(paPhysicalAddress)
                 .build();
 
@@ -320,7 +322,7 @@ class NotHandledTestIT {
                 .build());
 
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.addCourtesyDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), listCourtesyAddress);
+        addressBookMock.addCourtesyDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), listCourtesyAddress);
 
         String iun = notification.getIun();
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());

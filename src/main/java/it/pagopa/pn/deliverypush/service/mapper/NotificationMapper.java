@@ -93,7 +93,7 @@ public class NotificationMapper {
         sentNotification.setSentAt(notification.getSentAt());
         sentNotification.setSubject(notification.getSubject());
         sentNotification.setAmount(notification.getAmount());
-                
+        
         ZonedDateTime time = DateFormatUtils.parseInstantToZonedDateTime(notification.getPaymentExpirationDate());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String formattedString = time.format(formatter);

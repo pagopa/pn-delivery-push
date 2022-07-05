@@ -165,7 +165,8 @@ public class RecipientMapper {
         notificationRecipient.setDigitalDomicile(notificationDigitalAddress);
         notificationRecipient.setPhysicalAddress(physicalAddress);
         notificationRecipient.setPayment(payment);
-
+        notificationRecipient.setInternalId(recipient.getInternalId());
+        
         return notificationRecipient;
     }
     

@@ -257,6 +257,7 @@ class DigitalTestIT {
 
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId)
+                .withInternalId("ANON_"+taxId)
                 .withDigitalDomicile(digitalDomicile)
                 .withPhysicalAddress(
                         PhysicalAddressBuilder.builder()
@@ -271,13 +272,13 @@ class DigitalTestIT {
                 .withNotificationRecipient(recipient)
                 .build();
 
-        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
+        addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
         List<CourtesyDigitalAddressInt> listCourtesyAddress = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
                 .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL)
                 .build());
-        addressBookMock.addCourtesyDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), listCourtesyAddress);
+        addressBookMock.addCourtesyDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), listCourtesyAddress);
 
         pnDeliveryClientMock.addNotification(notification);
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
@@ -375,6 +376,7 @@ class DigitalTestIT {
 
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId)
+                .withInternalId("ANON_"+taxId)
                 .withDigitalDomicile(digitalDomicile)
                 .withPhysicalAddress(
                         PhysicalAddressBuilder.builder()
@@ -389,14 +391,14 @@ class DigitalTestIT {
                 .withNotificationRecipient(recipient)
                 .build();
 
-        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
+        addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
         List<CourtesyDigitalAddressInt> listCourtesyAddress = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
                 .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.APPIO)
                 .build());
         
-        addressBookMock.addCourtesyDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), listCourtesyAddress);
+        addressBookMock.addCourtesyDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), listCourtesyAddress);
 
         Mockito.when( pnExternalRegistryClient.sendIOMessage(Mockito.any(SendMessageRequest.class))).thenReturn(
                 ResponseEntity.of(Optional.of(new SendMessageResponse().id("1871")))
@@ -486,8 +488,10 @@ class DigitalTestIT {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
+        String taxid01 = "TAXID01";
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
-                .withTaxId("TAXID01")
+                .withTaxId(taxid01)
+                .withInternalId("ANON_"+taxid01)
                 .withDigitalDomicile(digitalDomicile)
                 .withPhysicalAddress(
                         PhysicalAddressBuilder.builder()
@@ -501,7 +505,7 @@ class DigitalTestIT {
                 .withNotificationRecipient(recipient)
                 .build();
 
-        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
+        addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
         pnDeliveryClientMock.addNotification(notification);
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
@@ -604,8 +608,10 @@ class DigitalTestIT {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
+        String taxid01 = "TAXID01";
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
-                .withTaxId("TAXID01")
+                .withTaxId(taxid01)
+                .withInternalId("ANON_"+taxid01)
                 .withDigitalDomicile(digitalDomicile)
                 .build();
 
@@ -615,7 +621,7 @@ class DigitalTestIT {
                 .withNotificationRecipient(recipient)
                 .build();
 
-        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
+        addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
         pnDeliveryClientMock.addNotification(notification);
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
@@ -810,8 +816,10 @@ class DigitalTestIT {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
+        String taxid01 = "TAXID01";
         final NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
-                .withTaxId("TAXID01")
+                .withTaxId(taxid01)
+                .withInternalId("ANON_"+taxid01)
                 .withDigitalDomicile(digitalDomicile)
                 .build();
 
@@ -821,7 +829,7 @@ class DigitalTestIT {
                 .withNotificationRecipient(recipient)
                 .build();
 
-        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
+        addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
         pnDeliveryClientMock.addNotification(notification);
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
@@ -873,8 +881,10 @@ class DigitalTestIT {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
+        String taxid01 = "TAXID01";
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
-                .withTaxId("TAXID01")
+                .withTaxId(taxid01)
+                .withInternalId("ANON_"+taxid01)
                 .build();
 
         NotificationInt notification = NotificationTestBuilder.builder()
@@ -884,7 +894,7 @@ class DigitalTestIT {
                 .build();
 
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
+        addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
         String iun = notification.getIun();
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
@@ -926,8 +936,10 @@ class DigitalTestIT {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
+        String taxid01 = "TAXID01";
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
-                .withTaxId("TAXID01")
+                .withTaxId(taxid01)
+                .withInternalId("ANON_"+taxid01)
                 .withDigitalDomicile(digitalDomicile)
                 .build();
 
@@ -938,7 +950,7 @@ class DigitalTestIT {
                 .build();
 
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
+        addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
         String iun = notification.getIun();
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
@@ -998,8 +1010,10 @@ class DigitalTestIT {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
+        String taxid01 = "TAXID01";
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
-                .withTaxId("TAXID01")
+                .withTaxId(taxid01)
+                .withInternalId("ANON_"+taxid01)
                 .withDigitalDomicile(digitalDomicile)
                 .build();
 
@@ -1010,7 +1024,7 @@ class DigitalTestIT {
                 .build();
 
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
+        addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
@@ -1084,8 +1098,10 @@ class DigitalTestIT {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
+        String taxid01 = "TAXID01";
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
-                .withTaxId("TAXID01")
+                .withTaxId(taxid01)
+                .withInternalId("ANON_"+taxid01)
                 .withDigitalDomicile(digitalDomicile)
                 .build();
 
@@ -1096,7 +1112,7 @@ class DigitalTestIT {
                 .build();
 
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
+        addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
@@ -1164,8 +1180,10 @@ class DigitalTestIT {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
+        String taxid01 = "TAXID01";
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
-                .withTaxId("TAXID01")
+                .withTaxId(taxid01)
+                .withInternalId("ANON_"+taxid01)
                 .withDigitalDomicile(digitalDomicile)
                 .build();
 
@@ -1176,7 +1194,7 @@ class DigitalTestIT {
                 .build();
 
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
+        addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
@@ -1250,8 +1268,10 @@ class DigitalTestIT {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
+        String taxid01 = "TAXID01";
         NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder()
-                .withTaxId("TAXID01")
+                .withTaxId(taxid01)
+                .withInternalId("ANON_"+taxid01)
                 .withDigitalDomicile(digitalDomicile1)
                 .build();
 
@@ -1266,8 +1286,10 @@ class DigitalTestIT {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
+        String taxid02 = "TAXID02";
         NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder()
-                .withTaxId("TAXID02")
+                .withTaxId(taxid02)
+                .withInternalId("ANON_"+taxid02)
                 .withDigitalDomicile(digitalDomicile2)
                 .build();
         
@@ -1283,8 +1305,8 @@ class DigitalTestIT {
                 .build();
 
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.addLegalDigitalAddresses(recipient1.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress1));
-        addressBookMock.addLegalDigitalAddresses(recipient2.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress2));
+        addressBookMock.addLegalDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress1));
+        addressBookMock.addLegalDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress2));
 
         String iun = notification.getIun();
         Integer recIndex1 = notificationUtils.getRecipientIndex(notification, recipient1.getTaxId());
