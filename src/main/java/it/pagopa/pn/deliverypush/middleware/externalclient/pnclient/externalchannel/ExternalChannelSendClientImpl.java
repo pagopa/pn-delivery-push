@@ -68,7 +68,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
 
     @Override
     public void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, PhysicalAddressInt physicalAddress, String timelineEventId, PhysicalAddressInt.ANALOG_TYPE analogType, String aarKey) {
-        log.info("sendAnalogNotification address={} recipient={} requestId={} aarkey={}", LogUtils.maskGeneric(physicalAddress.getAddress()), LogUtils.maskGeneric(recipientInt.getDenomination()), timelineEventId, aarKey);
+        log.info("[enter] sendAnalogNotification address={} recipient={} requestId={} aarkey={}", LogUtils.maskGeneric(physicalAddress.getAddress()), LogUtils.maskGeneric(recipientInt.getDenomination()), timelineEventId, aarKey);
 
         PaperEngageRequest paperEngageRequest = new PaperEngageRequest();
         paperEngageRequest.setRequestId(timelineEventId);
@@ -93,6 +93,8 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
         paperEngageRequest.setAttachmentUri(aarKey);
 
         paperMessagesApi.sendPaperEngageRequest(timelineEventId, cfg.getExternalchannelCxId(), paperEngageRequest);
+
+        log.info("[exit] sendAnalogNotification address={} recipient={} requestId={} aarkey={}", LogUtils.maskGeneric(physicalAddress.getAddress()), LogUtils.maskGeneric(recipientInt.getDenomination()), timelineEventId, aarKey);
     }
 
     @Override
@@ -119,7 +121,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
     private void sendNotificationPEC(String requestId, NotificationInt notificationInt,  NotificationRecipientInt recipientInt, DigitalAddressInt digitalAddress)
     {
         try {
-            log.info("sendNotificationPEC address={} requestId={} recipient={}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
+            log.info("[enter] sendNotificationPEC address={} requestId={} recipient={}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
 
             String mailbody = legalFactGenerator.generateNotificationAARBody(notificationInt, recipientInt);
             String mailsubj = legalFactGenerator.generateNotificationAARSubject(notificationInt);
@@ -140,6 +142,8 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
                 digitalNotificationRequestDto.setSenderDigitalAddress(cfg.getExternalchannelSenderPec());
 
             digitalLegalMessagesApi.sendDigitalLegalMessage(requestId, cfg.getExternalchannelCxId(), digitalNotificationRequestDto);
+
+            log.info("[exit] sendNotificationPEC address={} requestId={} recipient={}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
         } catch (Exception e) {
             throw new PnInternalException("error sending PEC notification", e);
         }
@@ -148,7 +152,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
     private void sendNotificationEMAIL(String requestId, NotificationInt notificationInt, NotificationRecipientInt recipientInt, DigitalAddressInt digitalAddress)
     {
         try {
-            log.info("sendNotificationEMAIL address={} requestId={} recipient={}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
+            log.info("[enter] sendNotificationEMAIL address={} requestId={} recipient={}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
 
             String mailbody = legalFactGenerator.generateNotificationAARBody(notificationInt, recipientInt);
             String mailsubj = legalFactGenerator.generateNotificationAARSubject(notificationInt);
@@ -169,6 +173,8 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
                 digitalNotificationRequestDto.setSenderDigitalAddress(cfg.getExternalchannelSenderEmail());
 
             digitalCourtesyMessagesApi.sendDigitalCourtesyMessage(requestId, cfg.getExternalchannelCxId(), digitalNotificationRequestDto);
+
+            log.info("[exit] sendNotificationEMAIL address={} requestId={} recipient={}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
         } catch (Exception e) {
             throw new PnInternalException("error sending EMAIL notification", e);
         }
@@ -177,7 +183,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
     private void sendNotificationSMS(String requestId, NotificationInt notificationInt, NotificationRecipientInt recipientInt, DigitalAddressInt digitalAddress)
     {
         try {
-            log.info("sendNotificationSMS address={} requestId={} recipient={}", LogUtils.maskNumber(digitalAddress.getAddress()), requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
+            log.info("[enter] sendNotificationSMS address={} requestId={} recipient={}", LogUtils.maskNumber(digitalAddress.getAddress()), requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
 
             String smsbody = legalFactGenerator.generateNotificationAARForSMS(notificationInt);
 
@@ -194,6 +200,8 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
                 digitalNotificationRequestDto.setSenderDigitalAddress(cfg.getExternalchannelSenderSms());
 
             digitalCourtesyMessagesApi.sendCourtesyShortMessage(requestId, cfg.getExternalchannelCxId(), digitalNotificationRequestDto);
+
+            log.info("[exit] sendNotificationSMS address={} requestId={} recipient={}", LogUtils.maskNumber(digitalAddress.getAddress()), requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
         } catch (Exception e) {
             throw new PnInternalException("error sending SMS notification", e);
         }

@@ -1,12 +1,11 @@
 package it.pagopa.pn.deliverypush.rest;
 
+import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.LegalFactsApi;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.GetLegalFactService;
-import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
@@ -24,17 +23,21 @@ public class PnLegalFactsController implements LegalFactsApi {
     @Override
     public Mono<ResponseEntity<LegalFactDownloadMetadataResponse>> getLegalFact(
             String xPagopaPnUid,
-            CxTypeAuthFleet xPagopaPnCxType,
+            CxTypeAuthFleet xPagopaPnCxType, 
             String xPagopaPnCxId,
             String iun,
             LegalFactCategory legalFactType,
             String legalFactId,
             List<String> xPagopaPnCxGroups,
-            ServerWebExchange exchange
-    ) {
-        return Mono.fromSupplier(() -> ResponseEntity.ok(getLegalFactService.getLegalFactMetadata(iun, legalFactType, legalFactId)));
+            String mandateId,
+            ServerWebExchange exchange) {
+        
+        return Mono.fromSupplier(() ->
+                ResponseEntity.ok(getLegalFactService.getLegalFactMetadata(iun, legalFactType, legalFactId, xPagopaPnCxId, mandateId ))
+        );
     }
-
+    
+    //TODO Da analizzare, il FE non dovrebbe utilizzarlo, probabilmente può essere eliminato
     @Override
     public Mono<ResponseEntity<Flux<LegalFactListElement>>> getNotificationLegalFacts(
             String xPagopaPnUid,
@@ -42,13 +45,14 @@ public class PnLegalFactsController implements LegalFactsApi {
             String xPagopaPnCxId,
             String iun,
             List<String> xPagopaPnCxGroups,
-            ServerWebExchange exchange
-    ) {
+            String mandateId,
+            ServerWebExchange exchange) {
+        
         return Mono.fromSupplier(() -> {
-             List<LegalFactListElement> legalFacts = getLegalFactService.getLegalFacts(iun);
-             Flux<LegalFactListElement> fluxFacts = Flux.fromStream(legalFacts.stream().map(this::convert));
-             return ResponseEntity.ok(fluxFacts);
-         });
+            List<LegalFactListElement> legalFacts = getLegalFactService.getLegalFacts(iun, xPagopaPnCxId, mandateId);
+            Flux<LegalFactListElement> fluxFacts = Flux.fromStream(legalFacts.stream().map(this::convert));
+            return ResponseEntity.ok(fluxFacts);
+        });
     }
     
     private LegalFactListElement convert(LegalFactListElement element){
@@ -72,10 +76,8 @@ public class PnLegalFactsController implements LegalFactsApi {
         return legalFactsId;
     }
 
-    @GetMapping(PnDeliveryPushRestConstants.LEGAL_FACT_BY_ID)
-    public ResponseEntity<Resource> getLegalFact(@PathVariable(value="iun") String iun,
-                                                 @PathVariable(value="type") LegalFactCategory legalFactType,
-                                                 @PathVariable(value="id") String legalfactId) {
-        return getLegalFactService.getLegalfact( iun, legalFactType, legalfactId );
+    @ExceptionHandler({PnNotFoundException.class})
+    public ResponseEntity<Void> handleNotFoundException(PnNotFoundException ex) {
+        return ResponseEntity.notFound().build();
     }
 }

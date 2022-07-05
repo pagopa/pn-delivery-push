@@ -506,7 +506,7 @@ class DigitalWorkFlowHandlerTest {
     private NotificationInt getNotification() {
         return NotificationInt.builder()
                 .iun("IUN-01")
-                .paNotificationId("protocol_01")
+                .paProtocolNumber("protocol_01")
                 .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
                         .build()
