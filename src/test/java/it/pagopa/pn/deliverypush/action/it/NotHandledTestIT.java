@@ -62,6 +62,7 @@ import static org.awaitility.Awaitility.await;
         PublicRegistryResponseHandler.class,
         PublicRegistryServiceImpl.class,
         ExternalChannelServiceImpl.class,
+        IoServiceImpl.class,
         ExternalChannelResponseHandler.class,
         RefinementHandler.class,
         NotificationViewedHandler.class,
@@ -315,7 +316,7 @@ class NotHandledTestIT {
 
         List<CourtesyDigitalAddressInt> listCourtesyAddress = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test@works.it")
-                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL)
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL)
                 .build());
 
         pnDeliveryClientMock.addNotification(notification);

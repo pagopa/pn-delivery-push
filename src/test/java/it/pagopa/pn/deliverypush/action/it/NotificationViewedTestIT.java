@@ -61,6 +61,7 @@ import static org.mockito.ArgumentMatchers.eq;
         ExternalChannelResponseHandler.class,
         RefinementHandler.class,
         NotificationViewedHandler.class,
+        IoServiceImpl.class,
         DigitalWorkFlowUtils.class,
         CourtesyMessageUtils.class,
         CompletelyUnreachableUtils.class,
