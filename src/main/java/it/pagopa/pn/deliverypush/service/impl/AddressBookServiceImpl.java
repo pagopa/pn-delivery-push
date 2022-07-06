@@ -28,8 +28,8 @@ public class AddressBookServiceImpl implements AddressBookService {
     }
 
     @Override
-    public Optional<LegalDigitalAddressInt> getPlatformAddresses(String internalId, String senderId) {
-        ResponseEntity<List<LegalDigitalAddress>> resp = userAttributesClient.getLegalAddressBySender(internalId, senderId);
+    public Optional<LegalDigitalAddressInt> getPlatformAddresses(String recipientId, String senderId) {
+        ResponseEntity<List<LegalDigitalAddress>> resp = userAttributesClient.getLegalAddressBySender(recipientId, senderId);
 
         if (resp.getStatusCode().is2xxSuccessful()) {
             log.info("GetLegalAddress OK - senderId={}", senderId);
@@ -55,34 +55,32 @@ public class AddressBookServiceImpl implements AddressBookService {
             }
 
             log.debug("list legal address is empty - senderId={}", senderId);
-
             return Optional.empty();
         } else {
             log.error("GetLegalAddress Failed  senderId={}", senderId);
-            throw new PnInternalException("GetLegalAddress Failed internalId="+ internalId +" senderId="+ senderId);
+            throw new PnInternalException("GetLegalAddress Failed recipientId="+ recipientId +" senderId="+ senderId);
         }
     }
 
     @Override
-    public Optional<List<CourtesyDigitalAddressInt>> getCourtesyAddress(String internalId, String senderId) {
-        ResponseEntity<List<CourtesyDigitalAddress>> resp = userAttributesClient.getCourtesyAddressBySender(internalId, senderId);
+    public Optional<List<CourtesyDigitalAddressInt>> getCourtesyAddress(String recipientId, String senderId) {
+        ResponseEntity<List<CourtesyDigitalAddress>> resp = userAttributesClient.getCourtesyAddressBySender(recipientId, senderId);
 
         if (resp.getStatusCode().is2xxSuccessful()) {
-            log.info("getCourtesyAddress OK - senderId={}", senderId);
             List<CourtesyDigitalAddress> courtesyDigitalAddresses = resp.getBody();
-
             if(courtesyDigitalAddresses != null && !courtesyDigitalAddresses.isEmpty()){
+                log.info("getCourtesyAddress OK - senderId={}, recipientId={} courtesyListSize={}", senderId, recipientId, courtesyDigitalAddresses.size());
                 return Optional.of(
                         courtesyDigitalAddresses.stream().map(
                                 CourtesyCourtesyDigitalAddressMapper::externalToInternal
                         ).collect(Collectors.toList())
                 );
             }
-
+            log.info("getCourtesyAddress OK - senderId={}, recipientId={} courtesyListSize=Empty", senderId, recipientId);
             return Optional.empty();
         } else {
             log.error("getCourtesyAddress Failed senderId={}", senderId);
-            throw new PnInternalException("getCourtesyAddress Failed internalId="+ internalId +" senderId="+ senderId);
+            throw new PnInternalException("getCourtesyAddress Failed recipientId="+ recipientId +" senderId="+ senderId);
         }
     }
 
