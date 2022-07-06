@@ -9,7 +9,6 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel.ExternalChannelSendClientImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -68,7 +67,7 @@ class ExternalChannelSendClientImplTestIT {
 
         //When
 
-        assertDoesNotThrow(() -> externalChannelSendClient.sendAnalogNotification( notificationInt, recipientInt, physicalAddress, eventid, ExternalChannelSendClient.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER, "frtghyuiugfdfghj" ));
+        assertDoesNotThrow(() -> externalChannelSendClient.sendAnalogNotification( notificationInt, recipientInt, physicalAddress, eventid, PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER, "frtghyuiugfdfghj" ));
 
         //Then
 
@@ -106,7 +105,7 @@ class ExternalChannelSendClientImplTestIT {
         Mockito.when( restTemplate.exchange( Mockito.any(RequestEntity.class),Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn( ResponseEntity.ok("") );
         when(notificationInt.getSender()).thenReturn(new NotificationSenderInt());
-        when(addressInt.getType()).thenReturn(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL);
+        when(addressInt.getType()).thenReturn(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL);
         when(addressInt.getAddress()).thenReturn("email@email.it");
 
         //When
@@ -126,7 +125,7 @@ class ExternalChannelSendClientImplTestIT {
         Mockito.when( restTemplate.exchange( Mockito.any(RequestEntity.class),Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn( ResponseEntity.ok("") );
         when(notificationInt.getSender()).thenReturn(new NotificationSenderInt());
-        when(addressInt.getType()).thenReturn(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.SMS);
+        when(addressInt.getType()).thenReturn(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.SMS);
 
         //When
 

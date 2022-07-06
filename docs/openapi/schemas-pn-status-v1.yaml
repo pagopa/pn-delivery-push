@@ -11,6 +11,7 @@ components:
         - EFFECTIVE_DATE
         - PAID
         - UNREACHABLE
+        - CANCELLED
     
     NotificationStatus:
       type: string
@@ -25,6 +26,7 @@ components:
         - PAID
         - UNREACHABLE
         - REFUSED
+        - CANCELLED
     
     NotificationStatusHistory: 
       description: elenco degli avanzamenti effettuati dal processo di notifica

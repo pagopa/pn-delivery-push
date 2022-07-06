@@ -253,6 +253,17 @@ public enum TimelineEventId {
                     eventId.getRecIndex()
             );
         }
+    },
+    
+    NOT_HANDLED() {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return String.format(
+                    "%s_not_handled_%d",
+                    eventId.getIun(),
+                    eventId.getRecIndex()
+            );
+        }
     }
     ;
 

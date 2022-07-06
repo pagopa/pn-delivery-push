@@ -27,8 +27,9 @@ public enum TimelineElementCategoryInt {
     PAYMENT(null, TimelineElementCategory.PAYMENT.getValue()),
     COMPLETELY_UNREACHABLE(CompletelyUnreachableDetailsInt.class, TimelineElementCategory.COMPLETELY_UNREACHABLE.getValue()),
     REQUEST_REFUSED(RequestRefusedDetailsInt.class, TimelineElementCategory.REQUEST_REFUSED.getValue()),
-    AAR_GENERATION(AarGenerationDetailsInt.class, TimelineElementCategory.AAR_GENERATION.getValue());
-    
+    AAR_GENERATION(AarGenerationDetailsInt.class, TimelineElementCategory.AAR_GENERATION.getValue()),
+    NOT_HANDLED(NotHandledDetailsInt.class, TimelineElementCategory.NOT_HANDLED.getValue());
+
     private final Class<? extends TimelineElementDetailsInt> detailsJavaClass;
     private final String value;
     

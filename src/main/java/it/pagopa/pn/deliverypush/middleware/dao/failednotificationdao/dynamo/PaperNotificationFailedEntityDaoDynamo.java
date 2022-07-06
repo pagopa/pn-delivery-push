@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.dynamo;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedEntityDao;
@@ -17,8 +18,7 @@ import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional.keyEqualTo;
 
@@ -62,7 +62,10 @@ public class PaperNotificationFailedEntityDaoDynamo extends AbstractDynamoKeyVal
             table.putItem(request);
         }catch (ConditionalCheckFailedException ex){
             log.error("Conditional check exception on PaperNotificationFailedEntityDaoDynamo putIfAbsent", ex);
-            throw new IdConflictException(value);
+            Map<String, String> keyValues = new HashMap<>();
+            keyValues.put("iun", value.getIun());
+            keyValues.put("recipient", value.getRecipientId());
+            throw new IdConflictException( keyValues );
         }
     }
 }

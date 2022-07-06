@@ -11,14 +11,14 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder( toBuilder = true )
 public class CourtesyDigitalAddressInt extends DigitalAddressInt{
 
-    public enum COURTESY_DIGITAL_ADDRESS_TYPE{
+    public enum COURTESY_DIGITAL_ADDRESS_TYPE_INT {
         EMAIL("EMAIL"),
         SMS("SMS"),
         APPIO("APPIO");
 
         private final String value;
 
-        COURTESY_DIGITAL_ADDRESS_TYPE(String value) {
+        COURTESY_DIGITAL_ADDRESS_TYPE_INT(String value) {
             this.value = value;
         }
 
@@ -33,6 +33,6 @@ public class CourtesyDigitalAddressInt extends DigitalAddressInt{
 
     }
 
-    private COURTESY_DIGITAL_ADDRESS_TYPE type;
+    private COURTESY_DIGITAL_ADDRESS_TYPE_INT type;
 
 }

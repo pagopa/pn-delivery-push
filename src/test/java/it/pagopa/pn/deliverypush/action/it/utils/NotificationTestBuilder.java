@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.it.utils;
 
+import it.pagopa.pn.commons.utils.DateFormatUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 
 import java.time.Instant;
@@ -11,8 +12,10 @@ public class NotificationTestBuilder {
     private String iun;
     private String paId;
     private List<NotificationRecipientInt> recipients;
-    
+    private Instant sentAt;
+
     public NotificationTestBuilder() {
+        sentAt = Instant.now();
         recipients = Collections.emptyList();
     }
 
@@ -47,12 +50,19 @@ public class NotificationTestBuilder {
         return this;
     }
 
+    public NotificationTestBuilder withSentAt(Instant sentAt) {
+        this.sentAt = sentAt;
+        return this;
+    }
+    
     public NotificationInt build() {
         return NotificationInt.builder()
                 .iun(iun)
-                .paNotificationId("protocol_01")
+                .paProtocolNumber("protocol_01")
                 .subject("subject not very long but not too short")
                 .sentAt(Instant.now())
+                .amount(18)
+                .paymentExpirationDate(DateFormatUtils.parseDate("2002-08-12").toInstant())
                 .physicalCommunicationType(ServiceLevelTypeInt.SIMPLE_REGISTERED_LETTER)
                 .sender(NotificationSenderInt.builder()
                         .paId(paId)
@@ -60,6 +70,7 @@ public class NotificationTestBuilder {
                         .paTaxId("CFPA-" + paId)
                         .build()
                 )
+                .sentAt( sentAt )
                 .recipients(recipients)
                 .documents(Arrays.asList(
                         NotificationDocumentInt.builder()

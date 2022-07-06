@@ -46,7 +46,7 @@ class AddressBookServiceImplTest {
         );
         
         //WHEN
-        Optional<LegalDigitalAddressInt> platformAddressOpt =  addressBookService.getPlatformAddresses("TAXID", "SENDERID");
+        Optional<LegalDigitalAddressInt> platformAddressOpt =  addressBookService.getPlatformAddresses("TAXIDANON", "SENDERID");
         
         //THEN
         Assertions.assertTrue(platformAddressOpt.isPresent());
@@ -69,7 +69,7 @@ class AddressBookServiceImplTest {
         );
 
         //WHEN
-        Optional<List<CourtesyDigitalAddressInt>> listCourtesyAddressOpt =  addressBookService.getCourtesyAddress("TAXID", "SENDERID");
+        Optional<List<CourtesyDigitalAddressInt>> listCourtesyAddressOpt =  addressBookService.getCourtesyAddress("TAXIDANON", "SENDERID");
 
         //THEN
         Assertions.assertTrue(listCourtesyAddressOpt.isPresent());

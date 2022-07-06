@@ -14,11 +14,13 @@ import java.util.List;
 @ToString
 public class NotificationInt {
     private String iun;
-    private String paNotificationId;
+    private String paProtocolNumber;
     private String subject;
     private Instant sentAt;
     private NotificationSenderInt sender ;
     private List<NotificationRecipientInt> recipients ;
     private List<NotificationDocumentInt> documents ;
     private ServiceLevelTypeInt physicalCommunicationType;
+    private Integer amount;
+    private Instant paymentExpirationDate;
 }

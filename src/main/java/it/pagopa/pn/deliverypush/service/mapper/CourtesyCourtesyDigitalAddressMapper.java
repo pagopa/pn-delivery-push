@@ -10,7 +10,7 @@ public class CourtesyCourtesyDigitalAddressMapper {
     public static CourtesyDigitalAddressInt externalToInternal(CourtesyDigitalAddress courtesyDigitalAddress) {
         return CourtesyDigitalAddressInt.builder()
                 .address(courtesyDigitalAddress.getValue())
-                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.valueOf(courtesyDigitalAddress.getChannelType().getValue()))
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.valueOf(courtesyDigitalAddress.getChannelType().getValue()))
                 .build();
     }
 

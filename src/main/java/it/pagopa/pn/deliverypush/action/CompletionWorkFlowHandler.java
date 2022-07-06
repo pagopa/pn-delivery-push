@@ -13,6 +13,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotHandledDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.ExternalChannelService;
@@ -75,9 +76,14 @@ public class CompletionWorkFlowHandler {
                     scheduleRefinement(notification, recIndex, notificationDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysSuccessDigitalRefinement());
                     break;
                 case FAILURE:
-                    sendSimpleRegisteredLetter(notification, recIndex);
-                    addTimelineElement( timelineUtils.buildFailureDigitalWorkflowTimelineElement(notification, recIndex, legalFactId), notification);
-                    scheduleRefinement(notification, recIndex, notificationDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysFailureDigitalRefinement());
+                    if( Boolean.FALSE.equals( pnDeliveryPushConfigs.getPaperMessageNotHandled()) ){
+                        sendSimpleRegisteredLetter(notification, recIndex);
+                        addTimelineElement( timelineUtils.buildFailureDigitalWorkflowTimelineElement(notification, recIndex, legalFactId), notification);
+                        scheduleRefinement(notification, recIndex, notificationDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysFailureDigitalRefinement());
+                    }else {
+                        log.info("Paper message is not handled, registered Letter will not be sent to externalChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
+                        addPaperNotificationNotHandledToTimeline(notification, recIndex);
+                    }
                     break;
                 default:
                     handleError(iun, recIndex, status);
@@ -162,6 +168,19 @@ public class CompletionWorkFlowHandler {
     private void handleError(String iun, Integer recIndex, EndWorkflowStatus status) {
         log.error("Specified status {} does not exist. Iun {}, id {}", status, iun, recIndex);
         throw new PnInternalException("Specified status " + status + " does not exist. Iun " + iun + " id" + recIndex);
+    }
+
+
+    public void addPaperNotificationNotHandledToTimeline(NotificationInt notification, Integer recIndex) {
+        addTimelineElement(
+                timelineUtils.buildNotHandledTimelineElement(
+                        notification,
+                        recIndex,
+                        NotHandledDetailsInt.PAPER_MESSAGE_NOT_HANDLED_CODE,
+                        NotHandledDetailsInt.PAPER_MESSAGE_NOT_HANDLED_REASON
+                ),
+                notification
+        );
     }
 
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
