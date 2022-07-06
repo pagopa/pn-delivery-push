@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 public interface UserAttributesClient {
-    ResponseEntity<List<LegalDigitalAddress>> getLegalAddressBySender(String taxId, String senderId);
+    ResponseEntity<List<LegalDigitalAddress>> getLegalAddressBySender(String internalId, String senderId);
 
-    ResponseEntity<List<CourtesyDigitalAddress>> getCourtesyAddressBySender(String taxId, String senderId);
+    ResponseEntity<List<CourtesyDigitalAddress>> getCourtesyAddressBySender(String internalId, String senderId);
 }

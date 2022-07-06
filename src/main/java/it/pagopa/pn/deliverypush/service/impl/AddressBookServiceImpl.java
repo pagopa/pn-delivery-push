@@ -28,17 +28,17 @@ public class AddressBookServiceImpl implements AddressBookService {
     }
 
     @Override
-    public Optional<LegalDigitalAddressInt> getPlatformAddresses(String taxIdAnon, String senderId) {
-        ResponseEntity<List<LegalDigitalAddress>> resp = userAttributesClient.getLegalAddressBySender(taxIdAnon, senderId);
+    public Optional<LegalDigitalAddressInt> getPlatformAddresses(String internalId, String senderId) {
+        ResponseEntity<List<LegalDigitalAddress>> resp = userAttributesClient.getLegalAddressBySender(internalId, senderId);
 
         if (resp.getStatusCode().is2xxSuccessful()) {
-            log.info("GetLegalAddress OK - senderId {}", senderId);
+            log.info("GetLegalAddress OK - senderId={}", senderId);
             List<LegalDigitalAddress> legalDigitalAddresses = resp.getBody();
             
             if(legalDigitalAddresses != null && !legalDigitalAddresses.isEmpty()){
                 
                 if (legalDigitalAddresses.size() > 1){
-                    log.warn("Digital addresses list contains more than one element ");
+                    log.warn("Digital addresses list contains more than one element - senderId={}", senderId);
                 }
 
                 List<LegalDigitalAddressInt> digitalAddresses = legalDigitalAddresses.stream().map(
@@ -46,7 +46,7 @@ public class AddressBookServiceImpl implements AddressBookService {
                 ).collect(Collectors.toList());
                         
                 for(LegalDigitalAddressInt address : digitalAddresses){
-                    log.debug("For senderId {} address type {} is available", senderId, address.getType());
+                    log.debug("For senderId={} address type={} is available", senderId, address.getType());
 
                     if(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC.equals(address.getType())){
                         return Optional.of(address);
@@ -54,21 +54,21 @@ public class AddressBookServiceImpl implements AddressBookService {
                 }
             }
 
-            log.debug("list legal address is empty - senderId {}", senderId);
+            log.debug("list legal address is empty - senderId={}", senderId);
 
             return Optional.empty();
         } else {
-            log.error("GetLegalAddress Failed  senderId {}", senderId);
-            throw new PnInternalException("GetLegalAddress Failed taxIdAnon "+ taxIdAnon +" senderId "+ senderId);
+            log.error("GetLegalAddress Failed  senderId={}", senderId);
+            throw new PnInternalException("GetLegalAddress Failed internalId="+ internalId +" senderId="+ senderId);
         }
     }
 
     @Override
-    public Optional<List<CourtesyDigitalAddressInt>> getCourtesyAddress(String taxIdAnon, String senderId) {
-        ResponseEntity<List<CourtesyDigitalAddress>> resp = userAttributesClient.getCourtesyAddressBySender(taxIdAnon, senderId);
+    public Optional<List<CourtesyDigitalAddressInt>> getCourtesyAddress(String internalId, String senderId) {
+        ResponseEntity<List<CourtesyDigitalAddress>> resp = userAttributesClient.getCourtesyAddressBySender(internalId, senderId);
 
         if (resp.getStatusCode().is2xxSuccessful()) {
-            log.info("getCourtesyAddress OK - senderId {}", senderId);
+            log.info("getCourtesyAddress OK - senderId={}", senderId);
             List<CourtesyDigitalAddress> courtesyDigitalAddresses = resp.getBody();
 
             if(courtesyDigitalAddresses != null && !courtesyDigitalAddresses.isEmpty()){
@@ -81,14 +81,14 @@ public class AddressBookServiceImpl implements AddressBookService {
 
             return Optional.empty();
         } else {
-            log.error("getCourtesyAddress Failed senderId {}", senderId);
-            throw new PnInternalException("getCourtesyAddress Failed taxIdAnon "+ taxIdAnon +" senderId "+ senderId);
+            log.error("getCourtesyAddress Failed senderId={}", senderId);
+            throw new PnInternalException("getCourtesyAddress Failed internalId="+ internalId +" senderId="+ senderId);
         }
     }
 
     @Override
     public Optional<PhysicalAddressInt> getResidentialAddress(String taxId, String senderId) {
-        log.error("Call to Unsupported method, getResidentialAddress for sendId {} ", senderId);
+        log.error("Call to Unsupported method, getResidentialAddress for sendId={} ", senderId);
         throw new UnsupportedOperationException("getResidentialAddress is not supported yet");
     }
 }

@@ -48,7 +48,7 @@ public class CourtesyMessageUtils {
      * Get recipient addresses and send courtesy messages.
      */
     public void checkAddressesForSendCourtesyMessage(NotificationInt notification, Integer recIndex) {
-        log.info("CheckAddressesForSendCourtesyMessage - iun {} id {} ", notification.getIun(), recIndex);
+        log.info("CheckAddressesForSendCourtesyMessage - iun={} id={} ", notification.getIun(), recIndex);
         
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         
@@ -62,11 +62,11 @@ public class CourtesyMessageUtils {
                     }
                 });
 
-        log.debug("End sendCourtesyMessage - IUN {} id {}", notification.getIun(),recIndex);
+        log.debug("End sendCourtesyMessage - IUN={} id={}", notification.getIun(),recIndex);
     }
 
     private void sendCourtesyMessage(NotificationInt notification, Integer recIndex, int courtesyAddrIndex, CourtesyDigitalAddressInt courtesyAddress) {
-        log.debug("Send courtesy message address index {} - iun {} id {} ", courtesyAddrIndex, notification.getIun(), recIndex);
+        log.debug("Send courtesy message address index {} - iun={} id={} ", courtesyAddrIndex, notification.getIun(), recIndex);
 
         //... Per ogni indirizzo di cortesia ottenuto viene inviata la notifica del messaggio di cortesia
         String eventId = getTimelineElementId(recIndex, notification.getIun(), courtesyAddrIndex);
@@ -74,11 +74,11 @@ public class CourtesyMessageUtils {
         switch (courtesyAddress.getType()){
             case EMAIL:
             case SMS:
-                log.info("Send courtesy message to externalChannel - iun {} id {} ", notification.getIun(), recIndex);
+                log.info("Send courtesy message to externalChannel - iun={} id={} ", notification.getIun(), recIndex);
                 externalChannelService.sendCourtesyNotification(notification, courtesyAddress, recIndex, eventId);
                 break;
             case APPIO:
-                log.info("Send courtesy message to App IO - iun {} id {} ", notification.getIun(), recIndex);
+                log.info("Send courtesy message to App IO - iun={} id={} ", notification.getIun(), recIndex);
                 iOservice.sendIOMessage(notification, recIndex);
                 break;
             default:
