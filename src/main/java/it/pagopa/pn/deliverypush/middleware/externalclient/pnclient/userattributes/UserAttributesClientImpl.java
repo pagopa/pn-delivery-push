@@ -28,24 +28,24 @@ public class UserAttributesClientImpl implements UserAttributesClient {
     }
     
     @Override
-    public ResponseEntity<List<LegalDigitalAddress>> getLegalAddressBySender(String internalId, String senderId) {
+    public ResponseEntity<List<LegalDigitalAddress>> getLegalAddressBySender(String recipientId, String senderId) {
         log.debug("Start getPlatformDigitalAddress for senderId {}", senderId);
         
-        ResponseEntity<List<LegalDigitalAddress>> resp = legalApi.getLegalAddressBySenderWithHttpInfo(internalId, senderId);
+        ResponseEntity<List<LegalDigitalAddress>> resp = legalApi.getLegalAddressBySenderWithHttpInfo(recipientId, senderId);
         
-        log.debug("Response to getPlatformDigitalAddress for senderId {}, have status code {}", senderId, resp.getStatusCode());
+        log.debug("Response to getPlatformDigitalAddress for senderId={} recipientId={}, have status code {}", senderId, recipientId, resp.getStatusCode());
         
         return resp;
     }
 
     @Override
-    public ResponseEntity<List<CourtesyDigitalAddress>> getCourtesyAddressBySender(String internalId, String senderId) {
+    public ResponseEntity<List<CourtesyDigitalAddress>> getCourtesyAddressBySender(String recipientId, String senderId) {
 
         log.debug("Start getCourtesyAddress for senderId {}", senderId);
 
-        ResponseEntity<List<CourtesyDigitalAddress>> resp = courtesyApi.getCourtesyAddressBySenderWithHttpInfo(internalId, senderId);
+        ResponseEntity<List<CourtesyDigitalAddress>> resp = courtesyApi.getCourtesyAddressBySenderWithHttpInfo(recipientId, senderId);
 
-        log.debug("Response to getCourtesyAddress for senderId {}, have status code {}", senderId, resp.getStatusCode());
+        log.debug("Response to getCourtesyAddress for senderId={} recipientId={}, have status code {}", senderId, recipientId, resp.getStatusCode());
 
         return resp;
     }
