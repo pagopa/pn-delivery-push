@@ -139,7 +139,7 @@ public class DigitalWorkFlowUtils {
     private LegalDigitalAddressInt retrievePlatformAddress(NotificationRecipientInt recipient, NotificationSenderInt sender) {
         log.debug("RetrievePlatformAddress for sender {}", sender.getPaId());
 
-        Optional<LegalDigitalAddressInt> digitalAddressOpt = addressBookService.getPlatformAddresses(recipient.getTaxId(), sender.getPaId());
+        Optional<LegalDigitalAddressInt> digitalAddressOpt = addressBookService.getPlatformAddresses(recipient.getInternalId(), sender.getPaId());
 
         if (digitalAddressOpt.isPresent()) {
             log.debug("Retrive platformAddress ok for recipient {} sender {}", recipient.getTaxId(), sender.getPaId());

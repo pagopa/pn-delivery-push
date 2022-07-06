@@ -81,7 +81,6 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         log.debug("Start sendCourtesyNotification - iun {} id {}", notification.getIun(), recIndex);
 
         externalChannel.sendCourtesyNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), courtesyAddress, eventId);
-        externalChannelUtils.addSendCourtesyMessageToTimeline(notification, courtesyAddress, recIndex, eventId);
     }
 
     /**

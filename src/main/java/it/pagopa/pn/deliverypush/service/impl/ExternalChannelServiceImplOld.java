@@ -89,11 +89,8 @@ public class ExternalChannelServiceImplOld implements ExternalChannelService {
         log.debug("Start sendCourtesyNotification - iun {} id {}", notification.getIun(), recIndex);
 
         PnExtChnEmailEvent pnExtChnEmailEvent = getExtChannelEmailRequest(notification, courtesyAddress, recIndex, eventId);
-
         externalChannel.sendNotification(pnExtChnEmailEvent);
-        externalChannelUtils.addSendCourtesyMessageToTimeline(notification, courtesyAddress, recIndex, eventId);
     }
-    
     
 /**
  * Send registered letter to external channel

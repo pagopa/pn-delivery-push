@@ -109,9 +109,9 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
     @Override
     public void sendCourtesyNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, CourtesyDigitalAddressInt digitalAddress, String timelineEventId)
     {
-        if (digitalAddress.getType() == CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.EMAIL)
+        if (digitalAddress.getType() == CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL)
             sendNotificationEMAIL(timelineEventId, notificationInt, recipientInt, digitalAddress);
-        else if (digitalAddress.getType() == CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE.SMS)
+        else if (digitalAddress.getType() == CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.SMS)
             sendNotificationSMS(timelineEventId, notificationInt, recipientInt, digitalAddress);
         else
             throw new PnInternalException("channel type not supported");
