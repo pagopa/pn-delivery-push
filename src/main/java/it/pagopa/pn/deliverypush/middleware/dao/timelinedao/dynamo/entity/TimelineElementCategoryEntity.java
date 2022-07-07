@@ -52,7 +52,9 @@ public enum TimelineElementCategoryEntity {
 
     REQUEST_REFUSED("REQUEST_REFUSED"),
 
-    AAR_GENERATION("AAR_GENERATION");
+    AAR_GENERATION("AAR_GENERATION"),
+
+    NOT_HANDLED("NOT_HANDLED");
 
     private final String value;
 
