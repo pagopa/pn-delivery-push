@@ -38,4 +38,6 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("newAddress")})) private PhysicalAddressEntity newAddress;
     @Getter(onMethod=@__({@DynamoDbAttribute("generatedAarUrl")})) private String generatedAarUrl;
     @Getter(onMethod=@__({@DynamoDbAttribute("numberOfPages")})) private Integer numberOfPages;
+    @Getter(onMethod=@__({@DynamoDbAttribute("reasonCode")})) private String reasonCode;
+    @Getter(onMethod=@__({@DynamoDbAttribute("reason")})) private String reason;
 }

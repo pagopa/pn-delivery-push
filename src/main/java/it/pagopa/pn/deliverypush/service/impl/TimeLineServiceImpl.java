@@ -57,28 +57,36 @@ public class TimeLineServiceImpl implements TimelineService {
     @Override
     public void addTimelineElement(TimelineElementInternal dto, NotificationInt notification) {
         log.info("addTimelineElement - IUN={} and timelineId={}", dto.getIun(), dto.getElementId());
-
+        
         if (notification != null) {
-            Set<TimelineElementInternal> currentTimeline = getTimeline(dto.getIun());
-            StatusService.NotificationStatusUpdate notificationStatuses = statusService.checkAndUpdateStatus(dto, currentTimeline, notification);
+            try{
+                Set<TimelineElementInternal> currentTimeline = getTimeline(dto.getIun());
+                StatusService.NotificationStatusUpdate notificationStatuses = statusService.checkAndUpdateStatus(dto, currentTimeline, notification);
+
+                //Vengono salvate le informazioni confidenziali in sicuro, dal momento che successivamente non saranno salvate a DB
+                confidentialInformationService.saveTimelineConfidentialInformation(dto);
+
+                timelineDao.addTimelineElement(dto);
+                // genero un messagio per l'aggiunta in sqs in modo da salvarlo in maniera asincrona
+                schedulerService.scheduleWebhookEvent(notification.getSender().getPaId(),
+                        dto.getIun(),
+                        dto.getElementId(),
+                        dto.getTimestamp(),
+                        notificationStatuses.getOldStatus().getValue(),
+                        notificationStatuses.getNewStatus().getValue(),
+                        dto.getCategory().getValue()
+                );
+            }catch (Exception ex){
+                log.error("Exception in addTimelineElement - iun={} elementId={} ex={}", notification.getIun(), dto.getElementId(), ex);
+                throw new PnInternalException("Exception in addTimelineElement - iun="+notification.getIun()+" elementId="+dto.getElementId());
+            }
             
-            //Vengono salvate le informazioni confidenziali in sicuro, dal momento che successivamente non saranno salvate a DB
-            confidentialInformationService.saveTimelineConfidentialInformation(dto);
-            
-            timelineDao.addTimelineElement(dto);
-            // genero un messagio per l'aggiunta in sqs in modo da salvarlo in maniera asincrona
-            schedulerService.scheduleWebhookEvent(notification.getSender().getPaId(),
-                    dto.getIun(),
-                    dto.getElementId(),
-                    dto.getTimestamp(),
-                    notificationStatuses.getOldStatus().getValue(),
-                    notificationStatuses.getNewStatus().getValue(),
-                    dto.getCategory().getValue()
-            );
         } else {
             log.error("Try to update Timeline and Status for non existing iun={}", dto.getIun());
             throw new PnInternalException("Try to update Timeline and Status for non existing iun " + dto.getIun());
         }
+        
+
     }
     
     @Override
