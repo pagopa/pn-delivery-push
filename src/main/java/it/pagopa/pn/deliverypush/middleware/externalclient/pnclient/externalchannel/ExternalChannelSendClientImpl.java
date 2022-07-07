@@ -1,13 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.util.StdDateFormat;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.pnclients.RestTemplateFactory;
 import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.ApiClient;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.api.DigitalCourtesyMessagesApi;
@@ -27,15 +20,11 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -55,13 +44,11 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
     private DigitalCourtesyMessagesApi digitalCourtesyMessagesApi;
     private PaperMessagesApi paperMessagesApi;
     private final LegalFactGenerator legalFactGenerator;
-    private final RestTemplateFactory restTemplateFactory;
 
-    public ExternalChannelSendClientImpl(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryPushConfigs cfg, LegalFactGenerator legalFactGenerator, RestTemplateFactory restTemplateFactory) {
+    public ExternalChannelSendClientImpl(@Qualifier("withOffsetDateTimeFormatter") RestTemplate restTemplate, PnDeliveryPushConfigs cfg, LegalFactGenerator legalFactGenerator) {
         this.legalFactGenerator = legalFactGenerator;
         this.cfg = cfg;
         this.restTemplate = restTemplate;
-        this.restTemplateFactory = restTemplateFactory;
     }
 
     @PostConstruct
@@ -73,19 +60,8 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
 
     private ApiClient newApiClient()
     {
-        // Override del comportamento di serializzazione delle date
-        // per ovviare al problema del numero di cifre nella frazione di secondo
-        RestTemplate template = new RestTemplate();
-        template.getMessageConverters().stream()
-                .filter(AbstractJackson2HttpMessageConverter.class::isInstance)
-                .map(AbstractJackson2HttpMessageConverter.class::cast)
-                .forEach(converter -> converter.getObjectMapper()
-                        .configOverride(OffsetDateTime.class)
-                        .setFormat(JsonFormat.Value.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX"))
-                );
-        restTemplateFactory.enrichWithTracing(template);
 
-        ApiClient apiClient = new ApiClient(template);
+        ApiClient apiClient = new ApiClient(restTemplate);
         apiClient.setBasePath(cfg.getExternalChannelBaseUrl());
         //apiClient.addDefaultHeader("x-api-key", cfg.getExternalchannelApiKey());
         return apiClient;

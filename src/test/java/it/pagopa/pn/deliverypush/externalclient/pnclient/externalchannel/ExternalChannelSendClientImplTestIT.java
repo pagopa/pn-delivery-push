@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.externalclient.pnclient.externalchannel;
 
+import it.pagopa.pn.commons.pnclients.RestTemplateFactory;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.api.PaperMessagesApi;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
@@ -48,7 +49,8 @@ class ExternalChannelSendClientImplTestIT {
         this.cfg = mock( PnDeliveryPushConfigs.class );
         Mockito.when( cfg.getExternalChannelBaseUrl() ).thenReturn( "http://localhost:8080" );
         Mockito.when( cfg.getExternalchannelCxId() ).thenReturn( "pn-delivery-002" );
-        this.externalChannelSendClient = new ExternalChannelSendClientImpl( restTemplate, cfg, legalFactGenerator, null);//TODO
+
+        this.externalChannelSendClient = new ExternalChannelSendClientImpl( restTemplate, cfg, legalFactGenerator);
         this.externalChannelSendClient.init();
     }
 
