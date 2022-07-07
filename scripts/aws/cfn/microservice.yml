@@ -122,6 +122,10 @@ Parameters:
   VpcId:
     Type: String
     Description: 'VpcId where the microservice is going to be deployed'
+  
+  EcsDefaultSecurityGroup:
+    Type: String
+    Description: 'Default security group required by infrastructure'
 
   ApplicationLoadBalancerListenerArn:
     Type: String
@@ -211,6 +215,25 @@ Parameters:
   SandboxSafeStorageBaseUrl:
     Type: String
     Description: url base di safe storage
+  
+  LogsBucketName:
+    Type: String
+    Description: Bucket name where the logs must be exported
+  LogsExporterRoleArn:
+    Type: String
+    Description: ARN of the role used to write to external logs bucket
+  
+  TimelineCdcKinesisStreamArn:
+    Type: String
+    Description: kinesis stream Arn for timeline dynamo table
+  
+  TimelineCdcKinesisKeyArn:
+    Type: String
+    Description: KMS key arn for timeline stream decryption
+
+  Version:
+    Type: String
+    Description: 'keep track of used projects commitIds'
 
   PnDeliveryPushPaperMessageNotHandled:
     Type: String
@@ -263,11 +286,13 @@ Resources:
         ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_STREAMSTABLENAME=${PnDeliveryPushWebhookStreamsTableName}'
         ContainerEnvEntry33: !Sub 'PN_DELIVERYPUSH_PAPERMESSAGENOTHANDLED=${PnDeliveryPushPaperMessageNotHandled}'
         ContainerEnvEntry34: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-x
+        ContainerEnvEntry35: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+
         MappedPaths: '/delivery-push/*,/delivery-push-private/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
         VpcId: !Ref VpcId
+        EcsDefaultSecurityGroup: !Ref EcsDefaultSecurityGroup
         LoadBalancerListenerArn: !Ref ApplicationLoadBalancerListenerArn
         LoadbalancerRulePriority: !Ref MicroserviceNumber
 
@@ -362,6 +387,7 @@ x
         ServiceApiPath: 'delivery-push'
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
 
   # Expose PN-Delivery-push microservice public API with API-GW for WEB usage
   DeliveryPushMicroservicePublicWebAPI:
@@ -376,17 +402,45 @@ x
         ServiceApiPath: 'delivery-push'
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
 
   # Expose PN-Delivery-push microservice public API with API-GW for IO usage
-  # DeliveryPushMicroservicePublicIoAPI:
-  #   Type: AWS::CloudFormation::Stack
-  #   Properties:
-  #     TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service.yaml"
-  #     Parameters:
-  #       MicroServiceUniqueName: !Sub '${ProjectName}-delivery-push'
-  #       IntendedUsage: IO
-  #       DnsName: !Ref IoApiDnsName
-  #       ProjectName: !Ref ProjectName
-  #       ServiceApiPath: 'delivery-push'
-  #       NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
-  #       ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
+  DeliveryPushMicroservicePublicIoAPI:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service.yaml"
+      Parameters:
+        MicroServiceUniqueName: !Sub '${ProjectName}-delivery-push'
+        IntendedUsage: IO
+        DnsName: !Ref IoApiDnsName
+        ProjectName: !Ref ProjectName
+        ServiceApiPath: 'delivery-push'
+        NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
+        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+
+  # Export cloudwatch logs to Log analysis account
+  StreamLogsToExternalBucket:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/export-microservice-logs.yaml"
+      Parameters:
+        TemplateBucketBaseUrl: !Ref TemplateBucketBaseUrl
+        ProjectName: !Ref ProjectName
+        LogsBucketName: !Ref LogsBucketName
+        LogsExporterRoleArn: !Ref LogsExporterRoleArn
+        StreamNamePrefix: pnDeliveryPush
+        LogGroupName: '/ecs/pn-delivery-push'
+
+  # Export cdc to Log analysis account
+  StreamTimelineCdcToExternalBucket:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/kinesis-source-stream-to-logs-bucket.yaml"
+      Parameters:
+        ProjectName: !Ref ProjectName
+        SourceKinesisDataStreamArn: !Ref TimelineCdcKinesisStreamArn
+        SourceKinesisDataStreamKeyArn: !Ref TimelineCdcKinesisKeyArn
+        LogsBucketName: !Ref LogsBucketName
+        LogsExporterRoleArn: !Ref LogsExporterRoleArn
+        StreamNamePrefix: pnTimelineCdc

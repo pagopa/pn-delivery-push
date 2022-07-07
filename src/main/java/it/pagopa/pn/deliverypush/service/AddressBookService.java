@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface AddressBookService {
-    Optional<LegalDigitalAddressInt> getPlatformAddresses(String taxId, String senderId);
+    Optional<LegalDigitalAddressInt> getPlatformAddresses(String internalId, String senderId);
 
-    Optional<List<CourtesyDigitalAddressInt>> getCourtesyAddress(String taxId, String senderId);
+    Optional<List<CourtesyDigitalAddressInt>> getCourtesyAddress(String internalId, String senderId);
 
-    Optional<PhysicalAddressInt> getResidentialAddress(String taxId, String senderId);
+    Optional<PhysicalAddressInt> getResidentialAddress(String internalId, String senderId);
 }

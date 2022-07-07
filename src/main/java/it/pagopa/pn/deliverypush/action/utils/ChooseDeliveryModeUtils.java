@@ -51,7 +51,7 @@ public class ChooseDeliveryModeUtils {
     public Optional<LegalDigitalAddressInt> getPlatformAddress(NotificationInt notification, Integer recIndex) {
         NotificationRecipientInt notificationRecipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         
-        return addressBookService.getPlatformAddresses(notificationRecipient.getTaxId(), notification.getSender().getPaId());
+        return addressBookService.getPlatformAddresses(notificationRecipient.getInternalId(), notification.getSender().getPaId());
     }
     
     public LegalDigitalAddressInt getDigitalDomicile(NotificationInt notification, Integer recIndex){
