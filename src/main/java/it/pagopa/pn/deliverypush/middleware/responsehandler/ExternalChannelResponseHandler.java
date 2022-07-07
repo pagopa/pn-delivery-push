@@ -58,7 +58,7 @@ public class ExternalChannelResponseHandler {
             
             analogWorkflowHandler.extChannelResponseHandler(analogSentResponseInt);
         } catch (PnInternalException e) {
-            log.error("Exception legalUpdate", e);
+            log.error("PnException legalUpdate", e);
             throw e;
         } catch (Exception e) {
             log.error("Exception legalUpdate", e);
@@ -73,7 +73,7 @@ public class ExternalChannelResponseHandler {
                 .deliveryFailureCause(event.getDeliveryFailureCause())
                 .iun(event.getIun())
                 .requestId(event.getRequestId())
-                .statusDateTime(event.getStatusDateTime())
+                .statusDateTime(event.getStatusDateTime().toInstant())
                 .statusDescription(event.getStatusDescription())
                 ;
         
@@ -98,7 +98,7 @@ public class ExternalChannelResponseHandler {
             builder.attachments(
                     event.getAttachments().stream().map(
                             att -> AttachmentDetailsInt.builder()
-                                        .date(att.getDate())
+                                        .date(att.getDate().toInstant())
                                         .id(att.getId())
                                         .documentType(att.getDocumentType())
                                         .url(att.getUrl())
@@ -133,7 +133,7 @@ public class ExternalChannelResponseHandler {
         return ExtChannelDigitalSentResponseInt.builder()
                 .iun(iun)
                 .eventDetails(event.getEventDetails())
-                .eventTimestamp(event.getEventTimestamp())
+                .eventTimestamp(event.getEventTimestamp().toInstant())
                 .status( ExtChannelProgressEventCat.valueOf(event.getStatus().getValue()))
                 .eventCode(event.getEventCode())
                 .requestId(event.getRequestId())

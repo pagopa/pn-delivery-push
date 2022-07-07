@@ -48,7 +48,7 @@ class ExternalChannelSendClientImplTestIT {
         this.cfg = mock( PnDeliveryPushConfigs.class );
         Mockito.when( cfg.getExternalChannelBaseUrl() ).thenReturn( "http://localhost:8080" );
         Mockito.when( cfg.getExternalchannelCxId() ).thenReturn( "pn-delivery-002" );
-        this.externalChannelSendClient = new ExternalChannelSendClientImpl( restTemplate, cfg, legalFactGenerator);
+        this.externalChannelSendClient = new ExternalChannelSendClientImpl( restTemplate, cfg, legalFactGenerator, null);//TODO
         this.externalChannelSendClient.init();
     }
 

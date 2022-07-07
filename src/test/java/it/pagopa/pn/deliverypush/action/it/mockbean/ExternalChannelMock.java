@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Assertions;
 import org.springframework.context.annotation.Lazy;
 
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -113,7 +114,7 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
         {
             LegalMessageSentDetails extChannelResponse = new LegalMessageSentDetails();
             extChannelResponse.setStatus(status);
-            extChannelResponse.setEventTimestamp(Instant.now());
+            extChannelResponse.setEventTimestamp(Instant.now().atOffset(ZoneOffset.UTC));
             extChannelResponse.setRequestId(timelineEventId);
 
             singleStatusUpdate.setDigitalLegal(extChannelResponse);
@@ -122,7 +123,7 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
         {
             CourtesyMessageProgressEvent extChannelResponse = new CourtesyMessageProgressEvent();
             extChannelResponse.setStatus(status);
-            extChannelResponse.setEventTimestamp(Instant.now());
+            extChannelResponse.setEventTimestamp(Instant.now().atOffset(ZoneOffset.UTC));
             extChannelResponse.setRequestId(timelineEventId);
 
             singleStatusUpdate.setDigitalCourtesy(extChannelResponse);
@@ -158,11 +159,11 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
         extChannelResponse.setStatusCode(status);
         extChannelResponse.setRequestId(timelineEventId);
         extChannelResponse.setIun(notificationInt.getIun());
-        extChannelResponse.setStatusDateTime(Instant.now());
+        extChannelResponse.setStatusDateTime(Instant.now().atOffset(ZoneOffset.UTC));
         AttachmentDetails attachmentDetails = new AttachmentDetails();
         attachmentDetails.setUrl("safestorage://urlditest");
         attachmentDetails.setId("123");
-        attachmentDetails.setDate(Instant.now());
+        attachmentDetails.setDate(Instant.now().atOffset(ZoneOffset.UTC));
         attachmentDetails.setDocumentType("ricevuta");
         extChannelResponse.setAttachments(List.of(attachmentDetails));
         if (newAddress != null) {

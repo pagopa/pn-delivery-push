@@ -1,6 +1,13 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.pnclients.RestTemplateFactory;
 import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.ApiClient;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.api.DigitalCourtesyMessagesApi;
@@ -20,11 +27,15 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -44,11 +55,13 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
     private DigitalCourtesyMessagesApi digitalCourtesyMessagesApi;
     private PaperMessagesApi paperMessagesApi;
     private final LegalFactGenerator legalFactGenerator;
+    private final RestTemplateFactory restTemplateFactory;
 
-    public ExternalChannelSendClientImpl(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryPushConfigs cfg, LegalFactGenerator legalFactGenerator) {
+    public ExternalChannelSendClientImpl(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryPushConfigs cfg, LegalFactGenerator legalFactGenerator, RestTemplateFactory restTemplateFactory) {
         this.legalFactGenerator = legalFactGenerator;
         this.cfg = cfg;
         this.restTemplate = restTemplate;
+        this.restTemplateFactory = restTemplateFactory;
     }
 
     @PostConstruct
@@ -60,11 +73,24 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
 
     private ApiClient newApiClient()
     {
-        ApiClient apiClient = new ApiClient(restTemplate);
+        // Override del comportamento di serializzazione delle date
+        // per ovviare al problema del numero di cifre nella frazione di secondo
+        RestTemplate template = new RestTemplate();
+        template.getMessageConverters().stream()
+                .filter(AbstractJackson2HttpMessageConverter.class::isInstance)
+                .map(AbstractJackson2HttpMessageConverter.class::cast)
+                .forEach(converter -> converter.getObjectMapper()
+                        .configOverride(OffsetDateTime.class)
+                        .setFormat(JsonFormat.Value.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX"))
+                );
+        restTemplateFactory.enrichWithTracing(template);
+
+        ApiClient apiClient = new ApiClient(template);
         apiClient.setBasePath(cfg.getExternalChannelBaseUrl());
         //apiClient.addDefaultHeader("x-api-key", cfg.getExternalchannelApiKey());
         return apiClient;
     }
+
 
     @Override
     public void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, PhysicalAddressInt physicalAddress, String timelineEventId, PhysicalAddressInt.ANALOG_TYPE analogType, String aarKey) {
@@ -75,7 +101,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
         paperEngageRequest.setIun(notificationInt.getIun());
         paperEngageRequest.setProductType(getProductType(analogType, physicalAddress.getForeignState()));
         paperEngageRequest.setRequestPaId(notificationInt.getSender().getPaId());
-        paperEngageRequest.setClientRequestTimeStamp(OffsetDateTime.now(ZoneOffset.UTC).toInstant());
+        paperEngageRequest.setClientRequestTimeStamp(OffsetDateTime.now(ZoneOffset.UTC));
         paperEngageRequest.setPrintType(PRINT_TYPE_BN_FRONTE_RETRO);
 
         // nome e indirizzo destinatario
@@ -134,7 +160,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
             digitalNotificationRequestDto.setMessageContentType(DigitalNotificationRequest.MessageContentTypeEnum.HTML);
             digitalNotificationRequestDto.setQos(DigitalNotificationRequest.QosEnum.BATCH);
             digitalNotificationRequestDto.setReceiverDigitalAddress(digitalAddress.getAddress());
-            digitalNotificationRequestDto.setClientRequestTimeStamp(OffsetDateTime.now(ZoneOffset.UTC).toInstant());
+            digitalNotificationRequestDto.setClientRequestTimeStamp(OffsetDateTime.now(ZoneOffset.UTC));
             digitalNotificationRequestDto.setMessageText(mailbody);
             digitalNotificationRequestDto.setSubjectText(mailsubj);
             digitalNotificationRequestDto.setAttachmentUrls(new ArrayList<>());
@@ -164,7 +190,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
             digitalNotificationRequestDto.setEventType(EVENT_TYPE_COURTESY);
             digitalNotificationRequestDto.setQos(DigitalCourtesyMailRequest.QosEnum.BATCH);
             digitalNotificationRequestDto.setReceiverDigitalAddress(digitalAddress.getAddress());
-            digitalNotificationRequestDto.setClientRequestTimeStamp(OffsetDateTime.now(ZoneOffset.UTC).toInstant());
+            digitalNotificationRequestDto.setClientRequestTimeStamp(OffsetDateTime.now(ZoneOffset.UTC));
             digitalNotificationRequestDto.setMessageContentType(DigitalCourtesyMailRequest.MessageContentTypeEnum.HTML);
             digitalNotificationRequestDto.setMessageText(mailbody);
             digitalNotificationRequestDto.setSubjectText(mailsubj);
@@ -194,7 +220,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
             digitalNotificationRequestDto.setEventType(EVENT_TYPE_COURTESY);
             digitalNotificationRequestDto.setQos(DigitalCourtesySmsRequest.QosEnum.BATCH);
             digitalNotificationRequestDto.setReceiverDigitalAddress(digitalAddress.getAddress());
-            digitalNotificationRequestDto.setClientRequestTimeStamp(OffsetDateTime.now(ZoneOffset.UTC).toInstant());
+            digitalNotificationRequestDto.setClientRequestTimeStamp(OffsetDateTime.now(ZoneOffset.UTC));
             digitalNotificationRequestDto.setMessageText(smsbody);
             if (StringUtils.hasText(cfg.getExternalchannelSenderSms()))
                 digitalNotificationRequestDto.setSenderDigitalAddress(cfg.getExternalchannelSenderSms());
