@@ -65,7 +65,7 @@ class IoServiceImplTest {
         );
 
         assertDoesNotThrow(() ->
-                ioService.sendIOMessage(notificationInt, 0, Mockito.any(Instant.class))
+                ioService.sendIOMessage(notificationInt, 0, Instant.now())
         );
     }
 
@@ -96,7 +96,7 @@ class IoServiceImplTest {
         );
         
         assertThrows(PnInternalException.class, () -> {
-            ioService.sendIOMessage(notificationInt, 0, Mockito.any(Instant.class));
+            ioService.sendIOMessage(notificationInt, 0,  Instant.now());
         });
 
     }
