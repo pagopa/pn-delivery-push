@@ -7,13 +7,14 @@ import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.validation.ConstraintViolation;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,11 +70,12 @@ public class StartWorkflowHandler {
                 String legalFactId = saveLegalFactsService.saveNotificationReceivedLegalFact(notification);
 
                 addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification, legalFactId), notification);
+                Instant requestAcceptedDate = Instant.now();
 
                 //Start del workflow per ogni recipient della notifica
                 for (NotificationRecipientInt recipient : notification.getRecipients()) {
                     Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
-                    startNotificationWorkflowForRecipient(notification, recIndex);
+                    startNotificationWorkflowForRecipient(notification, recIndex, requestAcceptedDate);
                 }
             } catch (PnValidationException ex) {
                 handleValidationError(notification, ex);
@@ -87,12 +89,12 @@ public class StartWorkflowHandler {
         }
     }
 
-    private void startNotificationWorkflowForRecipient(NotificationInt notification, Integer recIndex) {
+    private void startNotificationWorkflowForRecipient(NotificationInt notification, Integer recIndex, Instant requestAcceptedDate) {
         log.info("Start notification workflow - iun {} id {}", notification.getIun(), recIndex);
         // ... genero il pdf dell'AAR, salvo su Safestorage e genero elemento in timeline AAR_GENERATION, potrebbe servirmi dopo ...
         aarUtils.generateAARAndSaveInSafeStorageAndAddTimelineevent(notification, recIndex);
         //... Invio messaggio di cortxesia ...
-        courtesyMessageUtils.checkAddressesForSendCourtesyMessage(notification, recIndex);
+        courtesyMessageUtils.checkAddressesForSendCourtesyMessage(notification, recIndex, requestAcceptedDate);
         //... e inizializzato il processo di scelta della tipologia di notificazione
         chooseModeHandler.chooseDeliveryTypeAndStartWorkflow(notification, recIndex);
     }

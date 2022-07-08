@@ -13,6 +13,8 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+
 
 @Slf4j
 @Service
@@ -27,12 +29,12 @@ public class IoServiceImpl implements IoService {
     }
 
     @Override
-    public void sendIOMessage(NotificationInt notification, int recIndex) {
+    public void sendIOMessage(NotificationInt notification, int recIndex, Instant requestAcceptedDate) {
         log.info("Start send message to App IO - iun={} id={}", notification.getIun(), recIndex);
 
         NotificationRecipientInt recipientInt = notificationUtils.getRecipientFromIndex(notification, recIndex);
 
-        SendMessageRequest sendMessageRequest = getSendMessageRequest(notification, recipientInt);
+        SendMessageRequest sendMessageRequest = getSendMessageRequest(notification, recipientInt, requestAcceptedDate);
 
         ResponseEntity<SendMessageResponse> resp = pnExternalRegistryClient.sendIOMessage(sendMessageRequest);
 
@@ -49,22 +51,17 @@ public class IoServiceImpl implements IoService {
     }
 
     @NotNull
-    private SendMessageRequest getSendMessageRequest(NotificationInt notification, NotificationRecipientInt recipientInt) {
+    private SendMessageRequest getSendMessageRequest(NotificationInt notification, NotificationRecipientInt recipientInt, Instant requestAcceptedDate) {
         SendMessageRequest sendMessageRequest = new SendMessageRequest();
         sendMessageRequest.setAmount(notification.getAmount());
         sendMessageRequest.setDueDate(notification.getPaymentExpirationDate());
         sendMessageRequest.setRecipientTaxID(recipientInt.getTaxId());
-
+        sendMessageRequest.setRequestAcceptedDate(requestAcceptedDate);
         sendMessageRequest.setSenderDenomination(notification.getSender().getPaDenomination());
         sendMessageRequest.setIun(notification.getIun());
-        sendMessageRequest.setSubject(notification.getSubject());
         
-        if(recipientInt.getPayment() != null){
-            sendMessageRequest.setNoticeNumber(recipientInt.getPayment().getNoticeCode());
-            sendMessageRequest.setCreditorTaxId(recipientInt.getPayment().getCreditorTaxId());
-        }else {
-            log.warn("Recipient haven't payment information - iun={}", notification.getIun());
-        }
+        String subject = notification.getSender().getPaDenomination() +"-"+ notification.getSubject();
+        sendMessageRequest.setSubject(subject);
 
         return sendMessageRequest;
     }
