@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.ResponseEntity;
 
-import java.time.Instant;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -65,7 +64,7 @@ class IoServiceImplTest {
         );
 
         assertDoesNotThrow(() ->
-                ioService.sendIOMessage(notificationInt, 0, Instant.now())
+                ioService.sendIOMessage(notificationInt, 0)
         );
     }
 
@@ -96,7 +95,7 @@ class IoServiceImplTest {
         );
         
         assertThrows(PnInternalException.class, () -> {
-            ioService.sendIOMessage(notificationInt, 0,  Instant.now());
+            ioService.sendIOMessage(notificationInt, 0);
         });
 
     }

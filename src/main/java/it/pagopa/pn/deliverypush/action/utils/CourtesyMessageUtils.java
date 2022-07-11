@@ -15,7 +15,6 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
 import java.util.Optional;
 
 @Component
@@ -48,7 +47,7 @@ public class CourtesyMessageUtils {
     /**
      * Get recipient addresses and send courtesy messages.
      */
-    public void checkAddressesForSendCourtesyMessage(NotificationInt notification, Integer recIndex, Instant requestAcceptedDate) {
+    public void checkAddressesForSendCourtesyMessage(NotificationInt notification, Integer recIndex) {
         log.info("CheckAddressesForSendCourtesyMessage - iun={} id={} ", notification.getIun(), recIndex);
         
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
@@ -58,7 +57,7 @@ public class CourtesyMessageUtils {
                 .ifPresent(listCourtesyAddresses -> {
                     int courtesyAddrIndex = 0;
                     for (CourtesyDigitalAddressInt courtesyAddress : listCourtesyAddresses) {
-                        sendCourtesyMessage(notification, recIndex, courtesyAddrIndex, courtesyAddress, requestAcceptedDate);
+                        sendCourtesyMessage(notification, recIndex, courtesyAddrIndex, courtesyAddress);
                         courtesyAddrIndex++;
                     }
                 });
@@ -69,8 +68,7 @@ public class CourtesyMessageUtils {
     private void sendCourtesyMessage(NotificationInt notification,
                                      Integer recIndex,
                                      int courtesyAddrIndex,
-                                     CourtesyDigitalAddressInt courtesyAddress,
-                                     Instant requestAcceptedDate) {
+                                     CourtesyDigitalAddressInt courtesyAddress) {
         log.debug("Send courtesy message address index {} - iun={} id={} ", courtesyAddrIndex, notification.getIun(), recIndex);
 
         //... Per ogni indirizzo di cortesia ottenuto viene inviata la notifica del messaggio di cortesia
@@ -84,7 +82,7 @@ public class CourtesyMessageUtils {
                 break;
             case APPIO:
                 log.info("Send courtesy message to App IO - iun={} id={} ", notification.getIun(), recIndex);
-                iOservice.sendIOMessage(notification, recIndex, requestAcceptedDate);
+                iOservice.sendIOMessage(notification, recIndex);
                 break;
             default:
                 handleCourtesyTypeError(notification, recIndex, courtesyAddress);

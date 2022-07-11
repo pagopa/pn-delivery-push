@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.validation.ConstraintViolation;
-import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -70,12 +69,11 @@ public class StartWorkflowHandler {
                 String legalFactId = saveLegalFactsService.saveNotificationReceivedLegalFact(notification);
 
                 addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification, legalFactId), notification);
-                Instant requestAcceptedDate = Instant.now();
 
                 //Start del workflow per ogni recipient della notifica
                 for (NotificationRecipientInt recipient : notification.getRecipients()) {
                     Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
-                    startNotificationWorkflowForRecipient(notification, recIndex, requestAcceptedDate);
+                    startNotificationWorkflowForRecipient(notification, recIndex);
                 }
             } catch (PnValidationException ex) {
                 handleValidationError(notification, ex);
@@ -89,12 +87,12 @@ public class StartWorkflowHandler {
         }
     }
 
-    private void startNotificationWorkflowForRecipient(NotificationInt notification, Integer recIndex, Instant requestAcceptedDate) {
+    private void startNotificationWorkflowForRecipient(NotificationInt notification, Integer recIndex) {
         log.info("Start notification workflow - iun {} id {}", notification.getIun(), recIndex);
         // ... genero il pdf dell'AAR, salvo su Safestorage e genero elemento in timeline AAR_GENERATION, potrebbe servirmi dopo ...
         aarUtils.generateAARAndSaveInSafeStorageAndAddTimelineevent(notification, recIndex);
         //... Invio messaggio di cortxesia ...
-        courtesyMessageUtils.checkAddressesForSendCourtesyMessage(notification, recIndex, requestAcceptedDate);
+        courtesyMessageUtils.checkAddressesForSendCourtesyMessage(notification, recIndex);
         //... e inizializzato il processo di scelta della tipologia di notificazione
         chooseModeHandler.chooseDeliveryTypeAndStartWorkflow(notification, recIndex);
     }

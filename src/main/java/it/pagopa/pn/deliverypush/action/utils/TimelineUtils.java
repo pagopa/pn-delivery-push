@@ -64,13 +64,14 @@ public class TimelineUtils {
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds( singleLegalFactId( legalFactId, LegalFactCategoryInt.SENDER_ACK ) );
 
-        return buildTimeline(
-                notification,
-                TimelineElementCategoryInt.REQUEST_ACCEPTED,
-                elementId,
-                details,
-                timelineBuilder
-            );
+        return timelineBuilder
+                .iun(notification.getIun())
+                .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
+                .timestamp(notification.getSentAt())
+                .elementId(elementId)
+                .details(details)
+                .paId(notification.getSender().getPaId())
+                .build();
     }
 
     public TimelineElementInternal buildAvailabilitySourceTimelineElement(Integer recIndex, NotificationInt notification, DigitalAddressSourceInt source, boolean isAvailable,
