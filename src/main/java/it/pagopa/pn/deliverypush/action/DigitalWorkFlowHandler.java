@@ -203,9 +203,11 @@ public class DigitalWorkFlowHandler {
 
         ResponseStatusInt status = mapDigitalStatusInResponseStatus(response.getStatus());
         
-        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(notification, status, response.getEventDetails()==null?null:List.of(response.getEventDetails()), sendDigitalDetails);
 
         if (status != null) {
+
+            digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(notification, status, response.getEventDetails()==null?null:List.of(response.getEventDetails()), sendDigitalDetails);
+
             switch (status) {
                 case OK:
                     log.info("Notification sent successfully, starting completion workflow - iun={} id={}", iun, recIndex);

@@ -45,7 +45,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
     private PaperMessagesApi paperMessagesApi;
     private final LegalFactGenerator legalFactGenerator;
 
-    public ExternalChannelSendClientImpl(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryPushConfigs cfg, LegalFactGenerator legalFactGenerator) {
+    public ExternalChannelSendClientImpl(@Qualifier("withOffsetDateTimeFormatter") RestTemplate restTemplate, PnDeliveryPushConfigs cfg, LegalFactGenerator legalFactGenerator) {
         this.legalFactGenerator = legalFactGenerator;
         this.cfg = cfg;
         this.restTemplate = restTemplate;
@@ -60,11 +60,13 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
 
     private ApiClient newApiClient()
     {
+
         ApiClient apiClient = new ApiClient(restTemplate);
         apiClient.setBasePath(cfg.getExternalChannelBaseUrl());
         //apiClient.addDefaultHeader("x-api-key", cfg.getExternalchannelApiKey());
         return apiClient;
     }
+
 
     @Override
     public void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, PhysicalAddressInt physicalAddress, String timelineEventId, PhysicalAddressInt.ANALOG_TYPE analogType, String aarKey) {
@@ -75,7 +77,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
         paperEngageRequest.setIun(notificationInt.getIun());
         paperEngageRequest.setProductType(getProductType(analogType, physicalAddress.getForeignState()));
         paperEngageRequest.setRequestPaId(notificationInt.getSender().getPaId());
-        paperEngageRequest.setClientRequestTimeStamp(OffsetDateTime.now(ZoneOffset.UTC).toInstant());
+        paperEngageRequest.setClientRequestTimeStamp(OffsetDateTime.now(ZoneOffset.UTC));
         paperEngageRequest.setPrintType(PRINT_TYPE_BN_FRONTE_RETRO);
 
         // nome e indirizzo destinatario
@@ -134,7 +136,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
             digitalNotificationRequestDto.setMessageContentType(DigitalNotificationRequest.MessageContentTypeEnum.HTML);
             digitalNotificationRequestDto.setQos(DigitalNotificationRequest.QosEnum.BATCH);
             digitalNotificationRequestDto.setReceiverDigitalAddress(digitalAddress.getAddress());
-            digitalNotificationRequestDto.setClientRequestTimeStamp(OffsetDateTime.now(ZoneOffset.UTC).toInstant());
+            digitalNotificationRequestDto.setClientRequestTimeStamp(OffsetDateTime.now(ZoneOffset.UTC));
             digitalNotificationRequestDto.setMessageText(mailbody);
             digitalNotificationRequestDto.setSubjectText(mailsubj);
             digitalNotificationRequestDto.setAttachmentUrls(new ArrayList<>());
@@ -164,7 +166,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
             digitalNotificationRequestDto.setEventType(EVENT_TYPE_COURTESY);
             digitalNotificationRequestDto.setQos(DigitalCourtesyMailRequest.QosEnum.BATCH);
             digitalNotificationRequestDto.setReceiverDigitalAddress(digitalAddress.getAddress());
-            digitalNotificationRequestDto.setClientRequestTimeStamp(OffsetDateTime.now(ZoneOffset.UTC).toInstant());
+            digitalNotificationRequestDto.setClientRequestTimeStamp(OffsetDateTime.now(ZoneOffset.UTC));
             digitalNotificationRequestDto.setMessageContentType(DigitalCourtesyMailRequest.MessageContentTypeEnum.HTML);
             digitalNotificationRequestDto.setMessageText(mailbody);
             digitalNotificationRequestDto.setSubjectText(mailsubj);
@@ -194,7 +196,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
             digitalNotificationRequestDto.setEventType(EVENT_TYPE_COURTESY);
             digitalNotificationRequestDto.setQos(DigitalCourtesySmsRequest.QosEnum.BATCH);
             digitalNotificationRequestDto.setReceiverDigitalAddress(digitalAddress.getAddress());
-            digitalNotificationRequestDto.setClientRequestTimeStamp(OffsetDateTime.now(ZoneOffset.UTC).toInstant());
+            digitalNotificationRequestDto.setClientRequestTimeStamp(OffsetDateTime.now(ZoneOffset.UTC));
             digitalNotificationRequestDto.setMessageText(smsbody);
             if (StringUtils.hasText(cfg.getExternalchannelSenderSms()))
                 digitalNotificationRequestDto.setSenderDigitalAddress(cfg.getExternalchannelSenderSms());

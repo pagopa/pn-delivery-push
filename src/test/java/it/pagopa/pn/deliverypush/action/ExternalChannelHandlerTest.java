@@ -16,6 +16,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 class ExternalChannelHandlerTest {
     @Mock
@@ -37,7 +39,7 @@ class ExternalChannelHandlerTest {
     void extChannelResponseReceiverForDigital() {
         LegalMessageSentDetails extChannelResponse = new LegalMessageSentDetails();
         extChannelResponse.setStatus(ProgressEventCategory.OK);
-        extChannelResponse.setEventTimestamp(Instant.now());
+        extChannelResponse.setEventTimestamp(Instant.now().atOffset(ZoneOffset.UTC));
         extChannelResponse.setRequestId("iun_event_idx_0");
         SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();
         singleStatusUpdate.setDigitalLegal(extChannelResponse);
@@ -57,8 +59,10 @@ class ExternalChannelHandlerTest {
         extChannelResponse.setStatusCode("__004__");
         extChannelResponse.setRequestId("iun_event_idx_0");
         extChannelResponse.setIun("iun");
+        extChannelResponse.setStatusDateTime(OffsetDateTime.now());
         SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();
         singleStatusUpdate.setAnalogMail(extChannelResponse);
+
 
         handler.extChannelResponseReceiver(singleStatusUpdate);
 

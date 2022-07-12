@@ -288,7 +288,7 @@ Resources:
         ContainerEnvEntry34: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry35: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
 
-        MappedPaths: '/delivery-push/*,/delivery-push-private/*'
+        MappedPaths: '/delivery-push/*,/delivery-push-private/*,/delivery-progresses/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
         VpcId: !Ref VpcId
@@ -389,6 +389,21 @@ Resources:
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
 
+  # Expose PN-Delivery-progress microservice public API with API-GW for B2B usage
+  DeliveryProgressMicroservicePublicAPI:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service.yaml"
+      Parameters:
+        MicroServiceUniqueName: !Sub '${ProjectName}-delivery-progress'
+        IntendedUsage: B2B
+        DnsName: !Ref ApiDnsName
+        ProjectName: !Ref ProjectName
+        ServiceApiPath: 'delivery-progresses'
+        NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
+        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+
   # Expose PN-Delivery-push microservice public API with API-GW for WEB usage
   DeliveryPushMicroservicePublicWebAPI:
     Type: AWS::CloudFormation::Stack
@@ -419,28 +434,4 @@ Resources:
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
 
-  # Export cloudwatch logs to Log analysis account
-  StreamLogsToExternalBucket:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/export-microservice-logs.yaml"
-      Parameters:
-        TemplateBucketBaseUrl: !Ref TemplateBucketBaseUrl
-        ProjectName: !Ref ProjectName
-        LogsBucketName: !Ref LogsBucketName
-        LogsExporterRoleArn: !Ref LogsExporterRoleArn
-        StreamNamePrefix: pnDeliveryPush
-        LogGroupName: '/ecs/pn-delivery-push'
 
-  # Export cdc to Log analysis account
-  StreamTimelineCdcToExternalBucket:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/kinesis-source-stream-to-logs-bucket.yaml"
-      Parameters:
-        ProjectName: !Ref ProjectName
-        SourceKinesisDataStreamArn: !Ref TimelineCdcKinesisStreamArn
-        SourceKinesisDataStreamKeyArn: !Ref TimelineCdcKinesisKeyArn
-        LogsBucketName: !Ref LogsBucketName
-        LogsExporterRoleArn: !Ref LogsExporterRoleArn
-        StreamNamePrefix: pnTimelineCdc
