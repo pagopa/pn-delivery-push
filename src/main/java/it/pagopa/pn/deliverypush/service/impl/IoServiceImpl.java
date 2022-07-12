@@ -54,17 +54,12 @@ public class IoServiceImpl implements IoService {
         sendMessageRequest.setAmount(notification.getAmount());
         sendMessageRequest.setDueDate(notification.getPaymentExpirationDate());
         sendMessageRequest.setRecipientTaxID(recipientInt.getTaxId());
-
+        sendMessageRequest.setRequestAcceptedDate(notification.getSentAt());
         sendMessageRequest.setSenderDenomination(notification.getSender().getPaDenomination());
         sendMessageRequest.setIun(notification.getIun());
-        sendMessageRequest.setSubject(notification.getSubject());
         
-        if(recipientInt.getPayment() != null){
-            sendMessageRequest.setNoticeNumber(recipientInt.getPayment().getNoticeCode());
-            sendMessageRequest.setCreditorTaxId(recipientInt.getPayment().getCreditorTaxId());
-        }else {
-            log.warn("Recipient haven't payment information - iun={}", notification.getIun());
-        }
+        String subject = notification.getSender().getPaDenomination() +"-"+ notification.getSubject();
+        sendMessageRequest.setSubject(subject);
 
         return sendMessageRequest;
     }

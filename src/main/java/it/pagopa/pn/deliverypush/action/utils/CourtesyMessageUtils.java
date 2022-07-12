@@ -65,7 +65,10 @@ public class CourtesyMessageUtils {
         log.debug("End sendCourtesyMessage - IUN={} id={}", notification.getIun(),recIndex);
     }
 
-    private void sendCourtesyMessage(NotificationInt notification, Integer recIndex, int courtesyAddrIndex, CourtesyDigitalAddressInt courtesyAddress) {
+    private void sendCourtesyMessage(NotificationInt notification,
+                                     Integer recIndex,
+                                     int courtesyAddrIndex,
+                                     CourtesyDigitalAddressInt courtesyAddress) {
         log.debug("Send courtesy message address index {} - iun={} id={} ", courtesyAddrIndex, notification.getIun(), recIndex);
 
         //... Per ogni indirizzo di cortesia ottenuto viene inviata la notifica del messaggio di cortesia
