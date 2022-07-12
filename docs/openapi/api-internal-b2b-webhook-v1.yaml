@@ -174,7 +174,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
-    delete: 
+    delete:
       summary: Remove Event Stream
       description: >-
         Elimina uno steam di eventi: elimina sia le configurazioni sia tutti gli eventi 
@@ -186,11 +186,11 @@ paths:
         '204':
           description: OK
         '400':
-          description: Invalid input
+          description: Bad request
           content:
-            application/problem+json:
+            application/json:
               schema:
-                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
         '500':
           description: Internal Server Error
           content:
