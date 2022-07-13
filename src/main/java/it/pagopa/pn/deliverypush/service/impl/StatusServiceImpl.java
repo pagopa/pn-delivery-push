@@ -69,7 +69,7 @@ public class StatusServiceImpl implements StatusService {
         logEvent.log();
 
         if (resp.getStatusCode().is2xxSuccessful()) {
-            logEvent.generateSuccess().log();
+            logEvent.generateSuccess("Status changed to {} for iun {}", dto.getNextState(), dto.getIun()).log();
         } else {
             logEvent.generateFailure("Status not updated correctly - iun={}", dto.getIun()).log();
             throw new PnInternalException("Status not updated correctly - iun " + dto.getIun());
