@@ -25,9 +25,13 @@ public class RefinementHandler {
 
     public void handleRefinement(String iun, Integer recIndex) {
         log.info("Start HandleRefinement - iun {} id {}", iun, recIndex);
-        NotificationInt notification = notificationService.getNotificationByIun(iun);
-        
-        addTimelineElement(timelineUtils.buildRefinementTimelineElement(notification, recIndex), notification);
+        boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex);
+
+        if( !isNotificationAlreadyViewed ){
+            //Se la notifica è già stata visualizzata non viene perfezionata per decorrenza termini in quanto è già stata perfezionata per visione
+            NotificationInt notification = notificationService.getNotificationByIun(iun);
+            addTimelineElement(timelineUtils.buildRefinementTimelineElement(notification, recIndex), notification);
+        }
     }
 
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {

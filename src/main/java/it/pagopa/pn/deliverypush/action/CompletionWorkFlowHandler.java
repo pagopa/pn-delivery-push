@@ -159,10 +159,19 @@ public class CompletionWorkFlowHandler {
 
     private void scheduleRefinement(NotificationInt notification, Integer recIndex, Instant notificationDate, Duration scheduleTime) {
         Instant schedulingDate = notificationDate.plus(scheduleTime);
-        log.info("Schedule refinement in {}", schedulingDate);
+        log.info("Start scheduling refinement - iun={} id={}", notification.getIun(), recIndex);
+        
+        boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
 
-        addTimelineElement( timelineUtils.buildScheduleRefinement(notification, recIndex), notification );
-        scheduler.scheduleEvent(notification.getIun(), recIndex, schedulingDate, ActionType.REFINEMENT_NOTIFICATION);
+        if( !isNotificationAlreadyViewed ){
+            log.info("Schedule refinement in date={} - iun={} id={}", schedulingDate, notification.getIun(), recIndex);
+
+            //Se la notifica è già stata visualizzata, non viene schedulato il perfezionamento per decorrenza termini dal momento che la notifica è già stata perfezionata per visione
+            addTimelineElement( timelineUtils.buildScheduleRefinement(notification, recIndex), notification );
+            scheduler.scheduleEvent(notification.getIun(), recIndex, schedulingDate, ActionType.REFINEMENT_NOTIFICATION);
+        }else {
+            log.info("Notification is already viewed, refinement will not be scheduled - iun={} id={}", notification.getIun(), recIndex);
+        }
     }
 
     private void handleError(String iun, Integer recIndex, EndWorkflowStatus status) {

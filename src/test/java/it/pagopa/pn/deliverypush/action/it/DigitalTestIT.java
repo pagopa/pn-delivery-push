@@ -288,7 +288,7 @@ class DigitalTestIT {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-        String timelineId = TimelineEventId.REFINEMENT.buildEventId(
+        String timelineId = TimelineEventId.DIGITAL_FAILURE_WORKFLOW.buildEventId(
                 EventId.builder()
                         .iun(iun)
                         .recIndex(recIndex)
@@ -337,8 +337,15 @@ class DigitalTestIT {
         //Viene verificato il mancato invio della registered letter, dal momento che non è presente la notifica è stata già visualizzata
         Mockito.verify(externalChannelMock, Mockito.never()).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
 
-        //Viene verificato che sia avvenuto il perfezionamento
-        TestUtils.checkRefinement(iun, recIndex, timelineService);
+        //Viene verificato che non sia avvenuto il perfezionamento dal momento che la notifica è stata visualizzata
+        Assertions.assertFalse(timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.REFINEMENT.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recIndex(recIndex)
+                                .build())
+        ).isPresent());
     }
     
     @Test
@@ -412,7 +419,7 @@ class DigitalTestIT {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-        String timelineId = TimelineEventId.REFINEMENT.buildEventId(
+        String timelineId = TimelineEventId.DIGITAL_FAILURE_WORKFLOW.buildEventId(
                 EventId.builder()
                         .iun(iun)
                         .recIndex(recIndex)
@@ -461,8 +468,16 @@ class DigitalTestIT {
         //Viene verificato il mancato invio della registered letter, dal momento che non è presente la notifica è stata già visualizzata
         Mockito.verify(externalChannelMock, Mockito.never()).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
 
-        //Viene verificato che sia avvenuto il perfezionamento
-        TestUtils.checkRefinement(iun, recIndex, timelineService);
+        //Viene verificato che non sia avvenuto il perfezionamento dal momento che la notifica è stata visualizzata
+        Assertions.assertFalse(timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.REFINEMENT.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recIndex(recIndex)
+                                .build())
+        ).isPresent());
+    
     }
 
     @Test
