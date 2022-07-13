@@ -3,6 +3,9 @@ package it.pagopa.pn.deliverypush.action;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.commons.log.PnAuditLogBuilder;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -65,10 +68,19 @@ public class StartWorkflowHandler {
             try {
                 //Validazione degli allegati della notifica
                 checkAttachmentUtils.validateAttachment(notification);
-
-                String legalFactId = saveLegalFactsService.saveNotificationReceivedLegalFact(notification);
-
-                addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification, legalFactId), notification);
+                PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+                PnAuditLogEvent logEvent = auditLogBuilder
+                        .before(PnAuditLogEventType.AUD_NT_INSERT, "saveNotificationReceivedLegalFact for iun={}", iun)
+                        .iun(iun)
+                        .build();
+                logEvent.log();
+                try {
+                    String legalFactId = saveLegalFactsService.saveNotificationReceivedLegalFact(notification);
+                    addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification, legalFactId), notification);
+                    logEvent.generateSuccess().log();
+                } catch (Exception exc) {
+                    logEvent.generateFailure("Exception on saveNotification", exc.getMessage());
+                }
 
                 //Start del workflow per ogni recipient della notifica
                 for (NotificationRecipientInt recipient : notification.getRecipients()) {
@@ -79,10 +91,8 @@ public class StartWorkflowHandler {
                 handleValidationError(notification, ex);
             }
         }catch (PnInternalException ex){
-            log.error("exception starting workflow", ex);
             throw ex;
         } catch (Exception ex){
-            log.error("exception starting workflow", ex);
             throw new PnInternalException("Cannot start workflow", ex);
         }
     }
@@ -90,7 +100,18 @@ public class StartWorkflowHandler {
     private void startNotificationWorkflowForRecipient(NotificationInt notification, Integer recIndex) {
         log.info("Start notification workflow - iun {} id {}", notification.getIun(), recIndex);
         // ... genero il pdf dell'AAR, salvo su Safestorage e genero elemento in timeline AAR_GENERATION, potrebbe servirmi dopo ...
-        aarUtils.generateAARAndSaveInSafeStorageAndAddTimelineevent(notification, recIndex);
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_ARR, "Notification AAR generation for iun={}", notification.getIun())
+                .iun(notification.getIun())
+                .build();
+        logEvent.log();
+        try {
+            aarUtils.generateAARAndSaveInSafeStorageAndAddTimelineevent(notification, recIndex);
+            logEvent.generateSuccess().log();
+        } catch (Exception exc) {
+            logEvent.generateFailure("Exception on generation of ARR", exc.getMessage()).log();
+        }
         //... Invio messaggio di cortxesia ...
         courtesyMessageUtils.checkAddressesForSendCourtesyMessage(notification, recIndex);
         //... e inizializzato il processo di scelta della tipologia di notificazione

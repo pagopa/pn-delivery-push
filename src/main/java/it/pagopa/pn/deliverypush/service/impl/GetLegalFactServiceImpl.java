@@ -1,5 +1,8 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import it.pagopa.pn.commons.log.PnAuditLogBuilder;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -54,19 +57,29 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
                                                                   String senderReceiverId,
                                                                   String mandateId) {
         log.debug( "getLegalFactMetadata for iun={} and legalfactId={}", iun, legalfactId );
-
-        NotificationInt notification = notificationService.getNotificationByIun(iun);
-        authUtils.checkUserAndMandateAuthorization(notification, senderReceiverId, mandateId);
-
-        // la key è la legalfactid
-        FileDownloadResponse fileDownloadResponse = safeStorageClient.getFile(legalfactId, false);
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_LEGALOPEN_SND, "getLegalFact iun={} legafactId={}", iun, legalfactId)
+                .iun(iun)
+                .build();
+        logEvent.log();
         LegalFactDownloadMetadataResponse response = new LegalFactDownloadMetadataResponse();
+        try {
+            NotificationInt notification = notificationService.getNotificationByIun(iun);
+            authUtils.checkUserAndMandateAuthorization(notification, senderReceiverId, mandateId);
 
-        response.setFilename(buildLegalFactFilename(iun, legalFactType, legalfactId));
-        response.setContentLength(fileDownloadResponse.getContentLength());
-        response.setRetryAfter(fileDownloadResponse.getDownload() != null ? fileDownloadResponse.getDownload().getRetryAfter() : null);
-        response.setUrl(fileDownloadResponse.getDownload().getUrl());
+            // la key è la legalfactid
+            FileDownloadResponse fileDownloadResponse = safeStorageClient.getFile(legalfactId, false);
 
+            response.setFilename(buildLegalFactFilename(iun, legalFactType, legalfactId));
+            response.setContentLength(fileDownloadResponse.getContentLength());
+            response.setRetryAfter(fileDownloadResponse.getDownload() != null ? fileDownloadResponse.getDownload().getRetryAfter() : null);
+            response.setUrl(fileDownloadResponse.getDownload().getUrl());
+            logEvent.generateSuccess().log();
+        } catch (Exception exc) {
+            logEvent.generateFailure("Exception in getLegalFact", exc.getMessage());
+            throw exc;
+        }
         return response;
     }
     

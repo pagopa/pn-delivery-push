@@ -1,6 +1,9 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
 import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.commons.log.PnAuditLogBuilder;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -22,10 +25,17 @@ public class CheckAttachmentUtils {
     }
     
     public void validateAttachment(NotificationInt notification ) throws PnValidationException {
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_VALID, "Start check attachment for document={}", notification.getIun() )
+                .iun(notification.getIun())
+                .build();
+        logEvent.log();
         log.debug( "Start check attachment for document" );
         for(NotificationDocumentInt attachment : notification.getDocuments()) {
             checkAttachment(attachment);
         }
+        logEvent.generateSuccess().log();
         log.debug( "End check attachment for document" );
 
         notification.getRecipients().forEach(
