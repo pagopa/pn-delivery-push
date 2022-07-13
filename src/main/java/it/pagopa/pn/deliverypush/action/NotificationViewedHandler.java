@@ -77,6 +77,7 @@ public class NotificationViewedHandler {
                     logEvent.generateFailure(
                             "Notification is in status={}, can't start view Notification process - iun={} id={}", currentStatus, iun, recIndex
                     ).log();
+                    throw exc;
                 }
                 
             }else {

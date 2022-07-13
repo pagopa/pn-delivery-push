@@ -1,6 +1,9 @@
 package it.pagopa.pn.deliverypush.action;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.log.PnAuditLogBuilder;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.utils.AnalogWorkflowUtils;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
@@ -192,21 +195,32 @@ public class AnalogWorkflowHandler {
 
         log.info("Analog workflow Ext channel response  - iun={} id={} with status={}", iun, recIndex, response.getStatusCode());
 
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_CHECK, "Analog workflow Ext channel response iun={} id={} with status={}", iun, recIndex, response.getStatusCode())
+                .iun(iun)
+                .build();
+        logEvent.log();
+        
         if (status!= null) {
             switch (status) {
                 case OK:
+                    // AUD_NT_CHECK
                     // La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
                     completionWorkFlow.completionAnalogWorkflow(notification, recIndex, legalFactsListEntryIds, response.getStatusDateTime(), sendPaperDetails.getPhysicalAddress(), EndWorkflowStatus.SUCCESS);
+                    logEvent.generateSuccess().log();
                     break;
                 case KO:
                     // External channel non è riuscito a effettuare la notificazione, si passa al prossimo step del workflow
                     int sentAttemptMade = sendPaperDetails.getSentAttemptMade() + 1;
                     analogWorkflowUtils.addAnalogFailureAttemptToTimeline(notification, sentAttemptMade, legalFactsListEntryIds, response.getDiscoveredAddress(), response.getDeliveryFailureCause()==null?null: List.of(response.getDeliveryFailureCause()),  sendPaperDetails);
                     nextWorkflowStep(notification, recIndex, sentAttemptMade);
+                    logEvent.generateFailure("External channel analogFailureAttempt proceding to next workflow step for iun={} id={}", iun, recIndex).log();
                     break;
             }
         } else {
             handleStatusProgress(response, iun, recIndex);
+            logEvent.generateFailure("Specified response={} is not final  - iun={} id={}", response.getStatusCode(), iun, recIndex).log();
         }
 
     }

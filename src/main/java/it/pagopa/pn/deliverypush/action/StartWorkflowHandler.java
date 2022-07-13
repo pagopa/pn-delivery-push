@@ -80,6 +80,7 @@ public class StartWorkflowHandler {
                     logEvent.generateSuccess().log();
                 } catch (Exception exc) {
                     logEvent.generateFailure("Exception on saveNotification", exc.getMessage());
+                    throw exc;
                 }
 
                 //Start del workflow per ogni recipient della notifica
@@ -111,6 +112,7 @@ public class StartWorkflowHandler {
             logEvent.generateSuccess().log();
         } catch (Exception exc) {
             logEvent.generateFailure("Exception on generation of ARR", exc.getMessage()).log();
+            throw exc;
         }
         //... Invio messaggio di cortxesia ...
         courtesyMessageUtils.checkAddressesForSendCourtesyMessage(notification, recIndex);
