@@ -24,22 +24,30 @@ Parameters:
     Type: String
     Description: 'Max elements quantity for each webhook call'
 
-  PecSecondAttemptWaitTime:
+  WaitingForReadCourtesyMessage:
+    Type: String
+    Description: 'Time to wait before starting the analog workflow. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
+
+  SecondNotificationWorkflowWaitingTime:
     Type: String
     Description: 'Time to wait from first to second pec attempt. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
-
-  RecipientTimeoutDelayDigital:
+  
+  SchedulingDaysSuccessDigitalRefinement:
     Type: String
-    Description: 'refinement time for digital workflow. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
+    Description: 'refinement time for digital workflow success. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
 
-  RecipientTimeoutDelayAnalog:
+  SchedulingDaysFailureDigitalRefinement:
     Type: String
-    Description: 'refinement time for analog successful workflow. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
+    Description: 'refinement time for digital workflow failure. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
 
-  RefinementTimeCompletelyUnreachable:
+  SchedulingDaysSuccessAnalogRefinement:
     Type: String
-    Description: 'refinement time for analog failed workflow. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
+    Description: 'refinement time for Analog workflow success. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
 
+  SchedulingDaysFailureAnalogRefinement:
+    Type: String
+    Description: 'refinement time for Analog workflow failure. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
+  
   ApiDnsName:
     Type: String
     Description: 'The DNS name used for B2B rest API.'
@@ -71,6 +79,7 @@ Parameters:
   DeliveryPushInputsQueueName:
     Type: String
     Description: 'Queue to pull for inputs event'
+    
   DeliveryPushInputsQueueARN:
     Type: String
     Description: 'Queue to pull for inputs event'
@@ -78,6 +87,7 @@ Parameters:
   ExternalChannelsInputsQueueName:
     Type: String
     Description: 'Send external-channel messages to this Queue'
+    
   ExternalChannelsInputsQueueARN:
     Type: String
     Description: 'Send external-channel messages to this Queue'
@@ -85,6 +95,7 @@ Parameters:
   ExternalChannelsOutputsQueueName:
     Type: String
     Description: 'Pull external-channel messages from this Queue'
+    
   ExternalChannelsOutputsQueueARN:
     Type: String
     Description: 'Pull external-channel messages from this Queue'
@@ -92,6 +103,7 @@ Parameters:
   ScheduledActionsQueueName:
     Type: String
     Description: 'Send and pull ready-to-do actions th this queue'
+    
   ScheduledActionsQueueARN:
     Type: String
     Description: 'Send and pull ready-to-do actions th this queue'
@@ -99,17 +111,10 @@ Parameters:
   DoneActionsQueueName:
     Type: String
     Description: 'Send done actions to this queue read by webhook'
+    
   DoneActionsQueueARN:
     Type: String
     Description: 'Send done actions to this queue read by webhook'
-
-  LegalFactsBucketName:
-    Type: String
-    Description: 'Where to write documents files'
-
-  LegalFactsBucketArn:
-    Type: String
-    Description: 'Where to write documents files'
 
   ECSClusterName:
     Type: String
@@ -187,7 +192,6 @@ Parameters:
     Type: String
     Description: ARN of dynamodb table containing
 
-
   PnDeliveryPushWebhookStreamsTableName:
     Type: String
     Description: Name of dynamodb table containing
@@ -219,6 +223,7 @@ Parameters:
   LogsBucketName:
     Type: String
     Description: Bucket name where the logs must be exported
+    
   LogsExporterRoleArn:
     Type: String
     Description: ARN of the role used to write to external logs bucket
@@ -253,40 +258,41 @@ Resources:
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
         ContainerImageURI: !Sub '${ContainerImageUri}'
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
-        ContainerEnvEntry2: !Sub 'AWS_BUCKETNAME=${LegalFactsBucketName}'
-        ContainerEnvEntry3: !Sub 'PN_CLIENTS_ADDRESSBOOKBASEURL=${AddressBookUrl}'
-        ContainerEnvEntry4: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNELBASEURL=${ExternalChannelBaseUrl}'
-        ContainerEnvEntry5: !Sub 'PN_DELIVERYPUSH_TOPICS_NEWNOTIFICATIONS=${DeliveryPushInputsQueueName}'
-        ContainerEnvEntry6: !Sub 'PN_DELIVERYPUSH_TOPICS_TOEXTERNALCHANNELPEC=${ExternalChannelsInputsQueueName}'
-        ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_TOEXTERNALCHANNELEMAIL=${ExternalChannelsInputsQueueName}'
-        ContainerEnvEntry8: !Sub 'PN_DELIVERYPUSH_TOPICS_TOEXTERNALCHANNELPAPER=${ExternalChannelsInputsQueueName}'
-        ContainerEnvEntry9: !Sub 'PN_DELIVERYPUSH_TOPICS_FROMEXTERNALCHANNEL=${ExternalChannelsOutputsQueueName}'
-        ContainerEnvEntry10: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}'
-        ContainerEnvEntry11: !Sub 'PN_DELIVERYPUSH_TOPICS_EXECUTEDACTIONS=${DoneActionsQueueName}'
-        ContainerEnvEntry12: !Sub 'PN_DELIVERYPUSH_WEBHOOK_SCHEDULEINTERVAL=${WebhookScanInterval}'
-        ContainerEnvEntry13: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXLENGTH=${WebhookMaxLength}'
-        ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_WEBAPP_DIRECTACCESSURLTEMPLATE=${PhysicalPersonPortalUrl}/direct_access.html?token=%s'
-        ContainerEnvEntry15: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SECONDATTEMPTWAITINGTIME=${PecSecondAttemptWaitTime}'
-        ContainerEnvEntry16: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_RECIPIENTVIEWMAXTIMEFORDIGITAL=${RecipientTimeoutDelayDigital}'
-        ContainerEnvEntry17: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_RECIPIENTVIEWMAXTIMEFORANALOG=${RecipientTimeoutDelayAnalog}'
-        ContainerEnvEntry18: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_REFINEMENTTIMEFORCOMPLETELYUNREACHABLE=${RefinementTimeCompletelyUnreachable}'
-        ContainerEnvEntry19: !Sub 'PN_DELIVERYPUSH_DATAVAULTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry20: !Sub 'PN_DELIVERYPUSH_USERATTRIBUTESBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry21: !Sub 'PN_DELIVERYPUSH_SAFESTORAGEBASEURL=${SandboxSafeStorageBaseUrl}'
-        ContainerEnvEntry22: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName}'
-        ContainerEnvEntry23: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry24: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
-        ContainerEnvEntry25: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
-        ContainerEnvEntry26: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
-        ContainerEnvEntry27: !Sub 'PN_DELIVERYPUSH_ACTIONDAO_TABLENAME=${ActionDynamoTableName}'
-        ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_FUTUREACTIONDAO_TABLENAME=${FutureActionDynamoTableName}'
-        ContainerEnvEntry29: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_TABLENAME=${LastPollForFutureActionDynamoTableName}'
-        ContainerEnvEntry30: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_LOCKTABLENAME=${PnDeliveryPushShedLockDynamoTableName}'
-        ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_EVENTSTABLENAME=${PnDeliveryPushWebhookEventsTableName}'
-        ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_STREAMSTABLENAME=${PnDeliveryPushWebhookStreamsTableName}'
-        ContainerEnvEntry33: !Sub 'PN_DELIVERYPUSH_PAPERMESSAGENOTHANDLED=${PnDeliveryPushPaperMessageNotHandled}'
-        ContainerEnvEntry34: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry35: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry2: !Sub 'PN_DELIVERYPUSH_TOPICS_NEWNOTIFICATIONS=${DeliveryPushInputsQueueName}'
+        ContainerEnvEntry3: !Sub 'PN_DELIVERYPUSH_TOPICS_TOEXTERNALCHANNELPEC=${ExternalChannelsInputsQueueName}'
+        ContainerEnvEntry4: !Sub 'PN_DELIVERYPUSH_TOPICS_TOEXTERNALCHANNELEMAIL=${ExternalChannelsInputsQueueName}'
+        ContainerEnvEntry5: !Sub 'PN_DELIVERYPUSH_TOPICS_TOEXTERNALCHANNELPAPER=${ExternalChannelsInputsQueueName}'
+        ContainerEnvEntry6: !Sub 'PN_DELIVERYPUSH_TOPICS_FROMEXTERNALCHANNEL=${ExternalChannelsOutputsQueueName}'
+        ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}'
+        ContainerEnvEntry8: !Sub 'PN_DELIVERYPUSH_TOPICS_EXECUTEDACTIONS=${DoneActionsQueueName}'
+        ContainerEnvEntry9: !Sub 'PN_DELIVERYPUSH_WEBHOOK_SCHEDULEINTERVAL=${WebhookScanInterval}'
+        ContainerEnvEntry10: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXLENGTH=${WebhookMaxLength}'
+        ContainerEnvEntry11: !Sub 'PN_DELIVERYPUSH_WEBAPP_DIRECTACCESSURLTEMPLATE=${PhysicalPersonPortalUrl}/direct_access.html?token=%s'
+        ContainerEnvEntry12: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_EVENTSTABLENAME=${PnDeliveryPushWebhookEventsTableName}'
+        ContainerEnvEntry13: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_STREAMSTABLENAME=${PnDeliveryPushWebhookStreamsTableName}'
+        ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_WAITINGFORREADCOURTESYMESSAGE=${WaitingForReadCourtesyMessage}'
+        ContainerEnvEntry15: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SECONDNOTIFICATIONWORKFLOWWAITINGTIME=${SecondNotificationWorkflowWaitingTime}'
+        ContainerEnvEntry16: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSSUCCESSDIGITALREFINEMENT=${SchedulingDaysSuccessDigitalRefinement}'
+        ContainerEnvEntry17: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSFAILUREDIGITALREFINEMENT=${SchedulingDaysFailureDigitalRefinement}'
+        ContainerEnvEntry18: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSSUCCESSANALOGREFINEMENT=${SchedulingDaysSuccessAnalogRefinement}'
+        ContainerEnvEntry19: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYFAILUREANALOGREFINEMENT=${SchedulingDaysFailureAnalogRefinement}'
+        ContainerEnvEntry20: !Sub 'PN_CLIENTS_ADDRESSBOOKBASEURL=${AddressBookUrl}'
+        ContainerEnvEntry21: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNELBASEURL=${ExternalChannelBaseUrl}'
+        ContainerEnvEntry22: !Sub 'PN_DELIVERYPUSH_DATAVAULTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry23: !Sub 'PN_DELIVERYPUSH_USERATTRIBUTESBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry24: !Sub 'PN_DELIVERYPUSH_SAFESTORAGEBASEURL=${SandboxSafeStorageBaseUrl}'
+        ContainerEnvEntry25: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry26: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry27: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry28: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName}'
+        ContainerEnvEntry29: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
+        ContainerEnvEntry30: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
+        ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
+        ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_ACTIONDAO_TABLENAME=${ActionDynamoTableName}'
+        ContainerEnvEntry33: !Sub 'PN_DELIVERYPUSH_FUTUREACTIONDAO_TABLENAME=${FutureActionDynamoTableName}'
+        ContainerEnvEntry34: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_TABLENAME=${LastPollForFutureActionDynamoTableName}'
+        ContainerEnvEntry35: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_LOCKTABLENAME=${PnDeliveryPushShedLockDynamoTableName}'
+        ContainerEnvEntry36: !Sub 'PN_DELIVERYPUSH_PAPERMESSAGENOTHANDLED=${PnDeliveryPushPaperMessageNotHandled}'
 
         MappedPaths: '/delivery-push/*,/delivery-push-private/*,/delivery-progresses/*'
         ECSClusterName: !Ref ECSClusterName
@@ -338,19 +344,9 @@ Resources:
               - s3:PutObjectRetention
               - s3:PutObjectTagging
               - s3:PutObjectVersionTagging
-            Resource:
-              - !Sub '${LegalFactsBucketArn}/*'
           - Effect: Allow
             Action:
               - s3:ListBucket
-            Resource:
-              - !Ref LegalFactsBucketArn
-          - Effect: Allow
-            Action:
-              - cassandra:Modify
-              - cassandra:Select
-            Resource:
-              - !Sub "arn:aws:cassandra:*:${AWS::AccountId}:/keyspace/*/table/*"
           - Effect: Allow
             Action:
               - 'dynamodb:GetItem'
