@@ -1,11 +1,9 @@
 package it.pagopa.pn.deliverypush.rest;
 
-import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.LegalFactsApi;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.GetLegalFactService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
@@ -74,10 +72,5 @@ public class PnLegalFactsController implements LegalFactsApi {
         legalFactsId.setCategory(category);
         
         return legalFactsId;
-    }
-
-    @ExceptionHandler({PnNotFoundException.class})
-    public ResponseEntity<Void> handleNotFoundException(PnNotFoundException ex) {
-        return ResponseEntity.notFound().build();
     }
 }

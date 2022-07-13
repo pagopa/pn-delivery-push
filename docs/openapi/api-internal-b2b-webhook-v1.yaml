@@ -72,11 +72,17 @@ paths:
               schema:
                 $ref: "#/components/schemas/StreamMetadataResponse"
         '400':
-          description: Bad request
+          description: Invalid input
           content:
-            application/json:
+            application/problem+json:
               schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
     get:
       summary: Elenca stream di eventi
       description: >-
@@ -92,11 +98,17 @@ paths:
               schema:
                 $ref: "#/components/schemas/StreamListResponse"
         '400':
-          description: Bad request
+          description: Invalid input
           content:
-            application/json:
+            application/problem+json:
               schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
   '/delivery-progresses/streams/{streamId}':
     parameters:
@@ -119,7 +131,17 @@ paths:
               schema:
                 $ref: "#/components/schemas/StreamMetadataResponse"
         '400':
-          description: Bad request
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
     put:
       summary: Update Stream metadata
       description: >-
@@ -141,12 +163,18 @@ paths:
               schema:
                 $ref: "#/components/schemas/StreamMetadataResponse"
         '400':
-          description: Bad request
+          description: Invalid input
           content:
-            application/json:
+            application/problem+json:
               schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
-    delete: 
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+    delete:
       summary: Remove Event Stream
       description: >-
         Elimina uno steam di eventi: elimina sia le configurazioni sia tutti gli eventi 
@@ -163,6 +191,12 @@ paths:
             application/json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
 
     ############################################################################################
@@ -210,11 +244,17 @@ paths:
               description: >-
                 Numero di secondi di attesa prima di effettuare una nuova lettura di eventi.
         '400':
-          description: Bad request
+          description: Invalid input
           content:
-            application/json:
+            application/problem+json:
               schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
     
 
     ############################################################################################
@@ -252,11 +292,17 @@ paths:
         '204':
           description: OK
         '400':
-          description: Bad request
+          description: Invalid input
           content:
-            application/json:
+            application/problem+json:
               schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
   
 components:
   

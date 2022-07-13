@@ -54,7 +54,17 @@ paths:
               schema:
                 $ref: "./schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactList"
         '400':
-          description: Bad request
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
   '/delivery-push/{iun}/legal-facts/{legalFactType}/{legalFactId}':
     get:
@@ -83,8 +93,19 @@ paths:
               schema:
                 $ref: "./schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactDownloadMetadataResponse"          
         '400':
-          description: Bad request
-  
+          description: Invalid input                                               
+          content: 
+            application/problem+json: 
+              schema: 
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'       
+        '500': 
+          description: Internal Server Error                                        
+          content: 
+            application/problem+json: 
+              schema: 
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'                  
+
+
 
 components:
   

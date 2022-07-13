@@ -112,6 +112,6 @@ public class AuthUtils {
 
     private void handleError(String message) {
         log.warn(message);
-        throw new PnNotFoundException(message);
+        throw new PnNotFoundException("Authorization failed", message);
     }
 }

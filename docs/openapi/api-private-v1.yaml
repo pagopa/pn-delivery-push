@@ -37,7 +37,17 @@ paths:
               schema:
                 $ref: "#/components/schemas/NotificationHistoryResponse"
         '400':
-          description: Bad request
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
 
 components:
