@@ -66,8 +66,15 @@ public class RestResponseEntityExceptionHandler {
     }
     
     @ExceptionHandler({PnNotFoundException.class})
-    public ResponseEntity<Void> handleNotFoundException(PnNotFoundException ex) {
+    public ResponseEntity<Problem> handleNotFoundException(PnNotFoundException ex) {
         log.error("HandleNotFoundException, ex=", ex);
-        return ResponseEntity.notFound().build();
+
+        Problem problem = Problem.builder()
+                .status(HttpStatus.NOT_FOUND.value())
+                .title(ex.getTitle())
+                .detail(ex.getMessage())
+                .build();
+        
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
     }
 }

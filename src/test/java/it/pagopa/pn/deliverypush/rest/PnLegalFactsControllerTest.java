@@ -67,7 +67,7 @@ class PnLegalFactsControllerTest {
     @Test
     void getNotificationLegalFactsError() {
         Mockito.when( getLegalFactService.getLegalFacts( Mockito.anyString(), Mockito.anyString(), Mockito.anyString() ))
-                        .thenThrow( new PnNotFoundException("No auth") );
+                        .thenThrow( new PnNotFoundException("Authorization Failed", "No auth") );
 
         webTestClient.get()
                 .uri(uriBuilder ->
@@ -128,7 +128,7 @@ class PnLegalFactsControllerTest {
     void getLegalFactsKoNotFound() {
 
         Mockito.when( getLegalFactService.getLegalFactMetadata( Mockito.anyString(), Mockito.any(LegalFactCategory.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString() ))
-                .thenThrow( new PnNotFoundException("No auth"));
+                .thenThrow( new PnNotFoundException("Authorization Failed", "No auth"));
 
         String legalFactType = LegalFactCategory.SENDER_ACK.getValue();
         String legalFactsId = "id100";
@@ -148,7 +148,16 @@ class PnLegalFactsControllerTest {
                     httpHeaders.set("x-pagopa-pn-cx-groups", Collections.singletonList("test").toString());
                 })
                 .exchange()
-                .expectStatus().isNotFound();
+                .expectStatus().isNotFound()
+                .expectBody(Problem.class).consumeWith(
+                        elem -> {
+                            Problem problem = elem.getResponseBody();
+                            assert problem != null;
+                            Assertions.assertEquals(HttpStatus.NOT_FOUND.value(), problem.getStatus());
+                            Assertions.assertNotNull( problem.getDetail());
+                            Assertions.assertNotNull( problem.getTitle());
+                        }
+                );
 
         Mockito.verify( getLegalFactService ).getLegalFactMetadata( Mockito.anyString(),  Mockito.any(LegalFactCategory.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString() );
     }
