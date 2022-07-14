@@ -55,7 +55,7 @@ public class NotificationViewedHandler {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_CHECK, "Start HandleViewNotification - iun={}", iun )
-                .mdcEntry("iun", iun)
+                .iun(iun)
                 .build();
         logEvent.log();
         
@@ -90,6 +90,7 @@ public class NotificationViewedHandler {
             logEvent.generateFailure("Notification is already viewed - iun={} id={}", iun, recIndex).log();
             log.debug("Notification is already viewed - iun={} id={}", iun, recIndex);
         }
+        logEvent.generateSuccess("End HandleViewNotification - iun={} id={}", iun, recIndex).log();
         log.debug("End HandleViewNotification - iun={} id={}", iun, recIndex);
     }
 

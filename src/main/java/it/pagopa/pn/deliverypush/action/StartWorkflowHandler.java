@@ -62,23 +62,24 @@ public class StartWorkflowHandler {
      */
     public void startWorkflow(String iun) {
         log.info("Start notification process iun={}", iun);
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_INSERT, "saveNotificationReceivedLegalFact for iun={}", iun)
+                .iun(iun)
+                .build();
+        logEvent.log();
         try {
             NotificationInt notification = notificationService.getNotificationByIun(iun);
 
             try {
                 //Validazione degli allegati della notifica
                 checkAttachmentUtils.validateAttachment(notification);
-                PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-                PnAuditLogEvent logEvent = auditLogBuilder
-                        .before(PnAuditLogEventType.AUD_NT_INSERT, "saveNotificationReceivedLegalFact for iun={}", iun)
-                        .iun(iun)
-                        .build();
-                logEvent.log();
                 try {
                     String legalFactId = saveLegalFactsService.saveNotificationReceivedLegalFact(notification);
                     addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification, legalFactId), notification);
                     logEvent.generateSuccess().log();
                 } catch (Exception exc) {
+                    log.error("exception starting workflow", exc);
                     logEvent.generateFailure("Exception on saveNotification", exc.getMessage());
                     throw exc;
                 }
@@ -87,6 +88,7 @@ public class StartWorkflowHandler {
                 for (NotificationRecipientInt recipient : notification.getRecipients()) {
                     Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
                     startNotificationWorkflowForRecipient(notification, recIndex);
+                    logEvent.generateSuccess("Starting notification workflowforRecipient for recipient={}", recIndex).log();
                 }
             } catch (PnValidationException ex) {
                 handleValidationError(notification, ex);
@@ -94,6 +96,7 @@ public class StartWorkflowHandler {
         }catch (PnInternalException ex){
             throw ex;
         } catch (Exception ex){
+            logEvent.generateFailure("Cannot start workflow", ex.getMessage());
             throw new PnInternalException("Cannot start workflow", ex);
         }
     }

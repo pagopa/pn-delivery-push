@@ -31,7 +31,6 @@ public class CheckAttachmentUtils {
                 .iun(notification.getIun())
                 .build();
         logEvent.log();
-        log.debug( "Start check attachment for document" );
         for(NotificationDocumentInt attachment : notification.getDocuments()) {
             checkAttachment(attachment);
         }

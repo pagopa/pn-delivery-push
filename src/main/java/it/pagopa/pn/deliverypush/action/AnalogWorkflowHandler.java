@@ -192,9 +192,6 @@ public class AnalogWorkflowHandler {
         } else {
             legalFactsListEntryIds = Collections.emptyList();
         }
-
-        log.info("Analog workflow Ext channel response  - iun={} id={} with status={}", iun, recIndex, response.getStatusCode());
-
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_CHECK, "Analog workflow Ext channel response iun={} id={} with status={}", iun, recIndex, response.getStatusCode())
