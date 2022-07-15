@@ -51,10 +51,11 @@ public class NotificationViewedHandler {
     }
     
     public void handleViewNotification(String iun, Integer recIndex) {
+        
         log.debug("Start HandleViewNotification - iun={}", iun);
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_CHECK, "Start HandleViewNotification - iun={}", iun )
+                .before(PnAuditLogEventType.AUD_NT_VIEW_RPC, "Start HandleViewNotification - iun={}", iun )
                 .iun(iun)
                 .build();
         logEvent.log();

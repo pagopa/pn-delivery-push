@@ -1,6 +1,9 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.log.PnAuditLogBuilder;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -57,6 +60,12 @@ public class TimeLineServiceImpl implements TimelineService {
     @Override
     public void addTimelineElement(TimelineElementInternal dto, NotificationInt notification) {
         log.info("addTimelineElement - IUN={} and timelineId={}", dto.getIun(), dto.getElementId());
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_TIMELINE, "addTimelineElement - IUN={} and timelineId={}", dto.getIun(), dto.getElementId())
+                .iun(dto.getIun())
+                .build();
+        logEvent.log();
         
         if (notification != null) {
             try{
@@ -76,8 +85,9 @@ public class TimeLineServiceImpl implements TimelineService {
                         notificationStatuses.getNewStatus().getValue(),
                         dto.getCategory().getValue()
                 );
-            }catch (Exception ex){
-                log.error("Exception in addTimelineElement - iun={} elementId={} ex={}", notification.getIun(), dto.getElementId(), ex);
+                logEvent.generateSuccess().log();
+            } catch (Exception ex){
+                logEvent.generateFailure("Exception in addTimelineElement - iun={} elementId={} ex={}", notification.getIun(), dto.getElementId(), ex).log();
                 throw new PnInternalException("Exception in addTimelineElement - iun="+notification.getIun()+" elementId="+dto.getElementId());
             }
             
