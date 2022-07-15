@@ -79,7 +79,6 @@ public class StartWorkflowHandler {
                     addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification, legalFactId), notification);
                     logEvent.generateSuccess().log();
                 } catch (Exception exc) {
-                    log.error("exception starting workflow", exc);
                     logEvent.generateFailure("Exception on saveNotification", exc.getMessage()).log();
                     throw exc;
                 }
@@ -104,10 +103,11 @@ public class StartWorkflowHandler {
                 handleValidationError(notification, ex);
             }
         } catch (PnInternalException ex){
-            throw ex;
-        } catch (Exception ex){
             logEvent.generateFailure("Cannot start workflow", ex.getMessage());
             throw new PnInternalException("Cannot start workflow", ex);
+        } catch (Exception ex){
+            logEvent.generateFailure("Cannot start workflow", ex.getMessage());
+            throw ex;
         }
     }
 

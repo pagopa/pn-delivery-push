@@ -217,8 +217,11 @@ public class AnalogWorkflowHandler {
             }
         } else {
             handleStatusProgress(response, iun, recIndex);
-            // AUD_NT_VALID
-            logEvent.generateFailure("Specified response={} is not final  - iun={} id={}", response.getStatusCode(), iun, recIndex).log();
+            PnAuditLogEvent logEventValid = auditLogBuilder
+                    .before(PnAuditLogEventType.AUD_NT_VALID, "Analog workflow Ext channel response iun={} id={} with status={}", iun, recIndex, response.getStatusCode())
+                    .iun(iun)
+                    .build();
+            logEventValid.generateFailure("Specified response={} is not final  - iun={} id={}", response.getStatusCode(), iun, recIndex).log();
         }
 
     }

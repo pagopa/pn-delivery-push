@@ -87,7 +87,7 @@ public class TimeLineServiceImpl implements TimelineService {
                 );
                 logEvent.generateSuccess().log();
             } catch (Exception ex){
-                logEvent.generateFailure("Exception in addTimelineElement - iun={} elementId={} ex={}", notification.getIun(), dto.getElementId(), ex).log();
+                logEvent.generateFailure("Exception in addTimelineElement - iun={} elementId={} ex={}", notification.getIun(), dto.getElementId(), ex.getMessage()).log();
                 throw new PnInternalException("Exception in addTimelineElement - iun="+notification.getIun()+" elementId="+dto.getElementId());
             }
             
