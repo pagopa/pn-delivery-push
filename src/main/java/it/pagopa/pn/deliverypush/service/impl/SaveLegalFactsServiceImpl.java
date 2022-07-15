@@ -101,9 +101,12 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
         }
         catch ( IOException exc ) {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "REQUEST_ACCEPTED",  notification.getIun(), "N/A");
-            log.error("Exception in saveNotificationReceivedLegalFact ex=", exc);
             logEvent.generateFailure("Exception in saveNotificationReceivedLegalFact ex=", exc.getMessage()).log();
             throw new PnInternalException( msg, exc);
+        }
+        catch (Exception exc) {
+            logEvent.generateFailure("Exception in saveNotificationReceivedLegalFact ex=", exc.getMessage()).log();
+            throw exc;
         }
     }
 
