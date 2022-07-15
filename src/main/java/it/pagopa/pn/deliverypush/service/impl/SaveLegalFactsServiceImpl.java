@@ -131,8 +131,8 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
             return url;
         }
         catch ( Exception exc ) {
-            logEvent.generateFailure("Exception in savePecDeliveryWorkflowLegalFact ex=", exc.getMessage()).log();
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "DIGITAL_DELIVERY",  notification.getIun(), recipient.getTaxId());
+            logEvent.generateFailure(msg + " exc=",exc).log();
             throw new PnInternalException( msg, exc);
         }
 
@@ -161,7 +161,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
         }
         catch ( Exception exc ) {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "NOTIFICATION_VIEWED",  notification.getIun(), recipient.getTaxId());
-            log.error("Exception in saveNotificationViewedLegalFact ex=", exc);
+            logEvent.generateFailure(msg + " exc=",exc).log();
             throw new PnInternalException( msg, exc);
         }
     }

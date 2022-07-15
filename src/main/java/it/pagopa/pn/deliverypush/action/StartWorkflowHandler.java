@@ -61,8 +61,6 @@ public class StartWorkflowHandler {
      */
     public void startWorkflow(String iun) {
         log.info("Start notification process iun={}", iun);
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        
         NotificationInt notification = notificationService.getNotificationByIun(iun);
 
         try {
@@ -74,19 +72,7 @@ public class StartWorkflowHandler {
             //Start del workflow per ogni recipient della notifica
             for (NotificationRecipientInt recipient : notification.getRecipients()) {
                 Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
-                PnAuditLogEvent logNotificationProcess = auditLogBuilder
-                        .before(PnAuditLogEventType.AUD_NT_INSERT, "Starting notification workflow for recipient={}", recIndex)
-                        .iun(iun)
-                        .build();
-                logNotificationProcess.log();
-
-                try{
-                    startNotificationWorkflowForRecipient(notification, recIndex);
-                    logNotificationProcess.generateSuccess("Starting notification workflow Success for recipient={}", recIndex).log();
-                } catch (Exception exc) {
-                    logNotificationProcess.generateFailure("Starting notification workflow Success for recipient={} exc={}",recIndex, exc).log();
-                    throw exc;
-                }
+                startNotificationWorkflowForRecipient(notification, recIndex);
             }
         } catch (PnValidationException ex) {
             handleValidationError(notification, ex);
