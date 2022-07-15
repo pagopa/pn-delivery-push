@@ -58,7 +58,7 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
                                                                   String mandateId) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_LEGALOPEN_SND, "getLegalFact iun={} legafactId={}", iun, legalfactId)
+                .before(PnAuditLogEventType.AUD_NT_LEGALOPEN_SND, "getLegalFact iun={} legafactId={} senderReceiverId={}", iun, legalfactId, senderReceiverId)
                 .iun(iun)
                 .build();
         logEvent.log();

@@ -217,6 +217,7 @@ public class AnalogWorkflowHandler {
             }
         } else {
             handleStatusProgress(response, iun, recIndex);
+            // AUD_NT_VALID
             logEvent.generateFailure("Specified response={} is not final  - iun={} id={}", response.getStatusCode(), iun, recIndex).log();
         }
 

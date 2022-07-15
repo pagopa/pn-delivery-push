@@ -64,7 +64,7 @@ public class StartWorkflowHandler {
         log.info("Start notification process iun={}", iun);
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_INSERT, "saveNotificationReceivedLegalFact for iun={}", iun)
+                .before(PnAuditLogEventType.AUD_NT_INSERT, "start notification workflow for iun={}", iun)
                 .iun(iun)
                 .build();
         logEvent.log();
@@ -80,20 +80,30 @@ public class StartWorkflowHandler {
                     logEvent.generateSuccess().log();
                 } catch (Exception exc) {
                     log.error("exception starting workflow", exc);
-                    logEvent.generateFailure("Exception on saveNotification", exc.getMessage());
+                    logEvent.generateFailure("Exception on saveNotification", exc.getMessage()).log();
                     throw exc;
                 }
 
                 //Start del workflow per ogni recipient della notifica
                 for (NotificationRecipientInt recipient : notification.getRecipients()) {
                     Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
-                    startNotificationWorkflowForRecipient(notification, recIndex);
-                    logEvent.generateSuccess("Starting notification workflowforRecipient for recipient={}", recIndex).log();
+                    PnAuditLogEvent logEventValid = auditLogBuilder
+                            .before(PnAuditLogEventType.AUD_NT_VALID, "Starting notification workflowforRecipient for recipient={}", recIndex)
+                            .iun(iun)
+                            .build();
+                    logEventValid.log();
+                    try {
+                        startNotificationWorkflowForRecipient(notification, recIndex);
+                        logEvent.generateSuccess("Starting notification workflowforRecipient for recipient={}", recIndex).log();   
+                    } catch (Exception exc) {
+                        logEventValid.generateFailure("Exception in Start notification workflow", exc).log();
+                        throw exc;
+                    }
                 }
             } catch (PnValidationException ex) {
                 handleValidationError(notification, ex);
             }
-        }catch (PnInternalException ex){
+        } catch (PnInternalException ex){
             throw ex;
         } catch (Exception ex){
             logEvent.generateFailure("Cannot start workflow", ex.getMessage());
@@ -106,7 +116,7 @@ public class StartWorkflowHandler {
         // ... genero il pdf dell'AAR, salvo su Safestorage e genero elemento in timeline AAR_GENERATION, potrebbe servirmi dopo ...
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_ARR, "Notification AAR generation for iun={}", notification.getIun())
+                .before(PnAuditLogEventType.AUD_NT_ARR, "Notification AAR generation for iun={} and recIndex={}", notification.getIun(), recIndex)
                 .iun(notification.getIun())
                 .build();
         logEvent.log();
