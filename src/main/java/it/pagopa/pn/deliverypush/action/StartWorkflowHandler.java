@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.action;
 
 
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
@@ -10,8 +9,8 @@ import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -63,52 +62,40 @@ public class StartWorkflowHandler {
     public void startWorkflow(String iun) {
         log.info("Start notification process iun={}", iun);
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_INSERT, "start notification workflow for iun={}", iun)
-                .iun(iun)
-                .build();
-        logEvent.log();
-        try {
-            NotificationInt notification = notificationService.getNotificationByIun(iun);
+        
+        NotificationInt notification = notificationService.getNotificationByIun(iun);
 
-            try {
-                //Validazione degli allegati della notifica
-                checkAttachmentUtils.validateAttachment(notification);
-                try {
-                    String legalFactId = saveLegalFactsService.saveNotificationReceivedLegalFact(notification);
-                    addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification, legalFactId), notification);
-                    logEvent.generateSuccess().log();
+        try {
+            //Validazione degli allegati della notifica
+            checkAttachmentUtils.validateAttachment(notification);
+
+            saveNotificationReceivedLegalFacts(notification);
+
+            //Start del workflow per ogni recipient della notifica
+            for (NotificationRecipientInt recipient : notification.getRecipients()) {
+                Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+                PnAuditLogEvent logNotificationProcess = auditLogBuilder
+                        .before(PnAuditLogEventType.AUD_NT_INSERT, "Starting notification workflow for recipient={}", recIndex)
+                        .iun(iun)
+                        .build();
+                logNotificationProcess.log();
+
+                try{
+                    startNotificationWorkflowForRecipient(notification, recIndex);
+                    logNotificationProcess.generateSuccess("Starting notification workflow Success for recipient={}", recIndex).log();
                 } catch (Exception exc) {
-                    logEvent.generateFailure("Exception on saveNotification", exc.getMessage()).log();
+                    logNotificationProcess.generateFailure("Starting notification workflow Success for recipient={} exc={}",recIndex, exc).log();
                     throw exc;
                 }
-
-                //Start del workflow per ogni recipient della notifica
-                for (NotificationRecipientInt recipient : notification.getRecipients()) {
-                    Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
-                    PnAuditLogEvent logEventValid = auditLogBuilder
-                            .before(PnAuditLogEventType.AUD_NT_VALID, "Starting notification workflowforRecipient for recipient={}", recIndex)
-                            .iun(iun)
-                            .build();
-                    logEventValid.log();
-                    try {
-                        startNotificationWorkflowForRecipient(notification, recIndex);
-                        logEvent.generateSuccess("Starting notification workflowforRecipient for recipient={}", recIndex).log();   
-                    } catch (Exception exc) {
-                        logEventValid.generateFailure("Exception in Start notification workflow", exc).log();
-                        throw exc;
-                    }
-                }
-            } catch (PnValidationException ex) {
-                handleValidationError(notification, ex);
             }
-        } catch (PnInternalException ex){
-            logEvent.generateFailure("Cannot start workflow", ex.getMessage());
-            throw new PnInternalException("Cannot start workflow", ex);
-        } catch (Exception ex){
-            logEvent.generateFailure("Cannot start workflow", ex.getMessage());
-            throw ex;
+        } catch (PnValidationException ex) {
+            handleValidationError(notification, ex);
         }
+    }
+
+    private void saveNotificationReceivedLegalFacts(NotificationInt notification) {
+            String legalFactId = saveLegalFactsService.saveNotificationReceivedLegalFact(notification);
+            addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification, legalFactId), notification);
     }
 
     private void startNotificationWorkflowForRecipient(NotificationInt notification, Integer recIndex) {

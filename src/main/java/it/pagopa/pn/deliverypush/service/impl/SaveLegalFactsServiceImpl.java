@@ -16,7 +16,6 @@ import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 
@@ -76,7 +75,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
                     .numberOfPages( numberOfPages )
                     .build();
         }
-        catch ( IOException exc ) {
+        catch ( Exception exc ) {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "AAR",  notification.getIun(), "N/A");
             log.error("Exception in saveAAR ex=", exc);
             throw new PnInternalException( msg, exc);
@@ -99,15 +98,12 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
             logEvent.generateSuccess().log();
             return url;
         }
-        catch ( IOException exc ) {
+        catch ( Exception exc ) {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "REQUEST_ACCEPTED",  notification.getIun(), "N/A");
             logEvent.generateFailure("Exception in saveNotificationReceivedLegalFact ex=", exc.getMessage()).log();
             throw new PnInternalException( msg, exc);
         }
-        catch (Exception exc) {
-            logEvent.generateFailure("Exception in saveNotificationReceivedLegalFact ex=", exc.getMessage()).log();
-            throw exc;
-        }
+
     }
 
     public String savePecDeliveryWorkflowLegalFact(
@@ -115,6 +111,13 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
             NotificationInt notification,
             NotificationRecipientInt recipient
     ) {
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_NEWDOC, "Start savePecDeliveryWorkflowLegalFact - iun={}", notification.getIun() )
+                .iun(notification.getIun())
+                .build();
+        logEvent.log();
+        
         try {
             log.debug("Start savePecDeliveryWorkflowLegalFact - iun={}", notification.getIun());
 
@@ -123,11 +126,13 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
 
             log.debug("End savePecDeliveryWorkflowLegalFact - iun={}", notification.getIun());
 
+            logEvent.generateSuccess().log();
+
             return url;
         }
-        catch ( IOException exc ) {
+        catch ( Exception exc ) {
+            logEvent.generateFailure("Exception in savePecDeliveryWorkflowLegalFact ex=", exc.getMessage()).log();
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "DIGITAL_DELIVERY",  notification.getIun(), recipient.getTaxId());
-            log.error("Exception in savePecDeliveryWorkflowLegalFact ex=", exc);
             throw new PnInternalException( msg, exc);
         }
 
@@ -154,13 +159,10 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
             logEvent.generateSuccess().log();
             return url;
         }
-        catch ( IOException exc ) {
+        catch ( Exception exc ) {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "NOTIFICATION_VIEWED",  notification.getIun(), recipient.getTaxId());
             log.error("Exception in saveNotificationViewedLegalFact ex=", exc);
             throw new PnInternalException( msg, exc);
-        } catch (Exception exc){
-            logEvent.generateFailure("Exception in saveNotificationReceivedLegalFact ex=", exc.getMessage()).log();
-            throw exc;
         }
     }
 }
