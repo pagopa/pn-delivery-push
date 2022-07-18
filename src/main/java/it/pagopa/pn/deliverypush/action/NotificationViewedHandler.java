@@ -76,20 +76,17 @@ public class NotificationViewedHandler {
                     logEvent.generateSuccess().log();
                 } catch (Exception exc) {
                     logEvent.generateFailure(
-                            "Notification is in status={}, can't start view Notification process - iun={} id={}", currentStatus, iun, recIndex
+                            "Exception in View notification ex={} - iun={} id={}", exc, iun, recIndex
                     ).log();
                     throw exc;
                 }
                 
             }else {
-                logEvent.generateFailure(
-                        "Notification is in status={}, can't start view Notification process - iun={} id={}", currentStatus, iun, recIndex
-                ).log();
+                log.debug("Notification is in status {}, can't start view Notification process - iun={} id={}", currentStatus, iun, recIndex);
             }
         } else {
-            logEvent.generateFailure("Notification is already viewed - iun={} id={}", iun, recIndex).log();
+            log.debug("Notification is already viewed - iun={} id={}", iun, recIndex);
         }
-        logEvent.generateSuccess("End HandleViewNotification - iun={} id={}", iun, recIndex).log();
     }
 
     private void handleViewNotification(String iun, Integer recIndex, NotificationInt notification) {

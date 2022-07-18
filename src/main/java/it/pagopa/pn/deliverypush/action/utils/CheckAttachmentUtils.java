@@ -27,19 +27,25 @@ public class CheckAttachmentUtils {
     public void validateAttachment(NotificationInt notification ) throws PnValidationException {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_VALID, "Start check attachment for document={}", notification.getIun() )
+                .before(PnAuditLogEventType.AUD_NT_VALID, "Start check attachment for iun={}", notification.getIun() )
                 .iun(notification.getIun())
                 .build();
         logEvent.log();
-        for(NotificationDocumentInt attachment : notification.getDocuments()) {
-            checkAttachment(attachment);
-        }
-        logEvent.generateSuccess().log();
-        log.debug( "End check attachment for document" );
+        
+        try {
+            for(NotificationDocumentInt attachment : notification.getDocuments()) {
+                checkAttachment(attachment);
+            }
 
-        notification.getRecipients().forEach(
-                recipient -> checkPayment(recipient.getPayment())
-        );
+            notification.getRecipients().forEach(
+                    recipient -> checkPayment(recipient.getPayment())
+            );
+
+            logEvent.generateSuccess().log();
+        } catch (PnValidationException ex) {
+            logEvent.generateFailure("check attachment Failed for iun={} exc", notification.getIun(), ex);
+            throw ex;
+        }
     }
 
     private void checkPayment(NotificationPaymentInfoInt payment) {

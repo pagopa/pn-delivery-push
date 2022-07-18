@@ -62,7 +62,7 @@ public class TimeLineServiceImpl implements TimelineService {
         log.info("addTimelineElement - IUN={} and timelineId={}", dto.getIun(), dto.getElementId());
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_TIMELINE, "addTimelineElement - IUN={} and timelineId={}", dto.getIun(), dto.getElementId())
+                .before(PnAuditLogEventType.AUD_NT_TIMELINE, "addTimelineElement - IUN={} timelineId={}", dto.getIun(), dto.getElementId())
                 .iun(dto.getIun())
                 .build();
         logEvent.log();
@@ -87,16 +87,15 @@ public class TimeLineServiceImpl implements TimelineService {
                 );
                 logEvent.generateSuccess().log();
             } catch (Exception ex){
-                logEvent.generateFailure("Exception in addTimelineElement - iun={} elementId={} ex={}", notification.getIun(), dto.getElementId(), ex.getMessage()).log();
-                throw new PnInternalException("Exception in addTimelineElement - iun="+notification.getIun()+" elementId="+dto.getElementId());
+                logEvent.generateFailure("Exception in addTimelineElement - iun={} elementId={} ex={}", notification.getIun(), dto.getElementId(), ex).log();
+                throw new PnInternalException("Exception in addTimelineElement - iun="+notification.getIun()+" elementId="+dto.getElementId(), ex);
             }
             
         } else {
-            log.error("Try to update Timeline and Status for non existing iun={}", dto.getIun());
+            logEvent.generateFailure("Try to update Timeline and Status for non existing iun={}", dto.getIun());
             throw new PnInternalException("Try to update Timeline and Status for non existing iun " + dto.getIun());
         }
         
-
     }
     
     @Override

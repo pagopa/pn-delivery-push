@@ -1,9 +1,6 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.log.PnAuditLogBuilder;
-import it.pagopa.pn.commons.log.PnAuditLogEvent;
-import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.RequestUpdateStatusDto;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.RequestUpdateStatusDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -61,17 +58,11 @@ public class StatusServiceImpl implements StatusService {
     private void updateStatus(RequestUpdateStatusDtoInt dto) {
         RequestUpdateStatusDto updateStatusDto = RequestUpdateStatusDtoMapper.internalToExternal(dto);
         ResponseEntity<Void> resp = pnDeliveryClient.updateStatus(updateStatusDto);
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_STATUS, "checkAndUpdateStatus for iun={}", dto.getIun())
-                .iun(dto.getIun())
-                .build();
-        logEvent.log();
 
         if (resp.getStatusCode().is2xxSuccessful()) {
-            logEvent.generateSuccess("Status changed to {} for iun {}", dto.getNextState(), dto.getIun()).log();
+            log.info("Status changed to {} for iun {}", dto.getNextState(), dto.getIun());
         } else {
-            logEvent.generateFailure("Status not updated correctly - iun={}", dto.getIun()).log();
+            log.error("Status not updated correctly - iun {}", dto.getIun());
             throw new PnInternalException("Status not updated correctly - iun " + dto.getIun());
         }
     }
