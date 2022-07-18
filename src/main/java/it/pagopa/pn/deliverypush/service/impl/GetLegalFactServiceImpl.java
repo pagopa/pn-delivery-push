@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
@@ -10,8 +11,10 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.RecipientRelatedTimelineElementDetails;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactDownloadMetadataResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElement;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.GetLegalFactService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -20,6 +23,7 @@ import it.pagopa.pn.deliverypush.utils.AuthUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.Comparator;
 import java.util.List;
@@ -56,17 +60,23 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
                                                                   String legalfactId,
                                                                   String senderReceiverId,
                                                                   String mandateId) {
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_LEGALOPEN_SND, "getLegalFact iun={} legafactId={} senderReceiverId={}", iun, legalfactId, senderReceiverId)
-                .iun(iun)
-                .build();
-        logEvent.log();
+
+        
         LegalFactDownloadMetadataResponse response = new LegalFactDownloadMetadataResponse();
-        try {
+       
             NotificationInt notification = notificationService.getNotificationByIun(iun);
             authUtils.checkUserAndMandateAuthorization(notification, senderReceiverId, mandateId);
 
+            PnAuditLogEventType eventType = getAuditLogEventType(notification, senderReceiverId, mandateId);
+
+            PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+            PnAuditLogEvent logEvent = auditLogBuilder
+                    .before(eventType, "getLegalFactMetadata iun={} legafactId={} senderReceiverId={}", iun, legalfactId, senderReceiverId)
+                    .iun(iun)
+                    .build();
+            logEvent.log();
+            
+        try {
             // la key è la legalfactid
             FileDownloadResponse fileDownloadResponse = safeStorageClient.getFile(legalfactId, false);
 
@@ -76,9 +86,10 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
             response.setUrl(fileDownloadResponse.getDownload().getUrl());
             logEvent.generateSuccess().log();
         } catch (Exception exc) {
-            logEvent.generateFailure("Exception in getLegalFact", exc.getMessage());
+            logEvent.generateFailure("Exception in getLegalFactMetadata", exc.getMessage());
             throw exc;
         }
+        
         return response;
     }
     
@@ -91,21 +102,37 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
         NotificationInt notification = notificationService.getNotificationByIun(iun);
 
         authUtils.checkUserAndMandateAuthorization(notification, senderReceiverId, mandateId);
-        
-        List<LegalFactListElement> legalFacts = timelineElements
-                .stream()
-                .filter( timeEl -> timeEl.getLegalFactsIds() != null )
-                .sorted( Comparator.comparing(TimelineElementInternal::getTimestamp))
-                .flatMap( timeEl -> timeEl.getLegalFactsIds().stream().map(
-                        lfId -> LegalFactListElement.builder()
-                                .taxId( readRecipientId( timeEl, notification ) )
-                                .iun( iun )
-                                .legalFactsId( LegalFactIdMapper.internalToExternal(lfId) )
-                                .build()
-                        ))
-                .collect(Collectors.toList());
-        log.debug( "legalFacts List={}" ,legalFacts );
-        return legalFacts;
+        PnAuditLogEventType eventType = getAuditLogEventType(notification, senderReceiverId, mandateId);
+
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(eventType, "getLegalFacts iun={} senderReceiverId={}", iun, senderReceiverId)
+                .iun(iun)
+                .build();
+        logEvent.log();
+
+        try {
+            List<LegalFactListElement> legalFacts = timelineElements
+                    .stream()
+                    .filter( timeEl -> timeEl.getLegalFactsIds() != null )
+                    .sorted( Comparator.comparing(TimelineElementInternal::getTimestamp))
+                    .flatMap( timeEl -> timeEl.getLegalFactsIds().stream().map(
+                            lfId -> LegalFactListElement.builder()
+                                    .taxId( readRecipientId( timeEl, notification ) )
+                                    .iun( iun )
+                                    .legalFactsId( LegalFactIdMapper.internalToExternal(lfId) )
+                                    .build()
+                    ))
+                    .collect(Collectors.toList());
+            
+            log.debug( "legalFacts List={}" ,legalFacts );
+            
+            return legalFacts;
+
+        } catch (Exception exc) {
+            logEvent.generateFailure("Exception in getLegalFact", exc.getMessage());
+            throw exc;
+        }
     }
 
     private String readRecipientId( TimelineElementInternal timelineElement, NotificationInt notification ) {
@@ -138,6 +165,34 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
                 + "_" + legalFactType.getValue()
                 + "_" + legalfactId.replace(SAFE_STORAGE_URL_PREFIX, "").replaceAll("[^a-zA-Z0-9]", "")
                 + ".pdf";
+    }
+
+
+    private PnAuditLogEventType getAuditLogEventType(NotificationInt notification, String senderRecipientId, String mandateId){
+        if( StringUtils.hasText( mandateId ) ){
+            //La request è stata ricevuta da un delagato, generazione audit log per destinatario
+            return PnAuditLogEventType.AUD_NT_LEGALOPEN_RCP;
+        } else {
+            String paId = notification.getSender().getPaId();
+            boolean isRequestFromSender = paId.equals(senderRecipientId);
+
+            //Viene verificato se la richiesta proviene dalla Pa indicata nella notifica
+            if( isRequestFromSender ){
+                //La request è stata ricevuta dalla PA, generazione audit log per sender
+                return PnAuditLogEventType.AUD_NT_LEGALOPEN_SND;
+            }else {
+                boolean isRequestFromRecipient = notification.getRecipients().stream().anyMatch(
+                        recipient -> recipient.getInternalId().equals(senderRecipientId)
+                );
+
+                if( isRequestFromRecipient ){
+                    //La request è stata ricevuta dal recipient, generazione audit log per recipient
+                    return PnAuditLogEventType.AUD_NT_LEGALOPEN_RCP;
+                }else {
+                    throw new PnInternalException("Request is not from any authorized user. The audit log type cannot be determined");
+                }
+            }
+        }
     }
 
 }

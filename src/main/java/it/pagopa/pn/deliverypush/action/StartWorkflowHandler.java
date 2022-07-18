@@ -109,12 +109,7 @@ public class StartWorkflowHandler {
     private void handleValidationError(NotificationInt notification, PnValidationException ex) {
         List<String> errors =  ex.getValidationErrors().stream()
                 .map(ConstraintViolation::getMessage).collect(Collectors.toList());
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        PnAuditLogEvent logEventValid = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_VALID, "Notification refused, errors={} - iun={}", errors, notification.getIun())
-                .iun(notification.getIun())
-                .build();
-        logEventValid.generateFailure("Notification refused, errors={} - iun={}", errors, notification.getIun()).log();
+        log.info("Notification refused, errors {} - iun {}", errors, notification.getIun());
         addTimelineElement( timelineUtils.buildRefusedRequestTimelineElement(notification, errors), notification);
     }
 

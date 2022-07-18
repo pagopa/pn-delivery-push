@@ -85,7 +85,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
     public String saveNotificationReceivedLegalFact(NotificationInt notification) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_NEWDOC, "Start saveNotificationReceivedLegalFact - iun={}", notification.getIun() )
+                .before(PnAuditLogEventType.AUD_NT_NEWLEGAL, "Start saveNotificationReceivedLegalFact - iun={}", notification.getIun() )
                 .iun(notification.getIun())
                 .build();
         logEvent.log();
@@ -113,7 +113,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
     ) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_NEWDOC, "Start savePecDeliveryWorkflowLegalFact - iun={}", notification.getIun() )
+                .before(PnAuditLogEventType.AUD_NT_NEWLEGAL, "Start savePecDeliveryWorkflowLegalFact - iun={}", notification.getIun() )
                 .iun(notification.getIun())
                 .build();
         logEvent.log();
@@ -145,7 +145,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
     ) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_NEWDOC, "Start saveNotificationViewedLegalFact - iun={}", notification.getIun())
+                .before(PnAuditLogEventType.AUD_NT_NEWLEGAL, "Start saveNotificationViewedLegalFact - iun={}", notification.getIun())
                 .iun(notification.getIun())
                 .build();
         logEvent.log();

@@ -107,13 +107,14 @@ class GetLegalFactServiceImplTest {
 
         NotificationRecipientInt recipientInt = NotificationRecipientInt.builder()
                 .taxId(TAX_ID)
+                .internalId(TAX_ID +"ANON")
                 .build();
         
         Mockito.when( notificationUtils.getRecipientFromIndex( Mockito.any(NotificationInt.class), Mockito.anyInt() ) )
                 .thenReturn( recipientInt );
         
 
-        List<LegalFactListElement> result = getLegalFactService.getLegalFacts( IUN , "taxId", null );
+        List<LegalFactListElement> result = getLegalFactService.getLegalFacts( IUN , recipientInt.getInternalId(), null );
 
         assertEquals( legalFactsExpectedResult, result );
     }
@@ -170,6 +171,7 @@ class GetLegalFactServiceImplTest {
                 .recipients(Collections.singletonList(
                         NotificationRecipientInt.builder()
                                 .taxId(TAX_ID)
+                                .internalId("14")
                                 .denomination("Nome Cognome/Ragione Sociale")
                                 .digitalDomicile(LegalDigitalAddressInt.builder()
                                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
