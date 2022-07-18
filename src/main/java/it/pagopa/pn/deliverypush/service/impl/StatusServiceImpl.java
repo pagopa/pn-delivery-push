@@ -51,7 +51,7 @@ public class StatusServiceImpl implements StatusService {
             RequestUpdateStatusDtoInt requestDto = getRequestUpdateStatusDto(dto.getIun(), nextState.getStatus());
             updateStatus(requestDto);
         }
-
+        
         return new NotificationStatusUpdate(currentState, nextState.getStatus());
     }
 
