@@ -125,7 +125,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
         try {
             log.info("[enter] sendNotificationPEC address={} requestId={} recipient={}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
 
-            String mailbody = legalFactGenerator.generateNotificationAARBody(notificationInt, recipientInt);
+            String mailbody = legalFactGenerator.generateNotificationAARPECBody(notificationInt, recipientInt);
             String mailsubj = legalFactGenerator.generateNotificationAARSubject(notificationInt);
 
             DigitalNotificationRequest digitalNotificationRequestDto = new DigitalNotificationRequest();

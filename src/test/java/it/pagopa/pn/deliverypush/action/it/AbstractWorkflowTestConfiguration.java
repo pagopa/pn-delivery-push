@@ -58,7 +58,7 @@ public class AbstractWorkflowTestConfiguration {
         CustomInstantWriter instantWriter = new CustomInstantWriter();
         PhysicalAddressWriter physicalAddressWriter = new PhysicalAddressWriter();
 
-        return new LegalFactGenerator( dc, instantWriter, physicalAddressWriter );
+        return new LegalFactGenerator( dc, instantWriter, physicalAddressWriter,  Mockito.mock(PnDeliveryPushConfigs.class) );
     }
     
     @Bean
