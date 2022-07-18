@@ -53,20 +53,20 @@ public class IoServiceImpl implements IoService {
                 SendMessageResponse sendIoMessageResponse = resp.getBody();
                 if(sendIoMessageResponse != null){
                     if( isErrorStatus( sendIoMessageResponse.getResult() ) ){
-                        logEvent.generateFailure("Error in sendIoMessage, with errorStatus is iun={} id={} ", sendIoMessageResponse.getResult(), notification.getIun(), recIndex).log();
+                        logEvent.generateFailure("Error in sendIoMessage, with errorStatus is {} - iun={} id={} ", sendIoMessageResponse.getResult(), notification.getIun(), recIndex).log();
                     } else {
-                        logEvent.generateSuccess().log();
+                        logEvent.generateSuccess("Send io message success, with result={} - iun={} id={}", sendIoMessageResponse.getResult(), notification.getIun(), recIndex).log();
                     }
                 }else {
                     log.error("sendIOMessage return not valid response response");
                 }
 
             } else {
-                logEvent.generateFailure("Error in sendIoMessage, httpStatus is iun={} id={} ", resp.getStatusCode(), notification.getIun(), recIndex).log();
+                logEvent.generateFailure("Error in sendIoMessage, httpStatus is {} - iun={} id={} ", resp.getStatusCode(), notification.getIun(), recIndex).log();
                 throw new PnInternalException("sendIOMessage Failed - iun "+ notification.getIun() +" id "+ recIndex);
             }
         }catch (Exception ex){
-            logEvent.generateFailure("Error in sendIoMessage for iun={} id={}, exception=", notification.getIun(), recIndex, ex.getMessage()).log();
+            logEvent.generateFailure("Error in sendIoMessage for iun={} id={}, exception={}", notification.getIun(), recIndex, ex.getMessage()).log();
             throw ex;
         }
     }

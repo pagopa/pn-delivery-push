@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
@@ -18,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class IoServiceImplTest {
     private IoService ioService;
@@ -60,44 +58,16 @@ class IoServiceImplTest {
         );
         
         Mockito.when( pnExternalRegistryClient.sendIOMessage(Mockito.any(SendMessageRequest.class))).thenReturn(
-                ResponseEntity.of(Optional.of(new SendMessageResponse().id("1871")))
+                ResponseEntity.of(Optional.of(
+                        new SendMessageResponse()
+                                .id("1871")
+                                .result(SendMessageResponse.ResultEnum.SENT_COURTESY)
+                ))
         );
 
         assertDoesNotThrow(() ->
                 ioService.sendIOMessage(notificationInt, 0)
         );
-    }
-
-    @Test
-    void sendIOMessageKo() {
-
-        NotificationInt notificationInt = NotificationTestBuilder.builder()
-                .withIun("IUN")
-                .withNotificationRecipient(
-                        NotificationRecipientTestBuilder.builder()
-                                .withTaxId("taxId")
-                                .withPayment(
-                                        NotificationPaymentInfoInt.builder()
-                                                .creditorTaxId("cred")
-                                                .noticeCode("notice")
-                                                .build()
-                                )
-                                .build()
-                )
-                .build();
-
-        Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(
-                notificationInt.getRecipients().get(0)
-        );
-
-        Mockito.when( pnExternalRegistryClient.sendIOMessage(Mockito.any(SendMessageRequest.class))).thenReturn(
-                ResponseEntity.badRequest().build()
-        );
-        
-        assertThrows(PnInternalException.class, () -> {
-            ioService.sendIOMessage(notificationInt, 0);
-        });
-
     }
     
 }
