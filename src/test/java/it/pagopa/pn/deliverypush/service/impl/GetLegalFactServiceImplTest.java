@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.service.impl;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
+import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -102,13 +103,19 @@ class GetLegalFactServiceImplTest {
 
         Mockito.when( timelineService.getTimeline( Mockito.anyString() ) )
                 .thenReturn( timelineElementsResult );
-        Mockito.when( notificationService.getNotificationByIun( Mockito.anyString() ) )
-                .thenReturn( newNotification() );
 
         NotificationRecipientInt recipientInt = NotificationRecipientInt.builder()
                 .taxId(TAX_ID)
                 .internalId(TAX_ID +"ANON")
                 .build();
+        
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withIun(IUN)
+                .withNotificationRecipient(recipientInt)
+                .build();
+        
+        Mockito.when( notificationService.getNotificationByIun( Mockito.anyString() ) )
+                .thenReturn( notification );
         
         Mockito.when( notificationUtils.getRecipientFromIndex( Mockito.any(NotificationInt.class), Mockito.anyInt() ) )
                 .thenReturn( recipientInt );
@@ -147,11 +154,13 @@ class GetLegalFactServiceImplTest {
         //When
         Mockito.when( safeStorageClient.getFile( Mockito.anyString(), Mockito.eq(false) ) )
                 .thenReturn( fileDownloadResponse );
-
+        
+        NotificationInt notificationInt = newNotification();
+        NotificationRecipientInt recipientInt = notificationInt.getRecipients().get(0);
         Mockito.when( notificationService.getNotificationByIun( Mockito.anyString() ) )
-                .thenReturn( newNotification() );
+                .thenReturn( notificationInt );
 
-        LegalFactDownloadMetadataResponse result = getLegalFactService.getLegalFactMetadata( IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID, "taxId", null);
+        LegalFactDownloadMetadataResponse result = getLegalFactService.getLegalFactMetadata( IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID, recipientInt.getInternalId(), null);
         //Then
         assertNotNull( result );
         assertNotNull(result.getFilename());
@@ -171,7 +180,7 @@ class GetLegalFactServiceImplTest {
                 .recipients(Collections.singletonList(
                         NotificationRecipientInt.builder()
                                 .taxId(TAX_ID)
-                                .internalId("14")
+                                .internalId(TAX_ID +"ANON")
                                 .denomination("Nome Cognome/Ragione Sociale")
                                 .digitalDomicile(LegalDigitalAddressInt.builder()
                                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)

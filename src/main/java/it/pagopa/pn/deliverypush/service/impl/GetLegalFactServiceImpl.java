@@ -174,7 +174,7 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
             return PnAuditLogEventType.AUD_NT_LEGALOPEN_RCP;
         } else {
             String paId = notification.getSender().getPaId();
-            boolean isRequestFromSender = paId.equals(senderRecipientId);
+            boolean isRequestFromSender = senderRecipientId.equals(paId);
 
             //Viene verificato se la richiesta proviene dalla Pa indicata nella notifica
             if( isRequestFromSender ){
