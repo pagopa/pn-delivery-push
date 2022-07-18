@@ -420,7 +420,7 @@
 						</goals>
 						<phase>process-resources</phase>
 						<configuration>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-external-registries/b2a1f29eddc2a4fb08017be4ff1cdfd40363f68d/docs/openapi/pn-io-message-v1.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-external-registries/073026c4038567d939aa82cf03c2147c00a3091b/docs/openapi/pn-io-message-v1.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
