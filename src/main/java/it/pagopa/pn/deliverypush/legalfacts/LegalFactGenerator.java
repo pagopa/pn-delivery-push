@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
@@ -11,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,18 +34,23 @@ public class LegalFactGenerator {
     public static final String FIELD_DELIVERIES = "deliveries";
     public static final String FIELD_RECIPIENT = "recipient";
     public static final String FIELD_WHEN = "when";
+    public static final String FIELD_PIATTAFORMA_NOTIFICHE_URL = "piattaformaNotificheURL";
+    public static final String FIELD_PIATTAFORMA_NOTIFICHE_URL_LABEL = "piattaformaNotificheURLLabel";
+    public static final String FIELD_PN_FAQ_URL = "PNFaqURL";
     private final DocumentComposition documentComposition;
     private final CustomInstantWriter instantWriter;
     private final PhysicalAddressWriter physicalAddressWriter;
-
+    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     public LegalFactGenerator(
             DocumentComposition documentComposition,
             CustomInstantWriter instantWriter,
-            PhysicalAddressWriter physicalAddressWriter) {
+            PhysicalAddressWriter physicalAddressWriter,
+            PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         this.documentComposition = documentComposition;
         this.instantWriter = instantWriter;
         this.physicalAddressWriter = physicalAddressWriter;
+        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
     }
 
 
@@ -247,11 +255,34 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_NOTIFICATION, notification);
         templateModel.put(FIELD_RECIPIENT, recipient);
         templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
+        templateModel.put(FIELD_PIATTAFORMA_NOTIFICHE_URL, this.getAccessUrl(notification.getIun()) );
+        templateModel.put(FIELD_PIATTAFORMA_NOTIFICHE_URL_LABEL, this.getAccessUrlLabel() );
+        templateModel.put(FIELD_PN_FAQ_URL, this.pnDeliveryPushConfigs.getWebapp().getFaqUrlTemplate() );
+
 
         return documentComposition.executeTextTemplate(
                 DocumentComposition.TemplateType.AAR_NOTIFICATION_EMAIL,
                 templateModel
             );
+
+    }
+
+    public String generateNotificationAARPECBody(NotificationInt notification, NotificationRecipientInt recipient) {
+
+        Map<String, Object> templateModel = new HashMap<>();
+        templateModel.put(FIELD_SEND_DATE, instantWriter.instantToDate( notification.getSentAt() ) );
+        templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( notification.getSentAt(), true ) );
+        templateModel.put(FIELD_NOTIFICATION, notification);
+        templateModel.put(FIELD_RECIPIENT, recipient);
+        templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
+        templateModel.put(FIELD_PIATTAFORMA_NOTIFICHE_URL, this.getAccessUrl(notification.getIun()) );
+        templateModel.put(FIELD_PIATTAFORMA_NOTIFICHE_URL_LABEL, this.getAccessUrlLabel() );
+        templateModel.put(FIELD_PN_FAQ_URL, this.pnDeliveryPushConfigs.getWebapp().getFaqUrlTemplate() );
+
+        return documentComposition.executeTextTemplate(
+                DocumentComposition.TemplateType.AAR_NOTIFICATION_PEC,
+                templateModel
+        );
 
     }
 
@@ -283,5 +314,21 @@ public class LegalFactGenerator {
     public int getNumberOfPages( byte[] pdfBytes ) {
         return documentComposition.getNumberOfPageFromPdfBytes( pdfBytes );
     }
+
+
+    private String getAccessUrl(String iun) {
+        return String.format(pnDeliveryPushConfigs.getWebapp().getDirectAccessUrlTemplate(), iun);
+    }
+
+    private String getAccessUrlLabel() {
+        try {
+            return new URL(pnDeliveryPushConfigs.getWebapp().getDirectAccessUrlTemplate()).getHost();
+        } catch (MalformedURLException e) {
+            log.warn("cannot get host", e);
+            return pnDeliveryPushConfigs.getWebapp().getDirectAccessUrlTemplate();
+        }
+    }
+
+
 }
 
