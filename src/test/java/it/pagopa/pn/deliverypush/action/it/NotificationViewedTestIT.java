@@ -9,19 +9,22 @@ import it.pagopa.pn.deliverypush.action.*;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
+import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.RefinementDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
-import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
+import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
@@ -46,6 +49,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(SpringExtension.class)
@@ -62,6 +66,7 @@ import static org.mockito.ArgumentMatchers.eq;
         RefinementHandler.class,
         NotificationViewedHandler.class,
         IoServiceImpl.class,
+        NotificationCostServiceImpl.class,
         DigitalWorkFlowUtils.class,
         CourtesyMessageUtils.class,
         CompletelyUnreachableUtils.class,
@@ -137,6 +142,9 @@ class NotificationViewedTestIT {
    
     @Autowired
     private NotificationViewedHandler notificationViewedHandler;
+
+    @Autowired
+    private StatusUtils statusUtils;
 
     @SpyBean
     private SaveLegalFactsService legalFactStore;
@@ -234,7 +242,6 @@ class NotificationViewedTestIT {
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
-        //Viene completato un workflow di notifica di una notifica 
         
         //Simulazione visualizzazione della notifica
         notificationViewedHandler.handleViewNotification(iun, recIndex);
@@ -321,7 +328,6 @@ class NotificationViewedTestIT {
         Integer recIndex1 = notificationUtils.getRecipientIndex(notification, recipient1.getTaxId());
         Integer recIndex2 = notificationUtils.getRecipientIndex(notification, recipient2.getTaxId());
 
-
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
@@ -342,5 +348,86 @@ class NotificationViewedTestIT {
 
         Mockito.verify(legalFactStore, Mockito.times(1)).saveNotificationViewedLegalFact(eq(notification),eq(recipient2), Mockito.any(Instant.class));
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient1.getTaxId(), iun);
+    }
+
+    @Test
+    void notificationViewedAfterRefinement(){
+        //GIVEN
+
+        LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
+                .address("platformAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                .build();
+
+        LegalDigitalAddressInt digitalDomicile = LegalDigitalAddressInt.builder()
+                .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                .build();
+
+        LegalDigitalAddressInt pbDigitalAddress = LegalDigitalAddressInt.builder()
+                .address("pbDigitalAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                .build();
+
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
+                .withTaxId("TAXID01")
+                .withDigitalDomicile(digitalDomicile)
+                .build();
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withIun("IUN01")
+                .withNotificationRecipient(recipient)
+                .build();
+
+        pnDeliveryClientMock.addNotification(notification);
+        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
+        publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
+
+        String iun = notification.getIun();
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+
+        //Start del workflow
+        startWorkflowHandler.startWorkflow(iun);
+
+        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
+        await().untilAsserted(() ->
+                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        );
+
+        //Simulazione visualizzazione della notifica
+        notificationViewedHandler.handleViewNotification(iun, recIndex);
+
+        //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti e siano corretti
+        String timelineId = TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .build());
+
+        Optional<TimelineElementInternal> timelineElementViewedOpt = timelineService.getTimelineElement(iun, timelineId );
+
+        Assertions.assertTrue(timelineElementViewedOpt.isPresent());
+        TimelineElementInternal timelineElementViewed = timelineElementViewedOpt.get();
+        Assertions.assertEquals(iun, timelineElementViewed.getIun());
+        NotificationViewedDetailsInt details = (NotificationViewedDetailsInt) timelineElementViewed.getDetails();
+        Assertions.assertEquals(recIndex, details.getRecIndex());
+        Assertions.assertNull(details.getNotificationCost()); //Il costo deve essere null perchè la visualizzazione è avvenuta a valle del Refinement
+        
+        Mockito.verify(legalFactStore, Mockito.times(1)).saveNotificationViewedLegalFact(eq(notification), eq(recipient), Mockito.any(Instant.class));
+        Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient.getTaxId(), iun);
+
+        //Viene effettuata la verifica che il perfezionamento per decorrenza termini sia avvenuto e sia valorizzato correttamente
+        Optional<TimelineElementInternal> timelineElementRefinementOpt = timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.REFINEMENT.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recIndex(recIndex)
+                                .build()));
+
+        Assertions.assertTrue(timelineElementRefinementOpt.isPresent());
+        TimelineElementInternal timelineElementRefinement = timelineElementRefinementOpt.get();
+        RefinementDetailsInt detailsInt = (RefinementDetailsInt) timelineElementRefinement.getDetails();
+        Assertions.assertNotNull(detailsInt.getNotificationCost()); //Il costo della notifica deve essere presente su Refinement perchè avvenuto in precedenza rispetto alla presa visione
     }
 }

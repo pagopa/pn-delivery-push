@@ -20,9 +20,11 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
@@ -67,6 +69,7 @@ import static org.awaitility.Awaitility.with;
         PublicRegistryServiceImpl.class,
         ExternalChannelServiceImpl.class,
         IoServiceImpl.class,
+        NotificationCostServiceImpl.class,
         RefinementHandler.class,
         NotificationViewedHandler.class,
         DigitalWorkFlowUtils.class,
@@ -298,14 +301,20 @@ class AnalogTestIT {
         PhysicalAddressInt pnExtChnPaperEvent = pnPhysicalAddressArgumentCaptor.getValue();
         Assertions.assertEquals(paPhysicalAddress.getAddress(), pnExtChnPaperEvent.getAddress());
 
-        //Viene verificato che la notifica sia stata visualizzata
-        Assertions.assertTrue(timelineService.getTimelineElement(
+        //Viene verificato che la notifica sia stata visualizzata e che il costo sia valorizzato
+        Optional<TimelineElementInternal> timelineElementOpt = timelineService.getTimelineElement(
                 iun,
                 TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
                         EventId.builder()
                                 .iun(iun)
                                 .recIndex(recIndex)
-                                .build())).isPresent());
+                                .build()));
+        
+        Assertions.assertTrue(timelineElementOpt.isPresent());
+        TimelineElementInternal timelineElement = timelineElementOpt.get();
+        NotificationViewedDetailsInt detailsInt = (NotificationViewedDetailsInt) timelineElement.getDetails();
+        
+        Assertions.assertNotNull(detailsInt.getNotificationCost());
     }
 
     @Test

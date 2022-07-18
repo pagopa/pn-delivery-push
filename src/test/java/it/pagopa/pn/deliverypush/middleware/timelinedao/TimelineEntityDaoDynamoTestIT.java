@@ -15,6 +15,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
@@ -42,6 +43,7 @@ class TimelineEntityDaoDynamoTestIT {
                 .iun("pa1-1")
                 .timelineElementId("elementId1")
                 .paId("paid001")
+                .timestamp(Instant.now())
                 .category(TimelineElementCategoryEntity.SEND_DIGITAL_DOMICILE)
                 .details(
                         TimelineElementDetailsEntity.builder()
@@ -489,6 +491,76 @@ class TimelineEntityDaoDynamoTestIT {
 
     }
     
+    @Test
+    void checkNotificationView() {
+        //GIVEN
+        TimelineElementEntity elementToInsert = TimelineElementEntity.builder()
+                .iun("pa1-1")
+                .timelineElementId("elementId1")
+                .paId("paid001")
+                .timestamp(Instant.now())
+                .category(TimelineElementCategoryEntity.NOTIFICATION_VIEWED)
+                .details(
+                        TimelineElementDetailsEntity.builder()
+                                .recIndex(0)
+                                .notificationCost(100)
+                                .build()
+                )
+                .legalFactIds(
+                        Collections.singletonList(
+                                LegalFactsIdEntity.builder()
+                                        .key("key")
+                                        .category(LegalFactCategoryEntity.RECIPIENT_ACCESS)
+                                        .build()
+                        )
+                )
+                .build();
+
+        checkElement(elementToInsert);
+    }
+
+    @Test
+    void checkRefinement() {
+        //GIVEN
+        TimelineElementEntity elementToInsert = TimelineElementEntity.builder()
+                .iun("pa1-1")
+                .timelineElementId("elementId1")
+                .paId("paid001")
+                .timestamp(Instant.now())
+                .category(TimelineElementCategoryEntity.REFINEMENT)
+                .details(
+                        TimelineElementDetailsEntity.builder()
+                                .recIndex(0)
+                                .notificationCost(100)
+                                .build()
+                )
+                .build();
+
+        checkElement(elementToInsert);
+    }
+
+    private void checkElement(TimelineElementEntity elementToInsert) {
+        try{
+            //WHEN
+            timelineEntityDao.put(elementToInsert);
+
+            //THEN
+            Key key = Key.builder()
+                    .partitionValue(elementToInsert.getIun())
+                    .sortValue(elementToInsert.getTimelineElementId())
+                    .build();
+
+            Optional<TimelineElementEntity> elementFromDbOpt =  timelineEntityDao.get(key);
+
+            Assertions.assertTrue(elementFromDbOpt.isPresent());
+            TimelineElementEntity elementFromDb = elementFromDbOpt.get();
+            Assertions.assertEquals(elementToInsert, elementFromDb);
+
+        }finally {
+            removeElementFromDb(elementToInsert);
+        }
+    }
+
     private void removeElementFromDb(TimelineElementEntity element) {
         Key key = Key.builder()
                 .partitionValue(element.getIun())
