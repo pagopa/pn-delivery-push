@@ -1,13 +1,16 @@
 package it.pagopa.pn.deliverypush.rest;
 
 import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFailed;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.Problem;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -27,7 +30,7 @@ class PnPaperNotificationFailedControllerTest {
     private PaperNotificationFailedService service;
 
     @Test
-    void searchPaperNotificationsFailed() {
+    void searchPaperNotificationsFailedOk() {
         PaperNotificationFailed paperNotificationFailed = PaperNotificationFailed.builder()
                 .iun(IUN).build();
         List<PaperNotificationFailed> listPaperNot = new ArrayList<>();
@@ -35,7 +38,7 @@ class PnPaperNotificationFailedControllerTest {
 
         Mockito.when(service.getPaperNotificationByRecipientId(Mockito.anyString()))
                 .thenReturn(listPaperNot);
-        
+
         webTestClient.get()
                 .uri("/"+ PnDeliveryPushRestConstants.NOTIFICATIONS_PAPER_FAILED_PATH+"?recipientId=" + RECIPIENT_ID)
                 .accept(MediaType.ALL)
@@ -45,6 +48,31 @@ class PnPaperNotificationFailedControllerTest {
                 .expectStatus()
                 .isOk()
                 .expectBody(List.class);
+
+        Mockito.verify(service).getPaperNotificationByRecipientId(Mockito.anyString());
+    }
+
+    @Test
+    void searchPaperNotificationsFailedKoRuntimeEx() {
+        Mockito.when(service.getPaperNotificationByRecipientId(Mockito.anyString()))
+                .thenThrow(new NullPointerException());
+
+        webTestClient.get()
+                .uri("/"+ PnDeliveryPushRestConstants.NOTIFICATIONS_PAPER_FAILED_PATH+"?recipientId=" + RECIPIENT_ID)
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .header("X-PagoPA-PN-PA", USER_ID)
+                .exchange()
+                .expectStatus()
+                .is5xxServerError()
+                .expectBody(Problem.class).consumeWith(
+                        elem -> {
+                            Problem problem = elem.getResponseBody();
+                            assert problem != null;
+                            Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), problem.getStatus());
+                        }
+                );
+                
 
         Mockito.verify(service).getPaperNotificationByRecipientId(Mockito.anyString());
     }
