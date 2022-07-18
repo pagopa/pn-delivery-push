@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
@@ -19,11 +18,11 @@ import it.pagopa.pn.deliverypush.service.GetLegalFactService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.LegalFactIdMapper;
+import it.pagopa.pn.deliverypush.utils.AuditLogUtils;
 import it.pagopa.pn.deliverypush.utils.AuthUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.util.Comparator;
 import java.util.List;
@@ -64,17 +63,17 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
         
         LegalFactDownloadMetadataResponse response = new LegalFactDownloadMetadataResponse();
        
-            NotificationInt notification = notificationService.getNotificationByIun(iun);
-            authUtils.checkUserAndMandateAuthorization(notification, senderReceiverId, mandateId);
+        NotificationInt notification = notificationService.getNotificationByIun(iun);
+        authUtils.checkUserAndMandateAuthorization(notification, senderReceiverId, mandateId);
 
-            PnAuditLogEventType eventType = getAuditLogEventType(notification, senderReceiverId, mandateId);
+        PnAuditLogEventType eventType = AuditLogUtils.getAuditLogEventType(notification, senderReceiverId, mandateId);
 
-            PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-            PnAuditLogEvent logEvent = auditLogBuilder
-                    .before(eventType, "getLegalFactMetadata iun={} legafactId={} senderReceiverId={}", iun, legalfactId, senderReceiverId)
-                    .iun(iun)
-                    .build();
-            logEvent.log();
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(eventType, "getLegalFactMetadata iun={} legafactId={} senderReceiverId={}", iun, legalfactId, senderReceiverId)
+                .iun(iun)
+                .build();
+        logEvent.log();
             
         try {
             // la key è la legalfactid
@@ -102,7 +101,7 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
         NotificationInt notification = notificationService.getNotificationByIun(iun);
 
         authUtils.checkUserAndMandateAuthorization(notification, senderReceiverId, mandateId);
-        PnAuditLogEventType eventType = getAuditLogEventType(notification, senderReceiverId, mandateId);
+        PnAuditLogEventType eventType = AuditLogUtils.getAuditLogEventType(notification, senderReceiverId, mandateId);
 
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
@@ -165,34 +164,6 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
                 + "_" + legalFactType.getValue()
                 + "_" + legalfactId.replace(SAFE_STORAGE_URL_PREFIX, "").replaceAll("[^a-zA-Z0-9]", "")
                 + ".pdf";
-    }
-
-
-    private PnAuditLogEventType getAuditLogEventType(NotificationInt notification, String senderRecipientId, String mandateId){
-        if( StringUtils.hasText( mandateId ) ){
-            //La request è stata ricevuta da un delagato, generazione audit log per destinatario
-            return PnAuditLogEventType.AUD_NT_LEGALOPEN_RCP;
-        } else {
-            String paId = notification.getSender().getPaId();
-            boolean isRequestFromSender = senderRecipientId.equals(paId);
-
-            //Viene verificato se la richiesta proviene dalla Pa indicata nella notifica
-            if( isRequestFromSender ){
-                //La request è stata ricevuta dalla PA, generazione audit log per sender
-                return PnAuditLogEventType.AUD_NT_LEGALOPEN_SND;
-            }else {
-                boolean isRequestFromRecipient = notification.getRecipients().stream().anyMatch(
-                        recipient -> recipient.getInternalId().equals(senderRecipientId)
-                );
-
-                if( isRequestFromRecipient ){
-                    //La request è stata ricevuta dal recipient, generazione audit log per recipient
-                    return PnAuditLogEventType.AUD_NT_LEGALOPEN_RCP;
-                }else {
-                    throw new PnInternalException("Request is not from any authorized user. The audit log type cannot be determined");
-                }
-            }
-        }
     }
 
 }

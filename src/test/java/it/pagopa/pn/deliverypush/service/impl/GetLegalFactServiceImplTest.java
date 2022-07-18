@@ -125,7 +125,7 @@ class GetLegalFactServiceImplTest {
 
         assertEquals( legalFactsExpectedResult, result );
     }
-
+    
     @Test
     void getAnalogLegalFactMetadataSuccess() {
         //Given
