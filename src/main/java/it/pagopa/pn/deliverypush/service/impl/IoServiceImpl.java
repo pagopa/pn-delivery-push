@@ -39,8 +39,12 @@ public class IoServiceImpl implements IoService {
         if (resp.getStatusCode().is2xxSuccessful()) {
             
             SendMessageResponse sendIoMessageResponse = resp.getBody();
-            log.info("sendIOMessage OK - iun={} id={} responseId={}", notification.getIun(), recIndex, 
-                    sendIoMessageResponse != null ? sendIoMessageResponse.getId() : null);
+            if(sendIoMessageResponse != null){
+                log.info("sendIOMessage OK - iun={} id={} responseId={} with result={}", notification.getIun(), recIndex,
+                        sendIoMessageResponse.getId(), sendIoMessageResponse.getResult() );
+            }else {
+                log.info("sendIOMessage response is not valid response");
+            }
 
         } else {
             log.error("sendIOMessage Failed - iun={} id={}", notification.getIun(), recIndex);

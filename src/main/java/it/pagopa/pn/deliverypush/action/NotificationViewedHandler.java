@@ -1,5 +1,8 @@
 package it.pagopa.pn.deliverypush.action;
 
+import it.pagopa.pn.commons.log.PnAuditLogBuilder;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
@@ -48,7 +51,14 @@ public class NotificationViewedHandler {
     }
     
     public void handleViewNotification(String iun, Integer recIndex) {
+        
         log.debug("Start HandleViewNotification - iun={}", iun);
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_VIEW_RPC, "Start HandleViewNotification - iun={}", iun )
+                .iun(iun)
+                .build();
+        logEvent.log();
         
         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex);
         
@@ -61,8 +71,15 @@ public class NotificationViewedHandler {
             
             //Una notifica annullata non può essere perfezionata per visione
             if( !NotificationStatusInt.CANCELLED.equals(currentStatus) ){
-
-                handleViewNotification(iun, recIndex, notification);
+                try {
+                    handleViewNotification(iun, recIndex, notification);
+                    logEvent.generateSuccess().log();
+                } catch (Exception exc) {
+                    logEvent.generateFailure(
+                            "Exception in View notification ex={} - iun={} id={}", exc, iun, recIndex
+                    ).log();
+                    throw exc;
+                }
                 
             }else {
                 log.debug("Notification is in status {}, can't start view Notification process - iun={} id={}", currentStatus, iun, recIndex);
@@ -70,8 +87,6 @@ public class NotificationViewedHandler {
         } else {
             log.debug("Notification is already viewed - iun={} id={}", iun, recIndex);
         }
-
-        log.debug("End HandleViewNotification - iun={} id={}", iun, recIndex);
     }
 
     private void handleViewNotification(String iun, Integer recIndex, NotificationInt notification) {
