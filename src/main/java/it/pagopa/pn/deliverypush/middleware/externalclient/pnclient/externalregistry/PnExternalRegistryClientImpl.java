@@ -1,8 +1,5 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry;
 
-import it.pagopa.pn.commons.log.PnAuditLogBuilder;
-import it.pagopa.pn.commons.log.PnAuditLogEvent;
-import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.ApiClient;
 import it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.api.SendIoMessageApi;
@@ -28,23 +25,12 @@ public class PnExternalRegistryClientImpl implements PnExternalRegistryClient{
     
     @Override
     public ResponseEntity<SendMessageResponse> sendIOMessage(SendMessageRequest sendMessageRequest) {
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
 
-        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_AD_SEND_IO, "sendIOMessage")
-                .iun(sendMessageRequest.getIun())
-                .build();
-
-        logEvent.log();
         ResponseEntity<SendMessageResponse> resp;
-        try {
-            log.info("Start sendIOMessage - iun={}", sendMessageRequest.getIun());
-            resp = sendIoMessageApi.sendIOMessageWithHttpInfo(sendMessageRequest);
-            log.info("Response sendIOMessage - iun={}", sendMessageRequest.getIun());
-        } catch (Exception ex) {
-            logEvent.generateFailure(ex.getMessage()).log();
-            throw ex;
-        }
-        logEvent.generateSuccess().log();
+        log.info("Start sendIOMessage - iun={}", sendMessageRequest.getIun());
+        resp = sendIoMessageApi.sendIOMessageWithHttpInfo(sendMessageRequest);
+        log.info("Response sendIOMessage - iun={}", sendMessageRequest.getIun());
+
         return resp;
     }
 }

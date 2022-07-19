@@ -1,6 +1,9 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.log.PnAuditLogBuilder;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -12,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import static it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.model.SendMessageResponse.ResultEnum.*;
 
 
 @Slf4j
@@ -34,22 +39,40 @@ public class IoServiceImpl implements IoService {
 
         SendMessageRequest sendMessageRequest = getSendMessageRequest(notification, recipientInt);
 
-        ResponseEntity<SendMessageResponse> resp = pnExternalRegistryClient.sendIOMessage(sendMessageRequest);
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_AD_SEND_IO, "sendIOMessage")
+                .iun(sendMessageRequest.getIun())
+                .build();
+        logEvent.log();
+        
+        try {
+            ResponseEntity<SendMessageResponse> resp = pnExternalRegistryClient.sendIOMessage(sendMessageRequest);
 
-        if (resp.getStatusCode().is2xxSuccessful()) {
-            
-            SendMessageResponse sendIoMessageResponse = resp.getBody();
-            if(sendIoMessageResponse != null){
-                log.info("sendIOMessage OK - iun={} id={} responseId={} with result={}", notification.getIun(), recIndex,
-                        sendIoMessageResponse.getId(), sendIoMessageResponse.getResult() );
-            }else {
-                log.info("sendIOMessage response is not valid response");
+            if (resp.getStatusCode().is2xxSuccessful()) {
+
+                SendMessageResponse sendIoMessageResponse = resp.getBody();
+                if(sendIoMessageResponse != null){
+                    if( isErrorStatus( sendIoMessageResponse.getResult() ) ){
+                        logEvent.generateFailure("Error in sendIoMessage, with errorStatus is {} - iun={} id={} ", sendIoMessageResponse.getResult(), notification.getIun(), recIndex).log();
+                    } else {
+                        logEvent.generateSuccess("Send io message success, with result={} - iun={} id={}", sendIoMessageResponse.getResult(), notification.getIun(), recIndex).log();
+                    }
+                }else {
+                    log.error("sendIOMessage return not valid response response");
+                }
+
+            } else {
+                logEvent.generateFailure("Error in sendIoMessage, httpStatus is {} - iun={} id={} ", resp.getStatusCode(), notification.getIun(), recIndex).log();
+                throw new PnInternalException("sendIOMessage Failed - iun "+ notification.getIun() +" id "+ recIndex);
             }
-
-        } else {
-            log.error("sendIOMessage Failed - iun={} id={}", notification.getIun(), recIndex);
-            throw new PnInternalException("sendIOMessage Failed - iun "+ notification.getIun() +" id "+ recIndex);
+        }catch (Exception ex){
+            logEvent.generateFailure("Error in sendIoMessage for iun={} id={}, exception={}", notification.getIun(), recIndex, ex.getMessage()).log();
+            throw ex;
         }
+    }
+
+    private boolean isErrorStatus(SendMessageResponse.ResultEnum result) {
+        return ERROR_USER_STATUS.equals(result) || ERROR_COURTESY.equals(result) || ERROR_OPTIN.equals(result);
     }
 
     @NotNull
