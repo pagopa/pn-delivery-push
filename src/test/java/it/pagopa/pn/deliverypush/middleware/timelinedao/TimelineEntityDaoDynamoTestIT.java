@@ -15,6 +15,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
@@ -487,6 +488,56 @@ class TimelineEntityDaoDynamoTestIT {
         Set<TimelineElementEntity> elementSetAfterDelete =  timelineEntityDao.findByIun(iun);
         Assertions.assertTrue(elementSetAfterDelete.isEmpty());
 
+    }
+
+    @Test
+    void checkSendDigitalProgress() {
+        //GIVEN
+        TimelineElementEntity elementToInsert = TimelineElementEntity.builder()
+                .iun("pa1-1")
+                .timelineElementId("elementId1")
+                .paId("paid001")
+                .category(TimelineElementCategoryEntity.SEND_DIGITAL_PROGRESS)
+                .details(
+                        TimelineElementDetailsEntity.builder()
+                                .recIndex(0)
+                                .digitalAddress(
+                                        DigitalAddressEntity.builder()
+                                                .type(DigitalAddressEntity.TypeEnum.PEC)
+                                                .address("test@address.it")
+                                                .build()
+                                )
+                                .notificationDate(Instant.now())
+                                .sendingReceipts(Collections.singletonList(
+                                        SendingReceiptEntity.builder()
+                                                .id("id")
+                                                .location("ulr")
+                                                .system("system")
+                                                .build()
+                                ))
+                                .build()
+                )
+                .build();
+
+        try{
+            //WHEN
+            timelineEntityDao.put(elementToInsert);
+
+            //THEN
+            Key key = Key.builder()
+                    .partitionValue(elementToInsert.getIun())
+                    .sortValue(elementToInsert.getTimelineElementId())
+                    .build();
+
+            Optional<TimelineElementEntity> elementFromDbOpt =  timelineEntityDao.get(key);
+
+            Assertions.assertTrue(elementFromDbOpt.isPresent());
+            TimelineElementEntity elementFromDb = elementFromDbOpt.get();
+            Assertions.assertEquals(elementToInsert, elementFromDb);
+
+        } finally {
+            removeElementFromDb(elementToInsert);
+        }
     }
     
     private void removeElementFromDb(TimelineElementEntity element) {

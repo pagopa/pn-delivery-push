@@ -205,7 +205,7 @@ public class AnalogWorkflowHandler {
                     // AUD_NT_CHECK
                     // La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
                     completionWorkFlow.completionAnalogWorkflow(notification, recIndex, legalFactsListEntryIds, response.getStatusDateTime(), sendPaperDetails.getPhysicalAddress(), EndWorkflowStatus.SUCCESS);
-                    logEvent.generateSuccess().log();
+                    logEvent.generateSuccess("Analog workflow success - iun={} id={}", iun, recIndex).log();
                     break;
                 case KO:
                     // External channel non è riuscito a effettuare la notificazione, si passa al prossimo step del workflow

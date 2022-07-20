@@ -1,6 +1,9 @@
 package it.pagopa.pn.deliverypush.action;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.log.PnAuditLogBuilder;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.action.utils.DigitalWorkFlowUtils;
@@ -10,6 +13,7 @@ import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfo;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelProgressEventCat;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
@@ -192,7 +196,9 @@ public class DigitalWorkFlowHandler {
     public void handleExternalChannelResponse(ExtChannelDigitalSentResponseInt response) {
         String iun = response.getIun();
         log.info("HandleExternalChannelResponse - iun={} requestId={}", iun, response.getRequestId());
-
+        
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        
         TimelineElementInternal sendDigitalTimelineElement = 
                 digitalWorkFlowUtils.getSendDigitalDetailsTimelineElement(iun, response.getRequestId());
 
@@ -203,16 +209,23 @@ public class DigitalWorkFlowHandler {
 
         ResponseStatusInt status = mapDigitalStatusInResponseStatus(response.getStatus());
         
-
         if (status != null) {
 
-            digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(notification, status, response.getEventDetails()==null?null:List.of(response.getEventDetails()), sendDigitalDetails);
+            PnAuditLogEvent logEvent = auditLogBuilder
+                    .before(PnAuditLogEventType.AUD_NT_CHECK, "Digital workflow Ext channel response iun={} id={}", iun, recIndex)
+                    .iun(iun)
+                    .build();
+            logEvent.log();
+            
+            digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(notification, status, response.getEventDetails()==null?null:List.of(response.getEventDetails()), 
+                    sendDigitalDetails, response.getDigitalMessageReferenceInt());
 
             switch (status) {
                 case OK:
                     log.info("Notification sent successfully, starting completion workflow - iun={} id={}", iun, recIndex);
                     //La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
                     completionWorkflow.completionDigitalWorkflow(notification, recIndex, response.getEventTimestamp(), sendDigitalDetails.getDigitalAddress(), EndWorkflowStatus.SUCCESS);
+                    logEvent.generateSuccess("Digital workflow Ext channel Success - iun={} id={}", iun, recIndex).log();
                     break;
                 case KO:
                     //Non è stato possibile effettuare la notificazione, si passa al prossimo step del workflow
@@ -224,15 +237,23 @@ public class DigitalWorkFlowHandler {
                             .build();
 
                     nextWorkFlowAction(notification, recIndex, lastAttemptMade);
+
+                    logEvent.generateFailure("Digital workflow fail - iun={} id={}", iun, recIndex).log();
                     break;
             }
         } else {
-            handleStatusProgress(response.getStatus(), iun, recIndex);
+            handleStatusProgress(response.getStatus(), notification, recIndex, sendDigitalDetails, response.getDigitalMessageReferenceInt());
+            PnAuditLogEvent logEventValid = auditLogBuilder
+                    .before(PnAuditLogEventType.AUD_NT_VALID, "Digital workflow Ext channel response validation iun={} id={}", iun, recIndex)
+                    .iun(iun)
+                    .build();
+            logEventValid.generateSuccess("Validation OK - iun={} id={}", iun, recIndex).log();
         }
     }
 
-    private void handleStatusProgress(ExtChannelProgressEventCat status, String iun, Integer recIndex) {
-        log.info("Specified status={} is not final - iun={} id={}", status, iun, recIndex);
+    private void handleStatusProgress(ExtChannelProgressEventCat status, NotificationInt notification, Integer recIndex, SendDigitalDetailsInt sendDigitalDetails, DigitalMessageReferenceInt digitalMessageReference ) {
+        log.info("Specified status={} is not final - iun={} id={}", status, notification.getIun(), recIndex);
+        digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(notification, sendDigitalDetails, digitalMessageReference);
     }
 
     private DigitalAddressInfo getDigitalAddressInfo(ScheduleDigitalWorkflowDetailsInt scheduleDigitalWorkflow) {
@@ -243,7 +264,6 @@ public class DigitalWorkFlowHandler {
                 .sentAttemptMade(scheduleDigitalWorkflow.getSentAttemptMade())
                 .build();
     }
-
 
     private ResponseStatusInt mapDigitalStatusInResponseStatus(ExtChannelProgressEventCat digitalStatus)
     {

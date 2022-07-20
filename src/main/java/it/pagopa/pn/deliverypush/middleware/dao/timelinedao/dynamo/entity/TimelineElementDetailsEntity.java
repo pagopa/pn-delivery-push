@@ -40,4 +40,5 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("numberOfPages")})) private Integer numberOfPages;
     @Getter(onMethod=@__({@DynamoDbAttribute("reasonCode")})) private String reasonCode;
     @Getter(onMethod=@__({@DynamoDbAttribute("reason")})) private String reason;
+    @Getter(onMethod=@__({@DynamoDbAttribute("sendingReceipts")})) private List<SendingReceiptEntity> sendingReceipts;
 }

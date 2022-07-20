@@ -17,4 +17,6 @@ public class ExtChannelDigitalSentResponseInt {
     private String eventDetails;
     private Instant eventTimestamp;
     private String eventCode;
+    private DigitalMessageReferenceInt digitalMessageReferenceInt;
+
 }

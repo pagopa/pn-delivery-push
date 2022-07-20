@@ -6,10 +6,7 @@ import it.pagopa.pn.deliverypush.action.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.AttachmentDetailsInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelAnalogSentResponseInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelProgressEventCat;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -116,7 +113,7 @@ public class ExternalChannelResponseHandler {
             String iun = timelineUtils.getIunFromTimelineId(event.getRequestId());
 
             ExtChannelDigitalSentResponseInt digitalSentResponseInt = mapExternalToInternal(event, iun);
-            log.info("Received LegalMessageSentDetails event for requestId={} - status={} details={} eventcode={}", 
+            log.info("Received LegalMessageSentDetails event for requestId={} - status={} details={} eventCode={}", 
                     digitalSentResponseInt.getRequestId(), digitalSentResponseInt.getStatus(), digitalSentResponseInt.getEventDetails(), digitalSentResponseInt.getEventCode());
             
             digitalWorkFlowHandler.handleExternalChannelResponse(digitalSentResponseInt);
@@ -130,16 +127,25 @@ public class ExternalChannelResponseHandler {
     }
 
     private ExtChannelDigitalSentResponseInt mapExternalToInternal(LegalMessageSentDetails event, String iun) {
-        return ExtChannelDigitalSentResponseInt.builder()
+        ExtChannelDigitalSentResponseInt.ExtChannelDigitalSentResponseIntBuilder builder = ExtChannelDigitalSentResponseInt.builder()
                 .iun(iun)
                 .eventDetails(event.getEventDetails())
                 .eventTimestamp(event.getEventTimestamp().toInstant())
                 .status( ExtChannelProgressEventCat.valueOf(event.getStatus().getValue()))
                 .eventCode(event.getEventCode())
-                .requestId(event.getRequestId())
-                .build();
+                .requestId(event.getRequestId());
+        
+        if(event.getGeneratedMessage() != null){
+            builder.digitalMessageReferenceInt( DigitalMessageReferenceInt.builder()
+                    .location(event.getGeneratedMessage().getLocation())
+                    .system(event.getGeneratedMessage().getSystem())
+                    .id(event.getGeneratedMessage().getId())
+                    .build()
+            );
+        }
+        
+        return builder.build();
     }
-
 
     private void courtesyUpdate(CourtesyMessageProgressEvent event)
     {

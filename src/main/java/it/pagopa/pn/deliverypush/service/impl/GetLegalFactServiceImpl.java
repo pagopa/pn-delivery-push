@@ -83,9 +83,9 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
             response.setContentLength(fileDownloadResponse.getContentLength());
             response.setRetryAfter(fileDownloadResponse.getDownload() != null ? fileDownloadResponse.getDownload().getRetryAfter() : null);
             response.setUrl(fileDownloadResponse.getDownload().getUrl());
-            logEvent.generateSuccess().log();
+            logEvent.generateSuccess("getLegalFactMetadata Success - iun={} legalfactId={} senderReceiverId={}", iun, legalfactId, senderReceiverId).log();
         } catch (Exception exc) {
-            logEvent.generateFailure("Exception in getLegalFactMetadata", exc.getMessage());
+            logEvent.generateFailure("Exception in getLegalFactMetadata exc={} - iun={} legalfactId={} senderReceiverId={}", exc.getMessage(), iun, legalfactId, senderReceiverId).log();
             throw exc;
         }
         
@@ -125,11 +125,12 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
                     .collect(Collectors.toList());
             
             log.debug( "legalFacts List={}" ,legalFacts );
+
+            logEvent.generateSuccess("getLegalFacts success - iun={} senderReceiverId={}", iun, senderReceiverId).log();
             
             return legalFacts;
-
         } catch (Exception exc) {
-            logEvent.generateFailure("Exception in getLegalFact", exc.getMessage());
+            logEvent.generateFailure("Exception in getLegalFact exc={} - iun={} senderReceiverId={}", exc.getMessage() , iun, senderReceiverId).log();
             throw exc;
         }
     }

@@ -7,6 +7,7 @@ import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -194,13 +195,21 @@ public class DigitalWorkFlowUtils {
         );
     }
 
-    public void addDigitalFeedbackTimelineElement(NotificationInt notification, ResponseStatusInt status, List<String> errors, SendDigitalDetailsInt sendDigitalDetails) {
+    public void addDigitalFeedbackTimelineElement(NotificationInt notification, ResponseStatusInt status, List<String> errors,
+                                                  SendDigitalDetailsInt sendDigitalDetails, DigitalMessageReferenceInt digitalMessageReference) {
         addTimelineElement(
-                timelineUtils.buildDigitalFeedbackTimelineElement(notification, status, errors, sendDigitalDetails),
+                timelineUtils.buildDigitalFeedbackTimelineElement(notification, status, errors, sendDigitalDetails, digitalMessageReference),
                 notification
         );
     }
 
+    public void addDigitalDeliveringProgressTimelineElement(NotificationInt notification, SendDigitalDetailsInt sendDigitalDetails, DigitalMessageReferenceInt digitalMessageReference) {
+        addTimelineElement(
+                timelineUtils.buildDigitalDeliveringProgressTimelineElement(notification, sendDigitalDetails, digitalMessageReference),
+                notification
+        );
+    }
+    
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
         timelineService.addTimelineElement(element, notification);
     }

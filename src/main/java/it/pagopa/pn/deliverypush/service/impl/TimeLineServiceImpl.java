@@ -62,7 +62,7 @@ public class TimeLineServiceImpl implements TimelineService {
         log.info("addTimelineElement - IUN={} and timelineId={}", dto.getIun(), dto.getElementId());
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_TIMELINE, "addTimelineElement - IUN={} timelineId={}", dto.getIun(), dto.getElementId())
+                .before(PnAuditLogEventType.AUD_NT_TIMELINE, "addTimelineElement category={} - IUN={} timelineId={}", dto.getCategory(), dto.getIun(), dto.getElementId())
                 .iun(dto.getIun())
                 .build();
         logEvent.log();
@@ -76,8 +76,9 @@ public class TimeLineServiceImpl implements TimelineService {
                 confidentialInformationService.saveTimelineConfidentialInformation(dto);
 
                 timelineDao.addTimelineElement(dto);
-                // genero un messagio per l'aggiunta in sqs in modo da salvarlo in maniera asincrona
-                schedulerService.scheduleWebhookEvent(notification.getSender().getPaId(),
+                // genero un messaggio per l'aggiunta in sqs in modo da salvarlo in maniera asincrona
+                schedulerService.scheduleWebhookEvent(
+                        notification.getSender().getPaId(),
                         dto.getIun(),
                         dto.getElementId(),
                         dto.getTimestamp(),
@@ -85,9 +86,9 @@ public class TimeLineServiceImpl implements TimelineService {
                         notificationStatuses.getNewStatus().getValue(),
                         dto.getCategory().getValue()
                 );
-                logEvent.generateSuccess().log();
+                logEvent.generateSuccess("addTimelineElement Success category={} - IUN={} timelineId={}", dto.getCategory(), dto.getIun(), dto.getElementId()).log();
             } catch (Exception ex){
-                logEvent.generateFailure("Exception in addTimelineElement - iun={} elementId={} ex={}", notification.getIun(), dto.getElementId(), ex).log();
+                logEvent.generateFailure("Exception in addTimelineElement category={} - iun={} elementId={} ex={}", dto.getCategory(), notification.getIun(), dto.getElementId(), ex).log();
                 throw new PnInternalException("Exception in addTimelineElement - iun="+notification.getIun()+" elementId="+dto.getElementId(), ex);
             }
             

@@ -95,12 +95,12 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
             String url = this.saveLegalFact(legalFactBuilder.generateNotificationReceivedLegalFact(notification));
 
             log.debug("End saveNotificationReceivedLegalFact - iun={}", notification.getIun());
-            logEvent.generateSuccess().log();
+            logEvent.generateSuccess("SaveNotificationReceivedLegalFact success - iun={}", notification.getIun()).log();
             return url;
         }
         catch ( Exception exc ) {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "REQUEST_ACCEPTED",  notification.getIun(), "N/A");
-            logEvent.generateFailure("Exception in saveNotificationReceivedLegalFact ex=", exc.getMessage()).log();
+            logEvent.generateFailure("Exception in saveNotificationReceivedLegalFact ex={} - iun={}", exc.getMessage(), notification.getIun()).log();
             throw new PnInternalException( msg, exc);
         }
 
@@ -126,7 +126,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
 
             log.debug("End savePecDeliveryWorkflowLegalFact - iun={}", notification.getIun());
 
-            logEvent.generateSuccess().log();
+            logEvent.generateSuccess("SavePecDeliveryWorkflowLegalFact success - iun={}", notification.getIun()).log();
 
             return url;
         }
@@ -156,7 +156,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
                     notification.getIun(), recipient, timeStamp));
 
             log.debug("End saveNotificationViewedLegalFact - iun={}", notification.getIun());
-            logEvent.generateSuccess().log();
+            logEvent.generateSuccess("SaveNotificationViewedLegalFact success - iun={}", notification.getIun()).log();
             return url;
         }
         catch ( Exception exc ) {

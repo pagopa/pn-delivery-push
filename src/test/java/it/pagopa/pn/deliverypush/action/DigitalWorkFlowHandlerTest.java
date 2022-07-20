@@ -11,8 +11,10 @@ import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelProgressEventCat;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
@@ -464,6 +466,13 @@ class DigitalWorkFlowHandlerTest {
                 .status(ExtChannelProgressEventCat.ERROR)
                 .eventTimestamp(Instant.now())
                 .requestId(notification.getIun() + "_event_idx_0")
+                .digitalMessageReferenceInt(
+                        DigitalMessageReferenceInt.builder()
+                                .id("id")
+                                .system("system")
+                                .location("location")
+                                .build()
+                )
                 .build();
 
         SendDigitalDetailsInt details = SendDigitalDetailsInt.builder()
@@ -500,7 +509,58 @@ class DigitalWorkFlowHandlerTest {
         handler.handleExternalChannelResponse(extChannelResponse);
 
         //THEN
-        Mockito.verify(digitalWorkFlowUtils).addDigitalFeedbackTimelineElement(Mockito.any(NotificationInt.class), Mockito.any(), Mockito.any(), Mockito.any(SendDigitalDetailsInt.class));
+        Mockito.verify(digitalWorkFlowUtils).addDigitalFeedbackTimelineElement(Mockito.any(NotificationInt.class), Mockito.any(ResponseStatusInt.class),
+                Mockito.any(), Mockito.any(SendDigitalDetailsInt.class), Mockito.any(DigitalMessageReferenceInt.class));
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void handleExternalChannelResponseProgress() {
+        //GIVEN
+        NotificationInt notification = getNotification();
+
+        ExtChannelDigitalSentResponseInt extChannelResponse = ExtChannelDigitalSentResponseInt.builder()
+                .iun(notification.getIun())
+                .status(ExtChannelProgressEventCat.PROGRESS)
+                .eventTimestamp(Instant.now())
+                .requestId(notification.getIun() + "_event_idx_0")
+                .digitalMessageReferenceInt(
+                        DigitalMessageReferenceInt.builder()
+                                .id("id")
+                                .system("system")
+                                .location("location")
+                                .build()
+                )
+                .build();
+
+        SendDigitalDetailsInt details = SendDigitalDetailsInt.builder()
+                .recIndex(0)
+                .digitalAddressSource(DigitalAddressSourceInt.SPECIAL)
+                .digitalAddress(
+                        LegalDigitalAddressInt.builder()
+                                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                                .address("test")
+                                .build()
+                ).build();
+
+        TimelineElementInternal element = TimelineElementInternal.builder()
+                .timestamp(Instant.now())
+                .iun(notification.getIun())
+                .details( details )
+                .build();
+
+        Mockito.when(digitalWorkFlowUtils.getSendDigitalDetailsTimelineElement(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn( element );
+        
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+                .thenReturn(notification);
+
+        //WHEN
+        handler.handleExternalChannelResponse(extChannelResponse);
+
+        //THEN
+        Mockito.verify(digitalWorkFlowUtils).addDigitalDeliveringProgressTimelineElement(Mockito.any(NotificationInt.class),
+                Mockito.any(SendDigitalDetailsInt.class), Mockito.any(DigitalMessageReferenceInt.class));
     }
 
     private NotificationInt getNotification() {

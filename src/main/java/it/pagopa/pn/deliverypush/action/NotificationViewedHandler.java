@@ -73,11 +73,9 @@ public class NotificationViewedHandler {
             if( !NotificationStatusInt.CANCELLED.equals(currentStatus) ){
                 try {
                     handleViewNotification(iun, recIndex, notification);
-                    logEvent.generateSuccess().log();
+                    logEvent.generateSuccess("Notification viewed - iun={} id={}", iun, recIndex).log();
                 } catch (Exception exc) {
-                    logEvent.generateFailure(
-                            "Exception in View notification ex={} - iun={} id={}", exc, iun, recIndex
-                    ).log();
+                    logEvent.generateFailure("Exception in View notification ex={} - iun={} id={}", exc, iun, recIndex).log();
                     throw exc;
                 }
                 
