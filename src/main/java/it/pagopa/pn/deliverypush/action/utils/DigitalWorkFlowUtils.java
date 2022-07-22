@@ -228,7 +228,7 @@ public class DigitalWorkFlowUtils {
 
         if (availableAddressCategory) {
             SendDigitalProgressDetailsInt sendDigitalProgressDetails = (SendDigitalProgressDetailsInt) el.getDetails();
-            return recIndex.equals(sendDigitalProgressDetails.getRecIndex()) && source.equals(sendDigitalProgressDetails.getSource())
+            return recIndex.equals(sendDigitalProgressDetails.getRecIndex()) && source.equals(sendDigitalProgressDetails.getDigitalAddressSource())
                     && retryNumber == sendDigitalProgressDetails.getRetryNumber();
         }
         return false;

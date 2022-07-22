@@ -507,6 +507,8 @@ class TimelineEntityDaoDynamoTestIT {
                                                 .address("test@address.it")
                                                 .build()
                                 )
+                                .digitalAddressSource(DigitalAddressSourceEntity.PLATFORM)
+                                .retryNumber(0)
                                 .notificationDate(Instant.now())
                                 .sendingReceipts(Collections.singletonList(
                                         SendingReceiptEntity.builder()

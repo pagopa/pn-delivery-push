@@ -21,6 +21,6 @@ public class SendDigitalProgressDetailsInt implements RecipientRelatedTimelineEl
     private List<SendingReceipt> sendingReceipts;
     
     //Non mostrati al FE
-    private DigitalAddressSourceInt source;
+    private DigitalAddressSourceInt digitalAddressSource;
     private Integer retryNumber;
 }
