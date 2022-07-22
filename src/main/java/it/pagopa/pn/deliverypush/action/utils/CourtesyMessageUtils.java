@@ -20,6 +20,8 @@ import java.util.Optional;
 @Component
 @Slf4j
 public class CourtesyMessageUtils {
+    public static final int FIRST_COURTESY_ELEMENT = 0;
+    
     private final AddressBookService addressBookService;
     private final ExternalChannelService externalChannelService;
     private final TimelineService timelineService;
@@ -55,17 +57,17 @@ public class CourtesyMessageUtils {
         //Vengono ottenuti tutti gli indirizzi di cortesia per il recipient ...
         addressBookService.getCourtesyAddress(recipient.getInternalId(), notification.getSender().getPaId())
                 .ifPresent(listCourtesyAddresses -> {
-                    int courtesyAddrIndex = 0;
+                    int courtesyAddrIndex = FIRST_COURTESY_ELEMENT;
+                    
                     for (CourtesyDigitalAddressInt courtesyAddress : listCourtesyAddresses) {
-                        sendCourtesyMessage(notification, recIndex, courtesyAddrIndex, courtesyAddress);
-                        courtesyAddrIndex++;
+                        courtesyAddrIndex = sendCourtesyMessage(notification, recIndex, courtesyAddrIndex, courtesyAddress);
                     }
                 });
 
         log.debug("End sendCourtesyMessage - IUN={} id={}", notification.getIun(),recIndex);
     }
 
-    private void sendCourtesyMessage(NotificationInt notification,
+    private int sendCourtesyMessage(NotificationInt notification,
                                      Integer recIndex,
                                      int courtesyAddrIndex,
                                      CourtesyDigitalAddressInt courtesyAddress) {
@@ -90,11 +92,14 @@ public class CourtesyMessageUtils {
             }
 
             addSendCourtesyMessageToTimeline(notification, recIndex, courtesyAddress, eventId);
-            
+
+            courtesyAddrIndex++;
         } catch (Exception ex){
             //Se l'invio del messaggio di cortesia fallisce per un qualsiasi motivo il processo non si blocca. Viene fatto catch exception e loggata
             log.error("Exception in send courtesy message, courtesyType={} ex={} - iun={} id={}", courtesyAddress.getType(), ex, notification.getIun(), recIndex );
         }
+        
+        return courtesyAddrIndex;
     }
 
     private void handleCourtesyTypeError(NotificationInt notification, Integer recIndex, CourtesyDigitalAddressInt courtesyAddress) {
@@ -121,7 +126,7 @@ public class CourtesyMessageUtils {
     }
     
     public Optional<SendCourtesyMessageDetailsInt> getFirstSentCourtesyMessage(String iun, Integer recIndex) {
-        String timeLineCourtesyId = getTimelineElementId(recIndex, iun, 0);
+        String timeLineCourtesyId = getTimelineElementId(recIndex, iun, FIRST_COURTESY_ELEMENT);
         log.debug("Get courtesy message for timelineCourtesyId={} - IUN={} id={}", timeLineCourtesyId, iun, recIndex);
         return timelineService.getTimelineElementDetails(iun, timeLineCourtesyId, SendCourtesyMessageDetailsInt.class);
     }
