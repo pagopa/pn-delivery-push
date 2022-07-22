@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.dto.timeline.details;
 
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import lombok.*;
 
@@ -18,4 +19,8 @@ public class SendDigitalProgressDetailsInt implements RecipientRelatedTimelineEl
     private LegalDigitalAddressInt digitalAddress;
     private Instant notificationDate;
     private List<SendingReceipt> sendingReceipts;
+    
+    //Non mostrati al FE
+    private DigitalAddressSourceInt source;
+    private Integer retryNumber;
 }

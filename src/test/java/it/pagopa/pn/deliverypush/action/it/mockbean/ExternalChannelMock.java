@@ -91,11 +91,12 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
                 EventId.builder()
                         .iun(notification.getIun())
                         .recIndex(sendDigitalDetails.getRecIndex())
-                        .index(sendDigitalDetails.getRetryNumber())
+                        .sentAttemptMade(sendDigitalDetails.getRetryNumber())
                         .source(sendDigitalDetails.getDigitalAddressSource())
+                        .index(0)
                         .build()
         );
-
+        
         //Viene atteso finchè l'elemento di timeline relativo al progress non sia stato inserito
         await().untilAsserted(() ->
                 Assertions.assertTrue(timelineService.getTimelineElement(notification.getIun(), elementId).isPresent())

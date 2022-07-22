@@ -107,8 +107,7 @@ public class ExternalChannelResponseHandler {
         return builder.build();
     }
 
-    private void legalUpdate(LegalMessageSentDetails event)
-    {
+    private void legalUpdate(LegalMessageSentDetails event) {
         try {
             String iun = timelineUtils.getIunFromTimelineId(event.getRequestId());
 

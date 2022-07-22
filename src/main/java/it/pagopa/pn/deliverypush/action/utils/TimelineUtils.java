@@ -19,6 +19,7 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -130,16 +131,19 @@ public class TimelineUtils {
         return buildTimeline(notification, TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK, elementId, details);
     }
 
-    public TimelineElementInternal buildDigitalDeliveringProgressTimelineElement(NotificationInt notification, SendDigitalDetailsInt sendDigitalDetails,
-                                                                                 DigitalMessageReferenceInt digitalMessageReference) {
+    public TimelineElementInternal buildDigitalDeliveringProgressTimelineElement(NotificationInt notification, 
+                                                                                 SendDigitalDetailsInt sendDigitalDetails,
+                                                                                 List<DigitalMessageReferenceInt> digitalMessageReferences,
+                                                                                 int index) {
         log.debug("buildDigitalDeliveringProgressTimelineElement - IUN={} and id={}", notification.getIun(), sendDigitalDetails.getRecIndex());
 
         String elementId = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())
                         .recIndex(sendDigitalDetails.getRecIndex())
-                        .index(sendDigitalDetails.getRetryNumber())
+                        .sentAttemptMade(sendDigitalDetails.getRetryNumber())
                         .source(sendDigitalDetails.getDigitalAddressSource())
+                        .index(index)
                         .build()
         );
 
@@ -148,13 +152,14 @@ public class TimelineUtils {
                 .recIndex(sendDigitalDetails.getRecIndex())
                 .notificationDate(instantNowSupplier.get())
                 .sendingReceipts(
-                        Collections.singletonList(
-                                SendingReceipt.builder()
-                                .id(digitalMessageReference.getId())
-                                .system(digitalMessageReference.getSystem())
-                                .location(digitalMessageReference.getLocation())
-                                .build()
-                        )
+                        digitalMessageReferences.stream().map(
+                                digitalMessageReference ->
+                                        SendingReceipt.builder()
+                                        .id(digitalMessageReference.getId())
+                                        .system(digitalMessageReference.getSystem())
+                                        .location(digitalMessageReference.getLocation())
+                                        .build()
+                        ).collect(Collectors.toList())
                 )
                 .build();
 

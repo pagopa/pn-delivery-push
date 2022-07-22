@@ -67,7 +67,7 @@ public class PnEventInboundService {
                 return handleAction(message);
             else if(WebhookActionEventType.WEBHOOK_ACTION_GENERIC.name().equals(eventType))
                 return "pnDeliveryPushWebhookActionConsumer";
-        }else {
+        } else {
             String queueName = (String) message.getHeaders().get("aws_receivedQueue");
             if( Objects.equals( queueName, externalChannelEventQueueName) ) {
                 eventType = "SEND_PAPER_RESPONSE";
@@ -86,7 +86,8 @@ public class PnEventInboundService {
     }
 
     private String handleAction(Message<?> message) {
-        /*TODO Quando verrà utilizzata la sola versione v2 verificare se si può evitare di dover gestire la action in modo separato, valorizzando direttamente in fase
+        /*TODO 
+           Quando verrà utilizzata la sola versione v2 verificare se si può evitare di dover gestire la action in modo separato, valorizzando direttamente in fase
             di scheduling l'eventType con il valore del type della action (ActionPoolImpl -> addToActionsQueue)
          */
             Map<String, String> actionMap = getActionMapFromMessage(message);

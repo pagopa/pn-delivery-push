@@ -536,6 +536,7 @@ class DigitalWorkFlowHandlerTest {
         SendDigitalDetailsInt details = SendDigitalDetailsInt.builder()
                 .recIndex(0)
                 .digitalAddressSource(DigitalAddressSourceInt.SPECIAL)
+                .retryNumber(0)
                 .digitalAddress(
                         LegalDigitalAddressInt.builder()
                                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -552,6 +553,9 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(digitalWorkFlowUtils.getSendDigitalDetailsTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn( element );
         
+        Mockito.when(digitalWorkFlowUtils.getDigitalDeliveringProgressTimelineElementIndex(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.any(DigitalAddressSourceInt.class), Mockito.anyInt()))
+                .thenReturn( 0 );
+
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
@@ -560,7 +564,7 @@ class DigitalWorkFlowHandlerTest {
 
         //THEN
         Mockito.verify(digitalWorkFlowUtils).addDigitalDeliveringProgressTimelineElement(Mockito.any(NotificationInt.class),
-                Mockito.any(SendDigitalDetailsInt.class), Mockito.any(DigitalMessageReferenceInt.class));
+                Mockito.any(SendDigitalDetailsInt.class), Mockito.any(), Mockito.anyInt());
     }
 
     private NotificationInt getNotification() {

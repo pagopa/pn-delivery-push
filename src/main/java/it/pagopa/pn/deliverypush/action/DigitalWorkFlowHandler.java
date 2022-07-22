@@ -31,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -222,14 +223,19 @@ public class DigitalWorkFlowHandler {
 
             switch (status) {
                 case OK:
+                    logEvent.generateSuccess("Digital workflow Ext channel Success for source={} retryNumber={} - iun={} id={}",sendDigitalDetails.getDigitalAddressSource(), sendDigitalDetails.getRetryNumber(), iun, recIndex).log();
+
                     log.info("Notification sent successfully, starting completion workflow - iun={} id={}", iun, recIndex);
                     //La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
                     completionWorkflow.completionDigitalWorkflow(notification, recIndex, response.getEventTimestamp(), sendDigitalDetails.getDigitalAddress(), EndWorkflowStatus.SUCCESS);
-                    logEvent.generateSuccess("Digital workflow Ext channel Success - iun={} id={}", iun, recIndex).log();
                     break;
                 case KO:
                     //Non è stato possibile effettuare la notificazione, si passa al prossimo step del workflow
                     log.info("Notification failed, starting next workflow action - iun={} id={}", iun, recIndex);
+                    
+                    logEvent.generateFailure("Notification failed for source={} retryNumber={} eventCode={} eventDetails{} - iun={} id={} ",
+                            sendDigitalDetails.getDigitalAddressSource(), sendDigitalDetails.getRetryNumber(),
+                            response.getEventCode(), response.getEventDetails(), iun, recIndex).log();
 
                     DigitalAddressInfo lastAttemptMade = DigitalAddressInfo.builder()
                             .digitalAddressSource(sendDigitalDetails.getDigitalAddressSource())
@@ -237,23 +243,24 @@ public class DigitalWorkFlowHandler {
                             .build();
 
                     nextWorkFlowAction(notification, recIndex, lastAttemptMade);
-
-                    logEvent.generateFailure("Digital workflow fail - iun={} id={}", iun, recIndex).log();
                     break;
             }
         } else {
             handleStatusProgress(response.getStatus(), notification, recIndex, sendDigitalDetails, response.getDigitalMessageReferenceInt());
-            PnAuditLogEvent logEventValid = auditLogBuilder
-                    .before(PnAuditLogEventType.AUD_NT_VALID, "Digital workflow Ext channel response validation iun={} id={}", iun, recIndex)
-                    .iun(iun)
-                    .build();
-            logEventValid.generateSuccess("Validation OK - iun={} id={}", iun, recIndex).log();
         }
     }
 
-    private void handleStatusProgress(ExtChannelProgressEventCat status, NotificationInt notification, Integer recIndex, SendDigitalDetailsInt sendDigitalDetails, DigitalMessageReferenceInt digitalMessageReference ) {
+    private void handleStatusProgress( ExtChannelProgressEventCat status,
+                                      NotificationInt notification,
+                                      Integer recIndex,
+                                      SendDigitalDetailsInt sendDigitalDetails,
+                                      DigitalMessageReferenceInt digitalMessageReference ) {
         log.info("Specified status={} is not final - iun={} id={}", status, notification.getIun(), recIndex);
-        digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(notification, sendDigitalDetails, digitalMessageReference);
+        
+        int index = digitalWorkFlowUtils.getDigitalDeliveringProgressTimelineElementIndex(notification, recIndex, sendDigitalDetails.getDigitalAddressSource(), sendDigitalDetails.getRetryNumber());
+        log.debug("Index for new timeline progress is {} - iun={} id={}", index, notification.getIun(), recIndex);
+
+        digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(notification, sendDigitalDetails, Collections.singletonList(digitalMessageReference), index);
     }
 
     private DigitalAddressInfo getDigitalAddressInfo(ScheduleDigitalWorkflowDetailsInt scheduleDigitalWorkflow) {
