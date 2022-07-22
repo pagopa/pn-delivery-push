@@ -71,24 +71,30 @@ public class CourtesyMessageUtils {
                                      CourtesyDigitalAddressInt courtesyAddress) {
         log.debug("Send courtesy message address index {} - iun={} id={} ", courtesyAddrIndex, notification.getIun(), recIndex);
 
-        //... Per ogni indirizzo di cortesia ottenuto viene inviata la notifica del messaggio di cortesia
-        String eventId = getTimelineElementId(recIndex, notification.getIun(), courtesyAddrIndex);
+        try {
+            //... Per ogni indirizzo di cortesia ottenuto viene inviata la notifica del messaggio di cortesia
+            String eventId = getTimelineElementId(recIndex, notification.getIun(), courtesyAddrIndex);
 
-        switch (courtesyAddress.getType()){
-            case EMAIL:
-            case SMS:
-                log.info("Send courtesy message to externalChannel - iun={} id={} ", notification.getIun(), recIndex);
-                externalChannelService.sendCourtesyNotification(notification, courtesyAddress, recIndex, eventId);
-                break;
-            case APPIO:
-                log.info("Send courtesy message to App IO - iun={} id={} ", notification.getIun(), recIndex);
-                iOservice.sendIOMessage(notification, recIndex);
-                break;
-            default:
-                handleCourtesyTypeError(notification, recIndex, courtesyAddress);
+            switch (courtesyAddress.getType()){
+                case EMAIL:
+                case SMS:
+                    log.info("Send courtesy message to externalChannel courtesyType={} - iun={} id={} ", courtesyAddress.getType(), notification.getIun(), recIndex);
+                    externalChannelService.sendCourtesyNotification(notification, courtesyAddress, recIndex, eventId);
+                    break;
+                case APPIO:
+                    log.info("Send courtesy message to App IO - iun={} id={} ", notification.getIun(), recIndex);
+                    iOservice.sendIOMessage(notification, recIndex);
+                    break;
+                default:
+                    handleCourtesyTypeError(notification, recIndex, courtesyAddress);
+            }
+
+            addSendCourtesyMessageToTimeline(notification, recIndex, courtesyAddress, eventId);
+            
+        } catch (Exception ex){
+            //Se l'invio del messaggio di cortesia fallisce per un qualsiasi motivo il processo non si blocca. Viene fatto catch exception e loggata
+            log.error("Exception in send courtesy message, courtesyType={} ex={} - iun={} id={}", courtesyAddress.getType(), ex, notification.getIun(), recIndex );
         }
-
-        addSendCourtesyMessageToTimeline(notification, recIndex, courtesyAddress, eventId);
     }
 
     private void handleCourtesyTypeError(NotificationInt notification, Integer recIndex, CourtesyDigitalAddressInt courtesyAddress) {
@@ -98,7 +104,7 @@ public class CourtesyMessageUtils {
                 " is not defined - iun="+ notification.getIun()+" id="+ recIndex);
     }
 
-    public void addSendCourtesyMessageToTimeline(NotificationInt notification, Integer recIndex, CourtesyDigitalAddressInt courtesyAddress, String eventId) {
+    private void addSendCourtesyMessageToTimeline(NotificationInt notification, Integer recIndex, CourtesyDigitalAddressInt courtesyAddress, String eventId) {
         addTimelineElement(
                 timelineUtils.buildSendCourtesyMessageTimelineElement(recIndex, notification, courtesyAddress, instantNowSupplier.get(), eventId),
                 notification

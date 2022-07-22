@@ -65,22 +65,27 @@ public class AddressBookServiceImpl implements AddressBookService {
     @Override
     public Optional<List<CourtesyDigitalAddressInt>> getCourtesyAddress(String recipientId, String senderId) {
         ResponseEntity<List<CourtesyDigitalAddress>> resp = userAttributesClient.getCourtesyAddressBySender(recipientId, senderId);
-
-        if (resp.getStatusCode().is2xxSuccessful()) {
-            List<CourtesyDigitalAddress> courtesyDigitalAddresses = resp.getBody();
-            if(courtesyDigitalAddresses != null && !courtesyDigitalAddresses.isEmpty()){
-                log.info("getCourtesyAddress OK - senderId={}, recipientId={} courtesyListSize={}", senderId, recipientId, courtesyDigitalAddresses.size());
-                return Optional.of(
-                        courtesyDigitalAddresses.stream().map(
-                                CourtesyCourtesyDigitalAddressMapper::externalToInternal
-                        ).collect(Collectors.toList())
-                );
+        
+        try {
+            if (resp.getStatusCode().is2xxSuccessful()) {
+                List<CourtesyDigitalAddress> courtesyDigitalAddresses = resp.getBody();
+                if(courtesyDigitalAddresses != null && !courtesyDigitalAddresses.isEmpty()){
+                    log.info("getCourtesyAddress OK - senderId={}, recipientId={} courtesyListSize={}", senderId, recipientId, courtesyDigitalAddresses.size());
+                    return Optional.of(
+                            courtesyDigitalAddresses.stream().map(
+                                    CourtesyCourtesyDigitalAddressMapper::externalToInternal
+                            ).collect(Collectors.toList())
+                    );
+                }
+                log.info("getCourtesyAddress OK - senderId={}, recipientId={} courtesyListSize=Empty", senderId, recipientId);
+            } else {
+                log.error("GetCourtesyAddress Failed - senderId={}, recipientId={}",  senderId, recipientId);
             }
-            log.info("getCourtesyAddress OK - senderId={}, recipientId={} courtesyListSize=Empty", senderId, recipientId);
             return Optional.empty();
-        } else {
-            log.error("getCourtesyAddress Failed senderId={}", senderId);
-            throw new PnInternalException("getCourtesyAddress Failed recipientId="+ recipientId +" senderId="+ senderId);
+        }catch (Exception ex){
+            //Se la get dei messaggi di cortesia fallisce per un qualsiasi motivo il processo non si blocca. Viene fatto catch exception e loggata
+            log.error("GetCourtesyAddress Failed ex={}- senderId={}, recipientId={}", ex, senderId, recipientId);
+            return Optional.empty();
         }
     }
 
