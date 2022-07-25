@@ -331,7 +331,11 @@ public class TimelineUtils {
                 details, timelineBuilder );
     }
 
-    public TimelineElementInternal  buildNotificationViewedTimelineElement(NotificationInt notification, Integer recIndex, String legalFactId) {
+    public TimelineElementInternal  buildNotificationViewedTimelineElement(
+            NotificationInt notification,
+            Integer recIndex,
+            String legalFactId,
+            Integer notificationCost) {
         log.debug("buildNotificationViewedTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
 
         String elementId = TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
@@ -341,6 +345,7 @@ public class TimelineUtils {
                         .build());
         NotificationViewedDetailsInt details = NotificationViewedDetailsInt.builder()
                 .recIndex(recIndex)
+                .notificationCost(notificationCost)
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
@@ -399,7 +404,7 @@ public class TimelineUtils {
         return buildTimeline(notification, TimelineElementCategoryInt.SCHEDULE_ANALOG_WORKFLOW, elementId, details);
     }
 
-    public TimelineElementInternal  buildRefinementTimelineElement(NotificationInt notification, Integer recIndex) {
+    public TimelineElementInternal  buildRefinementTimelineElement(NotificationInt notification, Integer recIndex, Integer notificationCost) {
         log.debug("buildRefinementTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
         
         String elementId = TimelineEventId.REFINEMENT.buildEventId(
@@ -410,6 +415,7 @@ public class TimelineUtils {
         
         RefinementDetailsInt details = RefinementDetailsInt.builder()
                 .recIndex(recIndex)
+                .notificationCost(notificationCost)
                 .build();
 
         return buildTimeline(notification, TimelineElementCategoryInt.REFINEMENT, elementId, details);

@@ -21,7 +21,9 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.dto.timeline.details.RefinementDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
@@ -69,6 +71,7 @@ import static org.awaitility.Awaitility.await;
         PublicRegistryServiceImpl.class,
         ExternalChannelServiceImpl.class,
         IoServiceImpl.class,
+        NotificationCostServiceImpl.class,
         ExternalChannelResponseHandler.class,
         RefinementHandler.class,
         NotificationViewedHandler.class,
@@ -597,7 +600,19 @@ class DigitalTestIT {
         Assertions.assertEquals(1, simpleRegisteredLetterDetails.getNumberOfPages());
 
         //Viene verificato che sia avvenuto il perfezionamento
-        TestUtils.checkRefinement(iun, recIndex, timelineService);
+        Optional<TimelineElementInternal> timelineElementOpt = timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.REFINEMENT.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recIndex(recIndex)
+                                .build()));
+
+        Assertions.assertTrue(timelineElementOpt.isPresent());
+        TimelineElementInternal timelineElement = timelineElementOpt.get();
+        RefinementDetailsInt detailsInt = (RefinementDetailsInt) timelineElement.getDetails();
+
+        Assertions.assertNotNull(detailsInt.getNotificationCost());
     }
 
     @Test

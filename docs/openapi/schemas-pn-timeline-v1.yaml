@@ -166,6 +166,10 @@ components:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+        notificationCost:
+          description: costo notifica in euro cents, può essere nullo se la notifica si è perfezionata prima per decorrenza termini
+          example: 1220
+          type: integer
           
     PublicRegistryCallDetails:
       type: object
@@ -202,6 +206,10 @@ components:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+        notificationCost:
+          description: costo notifica in euro cents, può essere nullo se la notifica si è perfezionata prima per visualizzazione
+          example: 1220
+          type: integer
           
     RequestRefusedDetails:
       type: object
