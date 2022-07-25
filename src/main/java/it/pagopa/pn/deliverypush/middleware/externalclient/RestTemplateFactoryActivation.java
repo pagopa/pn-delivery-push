@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient;
 
 import it.pagopa.pn.commons.pnclients.RestTemplateFactory;
+import it.pagopa.pn.commons.pnclients.RestTemplateResponseErrorHandler;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
