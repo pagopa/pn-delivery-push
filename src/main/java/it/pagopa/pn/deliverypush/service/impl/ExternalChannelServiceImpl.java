@@ -79,7 +79,6 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     @Override
     public void sendCourtesyNotification(NotificationInt notification, CourtesyDigitalAddressInt courtesyAddress, Integer recIndex, String eventId) {
         log.debug("Start sendCourtesyNotification - iun {} id {}", notification.getIun(), recIndex);
-
         externalChannel.sendCourtesyNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), courtesyAddress, eventId);
     }
 
