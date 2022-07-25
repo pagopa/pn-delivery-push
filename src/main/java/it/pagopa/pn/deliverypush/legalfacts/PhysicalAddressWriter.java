@@ -35,7 +35,7 @@ public class PhysicalAddressWriter {
         }
 
         standardAddressString.add( physicalAddress.getAddress() );
-        standardAddressString.add( physicalAddress.getZip() + " " + physicalAddress.getMunicipality() + " " + physicalAddress.getProvince() );
+        standardAddressString.add( physicalAddress.getZip() + " " + physicalAddress.getMunicipality() +  (isNotBlank(physicalAddress.getMunicipalityDetails())?(" " + physicalAddress.getMunicipalityDetails()):"") + " " + physicalAddress.getProvince() );
 
         if ( isNotBlank( physicalAddress.getForeignState() ) ) {
             standardAddressString.add( physicalAddress.getForeignState() );
