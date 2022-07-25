@@ -194,7 +194,7 @@ public class AnalogWorkflowHandler {
         }
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_CHECK, "Analog workflow Ext channel response iun={} id={} with status={}", iun, recIndex, response.getStatusCode())
+                .before(PnAuditLogEventType.AUD_NT_CHECK, "Analog workflow Ext channel response iun={} id={} with status={} and sentAttemptMade={}", iun, recIndex, response.getStatusCode(), sendPaperDetails.getSentAttemptMade())
                 .iun(iun)
                 .build();
         logEvent.log();
@@ -203,12 +203,12 @@ public class AnalogWorkflowHandler {
             switch (status) {
                 case OK:
                     // AUD_NT_CHECK
-                    logEvent.generateSuccess("Analog workflow success sentAttemptMade={} - iun={} id={}", sendPaperDetails.getSentAttemptMade(), iun, recIndex).log();
+                    logEvent.generateSuccess().log();
                     // La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
                     completionWorkFlow.completionAnalogWorkflow(notification, recIndex, legalFactsListEntryIds, response.getStatusDateTime(), sendPaperDetails.getPhysicalAddress(), EndWorkflowStatus.SUCCESS);
                     break;
                 case KO:
-                    logEvent.generateFailure("External channel analogFailureAttempt sentAttemptMade={} proceding to next workflow step for iun={} id={}", sendPaperDetails.getSentAttemptMade(), iun, recIndex).log();
+                    logEvent.generateFailure("External channel analogFailureAttempt with failure case {} ", response.getDeliveryFailureCause()).log();
 
                     // External channel non è riuscito a effettuare la notificazione, si passa al prossimo step del workflow
                     int sentAttemptMade = sendPaperDetails.getSentAttemptMade() + 1;
@@ -218,11 +218,6 @@ public class AnalogWorkflowHandler {
             }
         } else {
             handleStatusProgress(response, iun, recIndex);
-            PnAuditLogEvent logEventValid = auditLogBuilder
-                    .before(PnAuditLogEventType.AUD_NT_VALID, "Analog workflow Ext channel validation sentAttemptMade={} iun={} id={} with status={}",sendPaperDetails.getSentAttemptMade(), iun, recIndex, response.getStatusCode())
-                    .iun(iun)
-                    .build();
-            logEventValid.generateSuccess("Analog workflow Ext channel validation OK sentAttemptMade={}  - iun={} id={}",sendPaperDetails.getSentAttemptMade(), response.getStatusCode(), iun, recIndex).log();
         }
 
     }

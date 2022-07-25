@@ -70,7 +70,7 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
 
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(eventType, "getLegalFactMetadata iun={} legafactId={} senderReceiverId={}", iun, legalfactId, senderReceiverId)
+                .before(eventType, "getLegalFactMetadata iun={} legalFactId={} senderReceiverId={}", iun, legalfactId, senderReceiverId)
                 .iun(iun)
                 .build();
         logEvent.log();
@@ -83,9 +83,9 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
             response.setContentLength(fileDownloadResponse.getContentLength());
             response.setRetryAfter(fileDownloadResponse.getDownload() != null ? fileDownloadResponse.getDownload().getRetryAfter() : null);
             response.setUrl(fileDownloadResponse.getDownload().getUrl());
-            logEvent.generateSuccess("getLegalFactMetadata Success - iun={} legalfactId={} senderReceiverId={}", iun, legalfactId, senderReceiverId).log();
+            logEvent.generateSuccess().log();
         } catch (Exception exc) {
-            logEvent.generateFailure("Exception in getLegalFactMetadata exc={} - iun={} legalfactId={} senderReceiverId={}", exc.getMessage(), iun, legalfactId, senderReceiverId).log();
+            logEvent.generateFailure("Exception in getLegalFactMetadata exc={}", exc).log();
             throw exc;
         }
         
@@ -105,7 +105,7 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
 
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(eventType, "getLegalFacts iun={} senderReceiverId={}", iun, senderReceiverId)
+                .before(eventType, "GetLegalFacts iun={} senderReceiverId={} mandateId={}", iun, senderReceiverId, mandateId)
                 .iun(iun)
                 .build();
         logEvent.log();
@@ -126,11 +126,11 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
             
             log.debug( "legalFacts List={}" ,legalFacts );
 
-            logEvent.generateSuccess("getLegalFacts success - iun={} senderReceiverId={}", iun, senderReceiverId).log();
+            logEvent.generateSuccess().log();
             
             return legalFacts;
         } catch (Exception exc) {
-            logEvent.generateFailure("Exception in getLegalFact exc={} - iun={} senderReceiverId={}", exc.getMessage() , iun, senderReceiverId).log();
+            logEvent.generateFailure("Exception in getLegalFact exc={}", exc).log();
             throw exc;
         }
     }

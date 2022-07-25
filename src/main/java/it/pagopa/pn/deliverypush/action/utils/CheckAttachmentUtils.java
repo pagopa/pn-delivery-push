@@ -41,9 +41,9 @@ public class CheckAttachmentUtils {
                     recipient -> checkPayment(recipient.getPayment())
             );
 
-            logEvent.generateSuccess("Check attachment success for iun={}", notification.getIun()).log();
+            logEvent.generateSuccess().log();
         } catch (PnValidationException ex) {
-            logEvent.generateFailure("check attachment Failed for iun={} exc", notification.getIun(), ex);
+            logEvent.generateFailure("check attachment Failed exc={}", ex);
             throw ex;
         }
     }

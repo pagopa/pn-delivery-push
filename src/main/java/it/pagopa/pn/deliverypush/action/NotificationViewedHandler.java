@@ -55,7 +55,7 @@ public class NotificationViewedHandler {
         log.debug("Start HandleViewNotification - iun={}", iun);
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_VIEW_RPC, "Start HandleViewNotification - iun={}", iun )
+                .before(PnAuditLogEventType.AUD_NT_VIEW_RPC, "Start HandleViewNotification - iun={} id={}", iun, recIndex )
                 .iun(iun)
                 .build();
         logEvent.log();
@@ -73,9 +73,9 @@ public class NotificationViewedHandler {
             if( !NotificationStatusInt.CANCELLED.equals(currentStatus) ){
                 try {
                     handleViewNotification(iun, recIndex, notification);
-                    logEvent.generateSuccess("Notification viewed - iun={} id={}", iun, recIndex).log();
+                    logEvent.generateSuccess().log();
                 } catch (Exception exc) {
-                    logEvent.generateFailure("Exception in View notification ex={} - iun={} id={}", exc, iun, recIndex).log();
+                    logEvent.generateFailure("Exception in View notification ex={}", exc).log();
                     throw exc;
                 }
                 

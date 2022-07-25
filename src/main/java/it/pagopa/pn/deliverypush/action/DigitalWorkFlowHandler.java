@@ -213,7 +213,8 @@ public class DigitalWorkFlowHandler {
         if (status != null) {
 
             PnAuditLogEvent logEvent = auditLogBuilder
-                    .before(PnAuditLogEventType.AUD_NT_CHECK, "Digital workflow Ext channel response iun={} id={}", iun, recIndex)
+                    .before(PnAuditLogEventType.AUD_NT_CHECK, "Digital workflow Ext channel response for source {} and retryNumber={} - iun={} id={}",
+                            sendDigitalDetails.getDigitalAddressSource(), sendDigitalDetails.getRetryNumber(), iun, recIndex)
                     .iun(iun)
                     .build();
             logEvent.log();
@@ -223,7 +224,7 @@ public class DigitalWorkFlowHandler {
 
             switch (status) {
                 case OK:
-                    logEvent.generateSuccess("Digital workflow Ext channel Success for source={} retryNumber={} - iun={} id={}",sendDigitalDetails.getDigitalAddressSource(), sendDigitalDetails.getRetryNumber(), iun, recIndex).log();
+                    logEvent.generateSuccess().log();
 
                     log.info("Notification sent successfully, starting completion workflow - iun={} id={}", iun, recIndex);
                     //La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
@@ -233,9 +234,8 @@ public class DigitalWorkFlowHandler {
                     //Non è stato possibile effettuare la notificazione, si passa al prossimo step del workflow
                     log.info("Notification failed, starting next workflow action - iun={} id={}", iun, recIndex);
                     
-                    logEvent.generateFailure("Notification failed for source={} retryNumber={} eventCode={} eventDetails{} - iun={} id={} ",
-                            sendDigitalDetails.getDigitalAddressSource(), sendDigitalDetails.getRetryNumber(),
-                            response.getEventCode(), response.getEventDetails(), iun, recIndex).log();
+                    logEvent.generateFailure("Notification failed for eventCode={} eventDetails={}",
+                            response.getEventCode(), response.getEventDetails()).log();
 
                     DigitalAddressInfo lastAttemptMade = DigitalAddressInfo.builder()
                             .digitalAddressSource(sendDigitalDetails.getDigitalAddressSource())

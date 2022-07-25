@@ -95,9 +95,9 @@ public class StartWorkflowHandler {
         logEvent.log();
         try {
             aarUtils.generateAARAndSaveInSafeStorageAndAddTimelineevent(notification, recIndex);
-            logEvent.generateSuccess("AAR generation success - iun={} and recIndex={}", notification.getIun(), recIndex).log();
+            logEvent.generateSuccess().log();
         } catch (Exception exc) {
-            logEvent.generateFailure("Exception on generation of ARR", exc.getMessage()).log();
+            logEvent.generateFailure("Exception on generation of ARR ex={}", exc.getMessage()).log();
             throw exc;
         }
         //... Invio messaggio di cortxesia ...
