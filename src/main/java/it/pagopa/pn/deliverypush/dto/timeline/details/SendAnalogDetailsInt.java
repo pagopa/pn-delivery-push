@@ -15,6 +15,6 @@ public class SendAnalogDetailsInt implements RecipientRelatedTimelineElementDeta
     private PhysicalAddressInt physicalAddress;
     private ServiceLevelInt serviceLevel;
     private Integer sentAttemptMade;
-    private boolean investigation;
+    private Boolean investigation;
     private Integer numberOfPages;
 }

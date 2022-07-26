@@ -16,6 +16,6 @@ import java.time.Instant;
 public class GetAddressInfoDetailsInt implements RecipientRelatedTimelineElementDetails {
     private int recIndex;
     private DigitalAddressSourceInt digitalAddressSource;
-    private boolean isAvailable;
+    private Boolean isAvailable;
     private Instant attemptDate;
 }

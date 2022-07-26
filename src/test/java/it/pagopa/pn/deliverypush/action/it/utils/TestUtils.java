@@ -78,7 +78,7 @@ public class TestUtils {
 
         Optional<GetAddressInfoDetailsInt> getAddressInfoOpt = timelineService.getTimelineElementDetails(iun, correlationId, GetAddressInfoDetailsInt.class);
         Assertions.assertTrue(getAddressInfoOpt.isPresent());
-        Assertions.assertEquals(isAvailable, getAddressInfoOpt.get().isAvailable());
+        Assertions.assertEquals(isAvailable, getAddressInfoOpt.get().getIsAvailable());
     }
 
     public static void checkSendPaperToExtChannel(String iun, Integer recIndex, PhysicalAddressInt physicalAddress, int sendAttempt, TimelineService timelineService) {
