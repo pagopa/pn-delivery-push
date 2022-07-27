@@ -133,12 +133,8 @@
 						</goals>
 						<configuration>
 							<typeMappings>
-								 <typeMapping>Date=Instant</typeMapping>
+								<typeMapping>OffsetDateTime=java.time.Instant</typeMapping>
 							</typeMappings>
-							<importMappings>
-								<importMapping>java.util.Date=java.time.Instant</importMapping>
-								<importMapping>Date=java.time.Instant</importMapping>
-							</importMappings>
 							<inputSpec>${project.basedir}/docs/openapi/api-private-v1.yaml</inputSpec>
 							<generatorName>spring</generatorName>
 							<library>spring-boot</library>
@@ -150,7 +146,7 @@
 								<modelPackage>it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto</modelPackage>
 								<apiPackage>it.pagopa.pn.deliverypush.generated.openapi.server.v1.api</apiPackage>
 								<configPackage>it.pagopa.pn.deliverypush.generated.openapi.server.v1.config</configPackage>
-								<dateLibrary>java11</dateLibrary>
+								<dateLibrary>java8</dateLibrary>
 								<delegatePattern>true</delegatePattern>
 								<interfaceOnly>true</interfaceOnly>
 								<annotationLibrary>none</annotationLibrary>
@@ -177,14 +173,15 @@
 							<modelNameSuffix></modelNameSuffix>
 							<generateApiTests>false</generateApiTests>
 							<generateModelTests>false</generateModelTests>
-							<typeMappings><typeMapping>Date=Instant</typeMapping></typeMappings>
-							<importMappings><importMapping>java.util.Date=java.time.Instant</importMapping></importMappings>
+							<typeMappings>
+								<typeMapping>OffsetDateTime=java.time.Instant</typeMapping>
+							</typeMappings>
 							<configOptions>
 								<basePackage>it.pagopa.pn.deliverypush.generated.openapi.server.v1</basePackage>
 								<modelPackage>it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto</modelPackage>
 								<apiPackage>it.pagopa.pn.deliverypush.generated.openapi.server.v1.api</apiPackage>
 								<configPackage>it.pagopa.pn.deliverypush.generated.openapi.server.v1.config</configPackage>
-								<dateLibrary>java11</dateLibrary>
+								<dateLibrary>java8</dateLibrary>
 								<delegatePattern>true</delegatePattern>
 								<interfaceOnly>true</interfaceOnly>
 								<annotationLibrary>none</annotationLibrary>
