@@ -32,17 +32,6 @@ components:
         - REQUEST_REFUSED
         - AAR_GENERATION
         - NOT_HANDLED
-        
-    DownstreamId:
-      description: identificativo del messaggio nel sistema a valle
-      type: object
-      properties:
-        systemId:
-          type: string
-          description: Identificativo del sistema a valle di inoltro messaggistica
-        messageId:
-          type: string
-          description: Identificativo del messaggio inoltrato
     
     TimelineElement:
       type: object
@@ -328,8 +317,6 @@ components:
           type: integer
           description: numero dei tentativi effettuati
           format: int32
-        downstreamId:
-          "$ref": "#/components/schemas/DownstreamId"
           
     SendDigitalFeedbackDetails:
       type: object
