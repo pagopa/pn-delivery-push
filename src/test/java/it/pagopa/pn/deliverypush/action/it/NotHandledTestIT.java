@@ -19,7 +19,9 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalFailureWorkflowDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotHandledDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
@@ -213,7 +215,7 @@ class NotHandledTestIT {
     }
 
     @Test
-    void completeFailRegisteredLetterNotHandled() {
+    void digitalFailureWorkflowNotHandled() {
         /*
        - Platform address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
        - Special address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il digitalDomicile del recipient con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
@@ -284,6 +286,28 @@ class NotHandledTestIT {
 
         //Viene verificata la presenza dell'elemento di timeline NOT_HANDLED
         notHandledVerification(iun, recIndex);
+
+        //Viene verificata la presenza dell'elemento di timeline di fallimento
+        digitalFailureWorkflowVerification(notification, recIndex);
+    }
+
+
+    private void digitalFailureWorkflowVerification(NotificationInt notification, Integer recIndex) {
+        String elementId = TimelineEventId.DIGITAL_FAILURE_WORKFLOW.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build());
+
+        Optional<TimelineElementInternal> digitalFailureWorkflowOpt = timelineService.getTimelineElement(notification.getIun(), elementId);
+        Assertions.assertTrue(digitalFailureWorkflowOpt.isPresent());
+        TimelineElementInternal digitalFailureWorkflow = digitalFailureWorkflowOpt.get();
+        
+        Assertions.assertNotNull(digitalFailureWorkflow.getLegalFactsIds());
+        Assertions.assertNotNull(digitalFailureWorkflow.getLegalFactsIds().get(0));
+
+        DigitalFailureWorkflowDetailsInt digitalFailureWorkflowDetails = (DigitalFailureWorkflowDetailsInt) digitalFailureWorkflow.getDetails();
+        Assertions.assertEquals(recIndex, digitalFailureWorkflowDetails.getRecIndex());
     }
 
     @Test

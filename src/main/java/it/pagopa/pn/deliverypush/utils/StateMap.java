@@ -117,9 +117,12 @@ class StateMap {
         ;
         
         //FINAL STATE
+        this.fromState(NotificationStatusInt.CANCELLED)
+                //STATE UNCHANGE
+                .withTimelineGoToState(TimelineElementCategoryInt.DIGITAL_FAILURE_WORKFLOW, NotificationStatusInt.CANCELLED)
+        ;
         this.fromState(NotificationStatusInt.PAID);
         this.fromState(NotificationStatusInt.REFUSED);
-        this.fromState(NotificationStatusInt.CANCELLED);
     }
 
     NotificationStatusInt getStateTransition(NotificationStatusInt fromStatus, TimelineElementCategoryInt timelineRowType) throws PnInternalException {
