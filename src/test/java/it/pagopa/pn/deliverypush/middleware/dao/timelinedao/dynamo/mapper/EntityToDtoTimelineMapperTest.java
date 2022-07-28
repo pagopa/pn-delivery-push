@@ -45,7 +45,7 @@ class EntityToDtoTimelineMapperTest {
         
         Assertions.assertEquals(entity.getDetails().getRecIndex(), details.getRecIndex());
         Assertions.assertEquals(entity.getDetails().getSentAttemptMade(), details.getSentAttemptMade());
-        Assertions.assertEquals(entity.getDetails().getInvestigation(), details.isInvestigation());
+        Assertions.assertEquals(entity.getDetails().getInvestigation(), details.getInvestigation());
         Assertions.assertEquals(entity.getDetails().getServiceLevel().getValue(), details.getServiceLevel().getValue());
         Assertions.assertEquals(entity.getDetails().getPhysicalAddress().getAddress(), details.getPhysicalAddress().getAddress());
         Assertions.assertEquals(entity.getDetails().getPhysicalAddress().getForeignState(), details.getPhysicalAddress().getForeignState());
