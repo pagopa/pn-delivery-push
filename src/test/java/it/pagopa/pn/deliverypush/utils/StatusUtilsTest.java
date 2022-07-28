@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.utils;
 
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusHistoryElementInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -7,19 +8,27 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 import java.util.*;
 
 class StatusUtilsTest {
-
+    @Mock
+    private PnDeliveryPushConfigs pnDeliveryPushConfigs;
+    
     private StatusUtils statusUtils;
-
+    
     @BeforeEach
     public void setup() {
-        this.statusUtils = new StatusUtils();
+        Mockito.when(pnDeliveryPushConfigs.getPaperMessageNotHandled()).thenReturn(false);
+        this.statusUtils = new StatusUtils(pnDeliveryPushConfigs);
     }
 
+    @ExtendWith(MockitoExtension.class)
     @Test
     void getTimelineHistoryTest() {
 
@@ -131,6 +140,7 @@ class StatusUtilsTest {
         );
     }
 
+    @ExtendWith(MockitoExtension.class)
     @Test
     void getTimelineHistoryMoreRecipientTest() {
         // GIVEN a timeline
@@ -232,6 +242,7 @@ class StatusUtilsTest {
         Assertions.assertEquals(historyElementList, resHistoryElementList);
     }
 
+    @ExtendWith(MockitoExtension.class)
     @Test
     void getTimelineHistoryErrorTest() {
         // creare TimelineElement
@@ -293,12 +304,14 @@ class StatusUtilsTest {
         Assertions.assertEquals(historyElementList, resHistoryElementList);
     }
 
+    @ExtendWith(MockitoExtension.class)
     @Test
     void emptyTimelineInitialStateTest() {
         //
         Assertions.assertEquals(NotificationStatusInt.IN_VALIDATION, statusUtils.getCurrentStatus(Collections.emptyList()));
     }
 
+    @ExtendWith(MockitoExtension.class)
     @Test
     void getCurrentStatusTest() {
         List<NotificationStatusHistoryElementInt>  statusHistory = new ArrayList<>();

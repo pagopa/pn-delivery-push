@@ -1,10 +1,10 @@
 package it.pagopa.pn.deliverypush.action.it;
 
+import it.pagopa.pn.commons.pnclients.addressbook.MicroserviceClientsConfigs;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action.*;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
@@ -40,6 +40,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ContextConfiguration;
@@ -47,7 +48,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -95,11 +95,11 @@ import static org.awaitility.Awaitility.with;
         ExternalChannelMock.class,
         PaperNotificationFailedDaoMock.class,
         PnDataVaultClientMock.class,
+        PnDeliveryPushConfigs.class,
         AnalogTestIT.SpringTestConfiguration.class
 })
-@TestPropertySource(properties = {
-        "pn.delivery-push.featureflags.externalchannel=new",
-})
+@TestPropertySource("classpath:/application-test.properties")
+@EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
 class AnalogTestIT {
 
     public static final long WAITING_TIME = 10000;
@@ -120,9 +120,6 @@ class AnalogTestIT {
     @Autowired
     private InstantNowSupplier instantNowSupplier;
     
-    @Autowired
-    private PnDeliveryPushConfigs pnDeliveryPushConfigs;
-
     @SpyBean
     private PnSafeStorageClient safeStorageClientMock;
 
@@ -158,27 +155,6 @@ class AnalogTestIT {
     
     @BeforeEach
     public void setup() {
-        TimeParams times = new TimeParams();
-        times.setWaitingForReadCourtesyMessage(Duration.ofSeconds(1));
-        times.setSchedulingDaysSuccessDigitalRefinement(Duration.ofSeconds(1));
-        times.setSchedulingDaysFailureDigitalRefinement(Duration.ofSeconds(1));
-        times.setSchedulingDaysSuccessAnalogRefinement(Duration.ofSeconds(1));
-        times.setSchedulingDaysFailureAnalogRefinement(Duration.ofSeconds(1));
-        times.setSecondNotificationWorkflowWaitingTime(Duration.ofSeconds(1));
-        Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
-
-        PnDeliveryPushConfigs.ExternalChannel externalChannelCfg = new PnDeliveryPushConfigs.ExternalChannel();
-        externalChannelCfg.setAnalogCodesFail(List.of("__005__","__006__","__008__","__009__"));
-        externalChannelCfg.setAnalogCodesSuccess(List.of("__004__","__007__"));
-        externalChannelCfg.setAnalogCodesProgress(List.of("__001__","__002__","__003__"));
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(externalChannelCfg);
-
-        PnDeliveryPushConfigs.Webapp webapp = new PnDeliveryPushConfigs.Webapp();
-        webapp.setDirectAccessUrlTemplate("test");
-        Mockito.when(pnDeliveryPushConfigs.getWebapp()).thenReturn(webapp);
-
-        Mockito.when(pnDeliveryPushConfigs.getPaperMessageNotHandled()).thenReturn(false);
-
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
         //File mock to return for getFileAndDownloadContent

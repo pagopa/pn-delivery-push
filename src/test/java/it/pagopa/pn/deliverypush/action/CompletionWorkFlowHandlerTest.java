@@ -125,6 +125,38 @@ class CompletionWorkFlowHandlerTest {
 
     @ExtendWith(MockitoExtension.class)
     @Test
+    void completionDigitalWorkflowFailureNotHandled() {
+        //GIVEN
+        NotificationInt notification = getNotification();
+        NotificationRecipientInt recipient = notification.getRecipients().get(0);
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        
+        Mockito.when(pnDeliveryPushConfigs.getPaperMessageNotHandled()).thenReturn(true);
+                
+        Mockito.when( saveLegalFactsService.savePecDeliveryWorkflowLegalFact(
+                Mockito.anyList(), Mockito.any( NotificationInt.class ), Mockito.any( NotificationRecipientInt.class )
+        )).thenReturn( "" );
+
+        Instant notificationDate = Instant.now();
+
+        //WHEN
+        handler.completionDigitalWorkflow(notification, recIndex, notificationDate, recipient.getDigitalDomicile(), EndWorkflowStatus.FAILURE);
+
+        //THEN
+        //Viene verificato che non sia stato inviato nessun evento ad external channel
+        Mockito.verify(externalChannelService, Mockito.times(0)).sendNotificationForRegisteredLetter(Mockito.any(NotificationInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyInt());
+        //Viene verificato che non sia stato schedulato il perfezionamento
+        Mockito.verify(scheduler, Mockito.times(0)).scheduleEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.any(Instant.class), Mockito.any(ActionType.class));
+
+        Mockito.verify(timelineUtils).buildFailureDigitalWorkflowTimelineElement(Mockito.any(NotificationInt.class),
+                Mockito.anyInt(), Mockito.anyString());
+
+        Mockito.verify(timelineUtils).buildNotHandledTimelineElement(Mockito.any(NotificationInt.class),
+                Mockito.anyInt(), Mockito.anyString(), Mockito.anyString());
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
     void completionAnalogWorkflowSuccess() {
         //GIVEN
         NotificationInt notification = getNotification();
