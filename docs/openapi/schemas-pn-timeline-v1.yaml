@@ -32,17 +32,6 @@ components:
         - REQUEST_REFUSED
         - AAR_GENERATION
         - NOT_HANDLED
-        
-    DownstreamId:
-      description: identificativo del messaggio nel sistema a valle
-      type: object
-      properties:
-        systemId:
-          type: string
-          description: Identificativo del sistema a valle di inoltro messaggistica
-        messageId:
-          type: string
-          description: Identificativo del messaggio inoltrato
     
     TimelineElement:
       type: object
@@ -108,6 +97,8 @@ components:
           
     AnalogFailureWorkflowDetails:
       type: object
+      required:
+        - recIndex
       properties:
         recIndex:
           type: integer
@@ -115,6 +106,9 @@ components:
           
     AnalogSuccessWorkflowDetails:
       type: object
+      required:
+        - recIndex
+        - physicalAddress
       properties:
         recIndex:
           type: integer
@@ -124,6 +118,8 @@ components:
           
     DigitalFailureWorkflowDetails:
       type: object
+      required:
+        - recIndex
       properties:
         recIndex: 
           type: integer
@@ -131,6 +127,9 @@ components:
           
     DigitalSuccessWorkflowDetails:
       type: object
+      required:
+        - recIndex
+        - digitalAddress
       properties:
         recIndex:
           type: integer
@@ -140,6 +139,8 @@ components:
           
     CompletelyUnreachableDetails:
       type: object
+      required:
+        - recIndex
       properties:
         recIndex:
           type: integer
@@ -147,6 +148,11 @@ components:
           
     GetAddressInfoDetails: 
       type: object
+      required:
+        - recIndex
+        - digitalAddressSource
+        - isAvailable
+        - attemptDate
       properties:
         recIndex:
           type: integer
@@ -163,13 +169,25 @@ components:
 
     NotificationViewedDetails:
       type: object
+      required:
+        - recIndex
       properties:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+        notificationCost:
+          description: costo notifica in euro cents, può essere nullo se la notifica si è perfezionata prima per decorrenza termini
+          example: 1220
+          type: integer
           
     PublicRegistryCallDetails:
       type: object
+      required:
+        - recIndex
+        - deliveryMode
+        - contactPhase
+        - sentAttemptMade
+        - sendDate
       properties:
         recIndex:
           type: integer
@@ -188,6 +206,8 @@ components:
           
     PublicRegistryResponseDetails:
       type: object
+      required:
+        - recIndex
       properties:
         recIndex:
           type: integer
@@ -199,13 +219,21 @@ components:
           
     RefinementDetails:
       type: object
+      required:
+        - recIndex
       properties:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+        notificationCost:
+          description: costo notifica in euro cents, può essere nullo se la notifica si è perfezionata prima per visualizzazione
+          example: 1220
+          type: integer
           
     RequestRefusedDetails:
       type: object
+      required:
+        - errors
       properties:
         errors:
           type: array
@@ -216,6 +244,8 @@ components:
             
     ScheduleAnalogWorkflowDetails:
       type: object
+      required:
+        - recIndex
       properties:
         recIndex:
           type: integer
@@ -223,10 +253,16 @@ components:
           
     ScheduleDigitalWorkflowDetails:
       type: object
+      required:
+        - recIndex
+        - digitalAddress
+        - digitalAddressSource
+        - sentAttemptMade
+        - lastAttemptDate
       properties:
         recIndex:
           type: integer
-          description: Informazioni ultimo tentativo effettuato
+          description: Index destinatario notifica digitale
         digitalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
         digitalAddressSource:
@@ -239,6 +275,8 @@ components:
             
     ScheduleRefinementDetails:
       type: object
+      required:
+        - recIndex
       properties:
         recIndex:
           type: integer
@@ -246,6 +284,10 @@ components:
           
     SendCourtesyMessageDetails:
       type: object
+      required:
+        - recIndex
+        - digitalAddress
+        - sendDate
       properties:
         recIndex:
           type: integer
@@ -259,6 +301,11 @@ components:
           
     SendDigitalDetails:
       type: object
+      required:
+        - recIndex
+        - digitalAddress
+        - digitalAddressSource
+        - retryNumber
       properties:
         recIndex:
           type: integer
@@ -271,9 +318,7 @@ components:
           type: integer
           description: numero dei tentativi effettuati
           format: int32
-        downstreamId:
-          "$ref": "#/components/schemas/DownstreamId"
-
+          
     SendDigitalProgressDetails:
       type: object
       properties:
@@ -294,6 +339,11 @@ components:
             
     SendDigitalFeedbackDetails:
       type: object
+      required:
+        - recIndex
+        - digitalAddress
+        - responseStatus
+        - notificationDate
       properties:
         recIndex:
           type: integer
@@ -319,6 +369,13 @@ components:
             
     SendAnalogDetails:
       type: object
+      required:
+        - recIndex
+        - physicalAddress
+        - serviceLevel
+        - sentAttemptMade
+        - investigation
+        - numberOfPages
       properties:
         recIndex:
           type: integer
@@ -339,6 +396,12 @@ components:
 
     SendAnalogFeedbackDetails:
       type: object
+      required:
+        - recIndex
+        - physicalAddress
+        - serviceLevel
+        - sentAttemptMade
+        - investigation
       properties:
         recIndex:
           type: integer
@@ -364,6 +427,10 @@ components:
             
     SimpleRegisteredLetterDetails:
       type: object
+      required:
+        - recIndex
+        - physicalAddress
+        - numberOfPages
       properties:
         recIndex:
           type: integer
@@ -376,6 +443,10 @@ components:
 
     AarGenerationDetails:
       type: object
+      required:
+        - recIndex
+        - generatedAarUrl
+        - numberOfPages
       properties:
         recIndex:
           type: integer
@@ -389,6 +460,10 @@ components:
       
     NotHandledDetails:
       type: object
+      required:
+        - recIndex
+        - reasonCode
+        - reason
       properties:
         recIndex:
           type: integer

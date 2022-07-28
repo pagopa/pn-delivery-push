@@ -61,6 +61,7 @@ import static org.mockito.Mockito.doThrow;
         PublicRegistryServiceImpl.class,
         ExternalChannelServiceImpl.class,
         IoServiceImpl.class,
+        NotificationCostServiceImpl.class,
         ExternalChannelResponseHandler.class,
         RefinementHandler.class,
         DigitalWorkFlowUtils.class,

@@ -207,7 +207,6 @@ Resources:
       Parameters:
         StreamName: !Sub '${ProjectName}-timeline-cdc-stream'
         StreamRetentionPeriodHours: 24
-        StreamShardCount: 10
 
   
       

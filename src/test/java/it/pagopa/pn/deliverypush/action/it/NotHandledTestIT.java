@@ -63,6 +63,7 @@ import static org.awaitility.Awaitility.await;
         PublicRegistryServiceImpl.class,
         ExternalChannelServiceImpl.class,
         IoServiceImpl.class,
+        NotificationCostServiceImpl.class,
         ExternalChannelResponseHandler.class,
         RefinementHandler.class,
         NotificationViewedHandler.class,

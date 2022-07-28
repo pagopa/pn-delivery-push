@@ -9,13 +9,13 @@ import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
+import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
-import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -30,6 +30,7 @@ public class NotificationViewedHandler {
     private final InstantNowSupplier instantNowSupplier;
     private final NotificationUtils notificationUtils;
     private final StatusUtils statusUtils;
+    private final NotificationCostService notificationCostService;
     
     public NotificationViewedHandler(TimelineService timelineService,
                                      SaveLegalFactsService legalFactStore,
@@ -37,9 +38,9 @@ public class NotificationViewedHandler {
                                      NotificationService notificationService,
                                      TimelineUtils timelineUtils,
                                      InstantNowSupplier instantNowSupplier,
-                                     NotificationUtils notificationUtils, 
-                                     StatusUtils statusUtils
-    ) {
+                                     NotificationUtils notificationUtils,
+                                     StatusUtils statusUtils,
+                                     NotificationCostService notificationCostService) {
         this.legalFactStore = legalFactStore;
         this.paperNotificationFailedService = paperNotificationFailedService;
         this.timelineService = timelineService;
@@ -48,6 +49,7 @@ public class NotificationViewedHandler {
         this.instantNowSupplier = instantNowSupplier;
         this.notificationUtils = notificationUtils;
         this.statusUtils = statusUtils;
+        this.notificationCostService = notificationCostService;
     }
     
     public void handleViewNotification(String iun, Integer recIndex) {
@@ -93,12 +95,37 @@ public class NotificationViewedHandler {
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
         String legalFactId = legalFactStore.saveNotificationViewedLegalFact(notification, recipient, instantNowSupplier.get());
 
+        Integer notificationCost = getNotificationCost(iun, recIndex, notification);
+        log.debug("Notification cost is {} - iun {} id {}",notificationCost, iun, recIndex);
+
         addTimelineElement(
-                timelineUtils.buildNotificationViewedTimelineElement(notification, recIndex, legalFactId),
+                timelineUtils.buildNotificationViewedTimelineElement(notification, recIndex, legalFactId, notificationCost),
                 notification
         ) ;
 
         paperNotificationFailedService.deleteNotificationFailed(recipient.getTaxId(), iun); //Viene eliminata l'eventuale istanza di notifica fallita dal momento che la stessa è stata letta
+    }
+
+    @Nullable
+    private Integer getNotificationCost(String iun, Integer recIndex, NotificationInt notification) {
+        Integer notificationCost = null;
+
+        String elementId = TimelineEventId.REFINEMENT.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build()
+        );
+        
+        /*
+        * Il costo della notifica viene valorizzato in fase di visualizzazione solo se la notifica non è già perfezionata per decorrenza termini
+        * in quel caso il costo della notifica sarà sull'elemento di timeline corrispondente
+        */
+        
+        if( timelineService.getTimelineElement(iun, elementId).isEmpty() ){
+            notificationCost = notificationCostService.getNotificationCost(notification, recIndex);
+        }
+        return notificationCost;
     }
 
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {

@@ -11,4 +11,5 @@ import lombok.*;
 @ToString
 public class NotificationViewedDetailsInt implements RecipientRelatedTimelineElementDetails {
     private int recIndex;
+    private Integer notificationCost;
 }

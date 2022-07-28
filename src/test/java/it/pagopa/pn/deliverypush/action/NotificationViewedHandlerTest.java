@@ -8,10 +8,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
-import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
-import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +37,9 @@ class NotificationViewedHandlerTest {
     private TimelineService timelineService;
     @Mock
     private StatusUtils statusUtils;
-
+    @Mock
+    private NotificationCostService notificationCostService;
+    
     private NotificationViewedHandler handler;
 
     @BeforeEach
@@ -49,7 +48,7 @@ class NotificationViewedHandlerTest {
         
         handler = new NotificationViewedHandler(timelineService, legalFactStore,
                 paperNotificationFailedService, notificationService,
-                timelineUtils, instantNowSupplier, notificationUtils, statusUtils);
+                timelineUtils, instantNowSupplier, notificationUtils, statusUtils, notificationCostService);
     }
     
     @ExtendWith(MockitoExtension.class)

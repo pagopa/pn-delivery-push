@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.service.impl;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.commons.utils.MimeTypesUtils;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -23,6 +24,7 @@ import it.pagopa.pn.deliverypush.utils.AuthUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.Comparator;
 import java.util.List;
@@ -79,7 +81,7 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
             // la key è la legalfactid
             FileDownloadResponse fileDownloadResponse = safeStorageClient.getFile(legalfactId, false);
 
-            response.setFilename(buildLegalFactFilename(iun, legalFactType, legalfactId));
+            response.setFilename(buildLegalFactFilename(iun, legalFactType, legalfactId, fileDownloadResponse.getContentType()));
             response.setContentLength(fileDownloadResponse.getContentLength());
             response.setRetryAfter(fileDownloadResponse.getDownload() != null ? fileDownloadResponse.getDownload().getRetryAfter() : null);
             response.setUrl(fileDownloadResponse.getDownload().getUrl());
@@ -159,12 +161,21 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
      * @param legalfactId fact id
      * @return filename
      */
-    private String buildLegalFactFilename(String iun, LegalFactCategory legalFactType, String legalfactId)
+    private String buildLegalFactFilename(String iun, LegalFactCategory legalFactType, String legalfactId, String contentType)
     {
+        String extension = "pdf";
+        try{
+            extension = MimeTypesUtils.getDefaultExt(contentType);
+        } catch (Exception e)
+        {
+            log.warn("right extension not found, using PDF");
+        }
+
+
         return iun.replaceAll("[^a-zA-Z0-9]", "")
                 + "_" + legalFactType.getValue()
                 + "_" + legalfactId.replace(SAFE_STORAGE_URL_PREFIX, "").replaceAll("[^a-zA-Z0-9]", "")
-                + ".pdf";
+                + "." + extension;
     }
 
 }

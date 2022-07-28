@@ -16,7 +16,10 @@ public class DigitalAddressEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("address")}))  private String address;
 
     public enum TypeEnum {
-        PEC("PEC");
+        PEC("PEC"),
+        EMAIL("EMAIL"),
+        SMS("SMS"),
+        APPIO("APPIO");
 
         private final String value;
 
