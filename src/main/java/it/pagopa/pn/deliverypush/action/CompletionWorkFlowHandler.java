@@ -82,8 +82,8 @@ public class CompletionWorkFlowHandler {
                         scheduleRefinement(notification, recIndex, notificationDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysFailureDigitalRefinement());
                     }else {
                         log.info("Paper message is not handled, registered Letter will not be sent to externalChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
-                        addPaperNotificationNotHandledToTimeline(notification, recIndex);
                         addTimelineElement( timelineUtils.buildFailureDigitalWorkflowTimelineElement(notification, recIndex, legalFactId), notification);
+                        addPaperNotificationNotHandledToTimeline(notification, recIndex);
                     }
                     break;
                 default:

@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusHistoryElementInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
@@ -15,7 +16,12 @@ import java.util.stream.Collectors;
 
 @Component
 public class StatusUtils {
-
+    private final StateMap stateMap;
+    
+    public StatusUtils(PnDeliveryPushConfigs pnDeliveryPushConfigs){
+        stateMap = new StateMap(pnDeliveryPushConfigs);
+    }
+    
     private static final NotificationStatusInt INITIAL_STATUS = NotificationStatusInt.IN_VALIDATION;
     private static final Set<TimelineElementCategoryInt> SUCCES_DELIVERY_WORKFLOW_CATEGORY = new HashSet<>(Arrays.asList(
             //Completato con successo
@@ -27,9 +33,7 @@ public class StatusUtils {
     private static final Set<TimelineElementCategoryInt> FAILURE_DELIVERY_WORKFLOW_CATEGORY = new HashSet<>(List.of(
             TimelineElementCategoryInt.COMPLETELY_UNREACHABLE
     ));
-
-    private final StateMap stateMap = new StateMap();
-
+    
     public NotificationStatusInt getCurrentStatusFromNotification(NotificationInt notification, TimelineService timelineService) {
         Set<TimelineElementInternal> timelineElements =  timelineService.getTimeline(notification.getIun());
 
