@@ -169,6 +169,50 @@ class GetLegalFactServiceImplTest {
         assertEquals(fileDownloadResponse.getContentLength(), result.getContentLength());
     }
 
+    @Test
+    void getAnalogLegalFactMetadataSuccessXML() {
+        //Given
+        NotificationAttachment.Ref ref = NotificationAttachment.Ref.builder()
+                .key( KEY )
+                .versionToken( VERSION_TOKEN )
+                .build();
+
+
+        String[] urls = new String[1];
+        try {
+            Path path = Files.createTempFile( null,null );
+            urls[0] =  new File(path.toString()).toURI().toURL().toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
+        fileDownloadResponse.setContentType("application/xml");
+        fileDownloadResponse.setContentLength(new BigDecimal(0));
+        fileDownloadResponse.setChecksum("123");
+        fileDownloadResponse.setKey("123");
+        fileDownloadResponse.setDownload(new FileDownloadInfo());
+        fileDownloadResponse.getDownload().setUrl("https://www.url.qualcosa.it");
+        fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
+
+        //When
+        Mockito.when( safeStorageClient.getFile( Mockito.anyString(), Mockito.eq(false) ) )
+                .thenReturn( fileDownloadResponse );
+
+        NotificationInt notificationInt = newNotification();
+        NotificationRecipientInt recipientInt = notificationInt.getRecipients().get(0);
+        Mockito.when( notificationService.getNotificationByIun( Mockito.anyString() ) )
+                .thenReturn( notificationInt );
+
+        LegalFactDownloadMetadataResponse result = getLegalFactService.getLegalFactMetadata( IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID, recipientInt.getInternalId(), null);
+        //Then
+        assertNotNull( result );
+        assertNotNull(result.getFilename());
+        assertEquals("xml", result.getFilename().substring(result.getFilename().length() -3));
+        assertEquals(fileDownloadResponse.getDownload().getUrl(), result.getUrl());
+        assertEquals(fileDownloadResponse.getDownload().getRetryAfter(), result.getRetryAfter());
+        assertEquals(fileDownloadResponse.getContentLength(), result.getContentLength());
+    }
+
     private NotificationInt newNotification() {
         return NotificationInt.builder()
                 .iun("IUN_01")
