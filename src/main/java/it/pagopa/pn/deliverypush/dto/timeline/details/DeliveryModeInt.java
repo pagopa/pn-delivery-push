@@ -1,10 +1,8 @@
 package it.pagopa.pn.deliverypush.dto.timeline.details;
 
 import lombok.Getter;
-import lombok.ToString;
 
 @Getter
-@ToString
 public enum DeliveryModeInt {
   
   DIGITAL("DIGITAL"),
@@ -17,5 +15,10 @@ public enum DeliveryModeInt {
     this.value = value;
   }
 
+  @Override
+  public String toString() {
+    return String.valueOf(value);
+  }
+  
 }
 
