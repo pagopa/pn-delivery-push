@@ -202,36 +202,11 @@ public class DigitalWorkFlowUtils {
 
     public void addDigitalDeliveringProgressTimelineElement(NotificationInt notification,
                                                             SendDigitalDetailsInt sendDigitalDetails,
-                                                            List<DigitalMessageReferenceInt> digitalMessageReferences,
-                                                            int index) {
+                                                            DigitalMessageReferenceInt digitalMessageReference) {
         addTimelineElement(
-                timelineUtils.buildDigitalDeliveringProgressTimelineElement(notification, sendDigitalDetails, digitalMessageReferences, index),
+                timelineUtils.buildDigitalDeliveringProgressTimelineElement(notification, sendDigitalDetails, digitalMessageReference),
                 notification
         );
-    }
-
-    public int getDigitalDeliveringProgressTimelineElementIndex( NotificationInt notification,
-                                                                 int recIndex,
-                                                                 DigitalAddressSourceInt source,
-                                                                 int retryNumber
-    ) {
-        
-        Set<TimelineElementInternal> timelineElementSet = timelineService.getTimeline(notification.getIun());
-        
-        return (int) timelineElementSet.stream().filter(
-                timelineElement -> filterForSpecificTimelineElement(timelineElement, recIndex, source, retryNumber)
-        ).count();
-    }
-    
-    private boolean filterForSpecificTimelineElement(TimelineElementInternal el, Integer recIndex, DigitalAddressSourceInt source, int retryNumber) {
-        boolean availableAddressCategory = TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS.equals(el.getCategory());
-
-        if (availableAddressCategory) {
-            SendDigitalProgressDetailsInt sendDigitalProgressDetails = (SendDigitalProgressDetailsInt) el.getDetails();
-            return recIndex.equals(sendDigitalProgressDetails.getRecIndex()) && source.equals(sendDigitalProgressDetails.getDigitalAddressSource())
-                    && retryNumber == sendDigitalProgressDetails.getRetryNumber();
-        }
-        return false;
     }
     
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {

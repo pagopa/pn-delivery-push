@@ -466,7 +466,7 @@ class DigitalWorkFlowHandlerTest {
                 .status(ExtChannelProgressEventCat.ERROR)
                 .eventTimestamp(Instant.now())
                 .requestId(notification.getIun() + "_event_idx_0")
-                .digitalMessageReferenceInt(
+                .generatedMessage(
                         DigitalMessageReferenceInt.builder()
                                 .id("id")
                                 .system("system")
@@ -524,7 +524,7 @@ class DigitalWorkFlowHandlerTest {
                 .status(ExtChannelProgressEventCat.PROGRESS)
                 .eventTimestamp(Instant.now())
                 .requestId(notification.getIun() + "_event_idx_0")
-                .digitalMessageReferenceInt(
+                .generatedMessage(
                         DigitalMessageReferenceInt.builder()
                                 .id("id")
                                 .system("system")
@@ -553,9 +553,6 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(digitalWorkFlowUtils.getSendDigitalDetailsTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn( element );
         
-        Mockito.when(digitalWorkFlowUtils.getDigitalDeliveringProgressTimelineElementIndex(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.any(DigitalAddressSourceInt.class), Mockito.anyInt()))
-                .thenReturn( 0 );
-
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
@@ -564,7 +561,7 @@ class DigitalWorkFlowHandlerTest {
 
         //THEN
         Mockito.verify(digitalWorkFlowUtils).addDigitalDeliveringProgressTimelineElement(Mockito.any(NotificationInt.class),
-                Mockito.any(SendDigitalDetailsInt.class), Mockito.any(), Mockito.anyInt());
+                Mockito.any(SendDigitalDetailsInt.class), Mockito.any());
     }
 
     private NotificationInt getNotification() {

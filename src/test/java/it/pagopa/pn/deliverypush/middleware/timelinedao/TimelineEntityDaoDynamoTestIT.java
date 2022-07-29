@@ -511,13 +511,13 @@ class TimelineEntityDaoDynamoTestIT {
                                 .digitalAddressSource(DigitalAddressSourceEntity.PLATFORM)
                                 .retryNumber(0)
                                 .notificationDate(Instant.now())
-                                .sendingReceipts(Collections.singletonList(
+                                .sendingReceipt(
                                         SendingReceiptEntity.builder()
                                                 .id("id")
                                                 .location("ulr")
                                                 .system("system")
                                                 .build()
-                                ))
+                                )
                                 .build()
                 )
                 .build();

@@ -13,7 +13,6 @@ import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfo;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelProgressEventCat;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
@@ -31,7 +30,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -220,7 +218,7 @@ public class DigitalWorkFlowHandler {
             logEvent.log();
             
             digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(notification, status, response.getEventDetails()==null?null:List.of(response.getEventDetails()), 
-                    sendDigitalDetails, response.getDigitalMessageReferenceInt());
+                    sendDigitalDetails, response.getGeneratedMessage());
 
             switch (status) {
                 case OK:
@@ -246,21 +244,23 @@ public class DigitalWorkFlowHandler {
                     break;
             }
         } else {
-            handleStatusProgress(response.getStatus(), notification, recIndex, sendDigitalDetails, response.getDigitalMessageReferenceInt());
+            handleStatusProgress(response, notification, recIndex, sendDigitalDetails);
         }
     }
 
-    private void handleStatusProgress( ExtChannelProgressEventCat status,
+    private void handleStatusProgress(ExtChannelDigitalSentResponseInt response,
                                       NotificationInt notification,
                                       Integer recIndex,
-                                      SendDigitalDetailsInt sendDigitalDetails,
-                                      DigitalMessageReferenceInt digitalMessageReference ) {
-        log.info("Specified status={} is not final - iun={} id={}", status, notification.getIun(), recIndex);
+                                      SendDigitalDetailsInt sendDigitalDetails) {
+        log.info("Specified status={} is not final - iun={} id={}", response.getStatus(), notification.getIun(), recIndex);
         
-        int index = digitalWorkFlowUtils.getDigitalDeliveringProgressTimelineElementIndex(notification, recIndex, sendDigitalDetails.getDigitalAddressSource(), sendDigitalDetails.getRetryNumber());
-        log.debug("Index for new timeline progress is {} - iun={} id={}", index, notification.getIun(), recIndex);
-
-        digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(notification, sendDigitalDetails, Collections.singletonList(digitalMessageReference), index);
+        if( response.getGeneratedMessage() != null ) {
+            //Si tratta della risposta contenente la busta di accettazione
+            log.info("Received progress response is for PEC acceptance");
+            digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(notification, sendDigitalDetails, response.getGeneratedMessage());
+        } else {
+            log.info("Received progress response is not for PEC acceptance");
+        }
     }
 
     private DigitalAddressInfo getDigitalAddressInfo(ScheduleDigitalWorkflowDetailsInt scheduleDigitalWorkflow) {

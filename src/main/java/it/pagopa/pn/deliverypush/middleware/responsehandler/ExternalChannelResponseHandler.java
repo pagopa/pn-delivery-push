@@ -135,7 +135,7 @@ public class ExternalChannelResponseHandler {
                 .requestId(event.getRequestId());
         
         if(event.getGeneratedMessage() != null){
-            builder.digitalMessageReferenceInt( DigitalMessageReferenceInt.builder()
+            builder.generatedMessage( DigitalMessageReferenceInt.builder()
                     .location(event.getGeneratedMessage().getLocation())
                     .system(event.getGeneratedMessage().getSystem())
                     .id(event.getGeneratedMessage().getId())
