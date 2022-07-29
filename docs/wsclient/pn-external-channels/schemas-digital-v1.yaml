@@ -171,7 +171,9 @@ components:
           type: string
         id:
           type: string
-
+        location:
+          type: string
+          
     BaseMessageProgressEvent:
       title: Schema base per gli eventi di avanzamento messaggi digitali
       type: object

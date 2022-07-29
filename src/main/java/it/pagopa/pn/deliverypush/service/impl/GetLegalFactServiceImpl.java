@@ -72,7 +72,7 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
 
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(eventType, "getLegalFactMetadata iun={} legafactId={} senderReceiverId={}", iun, legalfactId, senderReceiverId)
+                .before(eventType, "getLegalFactMetadata iun={} legalFactId={} senderReceiverId={}", iun, legalfactId, senderReceiverId)
                 .iun(iun)
                 .build();
         logEvent.log();
@@ -87,7 +87,7 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
             response.setUrl(fileDownloadResponse.getDownload().getUrl());
             logEvent.generateSuccess().log();
         } catch (Exception exc) {
-            logEvent.generateFailure("Exception in getLegalFactMetadata", exc.getMessage());
+            logEvent.generateFailure("Exception in getLegalFactMetadata exc={}", exc).log();
             throw exc;
         }
         
@@ -107,7 +107,7 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
 
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(eventType, "getLegalFacts iun={} senderReceiverId={}", iun, senderReceiverId)
+                .before(eventType, "GetLegalFacts iun={} senderReceiverId={} mandateId={}", iun, senderReceiverId, mandateId)
                 .iun(iun)
                 .build();
         logEvent.log();
@@ -127,11 +127,12 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
                     .collect(Collectors.toList());
             
             log.debug( "legalFacts List={}" ,legalFacts );
+
+            logEvent.generateSuccess().log();
             
             return legalFacts;
-
         } catch (Exception exc) {
-            logEvent.generateFailure("Exception in getLegalFact", exc.getMessage());
+            logEvent.generateFailure("Exception in getLegalFact exc={}", exc).log();
             throw exc;
         }
     }

@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.dto.timeline.details;
 
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,4 +22,6 @@ public class SendAnalogFeedbackDetailsInt implements RecipientRelatedTimelineEle
     private Boolean investigation;
     private PhysicalAddressInt newAddress;
     private List<String> errors = null;
+    private ResponseStatusInt status;
+    private List<SendingReceipt> sendingReceipts;
 }
