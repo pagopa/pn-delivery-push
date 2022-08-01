@@ -21,10 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 class LegalFactPdfGeneratorTest {
 	private static final String TEST_DIR_NAME = "target" + File.separator + "generated-test-PDF";
@@ -115,16 +112,29 @@ class LegalFactPdfGeneratorTest {
 		NotificationInt notificationInt = buildNotification();
 		NotificationRecipientInt notificationRecipientInt = notificationInt.getRecipients().get(0);
 
-		Assertions.assertDoesNotThrow(() -> pdfUtils.generateNotificationAARBody(notificationInt, notificationRecipientInt));
+		Assertions.assertDoesNotThrow(() -> {
+					String element = pdfUtils.generateNotificationAARBody(notificationInt, notificationRecipientInt);
+					System.out.println("element "+element);
+				}
+		);
 
 		System.out.print("*** AAR PEC BODY successfully created");
 	}
 
+	@Test
+	void generateNotificationAARPECBodyTest() {
+		NotificationInt notificationInt = buildNotification();
+		NotificationRecipientInt notificationRecipientInt = notificationInt.getRecipients().get(0);
 
+		Assertions.assertDoesNotThrow(() -> {
+					String element = pdfUtils.generateNotificationAARPECBody(notificationInt, notificationRecipientInt);
+					System.out.println("element "+element);
+				}
+		);
+	}
 
 	@Test
-	void generateNotificationAAREMAILTest() throws IOException {
-		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
+	void generateNotificationAAREMAILTest() {
 		NotificationInt notificationInt = buildNotification();
 		NotificationRecipientInt notificationRecipientInt = notificationInt.getRecipients().get(0);
 
@@ -133,8 +143,15 @@ class LegalFactPdfGeneratorTest {
 		System.out.print("*** AAR EMAIL BODY successfully created");
 	}
 
+	@Test
+	void generateNotificationAARForSmsTest() {
+		NotificationInt notificationInt = buildNotification();
 
+		Assertions.assertDoesNotThrow(() -> pdfUtils.generateNotificationAARForSMS(notificationInt));
 
+		System.out.print("*** AAR EMAIL BODY successfully created");
+	}
+	
 	@Test
 	void generateNotificationAARSubjectTest() throws IOException {
 		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
