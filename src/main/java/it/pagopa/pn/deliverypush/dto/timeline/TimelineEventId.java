@@ -52,12 +52,11 @@ public enum TimelineEventId {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
-                    "%s_digital_delivering_progress_%d_attempt_%d_source%s_index_%d",
+                    "%s_digital_delivering_progress_%d_attempt_%d_source%s",
                     eventId.getIun(),
                     eventId.getRecIndex(),
                     eventId.getSentAttemptMade() +1,
-                    eventId.getSource(),
-                    eventId.getIndex()
+                    eventId.getSource()
                     );
         }
     },

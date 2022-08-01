@@ -176,8 +176,11 @@ public class DigitalWorkFlowUtils {
             throw new PnInternalException(error);
         }
     }
-    
 
+    public Optional<TimelineElementInternal> getTimelineElement(String iun, String eventId) {
+        return timelineService.getTimelineElement(iun, eventId);
+    }
+    
     public void addScheduledDigitalWorkflowToTimeline(NotificationInt notification, Integer recIndex, DigitalAddressInfo lastAttemptMade) {
         addTimelineElement(
                 timelineUtils.buildScheduleDigitalWorkflowTimeline(notification, recIndex, lastAttemptMade),
