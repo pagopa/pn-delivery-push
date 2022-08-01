@@ -122,7 +122,6 @@ public class TimelineUtils {
                         Collections.singletonList(SendingReceipt.builder()
                                 .id(digitalMessageReference.getId())
                                 .system(digitalMessageReference.getSystem())
-                                .location(digitalMessageReference.getLocation())
                         .build())
                 )
                 .build();
@@ -158,7 +157,6 @@ public class TimelineUtils {
                                 SendingReceipt.builder()
                                 .id(digitalMessageReference.getId())
                                 .system(digitalMessageReference.getSystem())
-                                .location(digitalMessageReference.getLocation())
                                 .build()
                         )
                 )

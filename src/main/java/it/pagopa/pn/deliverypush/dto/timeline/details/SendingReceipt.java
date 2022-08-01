@@ -11,5 +11,4 @@ import lombok.*;
 public class SendingReceipt {
     private String id;
     private String system;
-    private String location;
 }

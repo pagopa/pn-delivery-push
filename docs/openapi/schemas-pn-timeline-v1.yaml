@@ -520,5 +520,3 @@ components:
           type: string
         system:
           type: string
-        location:
-          type: string

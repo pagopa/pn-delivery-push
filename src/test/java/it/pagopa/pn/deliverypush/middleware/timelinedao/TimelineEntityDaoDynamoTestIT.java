@@ -523,7 +523,6 @@ class TimelineEntityDaoDynamoTestIT {
                                         Collections.singletonList(
                                                 SendingReceiptEntity.builder()
                                                         .id("id")
-                                                        .location("ulr")
                                                         .system("system")
                                                         .build()
                                         )

@@ -13,5 +13,4 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 public class SendingReceiptEntity {
     private String id;
     private String system;
-    private String location;
 }
