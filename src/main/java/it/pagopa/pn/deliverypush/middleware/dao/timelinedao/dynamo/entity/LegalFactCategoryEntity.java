@@ -7,7 +7,9 @@ public enum LegalFactCategoryEntity {
 
     ANALOG_DELIVERY("ANALOG_DELIVERY"),
 
-    RECIPIENT_ACCESS("RECIPIENT_ACCESS");
+    RECIPIENT_ACCESS("RECIPIENT_ACCESS"),
+
+    PEC_RECEIPT("PEC_RECEIPT");
 
     private final String value;
 

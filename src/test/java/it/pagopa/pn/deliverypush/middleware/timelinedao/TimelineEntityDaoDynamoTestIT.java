@@ -498,6 +498,14 @@ class TimelineEntityDaoDynamoTestIT {
                 .iun("pa1-1")
                 .timelineElementId("elementId1")
                 .paId("paid001")
+                .legalFactIds(
+                        Collections.singletonList(
+                                LegalFactsIdEntity.builder()
+                                        .category(LegalFactCategoryEntity.PEC_RECEIPT)
+                                        .key("test")
+                                        .build()
+                        )
+                )
                 .category(TimelineElementCategoryEntity.SEND_DIGITAL_PROGRESS)
                 .details(
                         TimelineElementDetailsEntity.builder()
@@ -511,12 +519,14 @@ class TimelineEntityDaoDynamoTestIT {
                                 .digitalAddressSource(DigitalAddressSourceEntity.PLATFORM)
                                 .retryNumber(0)
                                 .notificationDate(Instant.now())
-                                .sendingReceipt(
-                                        SendingReceiptEntity.builder()
-                                                .id("id")
-                                                .location("ulr")
-                                                .system("system")
-                                                .build()
+                                .sendingReceipts(
+                                        Collections.singletonList(
+                                                SendingReceiptEntity.builder()
+                                                        .id("id")
+                                                        .location("ulr")
+                                                        .system("system")
+                                                        .build()
+                                        )
                                 )
                                 .build()
                 )

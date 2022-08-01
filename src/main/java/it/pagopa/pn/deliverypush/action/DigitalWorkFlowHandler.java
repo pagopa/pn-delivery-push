@@ -255,9 +255,10 @@ public class DigitalWorkFlowHandler {
         log.info("Specified status={} is not final - iun={} id={}", response.getStatus(), notification.getIun(), recIndex);
         
         if( response.getGeneratedMessage() != null ) {
-            //Si tratta della risposta contenente la busta di accettazione
+            //TODO Al momento se è presente il generatedMessage si suppone che tale evento sia la "Ricevuta di accettazione" della PEC (da definire meglio quando externalChannel definirà eventCode specifici)
             log.info("Received progress response is for PEC acceptance");
-            digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(notification, sendDigitalDetails, response.getGeneratedMessage());
+            //TODO Al momento si suppone che quando ci arriva lo stato IN PROGRESS lo stato della accettazione della notifica sia sempre OK (da definire meglio quando externalChannel definirà eventCode specifici)
+            digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(notification, ResponseStatusInt.OK, sendDigitalDetails, response.getGeneratedMessage());
         } else {
             log.info("Received progress response is not for PEC acceptance");
         }

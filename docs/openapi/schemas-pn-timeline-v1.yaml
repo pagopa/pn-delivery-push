@@ -325,6 +325,8 @@ components:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+        responseStatus:
+          $ref: '#/components/schemas/ResponseStatus'
         digitalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
         notificationDate:
