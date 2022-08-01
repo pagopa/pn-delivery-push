@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import lombok.Value;
@@ -12,8 +13,11 @@ import java.util.Map;
 @Slf4j
 class StateMap {
     private final Map<MapKey, MapValue> mappings = new HashMap<>();
+    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
-    public StateMap() {
+    public StateMap(PnDeliveryPushConfigs pnDeliveryPushConfigs) {
+        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
+        
         // Received state
         this.fromState(NotificationStatusInt.IN_VALIDATION)
                 //STATE CHANGE
@@ -119,9 +123,9 @@ class StateMap {
         ;
         
         //FINAL STATE
+        this.fromState(NotificationStatusInt.CANCELLED);
         this.fromState(NotificationStatusInt.PAID);
         this.fromState(NotificationStatusInt.REFUSED);
-        this.fromState(NotificationStatusInt.CANCELLED);
     }
 
     NotificationStatusInt getStateTransition(NotificationStatusInt fromStatus, TimelineElementCategoryInt timelineRowType) throws PnInternalException {
@@ -150,7 +154,14 @@ class StateMap {
         }
 
         public InputMapper withTimelineGoToState(TimelineElementCategoryInt timelineRowType, NotificationStatusInt destinationStatus) {
-            StateMap.this.mappings.put(new MapKey(fromStatus, timelineRowType), new MapValue(destinationStatus));
+            if( this.fromStatus.equals(NotificationStatusInt.DELIVERING) &&
+                    TimelineElementCategoryInt.DIGITAL_FAILURE_WORKFLOW.equals(timelineRowType) &&
+                    Boolean.TRUE.equals( pnDeliveryPushConfigs.getPaperMessageNotHandled()) ){
+                //Solo per l'MVP in caso di FAILURE del workflow non avviene il passaggio di stato in DELIVERED ma resta in DELIVERING
+                StateMap.this.mappings.put(new MapKey(fromStatus, timelineRowType), new MapValue(NotificationStatusInt.DELIVERING));
+            }else {
+                StateMap.this.mappings.put(new MapKey(fromStatus, timelineRowType), new MapValue(destinationStatus));
+            }
             return this;
         }
     }

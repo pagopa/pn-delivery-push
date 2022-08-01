@@ -278,7 +278,7 @@ Resources:
         ContainerEnvEntry19: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYFAILUREANALOGREFINEMENT=${SchedulingDaysFailureAnalogRefinement}'
         ContainerEnvEntry20: !Sub 'PN_CLIENTS_ADDRESSBOOKBASEURL=${AddressBookUrl}'
         ContainerEnvEntry21: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNELBASEURL=${ExternalChannelBaseUrl}'
-        ContainerEnvEntry22: !Sub 'PN_DELIVERYPUSH_DATAVAULTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry22: 'PN_DELIVERYPUSH_DATAVAULTBASEURL=http://alb.confidential.pn.internal:8080'
         ContainerEnvEntry23: !Sub 'PN_DELIVERYPUSH_USERATTRIBUTESBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry24: !Sub 'PN_DELIVERYPUSH_SAFESTORAGEBASEURL=${SandboxSafeStorageBaseUrl}'
         ContainerEnvEntry25: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
