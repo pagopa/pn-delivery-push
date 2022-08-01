@@ -80,11 +80,6 @@ public class AbstractWorkflowTestConfiguration {
     }
     
     @Bean
-    public PnDeliveryPushConfigs pnDeliveryPushConfigsTest() {
-        return Mockito.mock(PnDeliveryPushConfigs.class);
-    }
-    
-    @Bean
     public SchedulerServiceMock schedulerServiceMockMock(@Lazy DigitalWorkFlowHandler digitalWorkFlowHandler, @Lazy AnalogWorkflowHandler analogWorkflowHandler,
                                                          @Lazy RefinementHandler refinementHandler, @Lazy InstantNowSupplier instantNowSupplier) {
         return new SchedulerServiceMock(
