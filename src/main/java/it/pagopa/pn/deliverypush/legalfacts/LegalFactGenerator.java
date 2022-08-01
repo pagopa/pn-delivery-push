@@ -107,8 +107,7 @@ public class LegalFactGenerator {
 
         return digests;
     }
-
-
+    
     public byte[] generateNotificationViewedLegalFact(String iun, NotificationRecipientInt recipient, Instant timeStamp) throws IOException {
 
         Map<String, Object> templateModel = new HashMap<>();
@@ -133,48 +132,6 @@ public class LegalFactGenerator {
         private String responseDate;
         private boolean ok;
     }
-    
-    /*
-    @Deprecated
-    public byte[] generatePecDeliveryWorkflowLegalFact(List<Action> actions, NotificationInt notification, NotificationPathChooseDetails addresses) throws IOException {
-
-        List<PecDeliveryInfo> pecDeliveries = actions.stream()
-                .map( action -> {
-
-                    DigitalAddress address;
-                    switch ( action.getDigitalAddressSource() ) {
-                        case PLATFORM: address = addresses.getPlatform(); break;
-                        case SPECIAL: address = addresses.getSpecial(); break;
-                        case GENERAL: address = addresses.getGeneral(); break;
-                        default: throw new PnInternalException("Address source not supported " + action.getDigitalAddressSource());
-                    }
-
-                    NotificationRecipientInt recipient = notification.getRecipients().get(action.getRecipientIndex());
-                    PnExtChnProgressStatus status = action.getResponseStatus();
-
-                    return new PecDeliveryInfo(
-                            recipient.getDenomination(),
-                            recipient.getTaxId(),
-                            address.getAddress(),
-                            action.getNotBefore(),
-                            instantWriter.instantToDate( action.getNotBefore() ),
-                            PnExtChnProgressStatus.OK.equals( status )
-                        );
-                })
-                .sorted( Comparator.comparing( PecDeliveryInfo::getOrderBy ))
-                .collect(Collectors.toList());
-
-        Map<String, Object> templateModel = new HashMap<>();
-        templateModel.put("iun", notification.getIun() );
-        templateModel.put("deliveries", pecDeliveries);
-
-        return documentComposition.executePdfTemplate(
-                DocumentComposition.TemplateType.DIGITAL_NOTIFICATION_WORKFLOW,
-                templateModel
-        );
-    }
-    
-     */
 
     public byte[] generatePecDeliveryWorkflowLegalFact(List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList, NotificationInt notification, NotificationRecipientInt recipient) throws IOException {
 
