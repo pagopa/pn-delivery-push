@@ -101,7 +101,6 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         }else {
             log.info("Notification is already viewed, registered Letter will not be sent to externalChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
         }
-
     }
 
     private void sendRegisteredLetterToExternalChannel(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex) {
@@ -135,23 +134,22 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     @Override
     public void sendAnalogNotification(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex, boolean investigation, int sentAttemptMade) {
         log.debug("Start sendAnalogNotification - iun {} id {}", notification.getIun(), recIndex);
+        
+        boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
 
-        if( Boolean.FALSE.equals( pnDeliveryPushConfigs.getPaperMessageNotHandled()) ){
+        if( !isNotificationAlreadyViewed ){
             
-            boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
-
-            if( !isNotificationAlreadyViewed ){
-
+            if( Boolean.FALSE.equals( pnDeliveryPushConfigs.getPaperMessageNotHandled()) ){
+                
                 sendAnalogToExternalChannel(notification, physicalAddress, recIndex, investigation, sentAttemptMade);
-
                 log.info("Paper notification sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
-            } else {
-                log.info("Notification is already viewed, paper notification will not be sent to externalChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
+                
+            }else {
+                log.info("Paper message is not handled, paper notification will not be sent to externalChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
+                externalChannelUtils.addPaperNotificationNotHandledToTimeline(notification, recIndex);
             }
-
-        }else {
-            log.info("Paper message is not handled, paper notification will not be sent to externalChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
-            externalChannelUtils.addPaperNotificationNotHandledToTimeline(notification, recIndex);
+        } else {
+            log.info("Notification is already viewed, paper notification will not be sent to externalChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
         }
     }
 
