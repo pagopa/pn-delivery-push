@@ -13,6 +13,7 @@ import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.ActionEventType;
 import it.pagopa.pn.deliverypush.abstractions.webhookspool.impl.WebhookActionEventType;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.MDC;
 import org.springframework.cloud.function.context.MessageRoutingCallback;
 import org.springframework.context.annotation.Bean;
@@ -42,32 +43,40 @@ public class PnEventInboundService {
     @Bean
     public MessageRoutingCallback customRouter() {
        return message -> {
-           MessageHeaders messageHeaders = message.getHeaders();
-           String trace_id = "";
-
-           if (messageHeaders.containsKey("iun"))
-               trace_id = messageHeaders.get("iun", String.class);
-           else if (messageHeaders.containsKey("aws_messageId"))
-               trace_id = messageHeaders.get("aws_messageId", String.class);
-           else
-            trace_id = "trace_id:" + UUID.randomUUID().toString();
-
-           MDC.put(MDCWebFilter.MDC_TRACE_ID_KEY, trace_id);
-
+           setTraceId(message);
            return handleMessage(message);
        };
     }
 
+    private void setTraceId(Message<?> message) {
+        MessageHeaders messageHeaders = message.getHeaders();
+
+        String trace_id = "";
+
+        if (messageHeaders.containsKey("iun"))
+            trace_id = messageHeaders.get("iun", String.class);
+        else if (messageHeaders.containsKey("aws_messageId"))
+            trace_id = messageHeaders.get("aws_messageId", String.class);
+        else
+         trace_id = "trace_id:" + UUID.randomUUID().toString();
+
+        MDC.put(MDCWebFilter.MDC_TRACE_ID_KEY, trace_id);
+    }
+
     private String handleMessage(Message<?> message) {
-        log.debug("messaggio ricevuto da customRouter "+message);
+        log.debug("Received message from customRouter {}", message);
+        
         String eventType = (String) message.getHeaders().get("eventType");
-        log.debug("messaggio ricevuto da customRouter eventType={}", eventType );
+        log.debug("Received message from customRouter with eventType={}", eventType );
+        
         if(eventType != null){
             if(ActionEventType.ACTION_GENERIC.name().equals(eventType))
-                return handleAction(message);
+                return handleGenericAction(message);
             else if(WebhookActionEventType.WEBHOOK_ACTION_GENERIC.name().equals(eventType))
-                return "pnDeliveryPushWebhookActionConsumer";
+                return handleWebhookAction();
         }else {
+            //TODO EXTERNAL CHANNEL dovrà INVIARE UN EventType specifico
+            
             String queueName = (String) message.getHeaders().get("aws_receivedQueue");
             if( Objects.equals( queueName, externalChannelEventQueueName) ) {
                 eventType = "SEND_PAPER_RESPONSE";
@@ -85,7 +94,12 @@ public class PnEventInboundService {
         return handlerName;
     }
 
-    private String handleAction(Message<?> message) {
+    @NotNull
+    private String handleWebhookAction() {
+        return "pnDeliveryPushWebhookActionConsumer";
+    }
+
+    private String handleGenericAction(Message<?> message) {
         /*TODO Quando verrà utilizzata la sola versione v2 verificare se si può evitare di dover gestire la action in modo separato, valorizzando direttamente in fase
             di scheduling l'eventType con il valore del type della action (ActionPoolImpl -> addToActionsQueue)
          */

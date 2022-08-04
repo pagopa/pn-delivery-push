@@ -1,7 +1,29 @@
 package it.pagopa.pn.deliverypush.abstractions.actionspool;
 
 public enum ActionType {
-    ANALOG_WORKFLOW() { //NEW
+    START_RECIPIENT_WORKFLOW() {
+        @Override
+        public String buildActionId(Action action) {
+            return String.format(
+                    "%s_start_recipient_workflow_%d",
+                    action.getIun(),
+                    action.getRecipientIndex()
+            );
+        }
+    },
+
+    CHOOSE_DELIVERY_MODE() {
+        @Override
+        public String buildActionId(Action action) {
+            return String.format(
+                    "%s_choose_delivery_mode_%d",
+                    action.getIun(),
+                    action.getRecipientIndex()
+            );
+        }
+    },
+    
+    ANALOG_WORKFLOW() {
         @Override
         public String buildActionId(Action action) {
             return String.format(
@@ -12,7 +34,7 @@ public enum ActionType {
         }
     },
     
-    DIGITAL_WORKFLOW_NEXT_ACTION() { //NEW
+    DIGITAL_WORKFLOW_NEXT_ACTION() {
         @Override
         public String buildActionId(Action action) {
             return String.format(
@@ -23,7 +45,7 @@ public enum ActionType {
         }
     },
 
-    REFINEMENT_NOTIFICATION() { //NEW
+    REFINEMENT_NOTIFICATION() {
         @Override
         public String buildActionId(Action action) {
             return String.format(

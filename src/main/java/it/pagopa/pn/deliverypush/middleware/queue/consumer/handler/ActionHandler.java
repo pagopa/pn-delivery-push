@@ -3,9 +3,7 @@ package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.abstractions.webhookspool.WebhookAction;
 import it.pagopa.pn.deliverypush.abstractions.webhookspool.impl.WebhookActionsEventHandler;
-import it.pagopa.pn.deliverypush.action.AnalogWorkflowHandler;
-import it.pagopa.pn.deliverypush.action.DigitalWorkFlowHandler;
-import it.pagopa.pn.deliverypush.action.RefinementHandler;
+import it.pagopa.pn.deliverypush.action.*;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -21,22 +19,56 @@ public class ActionHandler {
     private final AnalogWorkflowHandler analogWorkflowHandler;
     private final RefinementHandler refinementHandler;
     private final WebhookActionsEventHandler webhookActionsEventHandler;
-
+    private final StartWorkflowForRecipientHandler startWorkflowForRecipientHandler;
+    private final ChooseDeliveryModeHandler chooseDeliveryModeHandler;
+    
     public ActionHandler(DigitalWorkFlowHandler digitalWorkFlowHandler,
                          AnalogWorkflowHandler analogWorkflowHandler,
                          RefinementHandler refinementHandler,
-                         WebhookActionsEventHandler webhookActionsEventHandler) {
+                         WebhookActionsEventHandler webhookActionsEventHandler,
+                         StartWorkflowForRecipientHandler startWorkflowForRecipientHandler,
+                         ChooseDeliveryModeHandler chooseDeliveryModeHandler) {
         this.digitalWorkFlowHandler = digitalWorkFlowHandler;
         this.analogWorkflowHandler = analogWorkflowHandler;
         this.refinementHandler = refinementHandler;
         this.webhookActionsEventHandler = webhookActionsEventHandler;
+        this.startWorkflowForRecipientHandler = startWorkflowForRecipientHandler;
+        this.chooseDeliveryModeHandler = chooseDeliveryModeHandler;
+    }
+
+    @Bean
+    public Consumer<Message<Action>> pnDeliveryPushStartRecipientWorkflow() {
+        return message -> {
+            try {
+                log.debug("pnDeliveryPushStartRecipientWorkflow, message {}", message);
+                Action action = message.getPayload();
+                startWorkflowForRecipientHandler.startNotificationWorkflowForRecipient(action.getIun(), action.getRecipientIndex());
+            } catch (Exception ex) {
+                HandleEventUtils.handleException(message.getHeaders(), ex);
+                throw ex;
+            }
+        };
+    }
+
+    @Bean
+    public Consumer<Message<Action>> pnDeliveryPushChooseDeliveryMode() {
+        return message -> {
+            try {
+                log.debug("pnDeliveryPushChooseDeliveryMode, message {}", message);
+                Action action = message.getPayload();
+                chooseDeliveryModeHandler.chooseDeliveryTypeAndStartWorkflow(action.getIun(), action.getRecipientIndex());
+            } catch (Exception ex) {
+                HandleEventUtils.handleException(message.getHeaders(), ex);
+                throw ex;
+            }
+        };
     }
     
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushAnalogWorkflowConsumer() {
         return message -> {
             try {
-                log.info("pnDeliveryPushAnalogWorkflowConsumer, message {}", message);
+                log.debug("pnDeliveryPushAnalogWorkflowConsumer, message {}", message);
                 Action action = message.getPayload();
                 analogWorkflowHandler.startAnalogWorkflow(action.getIun(), action.getRecipientIndex());
             } catch (Exception ex) {
@@ -50,7 +82,7 @@ public class ActionHandler {
     public Consumer<Message<Action>> pnDeliveryPushRefinementConsumer() {
         return message -> {
             try {
-                log.info("pnDeliveryPushRefinementConsumer, message {}", message);
+                log.debug("pnDeliveryPushRefinementConsumer, message {}", message);
                 Action action = message.getPayload();
                 refinementHandler.handleRefinement(action.getIun(), action.getRecipientIndex());
             } catch (Exception ex) {
@@ -64,7 +96,7 @@ public class ActionHandler {
     public Consumer<Message<Action>> pnDeliveryPushDigitalNextActionConsumer() {
         return message -> {
             try {
-                log.info("pnDeliveryPushDigitalNextActionConsumer, message {}", message);
+                log.debug("pnDeliveryPushDigitalNextActionConsumer, message {}", message);
                 Action action = message.getPayload();
                 digitalWorkFlowHandler.startScheduledNextWorkflow(action.getIun(), action.getRecipientIndex());
             } catch (Exception ex) {
@@ -78,7 +110,7 @@ public class ActionHandler {
     public Consumer<Message<WebhookAction>> pnDeliveryPushWebhookActionConsumer() {
         return message -> {
             try {
-                log.info("pnDeliveryPushWebhookActionConsumer, message={}", message);
+                log.debug("pnDeliveryPushWebhookActionConsumer, message={}", message);
                 WebhookAction action = message.getPayload();
                 webhookActionsEventHandler.handleEvent(action);
             } catch (Exception ex) {

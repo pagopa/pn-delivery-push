@@ -26,7 +26,7 @@ public class ExtChannelEventHandlerOld {
    private final ExternalChannelResponseHandlerOld externalChannelResponseHandlerOld;
 
     public ExtChannelEventHandlerOld(ExternalChannelResponseHandlerOld externalChannelResponseHandlerOld) {
-        log.info("HO CARICATO OLD");
+        log.debug("HO CARICATO OLD");
 
         this.externalChannelResponseHandlerOld = externalChannelResponseHandlerOld;
     }

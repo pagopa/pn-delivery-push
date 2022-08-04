@@ -4,9 +4,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Version;
 import freemarker.template._TemplateAPI;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.action.AnalogWorkflowHandler;
-import it.pagopa.pn.deliverypush.action.DigitalWorkFlowHandler;
-import it.pagopa.pn.deliverypush.action.RefinementHandler;
+import it.pagopa.pn.deliverypush.action.*;
 import it.pagopa.pn.deliverypush.action.it.mockbean.PnDeliveryClientMock;
 import it.pagopa.pn.deliverypush.action.it.mockbean.PublicRegistryMock;
 import it.pagopa.pn.deliverypush.action.it.mockbean.SchedulerServiceMock;
@@ -80,14 +78,19 @@ public class AbstractWorkflowTestConfiguration {
     }
     
     @Bean
-    public SchedulerServiceMock schedulerServiceMockMock(@Lazy DigitalWorkFlowHandler digitalWorkFlowHandler, @Lazy AnalogWorkflowHandler analogWorkflowHandler,
-                                                         @Lazy RefinementHandler refinementHandler, @Lazy InstantNowSupplier instantNowSupplier) {
+    public SchedulerServiceMock schedulerServiceMockMock(@Lazy DigitalWorkFlowHandler digitalWorkFlowHandler, 
+                                                         @Lazy AnalogWorkflowHandler analogWorkflowHandler,
+                                                         @Lazy RefinementHandler refinementHandler, 
+                                                         @Lazy InstantNowSupplier instantNowSupplier,
+                                                         @Lazy StartWorkflowForRecipientHandler startWorkflowForRecipientHandler,
+                                                         @Lazy ChooseDeliveryModeHandler chooseDeliveryModeHandler) {
         return new SchedulerServiceMock(
                 digitalWorkFlowHandler,
                 analogWorkflowHandler,
                 refinementHandler,
-                instantNowSupplier
-        );
+                instantNowSupplier,
+                startWorkflowForRecipientHandler, 
+                chooseDeliveryModeHandler);
     }
 
     @Bean

@@ -49,7 +49,7 @@ public class CourtesyMessageUtils {
     /**
      * Get recipient addresses and send courtesy messages.
      */
-    public void checkAddressesForSendCourtesyMessage(NotificationInt notification, Integer recIndex) {
+    public void checkAddressesAndSendCourtesyMessage(NotificationInt notification, Integer recIndex) {
         log.info("CheckAddressesForSendCourtesyMessage - iun={} id={} ", notification.getIun(), recIndex);
         
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
