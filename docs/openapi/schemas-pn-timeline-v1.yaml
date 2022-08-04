@@ -71,7 +71,7 @@ components:
             maniera univoca l'elemento di timeline
         timestamp:
           type: string
-          description: Momento in cui avviene l'evento desritto in questo elemento
+          description: Momento in cui avviene l'evento descritto in questo elemento
             di timeline
           format: date-time
         legalFactsIds:
@@ -457,7 +457,7 @@ components:
           description: Index destinatario notifica digitale
         generatedAarUrl:
           type: string
-          description: Chiave per recupero da safestorage del documento aar
+          description: Chiave per recupero da safe-storage del documento aar
         numberOfPages:
           type: integer
           description: numero di pagine del PDF generato
