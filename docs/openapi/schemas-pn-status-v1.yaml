@@ -15,6 +15,18 @@ components:
     
     NotificationStatus:
       type: string
+      description: >
+        stato di avanzamento del processo di notifica:
+          * `IN_VALIDATION` - notifica depositata in attesa di validazione
+          * `ACCEPTED` - notifica accettata 
+          * `REFUSED` - notifica rifiutata
+          * `DELIVERING` - notifica in spedita
+          * `DELIVERED` - notifica ricevuta da tutti i destinatari
+          * `VIEWED` - notifica presa visione per almeno un destinatario
+          * `EFFECTIVE_DATE` - notifica perfezionata per un destinatario
+          * `PAID` - notifica pagata
+          * `UNREACHABLE` - notifica non recapitabile
+          * `CANCELLED` - notifica annullata dal mittente
       description: stato di avanzamento del processo di notifica
       enum:
         - IN_VALIDATION

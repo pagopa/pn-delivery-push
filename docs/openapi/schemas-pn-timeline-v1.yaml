@@ -6,6 +6,33 @@ components:
     
     TimelineElementCategory:
       type: string
+      description: >
+        stato di avanzamento del processo di notifica:`
+          * `REQUEST_ACCEPTED` - 
+          * `SEND_COURTESY_MESSAGE` - 
+          * `GET_ADDRESS` - 
+          * `PUBLIC_REGISTRY_CALL` - 
+          * `PUBLIC_REGISTRY_RESPONSE` - 
+          * `SCHEDULE_ANALOG_WORKFLOW` - 
+          * `SCHEDULE_DIGITAL_WORKFLOW` - 
+          * `SEND_DIGITAL_DOMICILE` - 
+          * `SEND_DIGITAL_DOMICILE_FEEDBACK` - 
+          * `SEND_DIGITAL_FEEDBACK` - 
+          * `REFINEMENT` - 
+          * `SCHEDULE_REFINEMENT` - 
+          * `DIGITAL_SUCCESS_WORKFLOW` - 
+          * `DIGITAL_FAILURE_WORKFLOW` - 
+          * `ANALOG_SUCCESS_WORKFLOW` - 
+          * `ANALOG_FAILURE_WORKFLOW` - 
+          * `SEND_SIMPLE_REGISTERED_LETTER` - 
+          * `NOTIFICATION_VIEWED` - 
+          * `SEND_ANALOG_DOMICILE` - 
+          * `SEND_PAPER_FEEDBACK` - 
+          * `PAYMENT` - 
+          * `COMPLETELY_UNREACHABLE` - 
+          * `REQUEST_REFUSED` - 
+          * `AAR_GENERATION` - 
+          * `NOT_HANDLED` -
       enum:
         - REQUEST_ACCEPTED
         - SEND_COURTESY_MESSAGE
@@ -44,7 +71,7 @@ components:
             maniera univoca l'elemento di timeline
         timestamp:
           type: string
-          description: Momento in cui avviene l'evento desritto in questo elemento
+          description: Momento in cui avviene l'evento descritto in questo elemento
             di timeline
           format: date-time
         legalFactsIds:
@@ -430,7 +457,7 @@ components:
           description: Index destinatario notifica digitale
         generatedAarUrl:
           type: string
-          description: Chiave per recupero da safestorage del documento aar
+          description: Chiave per recupero da safe-storage del documento aar
         numberOfPages:
           type: integer
           description: numero di pagine del PDF generato
