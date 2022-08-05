@@ -28,8 +28,6 @@ import java.util.Collections;
 
 class CompletionWorkFlowHandlerTest {
     @Mock
-    private NotificationService notificationService;
-    @Mock
     private SchedulerService scheduler;
     @Mock
     private ExternalChannelService externalChannelService;
@@ -125,6 +123,40 @@ class CompletionWorkFlowHandlerTest {
 
     @ExtendWith(MockitoExtension.class)
     @Test
+    void completionDigitalWorkflowFailureViewed() {
+        //GIVEN
+        NotificationInt notification = getNotification();
+        NotificationRecipientInt recipient = notification.getRecipients().get(0);
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+
+        Mockito.when(pnDeliveryPushConfigs.getPaperMessageNotHandled()).thenReturn(true);
+
+        Mockito.when( saveLegalFactsService.savePecDeliveryWorkflowLegalFact(
+                Mockito.anyList(), Mockito.any( NotificationInt.class ), Mockito.any( NotificationRecipientInt.class )
+        )).thenReturn( "" );
+        
+        Mockito.when(timelineUtils.checkNotificationIsAlreadyViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
+        
+        Instant notificationDate = Instant.now();
+
+        //WHEN
+        handler.completionDigitalWorkflow(notification, recIndex, notificationDate, recipient.getDigitalDomicile(), EndWorkflowStatus.FAILURE);
+
+        //THEN
+        //Viene verificato che non sia stato inviato nessun evento ad external channel
+        Mockito.verify(externalChannelService, Mockito.times(0)).sendNotificationForRegisteredLetter(Mockito.any(NotificationInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyInt());
+        //Viene verificato che non sia stato schedulato il perfezionamento
+        Mockito.verify(scheduler, Mockito.times(0)).scheduleEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.any(Instant.class), Mockito.any(ActionType.class));
+        //Viene verificato che non sia stato aggiunto l'elemento di timeline di failure
+        Mockito.verify(timelineUtils, Mockito.times(0)).buildFailureDigitalWorkflowTimelineElement(Mockito.any(NotificationInt.class),
+                Mockito.anyInt(), Mockito.anyString());
+        //Viene verificato che non sia stato aggiunto l'elemento di timeline di not handled
+        Mockito.verify(timelineUtils, Mockito.times(0)).buildNotHandledTimelineElement(Mockito.any(NotificationInt.class),
+                Mockito.anyInt(), Mockito.anyString(), Mockito.anyString());
+    }
+    
+    @ExtendWith(MockitoExtension.class)
+    @Test
     void completionDigitalWorkflowFailureNotHandled() {
         //GIVEN
         NotificationInt notification = getNotification();
@@ -136,6 +168,8 @@ class CompletionWorkFlowHandlerTest {
         Mockito.when( saveLegalFactsService.savePecDeliveryWorkflowLegalFact(
                 Mockito.anyList(), Mockito.any( NotificationInt.class ), Mockito.any( NotificationRecipientInt.class )
         )).thenReturn( "" );
+
+        Mockito.when(timelineUtils.checkNotificationIsAlreadyViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
 
         Instant notificationDate = Instant.now();
 
