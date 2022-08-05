@@ -42,7 +42,7 @@ components:
         - SCHEDULE_ANALOG_WORKFLOW
         - SCHEDULE_DIGITAL_WORKFLOW
         - SEND_DIGITAL_DOMICILE
-        - SEND_DIGITAL_DOMICILE_FEEDBACK
+        - SEND_DIGITAL_PROGRESS
         - SEND_DIGITAL_FEEDBACK
         - REFINEMENT
         - SCHEDULE_REFINEMENT
@@ -107,12 +107,13 @@ components:
         - "$ref": "#/components/schemas/SendCourtesyMessageDetails"
         - "$ref": "#/components/schemas/SendDigitalDetails"
         - "$ref": "#/components/schemas/SendDigitalFeedbackDetails"
+        - "$ref": "#/components/schemas/SendDigitalProgressDetails"
         - "$ref": "#/components/schemas/SendAnalogDetails"
         - "$ref": "#/components/schemas/SendAnalogFeedbackDetails"
         - "$ref": "#/components/schemas/SimpleRegisteredLetterDetails"
         - "$ref": "#/components/schemas/AarGenerationDetails"
         - "$ref": "#/components/schemas/NotHandledDetails"
-
+  
 
     NotificationRequestAcceptedDetails:
       type: object
@@ -345,6 +346,26 @@ components:
           description: numero dei tentativi effettuati
           format: int32
           
+    SendDigitalProgressDetails:
+      type: object
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+        responseStatus:
+          $ref: '#/components/schemas/ResponseStatus'
+        digitalAddress:
+          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+        notificationDate:
+          type: string
+          description: data notifica
+          format: date-time
+        sendingReceipts:
+          type: array
+          items:
+            $ref: '#/components/schemas/SendingReceipt'
+
+            
     SendDigitalFeedbackDetails:
       type: object
       required:
@@ -370,6 +391,10 @@ components:
           items:
             type: string
             description: Lista errori, vuota in caso di successo
+        sendingReceipts:
+          type: array
+          items:
+            $ref: '#/components/schemas/SendingReceipt'
             
     SendAnalogDetails:
       type: object
@@ -514,3 +539,11 @@ components:
       enum:
         - DIGITAL
         - ANALOG
+
+    SendingReceipt:
+      type: object
+      properties:
+        id:
+          type: string
+        system:
+          type: string

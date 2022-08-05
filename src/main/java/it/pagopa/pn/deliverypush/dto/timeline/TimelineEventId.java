@@ -48,6 +48,19 @@ public enum TimelineEventId {
         }
     },
 
+    SEND_DIGITAL_PROGRESS() {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return String.format(
+                    "%s_digital_delivering_progress_%d_attempt_%d_source%s",
+                    eventId.getIun(),
+                    eventId.getRecIndex(),
+                    eventId.getSentAttemptMade() +1,
+                    eventId.getSource()
+                    );
+        }
+    },
+    
     SEND_PAPER_FEEDBACK() {
         @Override
         public String buildEventId(EventId eventId) {

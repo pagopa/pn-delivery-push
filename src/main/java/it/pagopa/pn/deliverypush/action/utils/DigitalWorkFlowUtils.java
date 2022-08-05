@@ -7,14 +7,12 @@ import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.dto.timeline.details.GetAddressInfoDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ScheduleDigitalWorkflowDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
@@ -178,8 +176,11 @@ public class DigitalWorkFlowUtils {
             throw new PnInternalException(error);
         }
     }
-    
 
+    public Optional<TimelineElementInternal> getTimelineElement(String iun, String eventId) {
+        return timelineService.getTimelineElement(iun, eventId);
+    }
+    
     public void addScheduledDigitalWorkflowToTimeline(NotificationInt notification, Integer recIndex, DigitalAddressInfo lastAttemptMade) {
         addTimelineElement(
                 timelineUtils.buildScheduleDigitalWorkflowTimeline(notification, recIndex, lastAttemptMade),
@@ -194,13 +195,24 @@ public class DigitalWorkFlowUtils {
         );
     }
 
-    public void addDigitalFeedbackTimelineElement(NotificationInt notification, ResponseStatusInt status, List<String> errors, SendDigitalDetailsInt sendDigitalDetails) {
+    public void addDigitalFeedbackTimelineElement(NotificationInt notification, ResponseStatusInt status, List<String> errors,
+                                                  SendDigitalDetailsInt sendDigitalDetails, DigitalMessageReferenceInt digitalMessageReference) {
         addTimelineElement(
-                timelineUtils.buildDigitalFeedbackTimelineElement(notification, status, errors, sendDigitalDetails),
+                timelineUtils.buildDigitalFeedbackTimelineElement(notification, status, errors, sendDigitalDetails, digitalMessageReference),
                 notification
         );
     }
 
+    public void addDigitalDeliveringProgressTimelineElement(NotificationInt notification,
+                                                            ResponseStatusInt status,
+                                                            SendDigitalDetailsInt sendDigitalDetails,
+                                                            DigitalMessageReferenceInt digitalMessageReference) {
+        addTimelineElement(
+                timelineUtils.buildDigitalProgressFeedbackTimelineElement(notification, status, sendDigitalDetails, digitalMessageReference),
+                notification
+        );
+    }
+    
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
         timelineService.addTimelineElement(element, notification);
     }
@@ -217,7 +229,5 @@ public class DigitalWorkFlowUtils {
                 throw new PnInternalException(" BUG: add support to next for " + source.getClass() + "::" + source.name());
         }
     }
-
-
-
+    
 }

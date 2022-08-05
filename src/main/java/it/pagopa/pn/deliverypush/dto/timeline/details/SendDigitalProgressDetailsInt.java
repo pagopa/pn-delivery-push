@@ -14,11 +14,10 @@ import java.util.List;
 @Builder(toBuilder = true)
 @EqualsAndHashCode
 @ToString
-public class SendDigitalFeedbackDetailsInt implements RecipientRelatedTimelineElementDetails, DigitalAddressRelatedTimelineElement {
+public class SendDigitalProgressDetailsInt implements RecipientRelatedTimelineElementDetails, DigitalAddressRelatedTimelineElement {
     private int recIndex;
-    private LegalDigitalAddressInt digitalAddress;
     private ResponseStatusInt responseStatus;
+    private LegalDigitalAddressInt digitalAddress;
     private Instant notificationDate;
-    private List<String> errors;
     private List<SendingReceipt> sendingReceipts;
 }

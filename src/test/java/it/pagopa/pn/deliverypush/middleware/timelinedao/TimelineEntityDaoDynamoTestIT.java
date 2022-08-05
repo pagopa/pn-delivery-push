@@ -490,6 +490,67 @@ class TimelineEntityDaoDynamoTestIT {
         Assertions.assertTrue(elementSetAfterDelete.isEmpty());
 
     }
+
+    @Test
+    void checkSendDigitalProgress() {
+        //GIVEN
+        TimelineElementEntity elementToInsert = TimelineElementEntity.builder()
+                .iun("pa1-1")
+                .timelineElementId("elementId1")
+                .paId("paid001")
+                .legalFactIds(
+                        Collections.singletonList(
+                                LegalFactsIdEntity.builder()
+                                        .category(LegalFactCategoryEntity.PEC_RECEIPT)
+                                        .key("test")
+                                        .build()
+                        )
+                )
+                .category(TimelineElementCategoryEntity.SEND_DIGITAL_PROGRESS)
+                .details(
+                        TimelineElementDetailsEntity.builder()
+                                .recIndex(0)
+                                .digitalAddress(
+                                        DigitalAddressEntity.builder()
+                                                .type(DigitalAddressEntity.TypeEnum.PEC)
+                                                .address("test@address.it")
+                                                .build()
+                                )
+                                .digitalAddressSource(DigitalAddressSourceEntity.PLATFORM)
+                                .retryNumber(0)
+                                .notificationDate(Instant.now())
+                                .sendingReceipts(
+                                        Collections.singletonList(
+                                                SendingReceiptEntity.builder()
+                                                        .id("id")
+                                                        .system("system")
+                                                        .build()
+                                        )
+                                )
+                                .build()
+                )
+                .build();
+
+        try{
+            //WHEN
+            timelineEntityDao.put(elementToInsert);
+
+            //THEN
+            Key key = Key.builder()
+                    .partitionValue(elementToInsert.getIun())
+                    .sortValue(elementToInsert.getTimelineElementId())
+                    .build();
+
+            Optional<TimelineElementEntity> elementFromDbOpt =  timelineEntityDao.get(key);
+
+            Assertions.assertTrue(elementFromDbOpt.isPresent());
+            TimelineElementEntity elementFromDb = elementFromDbOpt.get();
+            Assertions.assertEquals(elementToInsert, elementFromDb);
+
+        } finally {
+            removeElementFromDb(elementToInsert);
+        }
+    }
     
     @Test
     void checkNotificationView() {

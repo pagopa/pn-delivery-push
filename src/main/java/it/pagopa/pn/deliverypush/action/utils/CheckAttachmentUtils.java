@@ -43,7 +43,7 @@ public class CheckAttachmentUtils {
 
             logEvent.generateSuccess().log();
         } catch (PnValidationException ex) {
-            logEvent.generateFailure("check attachment Failed for iun={} exc", notification.getIun(), ex);
+            logEvent.generateFailure("check attachment Failed exc={}", ex);
             throw ex;
         }
     }

@@ -85,7 +85,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
     public String saveNotificationReceivedLegalFact(NotificationInt notification) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_NEWLEGAL, "Start saveNotificationReceivedLegalFact - iun={}", notification.getIun() )
+                .before(PnAuditLogEventType.AUD_NT_NEWLEGAL, "SaveNotificationReceivedLegalFact - iun={}", notification.getIun() )
                 .iun(notification.getIun())
                 .build();
         logEvent.log();
@@ -100,7 +100,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
         }
         catch ( Exception exc ) {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "REQUEST_ACCEPTED",  notification.getIun(), "N/A");
-            logEvent.generateFailure("Exception in saveNotificationReceivedLegalFact ex=", exc.getMessage()).log();
+            logEvent.generateFailure("Exception in saveNotificationReceivedLegalFact ex={}", exc).log();
             throw new PnInternalException( msg, exc);
         }
 
@@ -113,7 +113,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
     ) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_NEWLEGAL, "Start savePecDeliveryWorkflowLegalFact - iun={}", notification.getIun() )
+                .before(PnAuditLogEventType.AUD_NT_NEWLEGAL, "SavePecDeliveryWorkflowLegalFact - iun={}", notification.getIun() )
                 .iun(notification.getIun())
                 .build();
         logEvent.log();
@@ -131,8 +131,9 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
             return url;
         }
         catch ( Exception exc ) {
+            logEvent.generateFailure("Error in savePecDeliveryWorkflowLegalFact, exc=", exc).log();
+            
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "DIGITAL_DELIVERY",  notification.getIun(), recipient.getTaxId());
-            logEvent.generateFailure(msg + " exc=",exc).log();
             throw new PnInternalException( msg, exc);
         }
 
@@ -145,7 +146,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
     ) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_NEWLEGAL, "Start saveNotificationViewedLegalFact - iun={}", notification.getIun())
+                .before(PnAuditLogEventType.AUD_NT_NEWLEGAL, "SaveNotificationViewedLegalFact - iun={}", notification.getIun())
                 .iun(notification.getIun())
                 .build();
         logEvent.log();
@@ -160,8 +161,9 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
             return url;
         }
         catch ( Exception exc ) {
+            logEvent.generateFailure("Error in saveNotificationViewedLegalFact,  exc=", exc).log();
+
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "NOTIFICATION_VIEWED",  notification.getIun(), recipient.getTaxId());
-            logEvent.generateFailure(msg + " exc=",exc).log();
             throw new PnInternalException( msg, exc);
         }
     }
