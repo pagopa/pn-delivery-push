@@ -27,7 +27,6 @@ components:
           * `PAID` - notifica pagata
           * `UNREACHABLE` - notifica non recapitabile
           * `CANCELLED` - notifica annullata dal mittente
-      description: stato di avanzamento del processo di notifica
       enum:
         - IN_VALIDATION
         - ACCEPTED

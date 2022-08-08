@@ -11,7 +11,24 @@ info:
     
     Per ognuno di questi elementi è possibile definire un filtro per ricevere solo alcuni 
     cambiamenti di stato o determinati eventi di timeline.
-
+    
+    Esempio:
+    - Ricezione dell'accettazione o rifiuto delle notifiche:
+    
+    ``
+    {
+      "title": "NotificationAccepted",
+      "eventType": "STATUS",
+      "filterValues": [
+        "ACCEPTED","
+      ]
+    }
+    ``
+    
+    Gli stati della notifica sono: $ref: './schemas-pn-status-v1.yaml#/components/schemas/NotificationStatus'
+    
+    Le categorie degli eventi di timeline sono:  $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/TimelineElementCategory'
+    
     Le operazioni con il tag __Streams__ gestiscono la configurazione: <br/>
       - Creazione; <br/>
       - Modifica; <br/>
@@ -19,6 +36,15 @@ info:
 
     Le operazioni con il tag __Events__ sono quelle utilizzate per la lettura degli eventi 
     filtrati in base alla configurazione impostata negli streams.
+    
+    La api restituisce un massimo di 100 elementi. Se ci sono ulteriori eventi nello stream sarà restituito 
+    l'elemento `retryAfter = 0`, per ottenere gli eventi successivi è necessario richiamare il servizio 
+    passando il parametro _lastEventId_ valorizzato con l'ultimo _eventId_ della richiesta precedente.
+    Questo permetterà alla piattaforma di cancellare gli eventi precedenti.
+    
+    Gli eventi sono mantenuti per un massimo di X giorni dopo i quali sono automaticamente cancellati anche
+    se non sono stati prelevati dallo stream.
+
   contact:
     email: pn@pagopa.it
   license:
@@ -269,7 +295,7 @@ paths:
         quello di chiusura di una posizione debitoria con pagamento tramite F24, che possono 
         avvenire fuori dal controllo di PagoPA. <br/>
 
-        La processazione può avvenire in maniera parziale, quindi ogni evento deve avere un 
+        L'elaborazione può avvenire in maniera parziale, quindi ogni evento deve avere un 
         identificativo univoco (generato dalla PA). In caso di fallimento vanno ritrasmessi
         gli eventi con lo stesso identificativo. Sarà Piattaforma Notifica ad identificare 
         quelli già elaborati ed evitare duplicazioni. <br/>
@@ -372,7 +398,7 @@ components:
             type: string
     
     StreamMetadataResponse:
-      description: Configiurazioni di un flusso di eventi
+      description: Configurazioni di un flusso di eventi
       allOf:
         - $ref: '#/components/schemas/StreamCreationRequest'
         - type: object
