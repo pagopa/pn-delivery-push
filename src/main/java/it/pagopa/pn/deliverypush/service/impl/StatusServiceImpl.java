@@ -2,14 +2,12 @@ package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.RequestUpdateStatusDto;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.RequestUpdateStatusDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusHistoryElementInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.service.StatusService;
-import it.pagopa.pn.deliverypush.service.mapper.RequestUpdateStatusDtoMapper;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -48,30 +46,30 @@ public class StatusServiceImpl implements StatusService {
         // - se i due stati differiscono
         if (!currentState.equals(nextState.getStatus()) && !nextState.getStatus().equals(NotificationStatusInt.REFUSED)){
             
-            RequestUpdateStatusDtoInt requestDto = getRequestUpdateStatusDto(dto.getIun(), nextState.getStatus());
-            updateStatus(requestDto);
+            updateStatus(dto.getIun(), nextState.getStatus(), dto.getTimestamp());
         }
         
         return new NotificationStatusUpdate(currentState, nextState.getStatus());
     }
 
-    private void updateStatus(RequestUpdateStatusDtoInt dto) {
-        RequestUpdateStatusDto updateStatusDto = RequestUpdateStatusDtoMapper.internalToExternal(dto);
-        ResponseEntity<Void> resp = pnDeliveryClient.updateStatus(updateStatusDto);
+    private void updateStatus(String iun, NotificationStatusInt nextState, Instant timeStamp) {
+        RequestUpdateStatusDto dto = getRequestUpdateStatusDto(iun, nextState, timeStamp);
+
+        ResponseEntity<Void> resp = pnDeliveryClient.updateStatus(dto);
 
         if (resp.getStatusCode().is2xxSuccessful()) {
-            log.info("Status changed to {} for iun {}", dto.getNextState(), dto.getIun());
+            log.info("Status changed to {} for iun {}", dto.getNextStatus(), dto.getIun());
         } else {
             log.error("Status not updated correctly - iun {}", dto.getIun());
             throw new PnInternalException("Status not updated correctly - iun " + dto.getIun());
         }
     }
-    
-    private RequestUpdateStatusDtoInt getRequestUpdateStatusDto(String iun, NotificationStatusInt nextState) {
-        return RequestUpdateStatusDtoInt.builder()
+
+    private RequestUpdateStatusDto getRequestUpdateStatusDto(String iun, NotificationStatusInt nextState, Instant timeStamp) {
+        return new RequestUpdateStatusDto()
+                .nextStatus(it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationStatus.valueOf(nextState.name()))
                 .iun(iun)
-                .nextState(nextState)
-                .build();
+                .timestamp(timeStamp);
     }
 
     private NotificationStatusHistoryElementInt computeLastStatusHistoryElement(NotificationInt notification, Set<TimelineElementInternal> currentTimeline) {
