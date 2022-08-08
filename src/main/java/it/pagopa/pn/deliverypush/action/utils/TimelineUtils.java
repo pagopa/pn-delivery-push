@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.action.utils;
 
 import it.pagopa.pn.deliverypush.dto.address.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
@@ -98,7 +99,8 @@ public class TimelineUtils {
     }
 
 
-    public TimelineElementInternal buildDigitalFeedbackTimelineElement(NotificationInt notification, ResponseStatusInt status, List<String> errors, SendDigitalDetailsInt sendDigitalDetails) {
+    public TimelineElementInternal buildDigitalFeedbackTimelineElement(NotificationInt notification, ResponseStatusInt status, List<String> errors,
+                                                                       SendDigitalDetailsInt sendDigitalDetails, DigitalMessageReferenceInt digitalMessageReference) {
         log.debug("buildDigitaFeedbackTimelineElement - IUN={} and id={}", notification.getIun(), sendDigitalDetails.getRecIndex());
 
         String elementId = TimelineEventId.SEND_DIGITAL_FEEDBACK.buildEventId(
@@ -116,11 +118,56 @@ public class TimelineUtils {
                 .responseStatus(status)
                 .recIndex(sendDigitalDetails.getRecIndex())
                 .notificationDate(instantNowSupplier.get())
+                .sendingReceipts(
+                        Collections.singletonList(SendingReceipt.builder()
+                                .id(digitalMessageReference.getId())
+                                .system(digitalMessageReference.getSystem())
+                        .build())
+                )
                 .build();
 
-        return buildTimeline(notification, TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK, elementId, details);
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
+                .legalFactsIds( singleLegalFactId(digitalMessageReference.getLocation(), LegalFactCategoryInt.PEC_RECEIPT) );
+        
+        return buildTimeline(notification, TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK, elementId, details, timelineBuilder);
     }
 
+    public TimelineElementInternal buildDigitalProgressFeedbackTimelineElement(NotificationInt notification,
+                                                                               ResponseStatusInt status,
+                                                                               SendDigitalDetailsInt sendDigitalDetails,
+                                                                               DigitalMessageReferenceInt digitalMessageReference) {
+        log.debug("buildDigitalDeliveringProgressTimelineElement - IUN={} and id={}", notification.getIun(), sendDigitalDetails.getRecIndex());
+
+        String elementId = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(sendDigitalDetails.getRecIndex())
+                        .sentAttemptMade(sendDigitalDetails.getRetryNumber())
+                        .source(sendDigitalDetails.getDigitalAddressSource())
+                        .build()
+        );
+
+        SendDigitalProgressDetailsInt details = SendDigitalProgressDetailsInt.builder()
+                .digitalAddress(sendDigitalDetails.getDigitalAddress())
+                .responseStatus(status)
+                .recIndex(sendDigitalDetails.getRecIndex())
+                .notificationDate(instantNowSupplier.get())
+                .sendingReceipts(
+                        Collections.singletonList(
+                                SendingReceipt.builder()
+                                .id(digitalMessageReference.getId())
+                                .system(digitalMessageReference.getSystem())
+                                .build()
+                        )
+                )
+                .build();
+
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
+                .legalFactsIds( singleLegalFactId(digitalMessageReference.getLocation(), LegalFactCategoryInt.PEC_RECEIPT) );
+
+        return buildTimeline(notification, TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS, elementId, details, timelineBuilder);
+    }
+    
     public TimelineElementInternal buildSendCourtesyMessageTimelineElement(Integer recIndex, NotificationInt notification, CourtesyDigitalAddressInt address, Instant sendDate, String eventId) {
         log.debug("buildSendCourtesyMessageTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
 

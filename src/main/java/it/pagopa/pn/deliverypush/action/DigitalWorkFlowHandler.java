@@ -1,6 +1,9 @@
 package it.pagopa.pn.deliverypush.action;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.log.PnAuditLogBuilder;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.action.utils.DigitalWorkFlowUtils;
@@ -14,7 +17,9 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentRe
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelProgressEventCat;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.PublicRegistryCallDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ScheduleDigitalWorkflowDetailsInt;
@@ -192,7 +197,9 @@ public class DigitalWorkFlowHandler {
     public void handleExternalChannelResponse(ExtChannelDigitalSentResponseInt response) {
         String iun = response.getIun();
         log.info("HandleExternalChannelResponse - iun={} requestId={}", iun, response.getRequestId());
-
+        
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        
         TimelineElementInternal sendDigitalTimelineElement = 
                 digitalWorkFlowUtils.getSendDigitalDetailsTimelineElement(iun, response.getRequestId());
 
@@ -203,13 +210,23 @@ public class DigitalWorkFlowHandler {
 
         ResponseStatusInt status = mapDigitalStatusInResponseStatus(response.getStatus());
         
-
         if (status != null) {
 
-            digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(notification, status, response.getEventDetails()==null?null:List.of(response.getEventDetails()), sendDigitalDetails);
+            PnAuditLogEvent logEvent = auditLogBuilder
+                    .before(PnAuditLogEventType.AUD_NT_CHECK, "Digital workflow Ext channel response for source {} and retryNumber={} - iun={} id={}",
+                            sendDigitalDetails.getDigitalAddressSource(), sendDigitalDetails.getRetryNumber(), iun, recIndex)
+                    .iun(iun)
+                    .build();
+            logEvent.log();
+            
 
             switch (status) {
                 case OK:
+                    logEvent.generateSuccess().log();
+
+                    digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(notification, status, response.getEventDetails()==null?null: List.of(response.getEventDetails()),
+                            sendDigitalDetails, response.getGeneratedMessage());
+
                     log.info("Notification sent successfully, starting completion workflow - iun={} id={}", iun, recIndex);
                     //La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
                     completionWorkflow.completionDigitalWorkflow(notification, recIndex, response.getEventTimestamp(), sendDigitalDetails.getDigitalAddress(), EndWorkflowStatus.SUCCESS);
@@ -217,6 +234,18 @@ public class DigitalWorkFlowHandler {
                 case KO:
                     //Non è stato possibile effettuare la notificazione, si passa al prossimo step del workflow
                     log.info("Notification failed, starting next workflow action - iun={} id={}", iun, recIndex);
+                    
+                    //TODO Questa logica sarà da cambiare quando gli esiti di externalChannel conterranno gli eventCode
+                    if(response.getGeneratedMessage() != null){
+                        handlePecDeliveryAndAcceptanceNotice(response, iun, sendDigitalDetails, notification, recIndex, status);
+                    }else {
+                        //Se non è presente il generatedMessage il ko è per altri motivi
+                        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(notification, status, response.getEventDetails()==null?null: List.of(response.getEventDetails()),
+                                sendDigitalDetails, null);
+                    }
+                    
+                    logEvent.generateFailure("Notification failed for eventCode={} eventDetails={}",
+                            response.getEventCode(), response.getEventDetails()).log();
 
                     DigitalAddressInfo lastAttemptMade = DigitalAddressInfo.builder()
                             .digitalAddressSource(sendDigitalDetails.getDigitalAddressSource())
@@ -227,12 +256,52 @@ public class DigitalWorkFlowHandler {
                     break;
             }
         } else {
-            handleStatusProgress(response.getStatus(), iun, recIndex);
+            handleStatusProgress(response, notification, recIndex, sendDigitalDetails);
         }
     }
 
-    private void handleStatusProgress(ExtChannelProgressEventCat status, String iun, Integer recIndex) {
-        log.info("Specified status={} is not final - iun={} id={}", status, iun, recIndex);
+    private void handlePecDeliveryAndAcceptanceNotice(ExtChannelDigitalSentResponseInt response, String iun, SendDigitalDetailsInt sendDigitalDetails, NotificationInt notification, Integer recIndex, ResponseStatusInt status) {
+        log.debug("GeneratedMessage is not null - iun={} id={}", iun, recIndex);
+
+        if(isPresentAccettazione(iun, sendDigitalDetails, recIndex)){
+            log.debug("Response is for 'delivery failure' - iun={} id={}", iun, recIndex);
+
+            //Se è presente l'accettazione il KO può essere solo per mancata consegna
+            digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(notification, status, response.getEventDetails()==null?null: List.of(response.getEventDetails()),
+                    sendDigitalDetails, response.getGeneratedMessage());
+        } else {
+            log.debug("Response is for 'non-acceptance' - iun={} id={}", iun, recIndex);
+            
+            //Se non è presente l'accettazione il KO è per mancata accettazione
+            digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(notification, ResponseStatusInt.KO, sendDigitalDetails, response.getGeneratedMessage());
+        }
+    }
+
+    private boolean isPresentAccettazione(String iun, SendDigitalDetailsInt sendDigitalDetails, Integer recIndex) {
+        String eventId = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
+            EventId.builder()
+                    .iun(iun)
+                    .recIndex(recIndex)
+                    .sentAttemptMade(sendDigitalDetails.getRetryNumber())
+                    .source(sendDigitalDetails.getDigitalAddressSource())
+                    .build());
+
+        return digitalWorkFlowUtils.getTimelineElement(iun, eventId).isPresent();
+    }
+
+    private void handleStatusProgress(ExtChannelDigitalSentResponseInt response,
+                                      NotificationInt notification,
+                                      Integer recIndex,
+                                      SendDigitalDetailsInt sendDigitalDetails) {
+        log.info("Specified status={} is not final - iun={} id={}", response.getStatus(), notification.getIun(), recIndex);
+        
+        if( response.getGeneratedMessage() != null ) {
+            //TODO Al momento se è presente il generatedMessage si suppone che tale evento sia la "Ricevuta di accettazione" della PEC (da definire meglio quando externalChannel definirà eventCode specifici)
+            log.info("Received progress response is for PEC acceptance");
+            digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(notification, ResponseStatusInt.OK, sendDigitalDetails, response.getGeneratedMessage());
+        } else {
+            log.info("Received progress response is not for PEC acceptance");
+        }
     }
 
     private DigitalAddressInfo getDigitalAddressInfo(ScheduleDigitalWorkflowDetailsInt scheduleDigitalWorkflow) {
@@ -243,7 +312,6 @@ public class DigitalWorkFlowHandler {
                 .sentAttemptMade(scheduleDigitalWorkflow.getSentAttemptMade())
                 .build();
     }
-
 
     private ResponseStatusInt mapDigitalStatusInResponseStatus(ExtChannelProgressEventCat digitalStatus)
     {
