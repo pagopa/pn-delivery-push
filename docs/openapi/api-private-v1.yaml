@@ -98,7 +98,7 @@ components:
           $ref: './schemas-pn-status-v1.yaml#/components/schemas/NotificationStatusHistory'
         timeline:
           description: >-
-            elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
+            elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica
           type: array
           items:
             $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/TimelineElement'
