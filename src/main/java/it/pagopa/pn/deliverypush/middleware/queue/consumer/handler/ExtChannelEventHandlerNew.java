@@ -18,7 +18,7 @@ public class ExtChannelEventHandlerNew {
    private final ExternalChannelResponseHandler externalChannelResponseHandler;
 
     public ExtChannelEventHandlerNew(ExternalChannelResponseHandler externalChannelResponseHandler) {
-        log.info("HO CARICATO NEW");
+        log.debug("HO CARICATO NEW");
         this.externalChannelResponseHandler = externalChannelResponseHandler;
     }
     
@@ -26,7 +26,7 @@ public class ExtChannelEventHandlerNew {
     public Consumer<Message<SingleStatusUpdate>> pnExtChannelEventInboundConsumer() {
         return message -> {
             try {
-                log.info("External channel event received NEW, message {}", message);
+                log.debug("External channel event received NEW, message {}", message);
 
                 SingleStatusUpdate singleStatusUpdate = message.getPayload();
                 externalChannelResponseHandler.extChannelResponseReceiver(singleStatusUpdate);

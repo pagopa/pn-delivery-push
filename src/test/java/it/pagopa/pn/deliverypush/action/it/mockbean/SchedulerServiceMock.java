@@ -2,9 +2,7 @@ package it.pagopa.pn.deliverypush.action.it.mockbean;
 
 import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.abstractions.webhookspool.WebhookEventType;
-import it.pagopa.pn.deliverypush.action.AnalogWorkflowHandler;
-import it.pagopa.pn.deliverypush.action.DigitalWorkFlowHandler;
-import it.pagopa.pn.deliverypush.action.RefinementHandler;
+import it.pagopa.pn.deliverypush.action.*;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import org.mockito.Mockito;
@@ -18,13 +16,21 @@ public class SchedulerServiceMock implements SchedulerService {
     private final AnalogWorkflowHandler analogWorkflowHandler;
     private final RefinementHandler refinementHandler;
     private final InstantNowSupplier instantNowSupplier;
+    private final StartWorkflowForRecipientHandler startWorkflowForRecipientHandler;
+    private final ChooseDeliveryModeHandler chooseDeliveryModeHandler;
 
-    public SchedulerServiceMock(@Lazy DigitalWorkFlowHandler digitalWorkFlowHandler, @Lazy AnalogWorkflowHandler analogWorkflowHandler,
-                                @Lazy RefinementHandler refinementHandler, @Lazy InstantNowSupplier instantNowSupplier) {
+    public SchedulerServiceMock(@Lazy DigitalWorkFlowHandler digitalWorkFlowHandler, 
+                                @Lazy AnalogWorkflowHandler analogWorkflowHandler,
+                                @Lazy RefinementHandler refinementHandler, 
+                                @Lazy InstantNowSupplier instantNowSupplier, 
+                                @Lazy StartWorkflowForRecipientHandler startWorkflowForRecipientHandler, 
+                                @Lazy ChooseDeliveryModeHandler chooseDeliveryModeHandler) {
         this.digitalWorkFlowHandler = digitalWorkFlowHandler;
         this.analogWorkflowHandler = analogWorkflowHandler;
         this.refinementHandler = refinementHandler;
         this.instantNowSupplier = instantNowSupplier;
+        this.startWorkflowForRecipientHandler = startWorkflowForRecipientHandler;
+        this.chooseDeliveryModeHandler = chooseDeliveryModeHandler;
     }
 
     @Override
@@ -32,6 +38,12 @@ public class SchedulerServiceMock implements SchedulerService {
         mockSchedulingDate(dateToSchedule);
 
         switch (actionType) {
+            case START_RECIPIENT_WORKFLOW:
+                startWorkflowForRecipientHandler.startNotificationWorkflowForRecipient(iun, recIndex);
+                break;
+            case CHOOSE_DELIVERY_MODE:
+                chooseDeliveryModeHandler.chooseDeliveryTypeAndStartWorkflow(iun, recIndex);
+                break;
             case ANALOG_WORKFLOW:
                 analogWorkflowHandler.startAnalogWorkflow(iun, recIndex);
                 break;

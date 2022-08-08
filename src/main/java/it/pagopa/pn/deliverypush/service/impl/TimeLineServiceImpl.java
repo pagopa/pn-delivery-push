@@ -59,7 +59,7 @@ public class TimeLineServiceImpl implements TimelineService {
 
     @Override
     public void addTimelineElement(TimelineElementInternal dto, NotificationInt notification) {
-        log.info("addTimelineElement - IUN={} and timelineId={}", dto.getIun(), dto.getElementId());
+        log.debug("addTimelineElement - IUN={} and timelineId={}", dto.getIun(), dto.getElementId());
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_TIMELINE, "AddTimelineElement category={} - IUN={} timelineId={}", dto.getCategory(), dto.getIun(), dto.getElementId())

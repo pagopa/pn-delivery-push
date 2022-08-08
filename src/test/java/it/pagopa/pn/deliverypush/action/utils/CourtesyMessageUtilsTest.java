@@ -53,7 +53,7 @@ class CourtesyMessageUtilsTest {
         courtesyMessageUtils = new CourtesyMessageUtils(addressBookService, externalChannelService, 
                 timelineService, timelineUtils, instantNowSupplier, notificationUtils, iOservice);
     }
-
+ 
     
     @Test
     @ExtendWith(MockitoExtension.class)
@@ -73,7 +73,7 @@ class CourtesyMessageUtilsTest {
                 .thenReturn(Optional.of(Collections.singletonList(courtesyDigitalAddressInt)));
         
         //WHEN
-        courtesyMessageUtils.checkAddressesForSendCourtesyMessage(notification, 0);
+        courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, 0);
         
         //THEN
         Mockito.verify(timelineService).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
@@ -102,7 +102,7 @@ class CourtesyMessageUtilsTest {
                 .thenReturn(Optional.of(List.of(courtesyDigitalAddressAppIo, courtesyDigitalAddressSms)));
 
         //WHEN
-        courtesyMessageUtils.checkAddressesForSendCourtesyMessage(notification, 0);
+        courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, 0);
 
         //THEN
 
@@ -149,7 +149,7 @@ class CourtesyMessageUtilsTest {
                 .thenReturn(Optional.empty());
         
         //WHEN
-        courtesyMessageUtils.checkAddressesForSendCourtesyMessage(notification, 0);
+        courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, 0);
         
         //THEN
         Mockito.verify(timelineService, Mockito.times(0)).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
@@ -175,7 +175,7 @@ class CourtesyMessageUtilsTest {
         doThrow(new NotFoundException("Not found")).when(iOservice).sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt());
 
         //WHEN
-        courtesyMessageUtils.checkAddressesForSendCourtesyMessage(notification, 0);
+        courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, 0);
 
         //THEN
         Mockito.verify(timelineService, Mockito.times(0)).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
@@ -206,7 +206,7 @@ class CourtesyMessageUtilsTest {
         doThrow(new NotFoundException("Not found")).when(iOservice).sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt());
 
         //WHEN
-        courtesyMessageUtils.checkAddressesForSendCourtesyMessage(notification, 0);
+        courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, 0);
 
         //THEN
 

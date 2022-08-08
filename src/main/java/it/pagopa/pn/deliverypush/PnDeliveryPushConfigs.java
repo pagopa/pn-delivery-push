@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush;
 
 import it.pagopa.pn.commons.conf.SharedAutoConfiguration;
+import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -13,7 +14,7 @@ import java.util.List;
 @Configuration
 @ConfigurationProperties( prefix = "pn.delivery-push")
 @Data
-@Import(SharedAutoConfiguration.class)
+@Import({SharedAutoConfiguration.class, PnAuditLogBuilder.class})
 public class PnDeliveryPushConfigs {
 
     private String deliveryBaseUrl;

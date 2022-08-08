@@ -11,6 +11,7 @@ import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
 import it.pagopa.pn.deliverypush.service.ExternalChannelService;
+import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.PublicRegistryService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import lombok.extern.slf4j.Slf4j;
@@ -29,19 +30,22 @@ public class ChooseDeliveryModeHandler {
     private final ChooseDeliveryModeUtils chooseDeliveryUtils;
     private final InstantNowSupplier instantNowSupplier;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
+    private final NotificationService notificationService;
 
     public ChooseDeliveryModeHandler(ChooseDeliveryModeUtils chooseDeliveryUtils,
-                                     ExternalChannelService externalChannelService, 
+                                     ExternalChannelService externalChannelService,
                                      SchedulerService schedulerService,
                                      PublicRegistryService publicRegistryService,
                                      InstantNowSupplier instantNowSupplier,
-                                     PnDeliveryPushConfigs pnDeliveryPushConfigs) {
+                                     PnDeliveryPushConfigs pnDeliveryPushConfigs,
+                                     NotificationService notificationService) {
         this.chooseDeliveryUtils = chooseDeliveryUtils;
         this.externalChannelService = externalChannelService;
         this.schedulerService = schedulerService;
         this.publicRegistryService = publicRegistryService;
         this.instantNowSupplier = instantNowSupplier;
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
+        this.notificationService = notificationService;
     }
 
     /**
@@ -49,11 +53,14 @@ public class ChooseDeliveryModeHandler {
      * Get Recipient addresses for user and try to send notification in this order: PLATFORM, SPECIAL, GENERAL.
      * Save availability information for all address in timeline
      *
-     * @param notification Public Administration notification request
+     * @param iun Notification unique identifier
+     * @param recIndex User identifier
      */
-    public void chooseDeliveryTypeAndStartWorkflow(NotificationInt notification, Integer recIndex) {
-        log.info("Start ChooseDeliveryTypeAndStartWorkflow process - iun={} recipientIndex={}", notification.getIun(), recIndex);
+    public void chooseDeliveryTypeAndStartWorkflow(String iun, Integer recIndex) {
+        log.info("Start ChooseDeliveryTypeAndStartWorkflow process - iun={} recipientIndex={}", iun, recIndex);
 
+        NotificationInt notification = notificationService.getNotificationByIun(iun);
+        
         Optional<LegalDigitalAddressInt> platformAddressOpt = chooseDeliveryUtils.getPlatformAddress(notification, recIndex);
 
         //Verifico presenza indirizzo di piattaforma, ...
@@ -72,8 +79,8 @@ public class ChooseDeliveryModeHandler {
             if (specialAddress != null && StringUtils.hasText(specialAddress.getAddress())) {
                 log.info("Special address is present, Digital workflow can be started  - iun={} id={}", notification.getIun(), recIndex);
 
-                startDigitalWorkflow(notification, specialAddress, DigitalAddressSourceInt.SPECIAL, recIndex);
                 chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, notification, DigitalAddressSourceInt.SPECIAL, true);
+                startDigitalWorkflow(notification, specialAddress, DigitalAddressSourceInt.SPECIAL, recIndex);
             } else {
                 log.info("Special address isn't present, need to get General address async - iun={} recipientIndex={}", notification.getIun(), recIndex);
                 chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, notification, DigitalAddressSourceInt.SPECIAL, false);

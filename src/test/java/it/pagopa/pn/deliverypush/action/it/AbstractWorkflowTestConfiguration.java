@@ -4,9 +4,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Version;
 import freemarker.template._TemplateAPI;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.action.AnalogWorkflowHandler;
-import it.pagopa.pn.deliverypush.action.DigitalWorkFlowHandler;
-import it.pagopa.pn.deliverypush.action.RefinementHandler;
+import it.pagopa.pn.deliverypush.action.*;
 import it.pagopa.pn.deliverypush.action.it.mockbean.PnDeliveryClientMock;
 import it.pagopa.pn.deliverypush.action.it.mockbean.PublicRegistryMock;
 import it.pagopa.pn.deliverypush.action.it.mockbean.SchedulerServiceMock;
@@ -25,9 +23,12 @@ import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryRespon
 import it.pagopa.pn.deliverypush.service.impl.SaveLegalFactsServiceImpl;
 import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
 import org.mockito.Mockito;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
 import java.io.IOException;
 
 public class AbstractWorkflowTestConfiguration {
@@ -80,21 +81,34 @@ public class AbstractWorkflowTestConfiguration {
     }
     
     @Bean
-    public SchedulerServiceMock schedulerServiceMockMock(@Lazy DigitalWorkFlowHandler digitalWorkFlowHandler, @Lazy AnalogWorkflowHandler analogWorkflowHandler,
-                                                         @Lazy RefinementHandler refinementHandler, @Lazy InstantNowSupplier instantNowSupplier) {
+    public SchedulerServiceMock schedulerServiceMockMock(@Lazy DigitalWorkFlowHandler digitalWorkFlowHandler, 
+                                                         @Lazy AnalogWorkflowHandler analogWorkflowHandler,
+                                                         @Lazy RefinementHandler refinementHandler, 
+                                                         @Lazy InstantNowSupplier instantNowSupplier,
+                                                         @Lazy StartWorkflowForRecipientHandler startWorkflowForRecipientHandler,
+                                                         @Lazy ChooseDeliveryModeHandler chooseDeliveryModeHandler) {
         return new SchedulerServiceMock(
                 digitalWorkFlowHandler,
                 analogWorkflowHandler,
                 refinementHandler,
-                instantNowSupplier
-        );
+                instantNowSupplier,
+                startWorkflowForRecipientHandler, 
+                chooseDeliveryModeHandler);
     }
 
     @Bean
+    @ConditionalOnProperty( name = "pn.delivery-push.validation-document-test", havingValue = "true")
     public NotificationReceiverValidator notificationReceiverValidatorTest() {
-        return Mockito.mock(NotificationReceiverValidator.class);
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        return new NotificationReceiverValidator( factory.getValidator() );
     }
 
+    @Bean
+    @ConditionalOnProperty( name = "pn.delivery-push.validation-document-test", havingValue = "false")
+    public NotificationReceiverValidator notificationReceiverValidatorTestMock() {
+        return Mockito.mock(NotificationReceiverValidator.class);
+    }
+    
     @Bean
     public PnExternalRegistryClient pnExternalRegistryClientTest() {
         return Mockito.mock(PnExternalRegistryClientImpl.class);

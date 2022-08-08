@@ -14,6 +14,7 @@ import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
 import it.pagopa.pn.deliverypush.service.ExternalChannelService;
+import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.PublicRegistryService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import org.junit.jupiter.api.Assertions;
@@ -48,7 +49,9 @@ class ChooseDeliveryModeHandlerTest {
     private InstantNowSupplier instantNowSupplier;
     @Mock
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
-
+    @Mock
+    private NotificationService notificationService;
+    
     private ChooseDeliveryModeHandler handler;
 
     private NotificationUtils notificationUtils;
@@ -57,7 +60,7 @@ class ChooseDeliveryModeHandlerTest {
     public void setup() {
         handler = new ChooseDeliveryModeHandler(chooseDeliveryUtils,
                 externalChannelService, schedulerService,
-                publicRegistryService, instantNowSupplier, pnDeliveryPushConfigs);
+                publicRegistryService, instantNowSupplier, pnDeliveryPushConfigs, notificationService);
         notificationUtils= new NotificationUtils();
     }
 
@@ -70,7 +73,8 @@ class ChooseDeliveryModeHandlerTest {
         NotificationRecipientInt recipient =notification.getRecipients().get(0);
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
-
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notification);
+        
         Mockito.when(chooseDeliveryUtils.getPlatformAddress(Mockito.any(NotificationInt.class), Mockito.anyInt()))
                 .thenReturn(Optional.of(LegalDigitalAddressInt.builder()
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -78,7 +82,7 @@ class ChooseDeliveryModeHandlerTest {
                         .build()));
 
         //WHEN
-        handler.chooseDeliveryTypeAndStartWorkflow(notification, recIndex);
+        handler.chooseDeliveryTypeAndStartWorkflow(notification.getIun(), recIndex);
 
         //THEN
         ArgumentCaptor<DigitalAddressSourceInt> digitalAddressSourceCaptor = ArgumentCaptor.forClass(DigitalAddressSourceInt.class);
@@ -102,14 +106,16 @@ class ChooseDeliveryModeHandlerTest {
         NotificationInt notification = getNotification();
         NotificationRecipientInt recipient =notification.getRecipients().get(0);
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
-        
+
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notification);
+
         Mockito.when(chooseDeliveryUtils.getPlatformAddress(Mockito.any(NotificationInt.class), Mockito.anyInt()))
                 .thenReturn(Optional.empty());
         Mockito.when(chooseDeliveryUtils.getDigitalDomicile(Mockito.any(NotificationInt.class), Mockito.anyInt()))
                 .thenReturn(recipient.getDigitalDomicile());
         
         //WHEN
-        handler.chooseDeliveryTypeAndStartWorkflow(notification, recIndex);
+        handler.chooseDeliveryTypeAndStartWorkflow(notification.getIun(), recIndex);
 
         //THEN
         ArgumentCaptor<DigitalAddressSourceInt> digitalAddressSourceCaptor = ArgumentCaptor.forClass(DigitalAddressSourceInt.class);
@@ -144,11 +150,13 @@ class ChooseDeliveryModeHandlerTest {
         NotificationRecipientInt recipient =notification.getRecipients().get(0);
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notification);
+
         Mockito.when(chooseDeliveryUtils.getPlatformAddress(Mockito.any(NotificationInt.class), Mockito.anyInt()))
                 .thenReturn(Optional.empty());
 
         //WHEN
-        handler.chooseDeliveryTypeAndStartWorkflow(notification, recIndex);
+        handler.chooseDeliveryTypeAndStartWorkflow(notification.getIun(), recIndex);
 
         //THEN
         ArgumentCaptor<DigitalAddressSourceInt> digitalAddressSourceCaptor = ArgumentCaptor.forClass(DigitalAddressSourceInt.class);

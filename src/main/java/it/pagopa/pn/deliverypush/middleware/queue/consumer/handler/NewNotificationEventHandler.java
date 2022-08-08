@@ -23,7 +23,7 @@ public class NewNotificationEventHandler {
     public Consumer<Message<PnDeliveryNewNotificationEvent.Payload>> pnDeliveryNewNotificationEventConsumer() {
         return message -> {
             try{
-                log.info("New notification event received, message {}", message);
+                log.debug("New notification event received, message {}", message);
 
                 PnDeliveryNewNotificationEvent pnDeliveryNewNotificationEvent = PnDeliveryNewNotificationEvent.builder()
                         .payload(message.getPayload())

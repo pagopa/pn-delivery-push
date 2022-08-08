@@ -33,7 +33,7 @@ public class StreamEntityDaoDynamo implements StreamEntityDao {
 
     @Override
     public Flux<StreamEntity> findByPa(String paId) {
-        log.info("findByPa paId={}", paId);
+        log.debug("findByPa paId={}", paId);
         Key hashKey = Key.builder().partitionValue(paId).build();
         QueryConditional queryByHashKey = keyEqualTo( hashKey );
         return Flux.from(table.query(queryByHashKey).flatMapIterable(Page::items));

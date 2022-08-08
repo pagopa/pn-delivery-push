@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.action.it;
 
 import it.pagopa.pn.commons.abstractions.IdConflictException;
-import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
@@ -24,7 +24,6 @@ import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
-import it.pagopa.pn.deliverypush.validator.preloaded_digest_error.DigestEqualityBean;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,18 +37,15 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import javax.validation.ConstraintViolation;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.mockito.Mockito.doThrow;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
         StartWorkflowHandler.class,
+        StartWorkflowForRecipientHandler.class,
+        PnAuditLogBuilder.class,
         AnalogWorkflowHandler.class,
         ChooseDeliveryModeHandler.class,
         DigitalWorkFlowHandler.class,
@@ -87,7 +83,10 @@ import static org.mockito.Mockito.doThrow;
         PnDeliveryPushConfigs.class,
         ValidationDocumentErrorTestIT.SpringTestConfiguration.class
 })
-@TestPropertySource("classpath:/application-test.properties")
+@TestPropertySource(
+        locations ="classpath:/application-test.properties",
+        properties = "pn.delivery-push.validation-document-test=true"
+)
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
 class ValidationDocumentErrorTestIT {
     
@@ -110,7 +109,7 @@ class ValidationDocumentErrorTestIT {
     @SpyBean
     private PnSafeStorageClient safeStorageClient;
 
-    @SpyBean
+    @Autowired
     private NotificationReceiverValidator notificationReceiverValidator;
 
     @Autowired
@@ -198,9 +197,6 @@ class ValidationDocumentErrorTestIT {
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
-
-        Set<ConstraintViolation<DigestEqualityBean>> errors = new HashSet<>();
-        doThrow(new PnValidationException("key", errors )).when(notificationReceiverValidator).checkPreloadedDigests(Mockito.any(),Mockito.any(),Mockito.any());
 
         String iun = notification.getIun();
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
