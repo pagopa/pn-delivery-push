@@ -50,7 +50,7 @@ public class ExternalChannelResponseHandler {
         try {
             ExtChannelAnalogSentResponseInt analogSentResponseInt = mapExternalToInternal(event);
             
-            log.info("Received PaperProgressStatusEvent event for requestId={} - status={} details={} deliveryfailcause={}",
+            log.info("Received ExternalChannel paper message event for requestId={} - status={} details={} deliveryfailcause={}",
                     analogSentResponseInt.getRequestId(), analogSentResponseInt.getStatusCode(), analogSentResponseInt.getStatusDescription(), analogSentResponseInt.getDeliveryFailureCause());
             
             analogWorkflowHandler.extChannelResponseHandler(analogSentResponseInt);
@@ -112,7 +112,7 @@ public class ExternalChannelResponseHandler {
             String iun = timelineUtils.getIunFromTimelineId(event.getRequestId());
 
             ExtChannelDigitalSentResponseInt digitalSentResponseInt = mapExternalToInternal(event, iun);
-            log.info("Received LegalMessageSentDetails event for requestId={} - status={} details={} eventCode={}", 
+            log.info("Received ExternalChannel legal message event for requestId={} - status={} details={} eventCode={}", 
                     digitalSentResponseInt.getRequestId(), digitalSentResponseInt.getStatus(), digitalSentResponseInt.getEventDetails(), digitalSentResponseInt.getEventCode());
             
             digitalWorkFlowHandler.handleExternalChannelResponse(digitalSentResponseInt);
@@ -150,7 +150,7 @@ public class ExternalChannelResponseHandler {
     {
         try {
             // per ora non è previsto nulla
-            log.info("Received CourtesyMessageProgressEvent event for requestId={} - status={} details={} eventcode={}", event.getRequestId(), event.getStatus(), event.getEventDetails(), event.getEventCode());
+            log.info("Received ExternalChannel courtesy message event for requestId={} - status={} details={} eventcode={}", event.getRequestId(), event.getStatus(), event.getEventDetails(), event.getEventCode());
         } catch (PnInternalException e) {
             log.error("Exception legalUpdate", e);
             throw e;
