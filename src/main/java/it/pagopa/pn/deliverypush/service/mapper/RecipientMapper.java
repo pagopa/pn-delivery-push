@@ -90,6 +90,25 @@ public class RecipientMapper {
                         );
             }
 
+            if(payment.getF24standard() != null){
+                paymentInfoBuilder
+                        .f24standard(
+                                NotificationDocumentInt.builder()
+                                        .digests(
+                                                NotificationDocumentInt.Digests.builder()
+                                                        .sha256(payment.getF24standard().getDigests().getSha256())
+                                                        .build()
+                                        )
+                                        .ref(
+                                                NotificationDocumentInt.Ref.builder()
+                                                        .key(payment.getF24standard().getRef().getKey())
+                                                        .versionToken(payment.getF24standard().getRef().getVersionToken())
+                                                        .build()
+                                        )
+                                        .build()
+                        );
+            }
+
 
 
             notificationRecIntBuilder.payment(paymentInfoBuilder.build());

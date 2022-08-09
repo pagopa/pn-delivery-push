@@ -9,7 +9,9 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Hex;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Base64Utils;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -77,12 +79,18 @@ public class LegalFactGenerator {
 
     }
 
+    private String convertBase64toHex(String base64String) {
+        byte[] decoded = Base64Utils.decodeFromString(base64String);
+        String hexString = Hex.encodeHexString(decoded);
+        return hexString.toUpperCase();
+    }
+
     private List<String> extractNotificationAttachmentDigests(NotificationInt notification) {
         List<String> digests = new ArrayList<>();
 
         // - Documents digests
         for(NotificationDocumentInt attachment: notification.getDocuments() ) {
-            digests.add( attachment.getDigests().getSha256() );
+            digests.add( convertBase64toHex(attachment.getDigests().getSha256()) );
         }
 
         // F24 digests
@@ -93,12 +101,17 @@ public class LegalFactGenerator {
 
                 NotificationDocumentInt pagoPaForm = recipientPayment.getPagoPaForm();
                 if ( pagoPaForm != null ) {
-                    digests.add( pagoPaForm.getDigests().getSha256() );
+                    digests.add( convertBase64toHex(pagoPaForm.getDigests().getSha256()) );
                 }
 
                 NotificationDocumentInt flatRateF24 = recipientPayment.getF24flatRate();
                 if ( flatRateF24 != null ) {
-                    digests.add(flatRateF24.getDigests().getSha256() );
+                    digests.add(convertBase64toHex(flatRateF24.getDigests().getSha256()) );
+                }
+
+                NotificationDocumentInt f24Standard = recipientPayment.getF24standard();
+                if ( f24Standard != null ) {
+                    digests.add(convertBase64toHex(f24Standard.getDigests().getSha256()) );
                 }
                 
             }
