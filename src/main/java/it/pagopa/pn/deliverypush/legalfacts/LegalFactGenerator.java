@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
+import it.pagopa.pn.commons.utils.FileUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -79,18 +80,12 @@ public class LegalFactGenerator {
 
     }
 
-    private String convertBase64toHex(String base64String) {
-        byte[] decoded = Base64Utils.decodeFromString(base64String);
-        String hexString = Hex.encodeHexString(decoded);
-        return hexString.toUpperCase();
-    }
-
     private List<String> extractNotificationAttachmentDigests(NotificationInt notification) {
         List<String> digests = new ArrayList<>();
 
         // - Documents digests
         for(NotificationDocumentInt attachment: notification.getDocuments() ) {
-            digests.add( convertBase64toHex(attachment.getDigests().getSha256()) );
+            digests.add( FileUtils.convertBase64toHexUppercase(attachment.getDigests().getSha256()) );
         }
 
         // F24 digests
@@ -101,17 +96,17 @@ public class LegalFactGenerator {
 
                 NotificationDocumentInt pagoPaForm = recipientPayment.getPagoPaForm();
                 if ( pagoPaForm != null ) {
-                    digests.add( convertBase64toHex(pagoPaForm.getDigests().getSha256()) );
+                    digests.add( FileUtils.convertBase64toHexUppercase(pagoPaForm.getDigests().getSha256()) );
                 }
 
                 NotificationDocumentInt flatRateF24 = recipientPayment.getF24flatRate();
                 if ( flatRateF24 != null ) {
-                    digests.add(convertBase64toHex(flatRateF24.getDigests().getSha256()) );
+                    digests.add( FileUtils.convertBase64toHexUppercase(flatRateF24.getDigests().getSha256()) );
                 }
 
                 NotificationDocumentInt f24Standard = recipientPayment.getF24standard();
                 if ( f24Standard != null ) {
-                    digests.add(convertBase64toHex(f24Standard.getDigests().getSha256()) );
+                    digests.add( FileUtils.convertBase64toHexUppercase(f24Standard.getDigests().getSha256()) );
                 }
                 
             }
