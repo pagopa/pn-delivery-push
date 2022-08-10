@@ -87,7 +87,7 @@ public class PublicRegistryResponseHandler {
         Integer recIndex = publicRegistryCallDetails.getRecIndex();
         String iun = notification.getIun();
         
-        log.info("Start handleResponseForSendAttempt iun {} id {} deliveryMode {}", iun, recIndex, publicRegistryCallDetails.getDeliveryMode());
+        log.debug("Start handleResponseForSendAttempt iun {} id {} deliveryMode {}", iun, recIndex, publicRegistryCallDetails.getDeliveryMode());
 
         if (publicRegistryCallDetails.getDeliveryMode() != null) {
 

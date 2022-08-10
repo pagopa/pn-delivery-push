@@ -50,7 +50,7 @@ public class CourtesyMessageUtils {
      * Get recipient addresses and send courtesy messages.
      */
     public void checkAddressesAndSendCourtesyMessage(NotificationInt notification, Integer recIndex) {
-        log.info("CheckAddressesForSendCourtesyMessage - iun={} id={} ", notification.getIun(), recIndex);
+        log.debug("Start checkAddressesForSendCourtesyMessage - iun={} id={} ", notification.getIun(), recIndex);
         
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         

@@ -104,8 +104,8 @@ public class AnalogWorkflowHandler {
      * Handle get response for public registry call.
      */
     public void handlePublicRegistryResponse(NotificationInt notification, Integer recIndex, PublicRegistryResponse response, int sentAttemptMade) {
-        log.info("Handle analog public registry response sentAttemptMade={} - iun={} id={} ", sentAttemptMade, notification.getIun(), recIndex);
-        
+        log.info("Start handlePublicRegistryResponse for analog workflow,sentAttemptMade={} - iun={} id={} ", sentAttemptMade, notification.getIun(), recIndex);
+
         switch (sentAttemptMade) {
             case 0:
                 log.info("Public registry response is for first attempt  - iun={} id={}", notification.getIun(), recIndex);
