@@ -13,5 +13,12 @@ public class AarGenerationDetailsInt implements RecipientRelatedTimelineElementD
   private int recIndex;
   private String generatedAarUrl;
   private Integer numberOfPages;
-}
 
+  public String toLog() {
+    return String.format(
+            "recIndex=%d",
+            recIndex
+    );
+  }
+  
+}

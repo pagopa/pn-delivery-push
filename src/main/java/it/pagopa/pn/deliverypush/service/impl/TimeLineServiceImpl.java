@@ -61,12 +61,10 @@ public class TimeLineServiceImpl implements TimelineService {
     public void addTimelineElement(TimelineElementInternal dto, NotificationInt notification) {
         log.debug("addTimelineElement - IUN={} and timelineId={}", dto.getIun(), dto.getElementId());
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_TIMELINE, "AddTimelineElement category={} - IUN={} timelineId={}", dto.getCategory(), dto.getIun(), dto.getElementId())
-                .iun(dto.getIun())
-                .build();
+
+        PnAuditLogEvent logEvent = getPnAuditLogEvent(dto, auditLogBuilder);
         logEvent.log();
-        
+
         if (notification != null) {
             try{
                 Set<TimelineElementInternal> currentTimeline = getTimeline(dto.getIun());
@@ -98,7 +96,23 @@ public class TimeLineServiceImpl implements TimelineService {
         }
         
     }
-    
+
+    private PnAuditLogEvent getPnAuditLogEvent(TimelineElementInternal dto, PnAuditLogBuilder auditLogBuilder) {
+        String auditLog = String.format(
+                "Add timeline element: CATEGORY=%s IUN=%s {DETAILS: %s} TIMELINEID=%s TIMESTAMP=%s",
+                dto.getCategory(),
+                dto.getIun(),
+                dto.getDetails().toLog(),
+                dto.getElementId(),
+                dto.getTimestamp()
+        );
+
+        return auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_TIMELINE, auditLog)
+                .iun(dto.getIun())
+                .build();
+    }
+
     @Override
     public Optional<TimelineElementInternal> getTimelineElement(String iun, String timelineId) {
         log.debug("GetTimelineElement - IUN={} and timelineId={}", iun, timelineId);

@@ -16,5 +16,14 @@ public class NotHandledDetailsInt implements RecipientRelatedTimelineElementDeta
   private int recIndex;
   private String reasonCode;
   private String reason;
+
+  public String toLog() {
+    return String.format(
+            "recIndex=%d reasonCode=%s reason=%s",
+            recIndex,
+            reasonCode,
+            reason
+    );
+  }
 }
 

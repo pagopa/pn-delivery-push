@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.dto.timeline.details;
 
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.utils.AuditLogUtils;
 import lombok.*;
 
 @NoArgsConstructor
@@ -15,4 +16,13 @@ public class PublicRegistryResponseDetailsInt implements RecipientRelatedTimelin
     private int recIndex;
     private LegalDigitalAddressInt digitalAddress;
     private PhysicalAddressInt physicalAddress;
+
+    public String toLog() {
+        return String.format(
+                "recIndex=%d digitalAddress=%s physicalAddress=%s",
+                recIndex,
+                AuditLogUtils.SENSITIVE,
+                AuditLogUtils.SENSITIVE
+        );
+    }
 }

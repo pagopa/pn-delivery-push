@@ -13,4 +13,11 @@ import java.util.List;
 @ToString
 public class RequestRefusedDetailsInt implements TimelineElementDetailsInt {
     private List<String> errors;
+
+    public String toLog() {
+        return String.format(
+                "errors=%s",
+                errors
+        );
+    }
 }

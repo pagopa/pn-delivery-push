@@ -251,7 +251,7 @@ public class DigitalWorkFlowHandler {
                         handlePecDeliveryAndAcceptanceNotice(response, iun, sendDigitalDetails, notification, recIndex, status);
                     }else {
                         //Se non è presente il generatedMessage il ko è per altri motivi
-                        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(notification, status, response.getEventDetails()==null?null: List.of(response.getEventDetails()),
+                        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(notification, status, response.getEventDetails()==null ? null : List.of(response.getEventDetails()),
                                 sendDigitalDetails, null);
                     }
                     
@@ -278,7 +278,7 @@ public class DigitalWorkFlowHandler {
             log.debug("Response is for 'delivery failure' - iun={} id={}", iun, recIndex);
 
             //Se è presente l'accettazione il KO può essere solo per mancata consegna
-            digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(notification, status, response.getEventDetails()==null?null: List.of(response.getEventDetails()),
+            digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(notification, status, response.getEventDetails()==null ? null : List.of(response.getEventDetails()),
                     sendDigitalDetails, response.getGeneratedMessage());
         } else {
             log.debug("Response is for 'non-acceptance' - iun={} id={}", iun, recIndex);

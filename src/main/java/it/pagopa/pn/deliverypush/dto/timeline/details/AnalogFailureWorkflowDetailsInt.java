@@ -11,4 +11,11 @@ import lombok.*;
 @ToString
 public class AnalogFailureWorkflowDetailsInt implements RecipientRelatedTimelineElementDetails {
     private int recIndex;
+
+    public String toLog() {
+        return String.format(
+                "recIndex=%d",
+                recIndex
+        );
+    }
 }

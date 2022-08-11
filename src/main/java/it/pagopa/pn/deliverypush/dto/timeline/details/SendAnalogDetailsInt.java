@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.dto.timeline.details;
 
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.utils.AuditLogUtils;
 import lombok.*;
 
 @NoArgsConstructor
@@ -17,4 +18,14 @@ public class SendAnalogDetailsInt implements RecipientRelatedTimelineElementDeta
     private Integer sentAttemptMade;
     private Boolean investigation;
     private Integer numberOfPages;
+
+    public String toLog() {
+        return String.format(
+                "recIndex=%d sentAttemptMade=%d investigation=%s physicalAddress=%s",
+                recIndex,
+                sentAttemptMade,
+                investigation,
+                AuditLogUtils.SENSITIVE
+        );
+    }
 }
