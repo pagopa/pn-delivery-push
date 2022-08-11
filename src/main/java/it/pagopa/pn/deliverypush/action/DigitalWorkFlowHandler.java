@@ -224,8 +224,8 @@ public class DigitalWorkFlowHandler {
         if (status != null) {
 
             PnAuditLogEvent logEvent = auditLogBuilder
-                    .before(PnAuditLogEventType.AUD_NT_CHECK, "Digital workflow Ext channel response for source {} and retryNumber={} - iun={} id={}",
-                            sendDigitalDetails.getDigitalAddressSource(), sendDigitalDetails.getRetryNumber(), iun, recIndex)
+                    .before(PnAuditLogEventType.AUD_NT_CHECK, "Digital workflow Ext channel response for source {} retryNumber={} status={} - iun={} id={}",
+                            sendDigitalDetails.getDigitalAddressSource(), sendDigitalDetails.getRetryNumber(), status, iun, recIndex)
                     .iun(iun)
                     .build();
             logEvent.log();
@@ -244,6 +244,9 @@ public class DigitalWorkFlowHandler {
                     break;
                 case KO:
                     //Non è stato possibile effettuare la notificazione, si passa al prossimo step del workflow
+                    logEvent.generateFailure("Notification failed with eventCode={} eventDetails={}",
+                            response.getEventCode(), response.getEventDetails()).log();
+
                     log.info("Notification failed, starting next workflow action - iun={} id={}", iun, recIndex);
                     
                     //TODO Questa logica sarà da cambiare quando gli esiti di externalChannel conterranno gli eventCode
@@ -255,9 +258,6 @@ public class DigitalWorkFlowHandler {
                                 sendDigitalDetails, null);
                     }
                     
-                    logEvent.generateFailure("Notification failed for eventCode={} eventDetails={}",
-                            response.getEventCode(), response.getEventDetails()).log();
-
                     DigitalAddressInfo lastAttemptMade = DigitalAddressInfo.builder()
                             .digitalAddressSource(sendDigitalDetails.getDigitalAddressSource())
                             .lastAttemptDate(sendDigitalTimelineElement.getTimestamp())
