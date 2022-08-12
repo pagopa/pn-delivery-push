@@ -1,7 +1,7 @@
 {
   "Parameters" : {
     "AddressBookUrl": "https://zkkwwk0v41.execute-api.eu-central-1.amazonaws.com/mock/develop/addresses/",
-    "PhysicalPersonPortalUrl": "https://portale-develop.fe.dev.pn.pagopa.it/",
+    "PhysicalPersonPortalUrl": "https://portale.dev.pn.pagopa.it/",
     "WaitingForReadCourtesyMessage": "2m",
     "SecondNotificationWorkflowWaitingTime": "3m",
     "SchedulingDaysSuccessDigitalRefinement": "3m",
