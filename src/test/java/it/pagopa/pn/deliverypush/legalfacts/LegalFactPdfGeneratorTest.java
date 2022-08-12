@@ -14,6 +14,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetails
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.util.Base64Utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -193,7 +194,7 @@ class LegalFactPdfGeneratorTest {
 									.build()
 							)
 							.digests(NotificationDocumentInt.Digests.builder()
-									.sha256("sha256_doc01")
+									.sha256((Base64Utils.encodeToString("sha256_doc01".getBytes())))
 									.build()
 									)
 							.build()

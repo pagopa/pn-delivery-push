@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.action.it.utils;
 
 import it.pagopa.pn.commons.utils.DateFormatUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
+import org.springframework.util.Base64Utils;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -80,7 +81,7 @@ public class NotificationTestBuilder {
                                         .build()
                                 )
                                 .digests(NotificationDocumentInt.Digests.builder()
-                                        .sha256("sha256_doc00")
+                                        .sha256(Base64Utils.encodeToString("sha256_doc00".getBytes()))
                                         .build()
                                 )
                                 .build(),
@@ -91,7 +92,7 @@ public class NotificationTestBuilder {
                                         .build()
                                 )
                                 .digests(NotificationDocumentInt.Digests.builder()
-                                        .sha256("sha256_doc01")
+                                        .sha256(Base64Utils.encodeToString("sha256_doc01".getBytes()))
                                         .build()
                                 )
                                 .build()
