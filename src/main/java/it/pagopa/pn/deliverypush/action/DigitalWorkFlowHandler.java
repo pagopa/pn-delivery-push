@@ -224,8 +224,8 @@ public class DigitalWorkFlowHandler {
         if (status != null) {
 
             PnAuditLogEvent logEvent = auditLogBuilder
-                    .before(PnAuditLogEventType.AUD_NT_CHECK, "Digital workflow Ext channel response for source {} and retryNumber={} - iun={} id={}",
-                            sendDigitalDetails.getDigitalAddressSource(), sendDigitalDetails.getRetryNumber(), iun, recIndex)
+                    .before(PnAuditLogEventType.AUD_NT_CHECK, "Digital workflow Ext channel response for source {} retryNumber={} status={} - iun={} id={}",
+                            sendDigitalDetails.getDigitalAddressSource(), sendDigitalDetails.getRetryNumber(), status, iun, recIndex)
                     .iun(iun)
                     .build();
             logEvent.log();
@@ -244,6 +244,9 @@ public class DigitalWorkFlowHandler {
                     break;
                 case KO:
                     //Non è stato possibile effettuare la notificazione, si passa al prossimo step del workflow
+                    logEvent.generateFailure("Notification failed with eventCode={} eventDetails={}",
+                            response.getEventCode(), response.getEventDetails()).log();
+
                     log.info("Notification failed, starting next workflow action - iun={} id={}", iun, recIndex);
                     
                     //TODO Questa logica sarà da cambiare quando gli esiti di externalChannel conterranno gli eventCode
@@ -251,13 +254,10 @@ public class DigitalWorkFlowHandler {
                         handlePecDeliveryAndAcceptanceNotice(response, iun, sendDigitalDetails, notification, recIndex, status);
                     }else {
                         //Se non è presente il generatedMessage il ko è per altri motivi
-                        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(notification, status, response.getEventDetails()==null?null: List.of(response.getEventDetails()),
+                        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(notification, status, response.getEventDetails()==null ? null : List.of(response.getEventDetails()),
                                 sendDigitalDetails, null);
                     }
                     
-                    logEvent.generateFailure("Notification failed for eventCode={} eventDetails={}",
-                            response.getEventCode(), response.getEventDetails()).log();
-
                     DigitalAddressInfo lastAttemptMade = DigitalAddressInfo.builder()
                             .digitalAddressSource(sendDigitalDetails.getDigitalAddressSource())
                             .lastAttemptDate(sendDigitalTimelineElement.getTimestamp())
@@ -278,7 +278,7 @@ public class DigitalWorkFlowHandler {
             log.debug("Response is for 'delivery failure' - iun={} id={}", iun, recIndex);
 
             //Se è presente l'accettazione il KO può essere solo per mancata consegna
-            digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(notification, status, response.getEventDetails()==null?null: List.of(response.getEventDetails()),
+            digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(notification, status, response.getEventDetails()==null ? null : List.of(response.getEventDetails()),
                     sendDigitalDetails, response.getGeneratedMessage());
         } else {
             log.debug("Response is for 'non-acceptance' - iun={} id={}", iun, recIndex);

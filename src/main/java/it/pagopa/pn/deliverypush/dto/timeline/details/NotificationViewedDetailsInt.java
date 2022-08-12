@@ -12,4 +12,11 @@ import lombok.*;
 public class NotificationViewedDetailsInt implements RecipientRelatedTimelineElementDetails {
     private int recIndex;
     private Integer notificationCost;
+
+    public String toLog() {
+        return String.format(
+                "recIndex=%d",
+                recIndex
+        );
+    }
 }

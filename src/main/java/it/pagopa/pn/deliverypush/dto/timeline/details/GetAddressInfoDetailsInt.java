@@ -18,4 +18,13 @@ public class GetAddressInfoDetailsInt implements RecipientRelatedTimelineElement
     private DigitalAddressSourceInt digitalAddressSource;
     private Boolean isAvailable;
     private Instant attemptDate;
+
+    public String toLog() {
+        return String.format(
+                "recIndex=%d digitalAddressSource=%s isAvailable=%s",
+                recIndex,
+                digitalAddressSource,
+                isAvailable
+        );
+    }
 }

@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.dto.timeline.details;
 
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
+import it.pagopa.pn.deliverypush.utils.AuditLogUtils;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,4 +25,15 @@ public class SendAnalogFeedbackDetailsInt implements RecipientRelatedTimelineEle
     private List<String> errors = null;
     private ResponseStatusInt status;
     private List<SendingReceipt> sendingReceipts;
+
+    public String toLog() {
+        return String.format(
+                "recIndex=%d sentAttemptMade=%d responseStatus=%s errors=%s physicalAddress=%s",
+                recIndex,
+                sentAttemptMade,
+                status,
+                errors,
+                AuditLogUtils.SENSITIVE
+        );
+    }
 }

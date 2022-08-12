@@ -8,6 +8,9 @@ import org.springframework.util.StringUtils;
 
 @Slf4j
 public class AuditLogUtils {
+    public static final String EMPTY = "empty";
+    public static final String SENSITIVE = "'Sensitive information'";
+
     private AuditLogUtils(){}
 
     public static PnAuditLogEventType getAuditLogEventType(NotificationInt notification, String senderRecipientId, String mandateId){
@@ -37,5 +40,5 @@ public class AuditLogUtils {
             }
         }
     }
-    
+
 }

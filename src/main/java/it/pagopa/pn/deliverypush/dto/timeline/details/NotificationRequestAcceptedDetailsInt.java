@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.dto.timeline.details;
 
+import it.pagopa.pn.deliverypush.utils.AuditLogUtils;
 import lombok.*;
 
 
@@ -10,5 +11,9 @@ import lombok.*;
 @EqualsAndHashCode
 @ToString
 public class NotificationRequestAcceptedDetailsInt implements TimelineElementDetailsInt{
+
+    public String toLog() {
+        return AuditLogUtils.EMPTY;
+    }
 }
 
