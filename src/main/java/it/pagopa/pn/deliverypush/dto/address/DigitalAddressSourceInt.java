@@ -1,9 +1,7 @@
 package it.pagopa.pn.deliverypush.dto.address;
 
 import lombok.Getter;
-import lombok.ToString;
 
-@ToString
 @Getter
 public enum DigitalAddressSourceInt {
     PLATFORM("PLATFORM"),
@@ -16,6 +14,11 @@ public enum DigitalAddressSourceInt {
 
     DigitalAddressSourceInt(String value) {
         this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
     }
 
 }
