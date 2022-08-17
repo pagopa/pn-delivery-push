@@ -264,4 +264,11 @@ class CourtesyMessageUtilsTest {
                 .build();
     }
 
+    @Test
+    void checkAddressesAndSendCourtesyMessage() {
+    }
+
+    @Test
+    void getFirstSentCourtesyMessage() {
+    }
 }
