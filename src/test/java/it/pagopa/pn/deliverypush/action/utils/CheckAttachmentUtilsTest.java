@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -21,8 +20,8 @@ class CheckAttachmentUtilsTest {
     void setup() {
         checkAttachmentUtils = Mockito.mock(CheckAttachmentUtils.class);
     }
-    
-    
+
+
     @Test
     void validateAttachment() {
         // GIVEN
@@ -42,7 +41,7 @@ class CheckAttachmentUtilsTest {
                 .documents(
                         Arrays.asList(
                                 NotificationDocumentInt.builder()
-                                        .ref( NotificationDocumentInt.Ref.builder()
+                                        .ref(NotificationDocumentInt.Ref.builder()
                                                 .key("doc00")
                                                 .versionToken("v01_doc00")
                                                 .build()

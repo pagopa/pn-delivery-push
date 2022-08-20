@@ -50,11 +50,11 @@ class CourtesyMessageUtilsTest {
 
     @BeforeEach
     public void setup() {
-        courtesyMessageUtils = new CourtesyMessageUtils(addressBookService, externalChannelService, 
+        courtesyMessageUtils = new CourtesyMessageUtils(addressBookService, externalChannelService,
                 timelineService, timelineUtils, instantNowSupplier, notificationUtils, iOservice);
     }
- 
-    
+
+
     @Test
     @ExtendWith(MockitoExtension.class)
     void checkAddressesForSendCourtesyMessage() {
@@ -68,13 +68,13 @@ class CourtesyMessageUtilsTest {
                 .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.APPIO)
                 .address("indirizzo@test.it")
                 .build();
-        
-        Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(),Mockito.anyString()))
+
+        Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Optional.of(Collections.singletonList(courtesyDigitalAddressInt)));
-        
+
         //WHEN
         courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, 0);
-        
+
         //THEN
         Mockito.verify(timelineService).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
     }
@@ -97,8 +97,8 @@ class CourtesyMessageUtilsTest {
                 .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.SMS)
                 .address("indirizzo@test.it")
                 .build();
-        
-        Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(),Mockito.anyString()))
+
+        Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Optional.of(List.of(courtesyDigitalAddressAppIo, courtesyDigitalAddressSms)));
 
         //WHEN
@@ -107,10 +107,10 @@ class CourtesyMessageUtilsTest {
         //THEN
 
         ArgumentCaptor<String> eventIdArgumentCaptor = ArgumentCaptor.forClass(String.class);
-        
+
         Mockito.verify(timelineUtils, Mockito.times(2)).buildSendCourtesyMessageTimelineElement(
                 Mockito.anyInt(), Mockito.any(NotificationInt.class), Mockito.any(CourtesyDigitalAddressInt.class), Mockito.any(), eventIdArgumentCaptor.capture());
-        
+
         //Viene verificato che l'eventId generato (in particolare per l'index) sia quello aspettato
         List<String> eventIdAllValues = eventIdArgumentCaptor.getAllValues();
         String firstEventIdInTimeline = eventIdAllValues.get(0);
@@ -135,7 +135,7 @@ class CourtesyMessageUtilsTest {
 
         Mockito.verify(timelineService, Mockito.times(2)).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
     }
-    
+
     @Test
     @ExtendWith(MockitoExtension.class)
     void checkAddressesForSendCourtesyMessageCourtesyEmpty() {
@@ -145,16 +145,16 @@ class CourtesyMessageUtilsTest {
 
         Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
 
-        Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(),Mockito.anyString()))
+        Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Optional.empty());
-        
+
         //WHEN
         courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, 0);
-        
+
         //THEN
         Mockito.verify(timelineService, Mockito.times(0)).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
     }
-    
+
     @Test
     @ExtendWith(MockitoExtension.class)
     void checkAddressesForSendCourtesySendMessageError() {
@@ -169,9 +169,9 @@ class CourtesyMessageUtilsTest {
                 .address("indirizzo@test.it")
                 .build();
 
-        Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(),Mockito.anyString()))
+        Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Optional.of(Collections.singletonList(courtesyDigitalAddressInt)));
-        
+
         doThrow(new NotFoundException("Not found")).when(iOservice).sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt());
 
         //WHEN
@@ -200,7 +200,7 @@ class CourtesyMessageUtilsTest {
                 .address("indirizzo@test.it")
                 .build();
 
-        Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(),Mockito.anyString()))
+        Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Optional.of(List.of(courtesyDigitalAddressAppIo, courtesyDigitalAddressSms)));
 
         doThrow(new NotFoundException("Not found")).when(iOservice).sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt());
@@ -227,16 +227,16 @@ class CourtesyMessageUtilsTest {
         );
 
         Assertions.assertEquals(eventIdExpected, eventIdInsertedInTimeline);
-        
+
         //Viene verificato che l'elemento in timeline inserito sia con address SMS
 
         CourtesyDigitalAddressInt courtesyDigitalAddressInsertedInTimeline = courtesyDigitalAddressCaptor.getValue();
-        
+
         Assertions.assertEquals(courtesyDigitalAddressSms, courtesyDigitalAddressInsertedInTimeline);
 
         Mockito.verify(timelineService).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
     }
-    
+
     private NotificationInt getNotificationInt(NotificationRecipientInt recipient) {
         return NotificationTestBuilder.builder()
                 .withIun("iun_01")
