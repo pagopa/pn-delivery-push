@@ -1,12 +1,10 @@
-package it.pagopa.pn.deliverypush.abstractions.actionspool.impl;
+package it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl;
 
 import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.commons.utils.DateFormatUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.LastPollForFutureActionsDao;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.ActionEvent;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.ActionsPoolImpl;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.service.ActionService;
 import net.javacrumbs.shedlock.core.LockAssert;
 import org.junit.jupiter.api.Assertions;
