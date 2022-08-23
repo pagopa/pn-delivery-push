@@ -5,7 +5,7 @@ import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.action.utils.DigitalWorkFlowUtils;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;

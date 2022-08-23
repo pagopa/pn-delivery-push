@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.action;
 
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action.utils.ChooseDeliveryModeUtils;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;

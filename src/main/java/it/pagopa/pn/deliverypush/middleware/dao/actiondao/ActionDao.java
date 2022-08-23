@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.dao.actiondao;
 
-import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 
 import java.util.List;
 import java.util.Optional;

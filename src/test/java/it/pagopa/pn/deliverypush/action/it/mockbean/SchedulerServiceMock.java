@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
-import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.abstractions.webhookspool.WebhookEventType;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
 import it.pagopa.pn.deliverypush.action.*;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.service.SchedulerService;

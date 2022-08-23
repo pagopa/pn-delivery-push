@@ -2,7 +2,7 @@ package it.pagopa.pn.deliverypush;
 
 import it.pagopa.pn.commons.conf.SharedAutoConfiguration;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.impl.TimeParams;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
