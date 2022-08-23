@@ -467,6 +467,7 @@ class DigitalWorkFlowHandlerTest {
                 .status(ExtChannelProgressEventCat.ERROR)
                 .eventTimestamp(Instant.now())
                 .requestId(notification.getIun() + "_event_idx_0")
+                .eventDetails("Errore in fase di invio PEC")
                 .generatedMessage(
                         DigitalMessageReferenceInt.builder()
                                 .id("id")
