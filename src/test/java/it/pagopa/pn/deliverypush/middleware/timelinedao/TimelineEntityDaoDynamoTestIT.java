@@ -17,6 +17,7 @@ import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -527,6 +528,7 @@ class TimelineEntityDaoDynamoTestIT {
                                                         .build()
                                         )
                                 )
+                                .errors(List.of("errors"))
                                 .build()
                 )
                 .build();

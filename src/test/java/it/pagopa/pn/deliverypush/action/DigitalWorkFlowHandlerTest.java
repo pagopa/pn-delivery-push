@@ -467,6 +467,7 @@ class DigitalWorkFlowHandlerTest {
                 .status(ExtChannelProgressEventCat.ERROR)
                 .eventTimestamp(Instant.now())
                 .requestId(notification.getIun() + "_event_idx_0")
+                .eventDetails("Errore in fase di invio PEC")
                 .generatedMessage(
                         DigitalMessageReferenceInt.builder()
                                 .id("id")
@@ -514,7 +515,7 @@ class DigitalWorkFlowHandlerTest {
 
         //THEN
         Mockito.verify(digitalWorkFlowUtils).addDigitalDeliveringProgressTimelineElement(Mockito.any(NotificationInt.class), Mockito.any(ResponseStatusInt.class),
-                Mockito.any(), Mockito.any(DigitalMessageReferenceInt.class));
+                Mockito.any(), Mockito.any(), Mockito.any(DigitalMessageReferenceInt.class));
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -687,7 +688,7 @@ class DigitalWorkFlowHandlerTest {
 
         //THEN
         Mockito.verify(digitalWorkFlowUtils).addDigitalDeliveringProgressTimelineElement(Mockito.any(NotificationInt.class), Mockito.any(ResponseStatusInt.class),
-                Mockito.any(SendDigitalDetailsInt.class), Mockito.any());
+                Mockito.any(), Mockito.any(SendDigitalDetailsInt.class), Mockito.any());
     }
 
     private NotificationInt getNotification() {

@@ -134,6 +134,7 @@ public class TimelineUtils {
 
     public TimelineElementInternal buildDigitalProgressFeedbackTimelineElement(NotificationInt notification,
                                                                                ResponseStatusInt status,
+                                                                               List<String> errors,
                                                                                SendDigitalDetailsInt sendDigitalDetails,
                                                                                DigitalMessageReferenceInt digitalMessageReference) {
         log.debug("buildDigitalDeliveringProgressTimelineElement - IUN={} and id={}", notification.getIun(), sendDigitalDetails.getRecIndex());
@@ -152,6 +153,7 @@ public class TimelineUtils {
                 .responseStatus(status)
                 .recIndex(sendDigitalDetails.getRecIndex())
                 .notificationDate(instantNowSupplier.get())
+                .errors(errors)
                 .sendingReceipts(
                         Collections.singletonList(
                                 SendingReceipt.builder()

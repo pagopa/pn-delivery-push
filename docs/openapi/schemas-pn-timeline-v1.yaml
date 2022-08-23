@@ -364,7 +364,12 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SendingReceipt'
-
+        errors:
+          type: array
+          description: Lista errori, vuota in caso di successo
+          items:
+            type: string
+            description: Lista errori, vuota in caso di successo
             
     SendDigitalFeedbackDetails:
       type: object

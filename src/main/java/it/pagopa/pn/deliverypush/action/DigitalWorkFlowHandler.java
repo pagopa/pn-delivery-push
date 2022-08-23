@@ -284,7 +284,9 @@ public class DigitalWorkFlowHandler {
             log.debug("Response is for 'non-acceptance' - iun={} id={}", iun, recIndex);
             
             //Se non è presente l'accettazione il KO è per mancata accettazione
-            digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(notification, ResponseStatusInt.KO, sendDigitalDetails, response.getGeneratedMessage());
+            digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(notification, ResponseStatusInt.KO,
+                    response.getEventDetails()==null ? null : List.of(response.getEventDetails()),
+                    sendDigitalDetails, response.getGeneratedMessage());
         }
     }
 
@@ -309,7 +311,7 @@ public class DigitalWorkFlowHandler {
         if( response.getGeneratedMessage() != null ) {
             //TODO Al momento se è presente il generatedMessage si suppone che tale evento sia la "Ricevuta di accettazione" della PEC (da definire meglio quando externalChannel definirà eventCode specifici)
             log.info("Received progress response is for PEC acceptance");
-            digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(notification, ResponseStatusInt.OK, sendDigitalDetails, response.getGeneratedMessage());
+            digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(notification, ResponseStatusInt.OK, null, sendDigitalDetails, response.getGeneratedMessage());
         } else {
             log.info("Received progress response is not for PEC acceptance");
         }
