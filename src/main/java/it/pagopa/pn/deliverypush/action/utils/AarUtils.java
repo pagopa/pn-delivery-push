@@ -54,6 +54,7 @@ public class AarUtils {
             else
                 log.debug("no need to recreate AAR iun={} timelineId={}", notification.getIun(), elementId);
         } catch (Exception e) {
+                log.error("cannot generate AAR pdf", e);
             throw new PnInternalException("cannot generate AAR pdf", e);
         }
     }

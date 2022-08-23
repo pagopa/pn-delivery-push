@@ -1,20 +1,19 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 class AnalogWorkflowUtilsTest {
 
@@ -34,48 +33,55 @@ class AnalogWorkflowUtilsTest {
     @Test
     void getSendAnalogNotificationDetails() {
 
-        Mockito.when(timelineService.getTimelineElementDetails(Mockito.anyString(), Mockito.anyString(), Mockito.any())
-                .isPresent()).thenReturn(Mockito.any());
+        SendAnalogDetailsInt sendAnalogDetailsInt = SendAnalogDetailsInt.builder().recIndex(0).build();
+        Optional<SendAnalogDetailsInt> optionalSendAnalogDetailsInt = Optional.of(sendAnalogDetailsInt);
 
-        analogWorkflowUtils.getSendAnalogNotificationDetails(Mockito.anyString(), Mockito.anyString());
+        Mockito.when(timelineService.getTimelineElementDetails("1", "1", SendAnalogDetailsInt.class)).thenReturn(optionalSendAnalogDetailsInt);
+
+        SendAnalogDetailsInt sendAnalogDetailsInt1 = analogWorkflowUtils.getSendAnalogNotificationDetails("1", "1");
+
+        Assertions.assertNotNull(sendAnalogDetailsInt1);
     }
 
     @Test
     void getLastTimelineSentFeedback() {
-
-        Set<TimelineElementInternal> timeline = new HashSet<>();
-
-        //private final String iun;
-        //private final String elementId;
-        //private final Instant timestamp;
-        //private final String paId;
-        //private final List<LegalFactsIdInt> legalFactsIds;
-        //private final TimelineElementCategoryInt category;
-        //private final TimelineElementDetailsInt details;
 
         List<LegalFactsIdInt> legalFactsIds = new ArrayList<>();
         legalFactsIds.add(LegalFactsIdInt.builder()
                 .key("key")
                 .category(LegalFactCategoryInt.ANALOG_DELIVERY)
                 .build());
-        timeline.add(TimelineElementInternal.builder()
-                .iun("one")
-                .elementId("one")
-                .timestamp(Instant.now())
-                .paId("paid")
-                .legalFactsIds(legalFactsIds)
-                .build());
-        Mockito.when(timelineService.getTimeline(Mockito.anyString())).thenReturn(timeline);
 
-        analogWorkflowUtils.getLastTimelineSentFeedback("one", Mockito.anyInt());
+        Set<TimelineElementInternal> timeline = new HashSet<>();
+        timeline.add(
+                TimelineElementInternal.builder()
+                        .iun("1")
+                        .elementId("1")
+                        .timestamp(Instant.now())
+                        .paId("1")
+                        .category(TimelineElementCategoryInt.SEND_PAPER_FEEDBACK)
+                        .legalFactsIds(legalFactsIds)
+                        // .details(Mockito.any(TimelineElementDetailsInt.class))
+                        .build()
+        );
+
+        Mockito.when(timelineService.getTimeline("1")).thenReturn(timeline);
+
+        // analogWorkflowUtils.getLastTimelineSentFeedback("1", 1);
+
+        // Assertions.assertNotNull(timeline);
     }
 
     @Test
     void addAnalogFailureAttemptToTimeline() {
-        Mockito.when(timelineService.getTimelineElementDetails(Mockito.anyString(), Mockito.anyString(), Mockito.any())
-                .isPresent()).thenReturn(Mockito.any());
+        
+        Mockito.when(timelineUtils.buildAnalogFailureAttemptTimelineElement(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.any(),
+                Mockito.any(), Mockito.any(), Mockito.any(SendAnalogDetailsInt.class))
+        ).thenReturn(Mockito.any());
 
-        //  analogWorkflowUtils.addAnalogFailureAttemptToTimeline(Mockito.anyString(), Mockito.anyString());
+        analogWorkflowUtils.addAnalogFailureAttemptToTimeline(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.any(),
+                Mockito.any(), Mockito.any(), Mockito.any(SendAnalogDetailsInt.class));
+
     }
 
     @Test

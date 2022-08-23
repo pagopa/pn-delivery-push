@@ -56,6 +56,8 @@ class AarUtilsTest {
 
         aarUtils.generateAARAndSaveInSafeStorageAndAddTimelineevent(Mockito.any(NotificationInt.class), Mockito.anyInt());
 
+        
+        // verify save AAR
         Mockito.verify(timelineService, Mockito.times(0)).addTimelineElement(timelineElementInternal, notification);
     }
 
