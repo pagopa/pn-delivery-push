@@ -1,11 +1,11 @@
-package it.pagopa.pn.deliverypush.abstractions.actionspool.impl;
+package it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl;
 
 import it.pagopa.pn.api.dto.events.StandardEventHeader;
 import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.commons.utils.DateFormatUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionsPool;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.LastPollForFutureActionsDao;
 import it.pagopa.pn.deliverypush.service.ActionService;
 import lombok.extern.slf4j.Slf4j;
