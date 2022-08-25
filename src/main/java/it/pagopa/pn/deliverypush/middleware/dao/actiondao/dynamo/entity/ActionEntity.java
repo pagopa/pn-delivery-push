@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.entity;
 
-import it.pagopa.pn.deliverypush.abstractions.actionspool.ActionType;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;

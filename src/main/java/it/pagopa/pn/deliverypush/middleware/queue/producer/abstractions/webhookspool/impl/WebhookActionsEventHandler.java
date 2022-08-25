@@ -1,9 +1,9 @@
-package it.pagopa.pn.deliverypush.abstractions.webhookspool.impl;
+package it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.impl;
 
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.abstractions.webhookspool.WebhookAction;
-import it.pagopa.pn.deliverypush.abstractions.webhookspool.WebhookEventType;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookAction;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
 import it.pagopa.pn.deliverypush.service.WebhookService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

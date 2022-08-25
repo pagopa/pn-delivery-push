@@ -1,6 +1,7 @@
-package it.pagopa.pn.deliverypush.abstractions.actionspool;
+package it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool;
 
 public enum ActionType {
+    
     START_RECIPIENT_WORKFLOW() {
         @Override
         public String buildActionId(Action action) {
