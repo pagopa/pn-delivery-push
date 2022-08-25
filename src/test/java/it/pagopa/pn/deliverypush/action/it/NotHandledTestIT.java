@@ -363,8 +363,8 @@ class NotHandledTestIT {
         //Dal momento che la notifica è stata visualizzata non dovrà essere presente l'elemento di timeline NOT HANDLED
         isNotPresentNotHandled(iun, recIndex);
 
-        //Dal momento che la notifica è stata visualizzata non dovrà essere presente l'elemento di timeline di fallimento
-        isNotPresentDigitalFailureWorkflow(notification, recIndex);
+        //Anche se la notifica è stata visualizzata non dovrà essere presente l'elemento di timeline di fallimento
+        isPresentDigitalFailureWorkflow(notification, recIndex);
     }
 
     @Test
