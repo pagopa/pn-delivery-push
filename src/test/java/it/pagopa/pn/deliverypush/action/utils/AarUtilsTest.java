@@ -1,5 +1,7 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
+import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -44,7 +46,9 @@ class AarUtilsTest {
 
     @Test
     void generateAARAndSaveInSafeStorageAndAddTimelineevent() {
-        NotificationInt notification = getNotification();
+        
+        
+        NotificationInt notification = NotificationTestBuilder.builder().withIun("IUN_01").build();
         NotificationRecipientInt notificationRecipientInt = notification.getRecipients().get(recIndex);
         PdfInfo pdfInfo = PdfInfo.builder().key("one").numberOfPages(1).build();
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().iun("1").build();
