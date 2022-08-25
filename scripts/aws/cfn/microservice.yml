@@ -368,6 +368,15 @@ Resources:
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+  DeliveryPushMicroservicePublicApiWaf:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
+      Parameters:
+        WAFName: !Sub '${ProjectName}-delivery-push-b2b'
+        WAFRuleVendors: "AWS,AWS,AWS"
+        WAFRuleNames: "AWSManagedRulesKnownBadInputsRuleSet,AWSManagedRulesAdminProtectionRuleSet,AWSManagedRulesCommonRuleSet"
+        APIGatewayARN: !GetAtt DeliveryPushMicroservicePublicAPI.Outputs.APIGatewayARN
 
   # Expose PN-Delivery-progress microservice public API with API-GW for B2B usage
   DeliveryProgressMicroservicePublicAPI:
@@ -383,6 +392,15 @@ Resources:
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+  DeliveryProgressMicroservicePublicApiWaf:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
+      Parameters:
+        WAFName: !Sub '${ProjectName}-delivery-progress-b2b'
+        WAFRuleVendors: "AWS,AWS,AWS"
+        WAFRuleNames: "AWSManagedRulesKnownBadInputsRuleSet,AWSManagedRulesAdminProtectionRuleSet,AWSManagedRulesCommonRuleSet"
+        APIGatewayARN: !GetAtt DeliveryProgressMicroservicePublicAPI.Outputs.APIGatewayARN
 
   # Expose PN-Delivery-push microservice public API with API-GW for WEB usage
   DeliveryPushMicroservicePublicWebAPI:
@@ -398,6 +416,16 @@ Resources:
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+  DeliveryPushMicroservicePublicWebApiWaf:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
+      Parameters:
+        WAFName: !Sub '${ProjectName}-delivery--push-web'
+        WAFRuleVendors: "AWS, AWS, AWS, AWS"
+        WAFRuleNames: "AWSManagedRulesBotControlRuleSet, AWSManagedRulesKnownBadInputsRuleSet, AWSManagedRulesAdminProtectionRuleSet, AWSManagedRulesCommonRuleSet"
+        APIGatewayARN: !GetAtt DeliveryPushMicroservicePublicWebAPI.Outputs.APIGatewayARN
+
 
   # Expose PN-Delivery-push microservice public API with API-GW for IO usage
   DeliveryPushMicroservicePublicIoAPI:
