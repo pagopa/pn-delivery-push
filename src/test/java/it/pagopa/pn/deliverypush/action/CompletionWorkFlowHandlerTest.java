@@ -148,7 +148,7 @@ class CompletionWorkFlowHandlerTest {
         //Viene verificato che non sia stato schedulato il perfezionamento
         Mockito.verify(scheduler, Mockito.times(0)).scheduleEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.any(Instant.class), Mockito.any(ActionType.class));
         //Viene verificato che non sia stato aggiunto l'elemento di timeline di failure
-        Mockito.verify(timelineUtils, Mockito.times(0)).buildFailureDigitalWorkflowTimelineElement(Mockito.any(NotificationInt.class),
+        Mockito.verify(timelineUtils, Mockito.times(1)).buildFailureDigitalWorkflowTimelineElement(Mockito.any(NotificationInt.class),
                 Mockito.anyInt(), Mockito.anyString());
         //Viene verificato che non sia stato aggiunto l'elemento di timeline di not handled
         Mockito.verify(timelineUtils, Mockito.times(0)).buildNotHandledTimelineElement(Mockito.any(NotificationInt.class),
