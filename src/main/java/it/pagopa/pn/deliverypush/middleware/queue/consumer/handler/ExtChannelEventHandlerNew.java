@@ -26,7 +26,7 @@ public class ExtChannelEventHandlerNew {
     public Consumer<Message<SingleStatusUpdate>> pnExtChannelEventInboundConsumer() {
         return message -> {
             try {
-                log.debug("External channel event received NEW, message {}", message);
+                log.info("External channel event received NEW, message {}", message);
 
                 SingleStatusUpdate singleStatusUpdate = message.getPayload();
                 externalChannelResponseHandler.extChannelResponseReceiver(singleStatusUpdate);

@@ -16,7 +16,7 @@ public class ExtChannelDigitalSentResponseInt {
     private ExtChannelProgressEventCat status;
     private String eventDetails;
     private Instant eventTimestamp;
-    private String eventCode;
+    private EventCode eventCode;
     private DigitalMessageReferenceInt generatedMessage;
 
 }
