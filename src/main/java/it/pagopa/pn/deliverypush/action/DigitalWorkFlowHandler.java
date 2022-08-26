@@ -229,7 +229,7 @@ public class DigitalWorkFlowHandler {
     }
 
     private void handleExternalChannelResponseByStatus(ExtChannelDigitalSentResponseInt response, String iun, TimelineElementInternal sendDigitalTimelineElement, SendDigitalDetailsInt sendDigitalDetails, NotificationInt notification, Integer recIndex, ResponseStatusInt status) {
-        log.debug("Start handleExternalChannelResponseByStatus with status={} - iun={} requestId={}", status, iun, response.getRequestId());
+        log.debug("Start handleExternalChannelResponseByStatus with status={} eventCode={} - iun={} requestId={}", status, response.getEventCode(), iun, response.getRequestId());
 
         if (status != null) {
             
