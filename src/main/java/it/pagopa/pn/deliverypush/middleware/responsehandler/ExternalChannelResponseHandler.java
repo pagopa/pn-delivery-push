@@ -43,8 +43,7 @@ public class ExternalChannelResponseHandler {
         else
             handleError(response);
     }
-
-
+    
     private void paperUpdate(PaperProgressStatusEvent event)
     {
         try {
@@ -110,10 +109,11 @@ public class ExternalChannelResponseHandler {
     private void legalUpdate(LegalMessageSentDetails event) {
         try {
             String iun = timelineUtils.getIunFromTimelineId(event.getRequestId());
-
+            
             ExtChannelDigitalSentResponseInt digitalSentResponseInt = mapExternalToInternal(event, iun);
-            log.info("Received ExternalChannel legal message event for requestId={} - status={} details={} eventCode={}", 
-                    digitalSentResponseInt.getRequestId(), digitalSentResponseInt.getStatus(), digitalSentResponseInt.getEventDetails(), digitalSentResponseInt.getEventCode());
+            log.info("Received ExternalChannel legal message event for requestId={} - status={} details={} eventCode={} generatedMessage={}", 
+                    digitalSentResponseInt.getRequestId(), digitalSentResponseInt.getStatus(), digitalSentResponseInt.getEventDetails(), digitalSentResponseInt.getEventCode(),
+                    digitalSentResponseInt.getGeneratedMessage());
             
             digitalWorkFlowHandler.handleExternalChannelResponse(digitalSentResponseInt);
         } catch (PnInternalException e) {
@@ -131,7 +131,7 @@ public class ExternalChannelResponseHandler {
                 .eventDetails(event.getEventDetails())
                 .eventTimestamp(event.getEventTimestamp().toInstant())
                 .status( ExtChannelProgressEventCat.valueOf(event.getStatus().getValue()))
-                .eventCode(event.getEventCode())
+                .eventCode( event.getEventCode() != null ? EventCode.valueOf(event.getEventCode()) : null ) 
                 .requestId(event.getRequestId());
         
         if(event.getGeneratedMessage() != null){
