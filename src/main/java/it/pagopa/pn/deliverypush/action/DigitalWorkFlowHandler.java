@@ -229,14 +229,15 @@ public class DigitalWorkFlowHandler {
     }
 
     private void handleExternalChannelResponseByStatus(ExtChannelDigitalSentResponseInt response, String iun, TimelineElementInternal sendDigitalTimelineElement, SendDigitalDetailsInt sendDigitalDetails, NotificationInt notification, Integer recIndex, ResponseStatusInt status) {
-        
+        log.debug("Start handleExternalChannelResponseByStatus with status={} - iun={} requestId={}", status, iun, response.getRequestId());
+
         if (status != null) {
             
             PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
 
             PnAuditLogEvent logEvent = auditLogBuilder
-                    .before(PnAuditLogEventType.AUD_NT_CHECK, "Digital workflow Ext channel response for source {} retryNumber={} status={} - iun={} id={}",
-                            sendDigitalDetails.getDigitalAddressSource(), sendDigitalDetails.getRetryNumber(), status, iun, recIndex)
+                    .before(PnAuditLogEventType.AUD_NT_CHECK, "Digital workflow Ext channel response for source {} retryNumber={} status={} eventCode={} - iun={} id={}",
+                            sendDigitalDetails.getDigitalAddressSource(), sendDigitalDetails.getRetryNumber(), status, response.getEventCode(), iun, recIndex)
                     .iun(iun)
                     .build();
             logEvent.log();
@@ -261,15 +262,15 @@ public class DigitalWorkFlowHandler {
     private void handleNotSuccessfulSending(ExtChannelDigitalSentResponseInt response, TimelineElementInternal sendDigitalTimelineElement,
                                             SendDigitalDetailsInt sendDigitalDetails, NotificationInt notification, Integer recIndex,
                                             ResponseStatusInt status, PnAuditLogEvent logEvent) {
-        logEvent.generateFailure("Notification failed with eventCode={} eventDetails={}",
-                response.getEventCode(), response.getEventDetails()).log();
-
         String iun = notification.getIun();
         
         switch ( response.getEventCode() ){
             case C002: // NON ACCETTAZIONE
             case C006: // RILEVAZIONE VIRUS
             {
+                logEvent.generateFailure("Notification failed with eventCode={} eventDetails={}",
+                        response.getEventCode(), response.getEventDetails()).log();
+
                 log.info("Response is for 'NON ACCEPTANCE' generatedMessage={} - iun={} id={}", response.getGeneratedMessage(), iun, recIndex);
 
                 digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(notification, ResponseStatusInt.KO,
@@ -282,6 +283,9 @@ public class DigitalWorkFlowHandler {
             }
             case C004: // MANCATA CONSEGNA
             {
+                logEvent.generateFailure("Notification failed with eventCode={} eventDetails={}",
+                        response.getEventCode(), response.getEventDetails()).log();
+
                 log.debug("Response is for 'DELIVERY FAILURE' generatedMessage={} - iun={} id={}", response.getGeneratedMessage(), iun, recIndex);
 
                 digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(notification, status, response.getEventDetails() == null ? Collections.emptyList() : List.of(response.getEventDetails()),
@@ -292,8 +296,12 @@ public class DigitalWorkFlowHandler {
                 break;
             }
             default:
-                log.error("Received eventCode={} is not handled - iun={} id={}", response.getEventCode(), iun, recIndex);
-                break;
+                //RISPOSTE CON EVENTCODE NON GESTITO
+                logEvent.generateFailure("Received KO response with eventCode={} is not HANDLED. GeneratedMessage is {} - iun={} id={}",
+                        response.getEventCode(), response.getGeneratedMessage(), notification.getIun(), recIndex).log();
+
+                throw new PnInternalException("Received KO response with eventCode="+response.getEventCode()+" is not HANDLED. " +
+                        "- iun="+notification.getIun()+" id="+recIndex);
         }
     }
 
@@ -325,9 +333,12 @@ public class DigitalWorkFlowHandler {
             //La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
             completionWorkflow.completionDigitalWorkflow(notification, recIndex, response.getEventTimestamp(), sendDigitalDetails.getDigitalAddress(), EndWorkflowStatus.SUCCESS);
         } else {
-            //EVENTI DA IGNORARE
-            log.info("Received OK response with eventCode={} is not for DELIVERING SUCCESS, will not be saved. GeneratedMessage is {} - iun={} id={}",
+            //RISPOSTE CON EVENTCODE NON GESTITO
+            logEvent.generateFailure("Received OK response with eventCode={} is not for DELIVERING SUCCESS, is not HANDLED. GeneratedMessage is {} - iun={} id={}",
                     response.getEventCode(), response.getGeneratedMessage(), notification.getIun(), recIndex);
+
+            throw new PnInternalException("Received OK response with eventCode="+response.getEventCode()+" is not HANDLED. " +
+                    "- iun="+notification.getIun()+" id="+recIndex);
         }
     }
 
