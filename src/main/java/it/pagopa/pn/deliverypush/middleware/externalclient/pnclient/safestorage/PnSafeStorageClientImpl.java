@@ -6,6 +6,7 @@ import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.api.FileUploa
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ByteArrayResource;
@@ -14,14 +15,11 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Base64Utils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 @Slf4j
 @Component
@@ -42,7 +40,7 @@ public class PnSafeStorageClientImpl implements PnSafeStorageClient {
         this.cfg = cfg;
     }
 
-
+    @Override
     public FileDownloadResponse getFile(String fileKey, Boolean metadataOnly) {
         log.debug("Start call getFile - fileKey={} metadataOnly={}", fileKey, metadataOnly);
         // elimino eventuale prefisso di safestorage
@@ -51,24 +49,18 @@ public class PnSafeStorageClientImpl implements PnSafeStorageClient {
     }
 
     @Override
-    public FileCreationResponse createAndUploadContent(FileCreationWithContentRequest fileCreationRequest) {
-            log.debug("Start call createAndUploadFile - documentType={} filesize={}", fileCreationRequest.getDocumentType(), fileCreationRequest.getContent().length);
+    public FileCreationResponse createFile(FileCreationWithContentRequest fileCreationRequest, String sha256){
+        log.debug("Start call createFile - documentType={} filesize={}", fileCreationRequest.getDocumentType(), fileCreationRequest.getContent().length);
 
-            String sha256 = computeSha256(fileCreationRequest.getContent());
+        FileCreationResponse fileCreationResponse = fileUploadApi.createFile( this.cfg.getSafeStorageCxId(),"SHA-256", sha256,  fileCreationRequest );
 
-            FileCreationResponse fileCreationResponse = fileUploadApi.createFile( this.cfg.getSafeStorageCxId(),"SHA-256", sha256,  fileCreationRequest );
-
-            log.debug("createAndUploadContent create file preloaded sha256={}", sha256);
-
-            this.uploadContent(fileCreationRequest, fileCreationResponse, sha256);
-
-            log.info("createAndUploadContent file uploaded successfully key={} sha256={}", fileCreationResponse.getKey(), sha256);
-
-            return fileCreationResponse;
+        log.debug("End call createFile, created file with key={}", fileCreationResponse.getKey());
+        
+        return fileCreationResponse;
     }
 
-
-    private void uploadContent(FileCreationWithContentRequest fileCreationRequest, FileCreationResponse fileCreationResponse, String sha256){
+    @Override
+    public void uploadContent(FileCreationWithContentRequest fileCreationRequest, FileCreationResponse fileCreationResponse, String sha256){
 
         try {
             
@@ -101,19 +93,4 @@ public class PnSafeStorageClientImpl implements PnSafeStorageClient {
     }
 
 
-
-    private String computeSha256( byte[] content ) {
-
-        try{
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] encodedhash = digest.digest( content );
-            return bytesToBase64( encodedhash );
-        } catch (NoSuchAlgorithmException exc) {
-            throw new PnInternalException("cannot compute sha256", exc );
-        }
-    }
-
-    private static String bytesToBase64(byte[] hash) {
-        return Base64Utils.encodeToString( hash );
-    }
 }

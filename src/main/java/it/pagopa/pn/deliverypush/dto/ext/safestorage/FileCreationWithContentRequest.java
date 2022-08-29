@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage;
+package it.pagopa.pn.deliverypush.dto.ext.safestorage;
 
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationRequest;
 import lombok.Data;

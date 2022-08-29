@@ -20,6 +20,7 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregi
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.userattributes.UserAttributesClient;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
+import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.impl.SaveLegalFactsServiceImpl;
 import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
 import org.mockito.Mockito;
@@ -63,9 +64,9 @@ public class AbstractWorkflowTestConfiguration {
     }
     
     @Bean
-    public SaveLegalFactsServiceImpl LegalFactsTest(PnSafeStorageClient safeStorageClient,
+    public SaveLegalFactsServiceImpl LegalFactsTest(SafeStorageService safeStorageService,
                                                     LegalFactGenerator pdfUtils) {
-        return new SaveLegalFactsServiceImpl(pdfUtils, safeStorageClient);
+        return new SaveLegalFactsServiceImpl(pdfUtils, safeStorageService);
     }
 
     @Bean
