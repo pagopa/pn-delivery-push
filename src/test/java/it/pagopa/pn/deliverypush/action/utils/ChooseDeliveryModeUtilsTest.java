@@ -8,8 +8,10 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -19,15 +21,17 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 class ChooseDeliveryModeUtilsTest {
-
     private TimelineService timelineService;
     private TimelineUtils timelineUtils;
     private CourtesyMessageUtils courtesyMessageUtils;
     private AddressBookService addressBookService;
     private NotificationUtils notificationUtils;
     private ChooseDeliveryModeUtils chooseDeliveryModeUtils;
+
+    private final Integer recIndex = 0;
 
     @BeforeEach
     void setup() {
@@ -52,12 +56,19 @@ class ChooseDeliveryModeUtilsTest {
     @Test
     void addScheduleAnalogWorkflowToTimeline() {
 
-        NotificationInt notificationInt = buildNotification();
-        
-        Mockito.when(timelineUtils.buildScheduleAnalogWorkflowTimeline(notificationInt, 1)).thenReturn(Mockito.any(TimelineElementInternal.class));
-        chooseDeliveryModeUtils.addScheduleAnalogWorkflowToTimeline(Mockito.anyInt(), Mockito.any(NotificationInt.class));
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .elementId("el1")
+                .timestamp((Instant.parse("2021-09-16T15:24:00.00Z")))
+                .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
+                .build();
 
-        Mockito.verify(timelineService, Mockito.never()).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
+        NotificationInt notificationInt = buildNotification();
+
+        Mockito.when(timelineUtils.buildScheduleAnalogWorkflowTimeline(notificationInt, recIndex)).thenReturn(timelineElementInternal);
+
+        chooseDeliveryModeUtils.addScheduleAnalogWorkflowToTimeline(recIndex, notificationInt);
+
+        Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notificationInt);
     }
 
     @Test
@@ -71,20 +82,49 @@ class ChooseDeliveryModeUtilsTest {
     @Test
     void getPlatformAddress() {
 
-        Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(), Mockito.eq(0))).thenReturn(Mockito.any(NotificationRecipientInt.class));
+        NotificationInt notificationInt = buildNotification();
+        NotificationRecipientInt notificationRecipientInt = buildNotificationRecipientInt();
 
-        chooseDeliveryModeUtils.getPlatformAddress(Mockito.any(), Mockito.eq(0));
+        Mockito.when(notificationUtils.getRecipientFromIndex(notificationInt, recIndex)).thenReturn(notificationRecipientInt);
+        Mockito.when(addressBookService.getPlatformAddresses(notificationRecipientInt.getInternalId(), notificationInt.getSender().getPaId())).thenReturn(Optional.of(notificationRecipientInt.getDigitalDomicile()));
 
-        Mockito.verify(addressBookService, Mockito.never()).getPlatformAddresses(Mockito.anyString(), Mockito.anyString());
+        Optional<LegalDigitalAddressInt> tmp = chooseDeliveryModeUtils.getPlatformAddress(notificationInt, recIndex);
+
+        Assertions.assertNotNull(tmp);
     }
 
     @Test
     void getDigitalDomicile() {
 
-        Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(Mockito.any(NotificationRecipientInt.class));
+        NotificationInt notificationInt = buildNotification();
+        NotificationRecipientInt notificationRecipientInt = buildNotificationRecipientInt();
 
-        //Mockito.
-        chooseDeliveryModeUtils.getDigitalDomicile(Mockito.any(NotificationInt.class), Mockito.anyInt());
+        Mockito.when(notificationUtils.getRecipientFromIndex(notificationInt, recIndex)).thenReturn(notificationRecipientInt);
+
+        LegalDigitalAddressInt tmp = chooseDeliveryModeUtils.getDigitalDomicile(notificationInt, recIndex);
+
+        Assertions.assertNotNull(tmp);
+    }
+
+    private NotificationRecipientInt buildNotificationRecipientInt() {
+        return NotificationRecipientInt.builder()
+                .taxId("CDCFSC11R99X001Z")
+                .denomination("Galileo Bruno")
+                .digitalDomicile(LegalDigitalAddressInt.builder()
+                        .address("test@dominioPec.it")
+                        .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                        .build())
+                .physicalAddress(new PhysicalAddressInt(
+                        "Palazzo dell'Inquisizione",
+                        "corso Italia 666",
+                        "Piano Terra (piatta)",
+                        "00100",
+                        "Roma",
+                        null,
+                        "RM",
+                        "IT"
+                ))
+                .build();
     }
 
     private List<NotificationRecipientInt> buildRecipients() {

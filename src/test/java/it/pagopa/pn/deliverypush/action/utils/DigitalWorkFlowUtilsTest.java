@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
@@ -163,6 +164,20 @@ class DigitalWorkFlowUtilsTest {
                 digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(iun, recIndex);
         // VERIFY
         Assertions.assertEquals(optTimeLineScheduleDigitalWorkflow, scheduleDigitalWorkflowDetailsInt);
+    }
+
+    @Test
+    void getSendDigitalDetailsTimelineElementFailed() {
+
+        String msg = "SendDigital timeline element not exist -iun= requestId=";
+        Mockito.when(timelineService.getTimelineElement(Mockito.anyString(), Mockito.any())).thenReturn(Optional.empty());
+
+        Exception exception = Assertions.assertThrows(PnInternalException.class, () -> {
+            digitalWorkFlowUtils.getSendDigitalDetailsTimelineElement(Mockito.anyString(), Mockito.anyString());
+        });
+
+        Assertions.assertEquals(msg, exception.getMessage());
+
     }
 
     @Test

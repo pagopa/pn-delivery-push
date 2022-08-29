@@ -19,6 +19,7 @@ class ExceptionHelperTest {
     }
 
     @Test
+    // TODO improve test coverage for this test
     void getHttpStatusFromException() {
 
         HttpStatus httpStatus = ExceptionHelper.getHttpStatusFromException(Mockito.any(Throwable.class));

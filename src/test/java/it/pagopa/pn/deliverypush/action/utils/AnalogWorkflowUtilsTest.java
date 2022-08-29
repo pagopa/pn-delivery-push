@@ -1,22 +1,32 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 import java.util.*;
 
 class AnalogWorkflowUtilsTest {
 
+    private static final String TAX_ID = "tax_id";
+    private final Integer recIndex = 0;
     private TimelineService timelineService;
     private TimelineUtils timelineUtils;
     private NotificationUtils notificationUtils;
@@ -44,14 +54,42 @@ class AnalogWorkflowUtilsTest {
     }
 
     @Test
+    void getSendAnalogNotificationDetailsFailed() {
+
+        String expectErrorMsg = "There isn't timeline element -iun=1 requestId=1";
+
+        Mockito.when(timelineService.getTimelineElementDetails("1", "1", SendAnalogDetailsInt.class)).thenReturn(Optional.empty());
+
+        Exception pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
+            analogWorkflowUtils.getSendAnalogNotificationDetails("1", "1");
+        });
+
+        Assertions.assertEquals(expectErrorMsg, pnInternalException.getMessage());
+    }
+
+    @Test
+    void getLastTimelineSentFeedbackFailed() {
+
+        String expectErrorMsg = "Last send feedback is not available - iun 1 id 0";
+
+        Mockito.when(timelineService.getTimeline("1")).thenReturn(Collections.EMPTY_SET);
+
+        Exception pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
+            analogWorkflowUtils.getLastTimelineSentFeedback("1", recIndex);
+        });
+
+        Assertions.assertEquals(expectErrorMsg, pnInternalException.getMessage());
+    }
+
+    @Test
     void getLastTimelineSentFeedback() {
 
+        TimelineElementInternal timelineElementDetailsInt = getSendPaperFeedbackTimelineElement("1", "1");
         List<LegalFactsIdInt> legalFactsIds = new ArrayList<>();
         legalFactsIds.add(LegalFactsIdInt.builder()
                 .key("key")
                 .category(LegalFactCategoryInt.ANALOG_DELIVERY)
                 .build());
-
         Set<TimelineElementInternal> timeline = new HashSet<>();
         timeline.add(
                 TimelineElementInternal.builder()
@@ -61,34 +99,109 @@ class AnalogWorkflowUtilsTest {
                         .paId("1")
                         .category(TimelineElementCategoryInt.SEND_PAPER_FEEDBACK)
                         .legalFactsIds(legalFactsIds)
-                        // .details(Mockito.any(TimelineElementDetailsInt.class))
+                        .details(timelineElementDetailsInt.getDetails())
                         .build()
         );
 
+        SendAnalogFeedbackDetailsInt details = SendAnalogFeedbackDetailsInt.builder()
+                .newAddress(
+                        PhysicalAddressInt.builder()
+                                .province("province")
+                                .municipality("munic")
+                                .at("at")
+                                .build()
+                )
+                .recIndex(0)
+                .sentAttemptMade(0)
+                .build();
+
         Mockito.when(timelineService.getTimeline("1")).thenReturn(timeline);
 
-        // analogWorkflowUtils.getLastTimelineSentFeedback("1", 1);
+        SendAnalogFeedbackDetailsInt tmp = analogWorkflowUtils.getLastTimelineSentFeedback("1", recIndex);
 
-        // Assertions.assertNotNull(timeline);
+        Assertions.assertEquals(tmp.getRecIndex(), details.getRecIndex());
     }
 
     @Test
     void addAnalogFailureAttemptToTimeline() {
-        
-        Mockito.when(timelineUtils.buildAnalogFailureAttemptTimelineElement(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.any(),
-                Mockito.any(), Mockito.any(), Mockito.any(SendAnalogDetailsInt.class))
-        ).thenReturn(Mockito.any());
+        NotificationInt notificationInt = newNotification();
+        List<LegalFactsIdInt> attachmentKeys = new ArrayList<>();
+        attachmentKeys.add(LegalFactsIdInt.builder().key("key").category(LegalFactCategoryInt.SENDER_ACK).build());
+        PhysicalAddressInt newAddress = PhysicalAddressInt.builder().address("test address").build();
+        List<String> errors = new ArrayList<>();
 
-        analogWorkflowUtils.addAnalogFailureAttemptToTimeline(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.any(),
-                Mockito.any(), Mockito.any(), Mockito.any(SendAnalogDetailsInt.class));
+        SendAnalogDetailsInt sendPaperDetails = SendAnalogDetailsInt.builder()
+                .physicalAddress(
+                        PhysicalAddressInt.builder()
+                                .province("province")
+                                .municipality("munic")
+                                .at("at")
+                                .build()
+                )
+                .investigation(true)
+                .recIndex(0)
+                .sentAttemptMade(0)
+                .build();
 
+
+        analogWorkflowUtils.addAnalogFailureAttemptToTimeline(notificationInt, 1, attachmentKeys, newAddress, errors, sendPaperDetails);
+
+        Mockito.verify(timelineUtils).buildAnalogFailureAttemptTimelineElement(notificationInt, 1, attachmentKeys, newAddress, errors, sendPaperDetails);
     }
 
+    @ExtendWith(MockitoExtension.class)
     @Test
     void getPhysicalAddress() {
-        Mockito.when(timelineService.getTimelineElementDetails(Mockito.anyString(), Mockito.anyString(), Mockito.any())
-                .isPresent()).thenReturn(Mockito.any());
 
-        analogWorkflowUtils.getSendAnalogNotificationDetails(Mockito.anyString(), Mockito.anyString());
+        NotificationInt notificationInt = newNotification();
+        PhysicalAddressInt physicalAddressInt = PhysicalAddressInt.builder().province("province").municipality("munic").at("at").build();
+        NotificationRecipientInt notificationRecipientInt = NotificationRecipientInt.builder().physicalAddress(physicalAddressInt).taxId("testIdRecipient").denomination("Nome Cognome/Ragione Sociale").build();
+
+        Mockito.when(notificationUtils.getRecipientFromIndex(notificationInt, recIndex)).thenReturn(notificationRecipientInt);
+
+        PhysicalAddressInt tmp = analogWorkflowUtils.getPhysicalAddress(notificationInt, recIndex);
+
+        Assertions.assertEquals(tmp, physicalAddressInt);
+    }
+
+    private NotificationInt newNotification() {
+        return NotificationInt.builder()
+                .iun("IUN_01")
+                .paProtocolNumber("protocol_01")
+                .sender(NotificationSenderInt.builder()
+                        .paId(" pa_02")
+                        .build()
+                )
+                .recipients(Collections.singletonList(
+                        NotificationRecipientInt.builder()
+                                .taxId(TAX_ID)
+                                .internalId(TAX_ID + "ANON")
+                                .denomination("Nome Cognome/Ragione Sociale")
+                                .digitalDomicile(LegalDigitalAddressInt.builder()
+                                        .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                                        .address("account@dominio.it")
+                                        .build())
+                                .build()
+                ))
+                .build();
+    }
+
+    private TimelineElementInternal getSendPaperFeedbackTimelineElement(String iun, String elementId) {
+        SendAnalogFeedbackDetailsInt details = SendAnalogFeedbackDetailsInt.builder()
+                .newAddress(
+                        PhysicalAddressInt.builder()
+                                .province("province")
+                                .municipality("munic")
+                                .at("at")
+                                .build()
+                )
+                .recIndex(0)
+                .sentAttemptMade(0)
+                .build();
+        return TimelineElementInternal.builder()
+                .elementId(elementId)
+                .iun(iun)
+                .details(details)
+                .build();
     }
 }
