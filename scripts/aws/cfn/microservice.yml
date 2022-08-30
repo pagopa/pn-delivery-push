@@ -376,7 +376,7 @@ Resources:
         WAFName: !Sub '${ProjectName}-delivery-push-b2b'
         WAFRuleVendors: "AWS,AWS,AWS"
         WAFRuleNames: "AWSManagedRulesKnownBadInputsRuleSet,AWSManagedRulesAdminProtectionRuleSet,AWSManagedRulesCommonRuleSet"
-        APIGatewayARN: !GetAtt DeliveryPushMicroservicePublicAPI.Outputs.APIGatewayARN
+        APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicAPI.Outputs.APIGatewayARN
 
   # Expose PN-Delivery-progress microservice public API with API-GW for B2B usage
   DeliveryProgressMicroservicePublicAPI:
@@ -400,7 +400,7 @@ Resources:
         WAFName: !Sub '${ProjectName}-delivery-progress-b2b'
         WAFRuleVendors: "AWS,AWS,AWS"
         WAFRuleNames: "AWSManagedRulesKnownBadInputsRuleSet,AWSManagedRulesAdminProtectionRuleSet,AWSManagedRulesCommonRuleSet"
-        APIGatewayARN: !GetAtt DeliveryProgressMicroservicePublicAPI.Outputs.APIGatewayARN
+        APIGatewayARNs: !GetAtt DeliveryProgressMicroservicePublicAPI.Outputs.APIGatewayARN
 
   # Expose PN-Delivery-push microservice public API with API-GW for WEB usage
   DeliveryPushMicroservicePublicWebAPI:
@@ -424,7 +424,7 @@ Resources:
         WAFName: !Sub '${ProjectName}-delivery--push-web'
         WAFRuleVendors: "AWS, AWS, AWS, AWS"
         WAFRuleNames: "AWSManagedRulesBotControlRuleSet, AWSManagedRulesKnownBadInputsRuleSet, AWSManagedRulesAdminProtectionRuleSet, AWSManagedRulesCommonRuleSet"
-        APIGatewayARN: !GetAtt DeliveryPushMicroservicePublicWebAPI.Outputs.APIGatewayARN
+        APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicWebAPI.Outputs.APIGatewayARN
 
 
   # Expose PN-Delivery-push microservice public API with API-GW for IO usage
