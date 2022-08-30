@@ -15,6 +15,7 @@ import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
+import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
@@ -65,6 +66,7 @@ import static org.mockito.ArgumentMatchers.eq;
         PublicRegistryServiceImpl.class,
         ExternalChannelServiceImpl.class,
         ExternalChannelResponseHandler.class,
+        SafeStorageServiceImpl.class,
         RefinementHandler.class,
         NotificationViewedHandler.class,
         IoServiceImpl.class,
@@ -176,10 +178,8 @@ class NotificationViewedTestIT {
 
         Mockito.when( safeStorageClient.getFile( Mockito.anyString(), Mockito.anyBoolean()))
                 .thenReturn( fileDownloadResponse);
-
-        Mockito.when( safeStorageClient.createAndUploadContent( Mockito.any()))
-                .thenReturn( fileCreationResponse );
-
+        
+        Mockito.when( safeStorageClient.createFile(Mockito.any(FileCreationWithContentRequest.class), Mockito.anyString())).thenReturn(fileCreationResponse);
 
         pnDeliveryClientMock.clear();
         addressBookMock.clear();

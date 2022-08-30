@@ -4,11 +4,11 @@ import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
+import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
+import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -17,11 +17,11 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class CheckAttachmentUtils {
     private final NotificationReceiverValidator validator;
-    private final PnSafeStorageClient safeStorageClient;
+    private final SafeStorageService safeStorageService;
 
-    public CheckAttachmentUtils(NotificationReceiverValidator validator, PnSafeStorageClient safeStorageClient) {
+    public CheckAttachmentUtils(NotificationReceiverValidator validator, SafeStorageService safeStorageService) {
         this.validator = validator;
-        this.safeStorageClient = safeStorageClient;
+        this.safeStorageService = safeStorageService;
     }
     
     public void validateAttachment(NotificationInt notification ) throws PnValidationException {
@@ -66,7 +66,7 @@ public class CheckAttachmentUtils {
     private void checkAttachment(NotificationDocumentInt attachment) {
         NotificationDocumentInt.Ref ref = attachment.getRef();
 
-        FileDownloadResponse fd = safeStorageClient.getFile(ref.getKey(),true);
+        FileDownloadResponseInt fd = safeStorageService.getFile(ref.getKey(),true);
 
         String attachmentKey = fd.getKey();
 

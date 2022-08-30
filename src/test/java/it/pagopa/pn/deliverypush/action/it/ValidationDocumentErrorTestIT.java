@@ -55,6 +55,7 @@ import java.util.Collections;
         ExternalChannelServiceImpl.class,
         IoServiceImpl.class,
         NotificationCostServiceImpl.class,
+        SafeStorageServiceImpl.class,
         ExternalChannelResponseHandler.class,
         RefinementHandler.class,
         DigitalWorkFlowUtils.class,
