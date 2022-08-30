@@ -4,19 +4,19 @@ import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.commons.utils.MimeTypesUtils;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.RecipientRelatedTimelineElementDetails;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactDownloadMetadataResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElement;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.service.GetLegalFactService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.LegalFactIdMapper;
 import it.pagopa.pn.deliverypush.utils.AuditLogUtils;
@@ -24,7 +24,6 @@ import it.pagopa.pn.deliverypush.utils.AuthUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.util.Comparator;
 import java.util.List;
@@ -38,18 +37,18 @@ import static it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safes
 public class GetLegalFactServiceImpl implements GetLegalFactService {
 
     private final TimelineService timelineService;
-    private final PnSafeStorageClient safeStorageClient;
+    private final SafeStorageService safeStorageService;
     private final NotificationService notificationService;
     private final NotificationUtils notificationUtils;
     private final AuthUtils authUtils;
     
-    public GetLegalFactServiceImpl(TimelineService timelineService,
-                                PnSafeStorageClient safeStorageClient,
-                                NotificationService notificationService,
-                                NotificationUtils notificationUtils,
-                                AuthUtils authUtils) {
+    public GetLegalFactServiceImpl(TimelineService timelineService, 
+                                   SafeStorageService safeStorageService, 
+                                   NotificationService notificationService, 
+                                   NotificationUtils notificationUtils, 
+                                   AuthUtils authUtils) {
         this.timelineService = timelineService;
-        this.safeStorageClient = safeStorageClient;
+        this.safeStorageService = safeStorageService;
         this.notificationService = notificationService;
         this.notificationUtils = notificationUtils;
         this.authUtils = authUtils;
@@ -62,7 +61,8 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
                                                                   String senderReceiverId,
                                                                   String mandateId) {
 
-        
+        log.debug( "GetLegalFactMetadata iun={} legalfactId={}", iun, legalfactId );
+
         LegalFactDownloadMetadataResponse response = new LegalFactDownloadMetadataResponse();
        
         NotificationInt notification = notificationService.getNotificationByIun(iun);
@@ -79,7 +79,7 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
             
         try {
             // la key è la legalfactid
-            FileDownloadResponse fileDownloadResponse = safeStorageClient.getFile(legalfactId, false);
+            FileDownloadResponseInt fileDownloadResponse = safeStorageService.getFile(legalfactId, false);
 
             response.setFilename(buildLegalFactFilename(iun, legalFactType, legalfactId, fileDownloadResponse.getContentType()));
             response.setContentLength(fileDownloadResponse.getContentLength());

@@ -1,8 +1,9 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.FileCreationWithContentRequest;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
+import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationResponseInt;
+import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
+import it.pagopa.pn.deliverypush.service.SafeStorageService;
+import it.pagopa.pn.deliverypush.service.impl.SafeStorageServiceImpl;
 import it.pagopa.pn.deliverypush.service.impl.SaveLegalFactsServiceImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,16 +17,16 @@ import static org.mockito.Mockito.when;
 class LegalFactUtilsTest {
     private SaveLegalFactsServiceImpl legalFactsService;
     private LegalFactGenerator pdfUtils;
-    private PnSafeStorageClient safeStorageClient;
+    private SafeStorageService safeStorageService;
 
     
     @BeforeEach
     public void setup() {
         pdfUtils = Mockito.mock(LegalFactGenerator.class);
-        safeStorageClient = Mockito.mock(PnSafeStorageClient.class);
+        safeStorageService = Mockito.mock(SafeStorageServiceImpl.class);
         legalFactsService = new SaveLegalFactsServiceImpl(
                 pdfUtils,
-                safeStorageClient
+                safeStorageService
                 );
     }
     
@@ -37,13 +38,10 @@ class LegalFactUtilsTest {
         byte[] legalFact = new byte[] { 77, 97, 114, 121 };
         int expectedBodyLength = legalFact.length;
 
-        FileCreationResponse response = new FileCreationResponse();
+        FileCreationResponseInt response = new FileCreationResponseInt();
         response.setKey("123");
-        response.setSecret("abc");
-        response.setUploadUrl("https://www.unqualcheurl.it");
-        response.setUploadMethod(FileCreationResponse.UploadMethodEnum.POST);
 
-        when(safeStorageClient.createAndUploadContent(Mockito.any())).thenReturn(response);
+        when(safeStorageService.createAndUploadContent(Mockito.any())).thenReturn(response);
 
         //When
         legalFactsService.saveLegalFact(legalFact);
@@ -51,7 +49,7 @@ class LegalFactUtilsTest {
         //Then
         ArgumentCaptor<FileCreationWithContentRequest> argCapture = ArgumentCaptor.forClass(FileCreationWithContentRequest.class);
 
-        Mockito.verify(safeStorageClient).createAndUploadContent(
+        Mockito.verify(safeStorageService).createAndUploadContent(
                 argCapture.capture()
         );
         
@@ -74,20 +72,17 @@ class LegalFactUtilsTest {
         byte[] legalFact1 = new byte[] { 77, 97, 114, 121 };
         byte[] legalFact2 = new byte[] { 77, 97, 114, 122 };
 
-        FileCreationResponse response = new FileCreationResponse();
+        FileCreationResponseInt response = new FileCreationResponseInt();
         response.setKey("123");
-        response.setSecret("abc");
-        response.setUploadUrl("https://www.unqualcheurl.it");
-        response.setUploadMethod(FileCreationResponse.UploadMethodEnum.POST);
 
-        when(safeStorageClient.createAndUploadContent(Mockito.any())).thenReturn(response);
+        when(safeStorageService.createAndUploadContent(Mockito.any())).thenReturn(response);
 
         //When
         legalFactsService.saveLegalFact(legalFact1);
         legalFactsService.saveLegalFact(legalFact2);
 
         //Then
-        Mockito.verify(safeStorageClient, Mockito.times(2)).createAndUploadContent(
+        Mockito.verify(safeStorageService, Mockito.times(2)).createAndUploadContent(
                 Mockito.any()
             );
     }

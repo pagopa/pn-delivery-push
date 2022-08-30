@@ -4,14 +4,14 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationResponseInt;
+import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.dto.legalfacts.PdfInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.FileCreationWithContentRequest;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
+import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,12 +33,12 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
 
     private final LegalFactGenerator legalFactBuilder;
 
-    private final PnSafeStorageClient safeStorageClient;
+    private final SafeStorageService safeStorageService;
 
     public SaveLegalFactsServiceImpl(LegalFactGenerator legalFactBuilder,
-                                     PnSafeStorageClient safeStorageClient) {
+                                     SafeStorageService safeStorageService) {
         this.legalFactBuilder = legalFactBuilder;
-        this.safeStorageClient = safeStorageClient;
+        this.safeStorageService = safeStorageService;
     }
 
     public String saveLegalFact(byte[] legalFact) {
@@ -47,7 +47,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
         fileCreationRequest.setDocumentType(PN_LEGAL_FACTS);
         fileCreationRequest.setStatus(SAVED);
         fileCreationRequest.setContent(legalFact);
-        FileCreationResponse fileCreationResponse = safeStorageClient.createAndUploadContent(fileCreationRequest);
+        FileCreationResponseInt fileCreationResponse = safeStorageService.createAndUploadContent(fileCreationRequest);
 
 
         return SAFE_STORAGE_URL_PREFIX + fileCreationResponse.getKey();
@@ -66,7 +66,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
             fileCreationRequest.setDocumentType(PN_AAR);
             fileCreationRequest.setStatus(SAVED);
             fileCreationRequest.setContent(pdfByte);
-            FileCreationResponse fileCreationResponse = safeStorageClient.createAndUploadContent(fileCreationRequest);
+            FileCreationResponseInt fileCreationResponse = safeStorageService.createAndUploadContent(fileCreationRequest);
 
             log.debug("End Save AAR - iun={}", notification.getIun());
 
