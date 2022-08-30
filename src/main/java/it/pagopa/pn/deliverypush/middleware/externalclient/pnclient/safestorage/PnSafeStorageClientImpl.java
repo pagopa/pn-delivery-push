@@ -50,7 +50,7 @@ public class PnSafeStorageClientImpl implements PnSafeStorageClient {
 
     @Override
     public FileCreationResponse createFile(FileCreationWithContentRequest fileCreationRequest, String sha256){
-        log.debug("Start call createFile - documentType={} filesize={}", fileCreationRequest.getDocumentType(), fileCreationRequest.getContent().length);
+        log.debug("Start call createFile - documentType={} filesize={} sha256={}", fileCreationRequest.getDocumentType(), fileCreationRequest.getContent().length, sha256);
 
         FileCreationResponse fileCreationResponse = fileUploadApi.createFile( this.cfg.getSafeStorageCxId(),"SHA-256", sha256,  fileCreationRequest );
 
