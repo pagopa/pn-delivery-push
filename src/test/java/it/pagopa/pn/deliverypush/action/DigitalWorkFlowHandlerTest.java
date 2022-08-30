@@ -495,7 +495,7 @@ class DigitalWorkFlowHandlerTest {
                 .iun(notification.getIun())
                 .status(ExtChannelProgressEventCat.PROGRESS)
                 .eventTimestamp(Instant.now())
-                .eventCode(EventCode.C001)
+                .eventCode(EventCodeInt.C001)
                 .requestId(notification.getIun() + "_event_idx_0")
                 .eventDetails("ACCETTAZIONE")
                 .generatedMessage(
@@ -549,7 +549,7 @@ class DigitalWorkFlowHandlerTest {
                 .status(ExtChannelProgressEventCat.PROGRESS)
                 .eventTimestamp(Instant.now())
                 .requestId(notification.getIun() + "_event_idx_0")
-                .eventCode(EventCode.C000)
+                .eventCode(EventCodeInt.C000)
                 .eventDetails("COMUNICAZIONE CON SEERVER PEC AVVENUTA")
                 .generatedMessage(
                         DigitalMessageReferenceInt.builder()
@@ -602,7 +602,7 @@ class DigitalWorkFlowHandlerTest {
                 .status(ExtChannelProgressEventCat.PROGRESS)
                 .eventTimestamp(Instant.now())
                 .requestId(notification.getIun() + "_event_idx_0")
-                .eventCode(EventCode.C005)
+                .eventCode(EventCodeInt.C005)
                 .eventDetails("COMUNICAZIONE CON SEERVER PEC AVVENUTA")
                 .generatedMessage(
                         DigitalMessageReferenceInt.builder()
@@ -655,7 +655,7 @@ class DigitalWorkFlowHandlerTest {
                 .status(ExtChannelProgressEventCat.PROGRESS)
                 .eventTimestamp(Instant.now())
                 .requestId(notification.getIun() + "_event_idx_0")
-                .eventCode(EventCode.C007)
+                .eventCode(EventCodeInt.C007)
                 .eventDetails("COMUNICAZIONE CON SEERVER PEC AVVENUTA")
                 .generatedMessage(
                         DigitalMessageReferenceInt.builder()
@@ -709,7 +709,7 @@ class DigitalWorkFlowHandlerTest {
                 .eventTimestamp(Instant.now())
                 .requestId(notification.getIun() + "_event_idx_0")
                 .eventDetails("NON_ACCETTAZIONE")
-                .eventCode(EventCode.C002)
+                .eventCode(EventCodeInt.C002)
                 .generatedMessage(
                         DigitalMessageReferenceInt.builder()
                                 .id("id")
@@ -770,7 +770,7 @@ class DigitalWorkFlowHandlerTest {
                 .eventTimestamp(Instant.now())
                 .requestId(notification.getIun() + "_event_idx_0")
                 .eventDetails("RILEVAZIONE VIRUS")
-                .eventCode(EventCode.C006)
+                .eventCode(EventCodeInt.C006)
                 .generatedMessage(
                         DigitalMessageReferenceInt.builder()
                                 .id("id")
@@ -830,7 +830,7 @@ class DigitalWorkFlowHandlerTest {
                 .status(ExtChannelProgressEventCat.ERROR)
                 .eventTimestamp(Instant.now())
                 .requestId(notification.getIun() + "_event_idx_0")
-                .eventCode(EventCode.C004)
+                .eventCode(EventCodeInt.C004)
                 .generatedMessage(
                         DigitalMessageReferenceInt.builder()
                                 .id("id")
@@ -892,7 +892,7 @@ class DigitalWorkFlowHandlerTest {
                 .status(ExtChannelProgressEventCat.ERROR)
                 .eventTimestamp(Instant.now())
                 .requestId(notification.getIun() + "_event_idx_0")
-                .eventCode(EventCode.C000)
+                .eventCode(EventCodeInt.C000)
                 .generatedMessage(
                         DigitalMessageReferenceInt.builder()
                                 .id("id")
@@ -943,7 +943,7 @@ class DigitalWorkFlowHandlerTest {
                 .status(ExtChannelProgressEventCat.OK)
                 .eventTimestamp(Instant.now())
                 .requestId(notification.getIun() + "_event_idx_0")
-                .eventCode(EventCode.C003)
+                .eventCode(EventCodeInt.C003)
                 .generatedMessage(
                         DigitalMessageReferenceInt.builder()
                                 .id("id")
@@ -997,7 +997,7 @@ class DigitalWorkFlowHandlerTest {
                 .status(ExtChannelProgressEventCat.OK)
                 .eventTimestamp(Instant.now())
                 .requestId(notification.getIun() + "_event_idx_0")
-                .eventCode(EventCode.C004)
+                .eventCode(EventCodeInt.C004)
                 .generatedMessage(
                         DigitalMessageReferenceInt.builder()
                                 .id("id")

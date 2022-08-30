@@ -2,7 +2,7 @@ package it.pagopa.pn.deliverypush.dto.ext.externalchannel;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum EventCode {
+public enum EventCodeInt {
     C000("C000"), // COMUNICAZIONE CON SERVER PEC AVVENUTA
     C001("C001"), // StatusPec.ACCETTAZIONE
     C002("C002"), // StatusPec.NON_ACCETTAZIONE
@@ -14,7 +14,7 @@ public enum EventCode {
     
     private final String value;
 
-    EventCode(String value) {
+    EventCodeInt(String value) {
         this.value = value;
     }
 

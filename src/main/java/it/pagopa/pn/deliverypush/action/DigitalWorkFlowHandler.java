@@ -12,7 +12,7 @@ import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfo;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCode;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelProgressEventCat;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
@@ -320,7 +320,7 @@ public class DigitalWorkFlowHandler {
                                          NotificationInt notification, Integer recIndex, ResponseStatusInt status, PnAuditLogEvent logEvent) {
         log.info("Start handleSuccessfulSending with eventCode={} generatedMessage={} - iun={} id={}",  response.getGeneratedMessage(), response.getEventCode(),  notification.getIun(), recIndex);
         
-        if( EventCode.C003.equals(response.getEventCode()) ){
+        if( EventCodeInt.C003.equals(response.getEventCode()) ){
             //AVVENUTA CONSEGNA
             
             logEvent.generateSuccess().log();
@@ -348,7 +348,7 @@ public class DigitalWorkFlowHandler {
                                       SendDigitalDetailsInt sendDigitalDetails) {
         log.info("Specified status={} is not final - iun={} id={}", response.getStatus(), notification.getIun(), recIndex);
         
-        if( EventCode.C001.equals(response.getEventCode()) ){
+        if( EventCodeInt.C001.equals(response.getEventCode()) ){
             //ACCETTAZIONE
             log.info("Received PROGRESS response with eventCode={} is for PEC acceptance. GeneratedMessage is {} - iun={} id={}", 
                     response.getEventCode(), response.getGeneratedMessage(), notification.getIun(), recIndex);
@@ -373,7 +373,7 @@ public class DigitalWorkFlowHandler {
     private ResponseStatusInt mapDigitalStatusInResponseStatus(ExtChannelProgressEventCat digitalStatus)
     {
         /* si traduce l'enum
-            [ PROGRESS, OK, RETRIABLE_ERROR, ERROR ]
+            [ PROGRESS, OK, ERROR ]
         */
         switch (digitalStatus)
         {
@@ -382,7 +382,6 @@ public class DigitalWorkFlowHandler {
             case OK:
                 return ResponseStatusInt.OK;
             case ERROR:
-            case RETRIABLE_ERROR:
                 return ResponseStatusInt.KO;
             default:
                 throw new PnInternalException("Invalid digitalStatus received: " + digitalStatus);

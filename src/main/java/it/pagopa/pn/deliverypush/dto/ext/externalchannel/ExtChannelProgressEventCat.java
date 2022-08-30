@@ -8,9 +8,7 @@ public enum ExtChannelProgressEventCat {
     PROGRESS("PROGRESS"),
 
     OK("OK"),
-
-    RETRIABLE_ERROR("RETRIABLE_ERROR"),
-
+    
     ERROR("ERROR");
 
     private final String value;
