@@ -212,7 +212,6 @@ components:
             * ERROR      C006 = StatusPec.RILEVAZIONE_VIRUS
             * ERROR      C008 = ERRORE_COMUNICAZIONE_SERVER_PEC
             * OK         C003 = StatusPec.AVVENUTA_CONSEGNA
-
         eventDetails:
           type: string
         generatedMessage:
