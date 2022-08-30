@@ -53,7 +53,7 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
     @Override
     public void sendLegalNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, LegalDigitalAddressInt digitalAddress, String timelineEventId) {
         //Invio messaggio legali necessità di risposta da external channel
-        sendDigitalNotification(digitalAddress.getAddress(), notificationInt, timelineEventId, true);
+        sendDigitalNotification(digitalAddress.getAddress(), notificationInt, timelineEventId);
     }
 
 
@@ -62,7 +62,7 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
         //sendDigitalNotification(digitalAddress.getAddress(), notificationInt, timelineEventId, false);
     }
 
-    private void sendDigitalNotification(String address, NotificationInt notification, String timelineEventId, boolean legal){
+    private void sendDigitalNotification(String address, NotificationInt notification, String timelineEventId){
         log.info("sendDigitalNotification address:{} requestId:{}", address, timelineEventId);
         new Thread(() -> {
             // Viene atteso fino a che l'elemento di timeline realtivo all'invio verso extChannel sia stato inserito
@@ -70,13 +70,13 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
                     Assertions.assertTrue(timelineService.getTimelineElement(notification.getIun(), timelineEventId).isPresent())
             );
 
-            simulateExternalChannelDigitalProgressResponse(timelineEventId, legal);
+            simulateExternalChannelDigitalProgressResponse(timelineEventId);
 
             Optional<SendDigitalDetailsInt> sendDigitalDetailsOpt = timelineService.getTimelineElementDetails(notification.getIun(), timelineEventId, SendDigitalDetailsInt.class);
             if(sendDigitalDetailsOpt.isPresent()){
                 waitForProgressTimelineElement(notification, sendDigitalDetailsOpt.get());
                 
-                simulateExternalChannelDigitalResponse(address, timelineEventId, legal);
+                simulateExternalChannelDigitalResponse(address, timelineEventId);
                 
             }else {
                 log.error("SendDigitalDetails is not present");
@@ -119,57 +119,44 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
 
     }
 
-    private void simulateExternalChannelDigitalProgressResponse(String timelineEventId, boolean legal) {
+    private void simulateExternalChannelDigitalProgressResponse(String timelineEventId) {
         SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();
-        if (legal)
-        {
-            LegalMessageSentDetails extChannelResponse = new LegalMessageSentDetails();
-            extChannelResponse.setStatus(ProgressEventCategory.PROGRESS);
-            extChannelResponse.setEventTimestamp(Instant.now().atOffset(ZoneOffset.UTC));
-            extChannelResponse.setRequestId(timelineEventId);
-            extChannelResponse.setGeneratedMessage(
-                    new DigitalMessageReference()
-                            .id("test_id")
-                            .location("test_location")
-                            .system("safestorage://urlditest")
-            );
+        LegalMessageSentDetails extChannelResponse = new LegalMessageSentDetails();
+        extChannelResponse.setStatus(ProgressEventCategory.PROGRESS);
+        extChannelResponse.setEventTimestamp(Instant.now().atOffset(ZoneOffset.UTC));
+        extChannelResponse.setRequestId(timelineEventId);
+        extChannelResponse.setEventCode("C001"); //ACCETTAZIONE //TODO Da gestire la non accettazione
+        extChannelResponse.setGeneratedMessage(
+                new DigitalMessageReference()
+                        .id("test_id")
+                        .location("safestorage://urlditest")
+                        .system("test_system")
+        );
 
-            singleStatusUpdate.setDigitalLegal(extChannelResponse);
-        }
-        else
-        {
-            CourtesyMessageProgressEvent extChannelResponse = new CourtesyMessageProgressEvent();
-            extChannelResponse.setStatus(ProgressEventCategory.PROGRESS);
-            extChannelResponse.setEventTimestamp(Instant.now().atOffset(ZoneOffset.UTC));
-            extChannelResponse.setRequestId(timelineEventId);
-            extChannelResponse.setGeneratedMessage(
-                    new DigitalMessageReference()
-                            .id("test_id")
-                            .location("test_location")
-                            .system("test system")
-            );
-
-            singleStatusUpdate.setDigitalCourtesy(extChannelResponse);
-        }
+        singleStatusUpdate.setDigitalLegal(extChannelResponse);
         
         externalChannelHandler.extChannelResponseReceiver(singleStatusUpdate);
     }
 
-    private void simulateExternalChannelDigitalResponse(String address, String timelineEventId, boolean legal) {
+    private void simulateExternalChannelDigitalResponse(String address, String timelineEventId) {
 
         ProgressEventCategory status;
 
         String eventId = timelineEventId;
         String retryNumberPart = eventId.replaceFirst(".*([0-9]+)$", "$1");
-
+        
+        String eventCode = null;
+        
         if (address != null) {
             String domainPart = address.replaceFirst(".*@", "");
 
             if (domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_BOTH)
                     || (domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_FIRST) && "1".equals(retryNumberPart))) {
                 status = ProgressEventCategory.ERROR;
+                eventCode = "C004";
             } else if (domainPart.startsWith(EXT_CHANNEL_WORKS) || domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_FIRST)) {
                 status = ProgressEventCategory.OK;
+                eventCode = "C003";
             } else {
                 throw new IllegalArgumentException("PecAddress " + address + " do not match test rule for mocks");
             }
@@ -178,37 +165,20 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
         }
 
         SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();
-        if (legal)
-        {
-            LegalMessageSentDetails extChannelResponse = new LegalMessageSentDetails();
-            extChannelResponse.setStatus(status);
-            extChannelResponse.setEventTimestamp(Instant.now().atOffset(ZoneOffset.UTC));
-            extChannelResponse.setRequestId(timelineEventId);
-            extChannelResponse.setGeneratedMessage(
-                    new DigitalMessageReference()
-                            .id("test_id")
-                            .location("test_location")
-                            .system("safestorage://urlditest")
-            );
-            
-            singleStatusUpdate.setDigitalLegal(extChannelResponse);
-        }
-        else
-        {
-            CourtesyMessageProgressEvent extChannelResponse = new CourtesyMessageProgressEvent();
-            extChannelResponse.setStatus(status);
-            extChannelResponse.setEventTimestamp(Instant.now().atOffset(ZoneOffset.UTC));
-            extChannelResponse.setRequestId(timelineEventId);
-            extChannelResponse.setGeneratedMessage(
-                    new DigitalMessageReference()
-                            .id("test_id")
-                            .location("test_location")
-                            .system("test system")
-            );
-            
-            singleStatusUpdate.setDigitalCourtesy(extChannelResponse);
-        }
 
+        LegalMessageSentDetails extChannelResponse = new LegalMessageSentDetails();
+        extChannelResponse.setStatus(status);
+        extChannelResponse.setEventTimestamp(Instant.now().atOffset(ZoneOffset.UTC));
+        extChannelResponse.setRequestId(timelineEventId);
+        extChannelResponse.setEventCode(eventCode); //AVVENUTA CONSEGNA
+        extChannelResponse.setGeneratedMessage(
+                new DigitalMessageReference()
+                        .id("test_id")
+                        .location("safestorage://urlditest")
+                        .system("test_system")
+        );
+        
+        singleStatusUpdate.setDigitalLegal(extChannelResponse);
 
         externalChannelHandler.extChannelResponseReceiver(singleStatusUpdate);
     }
@@ -246,6 +216,7 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
         attachmentDetails.setDate(Instant.now().atOffset(ZoneOffset.UTC));
         attachmentDetails.setDocumentType("ricevuta");
         extChannelResponse.setAttachments(List.of(attachmentDetails));
+        
         if (newAddress != null) {
 
             DiscoveredAddress newDestinationAddress = new DiscoveredAddress();
