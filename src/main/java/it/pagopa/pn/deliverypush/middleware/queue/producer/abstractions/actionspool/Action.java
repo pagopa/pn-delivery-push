@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.abstractions.actionspool;
+package it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool;
 
 import lombok.*;
 

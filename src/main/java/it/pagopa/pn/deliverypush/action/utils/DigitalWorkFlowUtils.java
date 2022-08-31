@@ -205,10 +205,11 @@ public class DigitalWorkFlowUtils {
 
     public void addDigitalDeliveringProgressTimelineElement(NotificationInt notification,
                                                             ResponseStatusInt status,
+                                                            List<String> errors,
                                                             SendDigitalDetailsInt sendDigitalDetails,
                                                             DigitalMessageReferenceInt digitalMessageReference) {
         addTimelineElement(
-                timelineUtils.buildDigitalProgressFeedbackTimelineElement(notification, status, sendDigitalDetails, digitalMessageReference),
+                timelineUtils.buildDigitalProgressFeedbackTimelineElement(notification, status, errors, sendDigitalDetails, digitalMessageReference),
                 notification
         );
     }

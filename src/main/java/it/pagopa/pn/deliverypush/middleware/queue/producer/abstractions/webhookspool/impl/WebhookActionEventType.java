@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.abstractions.webhookspool.impl;
+package it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.impl;
 
 import it.pagopa.pn.api.dto.events.IEventType;
 

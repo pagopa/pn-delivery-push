@@ -1,14 +1,14 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadInfoInt;
+import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -18,9 +18,9 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCatego
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactDownloadMetadataResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsId;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.service.GetLegalFactService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.utils.AuthUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,7 +52,7 @@ class GetLegalFactServiceImplTest {
     private static final String LEGAL_FACT_ID = "LEGAL_FACT_ID";
 
     private TimelineService timelineService;
-    private PnSafeStorageClient safeStorageClient;
+    private SafeStorageService safeStorageService;
     private NotificationService notificationService;
     private NotificationUtils notificationUtils;
     private AuthUtils authUtils;
@@ -61,7 +61,7 @@ class GetLegalFactServiceImplTest {
     @BeforeEach
     void setup() {
         timelineService = Mockito.mock( TimelineService.class );
-        safeStorageClient = Mockito.mock( PnSafeStorageClient.class );
+        safeStorageService = Mockito.mock( SafeStorageServiceImpl.class );
         notificationService = Mockito.mock(NotificationService.class);
         notificationUtils = Mockito.mock(NotificationUtils.class);
 
@@ -69,7 +69,7 @@ class GetLegalFactServiceImplTest {
 
         getLegalFactService = new GetLegalFactServiceImpl(
                 timelineService,
-                safeStorageClient,
+                safeStorageService,
                 notificationService,
                 notificationUtils,
                 authUtils);
@@ -142,17 +142,17 @@ class GetLegalFactServiceImplTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
+        FileDownloadResponseInt fileDownloadResponse = new FileDownloadResponseInt();
         fileDownloadResponse.setContentType("application/pdf");
         fileDownloadResponse.setContentLength(new BigDecimal(0));
         fileDownloadResponse.setChecksum("123");
         fileDownloadResponse.setKey("123");
-        fileDownloadResponse.setDownload(new FileDownloadInfo());
+        fileDownloadResponse.setDownload(new FileDownloadInfoInt());
         fileDownloadResponse.getDownload().setUrl("https://www.url.qualcosa.it");
         fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
 
         //When
-        Mockito.when( safeStorageClient.getFile( Mockito.anyString(), Mockito.eq(false) ) )
+        Mockito.when( safeStorageService.getFile( Mockito.anyString(), Mockito.eq(false) ) )
                 .thenReturn( fileDownloadResponse );
         
         NotificationInt notificationInt = newNotification();
@@ -185,17 +185,17 @@ class GetLegalFactServiceImplTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
+        FileDownloadResponseInt fileDownloadResponse = new FileDownloadResponseInt();
         fileDownloadResponse.setContentType("application/xml");
         fileDownloadResponse.setContentLength(new BigDecimal(0));
         fileDownloadResponse.setChecksum("123");
         fileDownloadResponse.setKey("123");
-        fileDownloadResponse.setDownload(new FileDownloadInfo());
+        fileDownloadResponse.setDownload(new FileDownloadInfoInt());
         fileDownloadResponse.getDownload().setUrl("https://www.url.qualcosa.it");
         fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
 
         //When
-        Mockito.when( safeStorageClient.getFile( Mockito.anyString(), Mockito.eq(false) ) )
+        Mockito.when( safeStorageService.getFile( Mockito.anyString(), Mockito.eq(false) ) )
                 .thenReturn( fileDownloadResponse );
 
         NotificationInt notificationInt = newNotification();

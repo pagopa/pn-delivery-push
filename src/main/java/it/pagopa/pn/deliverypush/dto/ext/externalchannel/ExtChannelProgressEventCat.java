@@ -1,10 +1,8 @@
 package it.pagopa.pn.deliverypush.dto.ext.externalchannel;
 
 import lombok.Getter;
-import lombok.ToString;
 
 @Getter
-@ToString
 public enum ExtChannelProgressEventCat {
 
     PROGRESS("PROGRESS"),
@@ -24,5 +22,10 @@ public enum ExtChannelProgressEventCat {
     public String getValue() {
         return value;
     }
-    
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
+
 }

@@ -21,12 +21,14 @@ public class SendDigitalProgressDetailsInt implements RecipientRelatedTimelineEl
     private LegalDigitalAddressInt digitalAddress;
     private Instant notificationDate;
     private List<SendingReceipt> sendingReceipts;
+    private List<String> errors;
 
     public String toLog() {
         return String.format(
-                "recIndex=%d responseStatus=%s digitalAddress=%s",
+                "recIndex=%d responseStatus=%s errors=%s digitalAddress=%s",
                 recIndex,
                 responseStatus,
+                errors,
                 AuditLogUtils.SENSITIVE
         );
     }

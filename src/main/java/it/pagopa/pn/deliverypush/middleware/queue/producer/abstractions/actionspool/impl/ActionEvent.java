@@ -1,8 +1,8 @@
-package it.pagopa.pn.deliverypush.abstractions.actionspool.impl;
+package it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl;
 
 import it.pagopa.pn.api.dto.events.GenericEvent;
 import it.pagopa.pn.api.dto.events.StandardEventHeader;
-import it.pagopa.pn.deliverypush.abstractions.actionspool.Action;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import lombok.*;
 
 @NoArgsConstructor

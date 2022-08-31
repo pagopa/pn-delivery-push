@@ -113,7 +113,6 @@ public class ExternalChannelResponseHandlerOld {
                 .requestId(response.getRequestCorrelationId())
                 .eventTimestamp(response.getStatusDate())
                 .status(status)
-                .eventCode("DEFAULT")
                 .eventDetails("DEFAULT")
                 .build();
     }
