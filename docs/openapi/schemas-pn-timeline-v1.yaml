@@ -113,6 +113,7 @@ components:
         - "$ref": "#/components/schemas/SimpleRegisteredLetterDetails"
         - "$ref": "#/components/schemas/AarGenerationDetails"
         - "$ref": "#/components/schemas/NotHandledDetails"
+        - "$ref": "#/components/schemas/NotificationPaidDetails"
   
 
     NotificationRequestAcceptedDetails:
@@ -491,7 +492,7 @@ components:
         numberOfPages:
           type: integer
           description: numero di pagine del PDF generato
-      
+    
     NotHandledDetails:
       type: object
       required:
@@ -508,7 +509,16 @@ components:
         reason:
           type: string
           description: Motivazione casistica non gestita
-
+          
+    NotificationPaidDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario che ha effettuato il pagamento della notifica
+          
     DigitalAddressSource:
       type: string
       description: sorgente indirizzo di invio della notifica
