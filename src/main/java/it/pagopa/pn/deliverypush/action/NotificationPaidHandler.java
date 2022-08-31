@@ -3,10 +3,12 @@ package it.pagopa.pn.deliverypush.action;
 import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.NotificationCostResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.service.NotificationCostService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
@@ -22,15 +24,18 @@ public class NotificationPaidHandler {
     private final TimelineUtils timelineUtils;
     private final NotificationService notificationService;
     private final NotificationUtils notificationUtils;
-
+    private final NotificationCostService notificationCostService;
+    
     public NotificationPaidHandler(TimelineService timelineService,
                                    TimelineUtils timelineUtils,
                                    NotificationService notificationService,
-                                   NotificationUtils notificationUtils) {
+                                   NotificationUtils notificationUtils,
+                                   NotificationCostService notificationCostService) {
         this.timelineService = timelineService;
         this.timelineUtils = timelineUtils;
         this.notificationService = notificationService;
         this.notificationUtils = notificationUtils;
+        this.notificationCostService = notificationCostService;
     }
 
     public void handleNotificationPaid(String paTaxId, String noticeNumber, Instant paymentDate){
@@ -69,8 +74,9 @@ public class NotificationPaidHandler {
         return timelineService.getTimelineElement(iun, elementId);
     }
 
-    private String getIunFromPaTaxIdAndNoticeNumber(String taxId, String noticeNumber) {
-        return null;
+    private String getIunFromPaTaxIdAndNoticeNumber(String paTaxId, String noticeNumber) {
+        NotificationCostResponseInt notificationCostResponseInt = notificationCostService.getIunFromPaTaxIdAndNoticeCode(paTaxId, noticeNumber);
+        return notificationCostResponseInt.getIun();
     }
 
 }
