@@ -329,4 +329,7 @@ class StatusUtilsTest {
         Assertions.assertEquals(NotificationStatusInt.ACCEPTED, statusUtils.getCurrentStatus(statusHistory));
     }
 
+    @Test
+    void getStatusHistory() {
+    }
 }
