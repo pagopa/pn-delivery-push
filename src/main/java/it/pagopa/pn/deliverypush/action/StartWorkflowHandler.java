@@ -1,14 +1,15 @@
 package it.pagopa.pn.deliverypush.action;
 
 
+import it.pagopa.pn.common.rest.error.v1.dto.ProblemError;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.action.utils.CheckAttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
@@ -16,7 +17,6 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.validation.ConstraintViolation;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -85,8 +85,8 @@ public class StartWorkflowHandler {
     }
     
     private void handleValidationError(NotificationInt notification, PnValidationException ex) {
-        List<String> errors =  ex.getValidationErrors().stream()
-                .map(ConstraintViolation::getMessage).collect(Collectors.toList());
+        List<String> errors =  ex.getProblem().getErrors().stream()
+                .map(ProblemError::getDetail).collect(Collectors.toList());
         log.info("Notification refused, errors {} - iun {}", errors, notification.getIun());
         addTimelineElement( timelineUtils.buildRefusedRequestTimelineElement(notification, errors), notification);
     }
