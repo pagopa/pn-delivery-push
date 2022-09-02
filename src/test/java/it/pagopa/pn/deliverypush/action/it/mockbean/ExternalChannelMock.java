@@ -94,6 +94,7 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
                         .sentAttemptMade(sendDigitalDetails.getRetryNumber())
                         .source(sendDigitalDetails.getDigitalAddressSource())
                         .index(0)
+                        .progressIndex(1)
                         .build()
         );
         
