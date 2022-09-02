@@ -17,6 +17,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import java.util.Collections;
 import java.util.List;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ANALOGDOMICILENOTFOUND;
+
 @WebFluxTest(PnLegalFactsController.class)
 class PnLegalFactsControllerTest {
 
@@ -67,7 +69,7 @@ class PnLegalFactsControllerTest {
     @Test
     void getNotificationLegalFactsError() {
         Mockito.when( getLegalFactService.getLegalFacts( Mockito.anyString(), Mockito.anyString(), Mockito.anyString() ))
-                        .thenThrow( new PnNotFoundException("Authorization Failed", "No auth") );
+                        .thenThrow( new PnNotFoundException("Authorization Failed", "No auth", ERROR_CODE_DELIVERYPUSH_ANALOGDOMICILENOTFOUND) );
 
         webTestClient.get()
                 .uri(uriBuilder ->
@@ -128,7 +130,7 @@ class PnLegalFactsControllerTest {
     void getLegalFactsKoNotFound() {
 
         Mockito.when( getLegalFactService.getLegalFactMetadata( Mockito.anyString(), Mockito.any(LegalFactCategory.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString() ))
-                .thenThrow( new PnNotFoundException("Authorization Failed", "No auth"));
+                .thenThrow( new PnNotFoundException("Authorization Failed", "No auth", ERROR_CODE_DELIVERYPUSH_ANALOGDOMICILENOTFOUND));
 
         String legalFactType = LegalFactCategory.SENDER_ACK.getValue();
         String legalFactsId = "id100";

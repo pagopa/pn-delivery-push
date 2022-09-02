@@ -11,6 +11,8 @@ import org.springframework.util.StringUtils;
 import java.time.Instant;
 import java.util.List;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ANALOGDOMICILENOTFOUND;
+
 @Slf4j
 @Component
 public class AuthUtils {
@@ -112,6 +114,6 @@ public class AuthUtils {
 
     private void handleError(String message) {
         log.warn(message);
-        throw new PnNotFoundException("Authorization failed", message);
+        throw new PnNotFoundException("Authorization failed", message, ERROR_CODE_DELIVERYPUSH_ANALOGDOMICILENOTFOUND);
     }
 }
