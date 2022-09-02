@@ -345,15 +345,19 @@ components:
           type: integer
           description: numero dei tentativi effettuati
           format: int32
-          
+
     SendDigitalProgressDetails:
       type: object
       properties:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
-        responseStatus:
-          $ref: '#/components/schemas/ResponseStatus'
+        eventCode:
+          type: string
+          description: esito tornate da ext-channel
+        shouldRetry:
+          type: boolean
+          description: indica se il progress ha dato luogo ad un ritentativo
         digitalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
         notificationDate:
@@ -364,12 +368,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SendingReceipt'
-        errors:
-          type: array
-          description: Lista errori, vuota in caso di successo
-          items:
-            type: string
-            description: Lista errori, vuota in caso di successo
             
     SendDigitalFeedbackDetails:
       type: object

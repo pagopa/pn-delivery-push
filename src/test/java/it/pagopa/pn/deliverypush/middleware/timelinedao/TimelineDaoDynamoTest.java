@@ -30,14 +30,13 @@ import java.util.stream.Collectors;
 class TimelineDaoDynamoTest {
 
     private TimelineDao dao;
-    private TimelineEntityDao entityDao;
 
     @BeforeEach
     void setup() {
 
         DtoToEntityTimelineMapper dto2Entity = new DtoToEntityTimelineMapper();
         EntityToDtoTimelineMapper entity2dto = new EntityToDtoTimelineMapper();
-        entityDao = new TestMyTimelineEntityDao();
+        TimelineEntityDao entityDao = new TestMyTimelineEntityDao();
 
         dao = new TimelineDaoDynamo(entityDao, dto2Entity, entity2dto);
     }
@@ -83,6 +82,51 @@ class TimelineDaoDynamoTest {
         // check full retrieve
         Set<TimelineElementInternal> result = dao.getTimeline(iun);
         Assertions.assertEquals(Set.of(row1, row2), result);
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void successfullyInsertAndRetrieveSearch() {
+        // GIVEN
+        String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
+        String id_prefix = "SendDigitalDetails_";
+
+        String id1 = "sender_ack";
+        TimelineElementInternal row1 = TimelineElementInternal.builder()
+                .iun(iun)
+                .elementId(id1)
+                .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
+                .details( NotificationRequestAcceptedDetailsInt.builder().build() )
+                .timestamp(Instant.now())
+                .build();
+        String id2 = id_prefix + "1";
+        TimelineElementInternal row2 = TimelineElementInternal.builder()
+                .iun(iun)
+                .elementId(id2)
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .details( SendDigitalDetailsInt.builder().build() )
+                .timestamp(Instant.now())
+                .build();
+        String id3 = id_prefix + "2";
+        TimelineElementInternal row3 = TimelineElementInternal.builder()
+                .iun(iun)
+                .elementId(id3)
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .details( SendDigitalDetailsInt.builder().build() )
+                .timestamp(Instant.now())
+                .build();
+
+        // WHEN
+        dao.addTimelineElement(row1);
+        dao.addTimelineElement(row2);
+        dao.addTimelineElement(row3);
+
+        // THEN
+
+
+        // check full retrieve
+        Set<TimelineElementInternal> result = dao.getTimelineFilteredByElementId(iun, id_prefix);
+        Assertions.assertEquals(Set.of(row2, row3), result);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -158,6 +202,13 @@ class TimelineDaoDynamoTest {
         public Set<TimelineElementEntity> findByIun(String iun) {
             return this.store.values().stream()
                     .filter(el -> iun.equals(el.getIun()))
+                    .collect(Collectors.toSet());
+        }
+
+        @Override
+        public Set<TimelineElementEntity> searchByIunAndElementId(String iun, String elementId) {
+            return this.store.values().stream()
+                    .filter(el -> iun.equals(el.getIun()) && el.getTimelineElementId().startsWith(elementId))
                     .collect(Collectors.toSet());
         }
 

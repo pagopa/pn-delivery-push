@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.action.utils;
 import it.pagopa.pn.deliverypush.dto.address.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
@@ -133,11 +134,12 @@ public class TimelineUtils {
     }
 
     public TimelineElementInternal buildDigitalProgressFeedbackTimelineElement(NotificationInt notification,
-                                                                               ResponseStatusInt status,
-                                                                               List<String> errors,
+                                                                               EventCodeInt eventCode,
+                                                                               boolean shouldRetry,
                                                                                SendDigitalDetailsInt sendDigitalDetails,
-                                                                               DigitalMessageReferenceInt digitalMessageReference) {
-        log.debug("buildDigitalDeliveringProgressTimelineElement - IUN={} and id={}", notification.getIun(), sendDigitalDetails.getRecIndex());
+                                                                               DigitalMessageReferenceInt digitalMessageReference,
+                                                                               int progressIndex) {
+        log.debug("buildDigitalDeliveringProgressTimelineElement - IUN={} and id={} and progressIndex={}", notification.getIun(), sendDigitalDetails.getRecIndex(), progressIndex);
 
         String elementId = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
                 EventId.builder()
@@ -145,27 +147,28 @@ public class TimelineUtils {
                         .recIndex(sendDigitalDetails.getRecIndex())
                         .sentAttemptMade(sendDigitalDetails.getRetryNumber())
                         .source(sendDigitalDetails.getDigitalAddressSource())
+                        .progressIndex(progressIndex)
                         .build()
         );
 
         SendDigitalProgressDetailsInt details = SendDigitalProgressDetailsInt.builder()
                 .digitalAddress(sendDigitalDetails.getDigitalAddress())
-                .responseStatus(status)
                 .recIndex(sendDigitalDetails.getRecIndex())
                 .notificationDate(instantNowSupplier.get())
-                .errors(errors)
+                .eventCode(eventCode.getValue())
+                .shouldRetry(shouldRetry)
                 .sendingReceipts(
-                        Collections.singletonList(
+                        digitalMessageReference != null && digitalMessageReference.getId() != null?Collections.singletonList(
                                 SendingReceipt.builder()
-                                .id(digitalMessageReference.getId())
-                                .system(digitalMessageReference.getSystem())
-                                .build()
-                        )
+                                        .id(digitalMessageReference.getId())
+                                        .system(digitalMessageReference.getSystem())
+                                        .build()
+                        ):null
                 )
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
-                .legalFactsIds( singleLegalFactId(digitalMessageReference.getLocation(), LegalFactCategoryInt.PEC_RECEIPT) );
+                .legalFactsIds( digitalMessageReference!=null?singleLegalFactId(digitalMessageReference.getLocation(), LegalFactCategoryInt.PEC_RECEIPT):null );
 
         return buildTimeline(notification, TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS, elementId, details, timelineBuilder);
     }

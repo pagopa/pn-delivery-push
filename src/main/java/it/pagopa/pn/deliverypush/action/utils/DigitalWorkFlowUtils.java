@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -204,16 +205,35 @@ public class DigitalWorkFlowUtils {
     }
 
     public void addDigitalDeliveringProgressTimelineElement(NotificationInt notification,
-                                                            ResponseStatusInt status,
-                                                            List<String> errors,
+                                                            EventCodeInt eventCode,
+                                                            boolean shouldRetry,
                                                             SendDigitalDetailsInt sendDigitalDetails,
                                                             DigitalMessageReferenceInt digitalMessageReference) {
+
+        int progressIndex = computeNextTimelineProgressIndex(notification, sendDigitalDetails);
+
         addTimelineElement(
-                timelineUtils.buildDigitalProgressFeedbackTimelineElement(notification, status, errors, sendDigitalDetails, digitalMessageReference),
+                timelineUtils.buildDigitalProgressFeedbackTimelineElement(notification, eventCode, shouldRetry, sendDigitalDetails, digitalMessageReference, progressIndex),
                 notification
         );
     }
-    
+
+
+    private int computeNextTimelineProgressIndex(NotificationInt notification,
+                                                  SendDigitalDetailsInt sendDigitalDetails){
+        // per calcolare il prossimo progressIndex, devo necessariamente recuperare dal DB tutte le timeline relative a iun/recindex/source/tentativo
+        String elementIdForSearch = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(sendDigitalDetails.getRecIndex())
+                        .sentAttemptMade(sendDigitalDetails.getRetryNumber())
+                        .source(sendDigitalDetails.getDigitalAddressSource())
+                        .progressIndex(-1)  // passando -1 non verrà inserito nell'id timeline, permettendo la ricerca iniziaper
+                        .build()
+        );
+        return this.timelineService.getTimelineByIunTimelineId(notification.getIun(), elementIdForSearch, false).size() + 1;
+    }
+
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
         timelineService.addTimelineElement(element, notification);
     }

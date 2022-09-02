@@ -99,6 +99,17 @@ public class PnDeliveryPushConfigs {
         private List<String> analogCodesProgress;
         private List<String> analogCodesSuccess;
         private List<String> analogCodesFail;
+
+
+        private List<String> digitalCodesProgress;
+        private List<String> digitalCodesSuccess;
+        private List<String> digitalCodesFail;
+        private List<String> digitalCodesRetryable;
+
+        private List<String> digitalCodesFatallog;
+
+        private int digitalRetryCount;
+        private int digitalDelayMinutes;
     }
 
    @Data

@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional.keyEqualTo;
+import static software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional.sortBeginsWith;
 
 @Component
 @Slf4j
@@ -45,6 +46,19 @@ public class TimelineEntityDaoDynamo  extends AbstractDynamoKeyValueStore<Timeli
         Set<TimelineElementEntity> set = new HashSet<>();
         timelineElementPages.stream().forEach(pages -> set.addAll(pages.items()));
         
+        return set;
+    }
+
+
+    @Override
+    public Set<TimelineElementEntity> searchByIunAndElementId(String iun, String elementId) {
+        Key hashKey = Key.builder().partitionValue(iun).sortValue(elementId).build();
+        QueryConditional queryByHashKey = sortBeginsWith( hashKey );
+        PageIterable<TimelineElementEntity> timelineElementPages = table.query( queryByHashKey );
+
+        Set<TimelineElementEntity> set = new HashSet<>();
+        timelineElementPages.stream().forEach(pages -> set.addAll(pages.items()));
+
         return set;
     }
 

@@ -177,6 +177,33 @@ public class TimeLineServiceImpl implements TimelineService {
     }
 
     @Override
+    public Set<TimelineElementInternal> getTimelineByIunTimelineId(String iun, String timelineId, boolean confidentialInfoRequired) {
+        log.debug("GetTimeline - iun={} timelineId={}", iun, timelineId);
+        Set<TimelineElementInternal> setTimelineElements =  this.timelineDao.getTimelineFilteredByElementId(iun, timelineId);
+
+        if (confidentialInfoRequired)
+        {
+            Optional<Map<String, ConfidentialTimelineElementDtoInt>> mapConfOtp;
+            mapConfOtp = confidentialInformationService.getTimelineConfidentialInformation(iun);
+
+            if(mapConfOtp.isPresent()){
+                Map<String, ConfidentialTimelineElementDtoInt> mapConf = mapConfOtp.get();
+
+                setTimelineElements.forEach(
+                        timelineElementInt -> {
+                             ConfidentialTimelineElementDtoInt dtoInt = mapConf.get(timelineElementInt.getElementId());
+                            if(dtoInt != null){
+                                enrichTimelineElementWithConfidentialInformation(timelineElementInt.getDetails(), dtoInt);
+                            }
+                        }
+                );
+            }
+        }
+
+        return setTimelineElements;
+    }
+
+    @Override
     public NotificationHistoryResponse getTimelineAndStatusHistory(String iun, int numberOfRecipients, Instant createdAt) {
         log.debug("getTimelineAndStatusHistory Start - iun={} ", iun);
         
