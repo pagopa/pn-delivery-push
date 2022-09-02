@@ -201,6 +201,8 @@ components:
             - C006
             - C007
             - C008
+            - C009
+            - C010
           description: >-
             * STATUS     EVENTCODE
             * PROGRESS   C000 = PREACCETTAZIONE (Conferma avvenuta comunicazione con Wrapper Pec)
@@ -211,6 +213,8 @@ components:
             * ERROR      C004 = StatusPec.ERRORE_CONSEGNA
             * ERROR      C006 = StatusPec.RILEVAZIONE_VIRUS
             * ERROR      C008 = ERRORE_COMUNICAZIONE_SERVER_PEC
+            * ERROR      C009 = ERRORE_DOMINIO_PEC_NON_VALIDO
+            * ERROR      C010 = ERROR_INVIO_PEC
             * OK         C003 = StatusPec.AVVENUTA_CONSEGNA
         eventDetails:
           type: string
