@@ -58,10 +58,7 @@ class RefinementHandlerTest {
         
     }
 
-    @Test
-    void testHandleRefinement() {
-    }
-
+    
     private NotificationInt getNotificationWithPhysicalAddress() {
         return NotificationInt.builder()
                 .iun("IUN_01")

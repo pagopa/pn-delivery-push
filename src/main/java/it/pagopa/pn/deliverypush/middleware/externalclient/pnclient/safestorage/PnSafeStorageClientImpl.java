@@ -45,6 +45,7 @@ public class PnSafeStorageClientImpl implements PnSafeStorageClient {
         log.debug("Start call getFile - fileKey={} metadataOnly={}", fileKey, metadataOnly);
         // elimino eventuale prefisso di safestorage
         fileKey = fileKey.replace(SAFE_STORAGE_URL_PREFIX, "");
+        System.out.println("FILE : " + fileKey + " CFG : " + this.cfg.getSafeStorageCxId());
         return fileDownloadApi.getFile( fileKey, this.cfg.getSafeStorageCxId(), metadataOnly );
     }
 

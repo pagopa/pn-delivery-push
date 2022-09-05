@@ -77,12 +77,10 @@ class ActionDaoDynamoTest {
     void getActionById() {
         Action action = buildAction(ActionType.ANALOG_WORKFLOW);
         ActionEntity actionEntity = buildActionEntity(action);
-        
+
         Mockito.when(entityToDtoActionMapper.entityToDto(actionEntity)).thenReturn(action);
 
         Optional<Action> opt = dynamo.getActionById("02");
-        
-        System.out.println("OPT : " + opt.isPresent());
     }
 
     @Test
