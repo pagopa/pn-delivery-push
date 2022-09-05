@@ -14,15 +14,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
+import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
+import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 
 import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional.sortBeginsWith;
 
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = {
@@ -430,6 +430,82 @@ class TimelineEntityDaoDynamoTestIT {
 
         //THEN
         Assertions.assertTrue(elementSet.isEmpty());
+    }
+
+
+    @Test
+    void searchByIunAndElementId() {
+
+
+        String iun = "pa1-1";
+        String elementId = "elementId";
+
+        //GIVEN
+        TimelineElementEntity firstElementToInsert = TimelineElementEntity.builder()
+                .iun(iun)
+                .timelineElementId(elementId + "1")
+                .category(TimelineElementCategoryEntity.REFINEMENT)
+                .details(TimelineElementDetailsEntity.builder()
+                        .recIndex(0)
+                        .build())
+                .legalFactIds(
+                        Collections.singletonList(
+                                LegalFactsIdEntity.builder()
+                                        .key("key")
+                                        .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
+                                        .build()
+                        )
+                )
+                .build();
+
+        TimelineElementEntity secondElementToInsert = TimelineElementEntity.builder()
+                .iun(iun)
+                .timelineElementId(elementId + "2")
+                .category(TimelineElementCategoryEntity.SEND_ANALOG_DOMICILE)
+                .details(TimelineElementDetailsEntity.builder()
+                        .recIndex(0)
+                        .build())
+                .legalFactIds(
+                        Collections.singletonList(
+                                LegalFactsIdEntity.builder()
+                                        .key("key")
+                                        .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
+                                        .build()
+                        )
+                )
+                .build();
+
+        TimelineElementEntity nomatchElementToInsert = TimelineElementEntity.builder()
+                .iun(iun)
+                .timelineElementId("otherelement" + "1")
+                .category(TimelineElementCategoryEntity.SEND_ANALOG_DOMICILE)
+                .details(TimelineElementDetailsEntity.builder()
+                        .recIndex(0)
+                        .build())
+                .legalFactIds(
+                        Collections.singletonList(
+                                LegalFactsIdEntity.builder()
+                                        .key("key")
+                                        .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
+                                        .build()
+                        )
+                )
+                .build();
+
+        removeElementFromDb(firstElementToInsert);
+        timelineEntityDao.put(firstElementToInsert);
+        removeElementFromDb(secondElementToInsert);
+        timelineEntityDao.put(secondElementToInsert);
+        removeElementFromDb(nomatchElementToInsert);
+        timelineEntityDao.put(nomatchElementToInsert);
+
+        //WHEN
+        Set<TimelineElementEntity> elementSet =  timelineEntityDao.searchByIunAndElementId(iun, elementId);
+
+        //THEN
+        Assertions.assertFalse(elementSet.isEmpty());
+        Assertions.assertTrue(elementSet.contains(firstElementToInsert));
+        Assertions.assertTrue(elementSet.contains(secondElementToInsert));
     }
 
     @Test
