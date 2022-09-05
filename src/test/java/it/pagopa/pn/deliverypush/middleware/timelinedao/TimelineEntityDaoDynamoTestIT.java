@@ -506,6 +506,7 @@ class TimelineEntityDaoDynamoTestIT {
         Assertions.assertFalse(elementSet.isEmpty());
         Assertions.assertTrue(elementSet.contains(firstElementToInsert));
         Assertions.assertTrue(elementSet.contains(secondElementToInsert));
+        Assertions.assertEquals(2, elementSet.size());
     }
 
     @Test
