@@ -377,20 +377,21 @@ public class DigitalWorkFlowHandler {
 
         String eventCodeValue = eventCode.getValue();
 
-        if (this.pnDeliveryPushConfigs.getExternalChannel().getDigitalCodesFatallog().contains(eventCodeValue)){
+        PnDeliveryPushConfigs.ExternalChannel externalChannelConfig = this.pnDeliveryPushConfigs.getExternalChannel();
+        if (externalChannelConfig.getDigitalCodesFatallog().contains(eventCodeValue)){
             log.error("FATAL!!!!: received eventcode {} from external-channel, should check why!!", eventCodeValue);
         }
 
-        if (this.pnDeliveryPushConfigs.getExternalChannel().getDigitalCodesProgress().contains(eventCodeValue)){
+        if (externalChannelConfig.getDigitalCodesProgress().contains(eventCodeValue)){
             return ResponseStatusInt.PROGRESS;
         }
-        if (this.pnDeliveryPushConfigs.getExternalChannel().getDigitalCodesSuccess().contains(eventCodeValue)){
+        if (externalChannelConfig.getDigitalCodesSuccess().contains(eventCodeValue)){
             return ResponseStatusInt.OK;
         }
-        if (this.pnDeliveryPushConfigs.getExternalChannel().getDigitalCodesFail().contains(eventCodeValue)){
+        if (externalChannelConfig.getDigitalCodesFail().contains(eventCodeValue)){
             return  ResponseStatusInt.KO;
         }
-        if (this.pnDeliveryPushConfigs.getExternalChannel().getDigitalCodesRetryable().contains(eventCodeValue)){
+        if (externalChannelConfig.getDigitalCodesRetryable().contains(eventCodeValue)){
             return  ResponseStatusInt.PROGRESS_WITH_RETRY;
         }
 
