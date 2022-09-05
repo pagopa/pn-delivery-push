@@ -105,6 +105,17 @@ public class TimelineDaoDynamo implements TimelineDao {
                 .collect(Collectors.toSet());
     }
 
+
+    @Override
+    public Set<TimelineElementInternal> getTimelineFilteredByElementId(String iun, String elementId) {
+        return entityDao.searchByIunAndElementId(iun, elementId)
+                .stream()
+                .map(entity2dto::entityToDto)
+                .collect(Collectors.toSet());
+    }
+
+
+
     @Override
     public void deleteTimeline(String iun) {
         entityDao.deleteByIun(iun);

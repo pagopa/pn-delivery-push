@@ -19,6 +19,8 @@ public interface TimelineService {
 
     Set<TimelineElementInternal> getTimeline(String iun);
 
+    Set<TimelineElementInternal> getTimelineByIunTimelineId(String iun, String timelineId, boolean confidentialInfoRequired);
+
     NotificationHistoryResponse getTimelineAndStatusHistory(String iun, int numberOfRecipients, Instant createdAt);
 
     boolean isPresentTimeLineElement(String iun, Integer recIndex, TimelineEventId timelineEventId);

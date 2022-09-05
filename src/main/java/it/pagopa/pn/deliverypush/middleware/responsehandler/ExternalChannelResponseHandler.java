@@ -131,7 +131,7 @@ public class ExternalChannelResponseHandler {
                 .eventDetails(event.getEventDetails())
                 .eventTimestamp(event.getEventTimestamp().toInstant())
                 .status( ExtChannelProgressEventCat.valueOf(event.getStatus().getValue()))
-                .eventCode( event.getEventCode() != null ? EventCode.valueOf(event.getEventCode()) : null ) 
+                .eventCode( EventCodeInt.valueOf(event.getEventCode().getValue()) ) 
                 .requestId(event.getRequestId());
         
         if(event.getGeneratedMessage() != null){

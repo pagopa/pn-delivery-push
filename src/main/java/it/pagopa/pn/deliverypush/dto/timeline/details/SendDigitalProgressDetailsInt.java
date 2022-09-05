@@ -17,19 +17,19 @@ import java.util.List;
 @ToString
 public class SendDigitalProgressDetailsInt implements RecipientRelatedTimelineElementDetails, DigitalAddressRelatedTimelineElement {
     private int recIndex;
-    private ResponseStatusInt responseStatus;
     private LegalDigitalAddressInt digitalAddress;
     private Instant notificationDate;
     private List<SendingReceipt> sendingReceipts;
-    private List<String> errors;
+    private String eventCode;
+    private boolean shouldRetry;
 
     public String toLog() {
         return String.format(
-                "recIndex=%d responseStatus=%s errors=%s digitalAddress=%s",
+                "recIndex=%d eventCode=%s digitalAddress=%s shouldRetry=%b",
                 recIndex,
-                responseStatus,
-                errors,
-                AuditLogUtils.SENSITIVE
+                eventCode,
+                AuditLogUtils.SENSITIVE,
+                shouldRetry
         );
     }
 }

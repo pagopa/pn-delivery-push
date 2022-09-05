@@ -54,11 +54,12 @@ public enum TimelineEventId {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
-                    "%s_digital_delivering_progress_%d_attempt_%d_source%s",
+                    "%s_digital_delivering_progress_%d_attempt_%d_source%s_progidx_%s",
                     eventId.getIun(),
                     eventId.getRecIndex(),
                     eventId.getSentAttemptMade() +1,
-                    eventId.getSource()
+                    eventId.getSource(),
+                    eventId.getProgressIndex()<0?"":eventId.getProgressIndex()  // se passo un progressindex negativo, è perchè non voglio che venga inserito nell'eventid. Usato per cercare con l'inizia per
                     );
         }
     },

@@ -7,6 +7,10 @@ import lombok.ToString;
 @Getter
 public enum ResponseStatusInt {
   OK("OK"),
+
+  PROGRESS("PROGRESS"),
+
+  PROGRESS_WITH_RETRY("PROGRESS_WITH_RETRY"),
   
   KO("KO");
 

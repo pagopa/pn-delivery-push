@@ -36,7 +36,9 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
+import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class DigitalWorkFlowHandlerTest {
@@ -495,7 +497,7 @@ class DigitalWorkFlowHandlerTest {
                 .iun(notification.getIun())
                 .status(ExtChannelProgressEventCat.PROGRESS)
                 .eventTimestamp(Instant.now())
-                .eventCode(EventCode.C001)
+                .eventCode(EventCodeInt.C001)
                 .requestId(notification.getIun() + "_event_idx_0")
                 .eventDetails("ACCETTAZIONE")
                 .generatedMessage(
@@ -529,14 +531,97 @@ class DigitalWorkFlowHandlerTest {
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
+        PnDeliveryPushConfigs.ExternalChannel externalChannel = Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class);
+        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(externalChannel);
+        Mockito.when(externalChannel.getDigitalCodesFatallog()).thenReturn(List.of("C008", "C010"));
+        Mockito.when(externalChannel.getDigitalCodesProgress()).thenReturn(List.of("C001"));
 
         //WHEN
         handler.handleExternalChannelResponse(extChannelResponse);
 
         //THEN
-        Mockito.verify(digitalWorkFlowUtils).addDigitalDeliveringProgressTimelineElement(notification, ResponseStatusInt.OK,
-                Collections.emptyList(), details, extChannelResponse.getGeneratedMessage());
+        Mockito.verify(digitalWorkFlowUtils).addDigitalDeliveringProgressTimelineElement(notification, EventCodeInt.C001,
+                false, details, extChannelResponse.getGeneratedMessage());
     }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void handleExternalChannelResponseProgressRetryable_008_010() {
+        //GIVEN
+        NotificationInt notification = getNotification();
+
+        ExtChannelDigitalSentResponseInt extChannelResponse = ExtChannelDigitalSentResponseInt.builder()
+                .iun(notification.getIun())
+                .status(ExtChannelProgressEventCat.PROGRESS)
+                .eventTimestamp(Instant.now())
+                .eventCode(EventCodeInt.C008)
+                .requestId(notification.getIun() + "_event_idx_0")
+                .eventDetails("ACCETTAZIONE")
+                .generatedMessage(
+                        DigitalMessageReferenceInt.builder()
+                                .id("id")
+                                .system("system")
+                                .location("location")
+                                .build()
+                )
+                .build();
+
+        SendDigitalDetailsInt details = SendDigitalDetailsInt.builder()
+                .recIndex(0)
+                .digitalAddressSource(DigitalAddressSourceInt.SPECIAL)
+                .retryNumber(0)
+                .digitalAddress(
+                        LegalDigitalAddressInt.builder()
+                                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                                .address("test")
+                                .build()
+                ).build();
+
+        TimelineElementInternal element = TimelineElementInternal.builder()
+                .timestamp(Instant.now())
+                .iun(notification.getIun())
+                .details( details )
+                .build();
+
+        Mockito.when(digitalWorkFlowUtils.getSendDigitalDetailsTimelineElement(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn( element );
+
+
+
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+                .thenReturn(notification);
+        PnDeliveryPushConfigs.ExternalChannel externalChannel = Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class);
+        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(externalChannel);
+        Mockito.when(externalChannel.getDigitalCodesFatallog()).thenReturn(List.of("C008", "C010"));
+        Mockito.when(externalChannel.getDigitalCodesRetryable()).thenReturn(List.of("C008", "C010"));
+        Mockito.when(externalChannel.getDigitalRetryCount()).thenReturn(-1);
+
+        //WHEN
+        handler.handleExternalChannelResponse(extChannelResponse);
+
+        //THEN
+        Mockito.verify(digitalWorkFlowUtils).addDigitalDeliveringProgressTimelineElement(notification, EventCodeInt.C008,
+                true, details, extChannelResponse.getGeneratedMessage());
+
+        // STEP 2
+        // GIVENT
+        Mockito.when(externalChannel.getDigitalRetryCount()).thenReturn(0);
+
+        Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfo.class)))
+                .thenReturn(DigitalAddressInfo.builder()
+                        .digitalAddressSource(DigitalAddressSourceInt.GENERAL)
+                        .sentAttemptMade(0)
+                        .lastAttemptDate(Instant.now())
+                        .build());
+
+        //WHEN
+        handler.handleExternalChannelResponse(extChannelResponse);
+
+
+        Mockito.verify(digitalWorkFlowUtils).addDigitalFeedbackTimelineElement(Mockito.any(NotificationInt.class), Mockito.eq(ResponseStatusInt.KO),
+                Mockito.any(), Mockito.any(), Mockito.any(DigitalMessageReferenceInt.class));
+    }
+
     
     @ExtendWith(MockitoExtension.class)
     @Test
@@ -549,7 +634,7 @@ class DigitalWorkFlowHandlerTest {
                 .status(ExtChannelProgressEventCat.PROGRESS)
                 .eventTimestamp(Instant.now())
                 .requestId(notification.getIun() + "_event_idx_0")
-                .eventCode(EventCode.C000)
+                .eventCode(EventCodeInt.C000)
                 .eventDetails("COMUNICAZIONE CON SEERVER PEC AVVENUTA")
                 .generatedMessage(
                         DigitalMessageReferenceInt.builder()
@@ -582,13 +667,17 @@ class DigitalWorkFlowHandlerTest {
         
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
-        
+        PnDeliveryPushConfigs.ExternalChannel externalChannel = Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class);
+        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(externalChannel);
+        Mockito.when(externalChannel.getDigitalCodesFatallog()).thenReturn(List.of("C008", "C010"));
+        Mockito.when(externalChannel.getDigitalCodesFail()).thenReturn(List.of("C002", "C004", "C006", "C009"));
+
         //WHEN
         handler.handleExternalChannelResponse(extChannelResponse);
 
         //THEN
-        Mockito.verify(digitalWorkFlowUtils, Mockito.never()).addDigitalDeliveringProgressTimelineElement(Mockito.any(NotificationInt.class), Mockito.any(ResponseStatusInt.class),
-                Mockito.any(), Mockito.any(), Mockito.any(DigitalMessageReferenceInt.class));
+        Mockito.verify(digitalWorkFlowUtils, Mockito.never()).addDigitalDeliveringProgressTimelineElement(Mockito.any(), Mockito.eq(EventCodeInt.C000),
+                Mockito.anyBoolean(), Mockito.any(), Mockito.any(DigitalMessageReferenceInt.class));
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -602,7 +691,7 @@ class DigitalWorkFlowHandlerTest {
                 .status(ExtChannelProgressEventCat.PROGRESS)
                 .eventTimestamp(Instant.now())
                 .requestId(notification.getIun() + "_event_idx_0")
-                .eventCode(EventCode.C005)
+                .eventCode(EventCodeInt.C005)
                 .eventDetails("COMUNICAZIONE CON SEERVER PEC AVVENUTA")
                 .generatedMessage(
                         DigitalMessageReferenceInt.builder()
@@ -635,12 +724,15 @@ class DigitalWorkFlowHandlerTest {
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
-
+        PnDeliveryPushConfigs.ExternalChannel externalChannel = Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class);
+        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(externalChannel);
+        Mockito.when(externalChannel.getDigitalCodesFatallog()).thenReturn(List.of("C008", "C010"));
+        Mockito.when(externalChannel.getDigitalCodesFail()).thenReturn(List.of("C002", "C004", "C006", "C009"));
         //WHEN
         handler.handleExternalChannelResponse(extChannelResponse);
 
         //THEN
-        Mockito.verify(digitalWorkFlowUtils, Mockito.never()).addDigitalDeliveringProgressTimelineElement(Mockito.any(NotificationInt.class), Mockito.any(ResponseStatusInt.class),
+        Mockito.verify(digitalWorkFlowUtils, Mockito.never()).addDigitalFeedbackTimelineElement(Mockito.any(NotificationInt.class), Mockito.eq(ResponseStatusInt.KO),
                 Mockito.any(), Mockito.any(), Mockito.any(DigitalMessageReferenceInt.class));
     }
 
@@ -655,7 +747,7 @@ class DigitalWorkFlowHandlerTest {
                 .status(ExtChannelProgressEventCat.PROGRESS)
                 .eventTimestamp(Instant.now())
                 .requestId(notification.getIun() + "_event_idx_0")
-                .eventCode(EventCode.C007)
+                .eventCode(EventCodeInt.C007)
                 .eventDetails("COMUNICAZIONE CON SEERVER PEC AVVENUTA")
                 .generatedMessage(
                         DigitalMessageReferenceInt.builder()
@@ -688,12 +780,15 @@ class DigitalWorkFlowHandlerTest {
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
-
+        PnDeliveryPushConfigs.ExternalChannel externalChannel = Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class);
+        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(externalChannel);
+        Mockito.when(externalChannel.getDigitalCodesFatallog()).thenReturn(List.of("C008", "C010"));
+        Mockito.when(externalChannel.getDigitalCodesFail()).thenReturn(List.of("C002", "C004", "C006", "C009"));
         //WHEN
         handler.handleExternalChannelResponse(extChannelResponse);
 
         //THEN
-        Mockito.verify(digitalWorkFlowUtils, Mockito.never()).addDigitalDeliveringProgressTimelineElement(Mockito.any(NotificationInt.class), Mockito.any(ResponseStatusInt.class),
+        Mockito.verify(digitalWorkFlowUtils, Mockito.never()).addDigitalFeedbackTimelineElement(Mockito.any(NotificationInt.class), Mockito.eq(ResponseStatusInt.KO),
                 Mockito.any(), Mockito.any(), Mockito.any(DigitalMessageReferenceInt.class));
     }
     
@@ -709,7 +804,7 @@ class DigitalWorkFlowHandlerTest {
                 .eventTimestamp(Instant.now())
                 .requestId(notification.getIun() + "_event_idx_0")
                 .eventDetails("NON_ACCETTAZIONE")
-                .eventCode(EventCode.C002)
+                .eventCode(EventCodeInt.C002)
                 .generatedMessage(
                         DigitalMessageReferenceInt.builder()
                                 .id("id")
@@ -749,13 +844,18 @@ class DigitalWorkFlowHandlerTest {
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
-        
+
+        PnDeliveryPushConfigs.ExternalChannel externalChannel = Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class);
+        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(externalChannel);
+        Mockito.when(externalChannel.getDigitalCodesFatallog()).thenReturn(List.of("C008", "C010"));
+        Mockito.when(externalChannel.getDigitalCodesFail()).thenReturn(List.of("C002", "C004", "C006", "C009"));
+
         //WHEN
         handler.handleExternalChannelResponse(extChannelResponse);
 
         //THEN
-        Mockito.verify(digitalWorkFlowUtils).addDigitalDeliveringProgressTimelineElement(notification, ResponseStatusInt.KO,
-                Collections.singletonList(extChannelResponse.getEventDetails()),details, extChannelResponse.getGeneratedMessage());
+        Mockito.verify(digitalWorkFlowUtils, Mockito.times(1)).addDigitalFeedbackTimelineElement(Mockito.any(NotificationInt.class), Mockito.eq(ResponseStatusInt.KO),
+                Mockito.any(), Mockito.any(), Mockito.any(DigitalMessageReferenceInt.class));
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -770,7 +870,7 @@ class DigitalWorkFlowHandlerTest {
                 .eventTimestamp(Instant.now())
                 .requestId(notification.getIun() + "_event_idx_0")
                 .eventDetails("RILEVAZIONE VIRUS")
-                .eventCode(EventCode.C006)
+                .eventCode(EventCodeInt.C006)
                 .generatedMessage(
                         DigitalMessageReferenceInt.builder()
                                 .id("id")
@@ -811,12 +911,17 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
+        PnDeliveryPushConfigs.ExternalChannel externalChannel = Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class);
+        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(externalChannel);
+        Mockito.when(externalChannel.getDigitalCodesFatallog()).thenReturn(List.of("C008", "C010"));
+        Mockito.when(externalChannel.getDigitalCodesFail()).thenReturn(List.of("C002", "C004", "C006", "C009"));
+
         //WHEN
         handler.handleExternalChannelResponse(extChannelResponse);
 
         //THEN
-        Mockito.verify(digitalWorkFlowUtils).addDigitalDeliveringProgressTimelineElement(notification, ResponseStatusInt.KO,
-                Collections.singletonList(extChannelResponse.getEventDetails()),details, extChannelResponse.getGeneratedMessage());
+        Mockito.verify(digitalWorkFlowUtils, Mockito.times(1)).addDigitalFeedbackTimelineElement(Mockito.any(NotificationInt.class), Mockito.eq(ResponseStatusInt.KO),
+                Mockito.any(), Mockito.any(), Mockito.any(DigitalMessageReferenceInt.class));
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -830,7 +935,7 @@ class DigitalWorkFlowHandlerTest {
                 .status(ExtChannelProgressEventCat.ERROR)
                 .eventTimestamp(Instant.now())
                 .requestId(notification.getIun() + "_event_idx_0")
-                .eventCode(EventCode.C004)
+                .eventCode(EventCodeInt.C004)
                 .generatedMessage(
                         DigitalMessageReferenceInt.builder()
                                 .id("id")
@@ -870,6 +975,11 @@ class DigitalWorkFlowHandlerTest {
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
+
+        PnDeliveryPushConfigs.ExternalChannel externalChannel = Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class);
+        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(externalChannel);
+        Mockito.when(externalChannel.getDigitalCodesFatallog()).thenReturn(List.of("C008", "C010"));
+        Mockito.when(externalChannel.getDigitalCodesFail()).thenReturn(List.of("C002", "C004", "C006", "C009"));
         
         //WHEN
         handler.handleExternalChannelResponse(extChannelResponse);
@@ -892,7 +1002,7 @@ class DigitalWorkFlowHandlerTest {
                 .status(ExtChannelProgressEventCat.ERROR)
                 .eventTimestamp(Instant.now())
                 .requestId(notification.getIun() + "_event_idx_0")
-                .eventCode(EventCode.C000)
+                .eventCode(EventCodeInt.C000)
                 .generatedMessage(
                         DigitalMessageReferenceInt.builder()
                                 .id("id")
@@ -925,11 +1035,13 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
+        PnDeliveryPushConfigs.ExternalChannel externalChannel = Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class);
+        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(externalChannel);
+        Mockito.when(externalChannel.getDigitalCodesFatallog()).thenReturn(List.of("C008", "C010"));
+        Mockito.when(externalChannel.getDigitalCodesFail()).thenReturn(List.of("C002", "C004", "C006", "C009"));
         //WHEN
 
-        assertThrows(PnInternalException.class, () -> {
-            handler.handleExternalChannelResponse(extChannelResponse);
-        });
+        assertDoesNotThrow(() -> handler.handleExternalChannelResponse(extChannelResponse));
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -943,7 +1055,7 @@ class DigitalWorkFlowHandlerTest {
                 .status(ExtChannelProgressEventCat.OK)
                 .eventTimestamp(Instant.now())
                 .requestId(notification.getIun() + "_event_idx_0")
-                .eventCode(EventCode.C003)
+                .eventCode(EventCodeInt.C003)
                 .generatedMessage(
                         DigitalMessageReferenceInt.builder()
                                 .id("id")
@@ -976,6 +1088,10 @@ class DigitalWorkFlowHandlerTest {
         
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
+        PnDeliveryPushConfigs.ExternalChannel externalChannel = Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class);
+        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(externalChannel);
+        Mockito.when(externalChannel.getDigitalCodesFatallog()).thenReturn(List.of("C008", "C010"));
+        Mockito.when(externalChannel.getDigitalCodesSuccess()).thenReturn(List.of("C003"));
 
         //WHEN
         handler.handleExternalChannelResponse(extChannelResponse);
@@ -986,57 +1102,6 @@ class DigitalWorkFlowHandlerTest {
 
     }
 
-    @ExtendWith(MockitoExtension.class)
-    @Test
-    void handleExternalChannelResponseOkNotHandledEventCode() {
-        //GIVEN
-        NotificationInt notification = getNotification();
-
-        ExtChannelDigitalSentResponseInt extChannelResponse = ExtChannelDigitalSentResponseInt.builder()
-                .iun(notification.getIun())
-                .status(ExtChannelProgressEventCat.OK)
-                .eventTimestamp(Instant.now())
-                .requestId(notification.getIun() + "_event_idx_0")
-                .eventCode(EventCode.C004)
-                .generatedMessage(
-                        DigitalMessageReferenceInt.builder()
-                                .id("id")
-                                .system("system")
-                                .location("location")
-                                .build()
-                )
-                .build();
-
-        SendDigitalDetailsInt details = SendDigitalDetailsInt.builder()
-                .recIndex(0)
-                .digitalAddressSource(DigitalAddressSourceInt.SPECIAL)
-                .retryNumber(0)
-                .digitalAddress(
-                        LegalDigitalAddressInt.builder()
-                                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
-                                .address("test")
-                                .build()
-                ).build();
-
-        TimelineElementInternal element = TimelineElementInternal.builder()
-                .timestamp(Instant.now())
-                .iun(notification.getIun())
-                .details( details )
-                .build();
-
-        Mockito.when(digitalWorkFlowUtils.getSendDigitalDetailsTimelineElement(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn( element );
-
-
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
-                .thenReturn(notification);
-
-        //WHEN
-        assertThrows(PnInternalException.class, () -> {
-            handler.handleExternalChannelResponse(extChannelResponse);
-        });
-
-    }
 
     private NotificationInt getNotification() {
         return NotificationInt.builder()

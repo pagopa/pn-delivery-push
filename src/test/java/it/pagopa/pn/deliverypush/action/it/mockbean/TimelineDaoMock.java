@@ -92,6 +92,14 @@ public class TimelineDaoMock implements TimelineDao {
     }
 
     @Override
+    public Set<TimelineElementInternal> getTimelineFilteredByElementId(String iun, String timelineId) {
+        return timelineList.stream()
+                .filter(
+                        timelineElement -> iun.equals(timelineElement.getIun()) && timelineElement.getElementId().startsWith(timelineId)
+                ).collect(Collectors.toSet());
+    }
+
+    @Override
     public void deleteTimeline(String iun) {
         throw new UnsupportedOperationException();
     }

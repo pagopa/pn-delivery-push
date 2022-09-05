@@ -43,6 +43,7 @@ class ExternalChannelHandlerTest {
         extChannelResponse.setRequestId("iun_event_idx_0");
         SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();
         singleStatusUpdate.setDigitalLegal(extChannelResponse);
+        extChannelResponse.setEventCode(LegalMessageSentDetails.EventCodeEnum.C001);
         
         Mockito.when(timelineUtils.getIunFromTimelineId(Mockito.anyString())).thenReturn("iun");
 
