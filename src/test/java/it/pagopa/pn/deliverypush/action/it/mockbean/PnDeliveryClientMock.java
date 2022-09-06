@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
+import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationCostResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.SentNotification;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
@@ -34,5 +35,10 @@ public class PnDeliveryClientMock implements PnDeliveryClient {
             return ResponseEntity.ok(sentNotificationOpt.get());
         }
         throw new RuntimeException("Test error, iun is not presente in getSentNotification");
+    }
+
+    @Override
+    public ResponseEntity<NotificationCostResponse> getNotificationCostPrivate(String paTaxId, String noticeCode) {
+        throw new UnsupportedOperationException();
     }
 }

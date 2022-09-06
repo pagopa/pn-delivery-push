@@ -64,34 +64,51 @@ public class PnEventInboundService {
     }
 
     private String handleMessage(Message<?> message) {
+        //Viene ricevuto un nuovo evento da una queue
         log.debug("Received message from customRouter {}", message);
         
         String eventType = (String) message.getHeaders().get("eventType");
         log.debug("Received message from customRouter with eventType={}", eventType );
         
         if(eventType != null){
-            if(ActionEventType.ACTION_GENERIC.name().equals(eventType))
+            //Se l'event type e valorizzato ...
+            if(ActionEventType.ACTION_GENERIC.name().equals(eventType)){
+                //... e si tratta di una ACTION, viene gestito con l'handleActionGeneric
                 return handleGenericAction(message);
-            else if(WebhookActionEventType.WEBHOOK_ACTION_GENERIC.name().equals(eventType))
+            }
+            else if(WebhookActionEventType.WEBHOOK_ACTION_GENERIC.name().equals(eventType)){
+                //... e si tratta di una WEBHOOK ACTION, viene gestito con l'handleWebhookAction
                 return handleWebhookAction();
+            }
         }else {
             //TODO EXTERNAL CHANNEL dovrà INVIARE UN EventType specifico
-            
-            String queueName = (String) message.getHeaders().get("aws_receivedQueue");
-            if( Objects.equals( queueName, externalChannelEventQueueName) ) {
-                eventType = "SEND_PAPER_RESPONSE";
-            }
-            else {
-                log.error("eventType not present, cannot start scheduled action headers={} payload={}", message.getHeaders(), message.getPayload());
-                throw new PnInternalException("eventType not present, cannot start scheduled action");
-            }
+            //Se l'eventType non è valorizzato entro sicuramente qui, cioè negli eventi di externalChannel
+            eventType = handleExternalChannelEvent(message);
         }
+
+        /*... arrivati qui, l'eventType o era valorizzato ma non è ne il caso di ACTION o WEBHOOK_ACTION, rientrano i casi di NEW_NOTIFICATION, NOTIFICATION_VIEWED, NOTIFICATION_PAID ecc. 
+            oppure l'eventType non era valorizzato ed è stato valorizzato in handleExternalChannelEvent.
+         */
 
         String handlerName = eventHandler.getHandler().get(eventType);
         if( ! StringUtils.hasText( handlerName) ) {
             log.error("undefined handler for eventType={}", eventType);
         }
         return handlerName;
+    }
+
+    @NotNull
+    private String handleExternalChannelEvent(Message<?> message) {
+        String eventType;
+        String queueName = (String) message.getHeaders().get("aws_receivedQueue");
+        if( Objects.equals( queueName, externalChannelEventQueueName) ) {
+            eventType = "SEND_PAPER_RESPONSE";
+        }
+        else {
+            log.error("eventType not present, cannot start scheduled action headers={} payload={}", message.getHeaders(), message.getPayload());
+            throw new PnInternalException("eventType not present, cannot start scheduled action");
+        }
+        return eventType;
     }
 
     @NotNull
