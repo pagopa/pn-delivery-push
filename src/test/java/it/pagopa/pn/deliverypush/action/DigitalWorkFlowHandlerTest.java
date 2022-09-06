@@ -34,6 +34,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -546,6 +547,7 @@ class DigitalWorkFlowHandlerTest {
     @ExtendWith(MockitoExtension.class)
     @Test
     void handleExternalChannelResponseProgressRetryable_008_010() {
+        // contiene più casi di test, visto che molti parametri di ingresso erano gli stessi
         //GIVEN
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
@@ -596,6 +598,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(externalChannel.getDigitalCodesFatallog()).thenReturn(List.of("C008", "C010"));
         Mockito.when(externalChannel.getDigitalCodesRetryable()).thenReturn(List.of("C008", "C010"));
         Mockito.when(externalChannel.getDigitalRetryCount()).thenReturn(-1);
+        Mockito.when(externalChannel.getDigitalDelay()).thenReturn(Duration.ofMillis(100));
 
         //WHEN
         handler.handleExternalChannelResponse(extChannelResponse);
@@ -604,8 +607,34 @@ class DigitalWorkFlowHandlerTest {
         Mockito.verify(digitalWorkFlowUtils).addDigitalDeliveringProgressTimelineElement(notification, EventCodeInt.C008, 0, 0, details.getDigitalAddress(), details.getDigitalAddressSource(),
                 true, extChannelResponse.getGeneratedMessage());
 
-        // STEP 2
-        // GIVENT
+        // STEP 2 - con esecuzione istantanea, senza scheduling
+        //WHEN
+        Mockito.clearInvocations(digitalWorkFlowUtils);
+        extChannelResponse = ExtChannelDigitalSentResponseInt.builder()
+                .iun(notification.getIun())
+                .status(ExtChannelProgressEventCat.PROGRESS)
+                .eventTimestamp(Instant.now().minusMillis(1000))
+                .eventCode(EventCodeInt.C008)
+                .requestId(notification.getIun() + "_event_idx_0")
+                .eventDetails("ACCETTAZIONE")
+                .generatedMessage(
+                        DigitalMessageReferenceInt.builder()
+                                .id("id")
+                                .system("system")
+                                .location("location")
+                                .build()
+                )
+                .build();
+        handler.handleExternalChannelResponse(extChannelResponse);
+
+        //THEN
+        Mockito.verify(digitalWorkFlowUtils).addDigitalDeliveringProgressTimelineElement(notification, EventCodeInt.C008, 0, 0, details.getDigitalAddress(), details.getDigitalAddressSource(),
+                true, extChannelResponse.getGeneratedMessage());
+        Mockito.verify(externalChannelService).sendDigitalNotification(Mockito.eq(notification), Mockito.eq(details.getDigitalAddress()), Mockito.eq(details.getDigitalAddressSource()), Mockito.eq(0) ,Mockito.eq(0), Mockito.eq(true));
+
+        // STEP 3
+        // GIVEN
+        Mockito.clearInvocations(digitalWorkFlowUtils);
         Mockito.when(externalChannel.getDigitalRetryCount()).thenReturn(0);
 
         Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfo.class)))
@@ -618,9 +647,93 @@ class DigitalWorkFlowHandlerTest {
         //WHEN
         handler.handleExternalChannelResponse(extChannelResponse);
 
-
+        //THEN
         Mockito.verify(digitalWorkFlowUtils).addDigitalFeedbackTimelineElement(Mockito.any(NotificationInt.class), Mockito.eq(ResponseStatusInt.KO),
                 Mockito.any(), Mockito.any(), Mockito.any(DigitalMessageReferenceInt.class));
+
+        // STEP 4 - non torna retry, ci si aspetta un retry
+        // GIVEN
+        Mockito.clearInvocations(digitalWorkFlowUtils);
+        Mockito.when(externalChannel.getDigitalRetryCount()).thenReturn(3);
+        Mockito.when(digitalWorkFlowUtils.getPreviousTimelineProgress(Mockito.any(), Mockito.anyInt(), Mockito.anyInt(), Mockito.any())).thenReturn(Collections.EMPTY_SET);
+
+
+        //WHEN
+        handler.handleExternalChannelResponse(extChannelResponse);
+
+        //THEN
+        Mockito.verify(digitalWorkFlowUtils).addDigitalDeliveringProgressTimelineElement(notification, EventCodeInt.C008, 0, 0, details.getDigitalAddress(), details.getDigitalAddressSource(),
+                true, extChannelResponse.getGeneratedMessage());
+
+
+        // STEP 5 - torna 3 retry, quindi non ci si aspetta che deve ritentare ma generare un feedback fail
+        // GIVEN
+        Mockito.clearInvocations(digitalWorkFlowUtils);
+        Mockito.when(externalChannel.getDigitalRetryCount()).thenReturn(3);
+
+        TimelineElementInternal t1 = TimelineElementInternal.builder()
+                .iun("iun1").elementId("aaaa1").timestamp(Instant.now().minusMillis(30000))
+                .details(SendDigitalProgressDetailsInt.builder().build())
+                .build();
+        TimelineElementInternal t2 = TimelineElementInternal.builder()
+                .iun("iun1").elementId("aaaa2").timestamp(Instant.now().minusMillis(20000))
+                .details(SendDigitalProgressDetailsInt.builder()
+                        .eventCode("C008")
+                        .shouldRetry(true)
+                        .retryNumber(0)
+                        .digitalAddressSource(DigitalAddressSourceInt.SPECIAL)
+                        .digitalAddress(LegalDigitalAddressInt.builder()
+                                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                                .address("pec@testpec.it")
+                                .build())
+                        .recIndex(0)
+                        .notificationDate(Instant.now().minusMillis(20000))
+                        .build())
+                .build();
+        TimelineElementInternal t3 = TimelineElementInternal.builder()
+                .iun("iun1").elementId("aaaa3").timestamp(Instant.now().minusMillis(10000))
+                .details(SendDigitalProgressDetailsInt.builder()
+                        .eventCode("C008")
+                        .shouldRetry(true)
+                        .retryNumber(0)
+                        .digitalAddressSource(DigitalAddressSourceInt.SPECIAL)
+                        .digitalAddress(LegalDigitalAddressInt.builder()
+                                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                                .address("pec@testpec.it")
+                                .build())
+                        .recIndex(0)
+                        .notificationDate(Instant.now().minusMillis(10000))
+                        .build())
+                .build();
+        TimelineElementInternal t4 = TimelineElementInternal.builder()
+                .iun("iun1").elementId("aaaa4").timestamp(Instant.now().minusMillis(0))
+                .details(SendDigitalProgressDetailsInt.builder()
+                        .eventCode("C008")
+                        .shouldRetry(true)
+                        .retryNumber(0)
+                        .digitalAddressSource(DigitalAddressSourceInt.SPECIAL)
+                        .digitalAddress(LegalDigitalAddressInt.builder()
+                                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                                .address("pec@testpec.it")
+                                .build())
+                        .recIndex(0)
+                        .notificationDate(Instant.now().minusMillis(0))
+                        .build())
+                .build();
+
+        Mockito.when(digitalWorkFlowUtils.getPreviousTimelineProgress(Mockito.any(), Mockito.anyInt(), Mockito.anyInt(), Mockito.any())).thenReturn(
+                Set.of(t1, t2, t3, t4));
+
+
+        //WHEN
+        handler.handleExternalChannelResponse(extChannelResponse);
+
+        //THEN
+        Mockito.verify(digitalWorkFlowUtils, Mockito.never()).addDigitalDeliveringProgressTimelineElement(notification, EventCodeInt.C008, 0, 0, details.getDigitalAddress(), details.getDigitalAddressSource(),
+                true, extChannelResponse.getGeneratedMessage());
+        Mockito.verify(digitalWorkFlowUtils).addDigitalFeedbackTimelineElement(Mockito.any(NotificationInt.class), Mockito.eq(ResponseStatusInt.KO),
+                Mockito.any(), Mockito.any(), Mockito.any(DigitalMessageReferenceInt.class));
+
     }
 
     @ExtendWith(MockitoExtension.class)
