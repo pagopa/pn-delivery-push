@@ -277,45 +277,45 @@ paths:
     ###                INVIO DI EVENTI DA PARTE DELLA PUBBLICA AMMNISTRAZIONE                ###
     ############################################################################################
 
-  '/delivery-progresses/events':
-    post:
-      summary: Invio eventi da parte della PA
-      description: >-
-        Questa API è a disposizione della Pubblica Amministrazione per inviare eventi, come 
-        quello di chiusura di una posizione debitoria con pagamento tramite F24, che possono 
-        avvenire fuori dal controllo di PagoPA. <br/>
+  # '/delivery-progresses/events':
+  #   post:
+  #     summary: Invio eventi da parte della PA
+  #     description: >-
+  #       Questa API è a disposizione della Pubblica Amministrazione per inviare eventi, come 
+  #       quello di chiusura di una posizione debitoria con pagamento tramite F24, che possono 
+  #       avvenire fuori dal controllo di PagoPA. <br/>
 
-        L'elaborazione può avvenire in maniera parziale, quindi ogni evento deve avere un 
-        identificativo univoco (generato dalla PA). In caso di fallimento vanno ritrasmessi
-        gli eventi con lo stesso identificativo. Sarà Piattaforma Notifica ad identificare 
-        quelli già elaborati ed evitare duplicazioni. <br/>
+  #       L'elaborazione può avvenire in maniera parziale, quindi ogni evento deve avere un 
+  #       identificativo univoco (generato dalla PA). In caso di fallimento vanno ritrasmessi
+  #       gli eventi con lo stesso identificativo. Sarà Piattaforma Notifica ad identificare 
+  #       quelli già elaborati ed evitare duplicazioni. <br/>
 
-        Allo stato attuale gli unici eventi sono quelli di pagamento
-      tags:
-        - Events
-      operationId: informOnExternalEvent
-      parameters:
-      requestBody:
-        required: true
-        content:
-          application/json:
-              schema:
-                $ref: "#/components/schemas/ExternalEventsRequest"
-      responses:
-        '204':
-          description: OK
-        '400':
-          description: Invalid input
-          content:
-            application/problem+json:
-              schema:
-                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
-        '500':
-          description: Internal Server Error
-          content:
-            application/problem+json:
-              schema:
-                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+  #       Allo stato attuale gli unici eventi sono quelli di pagamento
+  #     tags:
+  #       - Events
+  #     operationId: informOnExternalEvent
+  #     parameters:
+  #     requestBody:
+  #       required: true
+  #       content:
+  #         application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/ExternalEventsRequest"
+  #     responses:
+  #       '204':
+  #         description: OK
+  #       '400':
+  #         description: Invalid input
+  #         content:
+  #           application/problem+json:
+  #             schema:
+  #               $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+  #       '500':
+  #         description: Internal Server Error
+  #         content:
+  #           application/problem+json:
+  #             schema:
+  #               $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
   
 components:
   
