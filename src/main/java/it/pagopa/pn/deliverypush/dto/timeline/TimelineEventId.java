@@ -278,6 +278,16 @@ public enum TimelineEventId {
                     eventId.getRecIndex()
             );
         }
+    },
+
+    NOTIFICATION_PAID() {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return String.format(
+                    "%s_notification_paid",
+                    eventId.getIun()
+            );
+        }
     }
     ;
 

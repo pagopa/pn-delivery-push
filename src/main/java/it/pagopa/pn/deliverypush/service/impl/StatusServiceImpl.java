@@ -83,6 +83,5 @@ public class StatusServiceImpl implements StatusService {
 
         return historyElementList.get(historyElementList.size() - 1);
     }
-
     
 }

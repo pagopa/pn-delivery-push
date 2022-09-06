@@ -39,7 +39,7 @@ public class TimelineUtils {
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds(Collections.emptyList());
                 
-        return buildTimeline( notification, category, elementId, details, timelineBuilder);
+        return buildTimeline( notification, category, elementId, details, timelineBuilder );
     }
 
     public TimelineElementInternal buildTimeline(NotificationInt notification, TimelineElementCategoryInt category, String elementId,
@@ -550,6 +550,29 @@ public class TimelineUtils {
         );
     }
 
+    public TimelineElementInternal buildNotificationPaidTimelineElement(NotificationInt notification, int recIndex, Instant paymentDate) {
+        log.debug("buildNotificationPaidTimelineElement - iun={} id={}", notification.getIun(), recIndex);
+
+        String elementId = TimelineEventId.NOTIFICATION_PAID.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .build());
+
+        NotificationPaidDetails details = NotificationPaidDetails.builder()
+                .recIndex(recIndex)
+                .build();
+        
+        return TimelineElementInternal.builder()
+                .legalFactsIds(Collections.emptyList())
+                .iun(notification.getIun())
+                .category(TimelineElementCategoryInt.PAYMENT)
+                .timestamp(paymentDate)
+                .elementId(elementId)
+                .details(details)
+                .paId(notification.getSender().getPaId())
+                .build();
+    }
+    
     public List<LegalFactsIdInt> singleLegalFactId(String legalFactKey, LegalFactCategoryInt type) {
         return Collections.singletonList( LegalFactsIdInt.builder()
                 .key( legalFactKey )
@@ -558,7 +581,8 @@ public class TimelineUtils {
     }
 
     public boolean checkNotificationIsAlreadyViewed(String iun, Integer recIndex){
-
+        //Se la notifica è stata pagata è stata sicuramente anche visualizzata dunque non serve il doppio check
+        
         String elementId = TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
                 EventId.builder()
                         .iun(iun)
@@ -568,9 +592,6 @@ public class TimelineUtils {
         Optional<TimelineElementInternal> timelineOpt = timelineService.getTimelineElement(iun, elementId);
         return timelineOpt.isPresent();
     }
-    
-    
-    
 
     public String getIunFromTimelineId(String timelineId)
     {
