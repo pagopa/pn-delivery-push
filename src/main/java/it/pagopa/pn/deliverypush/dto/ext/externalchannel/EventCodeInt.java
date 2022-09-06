@@ -3,7 +3,11 @@ package it.pagopa.pn.deliverypush.dto.ext.externalchannel;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum EventCodeInt {
-    // con/senza busta indica se lo stato contiene allegati
+
+    // codici interni Delivery-Push (DP)
+    DP00("DP00"), // Tentativo reinvio richiesto: codice interno a delivery push che indica una richiesta di ritentativo
+
+    // codici in arrivo da ext-Channel (C) con/senza busta indica se lo stato contiene allegati
     C000("C000"), // COMUNICAZIONE CON SERVER PEC AVVENUTA  (senza busta)
     C001("C001"), // StatusPec.ACCETTAZIONE  (con busta)
     C002("C002"), // StatusPec.NON_ACCETTAZIONE  (con busta)

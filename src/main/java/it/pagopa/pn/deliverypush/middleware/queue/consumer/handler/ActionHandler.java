@@ -106,6 +106,21 @@ public class ActionHandler {
         };
     }
 
+
+    @Bean
+    public Consumer<Message<Action>> pnDeliveryPushDigitalRetryActionConsumer() {
+        return message -> {
+            try {
+                log.debug("pnDeliveryPushDigitalRetryActionConsumer, message {}", message);
+                Action action = message.getPayload();
+                digitalWorkFlowHandler.startScheduledRetryWorkflow(action.getIun(), action.getRecipientIndex());
+            } catch (Exception ex) {
+                HandleEventUtils.handleException(message.getHeaders(), ex);
+                throw ex;
+            }
+        };
+    }
+
     @Bean
     public Consumer<Message<WebhookAction>> pnDeliveryPushWebhookActionConsumer() {
         return message -> {

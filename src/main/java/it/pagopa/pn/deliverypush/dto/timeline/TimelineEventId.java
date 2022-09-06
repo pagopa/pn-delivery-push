@@ -62,6 +62,15 @@ public enum TimelineEventId {
                     eventId.getProgressIndex()<0?"":eventId.getProgressIndex()  // se passo un progressindex negativo, è perchè non voglio che venga inserito nell'eventid. Usato per cercare con l'inizia per
                     );
         }
+
+        @Override
+        public String buildSearchEventIdByIunAndRecipientIndex(String iun, Integer recipientIndex){
+            return String.format(
+                    "%s_digital_delivering_progress_%d_",
+                    iun,
+                    recipientIndex
+            );
+        }
     },
     
     SEND_PAPER_FEEDBACK() {
@@ -286,6 +295,10 @@ public enum TimelineEventId {
     }
 
     public String buildEventId(String eventId) {
+        throw new UnsupportedOperationException("Must be implemented for each action type");
+    }
+
+    public String buildSearchEventIdByIunAndRecipientIndex(String iun, Integer recipientIndex) {
         throw new UnsupportedOperationException("Must be implemented for each action type");
     }
 }

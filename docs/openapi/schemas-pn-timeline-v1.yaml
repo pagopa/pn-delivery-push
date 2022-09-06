@@ -360,6 +360,8 @@ components:
           description: indica se il progress ha dato luogo ad un ritentativo
         digitalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+        digitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
         notificationDate:
           type: string
           description: data notifica
@@ -368,6 +370,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SendingReceipt'
+        retryNumber:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
             
     SendDigitalFeedbackDetails:
       type: object

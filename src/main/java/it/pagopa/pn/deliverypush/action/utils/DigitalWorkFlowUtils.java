@@ -165,6 +165,21 @@ public class DigitalWorkFlowUtils {
         }
     }
 
+
+    public SendDigitalProgressDetailsInt getMostRecentSendDigitalProgressTimelineElement(String iun, Integer recIndex) {
+        String eventId = TimelineEventId.SEND_DIGITAL_PROGRESS.buildSearchEventIdByIunAndRecipientIndex(iun, recIndex);
+
+        Set<TimelineElementInternal> timelineElementInternals = timelineService.getTimelineByIunTimelineId(iun, eventId, false);
+        Optional<TimelineElementInternal> timelineElementInternal = timelineElementInternals.stream().max(Comparator.comparing(TimelineElementInternal::getTimestamp));
+
+        if (timelineElementInternal.isPresent()) {
+            return (SendDigitalProgressDetailsInt) timelineElementInternal.get().getDetails();
+        } else {
+            log.error("TimelineElementInternal element for digital_delivering_progress not exist - iun {} eventId {}", iun, eventId);
+            throw new PnInternalException("TimelineElementInternal element for digital_delivering_progress not exist - iun " + iun + " eventId " + eventId);
+        }
+    }
+
     public TimelineElementInternal getSendDigitalDetailsTimelineElement(String iun, String eventId) {
 
         Optional<TimelineElementInternal> sendDigitalTimelineElement = timelineService.getTimelineElement(iun, eventId);
@@ -206,32 +221,41 @@ public class DigitalWorkFlowUtils {
 
     public void addDigitalDeliveringProgressTimelineElement(NotificationInt notification,
                                                             EventCodeInt eventCode,
+                                                            int recIndex, int sentAttemptMade,
+                                                            LegalDigitalAddressInt digitalAddressInt, DigitalAddressSourceInt digitalAddressSourceInt,
                                                             boolean shouldRetry,
-                                                            SendDigitalDetailsInt sendDigitalDetails,
                                                             DigitalMessageReferenceInt digitalMessageReference) {
 
-        int progressIndex = computeNextTimelineProgressIndex(notification, sendDigitalDetails);
+        int progressIndex = getPreviousTimelineProgress(notification, recIndex, sentAttemptMade, digitalAddressSourceInt).size() + 1;
 
         addTimelineElement(
-                timelineUtils.buildDigitalProgressFeedbackTimelineElement(notification, eventCode, shouldRetry, sendDigitalDetails, digitalMessageReference, progressIndex),
-                notification
-        );
+                timelineUtils.buildDigitalProgressFeedbackTimelineElement(notification,
+                                                                            recIndex,
+                                                                            sentAttemptMade,
+                                                                            eventCode,
+                                                                            shouldRetry,
+                                                                            digitalAddressInt,
+                                                                            digitalAddressSourceInt,
+                                                                            digitalMessageReference,
+                                                                            progressIndex),
+                        notification
+                );
     }
 
 
-    private int computeNextTimelineProgressIndex(NotificationInt notification,
-                                                  SendDigitalDetailsInt sendDigitalDetails){
+    public Set<TimelineElementInternal> getPreviousTimelineProgress(NotificationInt notification,
+                                                  int recIndex, int attemptMade, DigitalAddressSourceInt digitalAddressSourceInt){
         // per calcolare il prossimo progressIndex, devo necessariamente recuperare dal DB tutte le timeline relative a iun/recindex/source/tentativo
         String elementIdForSearch = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())
-                        .recIndex(sendDigitalDetails.getRecIndex())
-                        .sentAttemptMade(sendDigitalDetails.getRetryNumber())
-                        .source(sendDigitalDetails.getDigitalAddressSource())
+                        .recIndex(recIndex)
+                        .sentAttemptMade(attemptMade)
+                        .source(digitalAddressSourceInt)
                         .progressIndex(-1)  // passando -1 non verrà inserito nell'id timeline, permettendo la ricerca iniziaper
                         .build()
         );
-        return this.timelineService.getTimelineByIunTimelineId(notification.getIun(), elementIdForSearch, false).size() + 1;
+        return this.timelineService.getTimelineByIunTimelineId(notification.getIun(), elementIdForSearch, false);
     }
 
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {

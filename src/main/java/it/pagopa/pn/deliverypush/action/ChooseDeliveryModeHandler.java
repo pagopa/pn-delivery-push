@@ -126,7 +126,7 @@ public class ChooseDeliveryModeHandler {
      */
     public void startDigitalWorkflow(NotificationInt notification, LegalDigitalAddressInt digitalAddress, DigitalAddressSourceInt addressSource, Integer recIndex) {
         log.info("Starting digital workflow sending notification to external channel - iun={} id={} ", notification.getIun(), recIndex);
-        externalChannelService.sendDigitalNotification(notification, digitalAddress, addressSource, recIndex, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER);
+        externalChannelService.sendDigitalNotification(notification, digitalAddress, addressSource, recIndex, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, false);
     }
 
     /**
