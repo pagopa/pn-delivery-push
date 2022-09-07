@@ -122,6 +122,7 @@ components:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+          format: int32
           
     AnalogFailureWorkflowDetails:
       type: object
@@ -131,6 +132,7 @@ components:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+          format: int32
           
     AnalogSuccessWorkflowDetails:
       type: object
@@ -141,6 +143,7 @@ components:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+          format: int32
         physicalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
           
@@ -152,6 +155,7 @@ components:
         recIndex: 
           type: integer
           description: Index destinatario notifica digitale
+          format: int32
           
     DigitalSuccessWorkflowDetails:
       type: object
@@ -162,6 +166,7 @@ components:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+          format: int32
         digitalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
           
@@ -173,6 +178,7 @@ components:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+          format: int32
           
     GetAddressInfoDetails: 
       type: object
@@ -185,6 +191,7 @@ components:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+          format: int32
         digitalAddressSource:
           $ref: '#/components/schemas/DigitalAddressSource'
         isAvailable:
@@ -203,10 +210,12 @@ components:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+          format: int32
         notificationCost:
           description: costo notifica in euro cents, può essere nullo se la notifica si è perfezionata prima per decorrenza termini
           example: 1220
           type: integer
+          format: int64
           
     PublicRegistryCallDetails:
       type: object
@@ -220,6 +229,7 @@ components:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+          format: int32
         deliveryMode:
           $ref: '#/components/schemas/DeliveryMode'
         contactPhase:
@@ -227,6 +237,7 @@ components:
         sentAttemptMade:
           type: integer
           description: Numero di tentativi di notificazione già effettuati
+          format: int32
         sendDate:
           type: string
           description: Data invio richiesta ai public registry
@@ -240,6 +251,7 @@ components:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+          format: int32
         digitalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
         physicalAddress:
@@ -253,10 +265,12 @@ components:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+          format: int32
         notificationCost:
           description: costo notifica in euro cents, può essere nullo se la notifica si è perfezionata prima per visualizzazione
           example: 1220
           type: integer
+          format: int64
           
     RequestRefusedDetails:
       type: object
@@ -278,6 +292,7 @@ components:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+          format: int32
           
     ScheduleDigitalWorkflowDetails:
       type: object
@@ -291,12 +306,14 @@ components:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+          format: int32
         digitalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
         digitalAddressSource:
           $ref: '#/components/schemas/DigitalAddressSource'
         sentAttemptMade:
           type: integer
+          format: int32
         lastAttemptDate:
           type: string
           format: date-time
@@ -309,6 +326,7 @@ components:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+          format: int32
           
     SendCourtesyMessageDetails:
       type: object
@@ -320,6 +338,7 @@ components:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+          format: int32
         digitalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
         sendDate:
@@ -338,6 +357,7 @@ components:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+          format: int32
         digitalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
         digitalAddressSource:
@@ -353,6 +373,7 @@ components:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+          format: int32
         eventCode:
           type: string
           description: esito tornate da ext-channel
@@ -387,6 +408,7 @@ components:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+          format: int32
         digitalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
         responseStatus:
@@ -419,6 +441,7 @@ components:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+          format: int32
         physicalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
         serviceLevel:
@@ -426,12 +449,14 @@ components:
         sentAttemptMade:
           type: integer
           description: numero dei tentativi effettuati
+          format: int32
         investigation:
           type: boolean
           description: E' richiesta investigazione indirizzo fisico alternativo
         numberOfPages:
           type: integer
           description: numero pagine pdf inviato
+          format: int32
 
     SendAnalogFeedbackDetails:
       type: object
@@ -445,6 +470,7 @@ components:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+          format: int32
         physicalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
         serviceLevel:
@@ -452,6 +478,7 @@ components:
         sentAttemptMade:
           type: integer
           description: numero dei tentativi effettuati
+          format: int32
         investigation:
           type: boolean
           description: E' richiesta investigazione indirizzo fisico alternativo
@@ -474,11 +501,13 @@ components:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+          format: int32
         physicalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
         numberOfPages:
           type: integer
           description: numero pagine pdf inviato
+          format: int32
 
     AarGenerationDetails:
       type: object
@@ -490,12 +519,14 @@ components:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+          format: int32
         generatedAarUrl:
           type: string
           description: Chiave per recupero da safe-storage del documento aar
         numberOfPages:
           type: integer
           description: numero di pagine del PDF generato
+          format: int32
     
     NotHandledDetails:
       type: object
@@ -507,6 +538,7 @@ components:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
+          format: int32
         reasonCode:
           type: string
           description: Codice motivazione casistica non gestita
@@ -522,6 +554,7 @@ components:
         recIndex:
           type: integer
           description: Index destinatario che ha effettuato il pagamento della notifica
+          format: int32
           
     DigitalAddressSource:
       type: string
