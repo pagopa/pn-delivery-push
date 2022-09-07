@@ -13,7 +13,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.integration.ClientAndServer;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -35,9 +34,8 @@ import static org.mockserver.model.HttpResponse.response;
 @ActiveProfiles("test")
 class PnSafeStorageClientImplTestIT {
 
-
-
     private static ClientAndServer mockServer;
+
     @BeforeAll
     public static void startMockServer() {
         mockServer = startClientAndServer(9998);
@@ -58,9 +56,9 @@ class PnSafeStorageClientImplTestIT {
 
     @BeforeEach
     void setup() {
-        this.cfg = mock( PnDeliveryPushConfigs.class );
-        Mockito.when( cfg.getSafeStorageBaseUrl() ).thenReturn( "http://localhost:8080" );
-        this.safeStorageClient = new PnSafeStorageClientImpl( restTemplate, cfg );
+        this.cfg = mock(PnDeliveryPushConfigs.class);
+        Mockito.when(cfg.getSafeStorageBaseUrl()).thenReturn("http://localhost:8080");
+        this.safeStorageClient = new PnSafeStorageClientImpl(restTemplate, cfg);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -76,18 +74,18 @@ class PnSafeStorageClientImplTestIT {
         fileDownloadResponse.setKey(fileKey);
         fileDownloadResponse.setVersionId("v1");
         fileDownloadResponse.setDownload(new FileDownloadInfo());
-        ResponseEntity<FileDownloadResponse> response = ResponseEntity.ok( fileDownloadResponse);
+        ResponseEntity<FileDownloadResponse> response = ResponseEntity.ok(fileDownloadResponse);
 
 
         //When
-        Mockito.when( cfg.getSafeStorageCxId() ).thenReturn( "pn-delivery-002" );
+        Mockito.when(cfg.getSafeStorageCxId()).thenReturn("pn-delivery-002");
 
-        Mockito.when( restTemplate.exchange( Mockito.any(RequestEntity.class),Mockito.any(ParameterizedTypeReference.class)))
-                .thenReturn( response );
-        FileDownloadResponse result = safeStorageClient.getFile( fileKey, false );
+        Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
+                .thenReturn(response);
+        FileDownloadResponse result = safeStorageClient.getFile(fileKey, false);
 
         //Then
-        Assertions.assertNotNull( result );
+        Assertions.assertNotNull(result);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -109,12 +107,12 @@ class PnSafeStorageClientImplTestIT {
         fileCreationResponse.setKey(fileKey);
         fileCreationResponse.setUploadUrl("http://localhost:9998" + path);
 
-        ResponseEntity<FileCreationResponse> response = ResponseEntity.ok( fileCreationResponse);
+        ResponseEntity<FileCreationResponse> response = ResponseEntity.ok(fileCreationResponse);
         ResponseEntity<String> resp1 = ResponseEntity.ok("");
 
-        Mockito.when( cfg.getSafeStorageCxId() ).thenReturn( "pn-delivery-002" );
+        Mockito.when(cfg.getSafeStorageCxId()).thenReturn("pn-delivery-002");
 
-        Mockito.when( restTemplate.exchange( Mockito.any(RequestEntity.class),Mockito.any(ParameterizedTypeReference.class)))
+        Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(response);
 
         new MockServerClient("localhost", 9998)
@@ -126,10 +124,10 @@ class PnSafeStorageClientImplTestIT {
                 .respond(response()
                         .withStatusCode(200));
 
-        FileCreationResponse result = safeStorageClient.createFile (fileCreationRequest, "sha");
+        FileCreationResponse result = safeStorageClient.createFile(fileCreationRequest, "sha");
 
         //Then
-        Assertions.assertNotNull( result );
+        Assertions.assertNotNull(result);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -151,10 +149,10 @@ class PnSafeStorageClientImplTestIT {
         fileCreationResponse.setKey(fileKey);
         fileCreationResponse.setUploadUrl("http://localhost:9998" + path);
 
-        ResponseEntity<FileCreationResponse> response = ResponseEntity.ok( fileCreationResponse);
+        ResponseEntity<FileCreationResponse> response = ResponseEntity.ok(fileCreationResponse);
         ResponseEntity<String> resp1 = ResponseEntity.ok("");
 
-        Mockito.when( restTemplate.exchange( Mockito.any(URI.class), Mockito.any(HttpMethod.class), Mockito.any( HttpEntity.class), Mockito.eq(String.class)))
+        Mockito.when(restTemplate.exchange(Mockito.any(URI.class), Mockito.any(HttpMethod.class), Mockito.any(HttpEntity.class), Mockito.eq(String.class)))
                 .thenReturn(resp1);
 
         new MockServerClient("localhost", 9998)
@@ -166,7 +164,7 @@ class PnSafeStorageClientImplTestIT {
                 .respond(response()
                         .withStatusCode(200));
 
-        safeStorageClient.uploadContent (fileCreationRequest, fileCreationResponse,"sha");
-        
+        safeStorageClient.uploadContent(fileCreationRequest, fileCreationResponse, "sha");
+
     }
 }

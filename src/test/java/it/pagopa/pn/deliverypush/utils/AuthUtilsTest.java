@@ -27,12 +27,9 @@ class AuthUtilsTest {
 
     @BeforeEach
     void setup() {
-        mandateService = Mockito.mock( MandateService.class );
+        mandateService = Mockito.mock(MandateService.class);
 
-        authUtils = new AuthUtils(
-                mandateService
-        );
-
+        authUtils = new AuthUtils(mandateService);
     }
 
     @Test
@@ -47,7 +44,7 @@ class AuthUtilsTest {
         NotificationInt notification = getNotification(iun, taxId, taxIdAnon, paId01, sentAt);
 
         //WHEN
-        assertDoesNotThrow(() ->authUtils.checkUserAndMandateAuthorization(notification, taxIdAnon, null));
+        assertDoesNotThrow(() -> authUtils.checkUserAndMandateAuthorization(notification, taxIdAnon, null));
     }
 
     @Test
@@ -63,11 +60,11 @@ class AuthUtilsTest {
         NotificationInt notification = getNotification(iun, taxId, taxIdAnon, paId01, sentAt);
 
         //WHEN
-        Assertions.assertThrows( PnNotFoundException.class, () ->
-            authUtils.checkUserAndMandateAuthorization(notification, senderTaxId, null)
+        Assertions.assertThrows(PnNotFoundException.class, () ->
+                authUtils.checkUserAndMandateAuthorization(notification, senderTaxId, null)
         );
     }
-    
+
     @Test
     void checkValidAuthorizationForPa() {
         //GIVEN
@@ -80,7 +77,7 @@ class AuthUtilsTest {
         NotificationInt notification = getNotification(iun, taxId, taxIdAnon, paId01, sentAt);
 
         //WHEN
-        assertDoesNotThrow(() ->authUtils.checkUserAndMandateAuthorization(notification, paId01, null));
+        assertDoesNotThrow(() -> authUtils.checkUserAndMandateAuthorization(notification, paId01, null));
     }
 
     @Test
@@ -96,7 +93,7 @@ class AuthUtilsTest {
         NotificationInt notification = getNotification(iun, taxId, taxIdAnon, paId01, sentAt);
 
         //WHEN
-        Assertions.assertThrows( PnNotFoundException.class, () ->
+        Assertions.assertThrows(PnNotFoundException.class, () ->
                 authUtils.checkUserAndMandateAuthorization(notification, senderPaId01, null)
         );
     }
@@ -118,15 +115,15 @@ class AuthUtilsTest {
                 .mandateId(mandateId)
                 .delegate("delegate")
                 .delegator(taxId)
-                .dateFrom( sentAt.minus(2, ChronoUnit.DAYS) )
-                .dateTo( sentAt.plus(2, ChronoUnit.DAYS) )
+                .dateFrom(sentAt.minus(2, ChronoUnit.DAYS))
+                .dateTo(sentAt.plus(2, ChronoUnit.DAYS))
                 .visibilityIds(
                         Collections.singletonList(paId01)
                 )
                 .build();
-        
+
         Mockito.when(mandateService.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString())).thenReturn(List.of(mandate));
-        
+
         //WHEN
         assertDoesNotThrow(() -> authUtils.checkUserAndMandateAuthorization(notification, taxIdAnon, mandateId));
     }
@@ -148,8 +145,8 @@ class AuthUtilsTest {
                 .mandateId(mandateId)
                 .delegate("delegate")
                 .delegator(taxId)
-                .dateFrom( sentAt.plus(2, ChronoUnit.DAYS) )
-                .dateTo( Instant.now().plus(2, ChronoUnit.DAYS) )
+                .dateFrom(sentAt.plus(2, ChronoUnit.DAYS))
+                .dateTo(Instant.now().plus(2, ChronoUnit.DAYS))
                 .visibilityIds(
                         Collections.singletonList(paId01)
                 )
@@ -158,11 +155,11 @@ class AuthUtilsTest {
         Mockito.when(mandateService.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString())).thenReturn(List.of(mandate));
 
         //WHEN
-        Assertions.assertThrows( PnNotFoundException.class, () ->
+        Assertions.assertThrows(PnNotFoundException.class, () ->
                 authUtils.checkUserAndMandateAuthorization(notification, taxIdAnon, mandateId)
         );
     }
-    
+
     @Test
     void checkNotValidAuthorizationNotExistingMandateForDelegate() {
         //GIVEN
@@ -175,15 +172,15 @@ class AuthUtilsTest {
         NotificationInt notification = getNotification(iun, taxId, taxIdAnon, paId01, sentAt);
 
         String mandateId = "mandateId";
-        
+
         Mockito.when(mandateService.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString())).thenReturn(Collections.emptyList());
 
         //WHEN
-        Assertions.assertThrows( PnNotFoundException.class, () ->
+        Assertions.assertThrows(PnNotFoundException.class, () ->
                 authUtils.checkUserAndMandateAuthorization(notification, taxIdAnon, mandateId)
         );
     }
-    
+
     @Test
     void checkNotValidAuthorizationVisibilityIdForDelegate() {
         //GIVEN
@@ -203,8 +200,8 @@ class AuthUtilsTest {
                 .mandateId(mandateId)
                 .delegate("delegate")
                 .delegator(taxId)
-                .dateFrom( sentAt.plus(2, ChronoUnit.DAYS) )
-                .dateTo( Instant.now().plus(2, ChronoUnit.DAYS) )
+                .dateFrom(sentAt.plus(2, ChronoUnit.DAYS))
+                .dateTo(Instant.now().plus(2, ChronoUnit.DAYS))
                 .visibilityIds(
                         Collections.singletonList(paId02)
                 )
@@ -213,11 +210,11 @@ class AuthUtilsTest {
         Mockito.when(mandateService.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString())).thenReturn(List.of(mandate));
 
         //WHEN
-        Assertions.assertThrows( PnNotFoundException.class, () ->
+        Assertions.assertThrows(PnNotFoundException.class, () ->
                 authUtils.checkUserAndMandateAuthorization(notification, taxIdAnon, mandateId)
         );
     }
-    
+
     private NotificationInt getNotification(String iun, String taxId, String taxIdAnon, String paId, Instant sentAt) {
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withInternalId(taxIdAnon)
@@ -225,7 +222,7 @@ class AuthUtilsTest {
                 .build();
 
         return NotificationTestBuilder.builder()
-                .withSentAt( sentAt )
+                .withSentAt(sentAt)
                 .withIun(iun)
                 .withPaId(paId)
                 .withNotificationRecipient(recipient)
