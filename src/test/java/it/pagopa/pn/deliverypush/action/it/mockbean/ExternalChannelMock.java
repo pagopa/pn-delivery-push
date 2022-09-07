@@ -94,6 +94,7 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
                         .sentAttemptMade(sendDigitalDetails.getRetryNumber())
                         .source(sendDigitalDetails.getDigitalAddressSource())
                         .index(0)
+                        .progressIndex(1)
                         .build()
         );
         
@@ -125,7 +126,7 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
         extChannelResponse.setStatus(ProgressEventCategory.PROGRESS);
         extChannelResponse.setEventTimestamp(Instant.now().atOffset(ZoneOffset.UTC));
         extChannelResponse.setRequestId(timelineEventId);
-        extChannelResponse.setEventCode("C001"); //ACCETTAZIONE //TODO Da gestire la non accettazione
+        extChannelResponse.setEventCode(LegalMessageSentDetails.EventCodeEnum.C001); //ACCETTAZIONE //TODO Da gestire la non accettazione
         extChannelResponse.setGeneratedMessage(
                 new DigitalMessageReference()
                         .id("test_id")
@@ -145,7 +146,7 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
         String eventId = timelineEventId;
         String retryNumberPart = eventId.replaceFirst(".*([0-9]+)$", "$1");
         
-        String eventCode = null;
+        LegalMessageSentDetails.EventCodeEnum eventCode = null;
         
         if (address != null) {
             String domainPart = address.replaceFirst(".*@", "");
@@ -153,10 +154,10 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
             if (domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_BOTH)
                     || (domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_FIRST) && "1".equals(retryNumberPart))) {
                 status = ProgressEventCategory.ERROR;
-                eventCode = "C004";
+                eventCode = LegalMessageSentDetails.EventCodeEnum.C004;
             } else if (domainPart.startsWith(EXT_CHANNEL_WORKS) || domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_FIRST)) {
                 status = ProgressEventCategory.OK;
-                eventCode = "C003";
+                eventCode = LegalMessageSentDetails.EventCodeEnum.C003;
             } else {
                 throw new IllegalArgumentException("PecAddress " + address + " do not match test rule for mocks");
             }

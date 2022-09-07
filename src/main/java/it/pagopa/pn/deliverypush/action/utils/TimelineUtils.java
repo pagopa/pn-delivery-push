@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.action.utils;
 import it.pagopa.pn.deliverypush.dto.address.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
@@ -38,7 +39,7 @@ public class TimelineUtils {
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds(Collections.emptyList());
                 
-        return buildTimeline( notification, category, elementId, details, timelineBuilder);
+        return buildTimeline( notification, category, elementId, details, timelineBuilder );
     }
 
     public TimelineElementInternal buildTimeline(NotificationInt notification, TimelineElementCategoryInt category, String elementId,
@@ -133,39 +134,46 @@ public class TimelineUtils {
     }
 
     public TimelineElementInternal buildDigitalProgressFeedbackTimelineElement(NotificationInt notification,
-                                                                               ResponseStatusInt status,
-                                                                               List<String> errors,
-                                                                               SendDigitalDetailsInt sendDigitalDetails,
-                                                                               DigitalMessageReferenceInt digitalMessageReference) {
-        log.debug("buildDigitalDeliveringProgressTimelineElement - IUN={} and id={}", notification.getIun(), sendDigitalDetails.getRecIndex());
+                                                                               int recIndex,
+                                                                               int sentAttemptMade,
+                                                                               EventCodeInt eventCode,
+                                                                               boolean shouldRetry,
+                                                                               LegalDigitalAddressInt digitalAddressInt,
+                                                                               DigitalAddressSourceInt digitalAddressSourceInt,
+                                                                               DigitalMessageReferenceInt digitalMessageReference,
+                                                                               int progressIndex) {
+        log.debug("buildDigitalDeliveringProgressTimelineElement - IUN={} and id={} and progressIndex={}", notification.getIun(), recIndex, progressIndex);
 
         String elementId = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())
-                        .recIndex(sendDigitalDetails.getRecIndex())
-                        .sentAttemptMade(sendDigitalDetails.getRetryNumber())
-                        .source(sendDigitalDetails.getDigitalAddressSource())
+                        .recIndex(recIndex)
+                        .sentAttemptMade(sentAttemptMade)
+                        .source(digitalAddressSourceInt)
+                        .progressIndex(progressIndex)
                         .build()
         );
 
         SendDigitalProgressDetailsInt details = SendDigitalProgressDetailsInt.builder()
-                .digitalAddress(sendDigitalDetails.getDigitalAddress())
-                .responseStatus(status)
-                .recIndex(sendDigitalDetails.getRecIndex())
+                .digitalAddress(digitalAddressInt)
+                .digitalAddressSource(digitalAddressSourceInt)
+                .retryNumber(sentAttemptMade)
+                .recIndex(recIndex)
                 .notificationDate(instantNowSupplier.get())
-                .errors(errors)
+                .eventCode(eventCode.getValue())
+                .shouldRetry(shouldRetry)
                 .sendingReceipts(
-                        Collections.singletonList(
+                        digitalMessageReference != null && digitalMessageReference.getId() != null?Collections.singletonList(
                                 SendingReceipt.builder()
-                                .id(digitalMessageReference.getId())
-                                .system(digitalMessageReference.getSystem())
-                                .build()
-                        )
+                                        .id(digitalMessageReference.getId())
+                                        .system(digitalMessageReference.getSystem())
+                                        .build()
+                        ):null
                 )
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
-                .legalFactsIds( singleLegalFactId(digitalMessageReference.getLocation(), LegalFactCategoryInt.PEC_RECEIPT) );
+                .legalFactsIds( digitalMessageReference!=null?singleLegalFactId(digitalMessageReference.getLocation(), LegalFactCategoryInt.PEC_RECEIPT):null );
 
         return buildTimeline(notification, TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS, elementId, details, timelineBuilder);
     }
@@ -547,6 +555,29 @@ public class TimelineUtils {
         );
     }
 
+    public TimelineElementInternal buildNotificationPaidTimelineElement(NotificationInt notification, int recIndex, Instant paymentDate) {
+        log.debug("buildNotificationPaidTimelineElement - iun={} id={}", notification.getIun(), recIndex);
+
+        String elementId = TimelineEventId.NOTIFICATION_PAID.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .build());
+
+        NotificationPaidDetails details = NotificationPaidDetails.builder()
+                .recIndex(recIndex)
+                .build();
+        
+        return TimelineElementInternal.builder()
+                .legalFactsIds(Collections.emptyList())
+                .iun(notification.getIun())
+                .category(TimelineElementCategoryInt.PAYMENT)
+                .timestamp(paymentDate)
+                .elementId(elementId)
+                .details(details)
+                .paId(notification.getSender().getPaId())
+                .build();
+    }
+    
     public List<LegalFactsIdInt> singleLegalFactId(String legalFactKey, LegalFactCategoryInt type) {
         return Collections.singletonList( LegalFactsIdInt.builder()
                 .key( legalFactKey )
@@ -555,7 +586,8 @@ public class TimelineUtils {
     }
 
     public boolean checkNotificationIsAlreadyViewed(String iun, Integer recIndex){
-
+        //Se la notifica è stata pagata è stata sicuramente anche visualizzata dunque non serve il doppio check
+        
         String elementId = TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
                 EventId.builder()
                         .iun(iun)
@@ -565,9 +597,6 @@ public class TimelineUtils {
         Optional<TimelineElementInternal> timelineOpt = timelineService.getTimelineElement(iun, elementId);
         return timelineOpt.isPresent();
     }
-    
-    
-    
 
     public String getIunFromTimelineId(String timelineId)
     {

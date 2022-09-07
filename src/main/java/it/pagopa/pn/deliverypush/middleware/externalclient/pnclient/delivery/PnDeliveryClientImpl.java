@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery;
 
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.ApiClient;
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.api.InternalOnlyApi;
+import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationCostResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.RequestUpdateStatusDto;
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.SentNotification;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
@@ -41,4 +42,16 @@ public class PnDeliveryClientImpl implements PnDeliveryClient{
         
         return res;
     }
+
+    @Override
+    public ResponseEntity<NotificationCostResponse> getNotificationCostPrivate(String paTaxId, String noticeCode) {
+        log.debug("Start getNotificationCostPrivate for paTaxId={} noticeCode={}", paTaxId, noticeCode);
+
+        ResponseEntity<NotificationCostResponse> res = pnDeliveryApi.getNotificationCostPrivateWithHttpInfo(paTaxId, noticeCode);
+
+        log.debug("Response getNotificationCostPrivate res={} for paTaxId={} noticeCode={}", res, paTaxId, noticeCode);
+
+        return res;
+    }
+    
 }

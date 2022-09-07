@@ -89,7 +89,7 @@ class ChooseDeliveryModeHandlerTest {
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);
 
         Mockito.verify(externalChannelService).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class),
-                digitalAddressSourceCaptor.capture(), Mockito.anyInt(), Mockito.anyInt());
+                digitalAddressSourceCaptor.capture(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyBoolean());
         Assertions.assertEquals(DigitalAddressSourceInt.PLATFORM, digitalAddressSourceCaptor.getValue());
 
         Mockito.verify(chooseDeliveryUtils).addAvailabilitySourceToTimeline(Mockito.anyInt(), Mockito.any(NotificationInt.class),
@@ -137,7 +137,7 @@ class ChooseDeliveryModeHandlerTest {
         Assertions.assertTrue(listIsAvailableCaptorValues.get(1));
 
         Mockito.verify(externalChannelService).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class),
-                digitalAddressSourceCaptor.capture(), Mockito.anyInt(), Mockito.anyInt());
+                digitalAddressSourceCaptor.capture(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyBoolean());
 
         Assertions.assertEquals(DigitalAddressSourceInt.SPECIAL, digitalAddressSourceCaptor.getValue());
     }
@@ -203,7 +203,7 @@ class ChooseDeliveryModeHandlerTest {
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);
 
         Mockito.verify(externalChannelService).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class),
-                digitalAddressSourceCaptor.capture(), Mockito.anyInt(), Mockito.anyInt());
+                digitalAddressSourceCaptor.capture(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyBoolean());
         Assertions.assertEquals(DigitalAddressSourceInt.GENERAL, digitalAddressSourceCaptor.getValue());
 
         Mockito.verify(chooseDeliveryUtils).addAvailabilitySourceToTimeline(Mockito.anyInt(), Mockito.any(NotificationInt.class),

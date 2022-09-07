@@ -20,4 +20,5 @@ public class EventId {
     private ContactPhaseInt contactPhase;
     private int sentAttemptMade;
     private DeliveryModeInt deliveryMode;
+    private int progressIndex;
 }

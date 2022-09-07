@@ -25,7 +25,7 @@ public enum TimelineElementCategoryInt {
     NOTIFICATION_VIEWED(NotificationViewedDetailsInt.class, TimelineElementCategory.NOTIFICATION_VIEWED.getValue()),
     SEND_ANALOG_DOMICILE(SendAnalogDetailsInt.class, TimelineElementCategory.SEND_ANALOG_DOMICILE.getValue()),
     SEND_PAPER_FEEDBACK(SendAnalogFeedbackDetailsInt.class, TimelineElementCategory.SEND_PAPER_FEEDBACK.getValue()),
-    PAYMENT(null, TimelineElementCategory.PAYMENT.getValue()),
+    PAYMENT(NotificationPaidDetails.class, TimelineElementCategory.PAYMENT.getValue()),
     COMPLETELY_UNREACHABLE(CompletelyUnreachableDetailsInt.class, TimelineElementCategory.COMPLETELY_UNREACHABLE.getValue()),
     REQUEST_REFUSED(RequestRefusedDetailsInt.class, TimelineElementCategory.REQUEST_REFUSED.getValue()),
     AAR_GENERATION(AarGenerationDetailsInt.class, TimelineElementCategory.AAR_GENERATION.getValue()),

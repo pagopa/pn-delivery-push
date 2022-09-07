@@ -8,6 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 
@@ -99,6 +100,17 @@ public class PnDeliveryPushConfigs {
         private List<String> analogCodesProgress;
         private List<String> analogCodesSuccess;
         private List<String> analogCodesFail;
+
+
+        private List<String> digitalCodesProgress;
+        private List<String> digitalCodesSuccess;
+        private List<String> digitalCodesFail;
+        private List<String> digitalCodesRetryable;
+
+        private List<String> digitalCodesFatallog;
+
+        private int digitalRetryCount;
+        private Duration digitalDelay;
     }
 
    @Data

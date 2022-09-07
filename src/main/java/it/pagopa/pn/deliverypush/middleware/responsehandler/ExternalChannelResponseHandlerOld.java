@@ -127,9 +127,6 @@ public class ExternalChannelResponseHandlerOld {
             case PERMANENT_FAIL:
                 status =  ExtChannelProgressEventCat.ERROR;
                 break;
-            case RETRYABLE_FAIL:
-                status =  ExtChannelProgressEventCat.RETRIABLE_ERROR;
-                break;
             default:
                 throw new IllegalStateException("Unexpected value: " + response.getStatusCode());
         }
