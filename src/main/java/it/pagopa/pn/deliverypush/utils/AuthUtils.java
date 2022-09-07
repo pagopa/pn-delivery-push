@@ -114,6 +114,6 @@ public class AuthUtils {
 
     private void handleError(String message) {
         log.warn(message);
-        throw new PnNotFoundException("Authorization failed", message, ERROR_CODE_DELIVERYPUSH_NOTFOUND);
+        throw new PnNotFoundException("Not found", message, ERROR_CODE_DELIVERYPUSH_NOTFOUND);
     }
 }
