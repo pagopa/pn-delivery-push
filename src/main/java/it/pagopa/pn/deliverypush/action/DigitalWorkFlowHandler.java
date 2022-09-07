@@ -377,14 +377,16 @@ public class DigitalWorkFlowHandler {
 
         // calcolare in base al numero di tentativi, devo cercare nella timeline quanti retry ci sono stati
         // e se il numero è minore del conteggio richiesto, deve ritentare, altrimenti no
+        // la timeline è filtratra per iun, recindex, source, tentativo, quindi identifica i progress di questa istanza di tentativo
         Set<TimelineElementInternal> previousTimelineProgress = digitalWorkFlowUtils.getPreviousTimelineProgress(notification, sendDigitalDetails.getRecIndex(), sendDigitalDetails.getRetryNumber(), sendDigitalDetails.getDigitalAddressSource());
+        // il conteggio viene fatto sul flag "retry" a true, visto che comparirà 1 volta per ogni tentativo fallito
         long count = previousTimelineProgress.stream().filter(x -> x.getDetails() instanceof SendDigitalProgressDetailsInt
                                                                 && ((SendDigitalProgressDetailsInt)x.getDetails()).isShouldRetry()).count();
         return (count < configCount);
     }
 
     /**
-     * If for this address source need retry, check if time has already expired or schedule it
+     * schedule retry for this workflow
      */
     private void restartWorkflowAfterRetryTime(NotificationInt notification, Integer recIndex, DigitalAddressInfo lastAddressInfo) {
         log.debug("restartWorkflowAfterRetryTime - iun={} id={}", notification.getIun(), recIndex);
@@ -395,20 +397,10 @@ public class DigitalWorkFlowHandler {
         Duration secondNotificationWorkflowWaitingTime = pnDeliveryPushConfigs.getExternalChannel().getDigitalDelay();
 
         Instant schedulingDate = lastAttemptDate.plus(secondNotificationWorkflowWaitingTime);
-        Instant now = instantNowSupplier.get();
-
-        log.debug("Check scheduling retryAttempt, lastAttemptDate={} secondNotificationWorkflowWaitingTime={} schedulingDate={} now={}- iun={} id={}",
-                lastAttemptDate, secondNotificationWorkflowWaitingTime, schedulingDate, now, notification.getIun(), recIndex);
 
         //Vengono aggiunti i minuti necessari
-        if (now.isAfter(schedulingDate)) {
-            log.info("Retry workflow scheduling date={} is passed. Start retry workflow - iun={} id={}", schedulingDate, iun, recIndex);
-            //Se la data odierna è successiva alla data ottenuta in precedenza, non c'è necessità di schedulare, procedo subito
-            sendRetryNotification(notification, recIndex, lastAddressInfo);
-        } else {
-            log.info("Retry workflow scheduling date={} is not passed. Need to schedule retry workflow - iun={} id={}", schedulingDate, iun, recIndex);
-            schedulerService.scheduleEvent(iun, recIndex, schedulingDate, ActionType.DIGITAL_WORKFLOW_RETRY_ACTION);
-        }
+        log.info("Retry workflow scheduling date={} retry workflow - iun={} id={}", schedulingDate, iun, recIndex);
+        schedulerService.scheduleEvent(iun, recIndex, schedulingDate, ActionType.DIGITAL_WORKFLOW_RETRY_ACTION);
     }
 
     private DigitalAddressInfo getDigitalAddressInfo(ScheduleDigitalWorkflowDetailsInt scheduleDigitalWorkflow) {

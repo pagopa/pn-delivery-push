@@ -549,8 +549,6 @@ class DigitalWorkFlowHandlerTest {
     void handleExternalChannelResponseProgressRetryable_008_010() {
         // contiene più casi di test, visto che molti parametri di ingresso erano gli stessi
         //GIVEN
-        Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
-
         NotificationInt notification = getNotification();
 
         ExtChannelDigitalSentResponseInt extChannelResponse = ExtChannelDigitalSentResponseInt.builder()
@@ -607,32 +605,8 @@ class DigitalWorkFlowHandlerTest {
         Mockito.verify(digitalWorkFlowUtils).addDigitalDeliveringProgressTimelineElement(notification, EventCodeInt.C008, 0, 0, details.getDigitalAddress(), details.getDigitalAddressSource(),
                 true, extChannelResponse.getGeneratedMessage());
 
-        // STEP 2 - con esecuzione istantanea, senza scheduling
-        //WHEN
-        Mockito.clearInvocations(digitalWorkFlowUtils);
-        extChannelResponse = ExtChannelDigitalSentResponseInt.builder()
-                .iun(notification.getIun())
-                .status(ExtChannelProgressEventCat.PROGRESS)
-                .eventTimestamp(Instant.now().minusMillis(1000))
-                .eventCode(EventCodeInt.C008)
-                .requestId(notification.getIun() + "_event_idx_0")
-                .eventDetails("ACCETTAZIONE")
-                .generatedMessage(
-                        DigitalMessageReferenceInt.builder()
-                                .id("id")
-                                .system("system")
-                                .location("location")
-                                .build()
-                )
-                .build();
-        handler.handleExternalChannelResponse(extChannelResponse);
 
-        //THEN
-        Mockito.verify(digitalWorkFlowUtils).addDigitalDeliveringProgressTimelineElement(notification, EventCodeInt.C008, 0, 0, details.getDigitalAddress(), details.getDigitalAddressSource(),
-                true, extChannelResponse.getGeneratedMessage());
-        Mockito.verify(externalChannelService).sendDigitalNotification(Mockito.eq(notification), Mockito.eq(details.getDigitalAddress()), Mockito.eq(details.getDigitalAddressSource()), Mockito.eq(0) ,Mockito.eq(0), Mockito.eq(true));
-
-        // STEP 3
+        // STEP 2
         // GIVEN
         Mockito.clearInvocations(digitalWorkFlowUtils);
         Mockito.when(externalChannel.getDigitalRetryCount()).thenReturn(0);
@@ -651,7 +625,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.verify(digitalWorkFlowUtils).addDigitalFeedbackTimelineElement(Mockito.any(NotificationInt.class), Mockito.eq(ResponseStatusInt.KO),
                 Mockito.any(), Mockito.any(), Mockito.any(DigitalMessageReferenceInt.class));
 
-        // STEP 4 - non torna retry, ci si aspetta un retry
+        // STEP 3 - non torna retry, ci si aspetta un retry
         // GIVEN
         Mockito.clearInvocations(digitalWorkFlowUtils);
         Mockito.when(externalChannel.getDigitalRetryCount()).thenReturn(3);
@@ -666,7 +640,7 @@ class DigitalWorkFlowHandlerTest {
                 true, extChannelResponse.getGeneratedMessage());
 
 
-        // STEP 5 - torna 3 retry, quindi non ci si aspetta che deve ritentare ma generare un feedback fail
+        // STEP 4 - torna 3 retry, quindi non ci si aspetta che deve ritentare ma generare un feedback fail
         // GIVEN
         Mockito.clearInvocations(digitalWorkFlowUtils);
         Mockito.when(externalChannel.getDigitalRetryCount()).thenReturn(3);
