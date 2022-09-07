@@ -134,26 +134,31 @@ public class TimelineUtils {
     }
 
     public TimelineElementInternal buildDigitalProgressFeedbackTimelineElement(NotificationInt notification,
+                                                                               int recIndex,
+                                                                               int sentAttemptMade,
                                                                                EventCodeInt eventCode,
                                                                                boolean shouldRetry,
-                                                                               SendDigitalDetailsInt sendDigitalDetails,
+                                                                               LegalDigitalAddressInt digitalAddressInt,
+                                                                               DigitalAddressSourceInt digitalAddressSourceInt,
                                                                                DigitalMessageReferenceInt digitalMessageReference,
                                                                                int progressIndex) {
-        log.debug("buildDigitalDeliveringProgressTimelineElement - IUN={} and id={} and progressIndex={}", notification.getIun(), sendDigitalDetails.getRecIndex(), progressIndex);
+        log.debug("buildDigitalDeliveringProgressTimelineElement - IUN={} and id={} and progressIndex={}", notification.getIun(), recIndex, progressIndex);
 
         String elementId = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())
-                        .recIndex(sendDigitalDetails.getRecIndex())
-                        .sentAttemptMade(sendDigitalDetails.getRetryNumber())
-                        .source(sendDigitalDetails.getDigitalAddressSource())
+                        .recIndex(recIndex)
+                        .sentAttemptMade(sentAttemptMade)
+                        .source(digitalAddressSourceInt)
                         .progressIndex(progressIndex)
                         .build()
         );
 
         SendDigitalProgressDetailsInt details = SendDigitalProgressDetailsInt.builder()
-                .digitalAddress(sendDigitalDetails.getDigitalAddress())
-                .recIndex(sendDigitalDetails.getRecIndex())
+                .digitalAddress(digitalAddressInt)
+                .digitalAddressSource(digitalAddressSourceInt)
+                .retryNumber(sentAttemptMade)
+                .recIndex(recIndex)
                 .notificationDate(instantNowSupplier.get())
                 .eventCode(eventCode.getValue())
                 .shouldRetry(shouldRetry)

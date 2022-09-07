@@ -46,6 +46,17 @@ public enum ActionType {
         }
     },
 
+    DIGITAL_WORKFLOW_RETRY_ACTION() {
+        @Override
+        public String buildActionId(Action action) {
+            return String.format(
+                    "%s_digital_workflow_retry_e_%d",
+                    action.getIun(),
+                    action.getRecipientIndex()
+            );
+        }
+    },
+
     REFINEMENT_NOTIFICATION() {
         @Override
         public String buildActionId(Action action) {

@@ -61,7 +61,8 @@ public class ExternalChannelServiceImplOld implements ExternalChannelService {
                                         LegalDigitalAddressInt digitalAddress,
                                         DigitalAddressSourceInt addressSource,
                                         Integer recIndex,
-                                        int sentAttemptMade) {
+                                        int sentAttemptMade,
+                                        boolean sendAlreadyInProgress) {
         log.debug("Start sendDigitalNotification - iun {} id {}", notification.getIun(), recIndex);
 
         PnExtChnPecEvent pnExtChnPecEvent = getExtChannelPecEvent(notification, digitalAddress, addressSource, recIndex, sentAttemptMade);
