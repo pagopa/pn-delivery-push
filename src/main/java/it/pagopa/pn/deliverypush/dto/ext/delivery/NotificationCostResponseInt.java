@@ -10,4 +10,5 @@ import lombok.*;
 @ToString
 public class NotificationCostResponseInt {
     private String iun;
+    private Integer recipientIdx;
 }
