@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo;
 
-import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
+import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementEntity;
@@ -11,13 +11,11 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
-import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
 
-import java.sql.Time;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -72,7 +70,7 @@ public class TimelineEntityDaoDynamo  extends AbstractDynamoKeyValueStore<Timeli
     }
 
     @Override
-    public void putIfAbsent(TimelineElementEntity value) throws IdConflictException {
+    public void putIfAbsent(TimelineElementEntity value) throws PnIdConflictException {
         String expression = "attribute_not_exists(" + TimelineElementEntity.FIELD_IUN 
                 +") AND attribute_not_exists("+ TimelineElementEntity.FIELD_TIMELINE_ELEMENT_ID +")";
                 
@@ -88,7 +86,7 @@ public class TimelineEntityDaoDynamo  extends AbstractDynamoKeyValueStore<Timeli
             table.putItem(request);
         }catch (ConditionalCheckFailedException ex){
             log.error("Conditional check exception on TimelineEntityDaoDynamo putIfAbsent", ex);
-            throw new IdConflictException( Collections.singletonMap("timelineElementId", value.getTimelineElementId()) );
+            throw new PnIdConflictException( Collections.singletonMap("timelineElementId", value.getTimelineElementId()) );
         }
     }
 }
