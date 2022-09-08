@@ -1,7 +1,10 @@
 openapi: 3.0.3
 info:
+  termsOfService: https://termofservice.it
   title: 'API B2B avanzamento notifiche'
-  version: v1.0
+  x-summary: 'API B2B avanzamento notifiche'
+  version: '1.0.0'
+  x-api-id: api-internal-b2b-webhook
   description: >- 
     I mittenti di notifica possono seguire il flusso di avanzamento delle notifiche in modo 
     automatico. E' possibile definire fino ad un massimo di 5 configurazioni di flussi per 
@@ -58,12 +61,27 @@ servers:
 - url: https://api.dev.pn.pagopa.it
   description: Ambiente di sviluppo
 tags:
+  - name: HealthCheck
+    description: >-
+      Invocazioni per sapere lo stato del microservizio
   - name: Streams
     description: >-
       Gestione degli stream di eventi che PN mette a disposizione
   - name: Events
     description: Metodi per la lettura degli eventi dagli stream
 paths:
+  '/status':
+    get:
+      summary: healthCheck path
+      description: healtCheck path per verificare lo stato del microservizio
+      tags:
+        - HealthCheck
+      operationId: status
+      responses:
+        '200':
+          description: Ok
+        '500':
+          description: Internal Server Error
     ############################################################################################
     ###                        CREAZIONE E CANCELLAZIONE STREAM EVENTI                       ###
     ############################################################################################
@@ -214,7 +232,7 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
         '500':
@@ -252,6 +270,7 @@ paths:
             retry-after:
               schema:
                 type: integer
+                format: int32
               description: >-
                 Numero di secondi di attesa prima di effettuare una nuova lettura di eventi. <br/>
                 Sarà valorizzato a zero se ci sono eventi in coda che non sono stati forniti per 
@@ -267,6 +286,7 @@ paths:
             retry-after:
               schema:
                 type: integer
+                format: int32
               description: >-
                 Numero di secondi di attesa prima di effettuare una nuova lettura di eventi.
         '400':
