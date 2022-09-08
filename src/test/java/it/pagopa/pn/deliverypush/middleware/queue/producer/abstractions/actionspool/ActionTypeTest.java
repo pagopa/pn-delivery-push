@@ -23,8 +23,5 @@ class ActionTypeTest {
                 () -> Assertions.assertEquals(ActionType.START_RECIPIENT_WORKFLOW.buildActionId(action), "1_start_recipient_workflow_1")
         );
     }
-
-    @Test
-    void values() {
-    }
+    
 }
