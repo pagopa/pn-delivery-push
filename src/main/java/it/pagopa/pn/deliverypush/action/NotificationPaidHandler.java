@@ -41,28 +41,28 @@ public class NotificationPaidHandler {
     public void handleNotificationPaid(String paTaxId, String noticeNumber, Instant paymentDate){
         log.debug("Start handle notification paid - paTaxId={} noticeNumber={} paymentDate={}", LogUtils.maskTaxId(paTaxId), noticeNumber, paymentDate);
         
-        String iun = getIunFromPaTaxIdAndNoticeNumber(paTaxId, noticeNumber);
+        NotificationCostResponseInt notificationCostResponseInt = getIunFromPaTaxIdAndNoticeNumber(paTaxId, noticeNumber);
+        String iun = notificationCostResponseInt.getIun();
         log.debug("Get iun complete in handleNotificationPaid - iun={} paTaxId={} ", iun, LogUtils.maskTaxId(paTaxId));
 
         Optional<TimelineElementInternal> timelineElementOpt = getNotificationPaidTimelineElement(iun);
 
         if( timelineElementOpt.isEmpty() ){
             //Se il pagamento non è già avvenuto per questo IUN
-            handleInsertNotificationPaidTimelineElement(paTaxId, paymentDate, iun);
+            handleInsertNotificationPaidTimelineElement(paTaxId, paymentDate, iun, notificationCostResponseInt.getRecipientIdx());
         }else {
             //Pagamento già avvenuto
-            log.info("Notification has already been paid - iun={} paTaxId={} ", iun, LogUtils.maskTaxId(paTaxId));
+            log.info("Notification has already been paid - iun={} paTaxId={} ", iun, paTaxId);
         }
     }
 
-    private void handleInsertNotificationPaidTimelineElement(String taxId, Instant paymentDate, String iun) {
-        log.info("Notification has not already been paid, start process to insert payment - iun={} taxId={} ", iun, LogUtils.maskTaxId(taxId));
+    private void handleInsertNotificationPaidTimelineElement(String paTaxId, Instant paymentDate, String iun, Integer recIndex) {
+        log.info("Notification has not already been paid, start process to insert payment - iun={} paTaxId={} ", iun, paTaxId);
         
         NotificationInt notification = notificationService.getNotificationByIun(iun);
-        int recIndex = notificationUtils.getRecipientIndex(notification, taxId);
 
         timelineService.addTimelineElement( timelineUtils.buildNotificationPaidTimelineElement(notification, recIndex, paymentDate), notification );
-        log.info("Payment process complete - iun={} taxId={} ", iun, LogUtils.maskTaxId(taxId));
+        log.info("Payment process complete - iun={} paTaxId={} ", iun, paTaxId);
     }
 
     private Optional<TimelineElementInternal> getNotificationPaidTimelineElement(String iun) {
@@ -74,9 +74,8 @@ public class NotificationPaidHandler {
         return timelineService.getTimelineElement(iun, elementId);
     }
 
-    private String getIunFromPaTaxIdAndNoticeNumber(String paTaxId, String noticeNumber) {
-        NotificationCostResponseInt notificationCostResponseInt = notificationCostService.getIunFromPaTaxIdAndNoticeCode(paTaxId, noticeNumber);
-        return notificationCostResponseInt.getIun();
+    private NotificationCostResponseInt getIunFromPaTaxIdAndNoticeNumber(String paTaxId, String noticeNumber) {
+        return notificationCostService.getIunFromPaTaxIdAndNoticeCode(paTaxId, noticeNumber);
     }
 
 }
