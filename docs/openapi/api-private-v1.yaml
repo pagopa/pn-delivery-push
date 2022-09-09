@@ -48,6 +48,53 @@ paths:
             application/problem+json:
               schema:
                 $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+    
+  '/delivery-push-private/{iun}/viewed':
+    post:
+      summary: Notifica che un destinatario ha preso visione di una notifica
+      description: >-
+        Metodo utilizzato da microservizi interni per notificare che un destinatario
+        ha preso visione di una notifica-
+      tags:
+        - EventComunication
+      operationId: notifyNotificationViewed
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestNotificationViewedDto"
+        required: true
+      responses:
+        '200':
+          description: |
+            OK. Allo stato attuale il contenuto della risposta non ha valore informativo 
+            basta il fatto che lo status sia 200 per indicare che l'operazione è andata 
+            a buon fine.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseNotificationViewedDto"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '404':
+          description: IUN or recipient not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+      
 
 
 components:
@@ -102,6 +149,57 @@ components:
           type: array
           items:
             $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/TimelineElement'
+    
+
+    ############################################################################################
+    ###                 COMUNICAZIONE DELLA VISUALIZZAZIONE DI UNA NOTIFICA                  ###
+    ############################################################################################
+
+    RequestNotificationViewedDto:
+      type: object
+      required:
+        - iun
+        - recipientType
+        - recipientInternalId
+        - raddType
+        - raddBusinessTransactionId
+        - raddBusinessTransactionClosingDate
+      properties:
+        iun:
+          type: string
+          description: Identificativo Univoco della Notifica
+        recipientType:
+          type: string
+          description: |
+            tipo del destinatario <br/>
+            __PF__: Persona Fisica <br/>
+            __PG__: Persona Giuridica <br/>
+        recipientInternalId:
+          type: string
+          description: identificativo anonimizzato del destinatario
+        raddType:
+          type: string
+          description: |
+            tipo di Rete Anti Digital Divide <br/>
+            __FSU__: Fornitore Servizio Universale <br/>
+        raddBusinessTransactionId:
+          type: string
+          description: Identificativo della pratica all'interno della rete RADD
+        raddBusinessTransactionDate:
+          type: string
+          format: date
+          description: Data in cui è stata eseguita la transazione
+
+    ResponseNotificationViewedDto:
+      type: object
+      required:
+        - iun
+      properties:
+        iun:
+          type: string
+          description: Identificativo Univoco della Notifica
+
+
 
 
 
