@@ -2,9 +2,12 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.api.FileDownloadApi;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.api.FileMetadataUpdateApi;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.api.FileUploadApi;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.OperationResultCodeResponse;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.UpdateFileMetadataRequest;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +30,7 @@ public class PnSafeStorageClientImpl implements PnSafeStorageClient {
 
     private final FileDownloadApi fileDownloadApi;
     private final FileUploadApi fileUploadApi;
+    private final FileMetadataUpdateApi fileMetadataUpdateApi;
     private final PnDeliveryPushConfigs cfg;
     private final RestTemplate restTemplate;
 
@@ -36,6 +40,7 @@ public class PnSafeStorageClientImpl implements PnSafeStorageClient {
 
         this.fileDownloadApi = new FileDownloadApi( newApiClient );
         this.fileUploadApi =new FileUploadApi( newApiClient );
+        this.fileMetadataUpdateApi =new FileMetadataUpdateApi( newApiClient );
         this.restTemplate = restTemplate;
         this.cfg = cfg;
     }
@@ -58,6 +63,18 @@ public class PnSafeStorageClientImpl implements PnSafeStorageClient {
         
         return fileCreationResponse;
     }
+
+    @Override
+    public OperationResultCodeResponse updateFileMetadata(String fileKey, UpdateFileMetadataRequest request){
+        log.debug("Start call updateFileMetadata - fileKey={} request={}", fileKey, request);
+
+        OperationResultCodeResponse operationResultCodeResponse = fileMetadataUpdateApi.updateFileMetadata( fileKey, this.cfg.getSafeStorageCxId(), request );
+
+        log.debug("End call updateFileMetadata, updated metadata file with key={}", fileKey);
+
+        return operationResultCodeResponse;
+    }
+
 
     @Override
     public void uploadContent(FileCreationWithContentRequest fileCreationRequest, FileCreationResponse fileCreationResponse, String sha256){

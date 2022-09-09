@@ -3,10 +3,8 @@ package it.pagopa.pn.deliverypush.service.impl;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
-import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationResponseInt;
-import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
-import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadInfoInt;
-import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.UpdateFileMetadataRequest;
+import it.pagopa.pn.deliverypush.dto.ext.safestorage.*;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import lombok.extern.slf4j.Slf4j;
@@ -68,6 +66,24 @@ public class SafeStorageServiceImpl implements SafeStorageService {
         log.info("createAndUploadContent file uploaded successfully key={} sha256={}", fileCreationResponseInt.getKey(), sha256);
         
         return fileCreationResponseInt;
+    }
+
+
+    @Override
+    public UpdateFileMetadataResponseInt updateFileMetadata(String fileKey, UpdateFileMetadataRequest updateFileMetadataRequest) {
+        log.debug("Start call updateFileMetadata - fileKey={} updateFileMetadataRequest={}", fileKey, updateFileMetadataRequest);
+
+        var res = safeStorageClient.updateFileMetadata(fileKey, updateFileMetadataRequest);
+
+        UpdateFileMetadataResponseInt updateFileMetadataResponseInt = UpdateFileMetadataResponseInt.builder()
+                .resultCode(res.getResultCode())
+                .errorList(res.getErrorList())
+                .resultDescription(res.getResultDescription())
+                .build();
+
+        log.info("updateFileMetadata file endend key={} updateFileMetadataResponseInt={}", fileKey, updateFileMetadataRequest);
+
+        return updateFileMetadataResponseInt;
     }
 
     
