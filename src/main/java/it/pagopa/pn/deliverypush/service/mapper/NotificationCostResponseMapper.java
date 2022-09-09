@@ -8,6 +8,7 @@ public class NotificationCostResponseMapper {
     public static NotificationCostResponseInt externalToInternal(NotificationCostResponse dtoExt){
         return NotificationCostResponseInt.builder()
                 .iun( dtoExt.getIun() )
+                .recipientIdx( dtoExt.getRecipientIdx() )
                 .build();
     }
 }

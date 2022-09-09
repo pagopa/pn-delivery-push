@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.action.it;
 
-import it.pagopa.pn.commons.abstractions.IdConflictException;
+import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
@@ -162,7 +162,7 @@ class ValidationDocumentErrorTestIT {
     }
 
     @Test
-    void workflowTest() throws IdConflictException {
+    void workflowTest() throws PnIdConflictException {
         
         // GIVEN
         

@@ -38,10 +38,10 @@ class NotificationReceiverValidatorTest {
         PnValidationException exc = Assertions.assertThrows( PnValidationException.class, () ->
                 validator.checkPreloadedDigests( "paNotificationId/attachmentKey", expected, actual )
         );
-        Path propPath = exc.getValidationErrors().iterator().next().getPropertyPath();
+        String propPath = exc.getProblem().getErrors().iterator().next().getElement();
 
         // Then
-        Assertions.assertEquals( "paNotificationId/attachmentKey", propertyPathToString( propPath ));
+        Assertions.assertEquals( "paNotificationId/attachmentKey",  propPath );
     }
 
     private static String propertyPathToString( Path propertyPath ) {

@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.timelinedao;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import it.pagopa.pn.commons.abstractions.IdConflictException;
+import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRequestAcceptedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalDetailsInt;
@@ -176,14 +175,14 @@ class TimelineDaoDynamoTest {
         }
 
         @Override
-        public void putIfAbsent(TimelineElementEntity timelineElementEntity) throws IdConflictException {
+        public void putIfAbsent(TimelineElementEntity timelineElementEntity) throws PnIdConflictException {
             Key key = Key.builder()
                     .partitionValue(timelineElementEntity.getIun())
                     .sortValue(timelineElementEntity.getTimelineElementId())
                     .build();
 
             if (this.store.put(key, timelineElementEntity) != null) {
-                throw new IdConflictException(Collections.singletonMap("errorKey", key.toString()));
+                throw new PnIdConflictException(Collections.singletonMap("errorKey", key.toString()));
             }
         }
 

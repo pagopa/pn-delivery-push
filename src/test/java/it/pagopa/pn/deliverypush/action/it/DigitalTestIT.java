@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.action.it;
 
-import it.pagopa.pn.commons.abstractions.IdConflictException;
+import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
@@ -746,7 +746,7 @@ class DigitalTestIT {
     }
 
     @Test
-    void emptyFirstSuccessSpecial() throws IdConflictException {
+    void emptyFirstSuccessSpecial() throws PnIdConflictException {
   /*
        - Platform address vuoto (Ottenuto non valorizzando nessun platformAddress in addressBookEntry)
        - Special address presente e primo invio con successo (Ottenuto valorizzando il digitalDomicile del recipient con ExternalChannelMock.EXT_CHANNEL_WORKS)
