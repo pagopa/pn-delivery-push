@@ -92,7 +92,7 @@ import static org.awaitility.Awaitility.with;
         StatusServiceImpl.class,
         ConfidentialInformationServiceImpl.class,
         AddressBookServiceImpl.class,
-        CheckAttachmentUtils.class,
+        AttachmentUtils.class,
         StatusUtils.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,

@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.action;
 
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.deliverypush.action.utils.CheckAttachmentUtils;
+import it.pagopa.pn.deliverypush.action.utils.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -33,7 +33,7 @@ class StartWorkflowHandlerTest {
     @Mock
     private TimelineUtils timelineUtils;
     @Mock
-    private CheckAttachmentUtils checkAttachmentUtils;
+    private AttachmentUtils checkAttachmentUtils;
     @Mock
     private SchedulerService schedulerService;
     

@@ -87,7 +87,7 @@ import static org.mockito.ArgumentMatchers.eq;
         StatusServiceImpl.class,
         AddressBookServiceImpl.class,
         ConfidentialInformationServiceImpl.class,
-        CheckAttachmentUtils.class,
+        AttachmentUtils.class,
         NotificationUtils.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,

@@ -75,7 +75,7 @@ import java.util.Collections;
         TimeLineServiceImpl.class,
         ConfidentialInformationServiceImpl.class,
         AddressBookServiceImpl.class,
-        CheckAttachmentUtils.class,
+        AttachmentUtils.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
         ExternalChannelMock.class,
