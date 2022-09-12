@@ -33,7 +33,7 @@ import java.util.Optional;
 import static it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@SpringBootTest
+
 class AttachmentUtilsTest {
 
     private AttachmentUtils attachmentUtils;
@@ -48,8 +48,10 @@ class AttachmentUtilsTest {
     @ExtendWith(MockitoExtension.class)
     @BeforeEach
     public void setup() {
+        auditLogBuilder = Mockito.mock(PnAuditLogBuilder.class);
+        validator = Mockito.mock(NotificationReceiverValidator.class);
+        safeStorageService = Mockito.mock(SafeStorageService.class);
         attachmentUtils = new AttachmentUtils(validator, safeStorageService, auditLogBuilder);
-
     }
 
     @Test
