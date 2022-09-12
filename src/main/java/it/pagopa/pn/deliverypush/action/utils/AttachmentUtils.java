@@ -114,7 +114,7 @@ public class AttachmentUtils {
             throw new PnInternalException("FAiled to mark an attachment as ATTACHED", ERROR_CODE_DELIVERYPUSH_ATTACHMENTCHANGESTATUSFAILED);
         }
 
-        log.debug( "changeAttachmentStatusToAttached changed status for attachment with key={}", ref.getKey());
+        log.info( "changeAttachmentStatusToAttached changed status for attachment with key={}", ref.getKey());
 
     }
 }

@@ -5,6 +5,7 @@ import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCre
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.UpdateFileMetadataRequest;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.*;
+import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +14,7 @@ import org.springframework.util.Base64Utils;
 
 import java.security.MessageDigest;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ERRORCOMPUTECHECKSUM;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.*;
 
 @Slf4j
 @Service
@@ -26,9 +27,13 @@ public class SafeStorageServiceImpl implements SafeStorageService {
 
     @Override
     public FileDownloadResponseInt getFile(String fileKey, Boolean metadataOnly) {
-        FileDownloadResponse fileDownloadResponse = safeStorageClient.getFile(fileKey, metadataOnly);
+        try {
+            FileDownloadResponse fileDownloadResponse = safeStorageClient.getFile(fileKey, metadataOnly);
 
-        return getFileDownloadResponseInt(fileDownloadResponse);
+            return getFileDownloadResponseInt(fileDownloadResponse);
+        } catch (Exception e) {
+            throw new PnInternalException("Cannot getfileinfo", ERROR_CODE_DELIVERYPUSH_GETFILEERROR, e);
+        }
     }
 
     private FileDownloadResponseInt getFileDownloadResponseInt(FileDownloadResponse fileDownloadResponse) {
@@ -52,39 +57,47 @@ public class SafeStorageServiceImpl implements SafeStorageService {
 
     @Override
     public FileCreationResponseInt createAndUploadContent(FileCreationWithContentRequest fileCreationRequest) {
-        log.debug("Start call createAndUploadFile - documentType={} filesize={}", fileCreationRequest.getDocumentType(), fileCreationRequest.getContent().length);
+        try {
+            log.debug("Start call createAndUploadFile - documentType={} filesize={}", fileCreationRequest.getDocumentType(), fileCreationRequest.getContent().length);
 
-        String sha256 = computeSha256(fileCreationRequest.getContent());
+            String sha256 = computeSha256(fileCreationRequest.getContent());
 
-        FileCreationResponse fileCreationResponse = safeStorageClient.createFile(fileCreationRequest, sha256);
+            FileCreationResponse fileCreationResponse = safeStorageClient.createFile(fileCreationRequest, sha256);
 
-        safeStorageClient.uploadContent(fileCreationRequest, fileCreationResponse, sha256);
+            safeStorageClient.uploadContent(fileCreationRequest, fileCreationResponse, sha256);
 
-        FileCreationResponseInt fileCreationResponseInt = FileCreationResponseInt.builder()
-                .key(fileCreationResponse.getKey())
-                .build();
-        
-        log.info("createAndUploadContent file uploaded successfully key={} sha256={}", fileCreationResponseInt.getKey(), sha256);
-        
-        return fileCreationResponseInt;
+            FileCreationResponseInt fileCreationResponseInt = FileCreationResponseInt.builder()
+                    .key(fileCreationResponse.getKey())
+                    .build();
+
+            log.info("createAndUploadContent file uploaded successfully key={} sha256={}", fileCreationResponseInt.getKey(), sha256);
+
+            return fileCreationResponseInt;
+        } catch (Exception e) {
+            throw new PnInternalException("Cannot createfile", ERROR_CODE_DELIVERYPUSH_UPLOADFILEERROR, e);
+        }
     }
 
 
     @Override
     public UpdateFileMetadataResponseInt updateFileMetadata(String fileKey, UpdateFileMetadataRequest updateFileMetadataRequest) {
-        log.debug("Start call updateFileMetadata - fileKey={} updateFileMetadataRequest={}", fileKey, updateFileMetadataRequest);
+        try {
+            log.debug("Start call updateFileMetadata - fileKey={} updateFileMetadataRequest={}", fileKey, updateFileMetadataRequest);
 
-        var res = safeStorageClient.updateFileMetadata(fileKey, updateFileMetadataRequest);
+            var res = safeStorageClient.updateFileMetadata(fileKey, updateFileMetadataRequest);
 
-        UpdateFileMetadataResponseInt updateFileMetadataResponseInt = UpdateFileMetadataResponseInt.builder()
-                .resultCode(res.getResultCode())
-                .errorList(res.getErrorList())
-                .resultDescription(res.getResultDescription())
-                .build();
+            UpdateFileMetadataResponseInt updateFileMetadataResponseInt = UpdateFileMetadataResponseInt.builder()
+                    .resultCode(res.getResultCode())
+                    .errorList(res.getErrorList())
+                    .resultDescription(res.getResultDescription())
+                    .build();
 
-        log.info("updateFileMetadata file endend key={} updateFileMetadataResponseInt={}", fileKey, updateFileMetadataRequest);
+            log.info("updateFileMetadata file endend key={} updateFileMetadataResponseInt={}", fileKey, updateFileMetadataRequest);
 
-        return updateFileMetadataResponseInt;
+            return updateFileMetadataResponseInt;
+        } catch (Exception e) {
+            throw new PnInternalException("Cannot updatemetadata", ERROR_CODE_DELIVERYPUSH_UPDATEMETAFILEERROR, e);
+        }
     }
 
     
