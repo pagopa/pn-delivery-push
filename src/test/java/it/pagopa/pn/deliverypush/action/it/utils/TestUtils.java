@@ -224,6 +224,45 @@ public class TestUtils {
         TimelineElementInternal timelineElement = timelineElementInternal.get();
         Assertions.assertEquals( digitalAddress.getAddress(), ((SendDigitalDetailsInt) timelineElement.getDetails()).getDigitalAddress().getAddress() );
     }
+
+    public static void checkIsPresentAcceptanceInTimeline(String iun, int recIndex, int sendAttemptMade, LegalDigitalAddressInt digitalAddress,
+                                                               DigitalAddressSourceInt addressSource, TimelineService timelineService) {
+        String timelineEventId = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .index(sendAttemptMade)
+                        .source(addressSource)
+                        .progressIndex(1)
+                        .build()
+        );
+
+        Optional<TimelineElementInternal> timelineElementInternal = timelineService.getTimelineElement(iun, timelineEventId);
+
+        Assertions.assertTrue(timelineElementInternal.isPresent());
+        TimelineElementInternal timelineElement = timelineElementInternal.get();
+        Assertions.assertEquals( digitalAddress.getAddress(), ((SendDigitalProgressDetailsInt) timelineElement.getDetails()).getDigitalAddress().getAddress() );
+        Assertions.assertNotNull( timelineElement.getLegalFactsIds().get(0) );
+    }
+
+    public static void checkIsPresentDigitalFeedbackInTimeline(String iun, int recIndex, int sendAttemptMade, LegalDigitalAddressInt digitalAddress,
+                                                          DigitalAddressSourceInt addressSource, TimelineService timelineService) {
+        String timelineEventId = TimelineEventId.SEND_DIGITAL_FEEDBACK.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .index(sendAttemptMade)
+                        .source(addressSource)
+                        .build()
+        );
+
+        Optional<TimelineElementInternal> timelineElementInternal = timelineService.getTimelineElement(iun, timelineEventId);
+
+        Assertions.assertTrue(timelineElementInternal.isPresent());
+        TimelineElementInternal timelineElement = timelineElementInternal.get();
+        Assertions.assertEquals( digitalAddress.getAddress(), ((SendDigitalFeedbackDetailsInt) timelineElement.getDetails()).getDigitalAddress().getAddress() );
+        Assertions.assertNotNull( timelineElement.getLegalFactsIds().get(0) );
+    }
     
     public static NotificationStatusInt getNotificationStatus(NotificationInt notification, TimelineService timelineService, StatusUtils statusUtils){
         int numberOfRecipient = notification.getRecipients().size();

@@ -18,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+
 @Slf4j
 @Service
 @ConditionalOnProperty( name = "pn.delivery-push.featureflags.externalchannel", havingValue = "new")
@@ -98,7 +100,16 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
             );
 
             externalChannel.sendLegalNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), digitalAddress, eventId);
-            digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(notification, EventCodeInt.DP00, recIndex, sentAttemptMade, digitalAddress, addressSource, false, null);
+            digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(
+                    notification, 
+                    EventCodeInt.DP00,
+                    recIndex,
+                    sentAttemptMade, 
+                    digitalAddress,
+                    addressSource, 
+                    false, 
+                    null, 
+                    Instant.now());
 
         }
     }

@@ -308,9 +308,17 @@ class DigitalTestIT {
 
         //Viene verificato che il primo tentativo sia avvenuto con il platform address
         TestUtils.checkExternalChannelPecSend(iun, platformAddress.getAddress(), notificationIntsEvents.get(0).getIun(), digitalAddressesEvents.get(0).getAddress());
+        
+        LegalDigitalAddressInt digitalAddress = LegalDigitalAddressInt.builder()
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                .address(platformAddress.getAddress())
+                .build();
+        TestUtils.checkIsPresentAcceptanceInTimeline(iun, recIndex, 0, digitalAddress, DigitalAddressSourceInt.PLATFORM, timelineService);
+        TestUtils.checkIsPresentDigitalFeedbackInTimeline(iun, recIndex, 0, digitalAddress, DigitalAddressSourceInt.PLATFORM, timelineService);
+        
         //Viene verificato che il secondo tentativo sia avvenuto con il domicilio digitale
         TestUtils.checkExternalChannelPecSend(iun, digitalDomicile.getAddress(), notificationIntsEvents.get(1).getIun(), digitalAddressesEvents.get(1).getAddress());
-        //Viene verificato che il secondo tentativo sia avvenuto con l'indirizzo fornito dai registri pubblici
+        //Viene verificato che il terzo tentativo sia avvenuto con l'indirizzo fornito dai registri pubblici
         TestUtils.checkExternalChannelPecSend(iun, pbDigitalAddress.getAddress(), notificationIntsEvents.get(2).getIun(), digitalAddressesEvents.get(2).getAddress());
         //Viene verificato che il quarto tentativo sia avvenuto con il platform address
         TestUtils.checkExternalChannelPecSend(iun, platformAddress.getAddress(), notificationIntsEvents.get(3).getIun(), digitalAddressesEvents.get(3).getAddress());

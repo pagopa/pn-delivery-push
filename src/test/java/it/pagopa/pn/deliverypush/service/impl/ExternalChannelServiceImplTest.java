@@ -18,12 +18,19 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
 import it.pagopa.pn.deliverypush.service.ExternalChannelService;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.Instant;
+
+import static org.mockito.ArgumentMatchers.eq;
 
 class ExternalChannelServiceImplTest {
     @Mock
@@ -108,6 +115,11 @@ class ExternalChannelServiceImplTest {
     }
 
 
+    @AfterAll
+    static void afterAll() {
+        
+    }
+
     @ExtendWith(MockitoExtension.class)
     @Test
     void sendDigitalNotification_AlreadyInProgress() {
@@ -158,7 +170,8 @@ class ExternalChannelServiceImplTest {
         );
 
         Mockito.verify(externalChannel).sendLegalNotification(notification, recipient,  digitalDomicile, eventIdExpected);
-        Mockito.verify(digitalWorkFlowUtils).addDigitalDeliveringProgressTimelineElement(notification, EventCodeInt.DP00, recIndex, sentAttemptMade, digitalDomicile, addressSource, false, null);
+        Mockito.verify(digitalWorkFlowUtils).addDigitalDeliveringProgressTimelineElement( eq(notification), eq(EventCodeInt.DP00), eq(recIndex), eq(sentAttemptMade), eq(digitalDomicile),
+                eq(addressSource), eq(false), eq(null), Mockito.any(Instant.class));
     }
 
     @ExtendWith(MockitoExtension.class)
