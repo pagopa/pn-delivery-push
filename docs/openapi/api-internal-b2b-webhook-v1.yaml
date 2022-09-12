@@ -307,48 +307,48 @@ paths:
     ###                INVIO DI EVENTI DA PARTE DELLA PUBBLICA AMMNISTRAZIONE                ###
     ############################################################################################
 
-  '/delivery-progresses/events':                                                              # TO BE IMPLEMENTED
-    post:                                                                                     # TO BE IMPLEMENTED
-      summary: Invio eventi da parte della PA                                                 # TO BE IMPLEMENTED
-      description: >-                                                                         # TO BE IMPLEMENTED
-        Questa API è a disposizione della Pubblica Amministrazione per inviare eventi, come   # TO BE IMPLEMENTED
-        quello di chiusura di una posizione debitoria con pagamento tramite F24, che possono  # TO BE IMPLEMENTED
-        avvenire fuori dal controllo di PagoPA. <br/>                                         # TO BE IMPLEMENTED
+  '/delivery-progresses/events':                                                              # NOT YET IMPLEMENTED
+    post:                                                                                     # NOT YET IMPLEMENTED
+      summary: Invio eventi da parte della PA                                                 # NOT YET IMPLEMENTED
+      description: >-                                                                         # NOT YET IMPLEMENTED
+        Questa API è a disposizione della Pubblica Amministrazione per inviare eventi, come   # NOT YET IMPLEMENTED
+        quello di chiusura di una posizione debitoria con pagamento tramite F24, che possono  # NOT YET IMPLEMENTED
+        avvenire fuori dal controllo di PagoPA. <br/>                                         # NOT YET IMPLEMENTED
 
-        L'elaborazione può avvenire in maniera parziale, quindi ogni evento deve avere un     # TO BE IMPLEMENTED
-        identificativo univoco (generato dalla PA). In caso di fallimento vanno ritrasmessi   # TO BE IMPLEMENTED
-        gli eventi con lo stesso identificativo. Sarà Piattaforma Notifica ad identificare    # TO BE IMPLEMENTED
-        quelli già elaborati ed evitare duplicazioni. <br/>                                   # TO BE IMPLEMENTED
+        L'elaborazione può avvenire in maniera parziale, quindi ogni evento deve avere un     # NOT YET IMPLEMENTED
+        identificativo univoco (generato dalla PA). In caso di fallimento vanno ritrasmessi   # NOT YET IMPLEMENTED
+        gli eventi con lo stesso identificativo. Sarà Piattaforma Notifica ad identificare    # NOT YET IMPLEMENTED
+        quelli già elaborati ed evitare duplicazioni. <br/>                                   # NOT YET IMPLEMENTED
 
-        Allo stato attuale gli unici eventi sono quelli di pagamento                          # TO BE IMPLEMENTED
-      tags:                                                                                   # TO BE IMPLEMENTED
-        - Events                                                                              # TO BE IMPLEMENTED
-      operationId: informOnExternalEvent                                                      # TO BE IMPLEMENTED
-      parameters:                                                                             # TO BE IMPLEMENTED
-        - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL                 # TO BE IMPLEMENTED
-        - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL                 # TO BE IMPLEMENTED
-        - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL                 # TO BE IMPLEMENTED
-      requestBody:                                                                            # TO BE IMPLEMENTED
-        required: true                                                                        # TO BE IMPLEMENTED
-        content:                                                                              # TO BE IMPLEMENTED
-          application/json:                                                                   # TO BE IMPLEMENTED
-              schema:                                                                         # TO BE IMPLEMENTED
-                $ref: "#/components/schemas/ExternalEventsRequest"                            # TO BE IMPLEMENTED
-      responses:                                                                              # TO BE IMPLEMENTED
-        '204':                                                                                # TO BE IMPLEMENTED
-          description: OK                                                                     # TO BE IMPLEMENTED
-        '400':                                                                                # TO BE IMPLEMENTED
-          description: Invalid input                                                          # TO BE IMPLEMENTED
-          content:                                                                            # TO BE IMPLEMENTED
-            application/problem+json:                                                         # TO BE IMPLEMENTED
-              schema:                                                                         # TO BE IMPLEMENTED
-                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'                 # TO BE IMPLEMENTED
-        '500':                                                                                # TO BE IMPLEMENTED
-          description: Internal Server Error                                                  # TO BE IMPLEMENTED
-          content:                                                                            # TO BE IMPLEMENTED
-            application/problem+json:                                                         # TO BE IMPLEMENTED
-              schema:                                                                         # TO BE IMPLEMENTED
-                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'                 # TO BE IMPLEMENTED
+        Allo stato attuale gli unici eventi sono quelli di pagamento                          # NOT YET IMPLEMENTED
+      tags:                                                                                   # NOT YET IMPLEMENTED
+        - Events                                                                              # NOT YET IMPLEMENTED
+      operationId: informOnExternalEvent                                                      # NOT YET IMPLEMENTED
+      parameters:                                                                             # NOT YET IMPLEMENTED
+        - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL                 # NOT YET IMPLEMENTED
+        - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL                 # NOT YET IMPLEMENTED
+        - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL                 # NOT YET IMPLEMENTED
+      requestBody:                                                                            # NOT YET IMPLEMENTED
+        required: true                                                                        # NOT YET IMPLEMENTED
+        content:                                                                              # NOT YET IMPLEMENTED
+          application/json:                                                                   # NOT YET IMPLEMENTED
+              schema:                                                                         # NOT YET IMPLEMENTED
+                $ref: "#/components/schemas/ExternalEventsRequest"                            # NOT YET IMPLEMENTED
+      responses:                                                                              # NOT YET IMPLEMENTED
+        '204':                                                                                # NOT YET IMPLEMENTED
+          description: OK                                                                     # NOT YET IMPLEMENTED
+        '400':                                                                                # NOT YET IMPLEMENTED
+          description: Invalid input                                                          # NOT YET IMPLEMENTED
+          content:                                                                            # NOT YET IMPLEMENTED
+            application/problem+json:                                                         # NOT YET IMPLEMENTED
+              schema:                                                                         # NOT YET IMPLEMENTED
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'                 # NOT YET IMPLEMENTED
+        '500':                                                                                # NOT YET IMPLEMENTED
+          description: Internal Server Error                                                  # NOT YET IMPLEMENTED
+          content:                                                                            # NOT YET IMPLEMENTED
+            application/problem+json:                                                         # NOT YET IMPLEMENTED
+              schema:                                                                         # NOT YET IMPLEMENTED
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'                 # NOT YET IMPLEMENTED
   
 components:
   
