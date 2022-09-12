@@ -12,7 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
 
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ERRORCOMPUTECHECKSUM;
 
 @Slf4j
 @Service
@@ -93,8 +94,8 @@ public class SafeStorageServiceImpl implements SafeStorageService {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] encodedhash = digest.digest( content );
             return bytesToBase64( encodedhash );
-        } catch (NoSuchAlgorithmException exc) {
-            throw new PnInternalException("cannot compute sha256", exc );
+        } catch (Exception exc) {
+            throw new PnInternalException("cannot compute sha256", ERROR_CODE_DELIVERYPUSH_ERRORCOMPUTECHECKSUM, exc );
         }
     }
 

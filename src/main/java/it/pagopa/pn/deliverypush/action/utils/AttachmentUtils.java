@@ -8,7 +8,6 @@ import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.UpdateFileMetadataRequest;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.UpdateFileMetadataResponseInt;
@@ -17,6 +16,8 @@ import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.function.Consumer;
+
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ATTACHMENTCHANGESTATUSFAILED;
 
 @Component
@@ -24,14 +25,17 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 public class AttachmentUtils {
     private final NotificationReceiverValidator validator;
     private final SafeStorageService safeStorageService;
+    private final PnAuditLogBuilder auditLogBuilder;
 
-    public AttachmentUtils(NotificationReceiverValidator validator, SafeStorageService safeStorageService) {
+    public AttachmentUtils(NotificationReceiverValidator validator,
+                           SafeStorageService safeStorageService,
+                           PnAuditLogBuilder auditLogBuilder) {
         this.validator = validator;
         this.safeStorageService = safeStorageService;
+        this.auditLogBuilder = auditLogBuilder;
     }
     
     public void validateAttachment(NotificationInt notification ) throws PnValidationException {
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_VALID, "Start check attachment for iun={}", notification.getIun() )
                 .iun(notification.getIun())
@@ -39,13 +43,7 @@ public class AttachmentUtils {
         logEvent.log();
         
         try {
-            for(NotificationDocumentInt attachment : notification.getDocuments()) {
-                checkAttachment(attachment);
-            }
-
-            notification.getRecipients().forEach(
-                    recipient -> checkPayment(recipient.getPayment())
-            );
+            forEachAttachment(notification, this::checkAttachment);
 
             logEvent.generateSuccess().log();
         } catch (PnValidationException ex) {
@@ -58,28 +56,28 @@ public class AttachmentUtils {
     public void changeAttachmentsStatusToAttached(NotificationInt notification ) {
         log.info( "changeAttachmentsStatusToAttached iun={}", notification.getIun());
 
+        forEachAttachment(notification, this::changeAttachmentStatusToAttached);
+    }
+
+
+    private void forEachAttachment(NotificationInt notification, Consumer<NotificationDocumentInt> callback)
+    {
         for(NotificationDocumentInt attachment : notification.getDocuments()) {
-            changeAttachmentStatusToAttached(attachment);
+            callback.accept(attachment);
         }
 
         for(NotificationRecipientInt recipient : notification.getRecipients()) {
-            changePaymentStatusToAttached(recipient.getPayment());
-        }
-    }
+            if(recipient.getPayment() != null ){
 
-    private void checkPayment(NotificationPaymentInfoInt payment) {
-        if(payment != null ){
-           log.debug( "Start check attachment for payment" );
-           
-           if(payment.getPagoPaForm() != null){
-               checkAttachment(payment.getPagoPaForm());
-           }
-           if(payment.getF24flatRate() != null){
-               checkAttachment(payment.getF24flatRate());
-           }
-           
-           log.debug( "End check attachment for payment" );
-       }
+                if(recipient.getPayment().getPagoPaForm() != null){
+                    callback.accept(recipient.getPayment().getPagoPaForm());
+                }
+                if(recipient.getPayment().getF24flatRate() != null){
+                    callback.accept(recipient.getPayment().getF24flatRate());
+                }
+
+            }
+        }
     }
 
 
@@ -98,21 +96,6 @@ public class AttachmentUtils {
                         .sha256( fd.getChecksum() )
                         .build()
         );
-    }
-
-    private void changePaymentStatusToAttached(NotificationPaymentInfoInt payment) {
-        if(payment != null ){
-            log.debug( "Start change attachment for payment" );
-
-            if(payment.getPagoPaForm() != null){
-                changeAttachmentStatusToAttached(payment.getPagoPaForm());
-            }
-            if(payment.getF24flatRate() != null){
-                changeAttachmentStatusToAttached(payment.getF24flatRate());
-            }
-
-            log.debug( "End change attachment for payment" );
-        }
     }
 
     private void changeAttachmentStatusToAttached(NotificationDocumentInt attachment) {

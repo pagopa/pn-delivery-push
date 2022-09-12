@@ -4,6 +4,7 @@ import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.OperationResultCodeResponse;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.*;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
@@ -185,10 +186,16 @@ class NotHandledTestIT {
         fileCreationResponse.setSecret("abc");
         fileCreationResponse.setUploadUrl("https://www.unqualcheurl.it");
         fileCreationResponse.setUploadMethod(FileCreationResponse.UploadMethodEnum.POST);
-        
+
+
+        OperationResultCodeResponse operationResultCodeResponse = new OperationResultCodeResponse();
+        operationResultCodeResponse.setResultCode("200.00");
+        operationResultCodeResponse.setResultDescription("OK");
+
         Mockito.when( safeStorageClientMock.getFile( Mockito.anyString(), Mockito.anyBoolean()))
                 .thenReturn( fileDownloadResponse );
         Mockito.when( safeStorageClientMock.createFile(Mockito.any(FileCreationWithContentRequest.class), Mockito.anyString())).thenReturn(fileCreationResponse);
+        Mockito.when( safeStorageClientMock.updateFileMetadata(Mockito.anyString(), Mockito.any())).thenReturn(operationResultCodeResponse);
 
         pnDeliveryClientMock.clear();
         addressBookMock.clear();

@@ -4,6 +4,7 @@ import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.OperationResultCodeResponse;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.*;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
@@ -16,6 +17,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
+import it.pagopa.pn.deliverypush.dto.ext.safestorage.UpdateFileMetadataResponseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
@@ -175,11 +177,15 @@ class NotificationViewedTestIT {
         fileCreationResponse.setKey("123");
         fileDownloadResponse.setChecksum("123");
 
+        OperationResultCodeResponse operationResultCodeResponse = new OperationResultCodeResponse();
+        operationResultCodeResponse.setResultCode("200.00");
+        operationResultCodeResponse.setResultDescription("OK");
 
         Mockito.when( safeStorageClient.getFile( Mockito.anyString(), Mockito.anyBoolean()))
                 .thenReturn( fileDownloadResponse);
         
         Mockito.when( safeStorageClient.createFile(Mockito.any(FileCreationWithContentRequest.class), Mockito.anyString())).thenReturn(fileCreationResponse);
+        Mockito.when( safeStorageClient.updateFileMetadata(Mockito.anyString(), Mockito.any())).thenReturn(operationResultCodeResponse);
 
         pnDeliveryClientMock.clear();
         addressBookMock.clear();
@@ -228,6 +234,7 @@ class NotificationViewedTestIT {
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
+
         
         //Simulazione visualizzazione della notifica
         notificationViewedHandler.handleViewNotification(iun, recIndex);
