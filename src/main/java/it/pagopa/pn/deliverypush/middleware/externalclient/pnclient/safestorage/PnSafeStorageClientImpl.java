@@ -68,7 +68,7 @@ public class PnSafeStorageClientImpl implements PnSafeStorageClient {
     public OperationResultCodeResponse updateFileMetadata(String fileKey, UpdateFileMetadataRequest request){
         log.debug("Start call updateFileMetadata - fileKey={} request={}", fileKey, request);
 
-        OperationResultCodeResponse operationResultCodeResponse = fileMetadataUpdateApi.updateFileMetadata( fileKey, this.cfg.getSafeStorageCxId(), request );
+        OperationResultCodeResponse operationResultCodeResponse = fileMetadataUpdateApi.updateFileMetadata( fileKey, this.cfg.getSafeStorageCxIdUpdatemetadata(), request );
 
         log.debug("End call updateFileMetadata, updated metadata file with key={}", fileKey);
 

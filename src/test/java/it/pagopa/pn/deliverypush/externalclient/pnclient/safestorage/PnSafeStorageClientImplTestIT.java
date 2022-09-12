@@ -186,7 +186,7 @@ class PnSafeStorageClientImplTestIT {
         Mockito.when( restTemplate.exchange( Mockito.any(), Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(response);
 
-        Mockito.when( cfg.getSafeStorageCxId() ).thenReturn( "pn-delivery-002" );
+        Mockito.when( cfg.getSafeStorageCxIdUpdatemetadata() ).thenReturn( "pn-delivery-002" );
 
         new MockServerClient("localhost", 9998)
                 .when(request()
@@ -218,7 +218,7 @@ class PnSafeStorageClientImplTestIT {
         Mockito.when( restTemplate.exchange( Mockito.any(), Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(response);
 
-        Mockito.when( cfg.getSafeStorageCxId() ).thenReturn( "pn-delivery-002" );
+        Mockito.when( cfg.getSafeStorageCxIdUpdatemetadata() ).thenReturn( "pn-delivery-002" );
 
         new MockServerClient("localhost", 9998)
                 .when(request()
