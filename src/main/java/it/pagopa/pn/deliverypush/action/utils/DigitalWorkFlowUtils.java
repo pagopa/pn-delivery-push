@@ -212,9 +212,10 @@ public class DigitalWorkFlowUtils {
     }
 
     public void addDigitalFeedbackTimelineElement(NotificationInt notification, ResponseStatusInt status, List<String> errors,
-                                                  SendDigitalDetailsInt sendDigitalDetails, DigitalMessageReferenceInt digitalMessageReference) {
+                                                  SendDigitalDetailsInt sendDigitalDetails, DigitalMessageReferenceInt digitalMessageReference,
+                                                  Instant eventTimestamp) {
         addTimelineElement(
-                timelineUtils.buildDigitalFeedbackTimelineElement(notification, status, errors, sendDigitalDetails, digitalMessageReference),
+                timelineUtils.buildDigitalFeedbackTimelineElement(notification, status, errors, sendDigitalDetails, digitalMessageReference, eventTimestamp),
                 notification
         );
     }
@@ -222,9 +223,11 @@ public class DigitalWorkFlowUtils {
     public void addDigitalDeliveringProgressTimelineElement(NotificationInt notification,
                                                             EventCodeInt eventCode,
                                                             int recIndex, int sentAttemptMade,
-                                                            LegalDigitalAddressInt digitalAddressInt, DigitalAddressSourceInt digitalAddressSourceInt,
+                                                            LegalDigitalAddressInt digitalAddressInt,
+                                                            DigitalAddressSourceInt digitalAddressSourceInt,
                                                             boolean shouldRetry,
-                                                            DigitalMessageReferenceInt digitalMessageReference) {
+                                                            DigitalMessageReferenceInt digitalMessageReference,
+                                                            Instant eventTimestamp) {
 
         int progressIndex = getPreviousTimelineProgress(notification, recIndex, sentAttemptMade, digitalAddressSourceInt).size() + 1;
 
@@ -237,7 +240,8 @@ public class DigitalWorkFlowUtils {
                                                                             digitalAddressInt,
                                                                             digitalAddressSourceInt,
                                                                             digitalMessageReference,
-                                                                            progressIndex),
+                                                                            progressIndex,
+                                                                            eventTimestamp),
                         notification
                 );
     }

@@ -12,7 +12,9 @@ import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfo;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.*;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
@@ -23,7 +25,6 @@ import it.pagopa.pn.deliverypush.service.PublicRegistryService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import software.amazon.ion.Timestamp;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -293,7 +294,7 @@ public class DigitalWorkFlowHandler {
         log.debug("Response is for 'DELIVERY FAILURE' generatedMessage={} - iun={} id={}", response.getGeneratedMessage(), iun, recIndex);
 
         digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(notification, status, response.getEventDetails() == null ? Collections.emptyList() : List.of(response.getEventDetails()),
-                sendDigitalDetails, response.getGeneratedMessage());
+                sendDigitalDetails, response.getGeneratedMessage(), response.getEventTimestamp());
 
         nextWorkflowStep(sendDigitalTimelineElement, sendDigitalDetails, notification, recIndex);
     }
@@ -321,7 +322,7 @@ public class DigitalWorkFlowHandler {
         logEvent.generateSuccess().log();
 
         digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(notification, status, Collections.emptyList(),
-                sendDigitalDetails, response.getGeneratedMessage());
+                sendDigitalDetails, response.getGeneratedMessage(), response.getEventTimestamp());
 
         log.info("Notification sent successfully, starting completion workflow - iun={} id={}",  notification.getIun(), recIndex);
 
@@ -338,7 +339,7 @@ public class DigitalWorkFlowHandler {
 
         digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(notification, response.getEventCode(),
                 sendDigitalDetails.getRecIndex(), sendDigitalDetails.getRetryNumber(), sendDigitalDetails.getDigitalAddress(), sendDigitalDetails.getDigitalAddressSource(),
-                shouldRetry, response.getGeneratedMessage());
+                shouldRetry, response.getGeneratedMessage(), response.getEventTimestamp());
     }
 
     private void handleStatusProgressWithRetry(ExtChannelDigitalSentResponseInt response, TimelineElementInternal sendDigitalTimelineElement, SendDigitalDetailsInt sendDigitalDetails,
