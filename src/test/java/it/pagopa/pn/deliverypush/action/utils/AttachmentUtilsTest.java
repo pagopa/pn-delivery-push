@@ -21,8 +21,10 @@ import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
@@ -43,6 +45,7 @@ class AttachmentUtilsTest {
     @Mock
     private PnAuditLogBuilder auditLogBuilder;
 
+    @ExtendWith(MockitoExtension.class)
     @BeforeEach
     public void setup() {
         attachmentUtils = new AttachmentUtils(validator, safeStorageService, auditLogBuilder);
