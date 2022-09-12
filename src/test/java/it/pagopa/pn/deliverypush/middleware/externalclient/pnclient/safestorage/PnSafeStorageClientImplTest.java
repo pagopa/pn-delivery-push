@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage;
 
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.ApiClient;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.api.FileDownloadApi;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.api.FileUploadApi;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
@@ -13,9 +14,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
+
+import java.math.BigDecimal;
 
 import static org.mockito.Mockito.mock;
 
@@ -40,10 +46,15 @@ class PnSafeStorageClientImplTest {
     @BeforeEach
     void setup() {
         this.cfg = mock(PnDeliveryPushConfigs.class);
-        Mockito.when(cfg.getExternalChannelBaseUrl()).thenReturn("http://localhost:8080");
-        Mockito.when(cfg.getExternalchannelCxId()).thenReturn("pn-delivery-002");
-        Mockito.when(cfg.getSafeStorageCxId()).thenReturn("pn-delivery-002");
-        
+        Mockito.when(cfg.getSafeStorageBaseUrl()).thenReturn("http://localhost:8080");
+        Mockito.when(cfg.getSafeStorageCxId()).thenReturn("test001");
+
+        ApiClient apiClient = new ApiClient(restTemplate);
+        apiClient.setBasePath(cfg.getSafeStorageBaseUrl());
+
+        this.fileDownloadApi = new FileDownloadApi(apiClient);
+        this.fileUploadApi = new FileUploadApi(apiClient);
+
         client = new PnSafeStorageClientImpl(restTemplate, cfg);
     }
 
@@ -51,16 +62,18 @@ class PnSafeStorageClientImplTest {
     void getFile() {
         String fileKey = "abcd";
         FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
-        fileDownloadResponse.setChecksum("checksum");
         fileDownloadResponse.setContentType("application/pdf");
-        fileDownloadResponse.setDocumentType("PN_AAR");
-        fileDownloadResponse.setDocumentStatus("SAVED");
-        fileDownloadResponse.setKey(fileKey);
-        fileDownloadResponse.setVersionId("v1");
+        fileDownloadResponse.setContentLength(new BigDecimal(0));
+        fileDownloadResponse.setChecksum("123");
+        fileDownloadResponse.setKey("123");
         fileDownloadResponse.setDownload(new FileDownloadInfo());
-
-
-        Mockito.when(fileDownloadApi.getFile(fileKey, "pn-delivery-002", Boolean.TRUE)).thenReturn(fileDownloadResponse);
+        fileDownloadResponse.getDownload().setUrl("https://www.url.qualcosa.it");
+        fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
+       
+        Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
+                .thenReturn(ResponseEntity.ok(""));
+       
+        Mockito.when(fileDownloadApi.getFile(fileKey, "pn-delivery-002", Boolean.FALSE)).thenReturn(fileDownloadResponse);
 
         FileDownloadResponse response = client.getFile(fileKey, Boolean.TRUE);
 
@@ -84,7 +97,9 @@ class PnSafeStorageClientImplTest {
         fileCreationResponse.setUploadMethod(FileCreationResponse.UploadMethodEnum.PUT);
         fileCreationResponse.setKey(fileKey);
         fileCreationResponse.setUploadUrl("http://localhost:9998" + path);
-        
+
+        Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
+                .thenReturn(ResponseEntity.ok(""));
         Mockito.when(fileUploadApi.createFile(this.cfg.getSafeStorageCxId(), "SHA-256", sha256, fileCreationRequest)).thenReturn(fileCreationResponse);
 
         FileCreationResponse response = client.createFile(fileCreationRequest, sha256);
