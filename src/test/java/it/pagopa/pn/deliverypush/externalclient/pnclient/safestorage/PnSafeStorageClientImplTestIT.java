@@ -1,8 +1,6 @@
 package it.pagopa.pn.deliverypush.externalclient.pnclient.safestorage;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.*;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClientImpl;
@@ -165,7 +163,72 @@ class PnSafeStorageClientImplTestIT {
                 .respond(response()
                         .withStatusCode(200));
 
-        safeStorageClient.uploadContent (fileCreationRequest, fileCreationResponse,"sha");
+        Assertions.assertDoesNotThrow(() -> safeStorageClient.uploadContent (fileCreationRequest, fileCreationResponse,"sha"));
         
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void updateFileMetadata() {
+        //Given
+        String fileKey = "abcd";
+        String path = "/safe-storage/v1/files/" + fileKey;
+        UpdateFileMetadataRequest updateFileMetadataRequest = new UpdateFileMetadataRequest();
+        updateFileMetadataRequest.setStatus("ATTACHED");
+
+        OperationResultCodeResponse operationResultCodeResponse = new OperationResultCodeResponse();
+        operationResultCodeResponse.setResultCode("200.00");
+        operationResultCodeResponse.setResultDescription("OK");
+
+        ResponseEntity<OperationResultCodeResponse> response = ResponseEntity.ok( operationResultCodeResponse);
+        ResponseEntity<String> resp1 = ResponseEntity.ok("");
+
+        Mockito.when( restTemplate.exchange( Mockito.any(), Mockito.any(ParameterizedTypeReference.class)))
+                .thenReturn(response);
+
+        Mockito.when( cfg.getSafeStorageCxId() ).thenReturn( "pn-delivery-002" );
+
+        new MockServerClient("localhost", 9998)
+                .when(request()
+                        .withMethod("POST")
+                        .withPath(path))
+                .respond(response()
+                        .withStatusCode(200));
+
+        OperationResultCodeResponse result =  safeStorageClient.updateFileMetadata (fileKey, updateFileMetadataRequest);
+        Assertions.assertEquals(operationResultCodeResponse.getResultCode(), result.getResultCode());
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void updateFileMetadataKO() {
+        //Given
+        String fileKey = "abcd";
+        String path = "/safe-storage/v1/files/" + fileKey;
+        UpdateFileMetadataRequest updateFileMetadataRequest = new UpdateFileMetadataRequest();
+        updateFileMetadataRequest.setStatus("ATTACHED");
+
+        OperationResultCodeResponse operationResultCodeResponse = new OperationResultCodeResponse();
+        operationResultCodeResponse.setResultCode("400.00");
+        operationResultCodeResponse.setResultDescription("BAD SOMETHING");
+
+        ResponseEntity<OperationResultCodeResponse> response = ResponseEntity.ok( operationResultCodeResponse);
+        ResponseEntity<String> resp1 = ResponseEntity.ok("");
+
+        Mockito.when( restTemplate.exchange( Mockito.any(), Mockito.any(ParameterizedTypeReference.class)))
+                .thenReturn(response);
+
+        Mockito.when( cfg.getSafeStorageCxId() ).thenReturn( "pn-delivery-002" );
+
+        new MockServerClient("localhost", 9998)
+                .when(request()
+                        .withMethod("POST")
+                        .withPath(path))
+                .respond(response()
+                        .withStatusCode(200));
+
+        OperationResultCodeResponse result = safeStorageClient.updateFileMetadata (fileKey, updateFileMetadataRequest);
+
+        Assertions.assertEquals(operationResultCodeResponse.getResultCode(), result.getResultCode());
     }
 }

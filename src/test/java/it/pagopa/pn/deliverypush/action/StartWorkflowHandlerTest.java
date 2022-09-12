@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.action;
 
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.deliverypush.action.utils.CheckAttachmentUtils;
+import it.pagopa.pn.deliverypush.action.utils.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -33,7 +33,7 @@ class StartWorkflowHandlerTest {
     @Mock
     private TimelineUtils timelineUtils;
     @Mock
-    private CheckAttachmentUtils checkAttachmentUtils;
+    private AttachmentUtils checkAttachmentUtils;
     @Mock
     private SchedulerService schedulerService;
     
@@ -71,7 +71,7 @@ class StartWorkflowHandlerTest {
         //GIVEN
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(getNotification());
-        
+
         doThrow(new PnValidationException("ex", Collections.emptySet())).when(checkAttachmentUtils).validateAttachment(Mockito.any(NotificationInt.class));
         
         //WHEN
@@ -80,6 +80,23 @@ class StartWorkflowHandlerTest {
         //THEN
         Mockito.verify(saveLegalFactsService, Mockito.times(0)).saveNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
         Mockito.verify(timelineUtils).buildRefusedRequestTimelineElement(Mockito.any(NotificationInt.class), Mockito.any());
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void startWorkflowKoUpdateAttachment() {
+        //GIVEN
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+                .thenReturn(getNotification());
+
+        doThrow(new PnValidationException("ex", Collections.emptySet())).when(checkAttachmentUtils).changeAttachmentsStatusToAttached(Mockito.any(NotificationInt.class));
+
+        //WHEN
+        handler.startWorkflow("IUN_01");
+
+        //THEN
+        Mockito.verify(saveLegalFactsService, Mockito.times(1)).saveNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
+        Mockito.verify(timelineUtils, Mockito.never()).buildAcceptedRequestTimelineElement(Mockito.any(NotificationInt.class), Mockito.any());
     }
 
     private NotificationInt getNotification() {
