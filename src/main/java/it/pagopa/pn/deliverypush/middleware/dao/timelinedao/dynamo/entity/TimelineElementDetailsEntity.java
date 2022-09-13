@@ -1,10 +1,12 @@
 package it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity;
 
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendingReceipt;
 import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 
 @Builder( toBuilder = true )
@@ -42,4 +44,6 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("reason")})) private String reason;
     @Getter(onMethod=@__({@DynamoDbAttribute("notificationCost")})) private Integer notificationCost;
     @Getter(onMethod=@__({@DynamoDbAttribute("sendingReceipts")})) private List<SendingReceiptEntity> sendingReceipts;
+    @Getter(onMethod=@__({@DynamoDbAttribute("eventCode")})) private String eventCode;
+    @Getter(onMethod=@__({@DynamoDbAttribute("shouldRetry")})) private Boolean shouldRetry;
 }
