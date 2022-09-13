@@ -1,7 +1,10 @@
 openapi: 3.0.3
 info:
+  termsOfService: https://termofservice.it
   title: 'API di pn-delivery-push esposte ad altri microservizi'
-  version: v1.0
+  x-summary: 'API di pn-delivery-push esposte ad altri microservizi'
+  x-api-id: api-internal-pn-delivery-push
+  version: '1.0.0'
   description: >- 
     Da fare
 
@@ -18,6 +21,9 @@ servers:
 - url: https://api.dev.pn.pagopa.it
   description: Ambiente di sviluppo
 tags:
+  - name: HealthCheck
+    description: >-
+      Invocazioni per sapere lo stato del microservizio
   - name: TimelineAndStatus
     description: >-
       Recupera le informazioni storiche di una notifica
@@ -27,7 +33,18 @@ tags:
 
 
 paths:
-      
+  '/status':
+    get:
+      summary: healthCheck path
+      description: healtCheck path per verificare lo stato del microservizio
+      tags:
+        - HealthCheck
+      operationId: status
+      responses:
+        '200':
+          description: Ok
+        '500':
+          description: Internal Server Error
   '/delivery-push/{iun}/legal-facts':
     get:
       summary: Elenco atti opponibili a terzi

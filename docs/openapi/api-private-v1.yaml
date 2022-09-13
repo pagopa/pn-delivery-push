@@ -1,9 +1,12 @@
 openapi: 3.0.3
 info:
+  termsOfService: https://termofservice.it
   title: OpenAPI servizi ad uso solo interno
+  x-summary: OpenAPI servizi ad uso solo interno
+  x-api-id: api-private
   description: >- 
     API accessibili solo da microservizi interni
-  version: v1.0
+  version: '1.0.0'
   contact:
     email: pn@pagopa.it
   license:
@@ -12,8 +15,27 @@ info:
 servers:
 - url: http://internal-pn-in-appli-em20o634urpg-965454854.eu-central-1.elb.amazonaws.com:8080 #TODO Valorizzare correttamente url api private\
   description: Generated server url
+  x-sandbox: true
+tags:
+  - name: HealthCheck
+    description: >-
+      Invocazioni per sapere lo stato del microservizio
+  - name: TimelineAndStatus
+    description: >-
+      Invocazioni per aggiornare lo stato della notifica
 paths:
-
+  '/status':
+    get:
+      summary: healthCheck path
+      description: healtCheck path per verificare lo stato del microservizio
+      tags:
+        - HealthCheck
+      operationId: status
+      responses:
+        '200':
+          description: Ok
+        '500':
+          description: Internal Server Error
   '/delivery-push-private/{iun}/history':
     get:
       summary: Storico eventi notifica
@@ -73,6 +95,7 @@ components:
       required: true
       schema:
         type: integer
+        format: int32
 
     pathCreatedAt:
       description: >-
