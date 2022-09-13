@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.webhook.ProgressResponseElementDto;
@@ -25,6 +26,8 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_WEBHOOK_CONSUMEEVENTSTREAM;
 
 @Service
 @Slf4j
@@ -79,7 +82,7 @@ public class WebhookServiceImpl implements WebhookService {
     @Override
     public Mono<StreamMetadataResponse> updateEventStream(String xPagopaPnCxId, UUID streamId, Mono<StreamCreationRequest> streamCreationRequest) {
         return streamEntityDao.get(xPagopaPnCxId, streamId.toString())
-                .switchIfEmpty(Mono.error(new PnInternalException("Pa " + xPagopaPnCxId + " is not allowed to see this streamId " + streamId)))
+                .switchIfEmpty(Mono.error(new PnInternalException("Pa " + xPagopaPnCxId + " is not allowed to see this streamId " + streamId, PnDeliveryPushExceptionCodes.ERROR_CODE_WEBHOOK_UPDATEEVENTSTREAM)))
                 .then(streamCreationRequest)
                 .map(r -> DtoToEntityStreamMapper.dtoToEntity(xPagopaPnCxId, streamId.toString(), r))
                 .flatMap(streamEntityDao::save)
@@ -93,7 +96,7 @@ public class WebhookServiceImpl implements WebhookService {
         // che permette di ritornare anche il record con (X-1ms) se presente. NB: vado a filtrare il record con lastEventId perchè quello SICURAMENTE glielo avevo già tornato.
         String lastEventIdWithBuffer = computeLastEventIdWithBuffer(lastEventId);
         return streamEntityDao.get(xPagopaPnCxId, streamId.toString())
-                .switchIfEmpty(Mono.error(new PnInternalException("Pa " + xPagopaPnCxId + " is not allowed to see this streamId " + streamId)))
+                .switchIfEmpty(Mono.error(new PnInternalException("Pa " + xPagopaPnCxId + " is not allowed to see this streamId " + streamId, ERROR_CODE_WEBHOOK_CONSUMEEVENTSTREAM)))
                 .flatMap(stream -> eventEntityDao.findByStreamId(stream.getStreamId(), lastEventIdWithBuffer))
                 .map(res -> {
                     // schedulo la pulizia per gli eventi precedenti a quello richiesto
@@ -123,7 +126,8 @@ public class WebhookServiceImpl implements WebhookService {
                 .map(stream -> {
                     // per ogni stream configurato, devo andare a controllare se lo stato devo salvarlo o meno
                     // c'è il caso in cui lo stato non cambia (e se lo stream vuolo solo i cambi di stato, lo ignoro)
-                    if (StreamCreationRequest.EventTypeEnum.fromValue(stream.getEventType()) == StreamCreationRequest.EventTypeEnum.STATUS
+                    StreamCreationRequest.EventTypeEnum eventType = StreamCreationRequest.EventTypeEnum.fromValue(stream.getEventType());
+                    if (eventType == StreamCreationRequest.EventTypeEnum.STATUS
                         && newStatus.equals(oldStatus))
                     {
                         log.info("skipping saving webhook event for stream={} because old and new status are same status={}", stream.getStreamId(), newStatus);
@@ -132,7 +136,10 @@ public class WebhookServiceImpl implements WebhookService {
 
                     // e poi c'è il caso in cui lo stream ha un filtro sugli eventi interessati
                     // se è nullo/vuoto o contiene lo stato, vuol dire che devo salvarlo
-                    if ((stream.getFilterValues() == null || stream.getFilterValues().isEmpty() || stream.getFilterValues().contains(timelineEventCategory)))
+                    if ((stream.getFilterValues() == null
+                            || stream.getFilterValues().isEmpty()
+                            || (eventType == StreamCreationRequest.EventTypeEnum.STATUS && stream.getFilterValues().contains(newStatus))
+                            || (eventType == StreamCreationRequest.EventTypeEnum.TIMELINE && stream.getFilterValues().contains(timelineEventCategory))))
                     {
 
                         EventEntity eventEntity = new EventEntity();
