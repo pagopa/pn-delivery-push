@@ -21,7 +21,9 @@ class ExceptionHelperTest {
     @Test
     // TODO improve test coverage for this test
     void getHttpStatusFromException() {
-
+        
+        // pass HttpStatus.BAD_REQUEST
+        // pass HttpStatus.INTERNAL_SERVER_ERROR - per PnInternalException
         HttpStatus httpStatus = ExceptionHelper.getHttpStatusFromException(Mockito.any(Throwable.class));
 
         try (MockedStatic<ExceptionHelper> exceptionHelper = Mockito.mockStatic(ExceptionHelper.class, invocation -> {

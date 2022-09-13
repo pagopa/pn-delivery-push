@@ -1,20 +1,34 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
+import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsId;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 
 class LegalFactIdMapperTest {
 
     @Test
     void internalToExternal() {
 
-        LegalFactIdMapper legalFactIdMapper = Mockito.mock(LegalFactIdMapper.class);
+        LegalFactsId actual = LegalFactIdMapper.internalToExternal(buildLegalFactsIdInt());
 
-        try (MockedStatic<LegalFactIdMapper> mockedStatic = Mockito.mockStatic(LegalFactIdMapper.class)) {
-            mockedStatic.when(() -> LegalFactIdMapper.internalToExternal(Mockito.any(LegalFactsIdInt.class))).thenReturn(legalFactIdMapper);
-            // when(mockedLookupInstance.getCodeList("123", "456").thenReturn(yourMap):
-        }
+        Assertions.assertEquals(buildLegalFactsId(), actual);
+
+    }
+
+    private LegalFactsId buildLegalFactsId() {
+        return LegalFactsId.builder()
+                .key("001")
+                .category(LegalFactCategory.ANALOG_DELIVERY)
+                .build();
+    }
+
+    private LegalFactsIdInt buildLegalFactsIdInt() {
+        return LegalFactsIdInt.builder()
+                .key("001")
+                .category(LegalFactCategoryInt.ANALOG_DELIVERY)
+                .build();
     }
 }
