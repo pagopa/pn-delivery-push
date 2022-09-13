@@ -10,22 +10,29 @@ import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.Operati
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.UpdateFileMetadataRequest;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
+import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 
 @Slf4j
 @Component
+@EnableRetry
 public class PnSafeStorageClientImpl implements PnSafeStorageClient {
 
     private final FileDownloadApi fileDownloadApi;
@@ -65,14 +72,23 @@ public class PnSafeStorageClientImpl implements PnSafeStorageClient {
     }
 
     @Override
+    @Retryable(
+            value = {PnInternalException.class},
+            maxAttempts = 3,
+            backoff = @Backoff(random = true, delay = 500, maxDelay = 1000, multiplier = 2)
+    )
     public OperationResultCodeResponse updateFileMetadata(String fileKey, UpdateFileMetadataRequest request){
-        log.debug("Start call updateFileMetadata - fileKey={} request={}", fileKey, request);
+        try {
+            log.debug("Start call updateFileMetadata - fileKey={} request={}", fileKey, request);
 
-        OperationResultCodeResponse operationResultCodeResponse = fileMetadataUpdateApi.updateFileMetadata( fileKey, this.cfg.getSafeStorageCxIdUpdatemetadata(), request );
+            OperationResultCodeResponse operationResultCodeResponse = fileMetadataUpdateApi.updateFileMetadata( fileKey, this.cfg.getSafeStorageCxIdUpdatemetadata(), request );
 
-        log.debug("End call updateFileMetadata, updated metadata file with key={}", fileKey);
+            log.debug("End call updateFileMetadata, updated metadata file with key={}", fileKey);
 
-        return operationResultCodeResponse;
+            return operationResultCodeResponse;
+        } catch (RestClientException e) {
+            throw new PnInternalException("Exception invoking updateFileMetadata", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_UPDATEMETAFILEERROR, e);
+        }
     }
 
 
@@ -95,7 +111,7 @@ public class PnSafeStorageClientImpl implements PnSafeStorageClient {
             
             if (res.getStatusCodeValue() != org.springframework.http.HttpStatus.OK.value())
             {
-                throw new PnInternalException("File upload failed");
+                throw new PnInternalException("File upload failed", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_UPLOADFILEERROR);
             }
         } catch (PnInternalException ee)
         {
@@ -105,7 +121,7 @@ public class PnSafeStorageClientImpl implements PnSafeStorageClient {
         catch (Exception ee)
         {
             log.error("uploadContent Exception uploading file", ee);
-            throw new PnInternalException("Exception uploading file", ee);
+            throw new PnInternalException("Exception uploading file", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_UPLOADFILEERROR, ee);
         }
     }
 
