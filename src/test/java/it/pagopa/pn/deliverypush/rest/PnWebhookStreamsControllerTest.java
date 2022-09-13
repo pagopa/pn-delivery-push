@@ -92,7 +92,7 @@ class PnWebhookStreamsControllerTest {
 
         webTestClient.delete()
                 .uri( "/delivery-progresses/streams/{streamId}".replace("{streamId}", streamId) )
-                .header(HttpHeaders.ACCEPT, "application/json")
+                .header(HttpHeaders.ACCEPT, "application/problem+json")
                 .headers(httpHeaders -> {
                     httpHeaders.set("x-pagopa-pn-uid","test");
                     httpHeaders.set("x-pagopa-pn-cx-type", CxTypeAuthFleet.PA.getValue());
