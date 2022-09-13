@@ -1,16 +1,14 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.action.utils.AarUtils;
-import it.pagopa.pn.deliverypush.action.utils.ExternalChannelUtils;
-import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
-import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
@@ -19,6 +17,8 @@ import it.pagopa.pn.deliverypush.service.ExternalChannelService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
+
+import java.time.Instant;
 
 @Slf4j
 @Service
@@ -30,45 +30,88 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     private final AarUtils aarUtils;
     private final TimelineUtils timelineUtils;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
+    private final DigitalWorkFlowUtils digitalWorkFlowUtils;
     
     public ExternalChannelServiceImpl(ExternalChannelUtils externalChannelUtils,
                                       ExternalChannelSendClient externalChannel,
                                       NotificationUtils notificationUtils,
                                       AarUtils aarUtils,
-                                      TimelineUtils timelineUtils, 
-                                      PnDeliveryPushConfigs pnDeliveryPushConfigs) {
+                                      TimelineUtils timelineUtils,
+                                      PnDeliveryPushConfigs pnDeliveryPushConfigs, DigitalWorkFlowUtils digitalWorkFlowUtils) {
         this.externalChannelUtils = externalChannelUtils;
         this.externalChannel = externalChannel;
         this.notificationUtils = notificationUtils;
         this.aarUtils = aarUtils;
         this.timelineUtils = timelineUtils;
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
+        this.digitalWorkFlowUtils = digitalWorkFlowUtils;
     }
 
     /**
      * Send pec notification to external channel
      * Messaggio con valore legale (PEC)
+     * Tramite il sendAlreadyInProgress indica se è il primo tentativo, o se invece è un ritentativo breve
+     *
+     * @param notification notitica
+     * @param digitalAddress indirizzo
+     * @param addressSource sorgente
+     * @param recIndex indice destinatario
+     * @param sentAttemptMade tentativo
+     * @param sendAlreadyInProgress indica se l'invio è già stato eseguito e si sta eseguendo un ritentativo
      */
     @Override
     public void sendDigitalNotification(NotificationInt notification,
                                         LegalDigitalAddressInt digitalAddress,
                                         DigitalAddressSourceInt addressSource,
                                         Integer recIndex,
-                                        int sentAttemptMade
+                                        int sentAttemptMade,
+                                        boolean sendAlreadyInProgress
     ) {
-        log.debug("Start sendDigitalNotification - iun={} recipientIndex={}", notification.getIun(), recIndex);
+        if (!sendAlreadyInProgress)
+        {
+            log.debug("Start sendDigitalNotification - iun={} recipientIndex={}", notification.getIun(), recIndex);
 
-        String eventId = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
-                EventId.builder()
-                        .iun(notification.getIun())
-                        .recIndex(recIndex)
-                        .source(addressSource)
-                        .index(sentAttemptMade)
-                        .build()
-        );
+            String eventId = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
+                    EventId.builder()
+                            .iun(notification.getIun())
+                            .recIndex(recIndex)
+                            .source(addressSource)
+                            .index(sentAttemptMade)
+                            .build()
+            );
 
-        externalChannel.sendLegalNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), digitalAddress, eventId);
-        externalChannelUtils.addSendDigitalNotificationToTimeline(notification, digitalAddress, addressSource, recIndex, sentAttemptMade, eventId);
+            externalChannel.sendLegalNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), digitalAddress, eventId);
+            externalChannelUtils.addSendDigitalNotificationToTimeline(notification, digitalAddress, addressSource, recIndex, sentAttemptMade, eventId);
+        }
+        else
+        {
+            int progressIndex = digitalWorkFlowUtils.getPreviousTimelineProgress(notification, recIndex, sentAttemptMade, addressSource).size() + 1;
+
+            log.debug("Start sendDigitalNotification for retry - iun={} recipientIndex={} progressIndex={}", notification.getIun(), recIndex, progressIndex);
+
+            String eventId = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
+                    EventId.builder()
+                            .iun(notification.getIun())
+                            .recIndex(recIndex)
+                            .source(addressSource)
+                            .index(sentAttemptMade)
+                            .progressIndex(progressIndex)
+                            .build()
+            );
+
+            externalChannel.sendLegalNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), digitalAddress, eventId);
+            digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(
+                    notification, 
+                    EventCodeInt.DP00,
+                    recIndex,
+                    sentAttemptMade, 
+                    digitalAddress,
+                    addressSource, 
+                    false, 
+                    null, 
+                    Instant.now());
+
+        }
     }
 
     /**

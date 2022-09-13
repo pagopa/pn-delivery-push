@@ -53,6 +53,9 @@ public class SchedulerServiceMock implements SchedulerService {
             case DIGITAL_WORKFLOW_NEXT_ACTION:
                 digitalWorkFlowHandler.startScheduledNextWorkflow(iun, recIndex);
                 break;
+            case DIGITAL_WORKFLOW_RETRY_ACTION:
+                digitalWorkFlowHandler.startScheduledRetryWorkflow(iun, recIndex);
+                break;
         }
     }
 

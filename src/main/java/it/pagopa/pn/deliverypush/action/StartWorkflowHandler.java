@@ -1,14 +1,15 @@
 package it.pagopa.pn.deliverypush.action;
 
 
+import it.pagopa.pn.common.rest.error.v1.dto.ProblemError;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.action.utils.CheckAttachmentUtils;
+import it.pagopa.pn.deliverypush.action.utils.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
@@ -16,7 +17,6 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.validation.ConstraintViolation;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,7 +28,7 @@ public class StartWorkflowHandler {
     private final NotificationService notificationService;
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
-    private final CheckAttachmentUtils checkAttachmentUtils;
+    private final AttachmentUtils attachmentUtils;
     private final NotificationUtils notificationUtils;
     private final SchedulerService schedulerService;
     
@@ -37,14 +37,14 @@ public class StartWorkflowHandler {
             NotificationService notificationService,
             TimelineService timelineService,
             TimelineUtils timelineUtils,
-            CheckAttachmentUtils checkAttachmentUtils,
+            AttachmentUtils checkAttachmentUtils,
             NotificationUtils notificationUtils,
             SchedulerService schedulerService) {
         this.saveLegalFactsService = saveLegalFactsService;
         this.notificationService = notificationService;
         this.timelineService = timelineService;
         this.timelineUtils = timelineUtils;
-        this.checkAttachmentUtils = checkAttachmentUtils;
+        this.attachmentUtils = checkAttachmentUtils;
         this.notificationUtils = notificationUtils;
         this.schedulerService = schedulerService;
     }
@@ -60,7 +60,7 @@ public class StartWorkflowHandler {
 
         try {
             //Validazione degli allegati della notifica
-            checkAttachmentUtils.validateAttachment(notification);
+            attachmentUtils.validateAttachment(notification);
 
             saveNotificationReceivedLegalFacts(notification);
 
@@ -74,7 +74,13 @@ public class StartWorkflowHandler {
     }
     
     private void saveNotificationReceivedLegalFacts(NotificationInt notification) {
+        // salvo il legalfactid di avvenuta ricezione da parte di PN
         String legalFactId = saveLegalFactsService.saveNotificationReceivedLegalFact(notification);
+
+        // cambio lo stasto degli attachment in ATTACHED
+        attachmentUtils.changeAttachmentsStatusToAttached(notification);
+
+        // aggiungo l'evento in timeline
         addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification, legalFactId), notification);
     }
     
@@ -85,8 +91,8 @@ public class StartWorkflowHandler {
     }
     
     private void handleValidationError(NotificationInt notification, PnValidationException ex) {
-        List<String> errors =  ex.getValidationErrors().stream()
-                .map(ConstraintViolation::getMessage).collect(Collectors.toList());
+        List<String> errors =  ex.getProblem().getErrors().stream()
+                .map(ProblemError::getDetail).collect(Collectors.toList());
         log.info("Notification refused, errors {} - iun {}", errors, notification.getIun());
         addTimelineElement( timelineUtils.buildRefusedRequestTimelineElement(notification, errors), notification);
     }

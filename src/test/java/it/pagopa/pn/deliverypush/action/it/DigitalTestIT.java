@@ -1,10 +1,11 @@
 package it.pagopa.pn.deliverypush.action.it;
 
-import it.pagopa.pn.commons.abstractions.IdConflictException;
+import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.OperationResultCodeResponse;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.*;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
@@ -95,7 +96,7 @@ import static org.awaitility.Awaitility.await;
         StatusServiceImpl.class,
         AddressBookServiceImpl.class,
         ConfidentialInformationServiceImpl.class,
-        CheckAttachmentUtils.class,
+        AttachmentUtils.class,
         NotificationUtils.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
@@ -190,10 +191,15 @@ class DigitalTestIT {
         fileCreationResponse.setUploadUrl("https://www.unqualcheurl.it");
         fileCreationResponse.setUploadMethod(FileCreationResponse.UploadMethodEnum.POST);
 
+        OperationResultCodeResponse operationResultCodeResponse = new OperationResultCodeResponse();
+        operationResultCodeResponse.setResultCode("200.00");
+        operationResultCodeResponse.setResultDescription("OK");
 
         Mockito.when( safeStorageClientMock.getFile( Mockito.anyString(), Mockito.anyBoolean()))
                 .thenReturn( fileDownloadResponse );
         Mockito.when( safeStorageClientMock.createFile(Mockito.any(FileCreationWithContentRequest.class), Mockito.anyString())).thenReturn(fileCreationResponse);
+        Mockito.when( safeStorageClientMock.updateFileMetadata(Mockito.anyString(), Mockito.any())).thenReturn(operationResultCodeResponse);
+
 
         pnDeliveryClientMock.clear();
         addressBookMock.clear();
@@ -302,9 +308,17 @@ class DigitalTestIT {
 
         //Viene verificato che il primo tentativo sia avvenuto con il platform address
         TestUtils.checkExternalChannelPecSend(iun, platformAddress.getAddress(), notificationIntsEvents.get(0).getIun(), digitalAddressesEvents.get(0).getAddress());
+        
+        LegalDigitalAddressInt digitalAddress = LegalDigitalAddressInt.builder()
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                .address(platformAddress.getAddress())
+                .build();
+        TestUtils.checkIsPresentAcceptanceInTimeline(iun, recIndex, 0, digitalAddress, DigitalAddressSourceInt.PLATFORM, timelineService);
+        TestUtils.checkIsPresentDigitalFeedbackInTimeline(iun, recIndex, 0, digitalAddress, DigitalAddressSourceInt.PLATFORM, timelineService);
+        
         //Viene verificato che il secondo tentativo sia avvenuto con il domicilio digitale
         TestUtils.checkExternalChannelPecSend(iun, digitalDomicile.getAddress(), notificationIntsEvents.get(1).getIun(), digitalAddressesEvents.get(1).getAddress());
-        //Viene verificato che il secondo tentativo sia avvenuto con l'indirizzo fornito dai registri pubblici
+        //Viene verificato che il terzo tentativo sia avvenuto con l'indirizzo fornito dai registri pubblici
         TestUtils.checkExternalChannelPecSend(iun, pbDigitalAddress.getAddress(), notificationIntsEvents.get(2).getIun(), digitalAddressesEvents.get(2).getAddress());
         //Viene verificato che il quarto tentativo sia avvenuto con il platform address
         TestUtils.checkExternalChannelPecSend(iun, platformAddress.getAddress(), notificationIntsEvents.get(3).getIun(), digitalAddressesEvents.get(3).getAddress());
@@ -746,7 +760,7 @@ class DigitalTestIT {
     }
 
     @Test
-    void emptyFirstSuccessSpecial() throws IdConflictException {
+    void emptyFirstSuccessSpecial() throws PnIdConflictException {
   /*
        - Platform address vuoto (Ottenuto non valorizzando nessun platformAddress in addressBookEntry)
        - Special address presente e primo invio con successo (Ottenuto valorizzando il digitalDomicile del recipient con ExternalChannelMock.EXT_CHANNEL_WORKS)

@@ -4,10 +4,7 @@ import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
-import it.pagopa.pn.deliverypush.action.utils.AarUtils;
-import it.pagopa.pn.deliverypush.action.utils.ExternalChannelUtils;
-import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
-import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -15,17 +12,25 @@ import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
 import it.pagopa.pn.deliverypush.service.ExternalChannelService;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.Instant;
+
+import static org.mockito.ArgumentMatchers.eq;
 
 class ExternalChannelServiceImplTest {
     @Mock
@@ -40,6 +45,8 @@ class ExternalChannelServiceImplTest {
     private TimelineUtils timelineUtils;
     @Mock
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
+    @Mock
+    private DigitalWorkFlowUtils digitalWorkFlowUtils;
 
     private ExternalChannelService externalChannelService;
 
@@ -51,8 +58,8 @@ class ExternalChannelServiceImplTest {
                 notificationUtils,
                 aarUtils,
                 timelineUtils,
-                pnDeliveryPushConfigs
-        );
+                pnDeliveryPushConfigs,
+                digitalWorkFlowUtils);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -91,7 +98,7 @@ class ExternalChannelServiceImplTest {
         int sentAttemptMade = 0;
 
         //WHEN        
-        externalChannelService.sendDigitalNotification(notification, digitalDomicile, addressSource, recIndex, sentAttemptMade);
+        externalChannelService.sendDigitalNotification(notification, digitalDomicile, addressSource, recIndex, sentAttemptMade, false);
         
         //THEN
         String eventIdExpected = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
@@ -105,6 +112,66 @@ class ExternalChannelServiceImplTest {
         
         Mockito.verify(externalChannel).sendLegalNotification(notification, recipient,  digitalDomicile, eventIdExpected);
         Mockito.verify(externalChannelUtils).addSendDigitalNotificationToTimeline(notification, digitalDomicile, addressSource, recIndex, sentAttemptMade, eventIdExpected);
+    }
+
+
+    @AfterAll
+    static void afterAll() {
+        
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void sendDigitalNotification_AlreadyInProgress() {
+        //GIVEN
+        String iun = "IUN01";
+        String taxId = "taxId";
+
+        LegalDigitalAddressInt digitalDomicile = LegalDigitalAddressInt.builder()
+                .address("digitalDomicile@test.it")
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                .build();
+
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
+                .withTaxId(taxId)
+                .withInternalId("ANON_"+taxId)
+                .withDigitalDomicile(digitalDomicile)
+                .withPhysicalAddress(
+                        PhysicalAddressBuilder.builder()
+                                .withAddress("_Via Nuova")
+                                .build()
+                )
+                .build();
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withIun(iun)
+                .withPaId("paId01")
+                .withNotificationRecipient(recipient)
+                .build();
+
+        Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
+
+        DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
+        int recIndex = 0;
+        int sentAttemptMade = 0;
+
+        //WHEN
+        externalChannelService.sendDigitalNotification(notification, digitalDomicile, addressSource, recIndex, sentAttemptMade, true);
+
+        //THEN
+        String eventIdExpected = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .source(addressSource)
+                        .index(sentAttemptMade)
+                        .progressIndex(1)
+                        .build()
+        );
+
+        Mockito.verify(externalChannel).sendLegalNotification(notification, recipient,  digitalDomicile, eventIdExpected);
+        Mockito.verify(digitalWorkFlowUtils).addDigitalDeliveringProgressTimelineElement( eq(notification), eq(EventCodeInt.DP00), eq(recIndex), eq(sentAttemptMade), eq(digitalDomicile),
+                eq(addressSource), eq(false), eq(null), Mockito.any(Instant.class));
     }
 
     @ExtendWith(MockitoExtension.class)

@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.timelinedao;
 
-import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
+import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineEntityDao;
@@ -143,7 +143,7 @@ class TimelineEntityDaoDynamoTestIT {
 
         //WHEN
         
-        assertThrows(IdConflictException.class, () -> {
+        assertThrows(PnIdConflictException.class, () -> {
             timelineEntityDao.putIfAbsent(elementNotToBeInserted);
         });
         
@@ -430,6 +430,83 @@ class TimelineEntityDaoDynamoTestIT {
 
         //THEN
         Assertions.assertTrue(elementSet.isEmpty());
+    }
+
+
+    @Test
+    void searchByIunAndElementId() {
+
+
+        String iun = "pa1-1";
+        String elementId = "elementId";
+
+        //GIVEN
+        TimelineElementEntity firstElementToInsert = TimelineElementEntity.builder()
+                .iun(iun)
+                .timelineElementId(elementId + "1")
+                .category(TimelineElementCategoryEntity.REFINEMENT)
+                .details(TimelineElementDetailsEntity.builder()
+                        .recIndex(0)
+                        .build())
+                .legalFactIds(
+                        Collections.singletonList(
+                                LegalFactsIdEntity.builder()
+                                        .key("key")
+                                        .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
+                                        .build()
+                        )
+                )
+                .build();
+
+        TimelineElementEntity secondElementToInsert = TimelineElementEntity.builder()
+                .iun(iun)
+                .timelineElementId(elementId + "2")
+                .category(TimelineElementCategoryEntity.SEND_ANALOG_DOMICILE)
+                .details(TimelineElementDetailsEntity.builder()
+                        .recIndex(0)
+                        .build())
+                .legalFactIds(
+                        Collections.singletonList(
+                                LegalFactsIdEntity.builder()
+                                        .key("key")
+                                        .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
+                                        .build()
+                        )
+                )
+                .build();
+
+        TimelineElementEntity nomatchElementToInsert = TimelineElementEntity.builder()
+                .iun(iun)
+                .timelineElementId("otherelement" + "1")
+                .category(TimelineElementCategoryEntity.SEND_ANALOG_DOMICILE)
+                .details(TimelineElementDetailsEntity.builder()
+                        .recIndex(0)
+                        .build())
+                .legalFactIds(
+                        Collections.singletonList(
+                                LegalFactsIdEntity.builder()
+                                        .key("key")
+                                        .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
+                                        .build()
+                        )
+                )
+                .build();
+
+        removeElementFromDb(firstElementToInsert);
+        timelineEntityDao.put(firstElementToInsert);
+        removeElementFromDb(secondElementToInsert);
+        timelineEntityDao.put(secondElementToInsert);
+        removeElementFromDb(nomatchElementToInsert);
+        timelineEntityDao.put(nomatchElementToInsert);
+
+        //WHEN
+        Set<TimelineElementEntity> elementSet =  timelineEntityDao.searchByIunAndElementId(iun, elementId);
+
+        //THEN
+        Assertions.assertFalse(elementSet.isEmpty());
+        Assertions.assertTrue(elementSet.contains(firstElementToInsert));
+        Assertions.assertTrue(elementSet.contains(secondElementToInsert));
+        Assertions.assertEquals(2, elementSet.size());
     }
 
     @Test
