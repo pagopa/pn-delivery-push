@@ -140,15 +140,17 @@ public class TimelineUtils {
                 .recIndex(sendDigitalDetails.getRecIndex())
                 .notificationDate(instantNowSupplier.get())
                 .sendingReceipts(
-                        Collections.singletonList(SendingReceipt.builder()
-                                .id(digitalMessageReference.getId())
-                                .system(digitalMessageReference.getSystem())
-                        .build())
+                        (digitalMessageReference != null && digitalMessageReference.getId() != null)?
+                                Collections.singletonList(SendingReceipt.builder()
+                                        .id(digitalMessageReference.getId())
+                                        .system(digitalMessageReference.getSystem())
+                                        .build())
+                                :null
                 )
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
-                .legalFactsIds( singleLegalFactId(digitalMessageReference.getLocation(), LegalFactCategoryInt.PEC_RECEIPT) );
+                .legalFactsIds(  (digitalMessageReference!=null && digitalMessageReference.getLocation()!=null)?singleLegalFactId(digitalMessageReference.getLocation(), LegalFactCategoryInt.PEC_RECEIPT):null );
         
         return buildTimeline(notification, TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK, elementId, eventTimestamp, details, timelineBuilder);
     }
@@ -184,17 +186,17 @@ public class TimelineUtils {
                 .eventCode(eventCode.getValue())
                 .shouldRetry(shouldRetry)
                 .sendingReceipts(
-                        digitalMessageReference != null && digitalMessageReference.getId() != null?Collections.singletonList(
-                                SendingReceipt.builder()
+                        (digitalMessageReference != null && digitalMessageReference.getId() != null)?
+                                Collections.singletonList(SendingReceipt.builder()
                                         .id(digitalMessageReference.getId())
                                         .system(digitalMessageReference.getSystem())
-                                        .build()
-                        ):null
+                                        .build())
+                                :null
                 )
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
-                .legalFactsIds( digitalMessageReference!=null && digitalMessageReference.getLocation()!=null?singleLegalFactId(digitalMessageReference.getLocation(), LegalFactCategoryInt.PEC_RECEIPT):null );
+                .legalFactsIds( (digitalMessageReference!=null && digitalMessageReference.getLocation()!=null)?singleLegalFactId(digitalMessageReference.getLocation(), LegalFactCategoryInt.PEC_RECEIPT):null );
 
         return buildTimeline(notification, TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS, elementId, eventTimestamp, details, timelineBuilder);
     }
