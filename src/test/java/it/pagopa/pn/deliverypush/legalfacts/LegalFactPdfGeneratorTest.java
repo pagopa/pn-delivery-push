@@ -18,11 +18,15 @@ import org.springframework.util.Base64Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 class LegalFactPdfGeneratorTest {
 	private static final String TEST_DIR_NAME = "target" + File.separator + "generated-test-PDF";
@@ -109,12 +113,15 @@ class LegalFactPdfGeneratorTest {
 
 	@Test
 	void generateNotificationAARPECTest() throws IOException {
-		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
+		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_EMAIL.html");
 		NotificationInt notificationInt = buildNotification();
 		NotificationRecipientInt notificationRecipientInt = notificationInt.getRecipients().get(0);
 
 		Assertions.assertDoesNotThrow(() -> {
 					String element = pdfUtils.generateNotificationAARBody(notificationInt, notificationRecipientInt);
+					PrintWriter out = new PrintWriter(filePath.toString());
+					out.println(element);
+
 					System.out.println("element "+element);
 				}
 		);
@@ -124,11 +131,16 @@ class LegalFactPdfGeneratorTest {
 
 	@Test
 	void generateNotificationAARPECBodyTest() {
+		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_PEC.html");
+
 		NotificationInt notificationInt = buildNotification();
 		NotificationRecipientInt notificationRecipientInt = notificationInt.getRecipients().get(0);
 
 		Assertions.assertDoesNotThrow(() -> {
 					String element = pdfUtils.generateNotificationAARPECBody(notificationInt, notificationRecipientInt);
+					PrintWriter out = new PrintWriter(filePath.toString());
+					out.println(element);
+		
 					System.out.println("element "+element);
 				}
 		);
@@ -146,19 +158,26 @@ class LegalFactPdfGeneratorTest {
 
 	@Test
 	void generateNotificationAARForSmsTest() {
+
 		NotificationInt notificationInt = buildNotification();
 
-		Assertions.assertDoesNotThrow(() -> pdfUtils.generateNotificationAARForSMS(notificationInt));
+		Assertions.assertDoesNotThrow(() ->{
+					String element = pdfUtils.generateNotificationAARForSMS(notificationInt);
+					System.out.println("Notification AAR for SMS is "+element);
+				}
+		);
 
 		System.out.print("*** AAR EMAIL BODY successfully created");
 	}
 	
 	@Test
 	void generateNotificationAARSubjectTest() throws IOException {
-		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
 		NotificationInt notificationInt = buildNotification();
 
-		Assertions.assertDoesNotThrow(() -> pdfUtils.generateNotificationAARSubject(notificationInt));
+		Assertions.assertDoesNotThrow(() -> {
+			String element = pdfUtils.generateNotificationAARSubject(notificationInt);
+			System.out.println("Notification AarSubject is "+element);
+		});
 
 		System.out.print("*** AAR subject successfully created");
 	}
