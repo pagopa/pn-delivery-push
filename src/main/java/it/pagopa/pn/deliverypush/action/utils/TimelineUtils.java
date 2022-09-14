@@ -194,7 +194,7 @@ public class TimelineUtils {
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
-                .legalFactsIds( digitalMessageReference!=null?singleLegalFactId(digitalMessageReference.getLocation(), LegalFactCategoryInt.PEC_RECEIPT):null );
+                .legalFactsIds( digitalMessageReference!=null && digitalMessageReference.getLocation()!=null?singleLegalFactId(digitalMessageReference.getLocation(), LegalFactCategoryInt.PEC_RECEIPT):null );
 
         return buildTimeline(notification, TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS, elementId, eventTimestamp, details, timelineBuilder);
     }
