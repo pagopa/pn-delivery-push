@@ -140,12 +140,12 @@ public class TimelineUtils {
                 .recIndex(sendDigitalDetails.getRecIndex())
                 .notificationDate(instantNowSupplier.get())
                 .sendingReceipts(
-                        (digitalMessageReference != null && digitalMessageReference.getId() != null)?Collections.singletonList(
-                                SendingReceipt.builder()
+                        (digitalMessageReference != null && digitalMessageReference.getId() != null)?
+                                Collections.singletonList(SendingReceipt.builder()
                                         .id(digitalMessageReference.getId())
                                         .system(digitalMessageReference.getSystem())
-                                        .build()
-                        ):null
+                                        .build())
+                                :null
                 )
                 .build();
 
@@ -186,12 +186,12 @@ public class TimelineUtils {
                 .eventCode(eventCode.getValue())
                 .shouldRetry(shouldRetry)
                 .sendingReceipts(
-                        (digitalMessageReference != null && digitalMessageReference.getId() != null)?Collections.singletonList(
-                                SendingReceipt.builder()
+                        (digitalMessageReference != null && digitalMessageReference.getId() != null)?
+                                Collections.singletonList(SendingReceipt.builder()
                                         .id(digitalMessageReference.getId())
                                         .system(digitalMessageReference.getSystem())
-                                        .build()
-                        ):null
+                                        .build())
+                                :null
                 )
                 .build();
 
