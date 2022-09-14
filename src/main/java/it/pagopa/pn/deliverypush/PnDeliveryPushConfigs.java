@@ -111,7 +111,7 @@ public class PnDeliveryPushConfigs {
         private List<String> digitalCodesFatallog;
 
         private int digitalRetryCount;
-        private Duration digitalDelay;
+        private Duration digitalRetryDelay;
     }
 
    @Data

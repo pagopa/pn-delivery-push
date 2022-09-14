@@ -594,7 +594,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(externalChannel.getDigitalCodesFatallog()).thenReturn(List.of("C008", "C010"));
         Mockito.when(externalChannel.getDigitalCodesRetryable()).thenReturn(List.of("C008", "C010"));
         Mockito.when(externalChannel.getDigitalRetryCount()).thenReturn(-1);
-        Mockito.when(externalChannel.getDigitalDelay()).thenReturn(Duration.ofMillis(100));
+        Mockito.when(externalChannel.getDigitalRetryDelay()).thenReturn(Duration.ofMillis(100));
 
         //WHEN
         handler.handleExternalChannelResponse(extChannelResponse);
