@@ -14,6 +14,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.*;
 
 @Component
 @Slf4j
@@ -88,7 +91,7 @@ public class DigitalWorkFlowUtils {
             return lastAddressAttemptOpt.get().getAttemptDate();
         } else {
             log.error("Last address attempt not found - id {}", recIndex);
-            throw new PnInternalException("Last address attempt not found - id" + recIndex);
+            throw new PnInternalException("Last address attempt not found - id" + recIndex, ERROR_CODE_DELIVERYPUSH_LASTADDRESSATTEMPTNOTFOUND);
         }
 
     }
@@ -132,7 +135,7 @@ public class DigitalWorkFlowUtils {
 
     private void handleAddressSourceError(DigitalAddressSourceInt addressSource, NotificationRecipientInt recipient, NotificationInt notification) {
         log.error("Specified addressSource {} does not exist - iun {} id {}", addressSource, notification.getIun(), recipient.getTaxId());
-        throw new PnInternalException("Specified addressSource " + addressSource + " does not exist - iun " + notification.getIun() + " id " + recipient.getTaxId());
+        throw new PnInternalException("Specified addressSource " + addressSource + " does not exist - iun " + notification.getIun() + " id " + recipient.getTaxId(), ERROR_CODE_DELIVERYPUSH_INVALIDADDRESSSOURCE);
     }
 
     private LegalDigitalAddressInt retrievePlatformAddress(NotificationRecipientInt recipient, NotificationSenderInt sender) {
@@ -161,7 +164,7 @@ public class DigitalWorkFlowUtils {
             return optTimeLineScheduleDigitalWorkflow.get();
         } else {
             log.error("ScheduleDigitalWorkflowTimelineElement element not exist - iun {} eventId {}", iun, eventId);
-            throw new PnInternalException("ScheduleDigitalWorkflowTimelineElement element not exist - iun " + iun + " eventId " + eventId);
+            throw new PnInternalException("ScheduleDigitalWorkflowTimelineElement element not exist - iun " + iun + " eventId " + eventId, ERROR_CODE_DELIVERYPUSH_SCHEDULEDDIGITALTIMELINEEVENTNOTFOUND);
         }
     }
 
@@ -169,14 +172,14 @@ public class DigitalWorkFlowUtils {
     public SendDigitalProgressDetailsInt getMostRecentSendDigitalProgressTimelineElement(String iun, Integer recIndex) {
         String eventId = TimelineEventId.SEND_DIGITAL_PROGRESS.buildSearchEventIdByIunAndRecipientIndex(iun, recIndex);
 
-        Set<TimelineElementInternal> timelineElementInternals = timelineService.getTimelineByIunTimelineId(iun, eventId, false);
+        Set<TimelineElementInternal> timelineElementInternals = timelineService.getTimelineByIunTimelineId(iun, eventId, true);
         Optional<TimelineElementInternal> timelineElementInternal = timelineElementInternals.stream().max(Comparator.comparing(TimelineElementInternal::getTimestamp));
 
         if (timelineElementInternal.isPresent()) {
             return (SendDigitalProgressDetailsInt) timelineElementInternal.get().getDetails();
         } else {
             log.error("TimelineElementInternal element for digital_delivering_progress not exist - iun {} eventId {}", iun, eventId);
-            throw new PnInternalException("TimelineElementInternal element for digital_delivering_progress not exist - iun " + iun + " eventId " + eventId);
+            throw new PnInternalException("TimelineElementInternal element for digital_delivering_progress not exist - iun " + iun + " eventId " + eventId, ERROR_CODE_DELIVERYPUSH_DIGITALPROGRESSTIMELINEEVENTNOTFOUND);
         }
     }
 
@@ -189,7 +192,7 @@ public class DigitalWorkFlowUtils {
         } else {
             String error = String.format("SendDigital timeline element not exist -iun=%s requestId=%s", iun, eventId);
             log.error(error);
-            throw new PnInternalException(error);
+            throw new PnInternalException(error, ERROR_CODE_DELIVERYPUSH_SENDDIGITALTIMELINEEVENTNOTFOUND);
         }
     }
 
@@ -275,7 +278,7 @@ public class DigitalWorkFlowUtils {
             case GENERAL:
                 return DigitalAddressSourceInt.PLATFORM;
             default:
-                throw new PnInternalException(" BUG: add support to next for " + source.getClass() + "::" + source.name());
+                throw new PnInternalException(" BUG: add support to next for " + source.getClass() + "::" + source.name(), ERROR_CODE_DELIVERYPUSH_INVALIDADDRESSSOURCE);
         }
     }
     
