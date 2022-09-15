@@ -12,4 +12,6 @@ public class TimeParams {
     private Duration schedulingDaysSuccessAnalogRefinement;
     private Duration schedulingDaysFailureAnalogRefinement;
     private Duration secondNotificationWorkflowWaitingTime;
+    private int notificationNonVisibilityTimeHours;
+    private int notificationNonVisibilityTimeMinutes;
 }

@@ -1,18 +1,17 @@
 package it.pagopa.pn.deliverypush.action;
 
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
-import it.pagopa.pn.deliverypush.action.utils.CompletelyUnreachableUtils;
-import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
-import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
-import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
-import it.pagopa.pn.deliverypush.service.*;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
+import it.pagopa.pn.deliverypush.service.ExternalChannelService;
+import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
+import it.pagopa.pn.deliverypush.service.SchedulerService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,8 +31,6 @@ class CompletionWorkFlowHandlerTest {
     @Mock
     private ExternalChannelService externalChannelService;
     @Mock
-    private TimelineService timelineService;
-    @Mock
     private CompletelyUnreachableUtils completelyUnreachableUtils;
     @Mock
     private TimelineUtils timelineUtils;
@@ -41,17 +38,26 @@ class CompletionWorkFlowHandlerTest {
     private SaveLegalFactsService saveLegalFactsService;
     @Mock
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
+    @Mock
+    private CompletionWorkflowUtils completionWorkflowUtils;
     
     private CompletionWorkFlowHandler handler;
     
     private NotificationUtils notificationUtils;
 
     @BeforeEach
-    public void setup() {
+    public void setup() {         
         notificationUtils= new NotificationUtils();
-        handler = new CompletionWorkFlowHandler(notificationUtils, scheduler,
-                externalChannelService, timelineService, completelyUnreachableUtils, timelineUtils, saveLegalFactsService
-                ,pnDeliveryPushConfigs);
+        
+        handler = new CompletionWorkFlowHandler(
+                notificationUtils, 
+                scheduler,
+                externalChannelService,
+                completelyUnreachableUtils, 
+                timelineUtils,
+                pnDeliveryPushConfigs,
+                completionWorkflowUtils
+        );
     }
 
     @ExtendWith(MockitoExtension.class)
