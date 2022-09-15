@@ -215,10 +215,12 @@ public class DigitalWorkFlowUtils {
     }
 
     public void addDigitalFeedbackTimelineElement(NotificationInt notification, ResponseStatusInt status, List<String> errors,
-                                                  SendDigitalDetailsInt sendDigitalDetails, DigitalMessageReferenceInt digitalMessageReference,
+                                                  int recIndex, int retryNumber,
+                                                  LegalDigitalAddressInt digitalAddressInt,
+                                                  DigitalAddressSourceInt digitalAddressSourceInt, DigitalMessageReferenceInt digitalMessageReference,
                                                   Instant eventTimestamp) {
         addTimelineElement(
-                timelineUtils.buildDigitalFeedbackTimelineElement(notification, status, errors, sendDigitalDetails, digitalMessageReference, eventTimestamp),
+                timelineUtils.buildDigitalFeedbackTimelineElement(notification, status, errors, recIndex, retryNumber, digitalAddressInt, digitalAddressSourceInt, digitalMessageReference, eventTimestamp),
                 notification
         );
     }
