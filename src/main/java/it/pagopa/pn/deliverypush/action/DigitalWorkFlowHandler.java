@@ -18,17 +18,18 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
-import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.ExternalChannelService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.PublicRegistryService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -232,148 +233,160 @@ public class DigitalWorkFlowHandler {
         
         if( response.getEventCode() != null ){
             
-            TimelineElementInternal sendDigitalTimelineElement =
+            TimelineElementInternal timelineElement =
                     digitalWorkFlowUtils.getSendDigitalDetailsTimelineElement(iun, response.getRequestId());
 
-            SendDigitalDetailsInt sendDigitalDetails = (SendDigitalDetailsInt) sendDigitalTimelineElement.getDetails();
+            // creo una struttura dati di supporto per passare i vari valori nei metodi INTERNI della classe
+            DigitalResultInfos digitalResultInfos = new DigitalResultInfos();
+            digitalResultInfos.setResponse(response);
+            digitalResultInfos.setTimelineElementInternal(timelineElement);
+            if (timelineElement.getDetails() instanceof SendDigitalProgressDetailsInt)
+            {
+                SendDigitalProgressDetailsInt sendDigitalProgressDetailsInt = (SendDigitalProgressDetailsInt) timelineElement.getDetails();
+                digitalResultInfos.setRecIndex(sendDigitalProgressDetailsInt.getRecIndex());
+                digitalResultInfos.setRetryNumber(sendDigitalProgressDetailsInt.getRetryNumber());
+                digitalResultInfos.setDigitalAddressInt(sendDigitalProgressDetailsInt.getDigitalAddress());
+                digitalResultInfos.setDigitalAddressSourceInt(sendDigitalProgressDetailsInt.getDigitalAddressSource());
+            }
+            else if (timelineElement.getDetails() instanceof SendDigitalDetailsInt) {
+                SendDigitalDetailsInt sendDigitalDetails = (SendDigitalDetailsInt) timelineElement.getDetails();
+                digitalResultInfos.setRecIndex(sendDigitalDetails.getRecIndex());
+                digitalResultInfos.setRetryNumber(sendDigitalDetails.getRetryNumber());
+                digitalResultInfos.setDigitalAddressInt(sendDigitalDetails.getDigitalAddress());
+                digitalResultInfos.setDigitalAddressSourceInt(sendDigitalDetails.getDigitalAddressSource());
+            }
 
-            NotificationInt notification = notificationService.getNotificationByIun(iun);
-            Integer recIndex = sendDigitalDetails.getRecIndex();
+            digitalResultInfos.setNotification(notificationService.getNotificationByIun(iun));
 
-            ResponseStatusInt status = mapDigitalStatusInResponseStatus(response.getEventCode());
+            digitalResultInfos.setStatus(mapDigitalStatusInResponseStatus(response.getEventCode()));
 
-            if (status != null)
-                handleExternalChannelResponseByStatus(response, iun, sendDigitalTimelineElement, sendDigitalDetails, notification, recIndex, status);
+            if (digitalResultInfos.getStatus() != null)
+                handleExternalChannelResponseByStatus(digitalResultInfos);
         } else {
             //Se l'evento ricevuto non ha un eventCode valorizzato va ignorato
             log.error("[NOT HANDLED EVENT] Received response haven't value for eventCode, it will be ignored - status={} iun={} requestId={}", response.getStatus(), iun, response.getRequestId());
         }
     }
 
-    private void handleExternalChannelResponseByStatus(ExtChannelDigitalSentResponseInt response, String iun, TimelineElementInternal sendDigitalTimelineElement,
-                                                       SendDigitalDetailsInt sendDigitalDetails, NotificationInt notification, Integer recIndex, ResponseStatusInt status) {
-        log.debug("Start handleExternalChannelResponseByStatus with status={} eventCode={} - iun={} requestId={}", status, response.getEventCode(), iun, response.getRequestId());
+    private void handleExternalChannelResponseByStatus( DigitalResultInfos digitalResultInfos ) {
+        log.debug("Start handleExternalChannelResponseByStatus with status={} eventCode={} - iun={} requestId={}", digitalResultInfos.getStatus(), digitalResultInfos.getResponse().getEventCode(), digitalResultInfos.getNotification().getIun(), digitalResultInfos.getResponse().getRequestId());
 
-        switch (status) {
+        switch (digitalResultInfos.getStatus()) {
             case PROGRESS:
-                handleStatusProgress(response, sendDigitalDetails, notification, recIndex, false);
+                handleStatusProgress(digitalResultInfos, false);
                 break;
             case OK:
-                handleSuccessfulSending(response, sendDigitalDetails, notification, recIndex, status);
+                handleSuccessfulSending(digitalResultInfos);
                 break;
             case KO:
-                handleNotSuccessfulSending(response, sendDigitalTimelineElement, sendDigitalDetails, notification, recIndex, status);
+                handleNotSuccessfulSending(digitalResultInfos);
                 break;
             case PROGRESS_WITH_RETRY:
-                handleStatusProgressWithRetry(response, sendDigitalTimelineElement, sendDigitalDetails, notification, recIndex);
+                handleStatusProgressWithRetry(digitalResultInfos);
                 break;
             default:
-                log.error("Status {} is not handled - iun={} id={}", status, iun, recIndex);
-                throw new PnInternalException("Status "+ status +" is not handled - iun="+ iun +" id="+ recIndex, ERROR_CODE_DELIVERYPUSH_INVALIDEVENTCODE);
+                log.error("Status {} is not handled - iun={} id={}", digitalResultInfos.getStatus(), digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex());
+                throw new PnInternalException("Status "+ digitalResultInfos.getStatus() +" is not handled - iun="+ digitalResultInfos.getNotification().getIun() +" id="+ digitalResultInfos.getRecIndex(), ERROR_CODE_DELIVERYPUSH_INVALIDEVENTCODE);
         }
     }
 
-    private PnAuditLogEvent buildAuditLog( SendDigitalDetailsInt sendDigitalDetails,  ResponseStatusInt status, ExtChannelDigitalSentResponseInt response,  String iun, Integer recIndex){
+    private PnAuditLogEvent buildAuditLog(  DigitalResultInfos digitalResultInfos ){
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
 
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_CHECK, "Digital workflow Ext channel response for source {} retryNumber={} status={} eventCode={} - iun={} id={}",
-                        sendDigitalDetails.getDigitalAddressSource(), sendDigitalDetails.getRetryNumber(), status, response.getEventCode(), iun, recIndex)
-                .iun(iun)
+                        digitalResultInfos.getDigitalAddressSourceInt(), digitalResultInfos.getRetryNumber(), digitalResultInfos.getStatus(), digitalResultInfos.getResponse().getEventCode(), digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex())
+                .iun(digitalResultInfos.getNotification().getIun())
                 .build();
         logEvent.log();
         return logEvent;
     }
 
-    private void handleNotSuccessfulSending(ExtChannelDigitalSentResponseInt response, TimelineElementInternal sendDigitalTimelineElement,
-                                            SendDigitalDetailsInt sendDigitalDetails, NotificationInt notification, Integer recIndex,
-                                            ResponseStatusInt status) {
-        String iun = notification.getIun();
+    private void handleNotSuccessfulSending( DigitalResultInfos digitalResultInfos ) {
+        String iun = digitalResultInfos.getNotification().getIun();
 
-        PnAuditLogEvent logEvent =buildAuditLog(sendDigitalDetails, status, response, iun, recIndex);
+        PnAuditLogEvent logEvent =buildAuditLog( digitalResultInfos );
 
         logEvent.generateFailure("Notification failed with eventCode={} eventDetails={}",
-                response.getEventCode(), response.getEventDetails()).log();
+                digitalResultInfos.getResponse().getEventCode(), digitalResultInfos.getResponse().getEventDetails()).log();
 
-        log.debug("Response is for 'DELIVERY FAILURE' generatedMessage={} - iun={} id={}", response.getGeneratedMessage(), iun, recIndex);
+        log.debug("Response is for 'DELIVERY FAILURE' generatedMessage={} - iun={} id={}", digitalResultInfos.getResponse().getGeneratedMessage(), iun, digitalResultInfos.getRecIndex());
 
-        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(notification, status, response.getEventDetails() == null ? Collections.emptyList() : List.of(response.getEventDetails()),
-                sendDigitalDetails, response.getGeneratedMessage(), response.getEventTimestamp());
+        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(digitalResultInfos.getNotification(), digitalResultInfos.getStatus(), digitalResultInfos.getResponse().getEventDetails() == null ? new ArrayList<String>() : List.of(digitalResultInfos.getResponse().getEventDetails()),
+                digitalResultInfos.getRecIndex(), digitalResultInfos.getRetryNumber(), digitalResultInfos.getDigitalAddressInt(), digitalResultInfos.getDigitalAddressSourceInt(), digitalResultInfos.getResponse().getGeneratedMessage(), digitalResultInfos.getResponse().getEventTimestamp());
 
-        nextWorkflowStep(sendDigitalTimelineElement, sendDigitalDetails, notification, recIndex);
+        nextWorkflowStep( digitalResultInfos );
     }
 
-    private void nextWorkflowStep(TimelineElementInternal sendDigitalTimelineElement, SendDigitalDetailsInt sendDigitalDetails, NotificationInt notification, Integer recIndex) {
+    private void nextWorkflowStep( DigitalResultInfos digitalResultInfos) {
         //Non è stato possibile effettuare la notificazione, si passa al prossimo step del workflow
 
         DigitalAddressInfo lastAttemptMade = DigitalAddressInfo.builder()
-                .digitalAddressSource(sendDigitalDetails.getDigitalAddressSource())
-                .lastAttemptDate(sendDigitalTimelineElement.getTimestamp())
+                .digitalAddressSource(digitalResultInfos.getDigitalAddressSourceInt())
+                .lastAttemptDate(digitalResultInfos.getTimelineElementInternal().getTimestamp())
                 .build();
 
-        nextWorkFlowAction(notification, recIndex, lastAttemptMade);
+        nextWorkFlowAction(digitalResultInfos.getNotification(), digitalResultInfos.getRecIndex(), lastAttemptMade);
     }
 
-    private void handleSuccessfulSending(ExtChannelDigitalSentResponseInt response, SendDigitalDetailsInt sendDigitalDetails, 
-                                         NotificationInt notification, Integer recIndex, ResponseStatusInt status) {
-        String iun = notification.getIun();
+    private void handleSuccessfulSending( DigitalResultInfos digitalResultInfos ) {
+        String iun = digitalResultInfos.getNotification().getIun();
 
-        log.info("Start handleSuccessfulSending with eventCode={} generatedMessage={} - iun={} id={}",  response.getGeneratedMessage(), response.getEventCode(),  iun, recIndex);
-        PnAuditLogEvent logEvent = buildAuditLog(sendDigitalDetails, status, response, iun, recIndex);
+        log.info("Start handleSuccessfulSending with eventCode={} generatedMessage={} - iun={} id={}",  digitalResultInfos.getResponse().getGeneratedMessage(), digitalResultInfos.getResponse().getEventCode(),  iun, digitalResultInfos.getRecIndex());
+        PnAuditLogEvent logEvent = buildAuditLog( digitalResultInfos );
 
         //AVVENUTA CONSEGNA
 
         logEvent.generateSuccess().log();
 
-        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(notification, status, Collections.emptyList(),
-                sendDigitalDetails, response.getGeneratedMessage(), response.getEventTimestamp());
+        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(digitalResultInfos.getNotification(), digitalResultInfos.getStatus(), Collections.emptyList(),
+                digitalResultInfos.getRecIndex(), digitalResultInfos.getRetryNumber(), digitalResultInfos.getDigitalAddressInt(), digitalResultInfos.getDigitalAddressSourceInt(), digitalResultInfos.getResponse().getGeneratedMessage(), digitalResultInfos.getResponse().getEventTimestamp());
 
-        log.info("Notification sent successfully, starting completion workflow - iun={} id={}",  notification.getIun(), recIndex);
+        log.info("Notification sent successfully, starting completion workflow - iun={} id={}",  digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex());
 
         //La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
-        completionWorkflow.completionDigitalWorkflow(notification, recIndex, response.getEventTimestamp(), sendDigitalDetails.getDigitalAddress(), EndWorkflowStatus.SUCCESS);
+        completionWorkflow.completionDigitalWorkflow(digitalResultInfos.getNotification(), digitalResultInfos.getRecIndex(), digitalResultInfos.getResponse().getEventTimestamp(), digitalResultInfos.getDigitalAddressInt(), EndWorkflowStatus.SUCCESS);
     }
 
-    private void handleStatusProgress(ExtChannelDigitalSentResponseInt response, SendDigitalDetailsInt sendDigitalDetails,
-                                      NotificationInt notification, Integer recIndex, boolean shouldRetry) {
-        log.info("Specified status={} is not final - iun={} id={}", response.getStatus(), notification.getIun(), recIndex);
+    private void handleStatusProgress( DigitalResultInfos digitalResultInfos , boolean shouldRetry) {
+        log.info("Specified status={} is not final - iun={} id={}", digitalResultInfos.getResponse().getStatus(), digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex());
 
         log.info("Received PROGRESS response with eventCode={} is for PEC acceptance. GeneratedMessage is {} - iun={} id={}",
-                response.getEventCode(), response.getGeneratedMessage(), notification.getIun(), recIndex);
+                digitalResultInfos.getResponse().getEventCode(), digitalResultInfos.getResponse().getGeneratedMessage(), digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex());
 
-        digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(notification, response.getEventCode(),
-                sendDigitalDetails.getRecIndex(), sendDigitalDetails.getRetryNumber(), sendDigitalDetails.getDigitalAddress(), sendDigitalDetails.getDigitalAddressSource(),
-                shouldRetry, response.getGeneratedMessage(), response.getEventTimestamp());
+        digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(digitalResultInfos.getNotification(), digitalResultInfos.getResponse().getEventCode(),
+                digitalResultInfos.getRecIndex(), digitalResultInfos.getRetryNumber(), digitalResultInfos.getDigitalAddressInt(), digitalResultInfos.getDigitalAddressSourceInt(),
+                shouldRetry, digitalResultInfos.getResponse().getGeneratedMessage(), digitalResultInfos.getResponse().getEventTimestamp());
     }
 
-    private void handleStatusProgressWithRetry(ExtChannelDigitalSentResponseInt response, TimelineElementInternal sendDigitalTimelineElement, SendDigitalDetailsInt sendDigitalDetails,
-                                               NotificationInt notification, Integer recIndex)
+    private void handleStatusProgressWithRetry( DigitalResultInfos digitalResultInfos )
     {
         // schedulo l'invio per i ritentativi, se vanno fatti in base al numero di fallimenti configurati
-        boolean shouldRetry = checkShouldRetry(notification, sendDigitalDetails);
+        boolean shouldRetry = checkShouldRetry(digitalResultInfos);
 
         // aggiungo l'evento di timeline di progress se sono nel caso di retry, o di failure se ho finito i ritentativi
         if (shouldRetry)
         {
             // salvo l'evento come progress
-            handleStatusProgress(response, sendDigitalDetails, notification, recIndex, true);
+            handleStatusProgress(digitalResultInfos, true);
 
             // è richiesto di ritentare, schedulo un nuovo evento in coda e aggiunto un evento di progress nella timeline
-            restartWorkflowAfterRetryTime(notification, recIndex, DigitalAddressInfo.builder()
-                .digitalAddress(sendDigitalDetails.getDigitalAddress())
-                .digitalAddressSource(sendDigitalDetails.getDigitalAddressSource())
-                .lastAttemptDate(response.getEventTimestamp()==null? Instant.now():response.getEventTimestamp())
-                .sentAttemptMade(sendDigitalDetails.getRetryNumber().intValue())
+            restartWorkflowAfterRetryTime(digitalResultInfos.getNotification(), digitalResultInfos.getRecIndex(), DigitalAddressInfo.builder()
+                .digitalAddress(digitalResultInfos.getDigitalAddressInt())
+                .digitalAddressSource(digitalResultInfos.getDigitalAddressSourceInt())
+                .lastAttemptDate(digitalResultInfos.getResponse().getEventTimestamp()==null? Instant.now():digitalResultInfos.getResponse().getEventTimestamp())
+                .sentAttemptMade(digitalResultInfos.getRetryNumber())
                 .build());
         }
         else
         {
             // nel caso non siano richiesti tentativi, devo generare un KO definitivo e non un progress
-            handleNotSuccessfulSending(response, sendDigitalTimelineElement , sendDigitalDetails, notification, recIndex, ResponseStatusInt.KO);
+            digitalResultInfos.setStatus(ResponseStatusInt.KO);
+            handleNotSuccessfulSending(digitalResultInfos);
         }
     }
 
-    private boolean checkShouldRetry(NotificationInt notification, SendDigitalDetailsInt sendDigitalDetails){
+    private boolean checkShouldRetry( DigitalResultInfos digitalResultInfos ){
         int configCount = pnDeliveryPushConfigs.getExternalChannel().getDigitalRetryCount();
         if (configCount < 0)
             return true;
@@ -383,7 +396,7 @@ public class DigitalWorkFlowHandler {
         // calcolare in base al numero di tentativi, devo cercare nella timeline quanti retry ci sono stati
         // e se il numero è minore del conteggio richiesto, deve ritentare, altrimenti no
         // la timeline è filtratra per iun, recindex, source, tentativo, quindi identifica i progress di questa istanza di tentativo
-        Set<TimelineElementInternal> previousTimelineProgress = digitalWorkFlowUtils.getPreviousTimelineProgress(notification, sendDigitalDetails.getRecIndex(), sendDigitalDetails.getRetryNumber(), sendDigitalDetails.getDigitalAddressSource());
+        Set<TimelineElementInternal> previousTimelineProgress = digitalWorkFlowUtils.getPreviousTimelineProgress(digitalResultInfos.getNotification(), digitalResultInfos.getRecIndex(), digitalResultInfos.getRetryNumber(), digitalResultInfos.getDigitalAddressSourceInt());
         // il conteggio viene fatto sul flag "retry" a true, visto che comparirà 1 volta per ogni tentativo fallito
         long count = previousTimelineProgress.stream().filter(x -> x.getDetails() instanceof SendDigitalProgressDetailsInt
                                                                 && ((SendDigitalProgressDetailsInt)x.getDetails()).isShouldRetry()).count();
@@ -462,5 +475,16 @@ public class DigitalWorkFlowHandler {
         log.info("received eventcode {} from external-channel, will be simply skipped because not PROGRESS/OK/KO", eventCodeValue);
         return null;
     }
-    
+
+    @Data
+    private class DigitalResultInfos{
+        private int recIndex;
+        private int retryNumber;
+        private LegalDigitalAddressInt digitalAddressInt;
+        private DigitalAddressSourceInt digitalAddressSourceInt;
+        private ExtChannelDigitalSentResponseInt response;
+        private NotificationInt notification;
+        private ResponseStatusInt status;
+        private TimelineElementInternal timelineElementInternal;
+    }
 }

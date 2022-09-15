@@ -120,24 +120,27 @@ public class TimelineUtils {
 
 
     public TimelineElementInternal buildDigitalFeedbackTimelineElement(NotificationInt notification, ResponseStatusInt status, List<String> errors,
-                                                                       SendDigitalDetailsInt sendDigitalDetails, DigitalMessageReferenceInt digitalMessageReference,
+                                                                       int recIndex, int retryNumber,
+                                                                       LegalDigitalAddressInt digitalAddressInt,
+                                                                       DigitalAddressSourceInt digitalAddressSourceInt,
+                                                                       DigitalMessageReferenceInt digitalMessageReference,
                                                                        Instant eventTimestamp) {
-        log.debug("buildDigitaFeedbackTimelineElement - IUN={} and id={}", notification.getIun(), sendDigitalDetails.getRecIndex());
+        log.debug("buildDigitaFeedbackTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
 
         String elementId = TimelineEventId.SEND_DIGITAL_FEEDBACK.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())
-                        .recIndex(sendDigitalDetails.getRecIndex())
-                        .index(sendDigitalDetails.getRetryNumber())
-                        .source(sendDigitalDetails.getDigitalAddressSource())
+                        .recIndex(recIndex)
+                        .index(retryNumber)
+                        .source(digitalAddressSourceInt)
                         .build()
         );
 
         SendDigitalFeedbackDetailsInt details = SendDigitalFeedbackDetailsInt.builder()
                 .errors(errors)
-                .digitalAddress(sendDigitalDetails.getDigitalAddress())
+                .digitalAddress(digitalAddressInt)
                 .responseStatus(status)
-                .recIndex(sendDigitalDetails.getRecIndex())
+                .recIndex(recIndex)
                 .notificationDate(instantNowSupplier.get())
                 .sendingReceipts(
                         (digitalMessageReference != null && digitalMessageReference.getId() != null)?
