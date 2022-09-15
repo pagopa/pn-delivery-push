@@ -56,7 +56,7 @@ class AnalogWorkflowUtilsTest {
     @Test
     void getSendAnalogNotificationDetailsFailed() {
 
-        String expectErrorMsg = "There isn't timeline element -iun=1 requestId=1";
+        String expectErrorMsg = "Internal Server Error";
 
         Mockito.when(timelineService.getTimelineElementDetails("1", "1", SendAnalogDetailsInt.class)).thenReturn(Optional.empty());
 
@@ -70,7 +70,7 @@ class AnalogWorkflowUtilsTest {
     @Test
     void getLastTimelineSentFeedbackFailed() {
 
-        String expectErrorMsg = "Last send feedback is not available - iun 1 id 0";
+        String expectErrorMsg = "Internal Server Error";
 
         Mockito.when(timelineService.getTimeline("1")).thenReturn(Collections.EMPTY_SET);
 

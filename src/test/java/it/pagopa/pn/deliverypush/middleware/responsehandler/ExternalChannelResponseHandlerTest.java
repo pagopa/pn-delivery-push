@@ -8,6 +8,7 @@ import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.Sin
 import it.pagopa.pn.deliverypush.action.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelAnalogSentResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelProgressEventCat;
@@ -53,6 +54,7 @@ class ExternalChannelResponseHandlerTest {
         extChannelResponse.setStatus(ProgressEventCategory.OK);
         extChannelResponse.setEventTimestamp(instant.atOffset(ZoneOffset.UTC));
         extChannelResponse.setRequestId("iun_event_idx_0");
+        extChannelResponse.setEventCode(LegalMessageSentDetails.EventCodeEnum.C001);
         SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();
         singleStatusUpdate.setDigitalLegal(extChannelResponse);
 
@@ -65,6 +67,7 @@ class ExternalChannelResponseHandlerTest {
                 .requestId("iun_event_idx_0")
                 .status(ExtChannelProgressEventCat.OK)
                 .eventTimestamp(instant)
+                .eventCode(EventCodeInt.C001)
                 .build();
 
         Mockito.verify(digitalWorkFlowHandler, Mockito.times(1)).handleExternalChannelResponse(tmp);
@@ -102,7 +105,7 @@ class ExternalChannelResponseHandlerTest {
     @Test
     void legalUpdatePnInternalExceptionTest() {
 
-        String msg = "Exception legalUpdate";
+        String msg = "Internal Server Error";
 
         LegalMessageSentDetails extChannelResponse = new LegalMessageSentDetails();
         SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();
@@ -120,7 +123,7 @@ class ExternalChannelResponseHandlerTest {
     @Test
     void paperUpdatePnInternalExceptionTest() {
 
-        String msg = "Exception on legalUpdate";
+        String msg = "Internal Server Error";
 
         PaperProgressStatusEvent extChannelResponse = new PaperProgressStatusEvent();
         SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();

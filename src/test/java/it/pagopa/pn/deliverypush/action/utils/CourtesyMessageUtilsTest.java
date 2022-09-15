@@ -57,6 +57,14 @@ class CourtesyMessageUtilsTest {
 
     @BeforeEach
     public void setup() {
+        addressBookService = Mockito.mock(AddressBookService.class);
+        externalChannelService = Mockito.mock(ExternalChannelService.class);
+        timelineService = Mockito.mock(TimelineService.class);
+        timelineUtils = Mockito.mock(TimelineUtils.class);
+        instantNowSupplier = Mockito.mock(InstantNowSupplier.class);
+        notificationUtils = Mockito.mock(NotificationUtils.class);
+        iOservice = Mockito.mock(IoService.class);
+
         courtesyMessageUtils = new CourtesyMessageUtils(addressBookService, externalChannelService,
                 timelineService, timelineUtils, instantNowSupplier, notificationUtils, iOservice);
     }
@@ -290,16 +298,13 @@ class CourtesyMessageUtilsTest {
 
         SendCourtesyMessageDetailsInt details = SendCourtesyMessageDetailsInt.builder()
                 .recIndex(1)
-                //.digitalAddress(address)
-                //.sendDate(sendDate)
                 .build();
-        
-       Mockito.when(timelineService.getTimelineElementDetails("1", "1_send_courtesy_message_1_index_0", SendCourtesyMessageDetailsInt.class)).thenReturn(Optional.of(details));
-       
-        Optional<SendCourtesyMessageDetailsInt> res = courtesyMessageUtils.getFirstSentCourtesyMessage("1", 1);
-        
-        System.out.println(" Test : " + res.get());
 
+        Mockito.when(timelineService.getTimelineElementDetails("1", "1_send_courtesy_message_1_index_0", SendCourtesyMessageDetailsInt.class)).thenReturn(Optional.of(details));
+
+        Optional<SendCourtesyMessageDetailsInt> res = courtesyMessageUtils.getFirstSentCourtesyMessage("1", 1);
+
+        Assertions.assertEquals(res.get(), details);
     }
 
     private NotificationInt buildNotification() {

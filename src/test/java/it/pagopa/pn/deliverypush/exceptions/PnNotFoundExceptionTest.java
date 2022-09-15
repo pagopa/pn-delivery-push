@@ -10,13 +10,13 @@ class PnNotFoundExceptionTest {
 
     @Test
     void constructorPnNotFoundException1() {
-        pnNotFoundException = new PnNotFoundException("Title", "Message");
-        Assertions.assertEquals("Title", pnNotFoundException.getTitle());
+        pnNotFoundException = new PnNotFoundException("Title", "Message", "");
+        Assertions.assertEquals("Title", pnNotFoundException.getMessage());
     }
 
     @Test
     void constructorPnNotFoundException2() {
         pnNotFoundException = new PnNotFoundException("Title", "Message", Mockito.any());
-        Assertions.assertEquals("Title", pnNotFoundException.getTitle());
+        Assertions.assertEquals("Title", pnNotFoundException.getMessage());
     }
 }

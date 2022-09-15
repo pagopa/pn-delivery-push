@@ -11,10 +11,13 @@ import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ScheduleDigitalWorkflowDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -169,7 +172,7 @@ class DigitalWorkFlowUtilsTest {
     @Test
     void getSendDigitalDetailsTimelineElementFailed() {
 
-        String msg = "SendDigital timeline element not exist -iun= requestId=";
+        String msg = "Internal Server Error";
         Mockito.when(timelineService.getTimelineElement(Mockito.anyString(), Mockito.any())).thenReturn(Optional.empty());
 
         Exception exception = Assertions.assertThrows(PnInternalException.class, () -> {
@@ -239,6 +242,26 @@ class DigitalWorkFlowUtilsTest {
 
     @Test
     void addDigitalFeedbackTimelineElement() {
+        NotificationInt notification = getNotification();
+        ResponseStatusInt status = ResponseStatusInt.OK;
+        SendDigitalDetailsInt sendDigitalDetails = SendDigitalDetailsInt.builder()
+                .digitalAddressSource(DigitalAddressSourceInt.SPECIAL)
+                .digitalAddress(
+                        LegalDigitalAddressInt.builder()
+                                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                                .build()
+                )
+                .recIndex(0)
+                .build();
+
+        DigitalMessageReferenceInt digitalMessageReference = DigitalMessageReferenceInt.builder()
+                .id("id")
+                .system("system")
+                .location("location")
+                .build();
+
+        Instant eventTimestamp = Instant.parse("2021-09-16T15:23:00.00Z");
+
         List<LegalFactsIdInt> legalFactsIds = new ArrayList<>();
         legalFactsIds.add(LegalFactsIdInt.builder()
                 .key("key")
@@ -254,11 +277,11 @@ class DigitalWorkFlowUtilsTest {
                 .legalFactsIds(legalFactsIds)
                 .build();
 
-        Mockito.when(timelineUtils.buildDigitalFeedbackTimelineElement(Mockito.any(), Mockito.any(), Mockito.anyList(), Mockito.any(), Mockito.any())).thenReturn(timelineElementInternal);
+        Mockito.when(timelineUtils.buildDigitalFeedbackTimelineElement(notification, status, Collections.EMPTY_LIST, sendDigitalDetails, digitalMessageReference, eventTimestamp)).thenReturn(timelineElementInternal);
 
-        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(Mockito.any(), Mockito.any(), Mockito.anyList(), Mockito.any(), Mockito.any());
+        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(notification, status, Collections.EMPTY_LIST, sendDigitalDetails, digitalMessageReference, eventTimestamp);
 
-        Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(Mockito.any(), Mockito.any());
+        Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);
     }
 
     @Test
