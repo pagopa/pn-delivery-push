@@ -18,6 +18,7 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.ExternalChannelService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -31,6 +32,9 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_INVALIDATTEMPT;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_INVALIDEVENTCODE;
 
 @Component
 @Slf4j
@@ -111,7 +115,7 @@ public class DigitalWorkFlowHandler {
                     break;
                 default:
                     log.error("Specified attempt={} is not possibile  - iun={} id={}", nextAddressInfo.getSentAttemptMade(), iun, recIndex);
-                    throw new PnInternalException("Specified attempt " + nextAddressInfo.getSentAttemptMade() + " is not possibile");
+                    throw new PnInternalException("Specified attempt " + nextAddressInfo.getSentAttemptMade() + " is not possibile", ERROR_CODE_DELIVERYPUSH_INVALIDATTEMPT);
             }
         } else {
             //Sono stati già effettuati tutti i tentativi possibili, la notificazione è quindi fallita
@@ -265,7 +269,7 @@ public class DigitalWorkFlowHandler {
                 break;
             default:
                 log.error("Status {} is not handled - iun={} id={}", status, iun, recIndex);
-                throw new PnInternalException("Status "+ status +" is not handled - iun="+ iun +" id="+ recIndex);
+                throw new PnInternalException("Status "+ status +" is not handled - iun="+ iun +" id="+ recIndex, ERROR_CODE_DELIVERYPUSH_INVALIDEVENTCODE);
         }
     }
 
@@ -395,7 +399,7 @@ public class DigitalWorkFlowHandler {
         String iun = notification.getIun();
         Instant lastAttemptDate = lastAddressInfo.getLastAttemptDate();
 
-        Duration secondNotificationWorkflowWaitingTime = pnDeliveryPushConfigs.getExternalChannel().getDigitalDelay();
+        Duration secondNotificationWorkflowWaitingTime = pnDeliveryPushConfigs.getExternalChannel().getDigitalRetryDelay();
 
         Instant schedulingDate = lastAttemptDate.plus(secondNotificationWorkflowWaitingTime);
 
@@ -433,7 +437,7 @@ public class DigitalWorkFlowHandler {
             OK            C003 = StatusPec.AVVENUTA_CONSEGNA (con busta)
         */
         if (eventCode == null)
-            throw new PnInternalException("Invalid received digital status:" + eventCode);
+            throw new PnInternalException("Invalid received digital status:" + eventCode, ERROR_CODE_DELIVERYPUSH_INVALIDEVENTCODE);
 
         String eventCodeValue = eventCode.getValue();
 

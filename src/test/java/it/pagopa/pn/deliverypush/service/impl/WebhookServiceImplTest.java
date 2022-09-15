@@ -355,6 +355,134 @@ class WebhookServiceImplTest {
     }
 
     @Test
+    void saveEventFiltered() {
+        //GIVEN
+        String xpagopacxid = "PA-xpagopacxid";
+
+
+        List<StreamEntity> list = new ArrayList<>();
+        UUID uuidd = UUID.randomUUID();
+        String uuid = uuidd.toString();
+        StreamEntity entity = new StreamEntity();
+        entity.setStreamId(uuid);
+        entity.setTitle("1");
+        entity.setPaId(xpagopacxid);
+        entity.setEventType(StreamMetadataResponse.EventTypeEnum.STATUS.toString());
+        entity.setFilterValues(new HashSet<>());
+        entity.getFilterValues().add(NotificationStatusInt.ACCEPTED.getValue());
+        entity.setActivationDate(Instant.now());
+        list.add(entity);
+
+        entity = new StreamEntity();
+        entity.setStreamId(UUID.randomUUID().toString());
+        entity.setTitle("2");
+        entity.setPaId(xpagopacxid);
+        entity.setEventType(StreamMetadataResponse.EventTypeEnum.STATUS.toString());
+        entity.setFilterValues(new HashSet<>());
+        entity.setActivationDate(Instant.now());
+
+        list.add(entity);
+
+
+        EventEntity eventEntity = new EventEntity();
+        eventEntity.setEventId(Instant.now() + "_" + "timeline_event_id");
+        eventEntity.setTimestamp(Instant.now());
+        eventEntity.setTimelineEventCategory(TimelineElementCategoryInt.AAR_GENERATION.getValue());
+        eventEntity.setNewStatus(NotificationStatusInt.ACCEPTED.getValue());
+        eventEntity.setIun("");
+        eventEntity.setNotificationRequestId("");
+        eventEntity.setStreamId(uuid);
+
+        EventEntity eventEntity2 = new EventEntity();
+        eventEntity2.setEventId(Instant.now() + "_" + "timeline_event_id");
+        eventEntity2.setTimestamp(Instant.now());
+        eventEntity2.setTimelineEventCategory(TimelineElementCategoryInt.AAR_GENERATION.getValue());
+        eventEntity2.setNewStatus(NotificationStatusInt.DELIVERED.getValue());
+        eventEntity2.setIun("");
+        eventEntity2.setNotificationRequestId("");
+        eventEntity2.setStreamId(uuid);
+
+
+        Mockito.when(streamEntityDao.findByPa(xpagopacxid)).thenReturn(Flux.fromIterable(list));
+        Mockito.when(eventEntityDao.save(Mockito.any(EventEntity.class))).thenReturn(Mono.empty());
+
+
+        //WHEN
+        webhookService.saveEvent(xpagopacxid, eventEntity.getEventId(), eventEntity.getIun(),
+                eventEntity.getTimestamp(), NotificationStatusInt.IN_VALIDATION.getValue(), eventEntity.getNewStatus(), eventEntity.getTimelineEventCategory() ).block(d);
+        webhookService.saveEvent(xpagopacxid, eventEntity2.getEventId(), eventEntity2.getIun(),
+                eventEntity2.getTimestamp(), NotificationStatusInt.ACCEPTED.getValue(), eventEntity2.getNewStatus(), eventEntity2.getTimelineEventCategory() ).block(d);
+
+        //THEN
+        Mockito.verify(streamEntityDao, Mockito.times(2)).findByPa(xpagopacxid);
+        Mockito.verify(eventEntityDao, Mockito.times(3)).save(Mockito.any(EventEntity.class));
+    }
+
+    @Test
+    void saveEventFilteredTimeline() {
+        //GIVEN
+        String xpagopacxid = "PA-xpagopacxid";
+
+
+        List<StreamEntity> list = new ArrayList<>();
+        UUID uuidd = UUID.randomUUID();
+        String uuid = uuidd.toString();
+        StreamEntity entity = new StreamEntity();
+        entity.setStreamId(uuid);
+        entity.setTitle("1");
+        entity.setPaId(xpagopacxid);
+        entity.setEventType(StreamMetadataResponse.EventTypeEnum.TIMELINE.toString());
+        entity.setFilterValues(new HashSet<>());
+        entity.getFilterValues().add(TimelineElementCategoryInt.AAR_GENERATION.getValue());
+        entity.setActivationDate(Instant.now());
+        list.add(entity);
+
+        entity = new StreamEntity();
+        entity.setStreamId(UUID.randomUUID().toString());
+        entity.setTitle("2");
+        entity.setPaId(xpagopacxid);
+        entity.setEventType(StreamMetadataResponse.EventTypeEnum.TIMELINE.toString());
+        entity.setFilterValues(new HashSet<>());
+        entity.setActivationDate(Instant.now());
+
+        list.add(entity);
+
+
+        EventEntity eventEntity = new EventEntity();
+        eventEntity.setEventId(Instant.now() + "_" + "timeline_event_id");
+        eventEntity.setTimestamp(Instant.now());
+        eventEntity.setTimelineEventCategory(TimelineElementCategoryInt.AAR_GENERATION.getValue());
+        eventEntity.setNewStatus(NotificationStatusInt.ACCEPTED.getValue());
+        eventEntity.setIun("");
+        eventEntity.setNotificationRequestId("");
+        eventEntity.setStreamId(uuid);
+
+        EventEntity eventEntity2 = new EventEntity();
+        eventEntity2.setEventId(Instant.now() + "_" + "timeline_event_id");
+        eventEntity2.setTimestamp(Instant.now());
+        eventEntity2.setTimelineEventCategory(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW.getValue());
+        eventEntity2.setNewStatus(NotificationStatusInt.DELIVERED.getValue());
+        eventEntity2.setIun("");
+        eventEntity2.setNotificationRequestId("");
+        eventEntity2.setStreamId(uuid);
+
+
+        Mockito.when(streamEntityDao.findByPa(xpagopacxid)).thenReturn(Flux.fromIterable(list));
+        Mockito.when(eventEntityDao.save(Mockito.any(EventEntity.class))).thenReturn(Mono.empty());
+
+
+        //WHEN
+        webhookService.saveEvent(xpagopacxid, eventEntity.getEventId(), eventEntity.getIun(),
+                eventEntity.getTimestamp(), NotificationStatusInt.ACCEPTED.getValue(), eventEntity.getNewStatus(), eventEntity.getTimelineEventCategory() ).block(d);
+        webhookService.saveEvent(xpagopacxid, eventEntity2.getEventId(), eventEntity2.getIun(),
+                eventEntity2.getTimestamp(), NotificationStatusInt.ACCEPTED.getValue(), eventEntity2.getNewStatus(), eventEntity2.getTimelineEventCategory() ).block(d);
+
+        //THEN
+        Mockito.verify(streamEntityDao, Mockito.times(2)).findByPa(xpagopacxid);
+        Mockito.verify(eventEntityDao, Mockito.times(3)).save(Mockito.any(EventEntity.class));
+    }
+
+    @Test
     void saveEventNothingToDo() {
         //GIVEN
         String xpagopacxid = "PA-xpagopacxid";
