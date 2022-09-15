@@ -594,7 +594,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(externalChannel.getDigitalCodesFatallog()).thenReturn(List.of("C008", "C010"));
         Mockito.when(externalChannel.getDigitalCodesRetryable()).thenReturn(List.of("C008", "C010"));
         Mockito.when(externalChannel.getDigitalRetryCount()).thenReturn(-1);
-        Mockito.when(externalChannel.getDigitalDelay()).thenReturn(Duration.ofMillis(100));
+        Mockito.when(externalChannel.getDigitalRetryDelay()).thenReturn(Duration.ofMillis(100));
 
         //WHEN
         handler.handleExternalChannelResponse(extChannelResponse);
@@ -621,7 +621,7 @@ class DigitalWorkFlowHandlerTest {
 
         //THEN
         Mockito.verify(digitalWorkFlowUtils).addDigitalFeedbackTimelineElement(Mockito.any(NotificationInt.class), Mockito.eq(ResponseStatusInt.KO),
-                Mockito.any(), Mockito.any(), Mockito.any(DigitalMessageReferenceInt.class), Mockito.any(Instant.class));
+                Mockito.any(), Mockito.anyInt(), Mockito.anyInt(), Mockito.any(), Mockito.any(), Mockito.any(DigitalMessageReferenceInt.class), Mockito.any(Instant.class));
 
         // STEP 3 - non torna retry, ci si aspetta un retry
         // GIVEN
@@ -704,7 +704,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.verify(digitalWorkFlowUtils, Mockito.never()).addDigitalDeliveringProgressTimelineElement(notification, EventCodeInt.C008, 0, 0, details.getDigitalAddress(), details.getDigitalAddressSource(),
                 true, extChannelResponse.getGeneratedMessage(), extChannelResponse.getEventTimestamp());
         Mockito.verify(digitalWorkFlowUtils).addDigitalFeedbackTimelineElement(Mockito.any(NotificationInt.class), Mockito.eq(ResponseStatusInt.KO),
-                Mockito.any(), Mockito.any(), Mockito.any(DigitalMessageReferenceInt.class), Mockito.any(Instant.class));
+                Mockito.any(), Mockito.anyInt(), Mockito.anyInt(), Mockito.any(), Mockito.any(), Mockito.any(DigitalMessageReferenceInt.class), Mockito.any(Instant.class));
 
     }
 
@@ -868,7 +868,7 @@ class DigitalWorkFlowHandlerTest {
 
         //THEN
         Mockito.verify(digitalWorkFlowUtils, Mockito.never()).addDigitalFeedbackTimelineElement(Mockito.any(NotificationInt.class), Mockito.eq(ResponseStatusInt.KO),
-                Mockito.any(), Mockito.any(), Mockito.any(DigitalMessageReferenceInt.class), Mockito.any(Instant.class));
+                Mockito.any(), Mockito.anyInt(), Mockito.anyInt(), Mockito.any(), Mockito.any(), Mockito.any(DigitalMessageReferenceInt.class), Mockito.any(Instant.class));
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -924,7 +924,7 @@ class DigitalWorkFlowHandlerTest {
 
         //THEN
         Mockito.verify(digitalWorkFlowUtils, Mockito.never()).addDigitalFeedbackTimelineElement(Mockito.any(NotificationInt.class), Mockito.eq(ResponseStatusInt.KO),
-                Mockito.any(), Mockito.any(), Mockito.any(DigitalMessageReferenceInt.class), Mockito.any(Instant.class));
+                Mockito.any(), Mockito.anyInt(), Mockito.anyInt(), Mockito.any(), Mockito.any(), Mockito.any(DigitalMessageReferenceInt.class), Mockito.any(Instant.class));
     }
     
     @ExtendWith(MockitoExtension.class)
@@ -990,7 +990,7 @@ class DigitalWorkFlowHandlerTest {
 
         //THEN
         Mockito.verify(digitalWorkFlowUtils, Mockito.times(1)).addDigitalFeedbackTimelineElement(Mockito.any(NotificationInt.class), Mockito.eq(ResponseStatusInt.KO),
-                Mockito.any(), Mockito.any(), Mockito.any(DigitalMessageReferenceInt.class), Mockito.any(Instant.class));
+                Mockito.any(), Mockito.anyInt(), Mockito.anyInt(), Mockito.any(), Mockito.any(), Mockito.any(DigitalMessageReferenceInt.class), Mockito.any(Instant.class));
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -1056,7 +1056,7 @@ class DigitalWorkFlowHandlerTest {
 
         //THEN
         Mockito.verify(digitalWorkFlowUtils, Mockito.times(1)).addDigitalFeedbackTimelineElement(Mockito.any(NotificationInt.class), Mockito.eq(ResponseStatusInt.KO),
-                Mockito.any(), Mockito.any(), Mockito.any(DigitalMessageReferenceInt.class), Mockito.any(Instant.class));
+                Mockito.any(), Mockito.anyInt(), Mockito.anyInt(), Mockito.any(), Mockito.any(), Mockito.any(DigitalMessageReferenceInt.class), Mockito.any(Instant.class));
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -1122,7 +1122,7 @@ class DigitalWorkFlowHandlerTest {
         //THEN
         
         Mockito.verify(digitalWorkFlowUtils).addDigitalFeedbackTimelineElement(notification, ResponseStatusInt.KO,
-                Collections.emptyList(), details, extChannelResponse.getGeneratedMessage(), extChannelResponse.getEventTimestamp());
+                Collections.emptyList(), details.getRecIndex(), details.getRetryNumber(), details.getDigitalAddress(), details.getDigitalAddressSource(), extChannelResponse.getGeneratedMessage(), extChannelResponse.getEventTimestamp());
 
     }
 
@@ -1233,7 +1233,7 @@ class DigitalWorkFlowHandlerTest {
 
         //THEN
         Mockito.verify(digitalWorkFlowUtils).addDigitalFeedbackTimelineElement(notification, ResponseStatusInt.OK,
-                Collections.emptyList(), details, extChannelResponse.getGeneratedMessage(), extChannelResponse.getEventTimestamp());
+                Collections.emptyList(), details.getRecIndex(), details.getRetryNumber(), details.getDigitalAddress(), details.getDigitalAddressSource(), extChannelResponse.getGeneratedMessage(), extChannelResponse.getEventTimestamp());
 
     }
 
