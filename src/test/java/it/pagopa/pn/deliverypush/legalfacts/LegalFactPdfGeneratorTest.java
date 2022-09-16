@@ -76,7 +76,7 @@ class LegalFactPdfGeneratorTest {
 	}
 	
 	@Test 
-	void generatePecDeliveryWorkflowLegalFactTest_OK() throws IOException {
+	void generatePecDeliveryWorkflowLegalFactTest_OK() {
 		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_OK.pdf");
 		List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList = buildFeedbackFromECList( ResponseStatusInt.OK);
 		NotificationInt notification = buildNotification();
@@ -86,7 +86,7 @@ class LegalFactPdfGeneratorTest {
 	}
 	
 	@Test 
-	void generatePecDeliveryWorkflowLegalFactTest_KO() throws IOException {
+	void generatePecDeliveryWorkflowLegalFactTest_KO() {
 		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_KO.pdf");
 		List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList = buildFeedbackFromECList(ResponseStatusInt.KO);
 		NotificationInt notification = buildNotification();
@@ -187,15 +187,25 @@ class LegalFactPdfGeneratorTest {
 				.recIndex( 0 )
 				.digitalAddress(LegalDigitalAddressInt.builder()
 						.type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
-						.address("indirizzo di prova test")
+						.address("prova@test.com")
 						.build())
-				.responseStatus(status)
+				.responseStatus(ResponseStatusInt.KO)
 				.notificationDate(Instant.now())
 				.build();
-	
+
+		SendDigitalFeedbackDetailsInt sdf2 = SendDigitalFeedbackDetailsInt.builder()
+				.recIndex( 0 )
+				.digitalAddress(LegalDigitalAddressInt.builder()
+						.type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+						.address("prova2@test.com")
+						.build())
+				.responseStatus(ResponseStatusInt.OK)
+				.notificationDate(Instant.now())
+				.build();
 		
 		List<SendDigitalFeedbackDetailsInt> result = new ArrayList<SendDigitalFeedbackDetailsInt>();
 		result.add(sdf);
+		result.add(sdf2);
 		return result;
 	}
 
