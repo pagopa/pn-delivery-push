@@ -93,12 +93,8 @@ class CompletionWorkflowUtilsTest {
 
         Duration scheduleTime = Duration.ofDays(10);
 
-        int hour= 21;
-        int minute= 0;
-
         TimeParams times = new TimeParams();
-        times.setNotificationNonVisibilityTimeHours(hour);
-        times.setNotificationNonVisibilityTimeMinutes(minute);
+        times.setNotificationNonVisibilityTime("21:00");
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
         
         //WHEN
@@ -123,12 +119,9 @@ class CompletionWorkflowUtilsTest {
 
         Duration scheduleTime = Duration.ofDays(10);
 
-        int hour= 21;
-        int minute= 0;
-
         TimeParams times = new TimeParams();
-        times.setNotificationNonVisibilityTimeHours(hour);
-        times.setNotificationNonVisibilityTimeMinutes(minute);
+        times.setNotificationNonVisibilityTime("21:00");
+        times.setTimeToAddInNonVisibilityTimeCase(Duration.ofDays(1));
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
 
         //WHEN

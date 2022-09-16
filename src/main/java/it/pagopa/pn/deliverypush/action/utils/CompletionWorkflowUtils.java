@@ -60,8 +60,10 @@ public class CompletionWorkflowUtils {
     }
     
     public Instant getSchedulingDate(Instant notificationDate, Duration scheduleTime, String iun) {
-        int hour = pnDeliveryPushConfigs.getTimeParams().getNotificationNonVisibilityTimeHours();
-        int minute = pnDeliveryPushConfigs.getTimeParams().getNotificationNonVisibilityTimeMinutes();
+        String notificationNonVisibilityTime = pnDeliveryPushConfigs.getTimeParams().getNotificationNonVisibilityTime();
+        String[] arrayTime = notificationNonVisibilityTime.split(":");
+        int hour = Integer.parseInt(arrayTime[0]);
+        int minute = Integer.parseInt(arrayTime[1]);
         int second = 0;
         int nanoOfSecond = 0;
 
@@ -74,9 +76,9 @@ public class CompletionWorkflowUtils {
         log.debug("Formatted notificationDateTime={} and notificationNonVisibilityDateTime={} - iun={}", notificationDateTime, notificationNonVisibilityDateTime, iun);
 
         if (notificationDateTime.isAfter(notificationNonVisibilityDateTime)){
-            int daysToAddToScheduledTime = 1;
-            scheduleTime = scheduleTime.plus(Duration.ofDays(daysToAddToScheduledTime));
-            log.debug("NotificationDateTime is after notificationNonVisibilityDateTime, need to add {} day to schedulingTime. scheduleTime={} - iun={}", daysToAddToScheduledTime, scheduleTime, iun);
+            Duration timeToAddToScheduledTime = pnDeliveryPushConfigs.getTimeParams().getTimeToAddInNonVisibilityTimeCase();
+            scheduleTime = scheduleTime.plus(timeToAddToScheduledTime);
+            log.debug("NotificationDateTime is after notificationNonVisibilityDateTime, need to add {} day to schedulingTime. scheduleTime={} - iun={}", timeToAddToScheduledTime, scheduleTime, iun);
         } else {
             log.debug("NotificationDateTime is not after notificationNonVisibilityDateTime, don't need to add any day to schedulingTime. scheduleTime={} - iun={}", scheduleTime, iun);
         }

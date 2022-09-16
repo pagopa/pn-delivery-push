@@ -95,6 +95,7 @@ import static org.awaitility.Awaitility.with;
         ConfidentialInformationServiceImpl.class,
         AttachmentUtils.class,
         NotificationUtils.class,
+        CompletionWorkflowUtils.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
         ExternalChannelMock.class,

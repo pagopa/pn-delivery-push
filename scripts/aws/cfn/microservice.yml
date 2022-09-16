@@ -146,95 +146,95 @@ Parameters:
 
   TimelinesDynamoTableName:
     Type: String
-    Description: Name of dynamodb table containing timelines
+    Description: 'Name of dynamodb table containing timelines'
 
   TimelinesDynamoTableArn:
     Type: String
-    Description: ARN of dynamodb table containing timelines
+    Description: 'ARN of dynamodb table containing timelines'
 
   PaperNotificationFailedDynamoTableName:
     Type: String
-    Description: Name of dynamodb table containing unreacheble notifications recipients
+    Description: 'Name of dynamodb table containing unreacheble notifications recipients'
 
   PaperNotificationFailedDynamoTableArn:
     Type: String
-    Description: ARN of dynamodb table containing unreacheble notifications recipients
+    Description: 'ARN of dynamodb table containing unreacheble notifications recipients'
 
   ActionDynamoTableName:
     Type: String
-    Description: Name of dynamodb table containing
+    Description: 'Name of dynamodb table containing'
 
   ActionDynamoTableArn:
     Type: String
-    Description: ARN of dynamodb table containing
+    Description: 'ARN of dynamodb table containing'
 
   FutureActionDynamoTableName:
     Type: String
-    Description: Name of dynamodb table containing
+    Description: 'Name of dynamodb table containing'
 
   FutureActionDynamoTableArn:
     Type: String
-    Description: ARN of dynamodb table containing
+    Description: 'ARN of dynamodb table containing'
 
   LastPollForFutureActionDynamoTableName:
     Type: String
-    Description: Name of dynamodb table containing
+    Description: 'Name of dynamodb table containing'
 
   LastPollForFutureActionDynamoTableArn:
     Type: String
-    Description: ARN of dynamodb table containing
+    Description: 'ARN of dynamodb table containing'
 
   PnDeliveryPushShedLockDynamoTableName:
     Type: String
-    Description: Name of dynamodb table containing
+    Description: 'Name of dynamodb table containing'
 
   PnDeliveryPushShedLockDynamoTableArn:
     Type: String
-    Description: ARN of dynamodb table containing
+    Description: 'ARN of dynamodb table containing'
 
   PnDeliveryPushWebhookStreamsTableName:
     Type: String
-    Description: Name of dynamodb table containing
+    Description: 'Name of dynamodb table containing'
 
   PnDeliveryPushWebhookStreamsTableArn:
     Type: String
-    Description: ARN of dynamodb table containing
+    Description: 'ARN of dynamodb table containing'
 
   PnDeliveryPushWebhookEventsTableName:
     Type: String
-    Description: Name of dynamodb table containing
+    Description: 'Name of dynamodb table containing'
 
   PnDeliveryPushWebhookEventsTableArn:
     Type: String
-    Description: ARN of dynamodb table containing
+    Description: 'ARN of dynamodb table containing'
 
   AlarmSNSTopicArn:
     Type: String
-    Description: ARN of alarm topic
+    Description: 'ARN of alarm topic'
 
   ExternalChannelBaseUrl:
     Type: String
-    Description: url base di external channel
+    Description: 'url base di external channel'
 
   SandboxSafeStorageBaseUrl:
     Type: String
-    Description: url base di safe storage
+    Description: 'url base di safe storage'
   
   LogsBucketName:
     Type: String
-    Description: Bucket name where the logs must be exported
+    Description: 'Bucket name where the logs must be exported'
     
   LogsExporterRoleArn:
     Type: String
-    Description: ARN of the role used to write to external logs bucket
+    Description: 'ARN of the role used to write to external logs bucket'
   
   TimelineCdcKinesisStreamArn:
     Type: String
-    Description: kinesis stream Arn for timeline dynamo table
+    Description: 'kinesis stream Arn for timeline dynamo table'
   
   TimelineCdcKinesisKeyArn:
     Type: String
-    Description: KMS key arn for timeline stream decryption
+    Description: 'KMS key arn for timeline stream decryption'
 
   Version:
     Type: String
@@ -242,8 +242,16 @@ Parameters:
 
   PnDeliveryPushPaperMessageNotHandled:
     Type: String
-    Description: feature flag disabilitazione invio messaggi cartacei
-  
+    Description: 'feature flag for disabling paper messages send'
+
+  notificationNonVisibilityTime:
+    Type: String
+    Description: 'After this time the notification may not have been read by recipient in that day. Format hh: mm example 21:00'
+
+  timeToAddInNonVisibilityTimeCase:
+    Type: String
+    Description: 'Time to add to scheduling in case the notification arrived after the time defined in notificationNonVisibilityTime'
+
 Resources:
 
   # PN-Delivery-push microservice
@@ -295,6 +303,8 @@ Resources:
         ContainerEnvEntry35: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_LOCKTABLENAME=${PnDeliveryPushShedLockDynamoTableName}'
         ContainerEnvEntry36: !Sub 'PN_DELIVERYPUSH_PAPERMESSAGENOTHANDLED=${PnDeliveryPushPaperMessageNotHandled}'
         ContainerEnvEntry37: !Sub 'PN_DELIVERYPUSH_WEBAPP_FAQURLTEMPLATE=${PhysicalPersonPortalUrl}/faq.html'
+        ContainerEnvEntry38: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_NOTIFICATIONNONVISIBILITYTIME=${notificationNonVisibilityTime}'
+        ContainerEnvEntry39: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_TIMETOADDINNONVISIBILITYTIME=${timeToAddInNonVisibilityTimeCase}'
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*,/delivery-progresses/*'
         ECSClusterName: !Ref ECSClusterName
