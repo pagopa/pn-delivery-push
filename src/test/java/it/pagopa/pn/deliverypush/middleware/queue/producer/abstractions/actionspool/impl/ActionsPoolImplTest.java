@@ -13,8 +13,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import java.time.*;
-import java.time.format.DateTimeFormatter;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,27 +51,6 @@ class ActionsPoolImplTest {
         lastFutureActionPoolExecutionTimeDao = Mockito.mock(LastPollForFutureActionsDao.class);
         configs = Mockito.mock(PnDeliveryPushConfigs.class);
         actionsPool = new ActionsPoolImpl(actionsQueue, actionService, clock, lastFutureActionPoolExecutionTimeDao, configs);
-    }
-
-    @Test
-    void scheduleFutureAction() {
-        String PATTERN_FORMAT = "dd.MM.yyyy";
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(PATTERN_FORMAT)
-                .withZone(ZoneId.systemDefault());
-
-        Instant instant = Instant.parse("2022-09-15T18:35:24.00Z");
-
-        Action action = Action.builder()
-                .iun("01")
-                .actionId("001")
-                .recipientIndex(0)
-                .notBefore(instant)
-                .type(ActionType.ANALOG_WORKFLOW)
-                .build();
-
-        actionsPool.scheduleFutureAction(action);
-
-        Mockito.verify(actionService, Mockito.times(1)).addAction(action, computeTimeSlot(instant));
     }
 
     @Test
