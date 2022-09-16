@@ -6,6 +6,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.sanitizers.HtmlSanitizerFactory;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -124,7 +125,8 @@ public class DocumentComposition {
     }
 
     public byte[] executePdfTemplate( TemplateType templateType, Object model ) throws IOException {
-        String html = executeTextTemplate( templateType, model );
+        Object trustedTemplateModel = HtmlSanitizerFactory.makeSanitizer(templateType).sanitize(model);
+        String html = executeTextTemplate( templateType, trustedTemplateModel );
 
         String baseUri = baseUris.get( templateType );
         log.info("Pdf conversion start for templateType={} with baseUri={}", templateType, baseUri);
