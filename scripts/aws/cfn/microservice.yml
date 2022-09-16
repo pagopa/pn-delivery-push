@@ -374,8 +374,6 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
       Parameters:
         WAFName: !Sub '${ProjectName}-delivery-push-b2b'
-        WAFRuleVendors: "AWS,AWS,AWS"
-        WAFRuleNames: "AWSManagedRulesKnownBadInputsRuleSet,AWSManagedRulesAdminProtectionRuleSet,AWSManagedRulesCommonRuleSet"
         APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicAPI.Outputs.APIGatewayARN
 
   # Expose PN-Delivery-progress microservice public API with API-GW for B2B usage
@@ -398,8 +396,6 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
       Parameters:
         WAFName: !Sub '${ProjectName}-delivery-progress-b2b'
-        WAFRuleVendors: "AWS,AWS,AWS"
-        WAFRuleNames: "AWSManagedRulesKnownBadInputsRuleSet,AWSManagedRulesAdminProtectionRuleSet,AWSManagedRulesCommonRuleSet"
         APIGatewayARNs: !GetAtt DeliveryProgressMicroservicePublicAPI.Outputs.APIGatewayARN
 
   # Expose PN-Delivery-push microservice public API with API-GW for WEB usage
@@ -422,8 +418,6 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
       Parameters:
         WAFName: !Sub '${ProjectName}-delivery--push-web'
-        WAFRuleVendors: "AWS, AWS, AWS, AWS"
-        WAFRuleNames: "AWSManagedRulesBotControlRuleSet, AWSManagedRulesKnownBadInputsRuleSet, AWSManagedRulesAdminProtectionRuleSet, AWSManagedRulesCommonRuleSet"
         APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicWebAPI.Outputs.APIGatewayARN
 
 
