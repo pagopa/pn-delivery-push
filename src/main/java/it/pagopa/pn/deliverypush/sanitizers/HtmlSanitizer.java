@@ -22,8 +22,8 @@ public abstract class HtmlSanitizer {
     public Object sanitize(Object modelTemplate) {
         if(modelTemplate instanceof Map) {
             Map<String, Object> mapModelTemplate = (Map<String, Object>) modelTemplate;
-            Map<String, Object> trustedMapModelTemplate = new HashMap<>(mapModelTemplate);
-            return sanitize(trustedMapModelTemplate);
+            Map<String, Object> sanitizedMapModelTemplate = new HashMap<>(mapModelTemplate);
+            return sanitize(sanitizedMapModelTemplate);
         }
         return modelTemplate;
     }
@@ -41,20 +41,58 @@ public abstract class HtmlSanitizer {
     }
 
     public NotificationRecipientInt sanitize(NotificationRecipientInt notificationRecipientInt) {
-        String trustedTaxId = sanitize(notificationRecipientInt.getTaxId());
-        String trustedInternalId = sanitize(notificationRecipientInt.getInternalId());
-        String trustedDenomination = sanitize(notificationRecipientInt.getDenomination());
+        if(notificationRecipientInt == null) return null;
+
+        String sanitizedTrustedTaxId = sanitize(notificationRecipientInt.getTaxId());
+        String sanitizedTrustedInternalId = sanitize(notificationRecipientInt.getInternalId());
+        String sanitizedDenomination = sanitize(notificationRecipientInt.getDenomination());
+        PhysicalAddressInt sanitizedPhysicalAddress = sanitize(notificationRecipientInt.getPhysicalAddress());
         NotificationPaymentInfoInt payment = notificationRecipientInt.getPayment();
-        PhysicalAddressInt physicalAddress = notificationRecipientInt.getPhysicalAddress();
-        LegalDigitalAddressInt digitalDomicile = notificationRecipientInt.getDigitalDomicile();
+        LegalDigitalAddressInt sanitizedDigitalDomicile = sanitize(notificationRecipientInt.getDigitalDomicile());
 
         return NotificationRecipientInt.builder()
-                .taxId(trustedTaxId)
-                .internalId(trustedInternalId)
-                .denomination(trustedDenomination)
+                .taxId(sanitizedTrustedTaxId)
+                .internalId(sanitizedTrustedInternalId)
+                .denomination(sanitizedDenomination)
                 .payment(payment)
-                .physicalAddress(physicalAddress)
-                .digitalDomicile(digitalDomicile)
+                .physicalAddress(sanitizedPhysicalAddress)
+                .digitalDomicile(notificationRecipientInt.getDigitalDomicile())
+                .build();
+    }
+
+    private PhysicalAddressInt sanitize(PhysicalAddressInt physicalAddressInt) {
+        if(physicalAddressInt == null) return null;
+
+        String sanitizedAddress = sanitize(physicalAddressInt.getAddress());
+        String sanitizedProvince = sanitize(physicalAddressInt.getProvince());
+        String sanitizedZip = sanitize(physicalAddressInt.getZip());
+        String sanitizedAt = sanitize(physicalAddressInt.getAt());
+        String sanitizedAddressDetails = sanitize(physicalAddressInt.getAddressDetails());
+        String sanitizedMunicipality = sanitize(physicalAddressInt.getMunicipality());
+        String sanitizedForeignState = sanitize(physicalAddressInt.getForeignState());
+        String sanitizedMunicipalityDetails = sanitize(physicalAddressInt.getMunicipalityDetails());
+
+        return PhysicalAddressInt.builder()
+                .address(sanitizedAddress)
+                .province(sanitizedProvince)
+                .zip(sanitizedZip)
+                .at(sanitizedAt)
+                .addressDetails(sanitizedAddressDetails)
+                .municipality(sanitizedMunicipality)
+                .foreignState(sanitizedForeignState)
+                .municipalityDetails(sanitizedMunicipalityDetails)
+                .build();
+
+    }
+
+    private LegalDigitalAddressInt sanitize(LegalDigitalAddressInt legalDigitalAddressInt) {
+        if(legalDigitalAddressInt == null) return null;
+
+        String sanitizedAddress = sanitize(legalDigitalAddressInt.getAddress());
+
+        return LegalDigitalAddressInt.builder()
+                .type(legalDigitalAddressInt.getType())
+                .address(sanitizedAddress)
                 .build();
     }
 

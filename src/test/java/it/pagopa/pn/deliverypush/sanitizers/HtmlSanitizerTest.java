@@ -52,25 +52,163 @@ class HtmlSanitizerTest {
 
     //test di non regressione; se non c'è alcun elemento HTML, mi aspetto di ricevere lo stesso identico model
     @Test
-    void sanitizeNotificationIntWithNoHTMlElement() {
+    void sanitizeRequestAcceptedTemplateWithNoHTMlElement() {
         Object templateModel = getTemplateModelForRequestAccepted(null);
         Object sanitized = HtmlSanitizerFactory.makeSanitizer(DocumentComposition.TemplateType.REQUEST_ACCEPTED).sanitize(templateModel);
         assertThat(sanitized).isEqualTo(templateModel);
     }
 
     @Test
-    void sanitizeNotificationIntWithImgHTMlElement() {
+    void sanitizeRequestAcceptedTemplateWithImgHTMlElement() {
         String customDenomination = "<h1>SSRF WITH IMAGE POC</h1> <img src='https://prova.it'></img>";
-        Object templateModel = getTemplateModelForRequestAccepted(customDenomination);
+        Map<?, ?> templateModel = getTemplateModelForRequestAccepted(customDenomination);
+        NotificationInt notificationInt = (NotificationInt) templateModel.get(FIELD_NOTIFICATION);
 
         Object sanitizedTemplateModel = HtmlSanitizerFactory.makeSanitizer(DocumentComposition.TemplateType.REQUEST_ACCEPTED).sanitize(templateModel);
         assertThat(sanitizedTemplateModel).isNotEqualTo(templateModel);
         assertThat(sanitizedTemplateModel).isInstanceOf(Map.class);
 
-        Map<String, Object> templateModelMap = (Map<String, Object>) sanitizedTemplateModel;
-        NotificationInt notificationInt = (NotificationInt) templateModelMap.get(FIELD_NOTIFICATION);
+        Map<String, Object> sanitizedTemplateModelMap = (Map<String, Object>) sanitizedTemplateModel;
+        NotificationInt sanitizedNotificationInt = (NotificationInt) sanitizedTemplateModelMap.get(FIELD_NOTIFICATION);
 
-        assertThat(notificationInt.getRecipients().get(0).getDenomination()).contains("<img").doesNotContain("<h1>");
+        assertThat(sanitizedNotificationInt.getRecipients().get(0).getDenomination()).contains("<img").doesNotContain("<h1>");
+        assertThat(sanitizedNotificationInt.getIun()).isEqualTo(notificationInt.getIun());
+        assertThat(sanitizedNotificationInt.getSender()).isEqualTo(notificationInt.getSender());
+        assertThat(sanitizedNotificationInt.getAmount()).isEqualTo(notificationInt.getAmount());
+        assertThat(sanitizedNotificationInt.getPaProtocolNumber()).isEqualTo(notificationInt.getPaProtocolNumber());
+        assertThat(sanitizedNotificationInt.getSubject()).isEqualTo(notificationInt.getSubject());
+        assertThat(sanitizedNotificationInt.getSentAt()).isEqualTo(notificationInt.getSentAt());
+        assertThat(sanitizedNotificationInt.getDocuments()).isEqualTo(notificationInt.getDocuments());
+
+        assertThat(sanitizedTemplateModelMap.get(FIELD_SEND_DATE)).isEqualTo(templateModel.get(FIELD_SEND_DATE));
+        assertThat(sanitizedTemplateModelMap.get(FIELD_SEND_DATE_NO_TIME)).isEqualTo(templateModel.get(FIELD_SEND_DATE_NO_TIME));
+        assertThat(sanitizedTemplateModelMap.get(FIELD_DIGESTS)).isEqualTo(templateModel.get(FIELD_DIGESTS));
+        assertThat(sanitizedTemplateModelMap.get(FIELD_ADDRESS_WRITER)).isEqualTo(templateModel.get(FIELD_ADDRESS_WRITER));
+    }
+
+    @Test
+    void sanitizeNotificationViewedTemplateWithNoHTMlElement() {
+        Object templateModel = getTemplateModelForNotificationViewed(null);
+
+        Object sanitizedTemplateModel = HtmlSanitizerFactory.makeSanitizer(DocumentComposition.TemplateType.NOTIFICATION_VIEWED).sanitize(templateModel);
+        assertThat(sanitizedTemplateModel).isEqualTo(templateModel);
+    }
+
+    @Test
+    void sanitizeNotificationViewedTemplateWithImgHTMlElement() {
+        String customDenomination = "<h1>SSRF WITH IMAGE POC</h1> <img src='https://prova.it'></img>";
+        Map<?, ?> templateModel = getTemplateModelForNotificationViewed(customDenomination);
+
+        Object sanitizedTemplateModel = HtmlSanitizerFactory.makeSanitizer(DocumentComposition.TemplateType.NOTIFICATION_VIEWED).sanitize(templateModel);
+        assertThat(sanitizedTemplateModel).isNotEqualTo(templateModel);
+        assertThat(sanitizedTemplateModel).isInstanceOf(Map.class);
+
+        Map<String, Object> sanitizedTemplateModelMap = (Map<String, Object>) sanitizedTemplateModel;
+        NotificationRecipientInt notificationRecipientInt = (NotificationRecipientInt) sanitizedTemplateModelMap.get(FIELD_RECIPIENT);
+
+        assertThat(notificationRecipientInt.getDenomination()).contains("<img").doesNotContain("<h1>");
+        assertThat(sanitizedTemplateModelMap.get(FIELD_IUN)).isEqualTo(templateModel.get(FIELD_IUN));
+        assertThat(sanitizedTemplateModelMap.get(FIELD_WHEN)).isEqualTo(templateModel.get(FIELD_WHEN));
+        assertThat(sanitizedTemplateModelMap.get(FIELD_ADDRESS_WRITER)).isEqualTo(templateModel.get(FIELD_ADDRESS_WRITER));
+        assertThat(sanitizedTemplateModelMap.get(FIELD_SEND_DATE_NO_TIME)).isEqualTo(templateModel.get(FIELD_SEND_DATE_NO_TIME));
+    }
+
+    @Test
+    void sanitizeDigitalNotificationWorkflowTemplateWithNoHTMlElement() {
+        Object templateModel = getTemplateModelForDigitalNotificationWorkflow(null);
+
+        Object sanitizedTemplateModel = HtmlSanitizerFactory.makeSanitizer(DocumentComposition.TemplateType.DIGITAL_NOTIFICATION_WORKFLOW).sanitize(templateModel);
+        assertThat(sanitizedTemplateModel).isEqualTo(templateModel);
+    }
+
+    @Test
+    void sanitizeDigitalNotificationWorkflowTemplateWithImgHTMlElement() {
+        String customDenomination = "<h1>SSRF WITH IMAGE POC</h1> <img src='https://prova.it'></img>";
+        Map<?, ?> templateModel = getTemplateModelForDigitalNotificationWorkflow(customDenomination);
+        List<PecDeliveryInfo> deliveryInfosActual = (List<PecDeliveryInfo>) templateModel.get(FIELD_DELIVERIES);
+
+
+        Object sanitizedTemplateModel = HtmlSanitizerFactory.makeSanitizer(DocumentComposition.TemplateType.DIGITAL_NOTIFICATION_WORKFLOW).sanitize(templateModel);
+        assertThat(sanitizedTemplateModel).isNotEqualTo(templateModel);
+        assertThat(sanitizedTemplateModel).isInstanceOf(Map.class);
+
+        Map<String, Object> sanitizedTemplateModelMap = (Map<String, Object>) sanitizedTemplateModel;
+        List<PecDeliveryInfo> sanitizedDeliveryInfos = (List<PecDeliveryInfo>) sanitizedTemplateModelMap.get(FIELD_DELIVERIES);
+
+        assertThat(sanitizedDeliveryInfos).isNotNull().hasSize(1);
+        assertThat(sanitizedDeliveryInfos.get(0).getDenomination()).contains("<img").doesNotContain("<h1>");
+        assertThat(sanitizedDeliveryInfos.get(0).getAddress()).isEqualTo(deliveryInfosActual.get(0).getAddress());
+        assertThat(sanitizedTemplateModelMap.get(FIELD_SEND_DATE_NO_TIME)).isEqualTo(templateModel.get(FIELD_SEND_DATE_NO_TIME));
+        assertThat(sanitizedTemplateModelMap.get(FIELD_IUN)).isEqualTo(templateModel.get(FIELD_IUN));
+    }
+
+    @Test
+    void sanitizeFileComplianceTemplateWithNoHTMlElement() {
+        Object templateModel = getTemplateModelForFileCompliance(null);
+
+        Object sanitizedTemplateModel = HtmlSanitizerFactory.makeSanitizer(DocumentComposition.TemplateType.FILE_COMPLIANCE).sanitize(templateModel);
+        assertThat(sanitizedTemplateModel).isEqualTo(templateModel);
+    }
+
+    @Test
+    void sanitizeFileComplianceTemplateWithImgHTMlElement() {
+        String customSignature = "<h1>SSRF WITH IMAGE POC</h1> <img src='https://prova.it'></img>";
+        Map<?, ?> templateModel = getTemplateModelForFileCompliance(customSignature);
+
+
+        Object sanitizedTemplateModel = HtmlSanitizerFactory.makeSanitizer(DocumentComposition.TemplateType.FILE_COMPLIANCE).sanitize(templateModel);
+        assertThat(sanitizedTemplateModel).isNotEqualTo(templateModel);
+        assertThat(sanitizedTemplateModel).isInstanceOf(Map.class);
+
+        Map<String, Object> sanitizedTemplateModelMap = (Map<String, Object>) sanitizedTemplateModel;
+
+        assertThat((String) sanitizedTemplateModelMap.get(FIELD_SIGNATURE)).contains("<img").doesNotContain("<h1>");
+        assertThat(sanitizedTemplateModelMap.get(FIELD_TIME_REFERENCE)).isEqualTo(templateModel.get(FIELD_TIME_REFERENCE));
+        assertThat(sanitizedTemplateModelMap.get(FIELD_PDF_FILE_NAME)).isEqualTo(templateModel.get(FIELD_PDF_FILE_NAME));
+        assertThat(sanitizedTemplateModelMap.get(FIELD_SEND_DATE)).isEqualTo(templateModel.get(FIELD_SEND_DATE));
+    }
+
+    @Test
+    void sanitizeAARNotificationTemplateWithNoHTMlElement() {
+        Object templateModel = getTemplateModelForAARNotification(null);
+
+        Object sanitizedTemplateModel = HtmlSanitizerFactory.makeSanitizer(DocumentComposition.TemplateType.AAR_NOTIFICATION).sanitize(templateModel);
+        assertThat(sanitizedTemplateModel).isEqualTo(templateModel);
+    }
+
+    @Test
+    void sanitizeAARNotificationTemplateWithImgHTMlElement() {
+        String customDenomination = "<h1>SSRF WITH IMAGE POC</h1> <img src='https://prova.it'></img>";
+        Map<?, ?> templateModel = getTemplateModelForAARNotification(customDenomination);
+        NotificationInt notificationInt = (NotificationInt) templateModel.get(FIELD_NOTIFICATION);
+        NotificationRecipientInt notificationRecipientInt = (NotificationRecipientInt) templateModel.get(FIELD_RECIPIENT);
+
+
+
+        Object sanitizedTemplateModel = HtmlSanitizerFactory.makeSanitizer(DocumentComposition.TemplateType.AAR_NOTIFICATION).sanitize(templateModel);
+        assertThat(sanitizedTemplateModel).isNotEqualTo(templateModel);
+        assertThat(sanitizedTemplateModel).isInstanceOf(Map.class);
+
+        Map<String, Object> sanitizedTemplateModelMap = (Map<String, Object>) sanitizedTemplateModel;
+        NotificationInt sanitizedNotificationInt = (NotificationInt) sanitizedTemplateModelMap.get(FIELD_NOTIFICATION);
+        NotificationRecipientInt sanitizedNotificationRecipientInt = (NotificationRecipientInt) sanitizedTemplateModelMap.get(FIELD_RECIPIENT);
+
+
+        assertThat(sanitizedNotificationInt.getRecipients().get(0).getDenomination()).contains("<img").doesNotContain("<h1>");
+        assertThat(sanitizedNotificationInt.getIun()).isEqualTo(notificationInt.getIun());
+        assertThat(sanitizedNotificationInt.getSender()).isEqualTo(notificationInt.getSender());
+        assertThat(sanitizedNotificationInt.getAmount()).isEqualTo(notificationInt.getAmount());
+        assertThat(sanitizedNotificationInt.getPaProtocolNumber()).isEqualTo(notificationInt.getPaProtocolNumber());
+        assertThat(sanitizedNotificationInt.getSubject()).isEqualTo(notificationInt.getSubject());
+        assertThat(sanitizedNotificationInt.getSentAt()).isEqualTo(notificationInt.getSentAt());
+        assertThat(sanitizedNotificationInt.getDocuments()).isEqualTo(notificationInt.getDocuments());
+
+        assertThat(sanitizedNotificationRecipientInt.getDenomination()).contains("<img").doesNotContain("<h1>");
+        assertThat(sanitizedNotificationRecipientInt.getTaxId()).isEqualTo(notificationRecipientInt.getTaxId());
+
+        assertThat(sanitizedTemplateModelMap.get(FIELD_SEND_DATE)).isEqualTo(templateModel.get(FIELD_SEND_DATE));
+        assertThat(sanitizedTemplateModelMap.get(FIELD_SEND_DATE_NO_TIME)).isEqualTo(templateModel.get(FIELD_SEND_DATE_NO_TIME));
+        assertThat(sanitizedTemplateModelMap.get(FIELD_ADDRESS_WRITER)).isEqualTo(templateModel.get(FIELD_ADDRESS_WRITER));
     }
 
     private Map<String, Object> getTemplateModelForRequestAccepted(String customDenomination) {
@@ -112,11 +250,11 @@ class HtmlSanitizerTest {
                                         .build()
                         )
                 )
-                .recipients(buildRecipients(denomination))
+                .recipients(Collections.singletonList(buildRecipient(denomination)))
                 .build();
     }
 
-    private List<NotificationRecipientInt> buildRecipients(String denomination) {
+    private NotificationRecipientInt buildRecipient(String denomination) {
         String defaultDenomination = StringUtils.hasText(denomination) ? denomination : "Galileo Bruno";
         NotificationRecipientInt rec1 = NotificationRecipientInt.builder()
                 .taxId("CDCFSC11R99X001Z")
@@ -125,19 +263,23 @@ class HtmlSanitizerTest {
                         .address("test@dominioPec.it")
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                         .build())
-                .physicalAddress(new PhysicalAddressInt(
-                        "Palazzo dell'Inquisizione",
-                        "corso Italia 666",
-                        "Piano Terra (piatta)",
-                        "00100",
-                        "Roma",
-                        null,
-                        "RM",
-                        "IT"
-                ))
+                .physicalAddress(buildPhysicalAddressInt())
                 .build();
 
-        return Collections.singletonList( rec1 );
+        return rec1;
+    }
+
+    private PhysicalAddressInt buildPhysicalAddressInt() {
+        return new PhysicalAddressInt(
+                "Palazzo dell&#39;Inquisizione",
+                "corso Italia 666",
+                "Piano Terra (piatta)",
+                "00100",
+                "Roma",
+                null,
+                "RM",
+                "IT"
+        );
     }
 
     private NotificationSenderInt createSender() {
@@ -147,4 +289,54 @@ class HtmlSanitizerTest {
                 .paDenomination("TEST_PA_DENOMINATION")
                 .build();
     }
+
+    private Map<String, Object> getTemplateModelForNotificationViewed(String denomination) {
+        Map<String, Object> templateModel = new HashMap<>();
+        templateModel.put(FIELD_IUN, UUID.randomUUID().toString());
+        templateModel.put(FIELD_RECIPIENT, buildRecipient(denomination));
+        templateModel.put(FIELD_WHEN, Instant.now().toString() );
+        templateModel.put(FIELD_ADDRESS_WRITER, buildPhysicalAddressInt() );
+        templateModel.put(FIELD_SEND_DATE_NO_TIME, Instant.now().toString());
+        return templateModel;
+    }
+
+    private Map<String, Object> getTemplateModelForDigitalNotificationWorkflow(String denomination) {
+        Map<String, Object> templateModel = new HashMap<>();
+        templateModel.put(FIELD_SEND_DATE_NO_TIME, Instant.now().toString() );
+        templateModel.put(FIELD_IUN, UUID.randomUUID().toString() );
+        templateModel.put(FIELD_DELIVERIES, Collections.singletonList(buildPecDeliveryInfo(denomination)));
+        return templateModel;
+    }
+
+    private PecDeliveryInfo buildPecDeliveryInfo(String denomination) {
+        return new PecDeliveryInfo(
+                denomination,
+                UUID.randomUUID().toString(),
+                "digital address",
+                Instant.now(),
+                Instant.now().toString(),
+                true
+        );
+    }
+
+    private Map<String, Object> getTemplateModelForFileCompliance(String signature) {
+        Map<String, Object> templateModel = new HashMap<>();
+        String defaultSignature = StringUtils.hasText(signature) ? signature : "Default Signature";
+        templateModel.put(FIELD_SIGNATURE, defaultSignature);
+        templateModel.put(FIELD_TIME_REFERENCE, Instant.now());
+        templateModel.put(FIELD_PDF_FILE_NAME, "PDF Name" );
+        templateModel.put(FIELD_SEND_DATE, Instant.now().toString());
+        return templateModel;
+    }
+
+    private Map<String, Object> getTemplateModelForAARNotification(String denomination) {
+        Map<String, Object> templateModel = new HashMap<>();
+        templateModel.put(FIELD_SEND_DATE, Instant.now().toString());
+        templateModel.put(FIELD_SEND_DATE_NO_TIME, Instant.now().toString());
+        templateModel.put(FIELD_NOTIFICATION, buildNotification(denomination));
+        templateModel.put(FIELD_RECIPIENT, buildRecipient(denomination));
+        templateModel.put(FIELD_ADDRESS_WRITER, buildPhysicalAddressInt() );
+        return templateModel;
+    }
+
 }
