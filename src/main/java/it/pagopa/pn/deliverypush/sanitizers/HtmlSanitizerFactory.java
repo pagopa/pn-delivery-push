@@ -1,7 +1,9 @@
 package it.pagopa.pn.deliverypush.sanitizers;
 
 import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class HtmlSanitizerFactory {
 
     public static HtmlSanitizer makeSanitizer(DocumentComposition.TemplateType templateType) {
@@ -16,11 +18,14 @@ public class HtmlSanitizerFactory {
                 return new FileComplianceHtmlSanitizer();
             case AAR_NOTIFICATION:
                 return new AARNotificationHtmlHtmlSanitizer();
-            default: return getDefault();
+            default: {
+                log.warn("Using default Sanitizer for the templateType: {}", templateType);
+                return getDefault();
+            }
         }
     }
 
     public static HtmlSanitizer getDefault() {
-        return new DefaultHtmlSanitize();
+        return new DefaultHtmlSanitizer();
     }
 }
