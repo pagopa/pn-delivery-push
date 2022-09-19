@@ -8,7 +8,7 @@ import java.util.Map;
 import static it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator.FIELD_NOTIFICATION;
 import static it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator.FIELD_RECIPIENT;
 
-public class AARNotificationHtmlSanitizer extends NotificationIntSanitizer {
+public class AARNotificationHtmlHtmlSanitizer extends NotificationIntHtmlSanitizer {
 
 
     @Override

@@ -11,6 +11,10 @@ import org.springframework.util.StringUtils;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Class that performs via the {@link #sanitize(Object)} method a cleanup of input parameters,
+ *  allowing only determined HTML elements, based on the policies set in the constructor via the field {@link #policy}
+ */
 public abstract class HtmlSanitizer {
 
     private final PolicyFactory policy;

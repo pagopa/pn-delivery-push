@@ -7,7 +7,7 @@ public class HtmlSanitizerFactory {
     public static HtmlSanitizer makeSanitizer(DocumentComposition.TemplateType templateType) {
         switch (templateType) {
             case REQUEST_ACCEPTED:
-                return new RequestAcceptedHtmlSanitizer();
+                return new RequestAcceptedHtmlHtmlSanitizer();
             case NOTIFICATION_VIEWED:
                 return new NotificationViewHtmlSanitizer();
             case DIGITAL_NOTIFICATION_WORKFLOW:
@@ -15,7 +15,7 @@ public class HtmlSanitizerFactory {
             case FILE_COMPLIANCE:
                 return new FileComplianceHtmlSanitizer();
             case AAR_NOTIFICATION:
-                return new AARNotificationHtmlSanitizer();
+                return new AARNotificationHtmlHtmlSanitizer();
             default: return getDefault();
         }
     }

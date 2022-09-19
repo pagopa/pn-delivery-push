@@ -6,7 +6,7 @@ import java.util.Map;
 
 import static it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator.FIELD_NOTIFICATION;
 
-public class RequestAcceptedHtmlSanitizer extends NotificationIntSanitizer {
+public class RequestAcceptedHtmlHtmlSanitizer extends NotificationIntHtmlSanitizer {
 
 
     @Override

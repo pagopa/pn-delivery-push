@@ -8,7 +8,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class NotificationIntSanitizer extends HtmlSanitizer {
+public abstract class NotificationIntHtmlSanitizer extends HtmlSanitizer {
 
     protected NotificationInt sanitize(NotificationInt notificationInt) {
         String trustedIun = sanitize(notificationInt.getIun());
