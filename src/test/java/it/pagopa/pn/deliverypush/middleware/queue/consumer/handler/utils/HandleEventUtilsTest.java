@@ -3,7 +3,6 @@ package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils;
 import it.pagopa.pn.api.dto.events.StandardEventHeader;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.messaging.MessageHeaders;
 
 import java.time.Instant;
@@ -13,14 +12,7 @@ import java.util.Map;
 import static it.pagopa.pn.api.dto.events.StandardEventHeader.*;
 
 class HandleEventUtilsTest {
-
-    @Test
-    void handleException() {
-
-        HandleEventUtils.handleException(buildMessageHeaders(), Mockito.any(Exception.class));
-     
-    }
-
+    
     @Test
     void mapStandardEventHeader() {
 

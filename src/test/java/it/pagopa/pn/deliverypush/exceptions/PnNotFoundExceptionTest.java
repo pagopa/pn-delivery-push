@@ -2,7 +2,6 @@ package it.pagopa.pn.deliverypush.exceptions;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 class PnNotFoundExceptionTest {
 
@@ -16,7 +15,7 @@ class PnNotFoundExceptionTest {
 
     @Test
     void constructorPnNotFoundException2() {
-        pnNotFoundException = new PnNotFoundException("Title", "Message", Mockito.any());
+        pnNotFoundException = new PnNotFoundException("Title", "Message", "Error Code");
         Assertions.assertEquals("Title", pnNotFoundException.getMessage());
     }
 }
