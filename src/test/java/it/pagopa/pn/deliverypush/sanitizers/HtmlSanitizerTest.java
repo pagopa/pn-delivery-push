@@ -251,7 +251,7 @@ class HtmlSanitizerTest {
                 .taxId("CDCFSC11R99X001Z")
                 .denomination(defaultDenomination)
                 .digitalDomicile(LegalDigitalAddressInt.builder()
-                        .address("test@dominioPec.it")
+                        .address("test&#64;dominioPec.it")
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                         .build())
                 .physicalAddress(buildPhysicalAddressInt())

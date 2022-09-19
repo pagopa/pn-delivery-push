@@ -60,7 +60,7 @@ public abstract class HtmlSanitizer {
                 .denomination(sanitizedDenomination)
                 .payment(payment)
                 .physicalAddress(sanitizedPhysicalAddress)
-                .digitalDomicile(notificationRecipientInt.getDigitalDomicile())
+                .digitalDomicile(sanitizedDigitalDomicile)
                 .build();
     }
 
