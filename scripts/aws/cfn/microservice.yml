@@ -34,19 +34,19 @@ Parameters:
   
   SchedulingDaysSuccessDigitalRefinement:
     Type: String
-    Description: 'refinement time for digital workflow success. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
+    Description: 'Refinement time for digital workflow success. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
 
   SchedulingDaysFailureDigitalRefinement:
     Type: String
-    Description: 'refinement time for digital workflow failure. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
+    Description: 'Refinement time for digital workflow failure. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
 
   SchedulingDaysSuccessAnalogRefinement:
     Type: String
-    Description: 'refinement time for Analog workflow success. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
+    Description: 'Refinement time for Analog workflow success. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
 
   SchedulingDaysFailureAnalogRefinement:
     Type: String
-    Description: 'refinement time for Analog workflow failure. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
+    Description: 'Refinement time for Analog workflow failure. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
   
   ApiDnsName:
     Type: String
@@ -142,7 +142,7 @@ Parameters:
 
   NetworkLoadBalancerLink:
     Type: String
-    Description: 'network load balancer link for API-GW'
+    Description: 'Network load balancer link for API-GW'
 
   TimelinesDynamoTableName:
     Type: String
@@ -214,11 +214,11 @@ Parameters:
 
   ExternalChannelBaseUrl:
     Type: String
-    Description: 'url base di external channel'
+    Description: 'External channel base url'
 
   SandboxSafeStorageBaseUrl:
     Type: String
-    Description: 'url base di safe storage'
+    Description: 'Safe storage base url'
   
   LogsBucketName:
     Type: String
@@ -238,19 +238,21 @@ Parameters:
 
   Version:
     Type: String
-    Description: 'keep track of used projects commitIds'
+    Description: 'Keep track of used projects commitIds'
 
   PnDeliveryPushPaperMessageNotHandled:
     Type: String
-    Description: 'feature flag for disabling paper messages send'
+    Description: 'Feature flag for disabling paper messages send'
 
   notificationNonVisibilityTime:
     Type: String
-    Description: 'After this time the notification may not have been read by recipient in that day. Format hh: mm example 21:00'
+    Description: 'After this time the notification may not have been read by recipient in that day. Format hh:mm example 21:00. 
+    Link Documentation https://pagopa.atlassian.net/wiki/spaces/PN/pages/523304961/Piattaforma+Notifiche+-+Manuale+Operativo#:~:text=La%20notifica%20si,L.%2076/2020).'
 
   timeToAddInNonVisibilityTimeCase:
     Type: String
-    Description: 'Time to add to scheduling in case the notification arrived after the time defined in notificationNonVisibilityTime'
+    Description: 'Time to add to scheduling in case the notification arrived after the time defined in notificationNonVisibilityTime
+    Link Documentation https://pagopa.atlassian.net/wiki/spaces/PN/pages/523304961/Piattaforma+Notifiche+-+Manuale+Operativo#:~:text=La%20notifica%20si,L.%2076/2020).'
 
 Resources:
 
