@@ -32,22 +32,13 @@ class HtmlSanitizerTest {
 
     }
 
-    @Test
-    void sanitizeStringWithJustImgHTMLElementTest() {
-        String actualHTML = "Stringa che contiene una immagine <img src='https://www.prova.it'>";
-        String sanitized = HtmlSanitizerFactory.getDefault().sanitize(actualHTML);
-        System.out.println(sanitized);
-        assertThat(sanitized).contains("<img");
-
-    }
 
     @Test
     void sanitizeStringWithImgAndOtherHTMLElementsTest() {
-        String actualHTML = "<h1>SSRF WITH IMAGE POC</h1> <img src='https://prova.it'></img>";
+        String actualHTML = "<html><h1>SSRF WITH IMAGE POC</h1> <img src='https://prova.it'></img></html>";
         String sanitized = HtmlSanitizerFactory.getDefault().sanitize(actualHTML);
         System.out.println(sanitized);
-        assertThat(sanitized).contains("<img");
-        assertThat(sanitized).doesNotContain("<h1>");
+        assertThat(sanitized).doesNotContain("<img", "<h1>", "<html>");
     }
 
     //test di non regressione; se non c'è alcun elemento HTML, mi aspetto di ricevere lo stesso identico model
@@ -71,7 +62,7 @@ class HtmlSanitizerTest {
         Map<String, Object> sanitizedTemplateModelMap = (Map<String, Object>) sanitizedTemplateModel;
         NotificationInt sanitizedNotificationInt = (NotificationInt) sanitizedTemplateModelMap.get(FIELD_NOTIFICATION);
 
-        assertThat(sanitizedNotificationInt.getRecipients().get(0).getDenomination()).contains("<img").doesNotContain("<h1>");
+        assertThat(sanitizedNotificationInt.getRecipients().get(0).getDenomination()).doesNotContain("<h1>", "<img");
         assertThat(sanitizedNotificationInt.getIun()).isEqualTo(notificationInt.getIun());
         assertThat(sanitizedNotificationInt.getSender()).isEqualTo(notificationInt.getSender());
         assertThat(sanitizedNotificationInt.getAmount()).isEqualTo(notificationInt.getAmount());
@@ -106,7 +97,7 @@ class HtmlSanitizerTest {
         Map<String, Object> sanitizedTemplateModelMap = (Map<String, Object>) sanitizedTemplateModel;
         NotificationRecipientInt notificationRecipientInt = (NotificationRecipientInt) sanitizedTemplateModelMap.get(FIELD_RECIPIENT);
 
-        assertThat(notificationRecipientInt.getDenomination()).contains("<img").doesNotContain("<h1>");
+        assertThat(notificationRecipientInt.getDenomination()).doesNotContain("<h1>", "<img");
         assertThat(sanitizedTemplateModelMap.get(FIELD_IUN)).isEqualTo(templateModel.get(FIELD_IUN));
         assertThat(sanitizedTemplateModelMap.get(FIELD_WHEN)).isEqualTo(templateModel.get(FIELD_WHEN));
         assertThat(sanitizedTemplateModelMap.get(FIELD_ADDRESS_WRITER)).isEqualTo(templateModel.get(FIELD_ADDRESS_WRITER));
@@ -136,7 +127,7 @@ class HtmlSanitizerTest {
         List<PecDeliveryInfo> sanitizedDeliveryInfos = (List<PecDeliveryInfo>) sanitizedTemplateModelMap.get(FIELD_DELIVERIES);
 
         assertThat(sanitizedDeliveryInfos).isNotNull().hasSize(1);
-        assertThat(sanitizedDeliveryInfos.get(0).getDenomination()).contains("<img").doesNotContain("<h1>");
+        assertThat(sanitizedDeliveryInfos.get(0).getDenomination()).doesNotContain("<h1>", "<img");
         assertThat(sanitizedDeliveryInfos.get(0).getAddress()).isEqualTo(deliveryInfosActual.get(0).getAddress());
         assertThat(sanitizedTemplateModelMap.get(FIELD_SEND_DATE_NO_TIME)).isEqualTo(templateModel.get(FIELD_SEND_DATE_NO_TIME));
         assertThat(sanitizedTemplateModelMap.get(FIELD_IUN)).isEqualTo(templateModel.get(FIELD_IUN));
@@ -162,7 +153,7 @@ class HtmlSanitizerTest {
 
         Map<String, Object> sanitizedTemplateModelMap = (Map<String, Object>) sanitizedTemplateModel;
 
-        assertThat((String) sanitizedTemplateModelMap.get(FIELD_SIGNATURE)).contains("<img").doesNotContain("<h1>");
+        assertThat((String) sanitizedTemplateModelMap.get(FIELD_SIGNATURE)).doesNotContain("<h1>", "<img");
         assertThat(sanitizedTemplateModelMap.get(FIELD_TIME_REFERENCE)).isEqualTo(templateModel.get(FIELD_TIME_REFERENCE));
         assertThat(sanitizedTemplateModelMap.get(FIELD_PDF_FILE_NAME)).isEqualTo(templateModel.get(FIELD_PDF_FILE_NAME));
         assertThat(sanitizedTemplateModelMap.get(FIELD_SEND_DATE)).isEqualTo(templateModel.get(FIELD_SEND_DATE));
@@ -194,7 +185,7 @@ class HtmlSanitizerTest {
         NotificationRecipientInt sanitizedNotificationRecipientInt = (NotificationRecipientInt) sanitizedTemplateModelMap.get(FIELD_RECIPIENT);
 
 
-        assertThat(sanitizedNotificationInt.getRecipients().get(0).getDenomination()).contains("<img").doesNotContain("<h1>");
+        assertThat(sanitizedNotificationInt.getRecipients().get(0).getDenomination()).doesNotContain("<h1>", "<img");
         assertThat(sanitizedNotificationInt.getIun()).isEqualTo(notificationInt.getIun());
         assertThat(sanitizedNotificationInt.getSender()).isEqualTo(notificationInt.getSender());
         assertThat(sanitizedNotificationInt.getAmount()).isEqualTo(notificationInt.getAmount());
@@ -203,7 +194,7 @@ class HtmlSanitizerTest {
         assertThat(sanitizedNotificationInt.getSentAt()).isEqualTo(notificationInt.getSentAt());
         assertThat(sanitizedNotificationInt.getDocuments()).isEqualTo(notificationInt.getDocuments());
 
-        assertThat(sanitizedNotificationRecipientInt.getDenomination()).contains("<img").doesNotContain("<h1>");
+        assertThat(sanitizedNotificationRecipientInt.getDenomination()).doesNotContain("<h1>", "<img");
         assertThat(sanitizedNotificationRecipientInt.getTaxId()).isEqualTo(notificationRecipientInt.getTaxId());
 
         assertThat(sanitizedTemplateModelMap.get(FIELD_SEND_DATE)).isEqualTo(templateModel.get(FIELD_SEND_DATE));

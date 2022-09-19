@@ -5,7 +5,7 @@ import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import org.owasp.html.PolicyFactory;
-import org.owasp.html.Sanitizers;
+import org.owasp.html.HtmlPolicyBuilder;
 import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
@@ -20,7 +20,7 @@ public abstract class HtmlSanitizer {
     private final PolicyFactory policy;
 
     public HtmlSanitizer() {
-        this.policy = Sanitizers.IMAGES;
+        this.policy = new HtmlPolicyBuilder().allowElements("").toFactory();
     }
 
     public Object sanitize(Object modelTemplate) {
