@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
+import org.springframework.util.StringUtils;
 
 import java.util.function.Consumer;
 
@@ -32,7 +33,11 @@ public class NewNotificationEventHandler {
 
                 String iun = pnDeliveryNewNotificationEvent.getHeader().getIun();
 
-                startWorkflowHandler.startWorkflow(iun);
+                String messageCount = message.getHeaders().getOrDefault("ApproximateReceiveCount", "1").toString();
+                boolean firstDelivery = (StringUtils.hasText(messageCount) && !messageCount.equals("1"));
+
+
+                startWorkflowHandler.startWorkflow(iun, firstDelivery);
 
             }catch (Exception ex){
                 HandleEventUtils.handleException(message.getHeaders(), ex);

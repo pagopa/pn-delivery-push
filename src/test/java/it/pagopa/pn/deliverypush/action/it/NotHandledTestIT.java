@@ -254,7 +254,7 @@ class NotHandledTestIT {
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
-        startWorkflowHandler.startWorkflow(iun);
+        startWorkflowHandler.startWorkflow(iun, true);
 
         // Viene atteso fino a che lo stato non passi in CANCELLED
         await().untilAsserted(() ->
@@ -338,7 +338,7 @@ class NotHandledTestIT {
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
-        startWorkflowHandler.startWorkflow(iun);
+        startWorkflowHandler.startWorkflow(iun, true);
 
         // Viene atteso fino a che l'ultimo feedback sia arrivato
         String elementId = TimelineEventId.SEND_DIGITAL_FEEDBACK.buildEventId(
@@ -419,7 +419,7 @@ class NotHandledTestIT {
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
-        startWorkflowHandler.startWorkflow(iun);
+        startWorkflowHandler.startWorkflow(iun, true);
 
         // Viene atteso fino a che lo stato non passi in CANCELLED
         await().untilAsserted(() ->
@@ -488,7 +488,7 @@ class NotHandledTestIT {
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
-        startWorkflowHandler.startWorkflow(iun);
+        startWorkflowHandler.startWorkflow(iun, true);
 
         // Viene atteso fino a che non viene inserito lo schedule analog workflow
         String elementId = TimelineEventId.SCHEDULE_ANALOG_WORKFLOW.buildEventId(

@@ -250,7 +250,7 @@ class AnalogTestIT {
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
-        startWorkflowHandler.startWorkflow(iun);
+        startWorkflowHandler.startWorkflow(iun, true);
         
         String timelineId = TimelineEventId.PUBLIC_REGISTRY_RESPONSE.buildEventId(
                 TimelineEventId.PUBLIC_REGISTRY_CALL.buildEventId(
@@ -352,7 +352,7 @@ class AnalogTestIT {
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
-        startWorkflowHandler.startWorkflow(iun);
+        startWorkflowHandler.startWorkflow(iun, true);
 
         String timelineId = TimelineEventId.SCHEDULE_ANALOG_WORKFLOW.buildEventId(
                 EventId.builder()
@@ -432,7 +432,7 @@ class AnalogTestIT {
         
 
         //Start del workflow
-        startWorkflowHandler.startWorkflow(iun);
+        startWorkflowHandler.startWorkflow(iun, true);
 
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().untilAsserted(() ->
@@ -533,7 +533,7 @@ class AnalogTestIT {
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
-        startWorkflowHandler.startWorkflow(notification.getIun());
+        startWorkflowHandler.startWorkflow(notification.getIun(), true);
 
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().untilAsserted(() ->
@@ -636,7 +636,7 @@ class AnalogTestIT {
         Integer recIndex2 = notificationUtils.getRecipientIndex(notification, recipient2.getTaxId());
 
         //Start del workflow
-        startWorkflowHandler.startWorkflow(iun);
+        startWorkflowHandler.startWorkflow(iun, true);
 
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().untilAsserted(() ->
@@ -767,7 +767,7 @@ class AnalogTestIT {
         Integer recIndex2 = notificationUtils.getRecipientIndex(notification, recipient2.getTaxId());
 
         //Start del workflow
-        startWorkflowHandler.startWorkflow(iun);
+        startWorkflowHandler.startWorkflow(iun, true);
 
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().untilAsserted(() ->
@@ -910,7 +910,7 @@ class AnalogTestIT {
         Integer rec1Index = notificationUtils.getRecipientIndex(notification, recipient1.getTaxId());
 
         //Start del workflow
-        startWorkflowHandler.startWorkflow(iun);
+        startWorkflowHandler.startWorkflow(iun, true);
 
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().untilAsserted(() ->
@@ -1060,7 +1060,7 @@ class AnalogTestIT {
         Integer rec1Index = notificationUtils.getRecipientIndex(notification, recipient1.getTaxId());
 
         //Start del workflow
-        startWorkflowHandler.startWorkflow(iun);
+        startWorkflowHandler.startWorkflow(iun, true);
 
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().untilAsserted(() ->

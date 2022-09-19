@@ -17,7 +17,6 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
-import it.pagopa.pn.deliverypush.dto.ext.safestorage.UpdateFileMetadataResponseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
@@ -233,7 +232,7 @@ class NotificationViewedTestIT {
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
-        startWorkflowHandler.startWorkflow(iun);
+        startWorkflowHandler.startWorkflow(iun, true);
 
         
         //Simulazione visualizzazione della notifica
@@ -322,7 +321,7 @@ class NotificationViewedTestIT {
         Integer recIndex2 = notificationUtils.getRecipientIndex(notification, recipient2.getTaxId());
 
         //Start del workflow
-        startWorkflowHandler.startWorkflow(iun);
+        startWorkflowHandler.startWorkflow(iun, true);
 
         //Simulazione visualizzazione della notifica per il primo recipient
         notificationViewedHandler.handleViewNotification(iun, recIndex1);
@@ -380,7 +379,7 @@ class NotificationViewedTestIT {
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //Start del workflow
-        startWorkflowHandler.startWorkflow(iun);
+        startWorkflowHandler.startWorkflow(iun, true);
 
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().untilAsserted(() ->

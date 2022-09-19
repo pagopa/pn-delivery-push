@@ -203,7 +203,7 @@ class ValidationDocumentErrorTestIT {
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         //WHEN the workflow start
-        startWorkflowHandler.startWorkflow(iun);
+        startWorkflowHandler.startWorkflow(iun, true);
         
         //THEN
         

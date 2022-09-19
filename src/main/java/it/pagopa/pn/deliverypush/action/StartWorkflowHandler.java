@@ -53,20 +53,55 @@ public class StartWorkflowHandler {
      * Start new Notification Workflow. For all notification recipient send courtesy message and start choose delivery type
      *
      * @param iun Notification unique identifier
+     * @param firstDelivery
      */
-    public void startWorkflow(String iun) {
+    public void startWorkflow(String iun, boolean firstDelivery) {
         log.info("Start notification process - iun={}", iun);
         NotificationInt notification = notificationService.getNotificationByIun(iun);
 
         try {
-            //Validazione degli allegati della notifica
-            attachmentUtils.validateAttachment(notification);
+            // aggiungo il controllo sullo stato attuale della notifica. Ho 3 possibili risultati: nuova, accettata, rifiutata
+            TimelineUtils.CHECK_NEW_NOTIFICATION_RESULT notificationAlreadyAcceptedOrRefused = timelineUtils.checkNotificationAlreadyAcceptedOrRefused(iun);
 
-            saveNotificationReceivedLegalFacts(notification);
+            // la validazione e il salvataggio dell'accettazione lo eseguo SOLO se la notifica è nello stato NEW.
+            // altrimenti vuol dire che son già passato di qui e quindi non lo devo rifare.
+            if (notificationAlreadyAcceptedOrRefused == TimelineUtils.CHECK_NEW_NOTIFICATION_RESULT.NEW) {
 
-            for (NotificationRecipientInt recipient : notification.getRecipients()) {
-                Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
-                scheduleStartRecipientWorkflow(iun, recIndex);
+                //Validazione degli allegati della notifica
+                attachmentUtils.validateAttachment(notification);
+
+                saveNotificationReceivedLegalFacts(notification);
+            }
+
+            // l'invio dei vari avvisi ai destinatari invece, viene fatto:
+            // - se è una nuova notifica,
+            // - se la notifica è già stata accettata ma firstDelivery è false (è il caso di un ritentativo per colpa di una eccezione, caso che non dovrebbe succedere ma che viene comunque gestito.)
+            if ((notificationAlreadyAcceptedOrRefused == TimelineUtils.CHECK_NEW_NOTIFICATION_RESULT.NEW)
+                || notificationAlreadyAcceptedOrRefused == TimelineUtils.CHECK_NEW_NOTIFICATION_RESULT.ALREADY_ACCEPTED && !firstDelivery)
+            {
+                if (notificationAlreadyAcceptedOrRefused == TimelineUtils.CHECK_NEW_NOTIFICATION_RESULT.ALREADY_ACCEPTED)
+                {
+                    log.warn("rescheduling recipient workflow for already accepted notification iun={}", iun);
+                }
+
+                for (NotificationRecipientInt recipient : notification.getRecipients()) {
+                    Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+                    scheduleStartRecipientWorkflow(iun, recIndex);
+                }
+            }
+            else
+            {
+                // qui ho 2 possibili casi:
+                if (notificationAlreadyAcceptedOrRefused == TimelineUtils.CHECK_NEW_NOTIFICATION_RESULT.ALREADY_REFUSED)
+                {
+                    // - il caso di una notifica che era già stata rifiutata, ed è stata cmq riproposta, loggo
+                    log.error("Skipping because already refused notification iun={}", iun);
+                }
+                else
+                {
+                    // - il caso di una notifica che era già stata accettata, ed è stata cmq riproposta come primo tentativo, loggo
+                    log.error("Skipping because already accepted notification, and is still a firstDelivery iun={}", iun);
+                }
             }
         } catch (PnValidationException ex) {
             handleValidationError(notification, ex);

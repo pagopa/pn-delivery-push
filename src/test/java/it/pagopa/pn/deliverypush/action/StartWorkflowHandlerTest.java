@@ -58,7 +58,7 @@ class StartWorkflowHandlerTest {
         Mockito.when( saveLegalFactsService.saveNotificationReceivedLegalFact(Mockito.any( NotificationInt.class ))).thenReturn( "" );
         
         //WHEN
-        handler.startWorkflow("IUN_01");
+        handler.startWorkflow("IUN_01", true);
 
         //THEN
         Mockito.verify(saveLegalFactsService).saveNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
@@ -75,7 +75,7 @@ class StartWorkflowHandlerTest {
         doThrow(new PnValidationException("ex", Collections.emptySet())).when(checkAttachmentUtils).validateAttachment(Mockito.any(NotificationInt.class));
         
         //WHEN
-        handler.startWorkflow("IUN_01");
+        handler.startWorkflow("IUN_01", true);
 
         //THEN
         Mockito.verify(saveLegalFactsService, Mockito.times(0)).saveNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
@@ -92,7 +92,7 @@ class StartWorkflowHandlerTest {
         doThrow(new PnValidationException("ex", Collections.emptySet())).when(checkAttachmentUtils).changeAttachmentsStatusToAttached(Mockito.any(NotificationInt.class));
 
         //WHEN
-        handler.startWorkflow("IUN_01");
+        handler.startWorkflow("IUN_01", true);
 
         //THEN
         Mockito.verify(saveLegalFactsService, Mockito.times(1)).saveNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));

@@ -25,6 +25,12 @@ import java.util.Optional;
 @Slf4j
 public class TimelineUtils {
 
+    public enum CHECK_NEW_NOTIFICATION_RESULT{
+        NEW,
+        ALREADY_ACCEPTED,
+        ALREADY_REFUSED
+    }
+
     private final InstantNowSupplier instantNowSupplier;
     private final TimelineService timelineService;
 
@@ -624,6 +630,28 @@ public class TimelineUtils {
 
         Optional<TimelineElementInternal> timelineOpt = timelineService.getTimelineElement(iun, elementId);
         return timelineOpt.isPresent();
+    }
+
+    public CHECK_NEW_NOTIFICATION_RESULT checkNotificationAlreadyAcceptedOrRefused(String iun){
+        String elementId = TimelineEventId.REQUEST_ACCEPTED.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .build());
+
+        Optional<TimelineElementInternal> timelineOpt = timelineService.getTimelineElement(iun, elementId);
+        if (timelineOpt.isPresent())
+            return CHECK_NEW_NOTIFICATION_RESULT.ALREADY_ACCEPTED;
+
+        elementId = TimelineEventId.REQUEST_REFUSED.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .build());
+
+        timelineOpt = timelineService.getTimelineElement(iun, elementId);
+        if (timelineOpt.isPresent())
+            return CHECK_NEW_NOTIFICATION_RESULT.ALREADY_REFUSED;
+
+        return CHECK_NEW_NOTIFICATION_RESULT.NEW;
     }
 
     public String getIunFromTimelineId(String timelineId)
