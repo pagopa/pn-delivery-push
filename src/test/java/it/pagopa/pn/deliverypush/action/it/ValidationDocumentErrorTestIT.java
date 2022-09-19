@@ -69,6 +69,7 @@ import java.util.Collections;
         StatusUtils.class,
         PublicRegistryUtils.class,
         NotificationUtils.class,
+        CompletionWorkflowUtils.class,
         NotificationServiceImpl.class,
         StatusServiceImpl.class,
         PaperNotificationFailedServiceImpl.class,

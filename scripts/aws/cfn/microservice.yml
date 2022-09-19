@@ -34,19 +34,19 @@ Parameters:
   
   SchedulingDaysSuccessDigitalRefinement:
     Type: String
-    Description: 'refinement time for digital workflow success. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
+    Description: 'Refinement time for digital workflow success. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
 
   SchedulingDaysFailureDigitalRefinement:
     Type: String
-    Description: 'refinement time for digital workflow failure. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
+    Description: 'Refinement time for digital workflow failure. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
 
   SchedulingDaysSuccessAnalogRefinement:
     Type: String
-    Description: 'refinement time for Analog workflow success. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
+    Description: 'Refinement time for Analog workflow success. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
 
   SchedulingDaysFailureAnalogRefinement:
     Type: String
-    Description: 'refinement time for Analog workflow failure. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
+    Description: 'Refinement time for Analog workflow failure. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
   
   ApiDnsName:
     Type: String
@@ -142,108 +142,118 @@ Parameters:
 
   NetworkLoadBalancerLink:
     Type: String
-    Description: 'network load balancer link for API-GW'
+    Description: 'Network load balancer link for API-GW'
 
   TimelinesDynamoTableName:
     Type: String
-    Description: Name of dynamodb table containing timelines
+    Description: 'Name of dynamodb table containing timelines'
 
   TimelinesDynamoTableArn:
     Type: String
-    Description: ARN of dynamodb table containing timelines
+    Description: 'ARN of dynamodb table containing timelines'
 
   PaperNotificationFailedDynamoTableName:
     Type: String
-    Description: Name of dynamodb table containing unreacheble notifications recipients
+    Description: 'Name of dynamodb table containing unreacheble notifications recipients'
 
   PaperNotificationFailedDynamoTableArn:
     Type: String
-    Description: ARN of dynamodb table containing unreacheble notifications recipients
+    Description: 'ARN of dynamodb table containing unreacheble notifications recipients'
 
   ActionDynamoTableName:
     Type: String
-    Description: Name of dynamodb table containing
+    Description: 'Name of dynamodb table containing'
 
   ActionDynamoTableArn:
     Type: String
-    Description: ARN of dynamodb table containing
+    Description: 'ARN of dynamodb table containing'
 
   FutureActionDynamoTableName:
     Type: String
-    Description: Name of dynamodb table containing
+    Description: 'Name of dynamodb table containing'
 
   FutureActionDynamoTableArn:
     Type: String
-    Description: ARN of dynamodb table containing
+    Description: 'ARN of dynamodb table containing'
 
   LastPollForFutureActionDynamoTableName:
     Type: String
-    Description: Name of dynamodb table containing
+    Description: 'Name of dynamodb table containing'
 
   LastPollForFutureActionDynamoTableArn:
     Type: String
-    Description: ARN of dynamodb table containing
+    Description: 'ARN of dynamodb table containing'
 
   PnDeliveryPushShedLockDynamoTableName:
     Type: String
-    Description: Name of dynamodb table containing
+    Description: 'Name of dynamodb table containing'
 
   PnDeliveryPushShedLockDynamoTableArn:
     Type: String
-    Description: ARN of dynamodb table containing
+    Description: 'ARN of dynamodb table containing'
 
   PnDeliveryPushWebhookStreamsTableName:
     Type: String
-    Description: Name of dynamodb table containing
+    Description: 'Name of dynamodb table containing'
 
   PnDeliveryPushWebhookStreamsTableArn:
     Type: String
-    Description: ARN of dynamodb table containing
+    Description: 'ARN of dynamodb table containing'
 
   PnDeliveryPushWebhookEventsTableName:
     Type: String
-    Description: Name of dynamodb table containing
+    Description: 'Name of dynamodb table containing'
 
   PnDeliveryPushWebhookEventsTableArn:
     Type: String
-    Description: ARN of dynamodb table containing
+    Description: 'ARN of dynamodb table containing'
 
   AlarmSNSTopicArn:
     Type: String
-    Description: ARN of alarm topic
+    Description: 'ARN of alarm topic'
 
   ExternalChannelBaseUrl:
     Type: String
-    Description: url base di external channel
+    Description: 'External channel base url'
 
   SandboxSafeStorageBaseUrl:
     Type: String
-    Description: url base di safe storage
+    Description: 'Safe storage base url'
   
   LogsBucketName:
     Type: String
-    Description: Bucket name where the logs must be exported
+    Description: 'Bucket name where the logs must be exported'
     
   LogsExporterRoleArn:
     Type: String
-    Description: ARN of the role used to write to external logs bucket
+    Description: 'ARN of the role used to write to external logs bucket'
   
   TimelineCdcKinesisStreamArn:
     Type: String
-    Description: kinesis stream Arn for timeline dynamo table
+    Description: 'kinesis stream Arn for timeline dynamo table'
   
   TimelineCdcKinesisKeyArn:
     Type: String
-    Description: KMS key arn for timeline stream decryption
+    Description: 'KMS key arn for timeline stream decryption'
 
   Version:
     Type: String
-    Description: 'keep track of used projects commitIds'
+    Description: 'Keep track of used projects commitIds'
 
   PnDeliveryPushPaperMessageNotHandled:
     Type: String
-    Description: feature flag disabilitazione invio messaggi cartacei
-  
+    Description: 'Feature flag for disabling paper messages send'
+
+  notificationNonVisibilityTime:
+    Type: String
+    Description: 'After this time the notification may not have been read by recipient in that day. Format hh:mm example 21:00. 
+    Link Documentation https://pagopa.atlassian.net/wiki/spaces/PN/pages/523304961/Piattaforma+Notifiche+-+Manuale+Operativo#:~:text=La%20notifica%20si,L.%2076/2020).'
+
+  timeToAddInNonVisibilityTimeCase:
+    Type: String
+    Description: 'Time to add to scheduling in case the notification arrived after the time defined in notificationNonVisibilityTime
+    Link Documentation https://pagopa.atlassian.net/wiki/spaces/PN/pages/523304961/Piattaforma+Notifiche+-+Manuale+Operativo#:~:text=La%20notifica%20si,L.%2076/2020).'
+
 Resources:
 
   # PN-Delivery-push microservice
@@ -295,6 +305,8 @@ Resources:
         ContainerEnvEntry35: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_LOCKTABLENAME=${PnDeliveryPushShedLockDynamoTableName}'
         ContainerEnvEntry36: !Sub 'PN_DELIVERYPUSH_PAPERMESSAGENOTHANDLED=${PnDeliveryPushPaperMessageNotHandled}'
         ContainerEnvEntry37: !Sub 'PN_DELIVERYPUSH_WEBAPP_FAQURLTEMPLATE=${PhysicalPersonPortalUrl}/faq.html'
+        ContainerEnvEntry38: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_NOTIFICATIONNONVISIBILITYTIME=${notificationNonVisibilityTime}'
+        ContainerEnvEntry39: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_TIMETOADDINNONVISIBILITYTIME=${timeToAddInNonVisibilityTimeCase}'
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*,/delivery-progresses/*'
         ECSClusterName: !Ref ECSClusterName
