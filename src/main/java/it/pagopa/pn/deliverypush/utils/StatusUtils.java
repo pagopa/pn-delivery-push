@@ -14,6 +14,8 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_NOTIFICATION_STATUS_FAILED;
+
 @Component
 public class StatusUtils {
     private final StateMap stateMap;
@@ -170,7 +172,7 @@ public class StatusUtils {
             }
         }
         
-        throw new PnInternalException("situazione anomala");
+        throw new PnInternalException("situazione anomala", ERROR_CODE_NOTIFICATION_STATUS_FAILED);
     }
 
 }

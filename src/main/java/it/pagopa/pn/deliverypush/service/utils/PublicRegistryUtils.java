@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_TIMELINE_ELEMENT_FAILED;
+
 @Component
 @Slf4j
 public class PublicRegistryUtils {
@@ -55,7 +57,7 @@ public class PublicRegistryUtils {
             return optTimeLinePublicRegistrySend.get();
         } else {
             log.error("There isn't timelineElement - iun {} correlationId {}", iun, correlationId);
-            throw new PnInternalException("There isn't timelineElement - iun " + iun + " correlationId " + correlationId);
+            throw new PnInternalException("There isn't timelineElement - iun " + iun + " correlationId " + correlationId, ERROR_CODE_TIMELINE_ELEMENT_FAILED);
         }
     }
 

@@ -5,23 +5,25 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import org.springframework.stereotype.Component;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_NOTIFICATION_RECIPIENT_NOT_FOUND;
+
 @Component
 public class NotificationUtils {
 
-    public int getRecipientIndex(NotificationInt notification, String taxId){
+    public int getRecipientIndex(NotificationInt notification, String taxId) {
         int index = 0;
 
-        for(NotificationRecipientInt recipientNot : notification.getRecipients()){
-            if(recipientNot.getTaxId().equals(taxId)){
+        for (NotificationRecipientInt recipientNot : notification.getRecipients()) {
+            if (recipientNot.getTaxId().equals(taxId)) {
                 return index;
             }
-            index ++;
+            index++;
         }
 
-        throw new PnInternalException("There isn't recipient in Notification");
+        throw new PnInternalException("There isn't recipient in Notification", ERROR_CODE_NOTIFICATION_RECIPIENT_NOT_FOUND);
     }
 
-    public NotificationRecipientInt getRecipientFromIndex(NotificationInt notification, int index){
+    public NotificationRecipientInt getRecipientFromIndex(NotificationInt notification, int index) {
         return notification.getRecipients().get(index);
     }
 

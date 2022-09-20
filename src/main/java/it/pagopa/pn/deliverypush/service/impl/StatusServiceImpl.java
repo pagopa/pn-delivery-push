@@ -17,21 +17,23 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_STATUS_UPDATE_FAILED;
+
 @Slf4j
 @Service
 public class StatusServiceImpl implements StatusService {
     private final PnDeliveryClient pnDeliveryClient;
     private final StatusUtils statusUtils;
-    
+
     public StatusServiceImpl(PnDeliveryClient pnDeliveryClient, StatusUtils statusUtils) {
         this.pnDeliveryClient = pnDeliveryClient;
         this.statusUtils = statusUtils;
     }
-    
+
     @Override
     public NotificationStatusUpdate checkAndUpdateStatus(TimelineElementInternal dto, Set<TimelineElementInternal> currentTimeline, NotificationInt notification) {
         log.debug("Notification is present paProtocolNumber {} for iun {}", notification.getPaProtocolNumber(), dto.getIun());
-        
+
         // - Calcolare lo stato corrente
         NotificationStatusInt currentState = computeLastStatusHistoryElement(notification, currentTimeline).getStatus();
         log.debug("CurrentState is {} for iun {}", currentState, dto.getIun());
@@ -44,11 +46,11 @@ public class StatusServiceImpl implements StatusService {
         log.debug("Next state is {} for iun {}", nextState.getStatus(), dto.getIun());
 
         // - se i due stati differiscono
-        if (!currentState.equals(nextState.getStatus()) && !nextState.getStatus().equals(NotificationStatusInt.REFUSED)){
-            
+        if (!currentState.equals(nextState.getStatus()) && !nextState.getStatus().equals(NotificationStatusInt.REFUSED)) {
+
             updateStatus(dto.getIun(), nextState.getStatus(), dto.getTimestamp());
         }
-        
+
         return new NotificationStatusUpdate(currentState, nextState.getStatus());
     }
 
@@ -61,7 +63,7 @@ public class StatusServiceImpl implements StatusService {
             log.info("Status changed to {} for iun {}", dto.getNextStatus(), dto.getIun());
         } else {
             log.error("Status not updated correctly - iun {}", dto.getIun());
-            throw new PnInternalException("Status not updated correctly - iun " + dto.getIun());
+            throw new PnInternalException("Status not updated correctly - iun " + dto.getIun(), ERROR_CODE_STATUS_UPDATE_FAILED);
         }
     }
 
@@ -83,5 +85,5 @@ public class StatusServiceImpl implements StatusService {
 
         return historyElementList.get(historyElementList.size() - 1);
     }
-    
+
 }

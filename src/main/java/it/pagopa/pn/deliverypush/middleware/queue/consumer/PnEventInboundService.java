@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.*;
+
 @Configuration
 @Slf4j
 public class PnEventInboundService {
@@ -51,16 +53,16 @@ public class PnEventInboundService {
     private void setTraceId(Message<?> message) {
         MessageHeaders messageHeaders = message.getHeaders();
 
-        String trace_id = "";
+        String traceId = "";
 
         if (messageHeaders.containsKey("iun"))
-            trace_id = messageHeaders.get("iun", String.class);
+            traceId = messageHeaders.get("iun", String.class);
         else if (messageHeaders.containsKey("aws_messageId"))
-            trace_id = messageHeaders.get("aws_messageId", String.class);
+            traceId = messageHeaders.get("aws_messageId", String.class);
         else
-         trace_id = "trace_id:" + UUID.randomUUID().toString();
+            traceId = "trace_id:" + UUID.randomUUID().toString();
 
-        MDC.put(MDCWebFilter.MDC_TRACE_ID_KEY, trace_id);
+        MDC.put(MDCWebFilter.MDC_TRACE_ID_KEY, traceId);
     }
 
     private String handleMessage(Message<?> message) {
@@ -106,7 +108,7 @@ public class PnEventInboundService {
         }
         else {
             log.error("eventType not present, cannot start scheduled action headers={} payload={}", message.getHeaders(), message.getPayload());
-            throw new PnInternalException("eventType not present, cannot start scheduled action");
+            throw new PnInternalException("eventType not present, cannot start scheduled action", ERROR_CODE_EVENT_TYPE_NOT_SUPPORTED);
         }
         return eventType;
     }
@@ -130,7 +132,7 @@ public class PnEventInboundService {
                 return handlerName;
             } else {
                 log.error("actionType not present, cannot start scheduled action");
-                throw new PnInternalException("actionType not present, cannot start scheduled action");
+                throw new PnInternalException("actionType not present, cannot start scheduled action", ERROR_CODE_ACTION_TYPE_NOT_SUPPORTED);
             }
     }
 
@@ -141,12 +143,12 @@ public class PnEventInboundService {
             
             if(action == null){
                 log.error("Action is not valid, cannot start scheduled action");
-                throw new PnInternalException("Action is not valid, cannot start scheduled action");
+                throw new PnInternalException("Action is not valid, cannot start scheduled action", ERROR_CODE_ACTION_EXCEPTION);
             }
             return action;
         } catch (JsonProcessingException ex) {
             log.error("Exception during json mapping ex", ex);
-            throw new PnInternalException("Exception during json mapping ex="+ ex);
+            throw new PnInternalException("Exception during json mapping ex="+ ex, ERROR_CODE_ACTION_EXCEPTION);
         }
     }
     

@@ -5,10 +5,13 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.NotificationCostResponseInt;
 
 public class NotificationCostResponseMapper {
 
-    public static NotificationCostResponseInt externalToInternal(NotificationCostResponse dtoExt){
+    private NotificationCostResponseMapper() {
+    }
+
+    public static NotificationCostResponseInt externalToInternal(NotificationCostResponse dtoExt) {
         return NotificationCostResponseInt.builder()
-                .iun( dtoExt.getIun() )
-                .recipientIdx( dtoExt.getRecipientIdx() )
+                .iun(dtoExt.getIun())
+                .recipientIdx(dtoExt.getRecipientIdx())
                 .build();
     }
 }

@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_SEND_IO_MESSAGE_FAILED;
 import static it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.model.SendMessageResponse.ResultEnum.*;
 
 
@@ -54,18 +55,18 @@ public class IoServiceImpl implements IoService {
                 if(sendIoMessageResponse != null){
                     if( isErrorStatus( sendIoMessageResponse.getResult() ) ){
                         logEvent.generateFailure("Error in sendIoMessage, with errorStatus={} - iun={} id={} ", sendIoMessageResponse.getResult(), notification.getIun(), recIndex).log();
-                        throw new PnInternalException("Error in sendIoMessage, with errorStatus="+ sendIoMessageResponse.getResult() +" - iun="+ notification.getIun() +" id="+ recIndex);
+                        throw new PnInternalException("Error in sendIoMessage, with errorStatus="+ sendIoMessageResponse.getResult() +" - iun="+ notification.getIun() +" id="+ recIndex, ERROR_CODE_SEND_IO_MESSAGE_FAILED);
                     } else {
                         logEvent.generateSuccess("Send io message success, with result={}", sendIoMessageResponse.getResult()).log();
                     }
                 }else {
                     logEvent.generateFailure("endIOMessage return not valid response response - iun={} id={} ", notification.getIun(), recIndex).log();
-                    throw new PnInternalException("sendIOMessage return not valid response response - iun="+ notification.getIun() +" id="+ recIndex);
+                    throw new PnInternalException("sendIOMessage return not valid response response - iun="+ notification.getIun() +" id="+ recIndex, ERROR_CODE_SEND_IO_MESSAGE_FAILED);
                 }
 
             } else {
                 logEvent.generateFailure("Error in sendIoMessage, httpStatus is {}", resp.getStatusCode()).log();
-                throw new PnInternalException("sendIOMessage Failed - iun="+ notification.getIun() +" id="+ recIndex);
+                throw new PnInternalException("sendIOMessage Failed - iun="+ notification.getIun() +" id="+ recIndex, ERROR_CODE_SEND_IO_MESSAGE_FAILED);
             }
         } catch (Exception ex){
             logEvent.generateFailure("Error in sendIoMessage, exception={}", ex).log();

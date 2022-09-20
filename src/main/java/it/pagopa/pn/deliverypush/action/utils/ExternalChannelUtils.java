@@ -13,19 +13,18 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_TIMELINE_NOT_FOUND;
+
 @Service
 @Slf4j
 public class ExternalChannelUtils {
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
-    private final InstantNowSupplier instantNowSupplier;
-    
+
     public ExternalChannelUtils(TimelineService timelineService,
-                                TimelineUtils timelineUtils, 
-                                InstantNowSupplier instantNowSupplier) {
+                                TimelineUtils timelineUtils) {
         this.timelineService = timelineService;
         this.timelineUtils = timelineUtils;
-        this.instantNowSupplier = instantNowSupplier;
     }
 
     public void addSendDigitalNotificationToTimeline(NotificationInt notification, LegalDigitalAddressInt digitalAddress, DigitalAddressSourceInt addressSource, Integer recIndex, int sentAttemptMade, String eventId) {
@@ -35,14 +34,14 @@ public class ExternalChannelUtils {
         );
     }
 
-    public void addSendSimpleRegisteredLetterToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex, 
+    public void addSendSimpleRegisteredLetterToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex,
                                                         String eventId, Integer numberOfPages) {
         addTimelineElement(
                 timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification, physicalAddress, eventId, numberOfPages),
                 notification
         );
     }
-    
+
     public void addSendAnalogNotificationToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex, boolean investigation,
                                                     int sentAttemptMade, String eventId, Integer numberOfPages) {
         addTimelineElement(
@@ -62,7 +61,7 @@ public class ExternalChannelUtils {
                 notification
         );
     }
-    
+
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
         timelineService.addTimelineElement(element, notification);
     }
@@ -75,7 +74,7 @@ public class ExternalChannelUtils {
             return timelineElement.get();
         } else {
             log.error("There isn't timelineElement - iun {} eventId {}", iun, eventId);
-            throw new PnInternalException("There isn't timelineElement - iun " + iun + " eventId " + eventId);
+            throw new PnInternalException("There isn't timelineElement - iun " + iun + " eventId " + eventId, ERROR_CODE_TIMELINE_NOT_FOUND);
         }
     }
 }

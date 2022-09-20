@@ -12,17 +12,16 @@ import java.time.OffsetDateTime;
 @Configuration
 public class RestTemplateFactory {
 
-    private final it.pagopa.pn.commons.pnclients.RestTemplateFactory restTemplateFactory;
+    private final it.pagopa.pn.commons.pnclients.RestTemplateFactory templateFactory;
 
     public RestTemplateFactory(it.pagopa.pn.commons.pnclients.RestTemplateFactory restTemplateFactory) {
-        this.restTemplateFactory = restTemplateFactory;
+        this.templateFactory = restTemplateFactory;
     }
 
 
     @Bean
     @Qualifier("withOffsetDateTimeFormatter")
-    public RestTemplate restTemplateWithOffsetDateTimeFormatter()
-    {
+    public RestTemplate restTemplateWithOffsetDateTimeFormatter() {
         // Override del comportamento di serializzazione delle date
         // per ovviare al problema del numero di cifre nella frazione di secondo
         RestTemplate template = new RestTemplate();
@@ -33,7 +32,7 @@ public class RestTemplateFactory {
                         .configOverride(OffsetDateTime.class)
                         .setFormat(JsonFormat.Value.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX"))
                 );
-        restTemplateFactory.enrichWithTracing(template);
+        templateFactory.enrichWithTracing(template);
         return template;
     }
 

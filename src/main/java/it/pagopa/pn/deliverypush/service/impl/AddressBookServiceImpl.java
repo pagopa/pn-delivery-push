@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_NOTIFICATION_RECIPIENT_NOT_FOUND;
+
 @Slf4j
 @Service
 public class AddressBookServiceImpl implements AddressBookService {
@@ -58,7 +60,7 @@ public class AddressBookServiceImpl implements AddressBookService {
             return Optional.empty();
         } else {
             log.error("GetLegalAddress Failed  senderId={}", senderId);
-            throw new PnInternalException("GetLegalAddress Failed recipientId="+ recipientId +" senderId="+ senderId);
+            throw new PnInternalException("GetLegalAddress Failed recipientId="+ recipientId +" senderId="+ senderId, ERROR_CODE_NOTIFICATION_RECIPIENT_NOT_FOUND);
         }
     }
 

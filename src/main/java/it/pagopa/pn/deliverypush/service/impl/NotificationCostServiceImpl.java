@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_TAX_ID_NOTICE_CODE_FAILED;
+
 @Service
 @Slf4j
 public class NotificationCostServiceImpl implements NotificationCostService {
@@ -24,9 +26,9 @@ public class NotificationCostServiceImpl implements NotificationCostService {
     public Integer getNotificationCost(NotificationInt notificationInt, int recIndex) {
         return 100;
     }
-    
+
     @Override
-    public NotificationCostResponseInt getIunFromPaTaxIdAndNoticeCode(String paTaxId, String noticeCode){
+    public NotificationCostResponseInt getIunFromPaTaxIdAndNoticeCode(String paTaxId, String noticeCode) {
         ResponseEntity<NotificationCostResponse> resp = pnDeliveryClient.getNotificationCostPrivate(paTaxId, noticeCode);
 
         if (resp.getStatusCode().is2xxSuccessful()) {
@@ -34,16 +36,16 @@ public class NotificationCostServiceImpl implements NotificationCostService {
 
             NotificationCostResponse notificationCostResponse = resp.getBody();
 
-            if(notificationCostResponse != null){
+            if (notificationCostResponse != null) {
                 return NotificationCostResponseMapper.externalToInternal(notificationCostResponse);
-            }else {
+            } else {
                 log.error("getIunFromPaTaxIdAndNoticeCode is not valid - paTaxId={} noticeCode={}", paTaxId, noticeCode);
-                throw new PnInternalException("getIunFromPaTaxIdAndNoticeCode - paTaxId= " + paTaxId + " noticeCode="+noticeCode);
+                throw new PnInternalException("getIunFromPaTaxIdAndNoticeCode - paTaxId= " + paTaxId + " noticeCode=" + noticeCode, ERROR_CODE_TAX_ID_NOTICE_CODE_FAILED);
             }
         } else {
             log.error("getIunFromPaTaxIdAndNoticeCode Failed - paTaxId={} noticeCode={}", paTaxId, noticeCode);
-            throw new PnInternalException("getIunFromPaTaxIdAndNoticeCode Failed - paTaxId= " + paTaxId + " noticeCode="+noticeCode);
+            throw new PnInternalException("getIunFromPaTaxIdAndNoticeCode Failed - paTaxId= " + paTaxId + " noticeCode=" + noticeCode, ERROR_CODE_TAX_ID_NOTICE_CODE_FAILED);
         }
-        
+
     }
 }
