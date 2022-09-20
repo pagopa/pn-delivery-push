@@ -84,11 +84,10 @@ public class HtmlSanitizer {
             return collection;
         }
 
-        List sanitizedList = new ArrayList(collection);
+        List sanitizedList = new ArrayList();
 
-        for (Object o: sanitizedList) {
+        for (Object o: collection) {
             Object sanitized = sanitize(o);
-            sanitizedList.remove(o);
             sanitizedList.add(sanitized);
         }
         return sanitizedList;
