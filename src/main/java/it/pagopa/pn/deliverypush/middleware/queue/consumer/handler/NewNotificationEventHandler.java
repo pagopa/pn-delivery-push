@@ -34,7 +34,7 @@ public class NewNotificationEventHandler {
                 String iun = pnDeliveryNewNotificationEvent.getHeader().getIun();
 
                 String messageCount = message.getHeaders().getOrDefault("ApproximateReceiveCount", "1").toString();
-                boolean firstDelivery = (StringUtils.hasText(messageCount) && !messageCount.equals("1"));
+                boolean firstDelivery = !StringUtils.hasText(messageCount) || messageCount.equals("1");
 
 
                 startWorkflowHandler.startWorkflow(iun, firstDelivery);
