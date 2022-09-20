@@ -367,7 +367,7 @@ class DigitalTestIT {
         addressBookMock.addCourtesyDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), listCourtesyAddress);
 
         Mockito.when( pnExternalRegistryClient.sendIOMessage(Mockito.any(SendMessageRequest.class))).thenReturn(
-                ResponseEntity.of(Optional.of(new SendMessageResponse().id("1871")))
+                ResponseEntity.of(Optional.of(new SendMessageResponse().id("1871").result(SendMessageResponse.ResultEnum.SENT_COURTESY)))
         );
         
         pnDeliveryClientMock.addNotification(notification);
