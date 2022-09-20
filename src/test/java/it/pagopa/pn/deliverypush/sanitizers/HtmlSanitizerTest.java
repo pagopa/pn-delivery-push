@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.sanitizers;
 import static it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
@@ -10,23 +11,36 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.legalfacts.CustomInstantWriter;
-import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
 import it.pagopa.pn.deliverypush.legalfacts.PhysicalAddressWriter;
+import it.pagopa.pn.deliverypush.utils.HtmlSanitizer;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.*;
 
+@JsonTest
 class HtmlSanitizerTest {
 
+    @Autowired
+    ObjectMapper objectMapper;
+
+    HtmlSanitizer htmlSanitizer;
+
+    @BeforeEach
+    public void init() {
+        htmlSanitizer = new HtmlSanitizer(objectMapper);
+    }
 
 
     @Test
     void sanitizeStringWithoutHTMLElementTest() {
         String actualHTML = "Stringa che non contiene elementi HTML";
-        String sanitized = HtmlSanitizerFactory.getDefault().sanitize(actualHTML);
+        String sanitized = (String) htmlSanitizer.sanitize(actualHTML);
 
         assertThat(sanitized).isEqualTo(actualHTML);
 
@@ -36,7 +50,7 @@ class HtmlSanitizerTest {
     @Test
     void sanitizeStringWithImgAndOtherHTMLElementsTest() {
         String actualHTML = "<html><h1>SSRF WITH IMAGE POC</h1> <img src='https://prova.it'></img></html>";
-        String sanitized = HtmlSanitizerFactory.getDefault().sanitize(actualHTML);
+        String sanitized = (String) htmlSanitizer.sanitize(actualHTML);
         System.out.println(sanitized);
         assertThat(sanitized).doesNotContain("<img", "<h1>", "<html>");
     }
@@ -45,7 +59,7 @@ class HtmlSanitizerTest {
     @Test
     void sanitizeRequestAcceptedTemplateWithNoHTMlElement() {
         Object templateModel = getTemplateModelForRequestAccepted(null);
-        Object sanitized = HtmlSanitizerFactory.makeSanitizer(DocumentComposition.TemplateType.REQUEST_ACCEPTED).sanitize(templateModel);
+        Object sanitized = htmlSanitizer.sanitize(templateModel);
         assertThat(sanitized).isEqualTo(templateModel);
     }
 
@@ -55,7 +69,7 @@ class HtmlSanitizerTest {
         Map<?, ?> templateModel = getTemplateModelForRequestAccepted(customDenomination);
         NotificationInt notificationInt = (NotificationInt) templateModel.get(FIELD_NOTIFICATION);
 
-        Object sanitizedTemplateModel = HtmlSanitizerFactory.makeSanitizer(DocumentComposition.TemplateType.REQUEST_ACCEPTED).sanitize(templateModel);
+        Object sanitizedTemplateModel = htmlSanitizer.sanitize(templateModel);
         assertThat(sanitizedTemplateModel).isNotEqualTo(templateModel);
         assertThat(sanitizedTemplateModel).isInstanceOf(Map.class);
 
@@ -81,7 +95,7 @@ class HtmlSanitizerTest {
     void sanitizeNotificationViewedTemplateWithNoHTMlElement() {
         Object templateModel = getTemplateModelForNotificationViewed(null);
 
-        Object sanitizedTemplateModel = HtmlSanitizerFactory.makeSanitizer(DocumentComposition.TemplateType.NOTIFICATION_VIEWED).sanitize(templateModel);
+        Object sanitizedTemplateModel = htmlSanitizer.sanitize(templateModel);
         assertThat(sanitizedTemplateModel).isEqualTo(templateModel);
     }
 
@@ -90,7 +104,7 @@ class HtmlSanitizerTest {
         String customDenomination = "<h1>SSRF WITH IMAGE POC</h1> <img src='https://prova.it'></img>";
         Map<?, ?> templateModel = getTemplateModelForNotificationViewed(customDenomination);
 
-        Object sanitizedTemplateModel = HtmlSanitizerFactory.makeSanitizer(DocumentComposition.TemplateType.NOTIFICATION_VIEWED).sanitize(templateModel);
+        Object sanitizedTemplateModel = htmlSanitizer.sanitize(templateModel);
         assertThat(sanitizedTemplateModel).isNotEqualTo(templateModel);
         assertThat(sanitizedTemplateModel).isInstanceOf(Map.class);
 
@@ -108,7 +122,7 @@ class HtmlSanitizerTest {
     void sanitizeDigitalNotificationWorkflowTemplateWithNoHTMlElement() {
         Object templateModel = getTemplateModelForDigitalNotificationWorkflow(null);
 
-        Object sanitizedTemplateModel = HtmlSanitizerFactory.makeSanitizer(DocumentComposition.TemplateType.DIGITAL_NOTIFICATION_WORKFLOW).sanitize(templateModel);
+        Object sanitizedTemplateModel = htmlSanitizer.sanitize(templateModel);
         assertThat(sanitizedTemplateModel).isEqualTo(templateModel);
     }
 
@@ -118,8 +132,7 @@ class HtmlSanitizerTest {
         Map<?, ?> templateModel = getTemplateModelForDigitalNotificationWorkflow(customDenomination);
         List<PecDeliveryInfo> deliveryInfosActual = (List<PecDeliveryInfo>) templateModel.get(FIELD_DELIVERIES);
 
-
-        Object sanitizedTemplateModel = HtmlSanitizerFactory.makeSanitizer(DocumentComposition.TemplateType.DIGITAL_NOTIFICATION_WORKFLOW).sanitize(templateModel);
+        Object sanitizedTemplateModel = htmlSanitizer.sanitize(templateModel);
         assertThat(sanitizedTemplateModel).isNotEqualTo(templateModel);
         assertThat(sanitizedTemplateModel).isInstanceOf(Map.class);
 
@@ -137,7 +150,7 @@ class HtmlSanitizerTest {
     void sanitizeFileComplianceTemplateWithNoHTMlElement() {
         Object templateModel = getTemplateModelForFileCompliance(null);
 
-        Object sanitizedTemplateModel = HtmlSanitizerFactory.makeSanitizer(DocumentComposition.TemplateType.FILE_COMPLIANCE).sanitize(templateModel);
+        Object sanitizedTemplateModel = htmlSanitizer.sanitize(templateModel);
         assertThat(sanitizedTemplateModel).isEqualTo(templateModel);
     }
 
@@ -146,8 +159,7 @@ class HtmlSanitizerTest {
         String customSignature = "<h1>SSRF WITH IMAGE POC</h1> <img src='https://prova.it'></img>";
         Map<?, ?> templateModel = getTemplateModelForFileCompliance(customSignature);
 
-
-        Object sanitizedTemplateModel = HtmlSanitizerFactory.makeSanitizer(DocumentComposition.TemplateType.FILE_COMPLIANCE).sanitize(templateModel);
+        Object sanitizedTemplateModel = htmlSanitizer.sanitize(templateModel);
         assertThat(sanitizedTemplateModel).isNotEqualTo(templateModel);
         assertThat(sanitizedTemplateModel).isInstanceOf(Map.class);
 
@@ -163,7 +175,7 @@ class HtmlSanitizerTest {
     void sanitizeAARNotificationTemplateWithNoHTMlElement() {
         Object templateModel = getTemplateModelForAARNotification(null);
 
-        Object sanitizedTemplateModel = HtmlSanitizerFactory.makeSanitizer(DocumentComposition.TemplateType.AAR_NOTIFICATION).sanitize(templateModel);
+        Object sanitizedTemplateModel = htmlSanitizer.sanitize(templateModel);
         assertThat(sanitizedTemplateModel).isEqualTo(templateModel);
     }
 
@@ -174,9 +186,7 @@ class HtmlSanitizerTest {
         NotificationInt notificationInt = (NotificationInt) templateModel.get(FIELD_NOTIFICATION);
         NotificationRecipientInt notificationRecipientInt = (NotificationRecipientInt) templateModel.get(FIELD_RECIPIENT);
 
-
-
-        Object sanitizedTemplateModel = HtmlSanitizerFactory.makeSanitizer(DocumentComposition.TemplateType.AAR_NOTIFICATION).sanitize(templateModel);
+        Object sanitizedTemplateModel = htmlSanitizer.sanitize(templateModel);
         assertThat(sanitizedTemplateModel).isNotEqualTo(templateModel);
         assertThat(sanitizedTemplateModel).isInstanceOf(Map.class);
 
@@ -251,7 +261,7 @@ class HtmlSanitizerTest {
                 .taxId("CDCFSC11R99X001Z")
                 .denomination(defaultDenomination)
                 .digitalDomicile(LegalDigitalAddressInt.builder()
-                        .address("test&#64;dominioPec.it")
+                        .address("test@dominioPec.it")
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                         .build())
                 .physicalAddress(buildPhysicalAddressInt())
@@ -262,7 +272,7 @@ class HtmlSanitizerTest {
 
     private PhysicalAddressInt buildPhysicalAddressInt() {
         return new PhysicalAddressInt(
-                "Palazzo dell&#39;Inquisizione",
+                "Palazzo dell'Inquisizione",
                 "corso Italia 666",
                 "Piano Terra (piatta)",
                 "00100",
@@ -286,7 +296,7 @@ class HtmlSanitizerTest {
         templateModel.put(FIELD_IUN, UUID.randomUUID().toString());
         templateModel.put(FIELD_RECIPIENT, buildRecipient(denomination));
         templateModel.put(FIELD_WHEN, Instant.now().toString() );
-        templateModel.put(FIELD_ADDRESS_WRITER, buildPhysicalAddressInt() );
+        templateModel.put(FIELD_ADDRESS_WRITER, new PhysicalAddressWriter() );
         templateModel.put(FIELD_SEND_DATE_NO_TIME, Instant.now().toString());
         return templateModel;
     }
@@ -326,7 +336,7 @@ class HtmlSanitizerTest {
         templateModel.put(FIELD_SEND_DATE_NO_TIME, Instant.now().toString());
         templateModel.put(FIELD_NOTIFICATION, buildNotification(denomination));
         templateModel.put(FIELD_RECIPIENT, buildRecipient(denomination));
-        templateModel.put(FIELD_ADDRESS_WRITER, buildPhysicalAddressInt() );
+        templateModel.put(FIELD_ADDRESS_WRITER, new PhysicalAddressWriter() );
         return templateModel;
     }
 

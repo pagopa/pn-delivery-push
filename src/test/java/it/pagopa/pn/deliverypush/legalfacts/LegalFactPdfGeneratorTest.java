@@ -1,5 +1,10 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import freemarker.template.Configuration;
 import freemarker.template.Version;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
@@ -11,6 +16,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
+import it.pagopa.pn.deliverypush.utils.HtmlSanitizer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +43,8 @@ class LegalFactPdfGeneratorTest {
 	@BeforeEach
 	public void setup() throws IOException {
 		Configuration freemarker = new Configuration(new Version(2,3,0)); //Version is a final class
-		documentComposition = new DocumentComposition(freemarker);
+		HtmlSanitizer htmlSanitizer = new HtmlSanitizer(buildObjectMapper());
+		documentComposition = new DocumentComposition(freemarker, htmlSanitizer);
 		
 		instantWriter = new CustomInstantWriter();
 		physicalAddressWriter = new PhysicalAddressWriter();
@@ -233,5 +240,11 @@ class LegalFactPdfGeneratorTest {
 				.paTaxId("TEST_TAX_ID")
 				.paDenomination("TEST_PA_DENOMINATION")
 				.build();
+	}
+
+	private ObjectMapper buildObjectMapper() {
+		ObjectMapper objectMapper = ((JsonMapper.Builder)((JsonMapper.Builder)JsonMapper.builder().configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false)).configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)).build();
+		objectMapper.registerModule(new JavaTimeModule());
+		return objectMapper;
 	}
 }

@@ -6,7 +6,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.sanitizers.HtmlSanitizerFactory;
+import it.pagopa.pn.deliverypush.utils.HtmlSanitizer;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -49,8 +49,11 @@ public class DocumentComposition {
     private final Map<TemplateType, String> baseUris;
     private final Configuration freemarker;
 
-    public DocumentComposition(Configuration freemarker) throws IOException {
+    private final HtmlSanitizer htmlSanitizer;
+
+    public DocumentComposition(Configuration freemarker, HtmlSanitizer htmlSanitizer) throws IOException {
         this.freemarker = freemarker;
+        this.htmlSanitizer = htmlSanitizer;
 
         log.info("Preload templates START");
         baseUris = new EnumMap<>(TemplateType.class);
@@ -125,7 +128,7 @@ public class DocumentComposition {
     }
 
     public byte[] executePdfTemplate( TemplateType templateType, Object model ) throws IOException {
-        Object trustedTemplateModel = HtmlSanitizerFactory.makeSanitizer(templateType).sanitize(model);
+        Object trustedTemplateModel = htmlSanitizer.sanitize(model);
         String html = executeTextTemplate( templateType, trustedTemplateModel );
 
         String baseUri = baseUris.get( templateType );
