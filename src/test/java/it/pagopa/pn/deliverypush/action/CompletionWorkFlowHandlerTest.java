@@ -70,14 +70,14 @@ class CompletionWorkFlowHandlerTest {
 
         Instant notificationDate = Instant.now();
 
-        String legalFactId = "legalFactsId";
-        Mockito.when( completionWorkflowUtils.generatePecDeliveryWorkflowLegalFact(notification, recIndex) ).thenReturn(legalFactId);
-
         TimeParams times = new TimeParams();
         times.setSchedulingDaysSuccessDigitalRefinement(Duration.ofSeconds(1));
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
-        
         Instant schedulingDateOk = notificationDate.plus(times.getSchedulingDaysSuccessDigitalRefinement());
+
+        String legalFactId = "legalFactsId";
+        Mockito.when( completionWorkflowUtils.generatePecDeliveryWorkflowLegalFact(notification, recIndex,EndWorkflowStatus.SUCCESS, notificationDate ) ).thenReturn(legalFactId);
+        
         Mockito.when(completionWorkflowUtils.getSchedulingDate(Mockito.any(Instant.class), Mockito.any(Duration.class), Mockito.anyString())).thenReturn(schedulingDateOk);
 
         //WHEN
@@ -102,9 +102,6 @@ class CompletionWorkFlowHandlerTest {
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
         
         Instant notificationDate = Instant.now();
-        
-        String legalFactId = "legalFactsId";
-        Mockito.when( completionWorkflowUtils.generatePecDeliveryWorkflowLegalFact(notification, recIndex) ).thenReturn(legalFactId);
 
         TimeParams times = new TimeParams();
         times.setSchedulingDaysFailureDigitalRefinement(Duration.ofSeconds(1));
@@ -112,6 +109,9 @@ class CompletionWorkFlowHandlerTest {
 
         Instant schedulingDateOk = notificationDate.plus(times.getSchedulingDaysFailureDigitalRefinement());
         Mockito.when(completionWorkflowUtils.getSchedulingDate(Mockito.any(Instant.class), Mockito.any(Duration.class), Mockito.anyString())).thenReturn(schedulingDateOk);
+
+        String legalFactId = "legalFactsId";
+        Mockito.when( completionWorkflowUtils.generatePecDeliveryWorkflowLegalFact(notification, recIndex,EndWorkflowStatus.FAILURE, notificationDate ) ).thenReturn(legalFactId);
 
         //WHEN
         handler.completionDigitalWorkflow(notification, recIndex, notificationDate, recipient.getDigitalDomicile(), EndWorkflowStatus.FAILURE);
@@ -138,14 +138,14 @@ class CompletionWorkFlowHandlerTest {
         Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         Mockito.when(pnDeliveryPushConfigs.getPaperMessageNotHandled()).thenReturn(true);
-
-        String legalFactId = "legalFactsId";
-        Mockito.when( completionWorkflowUtils.generatePecDeliveryWorkflowLegalFact(notification, recIndex) ).thenReturn(legalFactId);
-        
-        Mockito.when(timelineUtils.checkNotificationIsAlreadyViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
         
         Instant notificationDate = Instant.now();
 
+        String legalFactId = "legalFactsId";
+        Mockito.when( completionWorkflowUtils.generatePecDeliveryWorkflowLegalFact(notification, recIndex,EndWorkflowStatus.FAILURE, notificationDate ) ).thenReturn(legalFactId);
+        
+        Mockito.when(timelineUtils.checkNotificationIsAlreadyViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
+        
         //WHEN
         handler.completionDigitalWorkflow(notification, recIndex, notificationDate, recipient.getDigitalDomicile(), EndWorkflowStatus.FAILURE);
 
@@ -175,7 +175,7 @@ class CompletionWorkFlowHandlerTest {
         Instant notificationDate = Instant.now();
 
         String legalFactId = "legalFactsId";
-        Mockito.when( completionWorkflowUtils.generatePecDeliveryWorkflowLegalFact(notification, recIndex) ).thenReturn(legalFactId);
+        Mockito.when( completionWorkflowUtils.generatePecDeliveryWorkflowLegalFact(notification, recIndex,EndWorkflowStatus.FAILURE, notificationDate ) ).thenReturn(legalFactId);
         
         Mockito.when(timelineUtils.checkNotificationIsAlreadyViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         

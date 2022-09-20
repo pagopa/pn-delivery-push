@@ -137,13 +137,13 @@
     </style>
 	</head>
 	<body>
-		<div class="container">
-
-			<div id="header" class="row">
-        <div class="left-col">
-          <img src="images/pn-logo-header.png" />
+      <div class="container">
+        
+        <div id="header" class="row">
+          <div class="left-col">
+            <img src="images/pn-logo-header.png" />
+          </div>
         </div>
-      </div>
 			<!-- Se il footer viene messo in fondo al documento compare solo nell'ultima pagina -->
       <div id="footer" class="row">
         <div class="left-col">
@@ -202,26 +202,37 @@
         </div>
 
       </div>
-		<#if delivery.ok>
-			<div class="paragraph">
-				il relativo avviso di avvenuta ricezione in formato elettronico è stato consegnato in data <strong>${delivery.responseDate}</strong>.
-			</div>
-		<#else>
-			<div class="paragraph">
-                in data <strong>${delivery.responseDate}</strong> il gestore della piattaforma ha reso disponibile l’avviso di mancato recapito del messaggio ai sensi dell’art. 26, comma 6 del D.L. 76 del 16 luglio 2020 e comunicato l’Avviso di Avvenuta Ricezione all’indirizzo _____________
-			</div>
-		</#if>
-	</#list>
 
-      <div class="row margin-top-large">
-        <div class="left-col col-5-10">
-          <p>Data, ${sendDateNoTime}</p>
-        </div>
-        <div class="left-col col-5-10">
-          <p class="right">Firmato digitalmente da PagoPA S.p.A.</p>
-        </div>
+	</#list> 
+        
+    <#if endWorkflowStatus == "SUCCESS">
+      <div class="paragraph">
+        il relativo avviso di avvenuta ricezione in formato elettronico è stato consegnato in data <strong>${endWorkflowDate}</strong>.
       </div>
-		</div>
-	</body>
+    <#else>
+      <div class="paragraph">
+        in data <strong>${endWorkflowDate}</strong> il gestore della piattaforma ha reso disponibile l’avviso di mancato recapito del messaggio ai sensi dell’art. 26, comma 6 del D.L. 76 del 16 luglio 2020
+        e comunicato l’Avviso di Avvenuta Ricezione all’indirizzo: 
+        <p>
+          <strong>
+            <#if addressWriter.nullSafePhysicalAddressToString( sendRegisteredLetterAddress, recipient.denomination, '<br/>')??>
+            <br/> ${addressWriter.nullSafePhysicalAddressToString( sendRegisteredLetterAddress, "<strong>"+recipient.denomination+"</strong>", '<br/>')}
+            </#if>
+          </strong>
+        </p>
+      </div>
+    </#if>
+    
+    <div class="row margin-top-large">
+      <div class="left-col col-5-10">
+        <p>Data, ${legalFactCreationDate}</p>
+      </div>
+      <div class="left-col col-5-10">
+        <p class="right">Firmato digitalmente da PagoPA S.p.A.</p>
+      </div>
+    </div>
+    
+    </div>
+  </body>
 </html>
 

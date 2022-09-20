@@ -5,10 +5,7 @@ import freemarker.template.Version;
 import freemarker.template._TemplateAPI;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.*;
-import it.pagopa.pn.deliverypush.action.it.mockbean.PnDeliveryClientMock;
-import it.pagopa.pn.deliverypush.action.it.mockbean.PublicRegistryMock;
-import it.pagopa.pn.deliverypush.action.it.mockbean.SchedulerServiceMock;
-import it.pagopa.pn.deliverypush.action.it.mockbean.UserAttributesClientMock;
+import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.legalfacts.CustomInstantWriter;
 import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
@@ -46,7 +43,7 @@ public class AbstractWorkflowTestConfiguration {
     
     @Bean
     public PnSafeStorageClient safeStorageTest() {
-        return Mockito.mock(PnSafeStorageClient.class);
+        return new SafeStorageClientMock();
     }
 
     @Bean
@@ -54,13 +51,18 @@ public class AbstractWorkflowTestConfiguration {
         Configuration freemarker = new Configuration( new Version(_TemplateAPI.VERSION_INT_2_3_0));
         return new DocumentComposition(  freemarker );
     }
+
+    @Bean
+    public InstantNowSupplier instantNowSupplierTest() {
+        return Mockito.mock(InstantNowSupplier.class);
+    }
     
     @Bean
     public LegalFactGenerator legalFactPdfGeneratorTest( DocumentComposition dc ) {
         CustomInstantWriter instantWriter = new CustomInstantWriter();
         PhysicalAddressWriter physicalAddressWriter = new PhysicalAddressWriter();
 
-        return new LegalFactGenerator( dc, instantWriter, physicalAddressWriter,  Mockito.mock(PnDeliveryPushConfigs.class) );
+        return new LegalFactGenerator( dc, instantWriter, physicalAddressWriter,  Mockito.mock(PnDeliveryPushConfigs.class), new InstantNowSupplier());
     }
     
     @Bean
@@ -74,11 +76,6 @@ public class AbstractWorkflowTestConfiguration {
         return new PublicRegistryMock(
                 publicRegistryResponseHandler
             );
-    }
-
-    @Bean
-    public InstantNowSupplier instantNowSupplierTest() {
-        return Mockito.mock(InstantNowSupplier.class);
     }
     
     @Bean
