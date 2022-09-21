@@ -169,6 +169,13 @@ components:
     ###           COMUNICAZIONE DELLA NOTIFICHE DI DESTINATARI NON RAGGIUNGIBILI            ###
     ############################################################################################
 
+    PaperNotificationFailedList:
+      title: Elenco notifiche non consegnate
+      description: Elenco delle notifiche non consegnate
+      type: array
+      items:
+        $ref: '#/components/schemas/ResponsePaperNotificationFailedDto'
+        
     ResponsePaperNotificationFailedDto:
       type: object
       required:
@@ -184,26 +191,10 @@ components:
         aarUrl:
           type: string
           description: Url dell' avviso avvenuta ricezione
-
-    ResponseNotificationViewedDto:
-      type: object
-      required:
-        - iun
-      properties:
-        iun:
-          type: string
-          description: Identificativo Univoco della Notifica
           
     ############################################################################################
     ###                        INFORMAZIONI STORICHE DI UNA NOTIFICA                         ###
     ############################################################################################
-
-    PaperNotificationFailedList:
-      title: Elenco notifiche non consegnate
-      description: Elenco delle notifiche non consegnate
-      type: array
-      items:
-        $ref: '#/components/schemas/NotificationHistoryResponse'
         
     NotificationHistoryResponse:
       type: object
