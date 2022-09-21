@@ -244,12 +244,12 @@ Parameters:
     Type: String
     Description: 'Feature flag for disabling paper messages send'
 
-  notificationNonVisibilityTime:
+  NotificationNonVisibilityTime:
     Type: String
     Description: 'After this time the notification may not have been read by recipient in that day. Format hh:mm example 21:00. 
     Link Documentation https://pagopa.atlassian.net/wiki/spaces/PN/pages/523304961/Piattaforma+Notifiche+-+Manuale+Operativo#:~:text=La%20notifica%20si,L.%2076/2020).'
 
-  timeToAddInNonVisibilityTimeCase:
+  TimeToAddInNonVisibilityTimeCase:
     Type: String
     Description: 'Time to add to scheduling in case the notification arrived after the time defined in notificationNonVisibilityTime
     Link Documentation https://pagopa.atlassian.net/wiki/spaces/PN/pages/523304961/Piattaforma+Notifiche+-+Manuale+Operativo#:~:text=La%20notifica%20si,L.%2076/2020).'
@@ -313,8 +313,8 @@ Resources:
         ContainerEnvEntry35: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_LOCKTABLENAME=${PnDeliveryPushShedLockDynamoTableName}'
         ContainerEnvEntry36: !Sub 'PN_DELIVERYPUSH_PAPERMESSAGENOTHANDLED=${PnDeliveryPushPaperMessageNotHandled}'
         ContainerEnvEntry37: !Sub 'PN_DELIVERYPUSH_WEBAPP_FAQURLTEMPLATE=${PhysicalPersonPortalUrl}/faq.html'
-        ContainerEnvEntry38: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_NOTIFICATIONNONVISIBILITYTIME=${notificationNonVisibilityTime}'
-        ContainerEnvEntry39: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_TIMETOADDINNONVISIBILITYTIME=${timeToAddInNonVisibilityTimeCase}'
+        ContainerEnvEntry38: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_NOTIFICATIONNONVISIBILITYTIME=${NotificationNonVisibilityTime}'
+        ContainerEnvEntry39: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_TIMETOADDINNONVISIBILITYTIME=${TimeToAddInNonVisibilityTimeCase}'
         ContainerEnvEntry40: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNEL_DIGITALRETRYCOUNT=${ExternalChannelDigitalRetryCount}'
         ContainerEnvEntry41: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNEL_DIGITALRETRYDELAY=${ExternalChannelDigitalRetryDelay}'
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
