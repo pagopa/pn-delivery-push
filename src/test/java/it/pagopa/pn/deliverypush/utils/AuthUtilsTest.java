@@ -228,8 +228,4 @@ class AuthUtilsTest {
                 .withNotificationRecipient(recipient)
                 .build();
     }
-
-    @Test
-    void checkUserAndMandateAuthorization() {
-    }
 }

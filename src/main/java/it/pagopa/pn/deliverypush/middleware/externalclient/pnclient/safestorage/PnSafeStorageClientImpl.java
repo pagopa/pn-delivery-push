@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
-import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -57,7 +56,6 @@ public class PnSafeStorageClientImpl implements PnSafeStorageClient {
         log.debug("Start call getFile - fileKey={} metadataOnly={}", fileKey, metadataOnly);
         // elimino eventuale prefisso di safestorage
         fileKey = fileKey.replace(SAFE_STORAGE_URL_PREFIX, "");
-        System.out.println("FILE : " + fileKey + " CFG : " + this.cfg.getSafeStorageCxId());
         return fileDownloadApi.getFile( fileKey, this.cfg.getSafeStorageCxId(), metadataOnly );
     }
 
