@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.rest;
 
-import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFailed;
+import it.pagopa.pn.deliverypush.dto.papernotificationfailed.PaperNotificationFailed;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.Problem;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import org.junit.jupiter.api.Assertions;

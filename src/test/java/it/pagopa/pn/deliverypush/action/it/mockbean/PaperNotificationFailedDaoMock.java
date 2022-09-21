@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
-import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFailed;
+import it.pagopa.pn.deliverypush.dto.papernotificationfailed.PaperNotificationFailed;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
 
 import java.util.ArrayList;

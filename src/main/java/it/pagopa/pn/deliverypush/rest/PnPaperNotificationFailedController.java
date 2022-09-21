@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.rest;
 
-import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFailed;
-import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodSearchPaperNotificationFailed;
+import it.pagopa.pn.deliverypush.dto.papernotificationfailed.PaperNotificationFailed;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-public class PnPaperNotificationFailedController implements PnDeliveryRestApi_methodSearchPaperNotificationFailed {
+public class PnPaperNotificationFailedController {
 
     private final PaperNotificationFailedService service;
 
@@ -19,7 +18,6 @@ public class PnPaperNotificationFailedController implements PnDeliveryRestApi_me
         this.service = service;
     }
 
-    @Override
     @GetMapping(PnDeliveryPushRestConstants.NOTIFICATIONS_PAPER_FAILED_PATH)
     public ResponseEntity<List<PaperNotificationFailed>> searchPaperNotificationsFailed(
             @RequestParam(name = "recipientId") String recipientId) {
