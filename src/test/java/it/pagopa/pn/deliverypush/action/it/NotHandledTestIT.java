@@ -1,10 +1,6 @@
 package it.pagopa.pn.deliverypush.action.it;
 
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.OperationResultCodeResponse;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.*;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
@@ -20,7 +16,6 @@ import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
-import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
@@ -28,7 +23,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalFailureWorkflowDeta
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotHandledDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -48,7 +42,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -133,8 +126,8 @@ class NotHandledTestIT {
     @SpyBean
     private CompletionWorkFlowHandler completionWorkflow;
 
-    @SpyBean
-    private PnSafeStorageClient safeStorageClientMock;
+    @Autowired
+    private SafeStorageClientMock safeStorageClientMock;
 
     @Autowired
     private PnDeliveryClientMock pnDeliveryClientMock;
@@ -170,34 +163,8 @@ class NotHandledTestIT {
     public void setup() {
         
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
-
-        //File mock to return for getFileAndDownloadContent
-        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
-        fileDownloadResponse.setContentType("application/pdf");
-        fileDownloadResponse.setContentLength(new BigDecimal(0));
-        fileDownloadResponse.setChecksum("123");
-        fileDownloadResponse.setKey("123");
-        fileDownloadResponse.setDownload(new FileDownloadInfo());
-        fileDownloadResponse.getDownload().setUrl("https://www.url.qualcosa.it");
-        fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
-
-
-        FileCreationResponse fileCreationResponse = new FileCreationResponse();
-        fileCreationResponse.setKey("123");
-        fileCreationResponse.setSecret("abc");
-        fileCreationResponse.setUploadUrl("https://www.unqualcheurl.it");
-        fileCreationResponse.setUploadMethod(FileCreationResponse.UploadMethodEnum.POST);
-
-
-        OperationResultCodeResponse operationResultCodeResponse = new OperationResultCodeResponse();
-        operationResultCodeResponse.setResultCode("200.00");
-        operationResultCodeResponse.setResultDescription("OK");
-
-        Mockito.when( safeStorageClientMock.getFile( Mockito.anyString(), Mockito.anyBoolean()))
-                .thenReturn( fileDownloadResponse );
-        Mockito.when( safeStorageClientMock.createFile(Mockito.any(FileCreationWithContentRequest.class), Mockito.anyString())).thenReturn(fileCreationResponse);
-        Mockito.when( safeStorageClientMock.updateFileMetadata(Mockito.anyString(), Mockito.any())).thenReturn(operationResultCodeResponse);
-
+        
+        safeStorageClientMock.clear();
         pnDeliveryClientMock.clear();
         addressBookMock.clear();
         publicRegistryMock.clear();
@@ -246,6 +213,8 @@ class NotHandledTestIT {
                 .withNotificationRecipient(recipient)
                 .build();
 
+        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
+
         addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
         pnDeliveryClientMock.addNotification(notification);
@@ -282,6 +251,10 @@ class NotHandledTestIT {
 
         //Viene verificata la presenza dell'elemento di timeline di fallimento
         isPresentDigitalFailureWorkflow(notification, recIndex);
+
+        //Vengono stampati tutti i legalFacts generati
+        String className = this.getClass().getSimpleName();
+        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
     }
 
     @Test
@@ -331,6 +304,8 @@ class NotHandledTestIT {
                 .withNotificationRecipient(recipient)
                 .build();
 
+        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
+
         addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
         pnDeliveryClientMock.addNotification(notification);
@@ -375,6 +350,10 @@ class NotHandledTestIT {
 
         //Anche se la notifica è stata visualizzata non dovrà essere presente l'elemento di timeline di fallimento
         isPresentDigitalFailureWorkflow(notification, recIndex);
+
+        //Vengono stampati tutti i legalFacts generati
+        String className = this.getClass().getSimpleName();
+        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
     }
 
     @Test
@@ -407,6 +386,7 @@ class NotHandledTestIT {
                 .withNotificationRecipient(recipient)
                 .build();
 
+        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
 
         List<CourtesyDigitalAddressInt> listCourtesyAddress = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test@works.it")
@@ -437,6 +417,10 @@ class NotHandledTestIT {
 
         //Viene verificata la presenza dell'elemento di timeline NOT_HANDLED
         isPresentNotHandled(iun, recIndex);
+
+        //Vengono stampati tutti i legalFacts generati
+        String className = this.getClass().getSimpleName();
+        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
     }
 
     @Test
@@ -477,6 +461,7 @@ class NotHandledTestIT {
                 .withNotificationRecipient(recipient)
                 .build();
 
+        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
 
         List<CourtesyDigitalAddressInt> listCourtesyAddress = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test@works.it")
@@ -511,6 +496,10 @@ class NotHandledTestIT {
 
         //Viene verificata la presenza dell'elemento di timeline NOT_HANDLED
         isNotPresentNotHandled(iun, recIndex);
+
+        //Vengono stampati tutti i legalFacts generati
+        String className = this.getClass().getSimpleName();
+        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
     }
     
     private void isPresentNotHandled(String iun, Integer recIndex) {
@@ -556,17 +545,6 @@ class NotHandledTestIT {
 
         DigitalFailureWorkflowDetailsInt digitalFailureWorkflowDetails = (DigitalFailureWorkflowDetailsInt) digitalFailureWorkflow.getDetails();
         Assertions.assertEquals(recIndex, digitalFailureWorkflowDetails.getRecIndex());
-    }
-
-    private void isNotPresentDigitalFailureWorkflow(NotificationInt notification, Integer recIndex) {
-        String elementId = TimelineEventId.DIGITAL_FAILURE_WORKFLOW.buildEventId(
-                EventId.builder()
-                        .iun(notification.getIun())
-                        .recIndex(recIndex)
-                        .build());
-
-        Optional<TimelineElementInternal> digitalFailureWorkflowOpt = timelineService.getTimelineElement(notification.getIun(), elementId);
-        Assertions.assertFalse(digitalFailureWorkflowOpt.isPresent());
     }
     
     private void checkNotSendAnalogNotification(String iun, Integer recIndex) {
