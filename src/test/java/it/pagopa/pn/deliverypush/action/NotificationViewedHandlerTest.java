@@ -73,7 +73,7 @@ class NotificationViewedHandlerTest {
      
         Mockito.verify(legalFactStore).saveNotificationViewedLegalFact(eq(notification),Mockito.any(NotificationRecipientInt.class), Mockito.any(Instant.class));
 
-        Mockito.verify(paperNotificationFailedService).deleteNotificationFailed(recipientInt.getTaxId(), iun);
+        Mockito.verify(paperNotificationFailedService).deleteNotificationFailed(recipientInt.getInternalId(), iun);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -94,7 +94,7 @@ class NotificationViewedHandlerTest {
 
         Mockito.verify(legalFactStore, Mockito.never()).saveNotificationViewedLegalFact(eq(notification),Mockito.any(NotificationRecipientInt.class), Mockito.any(Instant.class));
 
-        Mockito.verify(paperNotificationFailedService, Mockito.never()).deleteNotificationFailed(recipientInt.getTaxId(), iun);
+        Mockito.verify(paperNotificationFailedService, Mockito.never()).deleteNotificationFailed(recipientInt.getInternalId(), iun);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -118,7 +118,7 @@ class NotificationViewedHandlerTest {
 
         Mockito.verify(legalFactStore, Mockito.never()).saveNotificationViewedLegalFact(eq(notification),Mockito.any(NotificationRecipientInt.class), Mockito.any(Instant.class));
 
-        Mockito.verify(paperNotificationFailedService, Mockito.never()).deleteNotificationFailed(recipientInt.getTaxId(), iun);
+        Mockito.verify(paperNotificationFailedService, Mockito.never()).deleteNotificationFailed(recipientInt.getInternalId(), iun);
     }
     
     private NotificationInt getNotification(String iun) {

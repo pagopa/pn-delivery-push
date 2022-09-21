@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.service;
 
-import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFailed;
+import it.pagopa.pn.deliverypush.dto.papernotificationfailed.PaperNotificationFailed;
 
 import java.util.List;
 
