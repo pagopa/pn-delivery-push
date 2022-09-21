@@ -1,46 +1,113 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.*;
-import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
-import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
-import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class RecipientMapperTest {
 
     @Test
     void externalToInternal() {
-        NotificationInt expected = NotificationTestBuilder.builder()
-                .withIun("IUN01")
-                .withNotificationRecipient( NotificationRecipientTestBuilder.builder()
-                        .withTaxId("TAXID01")
-                        .withPhysicalAddress(PhysicalAddressBuilder.builder()
-                                .withAddress(" Via Nuova")
-                                .build())
-                        .build())
-                .build();
 
-        //SentNotification sent = RecipientMapper.internalToExternal( expected );
-       // NotificationInt actual = RecipientMapper.externalToInternal( sent );
+        NotificationRecipient given = buildNotificationRecipient();
 
-       // Assertions.assertEquals( expected, actual );
+        NotificationRecipientInt actual = RecipientMapper.externalToInternal(given);
+
+        NotificationRecipientInt expected = buildNotificationRecipientInt();
+
+        Assertions.assertEquals(expected.getTaxId(), actual.getTaxId());
     }
 
     @Test
     void internalToExternal() {
-        SentNotification expected = getExternalNotification();
 
-        //NotificationInt internal = RecipientMapper.externalToInternal( expected );
-       // SentNotification actual = RecipientMapper.internalToExternal( internal );
+        NotificationRecipientInt given = buildNotificationRecipientInt();
 
-        //Assertions.assertEquals( expected, actual );
+        NotificationRecipient actual = RecipientMapper.internalToExternal(given);
+
+        NotificationRecipient expected = buildNotificationRecipient();
+
+        Assertions.assertEquals(expected.getTaxId(), actual.getTaxId());
+    }
+
+    private NotificationRecipientInt buildNotificationRecipientInt() {
+        return NotificationRecipientInt.builder()
+                .taxId("001")
+                .internalId("002")
+                .denomination("003")
+                .digitalDomicile(
+                        LegalDigitalAddressInt.builder()
+                                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                                .address("account@dominio.it")
+                                .build()
+                )
+                .physicalAddress(PhysicalAddressInt.builder()
+                        .at("003")
+                        .address("001")
+                        .addressDetails("002")
+                        .zip("007")
+                        .municipality("004")
+                        .province("006")
+                        .foreignState("005")
+                        .build())
+                .payment(NotificationPaymentInfoInt.builder()
+                        .noticeCode("001")
+                        .creditorTaxId("002")
+                        .pagoPaForm(NotificationDocumentInt.builder()
+                                .digests(NotificationDocumentInt.Digests.builder().sha256("001").build())
+                                .ref(NotificationDocumentInt.Ref.builder()
+                                        .key("001")
+                                        .versionToken("002")
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+    }
+
+    private NotificationRecipient buildNotificationRecipient() {
+        NotificationPhysicalAddress physicalAddress = new NotificationPhysicalAddress();
+        physicalAddress.setAddress("001");
+        physicalAddress.setAddressDetails("002");
+        physicalAddress.setAt("003");
+        physicalAddress.setMunicipality("004");
+        physicalAddress.setForeignState("005");
+        physicalAddress.setProvince("006");
+        physicalAddress.setZip("007");
+
+        NotificationPaymentAttachment pagoPaForm = new NotificationPaymentAttachment();
+
+        NotificationAttachmentDigests digests = new NotificationAttachmentDigests();
+        digests.setSha256("001");
+        pagoPaForm.setDigests(digests);
+
+        NotificationAttachmentBodyRef ref = new NotificationAttachmentBodyRef();
+        ref.setKey("001");
+        ref.setVersionToken("002");
+        pagoPaForm.setRef(ref);
+
+        NotificationPaymentInfo paymentInfo = new NotificationPaymentInfo();
+        paymentInfo.setNoticeCode("001");
+        paymentInfo.setCreditorTaxId("002");
+        paymentInfo.setPagoPaForm(pagoPaForm);
+
+        NotificationRecipient recipient = new NotificationRecipient();
+        recipient.setTaxId("001");
+        recipient.setInternalId("002");
+        recipient.setDenomination("003");
+        recipient.setDigitalDomicile(new NotificationDigitalAddress()
+                .address("address")
+                .type(NotificationDigitalAddress.TypeEnum.PEC));
+        recipient.setPhysicalAddress(physicalAddress);
+        recipient.setPayment(paymentInfo);
+        return recipient;
     }
 
     private SentNotification getExternalNotification() {
@@ -48,11 +115,11 @@ class RecipientMapperTest {
                 .iun("IUN_01")
                 .paProtocolNumber("protocol_01")
                 .subject("Subject 01")
-                .senderPaId( "pa_02" )
+                .senderPaId("pa_02")
                 .physicalCommunicationType(SentNotification.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
                 .amount(18)
                 .paymentExpirationDate("2022-10-22")
-                .recipients( Collections.singletonList(
+                .recipients(Collections.singletonList(
                         new NotificationRecipient()
                                 .taxId("Codice Fiscale 01")
                                 .denomination("Nome Cognome/Ragione Sociale")
@@ -64,7 +131,7 @@ class RecipientMapperTest {
                 ))
                 .documents(Arrays.asList(
                         new NotificationDocument()
-                                .ref( new NotificationAttachmentBodyRef()
+                                .ref(new NotificationAttachmentBodyRef()
                                         .key("doc00")
                                         .versionToken("v01_doc00")
                                 )
@@ -72,7 +139,7 @@ class RecipientMapperTest {
                                         .sha256("sha256_doc00")
                                 ),
                         new NotificationDocument()
-                                .ref(  new NotificationAttachmentBodyRef()
+                                .ref(new NotificationAttachmentBodyRef()
                                         .key("doc01")
                                         .versionToken("v01_doc01")
                                 )

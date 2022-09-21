@@ -105,7 +105,7 @@ class ExternalChannelResponseHandlerTest {
     @Test
     void legalUpdatePnInternalExceptionTest() {
 
-        String msg = "Internal Server Error";
+        String expectErrorMsg = "PN_GENERIC_ERROR";
 
         LegalMessageSentDetails extChannelResponse = new LegalMessageSentDetails();
         SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();
@@ -113,27 +113,27 @@ class ExternalChannelResponseHandlerTest {
 
         Mockito.when(timelineUtils.getIunFromTimelineId(Mockito.any())).thenThrow(new PnInternalException("Exception legalUpdate"));
 
-        Exception exception = Assertions.assertThrows(PnInternalException.class, () -> {
+        PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
             handler.extChannelResponseReceiver(singleStatusUpdate);
         });
 
-        Assertions.assertEquals(msg, exception.getMessage());
+        Assertions.assertEquals(expectErrorMsg, pnInternalException.getProblem().getErrors().get(0).getCode());
     }
 
     @Test
     void paperUpdatePnInternalExceptionTest() {
 
-        String msg = "Internal Server Error";
+        String expectErrorMsg = "PN_GENERIC_ERROR";
 
         PaperProgressStatusEvent extChannelResponse = new PaperProgressStatusEvent();
         SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();
         singleStatusUpdate.setAnalogMail(extChannelResponse);
 
-        Exception exception = Assertions.assertThrows(PnInternalException.class, () -> {
+        PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
             handler.extChannelResponseReceiver(singleStatusUpdate);
         });
 
-        Assertions.assertEquals(msg, exception.getMessage());
+        Assertions.assertEquals(expectErrorMsg, pnInternalException.getProblem().getErrors().get(0).getCode());
     }
 
 
