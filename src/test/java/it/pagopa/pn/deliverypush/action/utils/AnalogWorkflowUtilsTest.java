@@ -56,29 +56,29 @@ class AnalogWorkflowUtilsTest {
     @Test
     void getSendAnalogNotificationDetailsFailed() {
 
-        String expectErrorMsg = "Internal Server Error";
+        String expectErrorMsg = "PN_GENERIC_ERROR";
 
         Mockito.when(timelineService.getTimelineElementDetails("1", "1", SendAnalogDetailsInt.class)).thenReturn(Optional.empty());
 
-        Exception pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
+        PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
             analogWorkflowUtils.getSendAnalogNotificationDetails("1", "1");
         });
 
-        Assertions.assertEquals(expectErrorMsg, pnInternalException.getMessage());
+        Assertions.assertEquals(expectErrorMsg, pnInternalException.getProblem().getErrors().get(0).getCode());
     }
 
     @Test
     void getLastTimelineSentFeedbackFailed() {
 
-        String expectErrorMsg = "Internal Server Error";
+        String expectErrorMsg = "PN_GENERIC_ERROR";
 
         Mockito.when(timelineService.getTimeline("1")).thenReturn(Collections.EMPTY_SET);
 
-        Exception pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
+        PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
             analogWorkflowUtils.getLastTimelineSentFeedback("1", recIndex);
         });
 
-        Assertions.assertEquals(expectErrorMsg, pnInternalException.getMessage());
+        Assertions.assertEquals(expectErrorMsg, pnInternalException.getProblem().getErrors().get(0).getCode());
     }
 
     @Test

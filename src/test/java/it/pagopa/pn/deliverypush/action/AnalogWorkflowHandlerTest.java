@@ -48,7 +48,6 @@ class AnalogWorkflowHandlerTest {
     private PublicRegistryService publicRegistryService;
     @Mock
     private InstantNowSupplier instantNowSupplier;
-    //@Mock
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     private AnalogWorkflowHandler handler;

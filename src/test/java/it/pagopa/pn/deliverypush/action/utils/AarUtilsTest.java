@@ -55,17 +55,17 @@ class AarUtilsTest {
     @Test
     void generateAARAndSaveInSafeStorageAndAddTimelineeventFailed() {
 
-        String msg = "Internal Server Error";
+        String msg = "PN_GENERIC_ERROR";
         NotificationInt notificationInt = newNotification();
         String elementId = "IUN_01_aar_gen_0";
 
         Mockito.when(timelineService.getTimelineElement(notificationInt.getIun(), elementId)).thenThrow(new PnInternalException("cannot generate AAR pdf"));
 
-        Exception exception = Assertions.assertThrows(PnInternalException.class, () -> {
+        PnInternalException exception = Assertions.assertThrows(PnInternalException.class, () -> {
             aarUtils.generateAARAndSaveInSafeStorageAndAddTimelineevent(notificationInt, recIndex);
         });
 
-        Assertions.assertEquals(msg, exception.getMessage());
+        Assertions.assertEquals(msg, exception.getProblem().getErrors().get(0).getCode());
     }
 
     @ExtendWith(MockitoExtension.class)
