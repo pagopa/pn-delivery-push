@@ -17,7 +17,6 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
-import it.pagopa.pn.deliverypush.dto.ext.safestorage.UpdateFileMetadataResponseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
@@ -91,6 +90,7 @@ import static org.mockito.ArgumentMatchers.eq;
         ConfidentialInformationServiceImpl.class,
         AttachmentUtils.class,
         NotificationUtils.class,
+        CompletionWorkflowUtils.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
         ExternalChannelMock.class,

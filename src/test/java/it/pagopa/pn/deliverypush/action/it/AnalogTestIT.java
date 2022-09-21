@@ -95,6 +95,7 @@ import static org.awaitility.Awaitility.with;
         AddressBookServiceImpl.class,
         AttachmentUtils.class,
         StatusUtils.class,
+        CompletionWorkflowUtils.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
         ExternalChannelMock.class,
