@@ -295,6 +295,8 @@ Resources:
         ContainerEnvEntry35: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_LOCKTABLENAME=${PnDeliveryPushShedLockDynamoTableName}'
         ContainerEnvEntry36: !Sub 'PN_DELIVERYPUSH_PAPERMESSAGENOTHANDLED=${PnDeliveryPushPaperMessageNotHandled}'
         ContainerEnvEntry37: !Sub 'PN_DELIVERYPUSH_WEBAPP_FAQURLTEMPLATE=${PhysicalPersonPortalUrl}/faq.html'
+        ContainerEnvEntry38: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNEL_DIGITALRETRYCOUNT=${ExternalChannelDigitalRetryCount}'
+        ContainerEnvEntry39: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNEL_DIGITALRETRYDELAY=${ExternalChannelDigitalRetryDelay}'
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*,/delivery-progresses/*'
         ECSClusterName: !Ref ECSClusterName
