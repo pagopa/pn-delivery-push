@@ -71,6 +71,44 @@ paths:
               schema:
                 $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
+  '/delivery-push-private/{recipientInternalId}/paper-notification-failed':
+    post:
+      summary: Restituisce le notifiche non consegnate per uno specifico destinatario
+      description: >-
+        Metodo utilizzato da microservizi interni per ottenere tutte le notifiche di uno specifico destinatario
+        per le quali non è stata possibile la consegna  (irreperibile totale).
+      tags:
+        - paperNotificationFailed
+      operationId: paperNotificationFailed
+      parameters:
+        - $ref: '#/components/parameters/pathRecipientInternalId'
+        - $ref: '#/components/parameters/getAAR'
+      responses:
+        '200':
+          description: |
+            DTO contenente gli identificativi delle notifiche non consegnate per lo specifico destinatario.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaperNotificationFailedList"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '404':
+          description: recipientInternalId not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
 components:
   parameters:
@@ -106,12 +144,67 @@ components:
       schema:
         type: string
         format: date-time
+
+    pathRecipientInternalId:
+      description: >-
+        Identificativo anonimizzato del destinatario
+      name: recipientInternalId
+      in: path
+      required: true
+      schema:
+        type: string
+      
+    getAAR:
+      description: >-
+        Tale parametro definisce se si richiede in risposta l'avviso avvenuta ricezione generato per la notifica o meno
+      name: getAAR
+      in: query
+      required: true
+      schema:
+        type: boolean
+        
   schemas:
 
+    ############################################################################################
+    ###           COMUNICAZIONE DELLA NOTIFICHE DI DESTINATARI NON RAGGIUNGIBILI            ###
+    ############################################################################################
+
+    ResponsePaperNotificationFailedDto:
+      type: object
+      required:
+        - iun
+        - recipientInternalId
+      properties:
+        iun:
+          type: string
+          description: Identificativo Univoco della Notifica
+        recipientInternalId:
+          type: string
+          description: Identificativo anonimizzato del destinatario
+        aarUrl:
+          type: string
+          description: Url dell' avviso avvenuta ricezione
+
+    ResponseNotificationViewedDto:
+      type: object
+      required:
+        - iun
+      properties:
+        iun:
+          type: string
+          description: Identificativo Univoco della Notifica
+          
     ############################################################################################
     ###                        INFORMAZIONI STORICHE DI UNA NOTIFICA                         ###
     ############################################################################################
 
+    PaperNotificationFailedList:
+      title: Elenco notifiche non consegnate
+      description: Elenco delle notifiche non consegnate
+      type: array
+      items:
+        $ref: '#/components/schemas/NotificationHistoryResponse'
+        
     NotificationHistoryResponse:
       type: object
       properties:
