@@ -71,6 +71,40 @@ class HtmlSanitizerTest {
         assertThat(sanitized).isEqualTo(aString);
 
     }
+
+    @Test
+    void sanitizeLinkedListTest() {
+        LinkedList<String> list = new LinkedList<>(List.of("Prova", "test", "l'aquila"));
+        Object sanitized = htmlSanitizer.sanitize(list);
+
+        assertThat(sanitized)
+                .isInstanceOf(LinkedList.class)
+                .isEqualTo(list);
+
+    }
+
+    @Test
+    void sanitizeArrayListListTest() {
+        ArrayList<String> list = new ArrayList<>(List.of("Prova", "test", "l'aquila"));
+        Object sanitized = htmlSanitizer.sanitize(list);
+
+        assertThat(sanitized)
+                .isInstanceOf(ArrayList.class)
+                .isEqualTo(list);
+
+    }
+
+    @Test
+    void sanitizeHahSetTest() {
+        HashSet<String> list = new HashSet<>(Set.of("Prova", "test", "l'aquila"));
+        Object sanitized = htmlSanitizer.sanitize(list);
+
+        assertThat(sanitized)
+                .isInstanceOf(HashSet.class)
+                .isEqualTo(list);
+
+    }
+
     @Test
     void sanitizeStringWithoutHTMLElementTest() {
         String actualHTML = "Stringa che non contiene elementi HTML";
@@ -287,17 +321,17 @@ class HtmlSanitizerTest {
         NotificationInt notification = buildNotification(customDenomination);
         CustomInstantWriter instantWriter = new CustomInstantWriter();
         Map<String, Object> templateModel = new HashMap<>();
-        templateModel.put(FIELD_SEND_DATE, instantWriter.instantToDate( notification.getSentAt() ) );
-        templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( notification.getSentAt(), true ) );
+        templateModel.put(FIELD_SEND_DATE, instantWriter.instantToDate(notification.getSentAt()));
+        templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate(notification.getSentAt(), true));
         templateModel.put(FIELD_NOTIFICATION, notification.toBuilder()
-                .sender( notification.getSender().toBuilder()
-                        .paDenomination( notification.getSender().getPaDenomination() )
-                        .paTaxId( notification.getSender().getPaTaxId())
+                .sender(notification.getSender().toBuilder()
+                        .paDenomination(notification.getSender().getPaDenomination())
+                        .paTaxId(notification.getSender().getPaTaxId())
                         .build()
                 )
                 .build()
         );
-        templateModel.put(FIELD_DIGESTS, Collections.emptyList() );
+        templateModel.put(FIELD_DIGESTS, Collections.emptyList());
         templateModel.put(FIELD_ADDRESS_WRITER, new PhysicalAddressWriter());
         return templateModel;
     }
@@ -310,7 +344,7 @@ class HtmlSanitizerTest {
                 .subject("notification test subject")
                 .documents(Arrays.asList(
                                 NotificationDocumentInt.builder()
-                                        .ref( NotificationDocumentInt.Ref.builder()
+                                        .ref(NotificationDocumentInt.Ref.builder()
                                                 .key("doc00")
                                                 .versionToken("v01_doc00")
                                                 .build()
@@ -366,16 +400,16 @@ class HtmlSanitizerTest {
         Map<String, Object> templateModel = new HashMap<>();
         templateModel.put(FIELD_IUN, UUID.randomUUID().toString());
         templateModel.put(FIELD_RECIPIENT, buildRecipient(denomination));
-        templateModel.put(FIELD_WHEN, Instant.now().toString() );
-        templateModel.put(FIELD_ADDRESS_WRITER, new PhysicalAddressWriter() );
+        templateModel.put(FIELD_WHEN, Instant.now().toString());
+        templateModel.put(FIELD_ADDRESS_WRITER, new PhysicalAddressWriter());
         templateModel.put(FIELD_SEND_DATE_NO_TIME, Instant.now().toString());
         return templateModel;
     }
 
     private Map<String, Object> getTemplateModelForDigitalNotificationWorkflow(String denomination) {
         Map<String, Object> templateModel = new HashMap<>();
-        templateModel.put(FIELD_SEND_DATE_NO_TIME, Instant.now().toString() );
-        templateModel.put(FIELD_IUN, UUID.randomUUID().toString() );
+        templateModel.put(FIELD_SEND_DATE_NO_TIME, Instant.now().toString());
+        templateModel.put(FIELD_IUN, UUID.randomUUID().toString());
         templateModel.put(FIELD_DELIVERIES, Collections.singletonList(buildPecDeliveryInfo(denomination)));
         return templateModel;
     }
@@ -396,7 +430,7 @@ class HtmlSanitizerTest {
         String defaultSignature = StringUtils.hasText(signature) ? signature : "Default Signature";
         templateModel.put(FIELD_SIGNATURE, defaultSignature);
         templateModel.put(FIELD_TIME_REFERENCE, Instant.now());
-        templateModel.put(FIELD_PDF_FILE_NAME, "PDF Name" );
+        templateModel.put(FIELD_PDF_FILE_NAME, "PDF Name");
         templateModel.put(FIELD_SEND_DATE, Instant.now().toString());
         return templateModel;
     }
@@ -407,7 +441,7 @@ class HtmlSanitizerTest {
         templateModel.put(FIELD_SEND_DATE_NO_TIME, Instant.now().toString());
         templateModel.put(FIELD_NOTIFICATION, buildNotification(denomination));
         templateModel.put(FIELD_RECIPIENT, buildRecipient(denomination));
-        templateModel.put(FIELD_ADDRESS_WRITER, new PhysicalAddressWriter() );
+        templateModel.put(FIELD_ADDRESS_WRITER, new PhysicalAddressWriter());
         return templateModel;
     }
 

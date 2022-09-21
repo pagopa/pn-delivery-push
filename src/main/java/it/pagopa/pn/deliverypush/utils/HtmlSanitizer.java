@@ -10,6 +10,8 @@ import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Class that performs via the {@link #sanitize(Object)} method a cleanup of input parameters,
@@ -65,14 +67,14 @@ public class HtmlSanitizer {
         return sanitizedObject;
     }
 
-    public Map<String, Object> doSanitize(Map modelMap) {
+    public Map doSanitize(Map modelMap) {
         if (CollectionUtils.isEmpty(modelMap)) {
             return modelMap;
         }
 
-        Map<String, Object> sanitizedMap = new HashMap<>(modelMap);
+        Map<Object, Object> sanitizedMap = copyMap(modelMap);
 
-        for (Map.Entry<String, Object> entry : sanitizedMap.entrySet()) {
+        for (Map.Entry<Object, Object> entry : sanitizedMap.entrySet()) {
             Object sanitized = sanitize(entry.getValue());
             sanitizedMap.put(entry.getKey(), sanitized);
         }
@@ -81,17 +83,55 @@ public class HtmlSanitizer {
 
     }
 
+    private Map copyMap(Map map) {
+        if (map instanceof SortedMap) {
+            return new TreeMap((SortedMap) map);
+        }
+        if (map instanceof ConcurrentMap) {
+            return new ConcurrentHashMap(map);
+        }
+        if (map instanceof LinkedHashMap) {
+            return new LinkedHashMap(map);
+        }
+        return new HashMap(map);
+    }
+
     public Collection doSanitize(Collection collection) {
         if (CollectionUtils.isEmpty(collection)) {
             return collection;
         }
 
-        List sanitizedList = new ArrayList();
+        Collection sanitizedCollection = createCollectionInstance(collection);
 
         for (Object o : collection) {
             Object sanitized = sanitize(o);
-            sanitizedList.add(sanitized);
+            sanitizedCollection.add(sanitized);
         }
-        return sanitizedList;
+        return sanitizedCollection;
+    }
+
+    private Collection createCollectionInstance(Collection collection) {
+        if (collection instanceof Set) {
+            return createSetInstance((Set) collection);
+        }
+
+        return createListInstance((List) collection);
+    }
+
+    private Set createSetInstance(Set set) {
+        if (set instanceof SortedSet) {
+            return new TreeSet();
+        }
+        if (set instanceof LinkedHashSet) {
+            return new LinkedHashSet();
+        }
+        return new HashSet();
+    }
+
+    private List createListInstance(List list) {
+        if (list instanceof AbstractSequentialList) {
+            return new LinkedList();
+        }
+        return new ArrayList();
     }
 }
