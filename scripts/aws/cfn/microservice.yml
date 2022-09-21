@@ -243,7 +243,15 @@ Parameters:
   PnDeliveryPushPaperMessageNotHandled:
     Type: String
     Description: feature flag disabilitazione invio messaggi cartacei
-  
+
+  ExternalChannelDigitalRetryCount:
+    Type: String
+    Description: numero ritentativi nel caso di esiti con retry ricevuti da ext-channel
+
+  ExternalChannelDigitalRetryDelay:
+    Type: String
+    Description: delay fra ritentativi nel caso di esiti con retry ricevuti da ext-channel
+
 Resources:
 
   # PN-Delivery-push microservice
