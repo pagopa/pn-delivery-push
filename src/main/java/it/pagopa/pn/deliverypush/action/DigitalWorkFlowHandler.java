@@ -345,7 +345,13 @@ public class DigitalWorkFlowHandler {
         log.info("Notification sent successfully, starting completion workflow - iun={} id={}",  digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex());
 
         //La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
-        completionWorkflow.completionDigitalWorkflow(digitalResultInfos.getNotification(), digitalResultInfos.getRecIndex(), digitalResultInfos.getResponse().getEventTimestamp(), digitalResultInfos.getDigitalAddressInt(), EndWorkflowStatus.SUCCESS);
+        completionWorkflow.completionDigitalWorkflow(
+                digitalResultInfos.getNotification(),
+                digitalResultInfos.getRecIndex(),
+                digitalResultInfos.getResponse().getEventTimestamp(),
+                digitalResultInfos.getDigitalAddressInt(),
+                EndWorkflowStatus.SUCCESS
+        );
     }
 
     private void handleStatusProgress( DigitalResultInfos digitalResultInfos , boolean shouldRetry) {

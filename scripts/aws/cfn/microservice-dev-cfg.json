@@ -14,6 +14,8 @@
     "SandboxSafeStorageBaseUrl": "https://14ej9p2krd.execute-api.eu-south-1.amazonaws.com/dev",
     "ExternalChannelBaseUrl": "https://w0t7lzj7a1.execute-api.eu-south-1.amazonaws.com/dev",
     "ExternalChannelDigitalRetryCount": "3",
-    "ExternalChannelDigitalRetryDelay": "10m"
+    "ExternalChannelDigitalRetryDelay": "10m",
+    "NotificationNonVisibilityTime": "21:00",
+    "TimeToAddInNonVisibilityTimeCase": "5m"
   }
 }
