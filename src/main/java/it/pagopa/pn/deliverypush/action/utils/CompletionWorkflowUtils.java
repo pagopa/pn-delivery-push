@@ -2,22 +2,23 @@ package it.pagopa.pn.deliverypush.action.utils;
 
 import it.pagopa.pn.commons.utils.DateFormatUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.details.RecipientRelatedTimelineElementDetails;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
-import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -38,25 +39,44 @@ public class CompletionWorkflowUtils {
         this.notificationUtils = notificationUtils;
     }
 
-    public String generatePecDeliveryWorkflowLegalFact(NotificationInt notification, Integer recIndex) {
+    public String generatePecDeliveryWorkflowLegalFact(NotificationInt notification, Integer recIndex, EndWorkflowStatus status, Instant completionWorkflowDate) {
         Set<TimelineElementInternal> timeline = timelineService.getTimeline(notification.getIun());
-
-        List<SendDigitalFeedbackDetailsInt> listFeedbackFromExtChannel = timeline.stream()
-                .filter(timelineElement -> filterSendDigitalFeedbackAndTaxId(timelineElement, recIndex))
-                .map(timelineElement -> (SendDigitalFeedbackDetailsInt) timelineElement.getDetails())
+        
+        List<TimelineElementInternal> timelineByTimestampSorted = timeline.stream()
+                .sorted(Comparator.comparing(TimelineElementInternal::getTimestamp))
                 .collect(Collectors.toList());
-
+        
+        List<SendDigitalFeedbackDetailsInt> listFeedbackFromExtChannel = new ArrayList<>();
+        PhysicalAddressInt sendRegisteredLetterAddress = null;
+        
+        for(TimelineElementInternal element : timelineByTimestampSorted){
+            if(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK.equals(element.getCategory())){
+                getSpecificDetailRecipient(element, recIndex).ifPresent(
+                        details -> listFeedbackFromExtChannel.add((SendDigitalFeedbackDetailsInt) details)
+                );
+            } else {
+                if(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER.equals(element.getCategory())){
+                    Optional<RecipientRelatedTimelineElementDetails> opt = getSpecificDetailRecipient(element, recIndex);
+                    if(opt.isPresent()){
+                        SimpleRegisteredLetterDetailsInt simpleRegisteredLetterDetails = (SimpleRegisteredLetterDetailsInt) opt.get();
+                        sendRegisteredLetterAddress = simpleRegisteredLetterDetails.getPhysicalAddress();
+                    }
+                }
+            }
+        }
+        
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
-        return saveLegalFactsService.savePecDeliveryWorkflowLegalFact(listFeedbackFromExtChannel, notification, recipient);
+        return saveLegalFactsService.savePecDeliveryWorkflowLegalFact(listFeedbackFromExtChannel, notification, recipient, status, completionWorkflowDate, sendRegisteredLetterAddress);
     }
 
-    private boolean filterSendDigitalFeedbackAndTaxId(TimelineElementInternal el, Integer recIndex) {
-        boolean availableCategory = TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK.equals(el.getCategory());
-        if (availableCategory) {
-            SendDigitalFeedbackDetailsInt details = SmartMapper.mapToClass(el.getDetails(), SendDigitalFeedbackDetailsInt.class);
-            return recIndex.equals(details.getRecIndex());
+    private Optional<RecipientRelatedTimelineElementDetails> getSpecificDetailRecipient(TimelineElementInternal element, int recIndex){
+        if (element instanceof RecipientRelatedTimelineElementDetails) {
+            RecipientRelatedTimelineElementDetails details = (RecipientRelatedTimelineElementDetails) element.getDetails();
+            if( recIndex == details.getRecIndex()){
+                return Optional.of(details);
+            }
         }
-        return false;
+        return Optional.empty();
     }
     
     public Instant getSchedulingDate(Instant notificationDate, Duration scheduleTime, String iun) {

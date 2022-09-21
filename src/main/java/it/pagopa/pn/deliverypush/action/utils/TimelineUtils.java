@@ -343,6 +343,10 @@ public class TimelineUtils {
                 .physicalAddress(address)
                 .build();
 
+        if(attachments == null){
+            attachments = Collections.emptyList();
+        }
+        
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds( attachments );
 
@@ -362,7 +366,11 @@ public class TimelineUtils {
         AnalogFailureWorkflowDetailsInt details = AnalogFailureWorkflowDetailsInt.builder()
                 .recIndex(recIndex)
                 .build();
-
+        
+        if(attachments == null){
+            attachments = Collections.emptyList();
+        }
+        
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds( attachments );
 

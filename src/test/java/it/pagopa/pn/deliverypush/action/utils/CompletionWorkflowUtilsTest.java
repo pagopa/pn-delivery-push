@@ -72,10 +72,13 @@ class CompletionWorkflowUtilsTest {
         Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
         
         //WHEN
-        completionWorkflowUtils.generatePecDeliveryWorkflowLegalFact(notification, recIndex);
+        EndWorkflowStatus status = EndWorkflowStatus.SUCCESS;
+        Instant completionWorkflowDate = Instant.now();
+        completionWorkflowUtils.generatePecDeliveryWorkflowLegalFact(notification, recIndex, status, completionWorkflowDate);
         
         //THEN
-        Mockito.verify(saveLegalFactsService).savePecDeliveryWorkflowLegalFact(Mockito.anyList(), Mockito.eq(notification), Mockito.eq(recipient));
+        Mockito.verify(saveLegalFactsService).savePecDeliveryWorkflowLegalFact(
+                Mockito.anyList(), Mockito.eq(notification), Mockito.eq(recipient), Mockito.eq(status), Mockito.eq(completionWorkflowDate), Mockito.any());
     }
 
     @ExtendWith(MockitoExtension.class)

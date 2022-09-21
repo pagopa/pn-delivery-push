@@ -53,26 +53,24 @@ public class CompletionWorkFlowHandler {
     public void completionDigitalWorkflow(NotificationInt notification, Integer recIndex, Instant completionWorkflowDate, LegalDigitalAddressInt address, EndWorkflowStatus status) {
         log.info("Digital workflow completed with status {} IUN {} id {}", status, notification.getIun(), recIndex);
 
-        String legalFactId = completionWorkflowUtils.generatePecDeliveryWorkflowLegalFact(notification, recIndex);
         String iun = notification.getIun();
         
         if (status != null) {
             switch (status) {
                 case SUCCESS:
-                    completionWorkflowUtils.addTimelineElement( timelineUtils.buildSuccessDigitalWorkflowTimelineElement(notification, recIndex, address, legalFactId), notification );
+                    String legalFactIdSuccess = completionWorkflowUtils.generatePecDeliveryWorkflowLegalFact(notification, recIndex, status, completionWorkflowDate);
+                    completionWorkflowUtils.addTimelineElement( timelineUtils.buildSuccessDigitalWorkflowTimelineElement(notification, recIndex, address, legalFactIdSuccess), notification );
                     scheduleRefinement(notification, recIndex, completionWorkflowDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysSuccessDigitalRefinement());
                     break;
                 case FAILURE:
                     if( Boolean.FALSE.equals( pnDeliveryPushConfigs.getPaperMessageNotHandled()) ){
                         sendSimpleRegisteredLetter(notification, recIndex);
-                        completionWorkflowUtils.addTimelineElement( timelineUtils.buildFailureDigitalWorkflowTimelineElement(notification, recIndex, legalFactId), notification);
+                        generateLegaFactAndSaveInTimeline(notification, recIndex, status, completionWorkflowDate);
                         scheduleRefinement(notification, recIndex, completionWorkflowDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysFailureDigitalRefinement());
-                        
                     }else {
-                        completionWorkflowUtils.addTimelineElement( timelineUtils.buildFailureDigitalWorkflowTimelineElement(notification, recIndex, legalFactId), notification );
+                        generateLegaFactAndSaveInTimeline(notification, recIndex, status, completionWorkflowDate);
 
                         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
-
                         if( ! isNotificationAlreadyViewed ){
                             log.info("Paper message is not handled, registered Letter will not be sent to externalChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
                             addPaperNotificationNotHandledToTimeline(notification, recIndex);
@@ -89,7 +87,12 @@ public class CompletionWorkFlowHandler {
         }
     }
 
-    
+    private void generateLegaFactAndSaveInTimeline(NotificationInt notification, Integer recIndex, EndWorkflowStatus status, Instant completionWorkflowDate) {
+        String legalFactIdFailure = completionWorkflowUtils.generatePecDeliveryWorkflowLegalFact(notification, recIndex, status, completionWorkflowDate);
+        completionWorkflowUtils.addTimelineElement(timelineUtils.buildFailureDigitalWorkflowTimelineElement(notification, recIndex, legalFactIdFailure), notification);
+    }
+
+
     /**
      * Sent notification by simple registered letter
      */
