@@ -1,10 +1,6 @@
 package it.pagopa.pn.deliverypush.action.it;
 
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.OperationResultCodeResponse;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.*;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
@@ -16,13 +12,11 @@ import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
-import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.RefinementDetailsInt;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
@@ -44,7 +38,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -118,9 +111,9 @@ class NotificationViewedTestIT {
     
     @SpyBean
     private ExternalChannelMock externalChannelMock;
-    
-    @SpyBean
-    private PnSafeStorageClient safeStorageClient;
+
+    @Autowired
+    private SafeStorageClientMock safeStorageClientMock;
     
     @Autowired
     private PnDeliveryClientMock pnDeliveryClientMock;
@@ -162,31 +155,7 @@ class NotificationViewedTestIT {
     public void setup() {
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
-        //File mock to return for getFileAndDownloadContent
-        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
-        fileDownloadResponse.setContentType("application/pdf");
-        fileDownloadResponse.setContentLength(new BigDecimal(0));
-        fileDownloadResponse.setChecksum("123");
-        fileDownloadResponse.setKey("123");
-        fileDownloadResponse.setDownload(new FileDownloadInfo());
-        fileDownloadResponse.getDownload().setUrl("https://www.url.qualcosa.it");
-        fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
-
-        FileCreationResponse fileCreationResponse = new FileCreationResponse();
-        fileCreationResponse.setUploadMethod(FileCreationResponse.UploadMethodEnum.POST);
-        fileCreationResponse.setKey("123");
-        fileDownloadResponse.setChecksum("123");
-
-        OperationResultCodeResponse operationResultCodeResponse = new OperationResultCodeResponse();
-        operationResultCodeResponse.setResultCode("200.00");
-        operationResultCodeResponse.setResultDescription("OK");
-
-        Mockito.when( safeStorageClient.getFile( Mockito.anyString(), Mockito.anyBoolean()))
-                .thenReturn( fileDownloadResponse);
-        
-        Mockito.when( safeStorageClient.createFile(Mockito.any(FileCreationWithContentRequest.class), Mockito.anyString())).thenReturn(fileCreationResponse);
-        Mockito.when( safeStorageClient.updateFileMetadata(Mockito.anyString(), Mockito.any())).thenReturn(operationResultCodeResponse);
-
+        safeStorageClientMock.clear();
         pnDeliveryClientMock.clear();
         addressBookMock.clear();
         publicRegistryMock.clear();
@@ -224,7 +193,8 @@ class NotificationViewedTestIT {
                 .withIun("IUN01")
                 .withNotificationRecipient(recipient)
                 .build();
-        
+
+        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
@@ -234,7 +204,6 @@ class NotificationViewedTestIT {
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
-
         
         //Simulazione visualizzazione della notifica
         notificationViewedHandler.handleViewNotification(iun, recIndex);
@@ -248,10 +217,13 @@ class NotificationViewedTestIT {
         //Simulazione seconda visualizzazione della notifica
         notificationViewedHandler.handleViewNotification(iun, recIndex);
 
-        //Viene effettuata la verifica che i processi correlati alla visualizzazione non siano avvenuti, dunque che l numero d'invocazioni dei metodi sia rimasto lo stesso
-
+        //Viene effettuata la verifica che i processi correlati alla visualizzazione non siano avvenuti, dunque che il numero d'invocazioni dei metodi sia rimasto lo stesso
         Mockito.verify(legalFactStore, Mockito.times(1)).saveNotificationViewedLegalFact(eq(notification),eq(recipient), Mockito.any(Instant.class));
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient.getInternalId(), iun);
+
+        //Vengono stampati tutti i legalFacts generati
+        String className = this.getClass().getSimpleName();
+        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
     }
 
     private void checkTimelineElementIsPresent(String iun, Integer recIndex) {
@@ -316,7 +288,8 @@ class NotificationViewedTestIT {
                 .withIun("IUN01")
                 .withNotificationRecipients(recipients)
                 .build();
-
+        
+        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient1.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress1));
         addressBookMock.addLegalDigitalAddresses(recipient2.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress2));
@@ -345,6 +318,10 @@ class NotificationViewedTestIT {
 
         Mockito.verify(legalFactStore, Mockito.times(1)).saveNotificationViewedLegalFact(eq(notification),eq(recipient2), Mockito.any(Instant.class));
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient2.getInternalId(), iun);
+
+        //Vengono stampati tutti i legalFacts generati
+        String className = this.getClass().getSimpleName();
+        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
     }
 
     @Test
@@ -376,6 +353,7 @@ class NotificationViewedTestIT {
                 .withNotificationRecipient(recipient)
                 .build();
 
+        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
@@ -426,5 +404,9 @@ class NotificationViewedTestIT {
         TimelineElementInternal timelineElementRefinement = timelineElementRefinementOpt.get();
         RefinementDetailsInt detailsInt = (RefinementDetailsInt) timelineElementRefinement.getDetails();
         Assertions.assertNotNull(detailsInt.getNotificationCost()); //Il costo della notifica deve essere presente su Refinement perchè avvenuto in precedenza rispetto alla presa visione
+
+        //Vengono stampati tutti i legalFacts generati
+        String className = this.getClass().getSimpleName();
+        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
     }
 }

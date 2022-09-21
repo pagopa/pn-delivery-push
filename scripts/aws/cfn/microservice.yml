@@ -254,6 +254,14 @@ Parameters:
     Description: 'Time to add to scheduling in case the notification arrived after the time defined in notificationNonVisibilityTime
     Link Documentation https://pagopa.atlassian.net/wiki/spaces/PN/pages/523304961/Piattaforma+Notifiche+-+Manuale+Operativo#:~:text=La%20notifica%20si,L.%2076/2020).'
 
+  ExternalChannelDigitalRetryCount:
+    Type: String
+    Description: 'Numero ritentativi nel caso di esiti con retry ricevuti da ext-channel'
+
+  ExternalChannelDigitalRetryDelay:
+    Type: String
+    Description: 'Delay fra ritentativi nel caso di esiti con retry ricevuti da ext-channel'
+
 Resources:
 
   # PN-Delivery-push microservice
@@ -307,6 +315,8 @@ Resources:
         ContainerEnvEntry37: !Sub 'PN_DELIVERYPUSH_WEBAPP_FAQURLTEMPLATE=${PhysicalPersonPortalUrl}/faq.html'
         ContainerEnvEntry38: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_NOTIFICATIONNONVISIBILITYTIME=${notificationNonVisibilityTime}'
         ContainerEnvEntry39: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_TIMETOADDINNONVISIBILITYTIME=${timeToAddInNonVisibilityTimeCase}'
+        ContainerEnvEntry40: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNEL_DIGITALRETRYCOUNT=${ExternalChannelDigitalRetryCount}'
+        ContainerEnvEntry41: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNEL_DIGITALRETRYDELAY=${ExternalChannelDigitalRetryDelay}'
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*,/delivery-progresses/*'
         ECSClusterName: !Ref ECSClusterName
