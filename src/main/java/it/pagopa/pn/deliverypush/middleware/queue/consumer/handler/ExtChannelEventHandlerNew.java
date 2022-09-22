@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 @Configuration
 @Slf4j
 @ConditionalOnProperty( name = "pn.delivery-push.featureflags.externalchannel", havingValue = "new")
-class ExtChannelEventHandlerNew {
+public class ExtChannelEventHandlerNew {
    private final ExternalChannelResponseHandler externalChannelResponseHandler;
 
     public ExtChannelEventHandlerNew(ExternalChannelResponseHandler externalChannelResponseHandler) {
