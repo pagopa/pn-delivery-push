@@ -13,6 +13,8 @@ public class DtoToEntityActionMapper {
                 .notBefore(dto.getNotBefore())
                 .recipientIndex(dto.getRecipientIndex())
                 .type(dto.getType())
+                .timeslot(dto.getTimeslot())
+                .timelineId(dto.getTimelineId())
                 .iun(dto.getIun());
         
         return builder.build();

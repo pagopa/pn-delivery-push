@@ -115,12 +115,12 @@ class PnWebhookEventsControllerTest {
                     httpHeaders.set("x-pagopa-pn-cx-groups", Collections.singletonList("test").toString());
                 })
                 .exchange()
-                .expectStatus().is5xxServerError()
+                .expectStatus().is4xxClientError()
                 .expectBody(Problem.class).consumeWith(
                         elem -> {
                             Problem problem = elem.getResponseBody();
                             assert problem != null;
-                            Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), problem.getStatus());
+                            Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), problem.getStatus());
                             Assertions.assertNotNull(problem.getDetail());
                         }
                 );

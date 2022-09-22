@@ -113,13 +113,29 @@ public class ActionHandler {
             try {
                 log.debug("pnDeliveryPushDigitalRetryActionConsumer, message {}", message);
                 Action action = message.getPayload();
-                digitalWorkFlowHandler.startScheduledRetryWorkflow(action.getIun(), action.getRecipientIndex());
+                digitalWorkFlowHandler.startScheduledRetryWorkflow(action.getIun(), action.getRecipientIndex(), action.getTimelineId());
             } catch (Exception ex) {
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
             }
         };
     }
+
+    @Bean
+    public Consumer<Message<Action>> pnDeliveryPushElapsedExternalChannelNoResponseTimeoutActionConsumer() {
+        return message -> {
+            try {
+                log.debug("pnDeliveryPushElapsedExternalChannelNoResponseTimeoutActionConsumer, message {}", message);
+                Action action = message.getPayload();
+                digitalWorkFlowHandler.elapsedExtChannelTimeout(action.getIun(), action.getRecipientIndex(), action.getActionId());
+            } catch (Exception ex) {
+                HandleEventUtils.handleException(message.getHeaders(), ex);
+                throw ex;
+            }
+        };
+    }
+
+
 
     @Bean
     public Consumer<Message<WebhookAction>> pnDeliveryPushWebhookActionConsumer() {

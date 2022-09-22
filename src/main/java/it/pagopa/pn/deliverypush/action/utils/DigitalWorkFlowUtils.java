@@ -14,7 +14,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
-import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
@@ -58,7 +57,7 @@ public class DigitalWorkFlowUtils {
     }
 
     private DigitalAddressInfo getNextAddressInfo(String iun, Integer recIndex, DigitalAddressSourceInt nextAddressSource) {
-        Set<TimelineElementInternal> timeline = timelineService.getTimeline(iun);
+        Set<TimelineElementInternal> timeline = timelineService.getTimeline(iun, true);
 
         //Ottiene il numero di tentativi effettuati per tale indirizzo
         int nextSourceAttemptsMade = getAttemptsMadeForSource(recIndex, nextAddressSource, timeline);
@@ -168,7 +167,12 @@ public class DigitalWorkFlowUtils {
         }
     }
 
-
+    /**
+     * Ritorna l'evento di progress più recente per iun/recipient
+     * @param iun
+     * @param recIndex
+     * @return
+     */
     public SendDigitalProgressDetailsInt getMostRecentSendDigitalProgressTimelineElement(String iun, Integer recIndex) {
         String eventId = TimelineEventId.SEND_DIGITAL_PROGRESS.buildSearchEventIdByIunAndRecipientIndex(iun, recIndex);
 
@@ -180,6 +184,24 @@ public class DigitalWorkFlowUtils {
         } else {
             log.error("TimelineElementInternal element for digital_delivering_progress not exist - iun {} eventId {}", iun, eventId);
             throw new PnInternalException("TimelineElementInternal element for digital_delivering_progress not exist - iun " + iun + " eventId " + eventId, ERROR_CODE_DELIVERYPUSH_DIGITALPROGRESSTIMELINEEVENTNOTFOUND);
+        }
+    }
+
+    /**
+     * Ritorna l'evento più recente per iun/recipient
+     * @param iun
+     * @param recIndex
+     * @return
+     */
+    public TimelineElementInternal getMostRecentTimelineElement(String iun, Integer recIndex) {
+        Set<TimelineElementInternal> timelineElementInternals = timelineService.getTimeline(iun, false);
+        Optional<TimelineElementInternal> timelineElementInternal = timelineElementInternals.stream().max(Comparator.comparing(TimelineElementInternal::getTimestamp));
+
+        if (timelineElementInternal.isPresent()) {
+            return timelineElementInternal.get();
+        } else {
+            log.error("TimelineElementInternal element for recindex not exist - iun {} recIndex {}", iun, recIndex);
+            throw new PnInternalException("TimelineElementInternal element for recindex not exist - iun " + iun + " recIndex " + recIndex, ERROR_CODE_DELIVERYPUSH_TIMELINEEVENTNOTFOUND);
         }
     }
 

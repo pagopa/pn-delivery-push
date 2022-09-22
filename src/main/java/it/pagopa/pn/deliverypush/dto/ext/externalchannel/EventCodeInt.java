@@ -6,6 +6,7 @@ public enum EventCodeInt {
 
     // codici interni Delivery-Push (DP)
     DP00("DP00"), // Tentativo reinvio richiesto: codice interno a delivery push che indica una richiesta di ritentativo
+    DP10("DP10"), // Scaduto timeout di invio a ext-channel, senza ottenere un evento di risposta OK/KO/RETRY_PROGRESS
 
     // codici in arrivo da ext-Channel (C) con/senza busta indica se lo stato contiene allegati
     C000("C000"), // COMUNICAZIONE CON SERVER PEC AVVENUTA  (senza busta)

@@ -17,7 +17,7 @@ public interface TimelineService {
 
     <T> Optional<T> getTimelineElementDetails(String iun, String timelineId, Class<T> timelineDetailsClass);
 
-    Set<TimelineElementInternal> getTimeline(String iun);
+    Set<TimelineElementInternal> getTimeline(String iun, boolean confidentialInfoRequired);
 
     Set<TimelineElementInternal> getTimelineByIunTimelineId(String iun, String timelineId, boolean confidentialInfoRequired);
 

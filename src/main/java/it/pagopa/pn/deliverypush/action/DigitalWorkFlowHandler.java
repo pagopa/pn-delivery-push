@@ -14,6 +14,7 @@ import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelProgressEventCat;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -27,12 +28,10 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.sql.Time;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_INVALIDATTEMPT;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_INVALIDEVENTCODE;
@@ -78,18 +77,87 @@ public class DigitalWorkFlowHandler {
         nextWorkFlowAction(notification, recIndex, digitalAddressInfo);
     }
 
-    public void startScheduledRetryWorkflow(String iun, Integer recIndex) {
+    public void startScheduledRetryWorkflow(String iun, Integer recIndex, String timelineId) {
+        log.debug("startScheduledRetryWorkflow - iun={} recIndex={} timelineId={}", iun, recIndex, timelineId);
+
+        Optional<TimelineElementInternal> timelineElement = digitalWorkFlowUtils.getTimelineElement(iun, timelineId);
+        if (timelineElement.isPresent() && timelineElement.get().getDetails() instanceof SendDigitalProgressDetailsInt) {
+            NotificationInt notification = notificationService.getNotificationByIun(iun);
+
+            SendDigitalProgressDetailsInt sendDigitalProgressDetailsInt = (SendDigitalProgressDetailsInt) timelineElement.get().getDetails();
+
+            sendRetryNotification(notification, recIndex, DigitalAddressInfo.builder()
+                    .digitalAddress(sendDigitalProgressDetailsInt.getDigitalAddress())
+                    .digitalAddressSource(sendDigitalProgressDetailsInt.getDigitalAddressSource())
+                    .lastAttemptDate(sendDigitalProgressDetailsInt.getNotificationDate())
+                    .sentAttemptMade(sendDigitalProgressDetailsInt.getRetryNumber())
+                    .build(), timelineId);
+        }
+    }
+
+
+    public void elapsedExtChannelTimeout(String iun, int recIndex, String timelineId) {
         log.debug("startScheduledRetryWorkflow - iun={} recIndex={}", iun, recIndex);
 
-        SendDigitalProgressDetailsInt sendDigitalProgressDetailsInt = digitalWorkFlowUtils.getMostRecentSendDigitalProgressTimelineElement(iun, recIndex);
-        NotificationInt notification = notificationService.getNotificationByIun(iun);
+        // recupero il timelineId originale, del quale mi interessano retrynumber e addresssource
+        TimelineElementInternal timelineElement =
+                digitalWorkFlowUtils.getSendDigitalDetailsTimelineElement(iun, timelineId);
 
-        sendRetryNotification(notification, recIndex, DigitalAddressInfo.builder()
-                .digitalAddress(sendDigitalProgressDetailsInt.getDigitalAddress())
-                .digitalAddressSource(sendDigitalProgressDetailsInt.getDigitalAddressSource())
-                .lastAttemptDate(sendDigitalProgressDetailsInt.getNotificationDate())
-                .sentAttemptMade(sendDigitalProgressDetailsInt.getRetryNumber())
-                .build());
+        Integer originalRetryNumber = -1;
+        DigitalAddressSourceInt originalAddressSource = null;
+        DigitalResultInfos digitalResultInfos = new DigitalResultInfos();
+        digitalResultInfos.setTimelineElementInternal(timelineElement);
+        if (timelineElement.getDetails() instanceof DigitalSendTimelineElementDetails)
+        {
+            // dovrebbe sempre essere instanceof di questo tipo
+            DigitalSendTimelineElementDetails sendDigitalProgressDetailsInt = (DigitalSendTimelineElementDetails) timelineElement.getDetails();
+            originalRetryNumber = sendDigitalProgressDetailsInt.getRetryNumber();
+            originalAddressSource = sendDigitalProgressDetailsInt.getDigitalAddressSource();
+        }
+
+        // devo controllare che il timeout scattato sia ancora rilevante.
+        // per capirlo, verifico se l'ultimo evento in ordine cronologico in timeline per recindex, appartiene a retrynumber e addresssource
+        // è il senddigital o senddigitalprogress (in generale, .
+        // Se lo è, vuol dire che si può equiparare ad una risposta da ext-channel, che va trattata di conseguenza secondo configurazione.
+        TimelineElementInternal timelineElementInternal = digitalWorkFlowUtils.getMostRecentTimelineElement(iun, recIndex);
+        boolean eventIsValid = false;
+
+        // controllo gli eventi, e se sono di questi due tipi, mi interessa
+        if ((timelineElementInternal.getCategory() == TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS
+            || timelineElementInternal.getCategory() == TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+            && timelineElementInternal.getDetails() instanceof DigitalSendTimelineElementDetails)
+        {
+            Integer lastRetryNumber;
+            DigitalAddressSourceInt lastAddressSource;
+            DigitalSendTimelineElementDetails sendDigitalProgressDetailsInt = (DigitalSendTimelineElementDetails) timelineElement.getDetails();
+            lastRetryNumber = sendDigitalProgressDetailsInt.getRetryNumber();
+            lastAddressSource = sendDigitalProgressDetailsInt.getDigitalAddressSource();
+
+            if (originalRetryNumber.equals(lastRetryNumber)
+                && originalAddressSource != null && lastAddressSource != null
+                && originalAddressSource.getValue().equals(lastAddressSource.getValue()))
+            {
+                eventIsValid = true;
+            }
+        }
+
+        if (eventIsValid)
+        {
+            // se lo è schedulo gestisco secondo configurazione
+            // EMULO la response proveniente da ext-channel
+            handleExternalChannelResponse(ExtChannelDigitalSentResponseInt.builder()
+                    .eventCode(EventCodeInt.DP10)
+                    .requestId(timelineId)
+                    .iun(iun)
+                    .eventTimestamp(Instant.now())
+                    .status(ExtChannelProgressEventCat.PROGRESS)
+                    .eventDetails("expired timeout")
+                    .build());
+        }
+        else
+        {
+            log.info("Last timelineevent doesn't match original timelineevent source and retrynumber, skipping actions iun={} recIdx={}", iun, recIndex);
+        }
     }
 
     /**
@@ -146,8 +214,8 @@ public class DigitalWorkFlowHandler {
         }
     }
 
-    private void sendRetryNotification(NotificationInt notification, Integer recIndex, DigitalAddressInfo addressInfo){
-        externalChannelService.sendDigitalNotification(notification, addressInfo.getDigitalAddress(), addressInfo.getDigitalAddressSource(), recIndex, addressInfo.getSentAttemptMade(), true);
+    private void sendRetryNotification(NotificationInt notification, Integer recIndex, DigitalAddressInfo addressInfo, String sourceTimelineId){
+        sendDigitalNotificationAndScheduleTimeoutAction(notification, addressInfo.getDigitalAddress(), addressInfo, recIndex, true, sourceTimelineId);
     }
 
     /**
@@ -215,7 +283,7 @@ public class DigitalWorkFlowHandler {
 
             //Se l'indirizzo è disponibile, dunque valorizzato viene inviata la notifica a external channel ...
             digitalWorkFlowUtils.addAvailabilitySourceToTimeline(recIndex, notification, addressInfo.getDigitalAddressSource(), true, addressInfo.getSentAttemptMade());
-            externalChannelService.sendDigitalNotification(notification, digitalAddress, addressInfo.getDigitalAddressSource(), recIndex, addressInfo.getSentAttemptMade(), false);
+            sendDigitalNotificationAndScheduleTimeoutAction(notification, digitalAddress, addressInfo, recIndex, false, null);
         } else {
             //... altrimenti si passa alla prossima workflow action
             log.info("Address with source={} is not available, need to start next workflow action - iun={} id={}",
@@ -225,6 +293,38 @@ public class DigitalWorkFlowHandler {
 
             nextWorkFlowAction(notification, recIndex, addressInfo);
         }
+    }
+
+    /**
+     * Il metodo si occupa di schedulare una action di timeout, ed eventualmente de-schedulare una precedente action di timeout impostata.
+     * La schedulazione avviene soltanto se l'invio va a buon fine.
+     *
+     * @param notification
+     * @param digitalAddress
+     * @param addressInfo
+     * @param recIndex
+     * @param sendAlreadyInProgress
+     * @param sourceTimelineId
+     */
+    private void sendDigitalNotificationAndScheduleTimeoutAction(NotificationInt notification,
+                                                                 LegalDigitalAddressInt digitalAddress,
+                                                                 DigitalAddressInfo addressInfo,
+                                                                 Integer recIndex,
+                                                                 boolean sendAlreadyInProgress,
+                                                                 String sourceTimelineId){
+
+        String timelineId = externalChannelService.sendDigitalNotification(notification, digitalAddress, addressInfo.getDigitalAddressSource(), recIndex, addressInfo.getSentAttemptMade(), sendAlreadyInProgress);
+        if (sourceTimelineId != null)
+        {
+            // se trovo un precedente sourceTimelineId, vuol dire che probabilmente sto rischedulando per un ritentativo di invio breve.
+            // vado ad de-schedulare l'eventuale action precedentemente schedulata, ma se non la trovo, fa niente, non è un errore!
+            this.schedulerService.unscheduleEvent(notification.getIun(), recIndex, ActionType.DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION, timelineId);
+        }
+
+        Duration secondNotificationWorkflowWaitingTime = pnDeliveryPushConfigs.getExternalChannel().getDigitalSendNoresponseTimeout();
+        Instant schedulingDate = Instant.now().plus(secondNotificationWorkflowWaitingTime);
+
+        this.schedulerService.scheduleEvent(notification.getIun(), recIndex, schedulingDate, ActionType.DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION, timelineId);
     }
 
     public void handleExternalChannelResponse(ExtChannelDigitalSentResponseInt response) {
@@ -240,20 +340,13 @@ public class DigitalWorkFlowHandler {
             DigitalResultInfos digitalResultInfos = new DigitalResultInfos();
             digitalResultInfos.setResponse(response);
             digitalResultInfos.setTimelineElementInternal(timelineElement);
-            if (timelineElement.getDetails() instanceof SendDigitalProgressDetailsInt)
+            if (timelineElement.getDetails() instanceof DigitalSendTimelineElementDetails)
             {
-                SendDigitalProgressDetailsInt sendDigitalProgressDetailsInt = (SendDigitalProgressDetailsInt) timelineElement.getDetails();
+                DigitalSendTimelineElementDetails sendDigitalProgressDetailsInt = (DigitalSendTimelineElementDetails) timelineElement.getDetails();
                 digitalResultInfos.setRecIndex(sendDigitalProgressDetailsInt.getRecIndex());
                 digitalResultInfos.setRetryNumber(sendDigitalProgressDetailsInt.getRetryNumber());
                 digitalResultInfos.setDigitalAddressInt(sendDigitalProgressDetailsInt.getDigitalAddress());
                 digitalResultInfos.setDigitalAddressSourceInt(sendDigitalProgressDetailsInt.getDigitalAddressSource());
-            }
-            else if (timelineElement.getDetails() instanceof SendDigitalDetailsInt) {
-                SendDigitalDetailsInt sendDigitalDetails = (SendDigitalDetailsInt) timelineElement.getDetails();
-                digitalResultInfos.setRecIndex(sendDigitalDetails.getRecIndex());
-                digitalResultInfos.setRetryNumber(sendDigitalDetails.getRetryNumber());
-                digitalResultInfos.setDigitalAddressInt(sendDigitalDetails.getDigitalAddress());
-                digitalResultInfos.setDigitalAddressSourceInt(sendDigitalDetails.getDigitalAddressSource());
             }
 
             digitalResultInfos.setNotification(notificationService.getNotificationByIun(iun));
@@ -382,7 +475,7 @@ public class DigitalWorkFlowHandler {
                 .digitalAddressSource(digitalResultInfos.getDigitalAddressSourceInt())
                 .lastAttemptDate(digitalResultInfos.getResponse().getEventTimestamp()==null? Instant.now():digitalResultInfos.getResponse().getEventTimestamp())
                 .sentAttemptMade(digitalResultInfos.getRetryNumber())
-                .build());
+                .build(), digitalResultInfos.getTimelineElementInternal());
         }
         else
         {
@@ -412,7 +505,7 @@ public class DigitalWorkFlowHandler {
     /**
      * schedule retry for this workflow
      */
-    private void restartWorkflowAfterRetryTime(NotificationInt notification, Integer recIndex, DigitalAddressInfo lastAddressInfo) {
+    private void restartWorkflowAfterRetryTime(NotificationInt notification, Integer recIndex, DigitalAddressInfo lastAddressInfo, TimelineElementInternal referenceTimelineId) {
         log.debug("restartWorkflowAfterRetryTime - iun={} id={}", notification.getIun(), recIndex);
 
         String iun = notification.getIun();
@@ -423,8 +516,9 @@ public class DigitalWorkFlowHandler {
         Instant schedulingDate = lastAttemptDate.plus(secondNotificationWorkflowWaitingTime);
 
         //Vengono aggiunti i minuti necessari
+        //NB: il referenceTimelineId è l'id dell'elemento di timeline che ha dato luogo all'invio della notifica (potrebbe essere un send_digital_domicile o un send_digital_progress con un certo prog_id)
         log.info("Retry workflow scheduling date={} retry workflow - iun={} id={}", schedulingDate, iun, recIndex);
-        schedulerService.scheduleEvent(iun, recIndex, schedulingDate, ActionType.DIGITAL_WORKFLOW_RETRY_ACTION);
+        schedulerService.scheduleEvent(iun, recIndex, schedulingDate, ActionType.DIGITAL_WORKFLOW_RETRY_ACTION, referenceTimelineId.getElementId());
     }
 
     private DigitalAddressInfo getDigitalAddressInfo(ScheduleDigitalWorkflowDetailsInt scheduleDigitalWorkflow) {
@@ -454,6 +548,9 @@ public class DigitalWorkFlowHandler {
             ERROR         C009   = ERRORE_DOMINIO_PEC_NON_VALIDO - senza retry:  indica un dominio pec non valido; (senza busta)
             ERROR         C0010 = ERROR_INVIO_PEC - con retry da parte di PN: indica un errore generico di invio pec (senza busta)
             OK            C003 = StatusPec.AVVENUTA_CONSEGNA (con busta)
+
+            BONUS:
+            PROGRESS      DP10 = Generato da timeout di invio a ext-channel, in caso di mancata risposta.
         */
         if (eventCode == null)
             throw new PnInternalException("Invalid received digital status:" + eventCode, ERROR_CODE_DELIVERYPUSH_INVALIDEVENTCODE);

@@ -54,9 +54,19 @@ public class SchedulerServiceMock implements SchedulerService {
                 digitalWorkFlowHandler.startScheduledNextWorkflow(iun, recIndex);
                 break;
             case DIGITAL_WORKFLOW_RETRY_ACTION:
-                digitalWorkFlowHandler.startScheduledRetryWorkflow(iun, recIndex);
+                digitalWorkFlowHandler.startScheduledRetryWorkflow(iun, recIndex, iun + "_retry_action_" + recIndex);
                 break;
         }
+    }
+
+    @Override
+    public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType, String timelineId) {
+        // non usato come mock
+    }
+
+    @Override
+    public void unscheduleEvent(String iun, Integer recIndex, ActionType actionType, String timelineId) {
+        // non usato come mock
     }
 
     @Override

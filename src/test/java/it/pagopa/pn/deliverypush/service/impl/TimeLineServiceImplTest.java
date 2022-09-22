@@ -242,7 +242,7 @@ class TimeLineServiceImplTest {
                 .thenReturn(Optional.of(mapConfInf));
         
         //WHEN
-        Set<TimelineElementInternal> retrievedElements = timeLineService.getTimeline(iun);
+        Set<TimelineElementInternal> retrievedElements = timeLineService.getTimeline(iun, true);
 
         //THEN
         Assertions.assertFalse(retrievedElements.isEmpty());

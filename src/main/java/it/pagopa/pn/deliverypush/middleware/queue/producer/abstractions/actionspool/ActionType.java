@@ -46,13 +46,27 @@ public enum ActionType {
         }
     },
 
+
+    DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION() {
+        @Override
+        public String buildActionId(Action action) {
+            return String.format(
+                    "%s_digital_workflow_no_response_timeount_e_%d_%s",
+                    action.getIun(),
+                    action.getRecipientIndex(),
+                    action.getTimelineId()==null?"":action.getTimelineId()
+            );
+        }
+    },
+
     DIGITAL_WORKFLOW_RETRY_ACTION() {
         @Override
         public String buildActionId(Action action) {
             return String.format(
-                    "%s_digital_workflow_retry_e_%d",
+                    "%s_digital_workflow_retry_e_%d_%s",
                     action.getIun(),
-                    action.getRecipientIndex()
+                    action.getRecipientIndex(),
+                    action.getTimelineId()==null?"":action.getTimelineId()
             );
         }
     },

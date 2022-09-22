@@ -35,7 +35,7 @@ public class StatusUtils {
     ));
     
     public NotificationStatusInt getCurrentStatusFromNotification(NotificationInt notification, TimelineService timelineService) {
-        Set<TimelineElementInternal> timelineElements =  timelineService.getTimeline(notification.getIun());
+        Set<TimelineElementInternal> timelineElements =  timelineService.getTimeline(notification.getIun(), true);
 
         List<NotificationStatusHistoryElementInt> statusHistory = getStatusHistory( timelineElements, notification.getRecipients().size(), notification.getSentAt() );
 
