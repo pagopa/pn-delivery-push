@@ -443,6 +443,8 @@ public class TimelineUtils {
             Integer recIndex,
             String legalFactId,
             Integer notificationCost,
+            String raddType,
+            String raddTransactionId,
             Instant eventTimestamp) {
         log.debug("buildNotificationViewedTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
 
@@ -454,6 +456,8 @@ public class TimelineUtils {
         NotificationViewedDetailsInt details = NotificationViewedDetailsInt.builder()
                 .recIndex(recIndex)
                 .notificationCost(notificationCost)
+                .raddType(raddType)
+                .raddTransactionId(raddTransactionId)
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()

@@ -3,25 +3,15 @@ package it.pagopa.pn.deliverypush.rest;
 import it.pagopa.pn.deliverypush.action.NotificationViewedHandler;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.ApiUtil;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.EventComunicationApi;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.RequestNotificationViewedDto;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseNotificationViewedDto;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.util.List;
 
 @RestController
 @Slf4j
@@ -53,12 +43,11 @@ public class PnNotificationViewController implements EventComunicationApi {
                 log.debug("Request body is null");
                 return ResponseEntity.badRequest().build();
             }
-            log.info("Process started for - internalId={} transactionId={}", request.getRecipientInternalId(), request.getRaddBusinessTransactionId());
+            log.info("Process started for - internalId={} transactionId={} raddType={}", request.getRecipientInternalId(), request.getRaddBusinessTransactionId(), request.getRaddType());
             // get recipient index from internal id
             int recIndex = notificationUtils.getRecipientIndexFromInternalId(notification, request.getRecipientInternalId());
-            Instant instantDate = request.getRaddBusinessTransactionDate().atStartOfDay(ZoneId.systemDefault()).toInstant();
             // handle view event
-            notificationViewedHandler.handleViewNotification(iun, recIndex, instantDate);
+            notificationViewedHandler.handleViewNotification(iun, recIndex, request.getRaddType(), request.getRaddBusinessTransactionId(), request.getRaddBusinessTransactionDate());
             // return iun
             log.info("End notifyNotificationViewed - iun={}", iun);
             ResponseNotificationViewedDto response = ResponseNotificationViewedDto.builder().iun(iun).build();

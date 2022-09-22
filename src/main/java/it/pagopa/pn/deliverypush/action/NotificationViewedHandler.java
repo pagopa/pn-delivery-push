@@ -55,6 +55,10 @@ public class NotificationViewedHandler {
     }
 
     public void handleViewNotification(String iun, Integer recIndex, Instant eventTimestamp) {
+        handleViewNotification(iun, recIndex, null, null, eventTimestamp);
+    }
+
+    public void handleViewNotification(String iun, Integer recIndex, String raddType, String raddTransactionId, Instant eventTimestamp) {
         
         log.info("Start HandleViewNotification - iun={}", iun);
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
@@ -76,7 +80,7 @@ public class NotificationViewedHandler {
             //Una notifica annullata non può essere perfezionata per visione
             if( !NotificationStatusInt.CANCELLED.equals(currentStatus) ){
                 try {
-                    handleViewNotification(iun, recIndex, notification, eventTimestamp);
+                    handleViewNotification(iun, recIndex, notification, raddType, raddTransactionId, eventTimestamp);
                     logEvent.generateSuccess().log();
                 } catch (Exception exc) {
                     logEvent.generateFailure("Exception in View notification ex={}", exc).log();
@@ -91,7 +95,7 @@ public class NotificationViewedHandler {
         }
     }
 
-    private void handleViewNotification(String iun, Integer recIndex, NotificationInt notification, Instant eventTimestamp) {
+    private void handleViewNotification(String iun, Integer recIndex, NotificationInt notification, String raddType, String raddTransactionId, Instant eventTimestamp) {
         log.debug("handleViewNotification get recipient ok - iun={} id={}", iun, recIndex);
 
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
@@ -101,7 +105,7 @@ public class NotificationViewedHandler {
         log.debug("Notification cost is {} - iun {} id {}",notificationCost, iun, recIndex);
 
         addTimelineElement(
-                timelineUtils.buildNotificationViewedTimelineElement(notification, recIndex, legalFactId, notificationCost, eventTimestamp),
+                timelineUtils.buildNotificationViewedTimelineElement(notification, recIndex, legalFactId, notificationCost, raddType, raddTransactionId, eventTimestamp),
                 notification
         ) ;
 

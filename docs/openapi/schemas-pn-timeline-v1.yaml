@@ -216,6 +216,12 @@ components:
           example: 1220
           type: integer
           format: int64
+        raddType:
+          type: string
+          description: Tipologia rete radd
+        raddTransactionId:
+          description: ID della pratica dell'evento proveniente dalla rete radd
+          type: string
           
     PublicRegistryCallDetails:
       type: object

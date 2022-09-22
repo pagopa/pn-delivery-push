@@ -210,7 +210,7 @@ components:
           description: Identificativo della pratica all'interno della rete RADD
         raddBusinessTransactionDate:
           type: string
-          format: date
+          format: date-time
           description: Data in cui è stata eseguita la transazione
 
     ResponseNotificationViewedDto:
