@@ -87,6 +87,7 @@ public class AnalogWorkflowUtils {
 
     public PhysicalAddressInt getPhysicalAddress(NotificationInt notification, Integer recIndex){
         NotificationRecipientInt notificationRecipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
+        
         return notificationRecipient.getPhysicalAddress();
     }
 }
