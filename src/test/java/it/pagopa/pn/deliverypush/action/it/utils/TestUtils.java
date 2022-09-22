@@ -2,15 +2,21 @@ package it.pagopa.pn.deliverypush.action.it.utils;
 
 import it.pagopa.pn.deliverypush.action.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock;
+import it.pagopa.pn.deliverypush.action.it.mockbean.SafeStorageClientMock;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusHistoryElementInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
+import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
+import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
+import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
@@ -21,6 +27,7 @@ import org.junit.jupiter.api.Assertions;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -171,14 +178,18 @@ public class TestUtils {
 
     public static void checkFailDigitalWorkflow(String iun, Integer recIndex, TimelineService timelineService, CompletionWorkFlowHandler completionWorkflow) {
         //Viene verificato che il workflow sia fallito
-        Assertions.assertTrue(timelineService.getTimelineElement(
+        Optional<TimelineElementInternal> timelineElementOpt = timelineService.getTimelineElement(
                 iun,
                 TimelineEventId.DIGITAL_FAILURE_WORKFLOW.buildEventId(
                         EventId.builder()
                                 .iun(iun)
                                 .recIndex(recIndex)
-                                .build())).isPresent());
-
+                                .build()));
+                
+        Assertions.assertTrue(timelineElementOpt.isPresent());
+        TimelineElementInternal timelineElementInternal = timelineElementOpt.get();
+        Assertions.assertNotNull(timelineElementInternal.getLegalFactsIds().get(0));
+        
         ArgumentCaptor<EndWorkflowStatus> endWorkflowStatusArgumentCaptor = ArgumentCaptor.forClass(EndWorkflowStatus.class);
         ArgumentCaptor<NotificationInt> notificationCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<Integer> recIndexCaptor = ArgumentCaptor.forClass(Integer.class);
@@ -224,6 +235,52 @@ public class TestUtils {
         TimelineElementInternal timelineElement = timelineElementInternal.get();
         Assertions.assertEquals( digitalAddress.getAddress(), ((SendDigitalDetailsInt) timelineElement.getDetails()).getDigitalAddress().getAddress() );
     }
+
+    public static void checkIsPresentAcceptanceInTimeline(String iun, int recIndex, int sendAttemptMade, LegalDigitalAddressInt digitalAddress,
+                                                               DigitalAddressSourceInt addressSource, TimelineService timelineService) {
+        String timelineEventId = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .index(sendAttemptMade)
+                        .source(addressSource)
+                        .progressIndex(1)
+                        .build()
+        );
+
+        Optional<TimelineElementInternal> timelineElementInternal = timelineService.getTimelineElement(iun, timelineEventId);
+
+        Assertions.assertTrue(timelineElementInternal.isPresent());
+        TimelineElementInternal timelineElement = timelineElementInternal.get();
+        Assertions.assertNotNull( timelineElement.getLegalFactsIds().get(0) );
+        Assertions.assertNotNull( timelineElement.getTimestamp() );
+
+        SendDigitalProgressDetailsInt details = (SendDigitalProgressDetailsInt) timelineElement.getDetails();
+        Assertions.assertEquals( digitalAddress.getAddress(), details.getDigitalAddress().getAddress() );
+    }
+
+    public static void checkIsPresentDigitalFeedbackInTimeline(String iun, int recIndex, int sendAttemptMade, LegalDigitalAddressInt digitalAddress,
+                                                               DigitalAddressSourceInt addressSource, TimelineService timelineService, ResponseStatusInt status) {
+        String timelineEventId = TimelineEventId.SEND_DIGITAL_FEEDBACK.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .index(sendAttemptMade)
+                        .source(addressSource)
+                        .build()
+        );
+
+        Optional<TimelineElementInternal> timelineElementInternal = timelineService.getTimelineElement(iun, timelineEventId);
+
+        Assertions.assertTrue(timelineElementInternal.isPresent());
+        TimelineElementInternal timelineElement = timelineElementInternal.get();
+        Assertions.assertNotNull( timelineElement.getLegalFactsIds().get(0) );
+        Assertions.assertNotNull( timelineElement.getTimestamp() );
+
+        SendDigitalFeedbackDetailsInt details = (SendDigitalFeedbackDetailsInt) timelineElement.getDetails();
+        Assertions.assertEquals( digitalAddress.getAddress(), details.getDigitalAddress().getAddress() );
+        Assertions.assertEquals(status, details.getResponseStatus());
+    }
     
     public static NotificationStatusInt getNotificationStatus(NotificationInt notification, TimelineService timelineService, StatusUtils statusUtils){
         int numberOfRecipient = notification.getRecipients().size();
@@ -235,4 +292,100 @@ public class TestUtils {
 
         return statusUtils.getCurrentStatus(statusHistoryElements);
     }
+
+    public static void checkIsNotPresentRefinement(String iun, Integer recIndex, TimelineService timelineService) {
+        Assertions.assertFalse(timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.REFINEMENT.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recIndex(recIndex)
+                                .build())
+        ).isPresent());
+    }
+
+
+    public static void checkIsPresentRefinement(String iun, Integer recIndex, TimelineService timelineService) {
+        Optional<TimelineElementInternal> timelineElementOpt = timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.REFINEMENT.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recIndex(recIndex)
+                                .build()));
+
+        Assertions.assertTrue(timelineElementOpt.isPresent());
+        TimelineElementInternal timelineElement = timelineElementOpt.get();
+        RefinementDetailsInt detailsInt = (RefinementDetailsInt) timelineElement.getDetails();
+        Assertions.assertNotNull(detailsInt.getNotificationCost());
+    }
+
+    public static void checkSendRegisteredLetter(NotificationRecipientInt recipient, String iun, Integer recIndex, ExternalChannelMock externalChannelMock, TimelineService timelineService) {
+        ArgumentCaptor<PhysicalAddressInt> pnPhysicalAddressArgumentCaptor = ArgumentCaptor.forClass(PhysicalAddressInt.class);
+        ArgumentCaptor<NotificationInt> pnNotificationIntArgumentCaptor = ArgumentCaptor.forClass(NotificationInt.class);
+
+        Mockito.verify(externalChannelMock).sendAnalogNotification(pnNotificationIntArgumentCaptor.capture(), Mockito.any(NotificationRecipientInt.class), pnPhysicalAddressArgumentCaptor.capture(), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+        PhysicalAddressInt physicalAddress = pnPhysicalAddressArgumentCaptor.getValue();
+        NotificationInt notificationInt = pnNotificationIntArgumentCaptor.getValue();
+
+        Assertions.assertEquals(iun, notificationInt.getIun());
+        Assertions.assertEquals(recipient.getPhysicalAddress().getAddress(), physicalAddress.getAddress());
+
+        //Viene verificato l'invio della registered letter da timeline
+        String eventId = TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .build());
+
+        Optional<SimpleRegisteredLetterDetailsInt> sendSimpleRegisteredLetterOpt = timelineService.getTimelineElementDetails(iun, eventId, SimpleRegisteredLetterDetailsInt.class);
+        Assertions.assertTrue(sendSimpleRegisteredLetterOpt.isPresent());
+
+        SimpleRegisteredLetterDetailsInt simpleRegisteredLetterDetails = sendSimpleRegisteredLetterOpt.get();
+        Assertions.assertEquals( recipient.getPhysicalAddress().getAddress(), simpleRegisteredLetterDetails.getPhysicalAddress().getAddress() );
+        Assertions.assertEquals( recipient.getPhysicalAddress().getForeignState() , simpleRegisteredLetterDetails.getPhysicalAddress().getForeignState());
+        Assertions.assertEquals(1, simpleRegisteredLetterDetails.getNumberOfPages());
+    }
+
+    public static void firstFileUploadFromNotification(NotificationInt notification, SafeStorageClientMock safeStorageClientMock){
+        for(NotificationDocumentInt attachment : notification.getDocuments()) {
+            FileCreationWithContentRequest fileCreationWithContentRequest = new FileCreationWithContentRequest();
+            fileCreationWithContentRequest.setContentType("application/pdf");
+            fileCreationWithContentRequest.setContent(attachment.getDigests().getSha256().getBytes(StandardCharsets.UTF_8));
+            safeStorageClientMock.createFile(fileCreationWithContentRequest, attachment.getDigests().getSha256());
+        }
+    }
+
+    public static void firstFileUploadFromNotificationError(NotificationInt notification, SafeStorageClientMock safeStorageClientMock, byte[] fileSha ){
+        for(NotificationDocumentInt attachment : notification.getDocuments()) {
+            FileCreationWithContentRequest fileCreationWithContentRequest = new FileCreationWithContentRequest();
+            fileCreationWithContentRequest.setContentType("application/pdf");
+            fileCreationWithContentRequest.setContent(fileSha);
+            safeStorageClientMock.createFile(fileCreationWithContentRequest, attachment.getDigests().getSha256());
+        }
+    }
+    
+    public static void writeAllGeneratedLegalFacts(String iun, String className, TimelineService timelineService, SafeStorageClientMock safeStorageClientMock) {
+        String testName = className + "-" + getMethodName(3);
+
+        timelineService.getTimeline(iun).forEach(
+                elem -> {
+                    if (! elem.getLegalFactsIds().isEmpty() ){
+                        LegalFactsIdInt legalFactsId = elem.getLegalFactsIds().get(0);
+                        if( !LegalFactCategoryInt.PEC_RECEIPT.equals(legalFactsId.getCategory()) && !LegalFactCategoryInt.ANALOG_DELIVERY.equals(legalFactsId.getCategory())){
+                            String key = legalFactsId.getKey().replace("safestorage://", "");
+                            safeStorageClientMock.writeFile(key, legalFactsId.getCategory(), testName);
+
+                        }
+                    }
+                }
+        );
+    }
+
+    public static String getMethodName(final int depth) {
+        final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+        return ste[depth].getMethodName();
+    }
+    
+
 }

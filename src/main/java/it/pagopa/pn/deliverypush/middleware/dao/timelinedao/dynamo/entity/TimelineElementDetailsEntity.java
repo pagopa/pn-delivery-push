@@ -42,4 +42,6 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("reason")})) private String reason;
     @Getter(onMethod=@__({@DynamoDbAttribute("notificationCost")})) private Integer notificationCost;
     @Getter(onMethod=@__({@DynamoDbAttribute("sendingReceipts")})) private List<SendingReceiptEntity> sendingReceipts;
+    @Getter(onMethod=@__({@DynamoDbAttribute("eventCode")})) private String eventCode;
+    @Getter(onMethod=@__({@DynamoDbAttribute("shouldRetry")})) private Boolean shouldRetry;
 }

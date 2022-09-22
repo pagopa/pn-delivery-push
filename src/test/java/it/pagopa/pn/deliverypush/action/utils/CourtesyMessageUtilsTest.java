@@ -29,6 +29,7 @@ import java.util.Optional;
 
 import static it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 
 class CourtesyMessageUtilsTest {
     @Mock
@@ -64,6 +65,8 @@ class CourtesyMessageUtilsTest {
 
         Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
 
+        Mockito.when(iOservice.sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(true);
+
         CourtesyDigitalAddressInt courtesyDigitalAddressInt = CourtesyDigitalAddressInt.builder()
                 .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.APPIO)
                 .address("indirizzo@test.it")
@@ -81,12 +84,39 @@ class CourtesyMessageUtilsTest {
 
     @Test
     @ExtendWith(MockitoExtension.class)
+    void checkAddressesForSendCourtesyMessageIoNotEnabled() {
+        //GIVEN
+        NotificationRecipientInt recipient = getNotificationRecipientInt();
+        NotificationInt notification = getNotificationInt(recipient);
+
+        Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
+
+        Mockito.when(iOservice.sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(false);
+
+        CourtesyDigitalAddressInt courtesyDigitalAddressInt = CourtesyDigitalAddressInt.builder()
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.APPIO)
+                .address("indirizzo@test.it")
+                .build();
+
+        Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(),Mockito.anyString()))
+                .thenReturn(Optional.of(Collections.singletonList(courtesyDigitalAddressInt)));
+
+        //WHEN
+        courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, 0);
+
+        //THEN
+        Mockito.verify(timelineService,never()).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
+    }
+
+    @Test
+    @ExtendWith(MockitoExtension.class)
     void checkAddressesForSendMultiCourtesyMessage() {
         //GIVEN
         NotificationRecipientInt recipient = getNotificationRecipientInt();
         NotificationInt notification = getNotificationInt(recipient);
 
         Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
+        Mockito.when(iOservice.sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(true);
 
         CourtesyDigitalAddressInt courtesyDigitalAddressAppIo = CourtesyDigitalAddressInt.builder()
                 .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.APPIO)

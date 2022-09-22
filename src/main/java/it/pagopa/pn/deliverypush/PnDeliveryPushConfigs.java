@@ -35,6 +35,7 @@ public class PnDeliveryPushConfigs {
     private String safeStorageBaseUrl;
 
     private String safeStorageCxId;
+    private String safeStorageCxIdUpdatemetadata;
 
     private String userAttributesBaseUrl;
 
@@ -110,7 +111,7 @@ public class PnDeliveryPushConfigs {
         private List<String> digitalCodesFatallog;
 
         private int digitalRetryCount;
-        private Duration digitalDelay;
+        private Duration digitalRetryDelay;
     }
 
    @Data

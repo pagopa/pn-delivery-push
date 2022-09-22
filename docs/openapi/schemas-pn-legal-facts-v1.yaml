@@ -74,6 +74,7 @@ components:
           type: string
         contentLength:
           type: number
+          format: decimal32
           example: 54092
           description: dmensione, in byte, del contenuto.
         url:
@@ -83,6 +84,7 @@ components:
             contenuto del documento. Presente solo se il documento è pronto per il download.
         retryAfter:
           type: number
+          format: decimal32
           description: >-
             Stima del numero di secondi da aspettare prima che il contenuto del 
             documento sia scaricabile.

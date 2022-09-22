@@ -16,9 +16,9 @@ import org.mockito.Mockito;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class IoServiceImplTest {
     private IoService ioService;
@@ -69,9 +69,92 @@ class IoServiceImplTest {
         );
 
         //WHEN
-        assertDoesNotThrow(() ->
-                ioService.sendIOMessage(notificationInt, 0)
+        AtomicBoolean res = new AtomicBoolean(false);
+        assertDoesNotThrow(() -> {
+                    res.set(ioService.sendIOMessage(notificationInt, 0));
+                });
+
+        assertTrue(res.get());
+    }
+
+    @Test
+    void sendIOMessageNotSent() {
+        //GIVEN
+
+        NotificationInt notificationInt = NotificationTestBuilder.builder()
+                .withIun("IUN")
+                .withNotificationRecipient(
+                        NotificationRecipientTestBuilder.builder()
+                                .withTaxId("taxId")
+                                .withPayment(
+                                        NotificationPaymentInfoInt.builder()
+                                                .creditorTaxId("cred")
+                                                .noticeCode("notice")
+                                                .build()
+                                )
+                                .build()
+                )
+                .build();
+
+        Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(
+                notificationInt.getRecipients().get(0)
         );
+
+        Mockito.when( pnExternalRegistryClient.sendIOMessage(Mockito.any(SendMessageRequest.class))).thenReturn(
+                ResponseEntity.of(Optional.of(
+                        new SendMessageResponse()
+                                .id("1871")
+                                .result(SendMessageResponse.ResultEnum.NOT_SENT_APPIO_UNAVAILABLE)
+                ))
+        );
+
+        //WHEN
+        AtomicBoolean res = new AtomicBoolean(false);
+        assertDoesNotThrow(() -> {
+            res.set(ioService.sendIOMessage(notificationInt, 0));
+        });
+
+        assertFalse(res.get());
+    }
+
+    @Test
+    void sendIOMessageSentOptin() {
+        //GIVEN
+
+        NotificationInt notificationInt = NotificationTestBuilder.builder()
+                .withIun("IUN")
+                .withNotificationRecipient(
+                        NotificationRecipientTestBuilder.builder()
+                                .withTaxId("taxId")
+                                .withPayment(
+                                        NotificationPaymentInfoInt.builder()
+                                                .creditorTaxId("cred")
+                                                .noticeCode("notice")
+                                                .build()
+                                )
+                                .build()
+                )
+                .build();
+
+        Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(
+                notificationInt.getRecipients().get(0)
+        );
+
+        Mockito.when( pnExternalRegistryClient.sendIOMessage(Mockito.any(SendMessageRequest.class))).thenReturn(
+                ResponseEntity.of(Optional.of(
+                        new SendMessageResponse()
+                                .id("1871")
+                                .result(SendMessageResponse.ResultEnum.SENT_OPTIN)
+                ))
+        );
+
+        //WHEN
+        AtomicBoolean res = new AtomicBoolean(false);
+        assertDoesNotThrow(() -> {
+            res.set(ioService.sendIOMessage(notificationInt, 0));
+        });
+
+        assertFalse(res.get());
     }
 
     @Test
