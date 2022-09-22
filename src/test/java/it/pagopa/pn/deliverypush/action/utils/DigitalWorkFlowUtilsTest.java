@@ -276,10 +276,33 @@ class DigitalWorkFlowUtilsTest {
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
                 .legalFactsIds(legalFactsIds)
                 .build();
+        
+        LegalDigitalAddressInt legalDigitalAddressInt = LegalDigitalAddressInt.builder()
+                .address("address")
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                .build();
 
-        Mockito.when(timelineUtils.buildDigitalFeedbackTimelineElement(notification, status, Collections.EMPTY_LIST, sendDigitalDetails, digitalMessageReference, eventTimestamp)).thenReturn(timelineElementInternal);
+        Mockito.when(timelineUtils.buildDigitalFeedbackTimelineElement(
+                notification,
+                status,
+                Collections.EMPTY_LIST,
+                1,
+                1,
+                legalDigitalAddressInt,
+                DigitalAddressSourceInt.PLATFORM,
+                digitalMessageReference,
+                eventTimestamp)).thenReturn(timelineElementInternal);
 
-        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(notification, status, Collections.EMPTY_LIST, sendDigitalDetails, digitalMessageReference, eventTimestamp);
+        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(
+                notification,
+                status,
+                Collections.EMPTY_LIST,
+                1,
+                1,
+                legalDigitalAddressInt,
+                DigitalAddressSourceInt.PLATFORM,
+                digitalMessageReference,
+                eventTimestamp);
 
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);
     }

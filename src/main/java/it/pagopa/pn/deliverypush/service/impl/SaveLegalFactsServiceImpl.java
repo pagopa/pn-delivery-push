@@ -4,6 +4,8 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationResponseInt;
@@ -109,7 +111,10 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
     public String savePecDeliveryWorkflowLegalFact(
             List<SendDigitalFeedbackDetailsInt> listFeedbackFromExtChannel,
             NotificationInt notification,
-            NotificationRecipientInt recipient
+            NotificationRecipientInt recipient,
+            EndWorkflowStatus status,
+            Instant completionWorkflowDate,
+            PhysicalAddressInt sendRegisteredLetterAddress
     ) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
@@ -122,7 +127,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
             log.debug("Start savePecDeliveryWorkflowLegalFact - iun={}", notification.getIun());
 
             String url = this.saveLegalFact(legalFactBuilder.generatePecDeliveryWorkflowLegalFact(
-                    listFeedbackFromExtChannel, notification, recipient));
+                    listFeedbackFromExtChannel, notification, recipient, status, completionWorkflowDate, sendRegisteredLetterAddress));
 
             log.debug("End savePecDeliveryWorkflowLegalFact - iun={}", notification.getIun());
 
@@ -136,7 +141,6 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "DIGITAL_DELIVERY",  notification.getIun(), recipient.getTaxId());
             throw new PnInternalException( msg, exc);
         }
-
     }
 
     public String saveNotificationViewedLegalFact(

@@ -1,10 +1,6 @@
 package it.pagopa.pn.deliverypush.action.it;
 
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.OperationResultCodeResponse;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.*;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
@@ -20,7 +16,6 @@ import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
-import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
@@ -28,7 +23,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -49,7 +43,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -95,6 +88,7 @@ import static org.awaitility.Awaitility.with;
         AddressBookServiceImpl.class,
         AttachmentUtils.class,
         StatusUtils.class,
+        CompletionWorkflowUtils.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
         ExternalChannelMock.class,
@@ -124,9 +118,9 @@ class AnalogTestIT {
 
     @Autowired
     private InstantNowSupplier instantNowSupplier;
-    
-    @SpyBean
-    private PnSafeStorageClient safeStorageClientMock;
+
+    @Autowired
+    private SafeStorageClientMock safeStorageClientMock;
 
     @SpyBean
     private ExternalChannelMock externalChannelMock;
@@ -162,36 +156,7 @@ class AnalogTestIT {
     public void setup() {
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
-        //File mock to return for getFileAndDownloadContent
-        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
-        fileDownloadResponse.setContentType("application/pdf");
-        fileDownloadResponse.setContentLength(new BigDecimal(0));
-        fileDownloadResponse.setChecksum("123");
-        fileDownloadResponse.setKey("123");
-        fileDownloadResponse.setDownload(new FileDownloadInfo());
-        fileDownloadResponse.getDownload().setUrl("https://www.url.qualcosa.it");
-        fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
-
-
-        FileCreationResponse fileCreationResponse = new FileCreationResponse();
-        fileCreationResponse.setKey("123");
-        fileCreationResponse.setSecret("abc");
-        fileCreationResponse.setUploadUrl("https://www.unqualcheurl.it");
-        fileCreationResponse.setUploadMethod(FileCreationResponse.UploadMethodEnum.POST);
-
-        OperationResultCodeResponse operationResultCodeResponse = new OperationResultCodeResponse();
-        operationResultCodeResponse.setResultCode("200.00");
-        operationResultCodeResponse.setResultDescription("OK");
-
-
-        Mockito.when( safeStorageClientMock.getFile( Mockito.anyString(), Mockito.anyBoolean()))
-                .thenReturn( fileDownloadResponse );
-        Mockito.when( safeStorageClientMock.createFile(Mockito.any(FileCreationWithContentRequest.class), Mockito.anyString())).thenReturn(fileCreationResponse);
-        Mockito.when( safeStorageClientMock.updateFileMetadata(Mockito.anyString(), Mockito.any())).thenReturn(operationResultCodeResponse);
-
-
-        // Given
-
+        safeStorageClientMock.clear();
         pnDeliveryClientMock.clear();
         addressBookMock.clear();
         publicRegistryMock.clear();
@@ -238,6 +203,8 @@ class AnalogTestIT {
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
+
+        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
 
         List<CourtesyDigitalAddressInt> listCourtesyAddress = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
@@ -302,6 +269,10 @@ class AnalogTestIT {
         NotificationViewedDetailsInt detailsInt = (NotificationViewedDetailsInt) timelineElement.getDetails();
         
         Assertions.assertNotNull(detailsInt.getNotificationCost());
+
+        //Vengono stampati tutti i legalFacts generati
+        String className = this.getClass().getSimpleName();
+        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
     }
 
     @Test
@@ -340,6 +311,8 @@ class AnalogTestIT {
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
+
+        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
 
         List<CourtesyDigitalAddressInt> listCourtesyAddress = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
@@ -386,6 +359,10 @@ class AnalogTestIT {
                                 .iun(iun)
                                 .recIndex(recIndex)
                                 .build())).isPresent());
+
+        //Vengono stampati tutti i legalFacts generati
+        String className = this.getClass().getSimpleName();
+        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
     }
 
     @Test
@@ -418,6 +395,7 @@ class AnalogTestIT {
                 .withNotificationRecipient(recipient)
                 .build();
 
+        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
 
         List<CourtesyDigitalAddressInt> listCourtesyAddress = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test@works.it")
@@ -496,6 +474,10 @@ class AnalogTestIT {
                                 .iun(iun)
                                 .recIndex(recIndex)
                                 .build())).isPresent());
+
+        //Vengono stampati tutti i legalFacts generati
+        String className = this.getClass().getSimpleName();
+        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
     }
 
     @Test
@@ -523,7 +505,9 @@ class AnalogTestIT {
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
-        
+
+        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
+
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.emptyList());
 
@@ -563,6 +547,10 @@ class AnalogTestIT {
 
         //Viene verificato che sia avvenuto il perfezionamento
         TestUtils.checkRefinement(iun, recIndex, timelineService);
+
+        //Vengono stampati tutti i legalFacts generati
+        String className = this.getClass().getSimpleName();
+        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
     }
 
     @Test
@@ -627,6 +615,8 @@ class AnalogTestIT {
                 .withNotificationRecipient( List.of(recipient1, recipient2) )
                 .build();
 
+        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
+
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addCourtesyDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient1);
         addressBookMock.addCourtesyDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient2);
@@ -686,6 +676,10 @@ class AnalogTestIT {
                                 .iun(iun)
                                 .recIndex(recIndex1)
                                 .build())).isPresent());
+
+        //Vengono stampati tutti i legalFacts generati
+        String className = this.getClass().getSimpleName();
+        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
     }
 
 
@@ -754,6 +748,8 @@ class AnalogTestIT {
                 .withPaId("paId01")
                 .withNotificationRecipient( List.of(recipient1, recipient2) )
                 .build();
+
+        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
         
@@ -829,6 +825,10 @@ class AnalogTestIT {
                                 .iun(iun)
                                 .recIndex(recIndex2)
                                 .build())).isPresent());
+
+        //Vengono stampati tutti i legalFacts generati
+        String className = this.getClass().getSimpleName();
+        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
     }
 
 
@@ -899,6 +899,8 @@ class AnalogTestIT {
                 .withNotificationRecipient( List.of(recipient1, recipient2) )
                 .build();
 
+        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
+
         pnDeliveryClientMock.addNotification(notification);
 
         addressBookMock.addLegalDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
@@ -966,6 +968,10 @@ class AnalogTestIT {
                                 .iun(iun)
                                 .recIndex(rec1Index)
                                 .build())).isPresent());
+
+        //Vengono stampati tutti i legalFacts generati
+        String className = this.getClass().getSimpleName();
+        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
     }
 
 
@@ -1050,6 +1056,8 @@ class AnalogTestIT {
                 .withNotificationRecipient( List.of(recipient1, recipient2) )
                 .build();
 
+        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
+
         pnDeliveryClientMock.addNotification(notification);
 
         addressBookMock.addLegalDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
@@ -1115,6 +1123,10 @@ class AnalogTestIT {
                                 .iun(iun)
                                 .recIndex(rec1Index)
                                 .build())).isPresent());
+
+        //Vengono stampati tutti i legalFacts generati
+        String className = this.getClass().getSimpleName();
+        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
     }
 
 }

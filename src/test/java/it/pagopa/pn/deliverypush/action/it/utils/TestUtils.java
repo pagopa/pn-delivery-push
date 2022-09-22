@@ -2,16 +2,21 @@ package it.pagopa.pn.deliverypush.action.it.utils;
 
 import it.pagopa.pn.deliverypush.action.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock;
+import it.pagopa.pn.deliverypush.action.it.mockbean.SafeStorageClientMock;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusHistoryElementInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
+import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
+import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
+import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
@@ -22,6 +27,7 @@ import org.junit.jupiter.api.Assertions;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -340,4 +346,46 @@ public class TestUtils {
         Assertions.assertEquals( recipient.getPhysicalAddress().getForeignState() , simpleRegisteredLetterDetails.getPhysicalAddress().getForeignState());
         Assertions.assertEquals(1, simpleRegisteredLetterDetails.getNumberOfPages());
     }
+
+    public static void firstFileUploadFromNotification(NotificationInt notification, SafeStorageClientMock safeStorageClientMock){
+        for(NotificationDocumentInt attachment : notification.getDocuments()) {
+            FileCreationWithContentRequest fileCreationWithContentRequest = new FileCreationWithContentRequest();
+            fileCreationWithContentRequest.setContentType("application/pdf");
+            fileCreationWithContentRequest.setContent(attachment.getDigests().getSha256().getBytes(StandardCharsets.UTF_8));
+            safeStorageClientMock.createFile(fileCreationWithContentRequest, attachment.getDigests().getSha256());
+        }
+    }
+
+    public static void firstFileUploadFromNotificationError(NotificationInt notification, SafeStorageClientMock safeStorageClientMock, byte[] fileSha ){
+        for(NotificationDocumentInt attachment : notification.getDocuments()) {
+            FileCreationWithContentRequest fileCreationWithContentRequest = new FileCreationWithContentRequest();
+            fileCreationWithContentRequest.setContentType("application/pdf");
+            fileCreationWithContentRequest.setContent(fileSha);
+            safeStorageClientMock.createFile(fileCreationWithContentRequest, attachment.getDigests().getSha256());
+        }
+    }
+    
+    public static void writeAllGeneratedLegalFacts(String iun, String className, TimelineService timelineService, SafeStorageClientMock safeStorageClientMock) {
+        String testName = className + "-" + getMethodName(3);
+
+        timelineService.getTimeline(iun).forEach(
+                elem -> {
+                    if (! elem.getLegalFactsIds().isEmpty() ){
+                        LegalFactsIdInt legalFactsId = elem.getLegalFactsIds().get(0);
+                        if( !LegalFactCategoryInt.PEC_RECEIPT.equals(legalFactsId.getCategory()) && !LegalFactCategoryInt.ANALOG_DELIVERY.equals(legalFactsId.getCategory())){
+                            String key = legalFactsId.getKey().replace("safestorage://", "");
+                            safeStorageClientMock.writeFile(key, legalFactsId.getCategory(), testName);
+
+                        }
+                    }
+                }
+        );
+    }
+
+    public static String getMethodName(final int depth) {
+        final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+        return ste[depth].getMethodName();
+    }
+    
+
 }
