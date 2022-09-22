@@ -18,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+
 @Slf4j
 @Component
 public class NotificationViewedHandler {
@@ -51,8 +53,8 @@ public class NotificationViewedHandler {
         this.statusUtils = statusUtils;
         this.notificationCostService = notificationCostService;
     }
-    
-    public void handleViewNotification(String iun, Integer recIndex) {
+
+    public void handleViewNotification(String iun, Integer recIndex, Instant eventTimestamp) {
         
         log.info("Start HandleViewNotification - iun={}", iun);
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
@@ -74,7 +76,7 @@ public class NotificationViewedHandler {
             //Una notifica annullata non può essere perfezionata per visione
             if( !NotificationStatusInt.CANCELLED.equals(currentStatus) ){
                 try {
-                    handleViewNotification(iun, recIndex, notification);
+                    handleViewNotification(iun, recIndex, notification, eventTimestamp);
                     logEvent.generateSuccess().log();
                 } catch (Exception exc) {
                     logEvent.generateFailure("Exception in View notification ex={}", exc).log();
@@ -89,7 +91,7 @@ public class NotificationViewedHandler {
         }
     }
 
-    private void handleViewNotification(String iun, Integer recIndex, NotificationInt notification) {
+    private void handleViewNotification(String iun, Integer recIndex, NotificationInt notification, Instant eventTimestamp) {
         log.debug("handleViewNotification get recipient ok - iun={} id={}", iun, recIndex);
 
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
@@ -99,7 +101,7 @@ public class NotificationViewedHandler {
         log.debug("Notification cost is {} - iun {} id {}",notificationCost, iun, recIndex);
 
         addTimelineElement(
-                timelineUtils.buildNotificationViewedTimelineElement(notification, recIndex, legalFactId, notificationCost),
+                timelineUtils.buildNotificationViewedTimelineElement(notification, recIndex, legalFactId, notificationCost, eventTimestamp),
                 notification
         ) ;
 

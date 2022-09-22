@@ -5,6 +5,8 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import org.springframework.stereotype.Component;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NO_RECIPIENT_IN_NOTIFICATION;
+
 @Component
 public class NotificationUtils {
 
@@ -19,6 +21,19 @@ public class NotificationUtils {
         }
 
         throw new PnInternalException("There isn't recipient in Notification");
+    }
+
+    public int getRecipientIndexFromInternalId(NotificationInt notification, String internalId){
+        int index = 0;
+
+        for(NotificationRecipientInt recipientNot : notification.getRecipients()){
+            if(recipientNot.getInternalId().equals(internalId)){
+                return index;
+            }
+            index ++;
+        }
+
+        throw new PnInternalException("There isn't internalId=" + internalId + " in Notification with iun=" + notification.getIun(), ERROR_CODE_DELIVERYPUSH_NO_RECIPIENT_IN_NOTIFICATION);
     }
 
     public NotificationRecipientInt getRecipientFromIndex(NotificationInt notification, int index){
