@@ -55,7 +55,7 @@ class AarUtilsTest {
     @Test
     void generateAARAndSaveInSafeStorageAndAddTimelineeventFailed() {
 
-        String msg = "PN_GENERIC_ERROR";
+        String msg = "ERROR_CODE_GENERATE_PDF_FAILED";
         NotificationInt notificationInt = newNotification();
         String elementId = "IUN_01_aar_gen_0";
 
