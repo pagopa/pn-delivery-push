@@ -81,7 +81,7 @@ paths:
         Elenca le informazione di categorizzazione di tutti gli atti opponibili a terzi
         registrati durante il processo di notifica.
         <br/>
-        L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
+        Il parametro cxIdAuthFleet deve essere l'internalId del destinatario o della PA mittente
       tags:
         - LegalFactsPrivate
       operationId: getNotificationLegalFactsPrivate
@@ -114,7 +114,7 @@ paths:
       description: >-
         Permette di scaricare un atto opponibile a terzi
         <br/>
-        L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
+        Il parametro cxIdAuthFleet deve essere l'internalId del destinatario o della PA mittente
       tags:
         - LegalFactsPrivate
       operationId: getLegalFactPrivate
@@ -151,7 +151,7 @@ components:
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
     ############################################################################################
     cxIdAuthFleet:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/246099c8213bc478ce4ff4936a60198ad064e932/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet'
 
     ############################################################################################
     ###                        PARAMETRI RICERCA NOTIFICA ACCETTATA                         ###
