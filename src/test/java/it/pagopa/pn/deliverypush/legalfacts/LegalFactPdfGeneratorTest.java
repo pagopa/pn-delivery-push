@@ -51,7 +51,7 @@ class LegalFactPdfGeneratorTest {
 	@BeforeEach
 	public void setup() throws IOException {
 		Configuration freemarker = new Configuration(new Version(2,3,0)); //Version is a final class
-		HtmlSanitizer htmlSanitizer = new HtmlSanitizer(buildObjectMapper());
+		HtmlSanitizer htmlSanitizer = new HtmlSanitizer(buildObjectMapper(), HtmlSanitizer.SanitizeMode.ESCAPING);
 		documentComposition = new DocumentComposition(freemarker, htmlSanitizer);
 		
 		instantWriter = new CustomInstantWriter();

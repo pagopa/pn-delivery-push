@@ -7,6 +7,8 @@ import org.owasp.html.PolicyFactory;
 
 import java.io.IOException;
 
+import static it.pagopa.pn.deliverypush.utils.HtmlSanitizer.SanitizeMode;
+
 /**
  * Class that overrides the default behavior of JsonParserDelegate by sanitizing all fields of type String,
  * returned by the {@link #getText()} method.
@@ -25,10 +27,13 @@ public class HtmlSanitizerJsonParserDelegate extends JsonParserDelegate {
 
     private final PolicyFactory policy;
 
+    private final SanitizeMode sanitizeMode;
 
-    public HtmlSanitizerJsonParserDelegate(JsonParser d, PolicyFactory policy) {
+
+    public HtmlSanitizerJsonParserDelegate(JsonParser d, PolicyFactory policy, SanitizeMode sanitizeMode) {
         super(d);
         this.policy = policy;
+        this.sanitizeMode = sanitizeMode;
     }
 
     /**
@@ -45,8 +50,16 @@ public class HtmlSanitizerJsonParserDelegate extends JsonParserDelegate {
     @Override
     public String getText() throws IOException {
         String text = this.delegate.getText();
-        String sanitized = policy.sanitize(text);
-        return StringEscapeUtils.unescapeHtml4(sanitized);
+
+        if (sanitizeMode == SanitizeMode.DELETE_HTML) {
+            String sanitized = policy.sanitize(text);
+            return StringEscapeUtils.unescapeHtml4(sanitized);
+        } else if (sanitizeMode == SanitizeMode.ESCAPING) {
+            return StringEscapeUtils.escapeHtml4(text);
+        } else {
+            throw new RuntimeException(String.format("No valid sanitizedMode found! SanitizeMode value: %s", sanitizeMode));
+        }
+
     }
 
 

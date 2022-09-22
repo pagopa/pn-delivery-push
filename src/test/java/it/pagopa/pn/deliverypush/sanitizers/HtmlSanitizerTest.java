@@ -33,7 +33,7 @@ class HtmlSanitizerTest {
 
     @BeforeEach
     public void init() {
-        htmlSanitizer = new HtmlSanitizer(objectMapper);
+        htmlSanitizer = new HtmlSanitizer(objectMapper, HtmlSanitizer.SanitizeMode.DELETE_HTML);
     }
 
 

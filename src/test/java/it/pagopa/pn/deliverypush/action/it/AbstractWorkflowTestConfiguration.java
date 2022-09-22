@@ -50,7 +50,7 @@ public class AbstractWorkflowTestConfiguration {
 
     @Bean
     public HtmlSanitizer htmlSanitizer(ObjectMapper objectMapper) {
-        return new HtmlSanitizer(objectMapper);
+        return new HtmlSanitizer(objectMapper, HtmlSanitizer.SanitizeMode.DELETE_HTML);
     }
 
     @Bean
