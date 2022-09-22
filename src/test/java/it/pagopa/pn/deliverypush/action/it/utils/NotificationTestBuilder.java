@@ -76,7 +76,7 @@ public class NotificationTestBuilder {
                 .documents(Arrays.asList(
                         NotificationDocumentInt.builder()
                                 .ref(NotificationDocumentInt.Ref.builder()
-                                        .key("key_doc00")
+                                        .key(Base64Utils.encodeToString("sha256_doc00".getBytes()))
                                         .versionToken("v01_doc00")
                                         .build()
                                 )
@@ -87,7 +87,7 @@ public class NotificationTestBuilder {
                                 .build(),
                         NotificationDocumentInt.builder()
                                 .ref(NotificationDocumentInt.Ref.builder()
-                                        .key("key_doc01")
+                                        .key(Base64Utils.encodeToString("sha256_doc01".getBytes()))
                                         .versionToken("v01_doc01")
                                         .build()
                                 )

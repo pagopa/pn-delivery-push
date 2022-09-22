@@ -88,9 +88,9 @@ public class AnalogWorkflowUtils {
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
         timelineService.addTimelineElement(element, notification);
     }
-
-    public PhysicalAddressInt getPhysicalAddress(NotificationInt notification, Integer recIndex) {
-        NotificationRecipientInt notificationRecipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
+    
+    public PhysicalAddressInt getPhysicalAddress(NotificationInt notification, Integer recIndex){
+        NotificationRecipientInt notificationRecipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         return notificationRecipient.getPhysicalAddress();
     }
 }
