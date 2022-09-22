@@ -2,11 +2,13 @@ package it.pagopa.pn.deliverypush.utils;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.util.JsonParserDelegate;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import org.apache.commons.text.StringEscapeUtils;
 import org.owasp.html.PolicyFactory;
 
 import java.io.IOException;
 
+import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GENERIC_ERROR;
 import static it.pagopa.pn.deliverypush.utils.HtmlSanitizer.SanitizeMode;
 
 /**
@@ -57,7 +59,8 @@ public class HtmlSanitizerJsonParserDelegate extends JsonParserDelegate {
         } else if (sanitizeMode == SanitizeMode.ESCAPING) {
             return StringEscapeUtils.escapeHtml4(text);
         } else {
-            throw new RuntimeException(String.format("No valid sanitizedMode found! SanitizeMode value: %s", sanitizeMode));
+            throw new PnInternalException(String.format("No valid sanitizedMode found! SanitizeMode value: %s", sanitizeMode),
+                    ERROR_CODE_PN_GENERIC_ERROR);
         }
 
     }

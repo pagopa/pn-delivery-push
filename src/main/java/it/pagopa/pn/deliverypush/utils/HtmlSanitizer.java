@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.utils;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import org.owasp.html.HtmlPolicyBuilder;
 import org.owasp.html.PolicyFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +14,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GENERIC_ERROR;
 
 /**
  * Class that performs via the {@link #sanitize(Object)} method a cleanup of input parameters,
@@ -63,8 +66,8 @@ public class HtmlSanitizer {
             return doSanitize(model);
 
 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new PnInternalException(e.getMessage(), ERROR_CODE_PN_GENERIC_ERROR, e);
         }
     }
 
