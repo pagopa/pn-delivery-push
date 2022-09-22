@@ -60,7 +60,7 @@ public class PnNotificationViewControllerTest {
     }
 
     @Test
-    void notifyNotificationViewedNoRequestBody() {
+    void notifyNotificationViewedOk() {
         // GIVEN
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun(IUN)
