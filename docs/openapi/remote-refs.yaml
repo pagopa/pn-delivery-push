@@ -18,6 +18,7 @@ components:
     cxTaxIdAuthFleet:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/f34eabb77a2ee56f17afd3cc63e3e42498029f3c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTaxIdAuthFleet'
 
+  schemas:
     ############################################################################################
     ###                     PARAMETRI DI IDENTIFICATIVO NOTIFICA                     ###
     ############################################################################################
