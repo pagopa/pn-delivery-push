@@ -119,40 +119,40 @@ paths:
             application/problem+json:
               schema:
                 $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
-'/delivery-push-private/{iun}/legal-facts':
-  get:
-    summary: Elenco atti opponibili a terzi
-    description: >-
-      Elenca le informazione di categorizzazione di tutti gli atti opponibili a terzi
-      registrati durante il processo di notifica.
-      <br/>
-      Il parametro cxIdAuthFleet deve essere l'internalId del destinatario o della PA mittente
-    tags:
-      - LegalFactsPrivate
-    operationId: getNotificationLegalFactsPrivate
-    parameters:
-      - $ref: '#/components/parameters/cxIdAuthFleet'
-      - $ref: '#/components/parameters/pathIun'
-      - $ref: '#/components/parameters/legalFactsSearchMandateId'
-    responses:
-      '200':
-        description: OK
-        content:
-          application/json:
-            schema:
-              $ref: "./schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactList"
-      '400':
-        description: Invalid input
-        content:
-          application/problem+json:
-            schema:
-              $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
-      '500':
-        description: Internal Server Error
-        content:
-          application/problem+json:
-            schema:
-              $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+  '/delivery-push-private/{iun}/legal-facts':
+    get:
+      summary: Elenco atti opponibili a terzi
+      description: >-
+        Elenca le informazione di categorizzazione di tutti gli atti opponibili a terzi
+        registrati durante il processo di notifica.
+        <br/>
+        Il parametro cxIdAuthFleet deve essere l'internalId del destinatario o della PA mittente
+      tags:
+        - LegalFactsPrivate
+      operationId: getNotificationLegalFactsPrivate
+      parameters:
+        - $ref: '#/components/parameters/cxIdAuthFleet'
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactList"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
   '/delivery-push-private/{iun}/legal-facts/{legalFactType}/{legalFactId}':
     get:
       summary: Singolo atto opponibile a terzi
