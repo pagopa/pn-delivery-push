@@ -19,12 +19,13 @@ import java.util.*;
 class StatusUtilsTest {
     @Mock
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
-    
+
     private StatusUtils statusUtils;
-    
+
     @BeforeEach
     public void setup() {
-        Mockito.when(pnDeliveryPushConfigs.getPaperMessageNotHandled()).thenReturn(false);
+        pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
+        //Mockito.when(pnDeliveryPushConfigs.getPaperMessageNotHandled()).thenReturn(false);
         this.statusUtils = new StatusUtils(pnDeliveryPushConfigs);
     }
 
@@ -70,72 +71,72 @@ class StatusUtilsTest {
 
         // WHEN ask for status history
         Instant notificationCreatedAt = Instant.parse("2021-09-16T15:20:00.00Z");
-        
+
         List<NotificationStatusHistoryElementInt> actualStatusHistory = statusUtils.getStatusHistory(
                 timelineElementList, 1,
                 notificationCreatedAt
         );
 
         // THEN status histories have same length
-        Assertions.assertEquals( 6, actualStatusHistory.size(), "Check length");
+        Assertions.assertEquals(6, actualStatusHistory.size(), "Check length");
 
         //  ... 1st initial status
-        Assertions.assertEquals( NotificationStatusHistoryElementInt.builder()
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
                         .status(NotificationStatusInt.IN_VALIDATION)
                         .activeFrom(notificationCreatedAt)
                         .relatedTimelineElements(List.of())
                         .build(),
-                actualStatusHistory.get( 0 ),
+                actualStatusHistory.get(0),
                 "1st status wrong"
         );
 
         //  ... 2nd initial status
-        Assertions.assertEquals( NotificationStatusHistoryElementInt.builder()
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
                         .status(NotificationStatusInt.ACCEPTED)
-                        .activeFrom( timelineElement1.getTimestamp() )
+                        .activeFrom(timelineElement1.getTimestamp())
                         .relatedTimelineElements(List.of("el1"))
                         .build(),
-                actualStatusHistory.get( 1 ),
+                actualStatusHistory.get(1),
                 "2nd status wrong"
         );
 
         //  ... 3rd initial status
-        Assertions.assertEquals( NotificationStatusHistoryElementInt.builder()
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
                         .status(NotificationStatusInt.DELIVERING)
-                        .activeFrom( timelineElement3.getTimestamp() )
-                        .relatedTimelineElements( Arrays.asList(  "el3", "el4" ))
+                        .activeFrom(timelineElement3.getTimestamp())
+                        .relatedTimelineElements(Arrays.asList("el3", "el4"))
                         .build(),
-                actualStatusHistory.get( 2 ),
+                actualStatusHistory.get(2),
                 "3rd status wrong"
         );
 
         //  ... 4th initial status
-        Assertions.assertEquals( NotificationStatusHistoryElementInt.builder()
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
                         .status(NotificationStatusInt.DELIVERED)
-                        .activeFrom( timelineElement5.getTimestamp() )
+                        .activeFrom(timelineElement5.getTimestamp())
                         .relatedTimelineElements(List.of("el5"))
                         .build(),
-                actualStatusHistory.get( 3 ),
+                actualStatusHistory.get(3),
                 "4th status wrong"
         );
 
         //  ... 5th initial status
-        Assertions.assertEquals( NotificationStatusHistoryElementInt.builder()
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
                         .status(NotificationStatusInt.VIEWED)
-                        .activeFrom( timelineElement6.getTimestamp() )
+                        .activeFrom(timelineElement6.getTimestamp())
                         .relatedTimelineElements(List.of("el6"))
                         .build(),
-                actualStatusHistory.get( 4 ),
+                actualStatusHistory.get(4),
                 "2nd status wrong"
         );
 
         //  ... 6th initial status
-        Assertions.assertEquals( NotificationStatusHistoryElementInt.builder()
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
                         .status(NotificationStatusInt.PAID)
-                        .activeFrom( timelineElement7.getTimestamp() )
+                        .activeFrom(timelineElement7.getTimestamp())
                         .relatedTimelineElements(List.of("el7"))
                         .build(),
-                actualStatusHistory.get( 5 ),
+                actualStatusHistory.get(5),
                 "6th status wrong"
         );
     }
@@ -197,7 +198,7 @@ class StatusUtilsTest {
 
         // creare List<NotificationStatusHistoryElementInt>
         Instant notificationCreatedAt = Instant.parse("2021-09-16T15:20:00.00Z");
-        
+
         NotificationStatusHistoryElementInt historyElement = NotificationStatusHistoryElementInt.builder()
                 .status(NotificationStatusInt.IN_VALIDATION)
                 .activeFrom(notificationCreatedAt)
@@ -213,7 +214,7 @@ class StatusUtilsTest {
         NotificationStatusHistoryElementInt historyElement2 = NotificationStatusHistoryElementInt.builder()
                 .status(NotificationStatusInt.DELIVERING)
                 .activeFrom((Instant.parse("2021-09-16T15:25:00.00Z")))
-                .relatedTimelineElements( Arrays.asList( "el3", "el4", "el5", "el6", "el7" ))
+                .relatedTimelineElements(Arrays.asList("el3", "el4", "el5", "el6", "el7"))
                 .build();
         NotificationStatusHistoryElementInt historyElement4_1 = NotificationStatusHistoryElementInt.builder()
                 .status(NotificationStatusInt.DELIVERED)
@@ -230,7 +231,7 @@ class StatusUtilsTest {
                 .activeFrom((Instant.parse("2021-09-16T17:30:00.00Z")))
                 .relatedTimelineElements(List.of("el10"))
                 .build();
-        List<NotificationStatusHistoryElementInt> historyElementList = Arrays.asList(historyElement,historyElement1,
+        List<NotificationStatusHistoryElementInt> historyElementList = Arrays.asList(historyElement, historyElement1,
                 historyElement2, historyElement4_1, historyElement5, historyElement6);
 
         // chiamare metodo di test
@@ -266,7 +267,7 @@ class StatusUtilsTest {
                 timelineElement2, timelineElement3);
 
         Instant notificationCreatedAt = Instant.parse("2021-09-16T15:23:00.00Z");
-        
+
         NotificationStatusHistoryElementInt historyElement1 = NotificationStatusHistoryElementInt.builder()
                 .status(NotificationStatusInt.IN_VALIDATION)
                 .relatedTimelineElements(List.of())
@@ -314,7 +315,7 @@ class StatusUtilsTest {
     @ExtendWith(MockitoExtension.class)
     @Test
     void getCurrentStatusTest() {
-        List<NotificationStatusHistoryElementInt>  statusHistory = new ArrayList<>();
+        List<NotificationStatusHistoryElementInt> statusHistory = new ArrayList<>();
         NotificationStatusHistoryElementInt statusHistoryDelivering = NotificationStatusHistoryElementInt.builder()
                 .activeFrom(Instant.now())
                 .status(NotificationStatusInt.DELIVERING)
@@ -329,4 +330,33 @@ class StatusUtilsTest {
         Assertions.assertEquals(NotificationStatusInt.ACCEPTED, statusUtils.getCurrentStatus(statusHistory));
     }
 
+    @Test
+    void getStatusHistory() {
+
+        TimelineElementInternal timelineElement1 = TimelineElementInternal.builder()
+                .elementId("el1")
+                .timestamp((Instant.parse("2021-09-16T15:24:00.00Z")))
+                .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
+                .build();
+        TimelineElementInternal timelineElement2 = TimelineElementInternal.builder()
+                .elementId("el2")
+                .timestamp((Instant.parse("2021-09-16T15:25:00.00Z")))
+                .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .build();
+        TimelineElementInternal timelineElement3 = TimelineElementInternal.builder()
+                .elementId("el3")
+                .timestamp((Instant.parse("2021-09-16T15:26:00.00Z")))
+                .category(TimelineElementCategoryInt.DIGITAL_FAILURE_WORKFLOW)
+                .build();
+
+        Set<TimelineElementInternal> timelineElementList = Set.of(timelineElement1,
+                timelineElement2, timelineElement3);
+
+        Instant notificationCreatedAt = Instant.parse("2021-09-16T15:23:00.00Z");
+
+        Mockito.when(pnDeliveryPushConfigs.getPaperMessageNotHandled()).thenReturn(Boolean.FALSE);
+        List<NotificationStatusHistoryElementInt> responseList = statusUtils.getStatusHistory(timelineElementList, 3, notificationCreatedAt);
+
+        Assertions.assertEquals(responseList.size(), 3);
+    }
 }

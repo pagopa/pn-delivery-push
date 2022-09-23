@@ -38,11 +38,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.sql.Time;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.eq;
@@ -206,7 +208,7 @@ class NotificationViewedTestIT {
         startWorkflowHandler.startWorkflow(iun);
         
         //Simulazione visualizzazione della notifica
-        notificationViewedHandler.handleViewNotification(iun, recIndex);
+        notificationViewedHandler.handleViewNotification(iun, recIndex, Instant.now());
         
         //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti
         checkTimelineElementIsPresent(iun, recIndex);
@@ -215,7 +217,7 @@ class NotificationViewedTestIT {
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient.getTaxId(), iun);
 
         //Simulazione seconda visualizzazione della notifica
-        notificationViewedHandler.handleViewNotification(iun, recIndex);
+        notificationViewedHandler.handleViewNotification(iun, recIndex, Instant.now());
 
         //Viene effettuata la verifica che i processi correlati alla visualizzazione non siano avvenuti, dunque che il numero d'invocazioni dei metodi sia rimasto lo stesso
         Mockito.verify(legalFactStore, Mockito.times(1)).saveNotificationViewedLegalFact(eq(notification),eq(recipient), Mockito.any(Instant.class));
@@ -298,7 +300,7 @@ class NotificationViewedTestIT {
         startWorkflowHandler.startWorkflow(iun);
 
         //Simulazione visualizzazione della notifica per il primo recipient
-        notificationViewedHandler.handleViewNotification(iun, recIndex1);
+        notificationViewedHandler.handleViewNotification(iun, recIndex1, Instant.now());
 
         //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti
         checkTimelineElementIsPresent(iun, recIndex1);
@@ -307,7 +309,7 @@ class NotificationViewedTestIT {
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient1.getTaxId(), iun);
 
         //Simulazione visualizzazione della notifica per il primo recipient
-        notificationViewedHandler.handleViewNotification(iun, recIndex2);
+        notificationViewedHandler.handleViewNotification(iun, recIndex2, Instant.now());
 
         //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti
         checkTimelineElementIsPresent(iun, recIndex2);
@@ -366,7 +368,7 @@ class NotificationViewedTestIT {
         );
 
         //Simulazione visualizzazione della notifica
-        notificationViewedHandler.handleViewNotification(iun, recIndex);
+        notificationViewedHandler.handleViewNotification(iun, recIndex, Instant.now());
 
         //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti e siano corretti
         String timelineId = TimelineEventId.NOTIFICATION_VIEWED.buildEventId(

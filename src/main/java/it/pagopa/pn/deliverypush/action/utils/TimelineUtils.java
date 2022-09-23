@@ -442,7 +442,10 @@ public class TimelineUtils {
             NotificationInt notification,
             Integer recIndex,
             String legalFactId,
-            Integer notificationCost) {
+            Integer notificationCost,
+            String raddType,
+            String raddTransactionId,
+            Instant eventTimestamp) {
         log.debug("buildNotificationViewedTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
 
         String elementId = TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
@@ -453,12 +456,14 @@ public class TimelineUtils {
         NotificationViewedDetailsInt details = NotificationViewedDetailsInt.builder()
                 .recIndex(recIndex)
                 .notificationCost(notificationCost)
+                .raddType(raddType)
+                .raddTransactionId(raddTransactionId)
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds( singleLegalFactId( legalFactId, LegalFactCategoryInt.RECIPIENT_ACCESS ) );
 
-        return buildTimeline(notification, TimelineElementCategoryInt.NOTIFICATION_VIEWED, elementId,
+        return buildTimeline(notification, TimelineElementCategoryInt.NOTIFICATION_VIEWED, elementId, eventTimestamp,
                 details, timelineBuilder);
     }
 
