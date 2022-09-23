@@ -191,14 +191,14 @@ components:
         iun:
           $ref: "./remote-refs.yaml#/components/schemas/IUN"
         recipientType:
-          $ref: './schemas-pn-notification-v1.yaml#/components/schemas/recipientType'
+          $ref: './schemas-pn-notification-v1.yaml#/components/schemas/RecipientType'
         recipientInternalId:
           type: string
           description: identificativo anonimizzato del destinatario
         raddType:
-          $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/raddType'
+          $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/RaddType'
         raddBusinessTransactionId:
-          $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/raddTransactionId'
+          $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/RaddTransactionId'
         raddBusinessTransactionDate:
           type: string
           format: date-time

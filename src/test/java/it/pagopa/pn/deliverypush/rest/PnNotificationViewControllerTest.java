@@ -4,6 +4,7 @@ import it.pagopa.pn.deliverypush.action.NotificationViewedHandler;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.RecipientType;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.RequestNotificationViewedDto;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseNotificationViewedDto;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -42,7 +43,7 @@ public class PnNotificationViewControllerTest {
                 .recipientInternalId("recipientInternalId")
                 .raddType("raddType")
                 .raddBusinessTransactionId("raddTransactionId")
-                .recipientType("recipientType")
+                .recipientType(RecipientType.PF)
                 .build();
         // WHEN
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(null);
@@ -70,7 +71,7 @@ public class PnNotificationViewControllerTest {
                 .recipientInternalId("recipientInternalId")
                 .raddType("raddType")
                 .raddBusinessTransactionId("raddTransactionId")
-                .recipientType("recipientType")
+                .recipientType(RecipientType.PF)
                 .build();
 
         // WHEN

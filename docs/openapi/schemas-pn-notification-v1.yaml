@@ -1,6 +1,8 @@
+
 components:
   schemas:
-    recipientType:
+
+    RecipientType:
       type: string
       enum:
         - PF
