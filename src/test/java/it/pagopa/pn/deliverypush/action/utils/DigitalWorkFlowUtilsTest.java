@@ -65,7 +65,7 @@ class DigitalWorkFlowUtilsTest {
         Set<TimelineElementInternal> timeline = new HashSet<>();
         timeline.add(timelineElementInternal);
 
-        Mockito.when(timelineService.getTimeline("1")).thenReturn(timeline);
+        Mockito.when(timelineService.getTimeline("1", true)).thenReturn(timeline);
 
         DigitalAddressInfo tmp = digitalWorkFlowUtils.getNextAddressInfo("1", 1, addressInfo);
 
