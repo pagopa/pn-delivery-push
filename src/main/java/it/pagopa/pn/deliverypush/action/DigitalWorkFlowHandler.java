@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.action;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.action.utils.ChooseDeliveryModeUtils;
 import it.pagopa.pn.deliverypush.action.utils.DigitalWorkFlowUtils;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
@@ -60,6 +61,26 @@ public class DigitalWorkFlowHandler {
         this.publicRegistryService = publicRegistryService;
         this.instantNowSupplier = instantNowSupplier;
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
+    }
+
+
+    /**
+     * Starting digital workflow sending notification information to external channel
+     *
+     * @param notification   Public Administration notification request
+     * @param digitalAddress User address
+     * @param addressSource Address source ( PLATFORM, SPECIAL, GENERAL );
+     * @param recIndex      User identifier
+     */
+    public void startDigitalWorkflow(NotificationInt notification, LegalDigitalAddressInt digitalAddress, DigitalAddressSourceInt addressSource, Integer recIndex) {
+        log.info("Starting digital workflow sending notification to external channel - iun={} id={} ", notification.getIun(), recIndex);
+
+        sendDigitalNotificationAndScheduleTimeoutAction(notification, digitalAddress, DigitalAddressInfo.builder()
+                .digitalAddressSource(addressSource)
+                .digitalAddress(digitalAddress)
+                .sentAttemptMade(ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER)
+                .lastAttemptDate(Instant.now())
+                .build(), recIndex, false, null);
     }
 
     /**
@@ -231,13 +252,14 @@ public class DigitalWorkFlowHandler {
         {
             // se trovo un precedente sourceTimelineId, vuol dire che probabilmente sto rischedulando per un ritentativo di invio breve.
             // vado ad de-schedulare l'eventuale action precedentemente schedulata, ma se non la trovo, fa niente, non è un errore!
-            this.schedulerService.unscheduleEvent(notification.getIun(), recIndex, ActionType.DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION, timelineId);
+            this.schedulerService.unscheduleEvent(notification.getIun(), recIndex, ActionType.DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION, sourceTimelineId);
         }
 
         Duration secondNotificationWorkflowWaitingTime = pnDeliveryPushConfigs.getExternalChannel().getDigitalSendNoresponseTimeout();
         Instant schedulingDate = Instant.now().plus(secondNotificationWorkflowWaitingTime);
 
         this.schedulerService.scheduleEvent(notification.getIun(), recIndex, schedulingDate, ActionType.DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION, timelineId);
+        log.info("sendDigitalNotificationAndScheduleTimeoutAction scheduled DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION for iun={} recIdx={} timelineId={} schedulingDate={}", notification.getIun(), recIndex, timelineId, schedulingDate);
     }
 
 

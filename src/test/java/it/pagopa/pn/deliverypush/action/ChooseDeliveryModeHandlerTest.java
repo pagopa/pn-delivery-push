@@ -38,7 +38,7 @@ import static org.mockito.Mockito.times;
 class ChooseDeliveryModeHandlerTest {
 
     @Mock
-    private ExternalChannelService externalChannelService;
+    private DigitalWorkFlowHandler digitalWorkFlowHandler;
     @Mock
     private SchedulerService schedulerService;
     @Mock
@@ -59,7 +59,7 @@ class ChooseDeliveryModeHandlerTest {
     @BeforeEach
     public void setup() {
         handler = new ChooseDeliveryModeHandler(chooseDeliveryUtils,
-                externalChannelService, schedulerService,
+                digitalWorkFlowHandler, schedulerService,
                 publicRegistryService, instantNowSupplier, pnDeliveryPushConfigs, notificationService);
         notificationUtils= new NotificationUtils();
     }
@@ -88,8 +88,8 @@ class ChooseDeliveryModeHandlerTest {
         ArgumentCaptor<DigitalAddressSourceInt> digitalAddressSourceCaptor = ArgumentCaptor.forClass(DigitalAddressSourceInt.class);
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);
 
-        Mockito.verify(externalChannelService).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class),
-                digitalAddressSourceCaptor.capture(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyBoolean());
+        Mockito.verify(digitalWorkFlowHandler).startDigitalWorkflow(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class),
+                digitalAddressSourceCaptor.capture(), Mockito.anyInt());
         Assertions.assertEquals(DigitalAddressSourceInt.PLATFORM, digitalAddressSourceCaptor.getValue());
 
         Mockito.verify(chooseDeliveryUtils).addAvailabilitySourceToTimeline(Mockito.anyInt(), Mockito.any(NotificationInt.class),
@@ -136,8 +136,8 @@ class ChooseDeliveryModeHandlerTest {
         Assertions.assertEquals(DigitalAddressSourceInt.SPECIAL, listDigitalAddressSourceCaptorValues.get(1));
         Assertions.assertTrue(listIsAvailableCaptorValues.get(1));
 
-        Mockito.verify(externalChannelService).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class),
-                digitalAddressSourceCaptor.capture(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyBoolean());
+        Mockito.verify(digitalWorkFlowHandler).startDigitalWorkflow(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class),
+                digitalAddressSourceCaptor.capture(), Mockito.anyInt());
 
         Assertions.assertEquals(DigitalAddressSourceInt.SPECIAL, digitalAddressSourceCaptor.getValue());
     }
@@ -202,8 +202,8 @@ class ChooseDeliveryModeHandlerTest {
         ArgumentCaptor<DigitalAddressSourceInt> digitalAddressSourceCaptor = ArgumentCaptor.forClass(DigitalAddressSourceInt.class);
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);
 
-        Mockito.verify(externalChannelService).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class),
-                digitalAddressSourceCaptor.capture(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyBoolean());
+        Mockito.verify(digitalWorkFlowHandler).startDigitalWorkflow(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class),
+                digitalAddressSourceCaptor.capture(), Mockito.anyInt());
         Assertions.assertEquals(DigitalAddressSourceInt.GENERAL, digitalAddressSourceCaptor.getValue());
 
         Mockito.verify(chooseDeliveryUtils).addAvailabilitySourceToTimeline(Mockito.anyInt(), Mockito.any(NotificationInt.class),

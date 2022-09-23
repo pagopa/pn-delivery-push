@@ -24,7 +24,7 @@ import java.util.Optional;
 @Component
 @Slf4j
 public class ChooseDeliveryModeHandler {
-    private final ExternalChannelService externalChannelService;
+    private final DigitalWorkFlowHandler digitalWorkFlowHandler;
     private final SchedulerService schedulerService;
     private final PublicRegistryService publicRegistryService;
     private final ChooseDeliveryModeUtils chooseDeliveryUtils;
@@ -33,14 +33,14 @@ public class ChooseDeliveryModeHandler {
     private final NotificationService notificationService;
 
     public ChooseDeliveryModeHandler(ChooseDeliveryModeUtils chooseDeliveryUtils,
-                                     ExternalChannelService externalChannelService,
+                                     DigitalWorkFlowHandler digitalWorkFlowHandler,
                                      SchedulerService schedulerService,
                                      PublicRegistryService publicRegistryService,
                                      InstantNowSupplier instantNowSupplier,
                                      PnDeliveryPushConfigs pnDeliveryPushConfigs,
                                      NotificationService notificationService) {
         this.chooseDeliveryUtils = chooseDeliveryUtils;
-        this.externalChannelService = externalChannelService;
+        this.digitalWorkFlowHandler = digitalWorkFlowHandler;
         this.schedulerService = schedulerService;
         this.publicRegistryService = publicRegistryService;
         this.instantNowSupplier = instantNowSupplier;
@@ -126,7 +126,7 @@ public class ChooseDeliveryModeHandler {
      */
     public void startDigitalWorkflow(NotificationInt notification, LegalDigitalAddressInt digitalAddress, DigitalAddressSourceInt addressSource, Integer recIndex) {
         log.info("Starting digital workflow sending notification to external channel - iun={} id={} ", notification.getIun(), recIndex);
-        externalChannelService.sendDigitalNotification(notification, digitalAddress, addressSource, recIndex, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, false);
+        digitalWorkFlowHandler.startDigitalWorkflow(notification, digitalAddress, addressSource, recIndex);
     }
 
     /**
