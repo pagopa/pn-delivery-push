@@ -61,11 +61,18 @@ class DigitalWorkFlowHandlerTest {
 
     private DigitalWorkFlowHandler handler;
 
+    private DigitalWorkFlowRetryHandler handlerRetry;
+
+    private DigitalWorkFlowExternalChannelResponseHandler handlerExtChannel;
+
     @BeforeEach
     public void setup() {
         handler = new DigitalWorkFlowHandler(externalChannelService, notificationService,
                 schedulerService, digitalWorkFlowUtils, completionWorkflow, publicRegistryService, instantNowSupplier,
                 pnDeliveryPushConfigs);
+
+        handlerExtChannel = new DigitalWorkFlowExternalChannelResponseHandler(notificationService, schedulerService, digitalWorkFlowUtils, completionWorkflow, pnDeliveryPushConfigs, handler);
+        handlerRetry = new DigitalWorkFlowRetryHandler(handler, notificationService, digitalWorkFlowUtils, handlerExtChannel);
 
     }
 
@@ -487,7 +494,7 @@ class DigitalWorkFlowHandlerTest {
                 .build();
 
         //WHEN
-        handler.handleExternalChannelResponse(extChannelResponse);
+        handlerExtChannel.handleExternalChannelResponse(extChannelResponse);
 
         //THEN
         Mockito.verify(digitalWorkFlowUtils, Mockito.never()).getSendDigitalDetailsTimelineElement(Mockito.anyString(), Mockito.anyString());
@@ -546,7 +553,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(externalChannel.getDigitalCodesProgress()).thenReturn(List.of("C001"));
 
         //WHEN
-        handler.handleExternalChannelResponse(extChannelResponse);
+        handlerExtChannel.handleExternalChannelResponse(extChannelResponse);
 
         //THEN
         Mockito.verify(digitalWorkFlowUtils).addDigitalDeliveringProgressTimelineElement(notification, EventCodeInt.C001, 0, 0, details.getDigitalAddress(), details.getDigitalAddressSource(),
@@ -608,7 +615,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(externalChannel.getDigitalRetryDelay()).thenReturn(Duration.ofMillis(100));
 
         //WHEN
-        handler.handleExternalChannelResponse(extChannelResponse);
+        handlerExtChannel.handleExternalChannelResponse(extChannelResponse);
 
         //THEN
         Mockito.verify(digitalWorkFlowUtils).addDigitalDeliveringProgressTimelineElement(notification, EventCodeInt.C008, 0, 0, details.getDigitalAddress(), details.getDigitalAddressSource(),
@@ -628,7 +635,7 @@ class DigitalWorkFlowHandlerTest {
                         .build());
 
         //WHEN
-        handler.handleExternalChannelResponse(extChannelResponse);
+        handlerExtChannel.handleExternalChannelResponse(extChannelResponse);
 
         //THEN
         Mockito.verify(digitalWorkFlowUtils).addDigitalFeedbackTimelineElement(Mockito.any(NotificationInt.class), Mockito.eq(ResponseStatusInt.KO),
@@ -642,7 +649,7 @@ class DigitalWorkFlowHandlerTest {
 
 
         //WHEN
-        handler.handleExternalChannelResponse(extChannelResponse);
+        handlerExtChannel.handleExternalChannelResponse(extChannelResponse);
 
         //THEN
         Mockito.verify(digitalWorkFlowUtils).addDigitalDeliveringProgressTimelineElement(notification, EventCodeInt.C008, 0, 0, details.getDigitalAddress(), details.getDigitalAddressSource(),
@@ -709,7 +716,7 @@ class DigitalWorkFlowHandlerTest {
 
 
         //WHEN
-        handler.handleExternalChannelResponse(extChannelResponse);
+        handlerExtChannel.handleExternalChannelResponse(extChannelResponse);
 
         //THEN
         Mockito.verify(digitalWorkFlowUtils, Mockito.never()).addDigitalDeliveringProgressTimelineElement(notification, EventCodeInt.C008, 0, 0, details.getDigitalAddress(), details.getDigitalAddressSource(),
@@ -769,7 +776,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(pnDeliveryPushConfigs.getExternalChannel().getDigitalSendNoresponseTimeout()).thenReturn(Duration.ofSeconds(100));
 
         //WHEN
-        handler.startScheduledRetryWorkflow(notification.getIun(), 0, sourceTimelineId);
+        handlerRetry.startScheduledRetryWorkflow(notification.getIun(), 0, sourceTimelineId);
 
         //THEN
 
@@ -829,7 +836,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(externalChannel.getDigitalCodesFail()).thenReturn(List.of("C002", "C004", "C006", "C009"));
 
         //WHEN
-        handler.handleExternalChannelResponse(extChannelResponse);
+        handlerExtChannel.handleExternalChannelResponse(extChannelResponse);
 
         //THEN
         Mockito.verify(digitalWorkFlowUtils, Mockito.never()).addDigitalDeliveringProgressTimelineElement(notification, EventCodeInt.C000, 0, 0, details.getDigitalAddress(), details.getDigitalAddressSource(),
@@ -885,7 +892,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(externalChannel.getDigitalCodesFatallog()).thenReturn(List.of("C008", "C010"));
         Mockito.when(externalChannel.getDigitalCodesFail()).thenReturn(List.of("C002", "C004", "C006", "C009"));
         //WHEN
-        handler.handleExternalChannelResponse(extChannelResponse);
+        handlerExtChannel.handleExternalChannelResponse(extChannelResponse);
 
         //THEN
         Mockito.verify(digitalWorkFlowUtils, Mockito.never()).addDigitalFeedbackTimelineElement(Mockito.any(NotificationInt.class), Mockito.eq(ResponseStatusInt.KO),
@@ -941,7 +948,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(externalChannel.getDigitalCodesFatallog()).thenReturn(List.of("C008", "C010"));
         Mockito.when(externalChannel.getDigitalCodesFail()).thenReturn(List.of("C002", "C004", "C006", "C009"));
         //WHEN
-        handler.handleExternalChannelResponse(extChannelResponse);
+        handlerExtChannel.handleExternalChannelResponse(extChannelResponse);
 
         //THEN
         Mockito.verify(digitalWorkFlowUtils, Mockito.never()).addDigitalFeedbackTimelineElement(Mockito.any(NotificationInt.class), Mockito.eq(ResponseStatusInt.KO),
@@ -1007,7 +1014,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(externalChannel.getDigitalCodesFail()).thenReturn(List.of("C002", "C004", "C006", "C009"));
 
         //WHEN
-        handler.handleExternalChannelResponse(extChannelResponse);
+        handlerExtChannel.handleExternalChannelResponse(extChannelResponse);
 
         //THEN
         Mockito.verify(digitalWorkFlowUtils, Mockito.times(1)).addDigitalFeedbackTimelineElement(Mockito.any(NotificationInt.class), Mockito.eq(ResponseStatusInt.KO),
@@ -1073,7 +1080,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(externalChannel.getDigitalCodesFail()).thenReturn(List.of("C002", "C004", "C006", "C009"));
 
         //WHEN
-        handler.handleExternalChannelResponse(extChannelResponse);
+        handlerExtChannel.handleExternalChannelResponse(extChannelResponse);
 
         //THEN
         Mockito.verify(digitalWorkFlowUtils, Mockito.times(1)).addDigitalFeedbackTimelineElement(Mockito.any(NotificationInt.class), Mockito.eq(ResponseStatusInt.KO),
@@ -1138,7 +1145,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(externalChannel.getDigitalCodesFail()).thenReturn(List.of("C002", "C004", "C006", "C009"));
         
         //WHEN
-        handler.handleExternalChannelResponse(extChannelResponse);
+        handlerExtChannel.handleExternalChannelResponse(extChannelResponse);
 
         //THEN
         
@@ -1197,7 +1204,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(externalChannel.getDigitalCodesFail()).thenReturn(List.of("C002", "C004", "C006", "C009"));
         //WHEN
 
-        assertDoesNotThrow(() -> handler.handleExternalChannelResponse(extChannelResponse));
+        assertDoesNotThrow(() -> handlerExtChannel.handleExternalChannelResponse(extChannelResponse));
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -1250,7 +1257,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(externalChannel.getDigitalCodesSuccess()).thenReturn(List.of("C003"));
 
         //WHEN
-        handler.handleExternalChannelResponse(extChannelResponse);
+        handlerExtChannel.handleExternalChannelResponse(extChannelResponse);
 
         //THEN
         Mockito.verify(digitalWorkFlowUtils).addDigitalFeedbackTimelineElement(notification, ResponseStatusInt.OK,

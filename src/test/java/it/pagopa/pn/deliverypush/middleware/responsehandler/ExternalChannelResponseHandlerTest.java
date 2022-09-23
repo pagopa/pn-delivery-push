@@ -6,6 +6,7 @@ import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.Pap
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.ProgressEventCategory;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.SingleStatusUpdate;
 import it.pagopa.pn.deliverypush.action.AnalogWorkflowHandler;
+import it.pagopa.pn.deliverypush.action.DigitalWorkFlowExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
@@ -26,7 +27,7 @@ import java.time.format.DateTimeFormatter;
 class ExternalChannelResponseHandlerTest {
 
     @Mock
-    private DigitalWorkFlowHandler digitalWorkFlowHandler;
+    private DigitalWorkFlowExternalChannelResponseHandler digitalWorkFlowHandler;
 
     @Mock
     private AnalogWorkflowHandler analogWorkflowHandler;
@@ -39,7 +40,7 @@ class ExternalChannelResponseHandlerTest {
 
     @BeforeEach
     void setup() {
-        digitalWorkFlowHandler = Mockito.mock(DigitalWorkFlowHandler.class);
+        digitalWorkFlowHandler = Mockito.mock(DigitalWorkFlowExternalChannelResponseHandler.class);
         analogWorkflowHandler = Mockito.mock(AnalogWorkflowHandler.class);
         timelineUtils = Mockito.mock(TimelineUtils.class);
         handler = new ExternalChannelResponseHandler(digitalWorkFlowHandler, analogWorkflowHandler, timelineUtils);

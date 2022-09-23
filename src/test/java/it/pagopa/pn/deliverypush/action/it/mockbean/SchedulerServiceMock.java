@@ -13,19 +13,22 @@ import java.time.temporal.ChronoUnit;
 
 public class SchedulerServiceMock implements SchedulerService {
     private final DigitalWorkFlowHandler digitalWorkFlowHandler;
+    private final DigitalWorkFlowRetryHandler digitalWorkFlowRetryHandler;
     private final AnalogWorkflowHandler analogWorkflowHandler;
     private final RefinementHandler refinementHandler;
     private final InstantNowSupplier instantNowSupplier;
     private final StartWorkflowForRecipientHandler startWorkflowForRecipientHandler;
     private final ChooseDeliveryModeHandler chooseDeliveryModeHandler;
 
-    public SchedulerServiceMock(@Lazy DigitalWorkFlowHandler digitalWorkFlowHandler, 
+    public SchedulerServiceMock(@Lazy DigitalWorkFlowHandler digitalWorkFlowHandler,
+                                @Lazy DigitalWorkFlowRetryHandler digitalWorkFlowRetryHandler,
                                 @Lazy AnalogWorkflowHandler analogWorkflowHandler,
                                 @Lazy RefinementHandler refinementHandler, 
                                 @Lazy InstantNowSupplier instantNowSupplier, 
                                 @Lazy StartWorkflowForRecipientHandler startWorkflowForRecipientHandler, 
                                 @Lazy ChooseDeliveryModeHandler chooseDeliveryModeHandler) {
         this.digitalWorkFlowHandler = digitalWorkFlowHandler;
+        this.digitalWorkFlowRetryHandler = digitalWorkFlowRetryHandler;
         this.analogWorkflowHandler = analogWorkflowHandler;
         this.refinementHandler = refinementHandler;
         this.instantNowSupplier = instantNowSupplier;
@@ -54,7 +57,10 @@ public class SchedulerServiceMock implements SchedulerService {
                 digitalWorkFlowHandler.startScheduledNextWorkflow(iun, recIndex);
                 break;
             case DIGITAL_WORKFLOW_RETRY_ACTION:
-                digitalWorkFlowHandler.startScheduledRetryWorkflow(iun, recIndex, iun + "_retry_action_" + recIndex);
+                digitalWorkFlowRetryHandler.startScheduledRetryWorkflow(iun, recIndex, iun + "_retry_action_" + recIndex);
+                break;
+            case DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION:
+                digitalWorkFlowRetryHandler.elapsedExtChannelTimeout(iun, recIndex, iun + "_retry_action_" + recIndex);
                 break;
         }
     }
