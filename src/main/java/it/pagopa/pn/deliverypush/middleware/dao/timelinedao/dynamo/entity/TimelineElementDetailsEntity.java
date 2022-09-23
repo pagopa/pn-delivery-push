@@ -44,4 +44,6 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("sendingReceipts")})) private List<SendingReceiptEntity> sendingReceipts;
     @Getter(onMethod=@__({@DynamoDbAttribute("eventCode")})) private String eventCode;
     @Getter(onMethod=@__({@DynamoDbAttribute("shouldRetry")})) private Boolean shouldRetry;
+    @Getter(onMethod=@__({@DynamoDbAttribute("raddType")})) private String raddType;
+    @Getter(onMethod=@__({@DynamoDbAttribute("raddTransactionId")})) private String raddTransactionId;
 }

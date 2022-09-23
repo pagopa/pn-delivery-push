@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 
+import java.time.Instant;
 import java.util.function.Consumer;
 
 @Configuration
@@ -34,7 +35,7 @@ public class NotificationViewedEventHandler {
                 int recipientIndex = pnDeliveryNewNotificationEvent.getPayload().getRecipientIndex();
                 log.info("pnDeliveryNotificationViewedEventConsumer - iun {}", iun);
 
-                notificationViewedHandler.handleViewNotification(iun, recipientIndex);
+                notificationViewedHandler.handleViewNotification(iun, recipientIndex, Instant.now());
             } catch (Exception ex) {
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
