@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.externalclient.pnclient.externalchannel;
 
-import it.pagopa.pn.commons.pnclients.RestTemplateFactory;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.api.PaperMessagesApi;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
@@ -13,20 +12,21 @@ import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel.ExternalChannelSendClientImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
 class ExternalChannelSendClientImplTestIT {
 
@@ -46,11 +46,11 @@ class ExternalChannelSendClientImplTestIT {
 
     @BeforeEach
     void setup() {
-        this.cfg = mock( PnDeliveryPushConfigs.class );
-        Mockito.when( cfg.getExternalChannelBaseUrl() ).thenReturn( "http://localhost:8080" );
-        Mockito.when( cfg.getExternalchannelCxId() ).thenReturn( "pn-delivery-002" );
+        this.cfg = mock(PnDeliveryPushConfigs.class);
+        Mockito.when(cfg.getExternalChannelBaseUrl()).thenReturn("http://localhost:8080");
+        Mockito.when(cfg.getExternalchannelCxId()).thenReturn("pn-delivery-002");
 
-        this.externalChannelSendClient = new ExternalChannelSendClientImpl( restTemplate, cfg, legalFactGenerator);
+        this.externalChannelSendClient = new ExternalChannelSendClientImpl(restTemplate, cfg, legalFactGenerator);
         this.externalChannelSendClient.init();
     }
 
@@ -63,13 +63,13 @@ class ExternalChannelSendClientImplTestIT {
         PhysicalAddressInt physicalAddress = mock(PhysicalAddressInt.class);
         String eventid = "rtyuiokjhgvcbnjmk4567890";
 
-        Mockito.when( restTemplate.exchange( Mockito.any(RequestEntity.class),Mockito.any(ParameterizedTypeReference.class)))
-                .thenReturn( ResponseEntity.ok("") );
+        Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
+                .thenReturn(ResponseEntity.ok(""));
         when(notificationInt.getSender()).thenReturn(new NotificationSenderInt());
 
         //When
 
-        assertDoesNotThrow(() -> externalChannelSendClient.sendAnalogNotification( notificationInt, recipientInt, physicalAddress, eventid, PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER, "frtghyuiugfdfghj" ));
+        assertDoesNotThrow(() -> externalChannelSendClient.sendAnalogNotification(notificationInt, recipientInt, physicalAddress, eventid, PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER, "frtghyuiugfdfghj"));
 
         //Then
 
@@ -84,15 +84,15 @@ class ExternalChannelSendClientImplTestIT {
         LegalDigitalAddressInt addressInt = mock(LegalDigitalAddressInt.class);
         String eventid = "rtyuiokjhgvcbnjmk4567890";
 
-        Mockito.when( restTemplate.exchange( Mockito.any(RequestEntity.class),Mockito.any(ParameterizedTypeReference.class)))
-                .thenReturn( ResponseEntity.ok("") );
+        Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
+                .thenReturn(ResponseEntity.ok(""));
         when(notificationInt.getSender()).thenReturn(new NotificationSenderInt());
         when(addressInt.getType()).thenReturn(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC);
         when(addressInt.getAddress()).thenReturn("email@email.it");
 
         //When
 
-        assertDoesNotThrow(() -> externalChannelSendClient.sendLegalNotification( notificationInt, recipientInt, addressInt, eventid));
+        assertDoesNotThrow(() -> externalChannelSendClient.sendLegalNotification(notificationInt, recipientInt, addressInt, eventid));
 
     }
 
@@ -104,15 +104,15 @@ class ExternalChannelSendClientImplTestIT {
         CourtesyDigitalAddressInt addressInt = mock(CourtesyDigitalAddressInt.class);
         String eventid = "rtyuiokjhgvcbnjmk4567890";
 
-        Mockito.when( restTemplate.exchange( Mockito.any(RequestEntity.class),Mockito.any(ParameterizedTypeReference.class)))
-                .thenReturn( ResponseEntity.ok("") );
+        Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
+                .thenReturn(ResponseEntity.ok(""));
         when(notificationInt.getSender()).thenReturn(new NotificationSenderInt());
         when(addressInt.getType()).thenReturn(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL);
         when(addressInt.getAddress()).thenReturn("email@email.it");
 
         //When
 
-        assertDoesNotThrow(() -> externalChannelSendClient.sendCourtesyNotification( notificationInt, recipientInt, addressInt, eventid));
+        assertDoesNotThrow(() -> externalChannelSendClient.sendCourtesyNotification(notificationInt, recipientInt, addressInt, eventid));
 
     }
 
@@ -124,14 +124,14 @@ class ExternalChannelSendClientImplTestIT {
         CourtesyDigitalAddressInt addressInt = mock(CourtesyDigitalAddressInt.class);
         String eventid = "rtyuiokjhgvcbnjmk4567890";
 
-        Mockito.when( restTemplate.exchange( Mockito.any(RequestEntity.class),Mockito.any(ParameterizedTypeReference.class)))
-                .thenReturn( ResponseEntity.ok("") );
+        Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
+                .thenReturn(ResponseEntity.ok(""));
         when(notificationInt.getSender()).thenReturn(new NotificationSenderInt());
         when(addressInt.getType()).thenReturn(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.SMS);
 
         //When
 
-        assertDoesNotThrow(() -> externalChannelSendClient.sendCourtesyNotification( notificationInt, recipientInt, addressInt, eventid));
+        assertDoesNotThrow(() -> externalChannelSendClient.sendCourtesyNotification(notificationInt, recipientInt, addressInt, eventid));
 
     }
 }

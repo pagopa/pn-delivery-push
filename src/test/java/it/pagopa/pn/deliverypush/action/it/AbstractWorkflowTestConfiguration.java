@@ -1,5 +1,10 @@
 package it.pagopa.pn.deliverypush.action.it;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import freemarker.template.Configuration;
 import freemarker.template.Version;
 import freemarker.template._TemplateAPI;
@@ -19,6 +24,7 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.userattribut
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.impl.SaveLegalFactsServiceImpl;
+import it.pagopa.pn.deliverypush.utils.HtmlSanitizer;
 import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
 import org.mockito.Mockito;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -47,9 +53,20 @@ public class AbstractWorkflowTestConfiguration {
     }
 
     @Bean
-    public DocumentComposition documentCompositionTest() throws IOException {
+    public HtmlSanitizer htmlSanitizer() {
+        return new HtmlSanitizer(buildObjectMapper(), HtmlSanitizer.SanitizeMode.DELETE_HTML);
+    }
+
+    private ObjectMapper buildObjectMapper() {
+        ObjectMapper objectMapper = ((JsonMapper.Builder)((JsonMapper.Builder)JsonMapper.builder().configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false)).configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)).build();
+        objectMapper.registerModule(new JavaTimeModule());
+        return objectMapper;
+    }
+
+    @Bean
+    public DocumentComposition documentCompositionTest(HtmlSanitizer htmlSanitizer) throws IOException {
         Configuration freemarker = new Configuration( new Version(_TemplateAPI.VERSION_INT_2_3_0));
-        return new DocumentComposition(  freemarker );
+        return new DocumentComposition(  freemarker, htmlSanitizer );
     }
 
     @Bean
