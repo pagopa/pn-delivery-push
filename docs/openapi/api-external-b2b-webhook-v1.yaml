@@ -437,7 +437,7 @@ components:
           type: string
         iun:
           description: >-
-            Identificativo della notifica, presente solo le la richiesta di notifica è 
+            Identificativo della notifica, presente solo se la richiesta di notifica è
             stata accettata.
           type: string
 
@@ -497,10 +497,7 @@ components:
         recipientTaxId:
           type: string
         recipientType:
-          type: string
-          enum:
-            - PF
-            - PG
+          $ref: './schemas-pn-notification-v1.yaml#/components/schemas/recipientType'
         paymentType:
           type: string
           enum:

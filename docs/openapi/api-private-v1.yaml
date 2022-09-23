@@ -189,25 +189,16 @@ components:
         - raddBusinessTransactionClosingDate
       properties:
         iun:
-          type: string
-          description: Identificativo Univoco della Notifica
+          $ref: "./remote-refs.yaml#/components/schemas/IUN"
         recipientType:
-          type: string
-          description: |
-            tipo del destinatario <br/>
-            __PF__: Persona Fisica <br/>
-            __PG__: Persona Giuridica <br/>
+          $ref: './schemas-pn-notification-v1.yaml#/components/schemas/recipientType'
         recipientInternalId:
           type: string
           description: identificativo anonimizzato del destinatario
         raddType:
-          type: string
-          description: |
-            tipo di Rete Anti Digital Divide <br/>
-            __FSU__: Fornitore Servizio Universale <br/>
+          $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/raddType'
         raddBusinessTransactionId:
-          type: string
-          description: Identificativo della pratica all'interno della rete RADD
+          $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/raddTransactionId'
         raddBusinessTransactionDate:
           type: string
           format: date-time
@@ -219,8 +210,7 @@ components:
         - iun
       properties:
         iun:
-          type: string
-          description: Identificativo Univoco della Notifica
+          $ref: "./remote-refs.yaml#/components/schemas/IUN"
 
 
 

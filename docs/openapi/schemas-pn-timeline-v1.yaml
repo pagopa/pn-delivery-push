@@ -217,11 +217,9 @@ components:
           type: integer
           format: int64
         raddType:
-          type: string
-          description: Tipologia rete radd
+          $ref: '#/components/schemas/raddType'
         raddTransactionId:
-          description: ID della pratica dell'evento proveniente dalla rete radd
-          type: string
+          $ref: '#/components/schemas/raddTransactionId'
           
     PublicRegistryCallDetails:
       type: object
@@ -605,3 +603,13 @@ components:
           type: string
         system:
           type: string
+
+    raddType:
+      type: string
+      description: |
+        tipo di Rete Anti Digital Divide <br/>
+        __FSU__: Fornitore Servizio Universale <br/>
+
+    raddTransactionId:
+      type: string
+      description: Identificativo della pratica all'interno della rete RADD

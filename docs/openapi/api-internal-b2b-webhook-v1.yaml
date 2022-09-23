@@ -547,10 +547,7 @@ components:
         recipientTaxId:
           type: string
         recipientType:
-          type: string
-          enum:
-            - PF
-            - PG
+          $ref: './schemas-pn-notification-v1.yaml#/components/schemas/recipientType'
         paymentType:
           type: string
           enum:
