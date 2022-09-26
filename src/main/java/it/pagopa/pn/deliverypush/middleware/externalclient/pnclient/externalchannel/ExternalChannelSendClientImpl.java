@@ -106,7 +106,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
         if (digitalAddress.getType() == LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
             sendNotificationPEC(timelineEventId, notificationInt, recipientInt, digitalAddress);
         else
-            throw new PnInternalException("channel type not supported", ERROR_CODE_CHANNEL_TYPE_NOT_SUPPORTED);
+            throw new PnInternalException("channel type not supported", ERROR_CODE_DELIVERYPUSH_CHANNELTYPENOTSUPPORTED);
     }
 
     @Override
@@ -117,7 +117,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
         else if (digitalAddress.getType() == CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.SMS)
             sendNotificationSMS(timelineEventId, notificationInt, recipientInt, digitalAddress);
         else
-            throw new PnInternalException("channel type not supported", ERROR_CODE_CHANNEL_TYPE_NOT_SUPPORTED);
+            throw new PnInternalException("channel type not supported", ERROR_CODE_DELIVERYPUSH_CHANNELTYPENOTSUPPORTED);
     }
 
 
@@ -148,7 +148,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
 
             log.info("[exit] sendNotificationPEC address={} requestId={} recipient={}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
         } catch (Exception e) {
-            throw new PnInternalException("error sending PEC notification", ERROR_CODE_SEND_PEC_NOTIFICATION_FAILED);
+            throw new PnInternalException("error sending PEC notification", ERROR_CODE_DELIVERYPUSH_SENDPECNOTIFICATIONFAILED);
         }
     }
 
@@ -179,7 +179,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
 
             log.info("[exit] sendNotificationEMAIL address={} requestId={} recipient={}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
         } catch (Exception e) {
-            throw new PnInternalException("error sending EMAIL notification", ERROR_CODE_SEND_EMAIL_NOTIFICATION_FAILED);
+            throw new PnInternalException("error sending EMAIL notification", ERROR_CODE_DELIVERYPUSH_SENDEMAILNOTIFICATIONFAILED);
         }
     }
 
@@ -206,7 +206,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
 
             log.info("[exit] sendNotificationSMS address={} requestId={} recipient={}", LogUtils.maskNumber(digitalAddress.getAddress()), requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
         } catch (Exception e) {
-            throw new PnInternalException("error sending SMS notification", ERROR_CODE_SEND_SMS_NOTIFICATION_FAILED);
+            throw new PnInternalException("error sending SMS notification", ERROR_CODE_DELIVERYPUSH_SENDSMSNOTIFICATIONFAILED);
         }
     }
 

@@ -36,7 +36,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_ADD_TIMELINE_FAILED;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED;
 
 @Service
 @Slf4j
@@ -89,12 +89,12 @@ public class TimeLineServiceImpl implements TimelineService {
                 logEvent.generateSuccess().log();
             } catch (Exception ex) {
                 logEvent.generateFailure("Exception in addTimelineElement, ex={}", ex).log();
-                throw new PnInternalException("Exception in addTimelineElement - iun=" + notification.getIun() + " elementId=" + dto.getElementId(), ERROR_CODE_ADD_TIMELINE_FAILED);
+                throw new PnInternalException("Exception in addTimelineElement - iun=" + notification.getIun() + " elementId=" + dto.getElementId(), ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED);
             }
 
         } else {
             logEvent.generateFailure("Try to update Timeline and Status for non existing iun={}", dto.getIun());
-            throw new PnInternalException("Try to update Timeline and Status for non existing iun " + dto.getIun(), ERROR_CODE_ADD_TIMELINE_FAILED);
+            throw new PnInternalException("Try to update Timeline and Status for non existing iun " + dto.getIun(), ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED);
         }
 
     }

@@ -123,7 +123,7 @@ class ExternalChannelResponseHandlerTest {
     @Test
     void paperUpdatePnInternalExceptionTest() {
 
-        String expectErrorMsg = "PN_GENERIC_ERROR";
+        String expectErrorMsg = "PN_DELIVERYPUSH_UPDATEFAILED";
 
         PaperProgressStatusEvent extChannelResponse = new PaperProgressStatusEvent();
         SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();

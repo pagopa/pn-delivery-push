@@ -6,7 +6,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_AUDIT_LOG_FAILED;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_AUDITLOGFAILED;
 
 @Slf4j
 public class AuditLogUtils {
@@ -38,7 +38,7 @@ public class AuditLogUtils {
                     return PnAuditLogEventType.AUD_NT_LEGALOPEN_RCP;
                 } else {
                     log.error("Request is not from any authorized user. The audit log type cannot be determined - iun={} senderRecipientId={} mandateId={}", notification.getIun(), senderRecipientId, mandateId);
-                    throw new PnInternalException("Request is not from any authorized user. The audit log type cannot be determined - iun=" + notification.getIun() + " senderRecipientId=" + senderRecipientId + " mandateId=" + mandateId, ERROR_CODE_AUDIT_LOG_FAILED);
+                    throw new PnInternalException("Request is not from any authorized user. The audit log type cannot be determined - iun=" + notification.getIun() + " senderRecipientId=" + senderRecipientId + " mandateId=" + mandateId, ERROR_CODE_DELIVERYPUSH_AUDITLOGFAILED);
                 }
             }
         }

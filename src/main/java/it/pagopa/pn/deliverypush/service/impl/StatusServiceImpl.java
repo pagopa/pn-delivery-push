@@ -17,7 +17,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_STATUS_UPDATE_FAILED;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_STATUSUPDATEFAILED;
 
 @Slf4j
 @Service
@@ -63,7 +63,7 @@ public class StatusServiceImpl implements StatusService {
             log.info("Status changed to {} for iun {}", dto.getNextStatus(), dto.getIun());
         } else {
             log.error("Status not updated correctly - iun {}", dto.getIun());
-            throw new PnInternalException("Status not updated correctly - iun " + dto.getIun(), ERROR_CODE_STATUS_UPDATE_FAILED);
+            throw new PnInternalException("Status not updated correctly - iun " + dto.getIun(), ERROR_CODE_DELIVERYPUSH_STATUSUPDATEFAILED);
         }
     }
 

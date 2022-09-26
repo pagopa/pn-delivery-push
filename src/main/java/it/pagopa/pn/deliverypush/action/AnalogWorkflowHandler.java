@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_INVALID_RECEIVED_PAPER_STATUS;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_INVALIDRECEIVEDPAPERSTATUS;
 
 @Component
 @Slf4j
@@ -237,7 +237,7 @@ public class AnalogWorkflowHandler {
                 - __009__ Compiuta giacenza  <br/>
         */
         if (paperStatus == null)
-            throw new PnInternalException("Invalid received paper status:" + paperStatus, ERROR_CODE_INVALID_RECEIVED_PAPER_STATUS);
+            throw new PnInternalException("Invalid received paper status:" + paperStatus, ERROR_CODE_DELIVERYPUSH_INVALIDRECEIVEDPAPERSTATUS);
 
         if (this.pnDeliveryPushConfigs.getExternalChannel().getAnalogCodesProgress().contains(paperStatus)) {
             return null;
@@ -249,7 +249,7 @@ public class AnalogWorkflowHandler {
             return ResponseStatusInt.KO;
         }
 
-        throw new PnInternalException("Invalid received paper status:" + paperStatus, ERROR_CODE_INVALID_RECEIVED_PAPER_STATUS);
+        throw new PnInternalException("Invalid received paper status:" + paperStatus, ERROR_CODE_DELIVERYPUSH_INVALIDRECEIVEDPAPERSTATUS);
     }
 
 }

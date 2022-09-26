@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_FEEDBACK_NOT_FOUND;
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_TIMELINE_NOT_FOUND;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_FEEDBACKNOTFOUND;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND;
 
 @Component
 @Slf4j
@@ -45,7 +45,7 @@ public class AnalogWorkflowUtils {
         } else {
             String error = String.format("There isn't timeline element -iun=%s requestId=%s", iun, eventId);
             log.error(error);
-            throw new PnInternalException(error, ERROR_CODE_TIMELINE_NOT_FOUND);
+            throw new PnInternalException(error, ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND);
         }
     }
 
@@ -65,7 +65,7 @@ public class AnalogWorkflowUtils {
             return sendPaperFeedbackDetailsOpt.get();
         } else {
             log.error("Last send feedback is not available - iun {} id {}", iun, recIndex);
-            throw new PnInternalException("Last send feedback is not available - iun " + iun + " id " + recIndex, ERROR_CODE_FEEDBACK_NOT_FOUND);
+            throw new PnInternalException("Last send feedback is not available - iun " + iun + " id " + recIndex, ERROR_CODE_DELIVERYPUSH_FEEDBACKNOTFOUND);
         }
     }
 

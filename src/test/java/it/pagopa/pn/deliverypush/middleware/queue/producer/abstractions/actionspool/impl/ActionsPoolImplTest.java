@@ -75,7 +75,7 @@ class ActionsPoolImplTest {
     void pollForFutureActions() {
 
         String now = "2022-09-14T06:25";
-        Instant instantTimeSlot = DateFormatUtils.getInstantFromString( now, TIMESLOT_PATTERN);
+        Instant instantTimeSlot = DateFormatUtils.getInstantFromString(now, TIMESLOT_PATTERN);
         Action action = Action.builder()
                 .iun("01")
                 .actionId("001")
@@ -86,15 +86,14 @@ class ActionsPoolImplTest {
 
         List<Action> actions = new ArrayList<>();
         actions.add(action);
-
-       
+        
         Mockito.when(lastFutureActionPoolExecutionTimeDao.getLastPollTime()).thenReturn(Optional.of(instantTimeSlot));
         Mockito.when(clock.instant()).thenReturn(instantTimeSlot);
         Mockito.when(actionService.findActionsByTimeSlot("001")).thenReturn(actions);
 
-        // actionsPool.pollForFutureActions();
+        actionsPool.pollForFutureActions();
 
-        // Mockito.verify(lastFutureActionPoolExecutionTimeDao, Mockito.times(1)).updateLastPollTime(instantTimeSlot);
+       // Mockito.verify(lastFutureActionPoolExecutionTimeDao, Mockito.times(1)).updateLastPollTime(instantTimeSlot);
     }
 
     private String computeTimeSlot(Instant instant) {

@@ -385,25 +385,26 @@ class AnalogWorkflowHandlerTest {
         externalChannel.setAnalogCodesSuccess(analogCodesSuccess);
         externalChannel.setAnalogCodesProgress(analogCodesProgress);
         pnDeliveryPushConfigs.setExternalChannel(externalChannel);
-        
+
         List<LegalFactsIdInt> legalFactsListEntryIds = new ArrayList<>();
         legalFactsListEntryIds.add(LegalFactsIdInt.builder()
                 .key("http")
                 .category(LegalFactCategoryInt.ANALOG_DELIVERY)
                 .build());
+
         Mockito.when(analogWorkflowUtils.getSendAnalogNotificationDetails(response.getIun(), response.getRequestId())).thenReturn(sendPaperDetails);
         Mockito.when(notificationService.getNotificationByIun(response.getIun())).thenReturn(notification);
 
         handler.extChannelResponseHandler(response);
 
-        /*Mockito.verify(completionWorkFlow)
+       /* Mockito.verify(completionWorkFlow)
                 .completionAnalogWorkflow(
-                        notification, 
+                        notification,
                         sendPaperDetails.getRecIndex(),
                         legalFactsListEntryIds,
                         response.getStatusDateTime(),
                         sendPaperDetails.getPhysicalAddress(),
-                        EndWorkflowStatus.SUCCESS);*/
+                        EndWorkflowStatus.SUCCESS); */
     }
 
     private SendAnalogDetailsInt buildSendAnalogDetailsInt() {

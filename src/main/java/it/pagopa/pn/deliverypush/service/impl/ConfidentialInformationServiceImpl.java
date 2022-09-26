@@ -18,8 +18,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_TIMELINE_CONFIDENTIAL_FAILED;
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_UPDATE_NOTIFICATION_FAILED;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINECONFIDENTIALFAILED;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_UPDATENOTIFICATIONFAILED;
 
 @Slf4j
 @Service
@@ -45,7 +45,7 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
                 log.debug("UpdateNotificationTimelineByIunAndTimelineElementId OK for - iun {} timelineElementId {}", iun, dtoInt.getTimelineElementId());
             } else {
                 log.error("UpdateNotificationTimelineByIunAndTimelineElementId Failed for - iun {} timelineElementId {}", iun, dtoInt.getTimelineElementId());
-                throw new PnInternalException("UpdateNotificationTimelineByIunAndTimelineElementId Failed for - iun " + iun + " timelineElementId " + dtoInt.getTimelineElementId(), ERROR_CODE_UPDATE_NOTIFICATION_FAILED);
+                throw new PnInternalException("UpdateNotificationTimelineByIunAndTimelineElementId Failed for - iun " + iun + " timelineElementId " + dtoInt.getTimelineElementId(), ERROR_CODE_DELIVERYPUSH_UPDATENOTIFICATIONFAILED);
             }
         }
     }
@@ -103,7 +103,7 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
             return Optional.empty();
         } else {
             log.error("getTimelineElementConfidentialInformation Failed for - iun {} timelineElementId {}", iun, timelineElementId);
-            throw new PnInternalException("getTimelineElementConfidentialInformation Failed for - iun " + iun + " timelineElementId " + timelineElementId, ERROR_CODE_TIMELINE_CONFIDENTIAL_FAILED);
+            throw new PnInternalException("getTimelineElementConfidentialInformation Failed for - iun " + iun + " timelineElementId " + timelineElementId, ERROR_CODE_DELIVERYPUSH_TIMELINECONFIDENTIALFAILED);
         }
     }
 
@@ -126,7 +126,7 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
             return Optional.empty();
         } else {
             log.error("getTimelineConfidentialInformation Failed - iun {} ", iun);
-            throw new PnInternalException("getTimelineConfidentialInformation Failed - iun " + iun, ERROR_CODE_TIMELINE_CONFIDENTIAL_FAILED);
+            throw new PnInternalException("getTimelineConfidentialInformation Failed - iun " + iun, ERROR_CODE_DELIVERYPUSH_TIMELINECONFIDENTIALFAILED);
         }
     }
 

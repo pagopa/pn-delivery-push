@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_TAX_ID_NOTICE_CODE_FAILED;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TAXIDNOTICECODEFAILED;
 
 @Service
 @Slf4j
@@ -40,11 +40,11 @@ public class NotificationCostServiceImpl implements NotificationCostService {
                 return NotificationCostResponseMapper.externalToInternal(notificationCostResponse);
             } else {
                 log.error("getIunFromPaTaxIdAndNoticeCode is not valid - paTaxId={} noticeCode={}", paTaxId, noticeCode);
-                throw new PnInternalException("getIunFromPaTaxIdAndNoticeCode - paTaxId= " + paTaxId + " noticeCode=" + noticeCode, ERROR_CODE_TAX_ID_NOTICE_CODE_FAILED);
+                throw new PnInternalException("getIunFromPaTaxIdAndNoticeCode - paTaxId= " + paTaxId + " noticeCode=" + noticeCode, ERROR_CODE_DELIVERYPUSH_TAXIDNOTICECODEFAILED);
             }
         } else {
             log.error("getIunFromPaTaxIdAndNoticeCode Failed - paTaxId={} noticeCode={}", paTaxId, noticeCode);
-            throw new PnInternalException("getIunFromPaTaxIdAndNoticeCode Failed - paTaxId= " + paTaxId + " noticeCode=" + noticeCode, ERROR_CODE_TAX_ID_NOTICE_CODE_FAILED);
+            throw new PnInternalException("getIunFromPaTaxIdAndNoticeCode Failed - paTaxId= " + paTaxId + " noticeCode=" + noticeCode, ERROR_CODE_DELIVERYPUSH_TAXIDNOTICECODEFAILED);
         }
 
     }
