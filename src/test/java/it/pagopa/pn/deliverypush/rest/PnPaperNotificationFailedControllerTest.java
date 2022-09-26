@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.rest;
 
+import it.pagopa.pn.deliverypush.dto.papernotificationfailed.PaperNotificationFailed;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.Problem;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponsePaperNotificationFailedDto;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -31,14 +31,12 @@ class PnPaperNotificationFailedControllerTest {
 
     @Test
     void searchPaperNotificationsFailedOk() {
-        ResponsePaperNotificationFailedDto dto = ResponsePaperNotificationFailedDto.builder()
-                .iun(IUN)
-                .build();
+        PaperNotificationFailed paperNotificationFailed = PaperNotificationFailed.builder()
+                .iun(IUN).build();
+        List<PaperNotificationFailed> listPaperNot = new ArrayList<>();
+        listPaperNot.add(paperNotificationFailed);
 
-        List<ResponsePaperNotificationFailedDto> listPaperNot = new ArrayList<>();
-        listPaperNot.add(dto);
-
-        Mockito.when(service.getPaperNotificationByRecipientId(Mockito.anyString(), Mockito.anyBoolean()))
+        Mockito.when(service.getPaperNotificationByRecipientId(Mockito.anyString()))
                 .thenReturn(listPaperNot);
 
         webTestClient.get()
@@ -51,12 +49,12 @@ class PnPaperNotificationFailedControllerTest {
                 .isOk()
                 .expectBody(List.class);
 
-        Mockito.verify(service).getPaperNotificationByRecipientId(Mockito.anyString(), Mockito.anyBoolean());
+        Mockito.verify(service).getPaperNotificationByRecipientId(Mockito.anyString());
     }
 
     @Test
     void searchPaperNotificationsFailedKoRuntimeEx() {
-        Mockito.when(service.getPaperNotificationByRecipientId(Mockito.anyString(), Mockito.anyBoolean()))
+        Mockito.when(service.getPaperNotificationByRecipientId(Mockito.anyString()))
                 .thenThrow(new NullPointerException());
 
         webTestClient.get()
@@ -76,6 +74,6 @@ class PnPaperNotificationFailedControllerTest {
                 );
                 
 
-        Mockito.verify(service).getPaperNotificationByRecipientId(Mockito.anyString(), Mockito.anyBoolean());
+        Mockito.verify(service).getPaperNotificationByRecipientId(Mockito.anyString());
     }
 }

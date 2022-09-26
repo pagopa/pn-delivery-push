@@ -65,7 +65,7 @@ public class StartWorkflowHandler {
             saveNotificationReceivedLegalFacts(notification);
 
             for (NotificationRecipientInt recipient : notification.getRecipients()) {
-                Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+                Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
                 scheduleStartRecipientWorkflow(iun, recIndex);
             }
         } catch (PnValidationException ex) {

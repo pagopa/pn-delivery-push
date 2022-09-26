@@ -66,7 +66,7 @@ class CompletionWorkFlowHandlerTest {
         //GIVEN
         NotificationInt notification = getNotification();
         NotificationRecipientInt recipient = notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         Instant notificationDate = Instant.now();
 
@@ -99,7 +99,7 @@ class CompletionWorkFlowHandlerTest {
         //GIVEN
         NotificationInt notification = getNotification();
         NotificationRecipientInt recipient = notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
         
         Instant notificationDate = Instant.now();
 
@@ -135,7 +135,7 @@ class CompletionWorkFlowHandlerTest {
         //GIVEN
         NotificationInt notification = getNotification();
         NotificationRecipientInt recipient = notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         Mockito.when(pnDeliveryPushConfigs.getPaperMessageNotHandled()).thenReturn(true);
         
@@ -168,7 +168,7 @@ class CompletionWorkFlowHandlerTest {
         //GIVEN
         NotificationInt notification = getNotification();
         NotificationRecipientInt recipient = notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
         
         Mockito.when(pnDeliveryPushConfigs.getPaperMessageNotHandled()).thenReturn(true);
         
@@ -201,7 +201,7 @@ class CompletionWorkFlowHandlerTest {
         //GIVEN
         NotificationInt notification = getNotification();
         NotificationRecipientInt recipient = notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         Instant notificationDate = Instant.now();
 
@@ -230,7 +230,7 @@ class CompletionWorkFlowHandlerTest {
         //GIVEN
         NotificationInt notification = getNotification();
         NotificationRecipientInt recipient = notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
 
         Instant notificationDate = Instant.now();
 
