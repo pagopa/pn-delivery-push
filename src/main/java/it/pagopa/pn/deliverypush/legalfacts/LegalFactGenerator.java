@@ -11,7 +11,10 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPayme
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Value;
+import lombok.extern.jackson.Jacksonized;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -143,6 +146,9 @@ public class LegalFactGenerator {
     }
 
     @Value
+    @Builder
+    @AllArgsConstructor
+    @Jacksonized
     public static class PecDeliveryInfo {
         private String denomination;
         private String taxId;

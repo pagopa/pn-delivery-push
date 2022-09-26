@@ -1,0 +1,26 @@
+info:
+  version: v1.0
+components:
+
+  parameters:
+
+    ############################################################################################
+    ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
+    ############################################################################################
+    cxTypeAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/49b7f5dbda112680d3c5aa79123388736b1c215f/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTypeAuthFleet'
+    cxIdAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/49b7f5dbda112680d3c5aa79123388736b1c215f/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet'
+    cxGroupsAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/49b7f5dbda112680d3c5aa79123388736b1c215f/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxGroups'
+    uidAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/49b7f5dbda112680d3c5aa79123388736b1c215f/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/uidAuthFleet'
+    cxTaxIdAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/f34eabb77a2ee56f17afd3cc63e3e42498029f3c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTaxIdAuthFleet'
+
+  schemas:
+    ############################################################################################
+    ###                     PARAMETRI DI IDENTIFICATIVO NOTIFICA                     ###
+    ############################################################################################
+    IUN:
+      $ref: "https://raw.githubusercontent.com/pagopa/pn-delivery/c32e6a432dd94a3d14bdc8f08bf2a535156598fa/docs/openapi/schemas-pn-notification-v1.yaml#/components/schemas/IUN"

@@ -216,6 +216,10 @@ components:
           example: 1220
           type: integer
           format: int64
+        raddType:
+          $ref: '#/components/schemas/RaddType'
+        raddTransactionId:
+          $ref: '#/components/schemas/RaddTransactionId'
           
     PublicRegistryCallDetails:
       type: object
@@ -599,3 +603,13 @@ components:
           type: string
         system:
           type: string
+
+    RaddType:
+      type: string
+      description: |
+        tipo di Rete Anti Digital Divide <br/>
+        __FSU__: Fornitore Servizio Universale <br/>
+
+    RaddTransactionId:
+      type: string
+      description: Identificativo della pratica all'interno della rete RADD
