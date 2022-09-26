@@ -70,6 +70,53 @@ paths:
             application/problem+json:
               schema:
                 $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+    
+  '/delivery-push-private/{iun}/viewed':
+    post:
+      summary: Notifica che un destinatario ha preso visione di una notifica
+      description: >-
+        Metodo utilizzato da microservizi interni per notificare che un destinatario
+        ha preso visione di una notifica-
+      tags:
+        - EventComunication
+      operationId: notifyNotificationViewed
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestNotificationViewedDto"
+        required: true
+      responses:
+        '200':
+          description: |
+            OK. Allo stato attuale il contenuto della risposta non ha valore informativo 
+            basta il fatto che lo status sia 200 per indicare che l'operazione è andata 
+            a buon fine.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseNotificationViewedDto"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '404':
+          description: IUN or recipient not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+      
 
   '/delivery-push-private/{recipientInternalId}/paper-notification-failed':
     post:
@@ -209,6 +256,47 @@ components:
           type: array
           items:
             $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/TimelineElement'
+    
+
+    ############################################################################################
+    ###                 COMUNICAZIONE DELLA VISUALIZZAZIONE DI UNA NOTIFICA                  ###
+    ############################################################################################
+
+    RequestNotificationViewedDto:
+      type: object
+      required:
+        - iun
+        - recipientType
+        - recipientInternalId
+        - raddType
+        - raddBusinessTransactionId
+        - raddBusinessTransactionClosingDate
+      properties:
+        iun:
+          $ref: "./remote-refs.yaml#/components/schemas/IUN"
+        recipientType:
+          $ref: './schemas-pn-notification-v1.yaml#/components/schemas/RecipientType'
+        recipientInternalId:
+          type: string
+          description: identificativo anonimizzato del destinatario
+        raddType:
+          $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/RaddType'
+        raddBusinessTransactionId:
+          $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/RaddTransactionId'
+        raddBusinessTransactionDate:
+          type: string
+          format: date-time
+          description: Data in cui è stata eseguita la transazione
+
+    ResponseNotificationViewedDto:
+      type: object
+      required:
+        - iun
+      properties:
+        iun:
+          $ref: "./remote-refs.yaml#/components/schemas/IUN"
+
+
 
 
 

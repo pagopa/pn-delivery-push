@@ -66,7 +66,7 @@ class NotificationViewedHandlerTest {
                 .thenReturn(NotificationStatusInt.DELIVERING);
 
         //WHEN
-        handler.handleViewNotification(notification.getIun(),0);
+        handler.handleViewNotification(notification.getIun(),0, Instant.now());
         
         //THEN
         Mockito.verify(timelineService).addTimelineElement(Mockito.any(), Mockito.any( NotificationInt.class ));
@@ -87,7 +87,7 @@ class NotificationViewedHandlerTest {
         Mockito.when(timelineUtils.checkNotificationIsAlreadyViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
 
         //WHEN
-        handler.handleViewNotification(notification.getIun(),0);
+        handler.handleViewNotification(notification.getIun(),0, Instant.now());
 
         //THEN
         Mockito.verify(timelineService, Mockito.never()).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
@@ -111,7 +111,7 @@ class NotificationViewedHandlerTest {
                 .thenReturn(NotificationStatusInt.CANCELLED);
 
         //WHEN
-        handler.handleViewNotification(notification.getIun(),0);
+        handler.handleViewNotification(notification.getIun(),0, Instant.now());
 
         //THEN
         Mockito.verify(timelineService, Mockito.never()).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));

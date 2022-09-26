@@ -54,22 +54,25 @@ public class RecipientMapper {
         if(payment != null){
             NotificationPaymentInfoInt.NotificationPaymentInfoIntBuilder paymentInfoBuilder = NotificationPaymentInfoInt.builder()
                     .noticeCode( payment.getNoticeCode() )
-                    .creditorTaxId( payment.getCreditorTaxId() )
-                    .pagoPaForm(
-                            NotificationDocumentInt.builder()
-                                    .digests(
-                                            NotificationDocumentInt.Digests.builder()
-                                                    .sha256(payment.getPagoPaForm().getDigests().getSha256())
-                                                    .build()
-                                    )
-                                    .ref(
-                                            NotificationDocumentInt.Ref.builder()
-                                                    .key(payment.getPagoPaForm().getRef().getKey())
-                                                    .versionToken(payment.getPagoPaForm().getRef().getVersionToken())
-                                                    .build()
-                                    )
-                                    .build()
-                    );
+                    .creditorTaxId( payment.getCreditorTaxId() );
+                    
+            if( payment.getPagoPaForm() != null ){
+                paymentInfoBuilder.pagoPaForm(
+                        NotificationDocumentInt.builder()
+                                .digests(
+                                        NotificationDocumentInt.Digests.builder()
+                                                .sha256(payment.getPagoPaForm().getDigests().getSha256())
+                                                .build()
+                                )
+                                .ref(
+                                        NotificationDocumentInt.Ref.builder()
+                                                .key(payment.getPagoPaForm().getRef().getKey())
+                                                .versionToken(payment.getPagoPaForm().getRef().getVersionToken())
+                                                .build()
+                                )
+                                .build()
+                );
+            }
 
             if(payment.getF24flatRate() != null){
                 paymentInfoBuilder
@@ -193,7 +196,28 @@ public class RecipientMapper {
             ref.setVersionToken(f24FlatRateInternal.getRef().getVersionToken());
             f24flatRate.setRef(ref);
         }
-        payment.setF24flatRate(f24flatRate);
+
+        NotificationPaymentAttachment f24Standard = null;
+        if (paymentInternal.getF24standard() != null){
+            NotificationDocumentInt f24StandardInternal = paymentInternal.getF24standard();
+
+            f24Standard = new NotificationPaymentAttachment();
+
+            NotificationAttachmentDigests digests = new NotificationAttachmentDigests();
+            digests.setSha256(f24StandardInternal.getDigests().getSha256());
+            f24Standard.setDigests(digests);
+
+            NotificationAttachmentBodyRef ref = new NotificationAttachmentBodyRef();
+            ref.setKey(f24StandardInternal.getRef().getKey());
+            ref.setVersionToken(f24StandardInternal.getRef().getVersionToken());
+            f24Standard.setRef(ref);
+        }
+        
+        payment.setF24flatRate(f24Standard);
+        payment.setF24standard(f24Standard);
+        payment.setNoticeCode(paymentInternal.getNoticeCode());
+        payment.setCreditorTaxId(paymentInternal.getCreditorTaxId());
+        
         return payment;
     }
 
