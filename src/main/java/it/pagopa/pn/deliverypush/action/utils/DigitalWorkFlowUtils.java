@@ -168,26 +168,6 @@ public class DigitalWorkFlowUtils {
     }
 
     /**
-     * Ritorna l'evento di progress più recente per iun/recipient
-     * @param iun
-     * @param recIndex
-     * @return
-     */
-    public SendDigitalProgressDetailsInt getMostRecentSendDigitalProgressTimelineElement(String iun, Integer recIndex) {
-        String eventId = TimelineEventId.SEND_DIGITAL_PROGRESS.buildSearchEventIdByIunAndRecipientIndex(iun, recIndex);
-
-        Set<TimelineElementInternal> timelineElementInternals = timelineService.getTimelineByIunTimelineId(iun, eventId, true);
-        Optional<TimelineElementInternal> timelineElementInternal = timelineElementInternals.stream().max(Comparator.comparing(TimelineElementInternal::getTimestamp));
-
-        if (timelineElementInternal.isPresent()) {
-            return (SendDigitalProgressDetailsInt) timelineElementInternal.get().getDetails();
-        } else {
-            log.error("TimelineElementInternal element for digital_delivering_progress not exist - iun {} eventId {}", iun, eventId);
-            throw new PnInternalException("TimelineElementInternal element for digital_delivering_progress not exist - iun " + iun + " eventId " + eventId, ERROR_CODE_DELIVERYPUSH_DIGITALPROGRESSTIMELINEEVENTNOTFOUND);
-        }
-    }
-
-    /**
      * Ritorna l'evento più recente per iun/recipient
      * @param iun
      * @param recIndex
@@ -202,19 +182,6 @@ public class DigitalWorkFlowUtils {
         } else {
             log.error("TimelineElementInternal element for recindex not exist - iun {} recIndex {}", iun, recIndex);
             throw new PnInternalException("TimelineElementInternal element for recindex not exist - iun " + iun + " recIndex " + recIndex, ERROR_CODE_DELIVERYPUSH_TIMELINEEVENTNOTFOUND);
-        }
-    }
-
-    public TimelineElementInternal getSendDigitalDetailsTimelineElement(String iun, String eventId) {
-
-        Optional<TimelineElementInternal> sendDigitalTimelineElement = timelineService.getTimelineElement(iun, eventId);
-        
-        if (sendDigitalTimelineElement.isPresent()) {
-            return sendDigitalTimelineElement.get();
-        } else {
-            String error = String.format("SendDigital timeline element not exist -iun=%s requestId=%s", iun, eventId);
-            log.error(error);
-            throw new PnInternalException(error, ERROR_CODE_DELIVERYPUSH_SENDDIGITALTIMELINEEVENTNOTFOUND);
         }
     }
 

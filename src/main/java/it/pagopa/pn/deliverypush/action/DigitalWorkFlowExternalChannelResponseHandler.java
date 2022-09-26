@@ -14,7 +14,6 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentRe
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalSendTimelineElementDetails;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ScheduleDigitalWorkflowDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalProgressDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -24,12 +23,10 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_INVALIDEVENTCODE;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_SENDDIGITALTIMELINEEVENTNOTFOUND;
 
 @Component
 @Slf4j
@@ -66,8 +63,7 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
 
         if( response.getEventCode() != null ){
 
-            TimelineElementInternal timelineElement =
-                    digitalWorkFlowUtils.getSendDigitalDetailsTimelineElement(iun, response.getRequestId());
+            TimelineElementInternal timelineElement = getSendDigitalDetailsTimelineElement(iun, response.getRequestId());
 
             // creo una struttura dati di supporto per passare i vari valori nei metodi INTERNI della classe
             DigitalWorkFlowHandler.DigitalResultInfos digitalResultInfos = new DigitalWorkFlowHandler.DigitalResultInfos();
@@ -243,6 +239,20 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
         //NB: il referenceTimelineId è l'id dell'elemento di timeline che ha dato luogo all'invio della notifica (potrebbe essere un send_digital_domicile o un send_digital_progress con un certo prog_id)
         log.info("Retry workflow scheduling date={} retry workflow - iun={} id={}", schedulingDate, iun, recIndex);
         schedulerService.scheduleEvent(iun, recIndex, schedulingDate, ActionType.DIGITAL_WORKFLOW_RETRY_ACTION, referenceTimelineId.getElementId());
+    }
+
+
+    private TimelineElementInternal getSendDigitalDetailsTimelineElement(String iun, String eventId) {
+
+        Optional<TimelineElementInternal> sendDigitalTimelineElement = digitalWorkFlowUtils.getTimelineElement(iun, eventId);
+
+        if (sendDigitalTimelineElement.isPresent()) {
+            return sendDigitalTimelineElement.get();
+        } else {
+            String error = String.format("SendDigital timeline element not exist -iun=%s requestId=%s", iun, eventId);
+            log.error(error);
+            throw new PnInternalException(error, ERROR_CODE_DELIVERYPUSH_SENDDIGITALTIMELINEEVENTNOTFOUND);
+        }
     }
 
     private ResponseStatusInt mapDigitalStatusInResponseStatus(EventCodeInt eventCode)

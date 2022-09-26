@@ -48,10 +48,10 @@ public class DigitalWorkFlowRetryHandler {
         log.debug("startScheduledRetryWorkflow - iun={} recIndex={} timelineId={}", iun, recIndex, timelineId);
 
         Optional<TimelineElementInternal> timelineElement = digitalWorkFlowUtils.getTimelineElement(iun, timelineId);
-        if (timelineElement.isPresent() && timelineElement.get().getDetails() instanceof SendDigitalProgressDetailsInt) {
+        if (timelineElement.isPresent() && timelineElement.get().getDetails() instanceof DigitalSendTimelineElementDetails) {
             NotificationInt notification = notificationService.getNotificationByIun(iun);
 
-            SendDigitalProgressDetailsInt originalSendDigitalProgressDetailsInt = (SendDigitalProgressDetailsInt) timelineElement.get().getDetails();
+            DigitalSendTimelineElementDetails originalSendDigitalProgressDetailsInt = (DigitalSendTimelineElementDetails) timelineElement.get().getDetails();
 
 
             if (checkIfEventIsStillValid(iun, recIndex, timelineElement.get())) {
@@ -60,7 +60,7 @@ public class DigitalWorkFlowRetryHandler {
                         DigitalAddressInfo.builder()
                                 .digitalAddress(originalSendDigitalProgressDetailsInt.getDigitalAddress())
                                 .digitalAddressSource(originalSendDigitalProgressDetailsInt.getDigitalAddressSource())
-                                .lastAttemptDate(originalSendDigitalProgressDetailsInt.getNotificationDate())
+                                .lastAttemptDate(timelineElement.get().getTimestamp())
                                 .sentAttemptMade(originalSendDigitalProgressDetailsInt.getRetryNumber())
                                 .build(), recIndex, true, timelineId);
             }
@@ -68,6 +68,10 @@ public class DigitalWorkFlowRetryHandler {
             {
                 log.info("startScheduledRetryWorkflow ABORTED because last status is not send or progress iun={} recIndex={}", iun, recIndex);
             }
+        }
+        else
+        {
+            log.error("startScheduledRetryWorkflow ABORTED because UNEXPECTED timeline generation event iun={} recIndex={} timelineId={}", iun, recIndex, timelineElement.isPresent()?timelineElement.get().getElementId():"notfound!");
         }
     }
 
@@ -152,7 +156,7 @@ public class DigitalWorkFlowRetryHandler {
     private boolean checkIfEventIsStillValid(String iun, int recIndex, TimelineElementInternal originalTimelineElement){
 
         if (originalTimelineElement.getDetails() instanceof DigitalSendTimelineElementDetails) {
-            DigitalSendTimelineElementDetails originalSendDigitalProgressDetailsInt = (DigitalSendTimelineElementDetails) originalTimelineElement.getDetails();
+            DigitalSendTimelineElementDetails originalDigitalSendTimelineDetailsInt = (DigitalSendTimelineElementDetails) originalTimelineElement.getDetails();
 
 
             // devo controllare che il timeout scattato sia ancora rilevante.
@@ -170,13 +174,13 @@ public class DigitalWorkFlowRetryHandler {
                     || mostRecentElementInternal.getCategory() == TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
                     && mostRecentElementInternal.getDetails() instanceof DigitalSendTimelineElementDetails) {
 
-                DigitalSendTimelineElementDetails sendDigitalProgressDetailsInt = (DigitalSendTimelineElementDetails) mostRecentElementInternal.getDetails();
-                lastRetryNumber = sendDigitalProgressDetailsInt.getRetryNumber();
-                lastAddressSource = sendDigitalProgressDetailsInt.getDigitalAddressSource();
+                DigitalSendTimelineElementDetails mostrecentDigitalSendTimelineDetailsInt = (DigitalSendTimelineElementDetails) mostRecentElementInternal.getDetails();
+                lastRetryNumber = mostrecentDigitalSendTimelineDetailsInt.getRetryNumber();
+                lastAddressSource = mostrecentDigitalSendTimelineDetailsInt.getDigitalAddressSource();
 
-                return originalSendDigitalProgressDetailsInt.getRetryNumber().equals(lastRetryNumber)
-                        && originalSendDigitalProgressDetailsInt.getDigitalAddressSource() != null && lastAddressSource != null
-                        && originalSendDigitalProgressDetailsInt.getDigitalAddressSource().getValue().equals(lastAddressSource.getValue());
+                return originalDigitalSendTimelineDetailsInt.getRetryNumber().equals(lastRetryNumber)
+                        && originalDigitalSendTimelineDetailsInt.getDigitalAddressSource() != null && lastAddressSource != null
+                        && originalDigitalSendTimelineDetailsInt.getDigitalAddressSource().getValue().equals(lastAddressSource.getValue());
             }
         }
         return false;

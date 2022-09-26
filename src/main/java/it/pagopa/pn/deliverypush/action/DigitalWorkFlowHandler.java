@@ -253,6 +253,7 @@ public class DigitalWorkFlowHandler {
             // se trovo un precedente sourceTimelineId, vuol dire che probabilmente sto rischedulando per un ritentativo di invio breve.
             // vado ad de-schedulare l'eventuale action precedentemente schedulata, ma se non la trovo, fa niente, non è un errore!
             this.schedulerService.unscheduleEvent(notification.getIun(), recIndex, ActionType.DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION, sourceTimelineId);
+            log.info("sendDigitalNotificationAndScheduleTimeoutAction UN-scheduled DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION for iun={} recIdx={} timelineId={} ", notification.getIun(), recIndex, sourceTimelineId);
         }
 
         Duration secondNotificationWorkflowWaitingTime = pnDeliveryPushConfigs.getExternalChannel().getDigitalSendNoresponseTimeout();
