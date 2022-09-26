@@ -23,4 +23,5 @@ public class PnDeliveryPushExceptionCodes extends PnExceptionsCodes {
     public static final String ERROR_CODE_WEBHOOK_UPDATEEVENTSTREAM = "PN_WEBHOOK_UPDATEEVENTSTREAM";
     public static final String ERROR_CODE_WEBHOOK_CONSUMEEVENTSTREAM = "PN_WEBHOOK_CONSUMEEVENTSTREAM";
     public static final String ERROR_CODE_GENERATE_PDF_FAILED = "ERROR_CODE_GENERATE_PDF_FAILED";
+    public static final String ERROR_CODE_NOTIFICATIONFAILED = "PN_DELIVERYPUSH_NOTIFICATIONFAILED";
 }
