@@ -152,7 +152,7 @@ public class DigitalWorkFlowRetryHandler {
     private boolean checkIfEventIsStillValid(String iun, int recIndex, TimelineElementInternal originalTimelineElement){
 
         if (originalTimelineElement.getDetails() instanceof DigitalSendTimelineElementDetails) {
-            SendDigitalProgressDetailsInt originalSendDigitalProgressDetailsInt = (SendDigitalProgressDetailsInt) originalTimelineElement.getDetails();
+            DigitalSendTimelineElementDetails originalSendDigitalProgressDetailsInt = (DigitalSendTimelineElementDetails) originalTimelineElement.getDetails();
 
 
             // devo controllare che il timeout scattato sia ancora rilevante.
