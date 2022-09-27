@@ -119,7 +119,7 @@ paths:
       
 
   '/delivery-push-private/{recipientInternalId}/paper-notification-failed':
-    post:
+    get:
       summary: Restituisce le notifiche non consegnate per uno specifico destinatario
       description: >-
         Metodo utilizzato da microservizi interni per ottenere tutte le notifiche di uno specifico destinatario
