@@ -49,12 +49,10 @@ class PnInternalLegalFactsControllerTest {
                         uriBuilder
                                 .path("/delivery-push-private/" + IUN + "/legal-facts" )
                                 .queryParam("mandateId", "mandateId")
+                                .queryParam("recipientInternalId", "testRecipientInternalId")
                                 .build())
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
-                .headers(httpHeaders -> {
-                    httpHeaders.set("x-pagopa-pn-cx-id","test");
-                })
                 .exchange()
                 .expectStatus()
                 .isOk();
@@ -72,12 +70,10 @@ class PnInternalLegalFactsControllerTest {
                         uriBuilder
                                 .path("/delivery-push-private/" + IUN + "/legal-facts" )
                                 .queryParam("mandateId", "mandateId")
+                                .queryParam("recipientInternalId", "testRecipientInternalId")
                                 .build())
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
-                .headers(httpHeaders -> {
-                    httpHeaders.set("x-pagopa-pn-cx-id","test");
-                })
                 .exchange()
                 .expectStatus()
                 .isNotFound();
@@ -103,12 +99,10 @@ class PnInternalLegalFactsControllerTest {
                         uriBuilder
                                 .path("/delivery-push-private/" + IUN + "/legal-facts/"+legalFactType+"/"+legalFactsId )
                                 .queryParam("mandateId", "mandateId")
+                                .queryParam("recipientInternalId", "testRecipientInternalId")
                                 .build())
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
-                .headers(httpHeaders -> {
-                    httpHeaders.set("x-pagopa-pn-cx-id","test");
-                })
                 .exchange()
                 .expectStatus()
                 .isOk();
@@ -130,12 +124,10 @@ class PnInternalLegalFactsControllerTest {
                         uriBuilder
                                 .path("/delivery-push-private/" + IUN + "/legal-facts/"+legalFactType+"/"+legalFactsId )
                                 .queryParam("mandateId", "mandateId")
+                                .queryParam("recipientInternalId", "testRecipientInternalId")
                                 .build())
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
-                .headers(httpHeaders -> {
-                    httpHeaders.set("x-pagopa-pn-cx-id","test");
-                })
                 .exchange()
                 .expectStatus().isNotFound()
                 .expectBody(Problem.class).consumeWith(
@@ -165,12 +157,10 @@ class PnInternalLegalFactsControllerTest {
                         uriBuilder
                                 .path("/delivery-push-private/" + IUN + "/legal-facts/"+legalFactType+"/"+legalFactsId )
                                 .queryParam("mandateId", "mandateId")
+                                .queryParam("recipientInternalId", "testRecipientInternalId")
                                 .build())
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
-                .headers(httpHeaders -> {
-                    httpHeaders.set("x-pagopa-pn-cx-id","test");
-                })
                 .exchange()
                 .expectStatus().is5xxServerError()
                 .expectBody(Problem.class).consumeWith(
