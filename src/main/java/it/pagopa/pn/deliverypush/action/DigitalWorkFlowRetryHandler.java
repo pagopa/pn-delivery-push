@@ -149,10 +149,24 @@ public class DigitalWorkFlowRetryHandler {
                     null,
                     Instant.now());
 
-            log.info("elapsedExtChannelTimeout Last timelineevent doesn't match original timelineevent source and retrynumber, skipping more actions iun={} recIdx={}", iun, recIndex);
+            log.error("elapsedExtChannelTimeout Last timelineevent doesn't match original timelineevent source and retrynumber, skipping more actions iun={} recIdx={}", iun, recIndex);
         }
     }
 
+    /**
+     * Ritorna TRUE se l'evento che ha schedulato il timer (che per ora è un evento di send di PEC)
+     * è ancora "valido". Infatti potrei avere che l'utente ha VISUALIZZATO la notifica, o che nel frattempo è arrivata
+     * da ext-channel (incredibilmente in ritardo ma fatalità proprio quando da fastidio :) ) il risultato dell'invio e quindi avere un FEEDBACK.
+     * La logica sul re-invio di una PEC si basa sul fatto che il precedente (ri)tentativo sia ancora in corso, o sia fallito con esito di "retry".
+     * Quindi mi devo aspettare che l'ULTIMO EVENTO IN TIMELINE IN ORDINE CRONOLOGICO sia appunto un evento di SEND_DIGITAL_PROGRESS
+     * o SEND_DIGITAL_DOMICILE. Inoltre, per scrupolo controllo che sia relativo all'originale retry-number e all'originale source.
+     *
+     *
+     * @param iun iun notifica
+     * @param recIndex indice recipient
+     * @param originalTimelineElement timelineId originale
+     * @return TRUE se l'evento è valido e va gestito
+     */
     private boolean checkIfEventIsStillValid(String iun, int recIndex, TimelineElementInternal originalTimelineElement){
 
         if (originalTimelineElement.getDetails() instanceof DigitalSendTimelineElementDetails) {
@@ -178,6 +192,7 @@ public class DigitalWorkFlowRetryHandler {
                 lastRetryNumber = mostrecentDigitalSendTimelineDetailsInt.getRetryNumber();
                 lastAddressSource = mostrecentDigitalSendTimelineDetailsInt.getDigitalAddressSource();
 
+                // per scrupolo, controllo anche che il retryNumber e l'addressSource siano gli stessi dell'originale.
                 return originalDigitalSendTimelineDetailsInt.getRetryNumber().equals(lastRetryNumber)
                         && originalDigitalSendTimelineDetailsInt.getDigitalAddressSource() != null && lastAddressSource != null
                         && originalDigitalSendTimelineDetailsInt.getDigitalAddressSource().getValue().equals(lastAddressSource.getValue());

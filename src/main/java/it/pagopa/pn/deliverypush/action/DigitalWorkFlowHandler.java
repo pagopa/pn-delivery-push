@@ -248,19 +248,25 @@ public class DigitalWorkFlowHandler {
                                                          String sourceTimelineId){
 
         String timelineId = externalChannelService.sendDigitalNotification(notification, digitalAddress, addressInfo.getDigitalAddressSource(), recIndex, addressInfo.getSentAttemptMade(), sendAlreadyInProgress);
-        if (sourceTimelineId != null)
-        {
-            // se trovo un precedente sourceTimelineId, vuol dire che probabilmente sto rischedulando per un ritentativo di invio breve.
-            // vado ad de-schedulare l'eventuale action precedentemente schedulata, ma se non la trovo, fa niente, non è un errore!
-            this.schedulerService.unscheduleEvent(notification.getIun(), recIndex, ActionType.DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION, sourceTimelineId);
-            log.info("sendDigitalNotificationAndScheduleTimeoutAction UN-scheduled DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION for iun={} recIdx={} timelineId={} ", notification.getIun(), recIndex, sourceTimelineId);
-        }
+
+        unscheduleTimeoutAction(notification.getIun(), recIndex, sourceTimelineId);
 
         Duration secondNotificationWorkflowWaitingTime = pnDeliveryPushConfigs.getExternalChannel().getDigitalSendNoresponseTimeout();
         Instant schedulingDate = Instant.now().plus(secondNotificationWorkflowWaitingTime);
 
         this.schedulerService.scheduleEvent(notification.getIun(), recIndex, schedulingDate, ActionType.DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION, timelineId);
         log.info("sendDigitalNotificationAndScheduleTimeoutAction scheduled DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION for iun={} recIdx={} timelineId={} schedulingDate={}", notification.getIun(), recIndex, timelineId, schedulingDate);
+    }
+
+    void unscheduleTimeoutAction(String iun, int recIndex, String sourceTimelineId)
+    {
+        if (sourceTimelineId != null)
+        {
+            // se trovo un precedente sourceTimelineId, vuol dire che probabilmente sto rischedulando per un ritentativo di invio breve.
+            // vado ad de-schedulare l'eventuale action precedentemente schedulata, ma se non la trovo, fa niente, non è un errore!
+            this.schedulerService.unscheduleEvent(iun, recIndex, ActionType.DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION, sourceTimelineId);
+            log.info("unscheduleTimeoutAction UN-scheduled DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION for iun={} recIdx={} timelineId={} ", iun, recIndex, sourceTimelineId);
+        }
     }
 
 

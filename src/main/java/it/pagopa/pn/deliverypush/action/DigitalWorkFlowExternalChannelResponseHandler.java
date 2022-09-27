@@ -135,6 +135,9 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
 
         log.debug("Response is for 'DELIVERY FAILURE' generatedMessage={} - iun={} id={}", digitalResultInfos.getResponse().getGeneratedMessage(), iun, digitalResultInfos.getRecIndex());
 
+        // unschedulo eventuale timer programmato di invio
+        digitalWorkFlowHandler.unscheduleTimeoutAction(iun, digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
+
         digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(digitalResultInfos.getNotification(), digitalResultInfos.getStatus(), digitalResultInfos.getResponse().getEventDetails() == null ? new ArrayList<>() : List.of(digitalResultInfos.getResponse().getEventDetails()),
                 digitalResultInfos.getRecIndex(), digitalResultInfos.getRetryNumber(), digitalResultInfos.getDigitalAddressInt(), digitalResultInfos.getDigitalAddressSourceInt(), digitalResultInfos.getResponse().getGeneratedMessage(), digitalResultInfos.getResponse().getEventTimestamp());
 
@@ -151,6 +154,9 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
         //AVVENUTA CONSEGNA
 
         logEvent.generateSuccess().log();
+
+        // unschedulo eventuale timer programmato di invio
+        digitalWorkFlowHandler.unscheduleTimeoutAction(iun, digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
 
         digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(digitalResultInfos.getNotification(), digitalResultInfos.getStatus(), Collections.emptyList(),
                 digitalResultInfos.getRecIndex(), digitalResultInfos.getRetryNumber(), digitalResultInfos.getDigitalAddressInt(), digitalResultInfos.getDigitalAddressSourceInt(), digitalResultInfos.getResponse().getGeneratedMessage(), digitalResultInfos.getResponse().getEventTimestamp());
