@@ -53,6 +53,7 @@ public class AarUtils {
             } else
                 log.debug("no need to recreate AAR iun={} timelineId={}", notification.getIun(), elementId);
         } catch (Exception e) {
+            log.error("cannot generate AAR pdf iun={} ex={}", notification.getIun(), e);
             throw new PnInternalException("cannot generate AAR pdf", ERROR_CODE_DELIVERYPUSH_GENERATEPDFFAILED);
         }
     }
@@ -70,9 +71,10 @@ public class AarUtils {
         Optional<AarGenerationDetailsInt> detailOpt =
                 timelineService.getTimelineElementDetails(notification.getIun(), aarGenerationEventId, AarGenerationDetailsInt.class);
 
-        if (detailOpt.isEmpty() || !StringUtils.hasText(detailOpt.get().getGeneratedAarUrl()) || detailOpt.get().getNumberOfPages() == null)
+        if (detailOpt.isEmpty() || !StringUtils.hasText(detailOpt.get().getGeneratedAarUrl()) || detailOpt.get().getNumberOfPages() == null) {
+            log.error("cannot retreieve AAR pdf safestoragekey iun={}", notification.getIun());
             throw new PnInternalException("cannot retreieve AAR pdf safestoragekey", ERROR_CODE_DELIVERYPUSH_GENERATEPDFFAILED);
-
+        }
         return detailOpt.get();
     }
 }

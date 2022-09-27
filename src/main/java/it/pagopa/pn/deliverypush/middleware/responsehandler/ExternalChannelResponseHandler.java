@@ -55,9 +55,11 @@ public class ExternalChannelResponseHandler {
 
             analogWorkflowHandler.extChannelResponseHandler(analogSentResponseInt);
         } catch (PnInternalException e) {
+            log.error("PnException legalUpdate", e);
             throw e;
         } catch (Exception e) {
-            throw new PnInternalException("Paper update failed", ERROR_CODE_DELIVERYPUSH_UPDATEFAILED);
+            log.error("Exception legalUpdate", e);
+            throw new PnInternalException("Paper update failed", ERROR_CODE_DELIVERYPUSH_UPDATEFAILED, e);
         }
 
     }
@@ -115,9 +117,11 @@ public class ExternalChannelResponseHandler {
 
             digitalWorkFlowHandler.handleExternalChannelResponse(digitalSentResponseInt);
         } catch (PnInternalException e) {
+            log.error("Exception legalUpdate", e);
             throw e;
         } catch (Exception e) {
-            throw new PnInternalException("Legal update failed", ERROR_CODE_DELIVERYPUSH_UPDATEFAILED);
+            log.error("Exception legalUpdate", e);
+            throw new PnInternalException("Legal update failed", ERROR_CODE_DELIVERYPUSH_UPDATEFAILED, e);
         }
     }
 
@@ -147,9 +151,11 @@ public class ExternalChannelResponseHandler {
             // per ora non è previsto nulla
             log.info("Received ExternalChannel courtesy message event for requestId={} - status={} details={} eventcode={}", event.getRequestId(), event.getStatus(), event.getEventDetails(), event.getEventCode());
         } catch (PnInternalException e) {
+            log.error("Courtesy update failed", e);
             throw e;
         } catch (Exception e) {
-            throw new PnInternalException("Courtesy update failed", ERROR_CODE_DELIVERYPUSH_UPDATEFAILED);
+            log.error("Courtesy update failed", e);
+            throw new PnInternalException("Courtesy update failed", ERROR_CODE_DELIVERYPUSH_UPDATEFAILED, e);
         }
     }
 

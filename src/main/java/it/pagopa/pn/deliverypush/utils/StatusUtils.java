@@ -172,7 +172,7 @@ public class StatusUtils {
             }
         }
         
-        throw new PnInternalException("situazione anomala", ERROR_CODE_DELIVERYPUSH_NOTIFICATIONSTATUSFAILED);
+        throw new PnInternalException("No related category for this timeline element", ERROR_CODE_DELIVERYPUSH_NOTIFICATIONSTATUSFAILED);
     }
 
 }

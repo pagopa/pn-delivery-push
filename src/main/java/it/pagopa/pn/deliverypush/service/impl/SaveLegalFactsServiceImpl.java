@@ -81,7 +81,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
         } catch (Exception exc) {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "AAR", notification.getIun(), "N/A");
             log.error("Exception in saveAAR ex=", exc);
-            throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_SAVELEGALFACTSFAILED);
+            throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_SAVELEGALFACTSFAILED, exc);
         }
     }
 
@@ -103,7 +103,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
         } catch (Exception exc) {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "REQUEST_ACCEPTED", notification.getIun(), "N/A");
             logEvent.generateFailure("Exception in saveNotificationReceivedLegalFact ex={}", exc).log();
-            throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_SAVELEGALFACTSFAILED);
+            throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_SAVELEGALFACTSFAILED, exc);
         }
 
     }
@@ -138,7 +138,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
             logEvent.generateFailure("Error in savePecDeliveryWorkflowLegalFact, exc=", exc).log();
 
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "DIGITAL_DELIVERY", notification.getIun(), recipient.getTaxId());
-            throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_SAVELEGALFACTSFAILED);
+            throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_SAVELEGALFACTSFAILED, exc);
         }
     }
 

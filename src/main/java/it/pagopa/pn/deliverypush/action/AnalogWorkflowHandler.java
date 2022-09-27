@@ -26,7 +26,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_INVALIDRECEIVEDPAPERSTATUS;
@@ -202,19 +201,23 @@ public class AnalogWorkflowHandler {
                 .iun(iun)
                 .build();
         logEvent.log();
-
-        if (Objects.nonNull(status) && status == ResponseStatusInt.OK) {
-            // AUD_NT_CHECK
-            logEvent.generateSuccess().log();
-            // La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
-            completionWorkFlow.completionAnalogWorkflow(notification, recIndex, legalFactsListEntryIds, response.getStatusDateTime(), sendPaperDetails.getPhysicalAddress(), EndWorkflowStatus.SUCCESS);
-        } else if (Objects.nonNull(status) && status == ResponseStatusInt.KO) {
-            logEvent.generateFailure("External channel analogFailureAttempt with failure case {} ", response.getDeliveryFailureCause()).log();
-
-            // External channel non è riuscito a effettuare la notificazione, si passa al prossimo step del workflow
-            int sentAttemptMade = sendPaperDetails.getSentAttemptMade() + 1;
-            analogWorkflowUtils.addAnalogFailureAttemptToTimeline(notification, sentAttemptMade, legalFactsListEntryIds, response.getDiscoveredAddress(), response.getDeliveryFailureCause() == null ? null : List.of(response.getDeliveryFailureCause()), sendPaperDetails);
-            nextWorkflowStep(notification, recIndex, sentAttemptMade);
+        if (status!= null) {
+            switch (status) {
+                case OK:
+                    // AUD_NT_CHECK
+                    logEvent.generateSuccess().log();
+                    // La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
+                    completionWorkFlow.completionAnalogWorkflow(notification, recIndex, legalFactsListEntryIds, response.getStatusDateTime(), sendPaperDetails.getPhysicalAddress(), EndWorkflowStatus.SUCCESS);
+                    break;
+                case KO:
+                    logEvent.generateFailure("External channel analogFailureAttempt with failure case {} ", response.getDeliveryFailureCause()).log();
+    
+                    // External channel non è riuscito a effettuare la notificazione, si passa al prossimo step del workflow
+                    int sentAttemptMade = sendPaperDetails.getSentAttemptMade() + 1;
+                    analogWorkflowUtils.addAnalogFailureAttemptToTimeline(notification, sentAttemptMade, legalFactsListEntryIds, response.getDiscoveredAddress(), response.getDeliveryFailureCause() == null ? null : List.of(response.getDeliveryFailureCause()), sendPaperDetails);
+                    nextWorkflowStep(notification, recIndex, sentAttemptMade);
+                    break;
+            }
         } else {
             handleStatusProgress(response, iun, recIndex);
         }

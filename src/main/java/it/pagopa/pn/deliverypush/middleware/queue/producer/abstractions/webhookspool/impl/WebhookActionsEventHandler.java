@@ -37,7 +37,7 @@ public class WebhookActionsEventHandler {
             }
         } catch (Exception e) {
             log.error("error handling event", e);
-            throw new PnInternalException("Error handling webhook event", ERROR_CODE_WEBHOOK_EVENTFAILED);
+            throw new PnInternalException("Error handling webhook event", ERROR_CODE_WEBHOOK_EVENTFAILED, e);
         }
 
     }
