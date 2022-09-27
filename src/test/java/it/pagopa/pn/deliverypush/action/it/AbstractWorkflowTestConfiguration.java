@@ -96,7 +96,8 @@ public class AbstractWorkflowTestConfiguration {
     }
     
     @Bean
-    public SchedulerServiceMock schedulerServiceMockMock(@Lazy DigitalWorkFlowHandler digitalWorkFlowHandler, 
+    public SchedulerServiceMock schedulerServiceMockMock(@Lazy DigitalWorkFlowHandler digitalWorkFlowHandler,
+                                                         @Lazy DigitalWorkFlowRetryHandler digitalWorkFlowRetryHandler,
                                                          @Lazy AnalogWorkflowHandler analogWorkflowHandler,
                                                          @Lazy RefinementHandler refinementHandler, 
                                                          @Lazy InstantNowSupplier instantNowSupplier,
@@ -104,6 +105,7 @@ public class AbstractWorkflowTestConfiguration {
                                                          @Lazy ChooseDeliveryModeHandler chooseDeliveryModeHandler) {
         return new SchedulerServiceMock(
                 digitalWorkFlowHandler,
+                digitalWorkFlowRetryHandler,
                 analogWorkflowHandler,
                 refinementHandler,
                 instantNowSupplier,

@@ -57,6 +57,7 @@ import static org.mockito.ArgumentMatchers.eq;
         AnalogWorkflowHandler.class,
         ChooseDeliveryModeHandler.class,
         DigitalWorkFlowHandler.class,
+        DigitalWorkFlowExternalChannelResponseHandler.class,
         CompletionWorkFlowHandler.class,
         PublicRegistryResponseHandler.class,
         PublicRegistryServiceImpl.class,

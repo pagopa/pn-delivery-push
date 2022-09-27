@@ -40,15 +40,15 @@ public class CompletionWorkflowUtils {
     }
 
     public String generatePecDeliveryWorkflowLegalFact(NotificationInt notification, Integer recIndex, EndWorkflowStatus status, Instant completionWorkflowDate) {
-        Set<TimelineElementInternal> timeline = timelineService.getTimeline(notification.getIun());
-        
+        Set<TimelineElementInternal> timeline = timelineService.getTimeline(notification.getIun(), true);
+
         List<TimelineElementInternal> timelineByTimestampSorted = timeline.stream()
                 .sorted(Comparator.comparing(TimelineElementInternal::getTimestamp))
                 .collect(Collectors.toList());
-        
+
         List<SendDigitalFeedbackDetailsInt> listFeedbackFromExtChannel = new ArrayList<>();
         PhysicalAddressInt sendRegisteredLetterAddress = null;
-        
+
         for(TimelineElementInternal element : timelineByTimestampSorted){
             if(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK.equals(element.getCategory())){
                 getSpecificDetailRecipient(element, recIndex).ifPresent(
@@ -64,7 +64,7 @@ public class CompletionWorkflowUtils {
                 }
             }
         }
-        
+
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         return saveLegalFactsService.savePecDeliveryWorkflowLegalFact(listFeedbackFromExtChannel, notification, recipient, status, completionWorkflowDate, sendRegisteredLetterAddress);
     }

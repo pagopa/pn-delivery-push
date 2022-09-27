@@ -52,7 +52,18 @@ public class ActionsPoolImpl implements ActionsPool {
                         .build();
         }
         final String timeSlot = computeTimeSlot( action.getNotBefore() );
+        action = action.toBuilder()
+                .timeslot( timeSlot)
+                .build();
         actionService.addAction( action, timeSlot);
+    }
+
+    @Override
+    public void unscheduleFutureAction(String actionId) {
+        Optional<Action> actionEntity = actionService.getActionById(actionId);
+        if (actionEntity.isPresent() && actionEntity.get().getTimeslot() != null) {
+            actionService.unSchedule(actionEntity.get(), actionEntity.get().getTimeslot());
+        }
     }
 
     @Override

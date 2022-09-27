@@ -60,6 +60,7 @@ import static org.awaitility.Awaitility.with;
         AnalogWorkflowHandler.class,
         ChooseDeliveryModeHandler.class,
         DigitalWorkFlowHandler.class,
+        DigitalWorkFlowExternalChannelResponseHandler.class,
         CompletionWorkFlowHandler.class,
         PublicRegistryResponseHandler.class,
         PublicRegistryServiceImpl.class,

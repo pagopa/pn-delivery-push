@@ -115,6 +115,7 @@ public class PnDeliveryPushConfigs {
 
         private int digitalRetryCount;
         private Duration digitalRetryDelay;
+        private Duration digitalSendNoresponseTimeout;
     }
 
    @Data

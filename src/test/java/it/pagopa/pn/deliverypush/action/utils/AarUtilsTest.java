@@ -26,6 +26,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_GENERATEAARPDFFAILED;
+
 class AarUtilsTest {
 
     private static final String TAX_ID = "tax_id";
@@ -55,7 +57,7 @@ class AarUtilsTest {
     @Test
     void generateAARAndSaveInSafeStorageAndAddTimelineeventFailed() {
 
-        String msg = "ERROR_CODE_GENERATE_PDF_FAILED";
+        String msg = ERROR_CODE_DELIVERYPUSH_GENERATEAARPDFFAILED;
         NotificationInt notificationInt = newNotification();
         String elementId = "IUN_01_aar_gen_0";
 

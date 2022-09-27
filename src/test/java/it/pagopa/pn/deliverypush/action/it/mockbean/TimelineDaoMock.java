@@ -14,10 +14,7 @@ import org.junit.jupiter.api.Assertions;
 import org.springframework.context.annotation.Lazy;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.awaitility.Awaitility.await;
@@ -35,7 +32,7 @@ public class TimelineDaoMock implements TimelineDao {
 
     public TimelineDaoMock(@Lazy NotificationViewedHandler notificationViewedHandler, @Lazy NotificationService notificationService,
                            @Lazy NotificationUtils notificationUtils) {
-        timelineList = new ArrayList<>();
+        timelineList = Collections.synchronizedList(new ArrayList<>());
         this.notificationViewedHandler = notificationViewedHandler;
         this.notificationService = notificationService;
         this.notificationUtils = notificationUtils;
@@ -80,12 +77,12 @@ public class TimelineDaoMock implements TimelineDao {
     }
 
     @Override
-    public synchronized Optional<TimelineElementInternal> getTimelineElement(String iun, String timelineId) {
+    public Optional<TimelineElementInternal> getTimelineElement(String iun, String timelineId) {
         return timelineList.stream().filter(timelineElement -> timelineId.equals(timelineElement.getElementId()) && iun.equals(timelineElement.getIun())).findFirst();
     }
 
     @Override
-    public synchronized Set<TimelineElementInternal> getTimeline(String iun) {
+    public Set<TimelineElementInternal> getTimeline(String iun) {
         return timelineList.stream()
                 .filter(
                         timelineElement -> iun.equals(timelineElement.getIun())

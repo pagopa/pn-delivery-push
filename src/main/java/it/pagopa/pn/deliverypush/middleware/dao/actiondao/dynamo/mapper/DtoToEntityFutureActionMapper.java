@@ -14,6 +14,7 @@ public class DtoToEntityFutureActionMapper {
                 .notBefore(dto.getNotBefore())
                 .recipientIndex(dto.getRecipientIndex())
                 .type(dto.getType())
+                .timelineId(dto.getTimelineId())
                 .iun(dto.getIun());
 /*
                  .attachmentKeys(dto.getAttachmentKeys())

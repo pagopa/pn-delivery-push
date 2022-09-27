@@ -286,7 +286,7 @@ public class TestUtils {
         int numberOfRecipient = notification.getRecipients().size();
         Instant notificationCreatedAt = notification.getSentAt();
 
-        Set<TimelineElementInternal> timelineElements = timelineService.getTimeline(notification.getIun());
+        Set<TimelineElementInternal> timelineElements = timelineService.getTimeline(notification.getIun(), true);
         
         List<NotificationStatusHistoryElementInt> statusHistoryElements = statusUtils.getStatusHistory(timelineElements, numberOfRecipient, notificationCreatedAt);
 
@@ -368,7 +368,7 @@ public class TestUtils {
     public static void writeAllGeneratedLegalFacts(String iun, String className, TimelineService timelineService, SafeStorageClientMock safeStorageClientMock) {
         String testName = className + "-" + getMethodName(3);
 
-        timelineService.getTimeline(iun).forEach(
+        timelineService.getTimeline(iun, true).forEach(
                 elem -> {
                     if (! elem.getLegalFactsIds().isEmpty() ){
                         LegalFactsIdInt legalFactsId = elem.getLegalFactsIds().get(0);

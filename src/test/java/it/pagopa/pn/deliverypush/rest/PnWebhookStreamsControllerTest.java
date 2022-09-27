@@ -7,6 +7,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamL
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponse;
 import it.pagopa.pn.deliverypush.service.WebhookService;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,7 +106,7 @@ class PnWebhookStreamsControllerTest {
         Mockito.verify(service).deleteEventStream(Mockito.anyString(), Mockito.any(UUID.class));
     }
 
-    @Test
+    @Test @Disabled("enable after PN-2192")
     void deleteEventStreamKoRuntime() {
         String streamId = UUID.randomUUID().toString();
         Mockito.when(service.deleteEventStream(Mockito.anyString(), Mockito.any(UUID.class)))
@@ -121,12 +122,12 @@ class PnWebhookStreamsControllerTest {
                     httpHeaders.set("x-pagopa-pn-cx-groups", Collections.singletonList("test").toString());
                 })
                 .exchange()
-                .expectStatus().is5xxServerError()
+                .expectStatus().is4xxClientError()
                 .expectBody(Problem.class).consumeWith(
                         elem -> {
                             Problem problem = elem.getResponseBody();
                             assert problem != null;
-                            Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), problem.getStatus());
+                            Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE.value(), problem.getStatus());
                         }
                 );
     }
