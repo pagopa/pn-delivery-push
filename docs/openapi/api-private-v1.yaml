@@ -379,15 +379,12 @@ components:
     RequestNotificationViewedDto:
       type: object
       required:
-        - iun
         - recipientType
         - recipientInternalId
         - raddType
         - raddBusinessTransactionId
         - raddBusinessTransactionClosingDate
       properties:
-        iun:
-          $ref: "./remote-refs.yaml#/components/schemas/IUN"
         recipientType:
           $ref: './schemas-pn-notification-v1.yaml#/components/schemas/RecipientType'
         recipientInternalId:
