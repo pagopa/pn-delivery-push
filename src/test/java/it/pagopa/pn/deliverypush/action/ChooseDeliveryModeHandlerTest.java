@@ -71,7 +71,7 @@ class ChooseDeliveryModeHandlerTest {
         //GIVEN
         NotificationInt notification = getNotification();
         NotificationRecipientInt recipient =notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notification);
         
@@ -105,7 +105,7 @@ class ChooseDeliveryModeHandlerTest {
         //GIVEN
         NotificationInt notification = getNotification();
         NotificationRecipientInt recipient =notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notification);
 
@@ -148,7 +148,7 @@ class ChooseDeliveryModeHandlerTest {
         //GIVEN
         NotificationInt notification = getNotificationWithoutDigitalDomicile();
         NotificationRecipientInt recipient =notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notification);
 
@@ -193,7 +193,7 @@ class ChooseDeliveryModeHandlerTest {
 
         NotificationInt notification = getNotification();
         NotificationRecipientInt recipient =notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
         
         //WHEN
         handler.handleGeneralAddressResponse(response, notification, recIndex);
@@ -219,7 +219,7 @@ class ChooseDeliveryModeHandlerTest {
         //GIVEN
         NotificationInt notification = getNotification();
         NotificationRecipientInt recipient =notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         PublicRegistryResponse response = PublicRegistryResponse.builder()
                 .digitalAddress(null).build();
@@ -261,7 +261,7 @@ class ChooseDeliveryModeHandlerTest {
         //GIVEN
         NotificationInt notification = getNotification();
         NotificationRecipientInt recipient =notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 

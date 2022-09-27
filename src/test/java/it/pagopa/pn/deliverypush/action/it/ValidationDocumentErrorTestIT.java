@@ -187,7 +187,7 @@ class ValidationDocumentErrorTestIT {
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //WHEN the workflow start
         startWorkflowHandler.startWorkflow(iun);
