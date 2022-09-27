@@ -23,6 +23,10 @@ tags:
   - name: TimelineAndStatus
     description: >-
       Invocazioni per aggiornare lo stato della notifica
+  - name: LegalFactsPrivate
+    description: >-
+      Recupero degli atti oponibili a terzi generati per una notifica (api private)
+
 paths:
   '/status':
     get:
@@ -156,6 +160,77 @@ paths:
             application/problem+json:
               schema:
                 $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+  
+  '/delivery-push-private/{iun}/legal-facts':
+    get:
+      summary: Elenco atti opponibili a terzi
+      description: >-
+        Elenca le informazione di categorizzazione di tutti gli atti opponibili a terzi
+        registrati durante il processo di notifica.
+        <br/>
+        Il parametro recipientInternalId deve essere l'internalId del destinatario
+      tags:
+        - LegalFactsPrivate
+      operationId: getNotificationLegalFactsPrivate
+      parameters:
+        - $ref: '#/components/parameters/recipientInternalId'
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactList"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+  
+  '/delivery-push-private/{iun}/legal-facts/{legalFactType}/{legalFactId}':
+    get:
+      summary: Singolo atto opponibile a terzi
+      description: >-
+        Permette di scaricare un atto opponibile a terzi
+        <br/>
+        Il parametro recipientInternalId deve essere l'internalId del destinatario
+      tags:
+        - LegalFactsPrivate
+      operationId: getLegalFactPrivate
+      parameters:
+        - $ref: '#/components/parameters/recipientInternalId'
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathLegalFactType'
+        - $ref: '#/components/parameters/pathLegalFactId'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactDownloadMetadataResponse"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
 components:
   parameters:
@@ -210,6 +285,45 @@ components:
       schema:
         type: boolean
         
+    ############################################################################################
+    ###                      PARAMETRI RICERCA ATTI OPPONIBILI A TERZI                       ###
+    ############################################################################################
+    pathLegalFactType:
+      description: >-
+        Categoria dell'atto opponbile a terzi
+      name: legalFactType
+      in: path
+      required: true
+      schema:
+        $ref: './schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactCategory'
+
+    pathLegalFactId:
+      description: >-
+        Identificativo dell'atto opponbile a terzi
+      name: legalFactId
+      in: path
+      required: true
+      schema:
+        type: string
+
+    legalFactsSearchMandateId:
+      name: mandateId
+      in: query
+      required: false
+      description: identificativo della delega
+      schema:
+        type: string
+        
+    recipientInternalId:
+      description: >-
+        Identificativo anonimizzato del destinatario
+      name: recipientInternalId
+      in: query
+      required: true
+      schema:
+        type: string
+
+
   schemas:
 
     ############################################################################################
