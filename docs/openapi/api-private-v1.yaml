@@ -181,16 +181,12 @@ components:
     RequestNotificationViewedDto:
       type: object
       required:
-        - iun
         - recipientType
         - recipientInternalId
         - raddType
         - raddBusinessTransactionId
         - raddBusinessTransactionClosingDate
       properties:
-        iun:
-          type: string
-          description: Identificativo Univoco della Notifica
         recipientType:
           type: string
           description: |
