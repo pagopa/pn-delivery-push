@@ -10,7 +10,7 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 @Component
 public class NotificationUtils {
 
-    public int getRecipientIndex(NotificationInt notification, String taxId){
+    public int getRecipientIndexFromTaxId(NotificationInt notification, String taxId){
         int index = 0;
 
         for(NotificationRecipientInt recipientNot : notification.getRecipients()){

@@ -215,7 +215,7 @@ class AnalogTestIT {
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addCourtesyDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), listCourtesyAddress);
 
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -323,7 +323,7 @@ class AnalogTestIT {
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addCourtesyDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), listCourtesyAddress);
 
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -407,7 +407,7 @@ class AnalogTestIT {
         addressBookMock.addCourtesyDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), listCourtesyAddress);
 
         String iun = notification.getIun();
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
         
 
         //Start del workflow
@@ -515,7 +515,7 @@ class AnalogTestIT {
         publicRegistryMock.addPhysical(recipient.getTaxId(), publicRegistryAddress);
 
         String iun = notification.getIun();
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(notification.getIun());
@@ -623,8 +623,8 @@ class AnalogTestIT {
         addressBookMock.addCourtesyDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient2);
 
         String iun = notification.getIun();
-        Integer recIndex1 = notificationUtils.getRecipientIndex(notification, recipient1.getTaxId());
-        Integer recIndex2 = notificationUtils.getRecipientIndex(notification, recipient2.getTaxId());
+        Integer recIndex1 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
+        Integer recIndex2 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -760,8 +760,8 @@ class AnalogTestIT {
         addressBookMock.addCourtesyDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient2);
 
         String iun = notification.getIun();
-        Integer recIndex1 = notificationUtils.getRecipientIndex(notification, recipient1.getTaxId());
-        Integer recIndex2 = notificationUtils.getRecipientIndex(notification, recipient2.getTaxId());
+        Integer recIndex1 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
+        Integer recIndex2 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -910,7 +910,7 @@ class AnalogTestIT {
         addressBookMock.addCourtesyDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient2);
 
         String iun = notification.getIun();
-        Integer rec1Index = notificationUtils.getRecipientIndex(notification, recipient1.getTaxId());
+        Integer rec1Index = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -1066,7 +1066,7 @@ class AnalogTestIT {
         addressBookMock.addCourtesyDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient1);
         addressBookMock.addCourtesyDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient2);
 
-        Integer rec1Index = notificationUtils.getRecipientIndex(notification, recipient1.getTaxId());
+        Integer rec1Index = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);

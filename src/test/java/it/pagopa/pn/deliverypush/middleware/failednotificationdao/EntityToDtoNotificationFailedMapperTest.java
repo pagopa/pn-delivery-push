@@ -1,8 +1,8 @@
 package it.pagopa.pn.deliverypush.middleware.failednotificationdao;
 
-import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFailed;
-import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.dynamo.mapper.EntityToDtoNotificationFailedMapper;
+import it.pagopa.pn.deliverypush.dto.papernotificationfailed.PaperNotificationFailed;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.dynamo.entity.PaperNotificationFailedEntity;
+import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.dynamo.mapper.EntityToDtoNotificationFailedMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
