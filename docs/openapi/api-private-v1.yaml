@@ -23,6 +23,10 @@ tags:
   - name: TimelineAndStatus
     description: >-
       Invocazioni per aggiornare lo stato della notifica
+  - name: LegalFactsPrivate
+    description: >-
+      Recupero degli atti oponibili a terzi generati per una notifica (api private)
+
 paths:
   '/status':
     get:
@@ -118,6 +122,115 @@ paths:
                 $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
       
 
+  '/delivery-push-private/{recipientInternalId}/paper-notification-failed':
+    get:
+      summary: Restituisce le notifiche non consegnate per uno specifico destinatario
+      description: >-
+        Metodo utilizzato da microservizi interni per ottenere tutte le notifiche di uno specifico destinatario
+        per le quali non è stata possibile la consegna  (irreperibile totale).
+      tags:
+        - paperNotificationFailed
+      operationId: paperNotificationFailed
+      parameters:
+        - $ref: '#/components/parameters/pathRecipientInternalId'
+        - $ref: '#/components/parameters/getAAR'
+      responses:
+        '200':
+          description: |
+            DTO contenente gli identificativi delle notifiche non consegnate per lo specifico destinatario.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaperNotificationFailedList"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '404':
+          description: recipientInternalId not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+  
+  '/delivery-push-private/{iun}/legal-facts':
+    get:
+      summary: Elenco atti opponibili a terzi
+      description: >-
+        Elenca le informazione di categorizzazione di tutti gli atti opponibili a terzi
+        registrati durante il processo di notifica.
+        <br/>
+        Il parametro recipientInternalId deve essere l'internalId del destinatario
+      tags:
+        - LegalFactsPrivate
+      operationId: getNotificationLegalFactsPrivate
+      parameters:
+        - $ref: '#/components/parameters/recipientInternalId'
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactList"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+  
+  '/delivery-push-private/{iun}/legal-facts/{legalFactType}/{legalFactId}':
+    get:
+      summary: Singolo atto opponibile a terzi
+      description: >-
+        Permette di scaricare un atto opponibile a terzi
+        <br/>
+        Il parametro recipientInternalId deve essere l'internalId del destinatario
+      tags:
+        - LegalFactsPrivate
+      operationId: getLegalFactPrivate
+      parameters:
+        - $ref: '#/components/parameters/recipientInternalId'
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathLegalFactType'
+        - $ref: '#/components/parameters/pathLegalFactId'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactDownloadMetadataResponse"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
 components:
   parameters:
@@ -153,12 +266,97 @@ components:
       schema:
         type: string
         format: date-time
+
+    pathRecipientInternalId:
+      description: >-
+        Identificativo anonimizzato del destinatario
+      name: recipientInternalId
+      in: path
+      required: true
+      schema:
+        type: string
+      
+    getAAR:
+      description: >-
+        Tale parametro definisce se si richiede in risposta l'avviso avvenuta ricezione generato per la notifica o meno
+      name: getAAR
+      in: query
+      required: true
+      schema:
+        type: boolean
+        
+    ############################################################################################
+    ###                      PARAMETRI RICERCA ATTI OPPONIBILI A TERZI                       ###
+    ############################################################################################
+    pathLegalFactType:
+      description: >-
+        Categoria dell'atto opponbile a terzi
+      name: legalFactType
+      in: path
+      required: true
+      schema:
+        $ref: './schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactCategory'
+
+    pathLegalFactId:
+      description: >-
+        Identificativo dell'atto opponbile a terzi
+      name: legalFactId
+      in: path
+      required: true
+      schema:
+        type: string
+
+    legalFactsSearchMandateId:
+      name: mandateId
+      in: query
+      required: false
+      description: identificativo della delega
+      schema:
+        type: string
+        
+    recipientInternalId:
+      description: >-
+        Identificativo anonimizzato del destinatario
+      name: recipientInternalId
+      in: query
+      required: true
+      schema:
+        type: string
+
+
   schemas:
 
     ############################################################################################
-    ###                        INFORMAZIONI STORICHE DI UNA NOTIFICA                         ###
+    ###           COMUNICAZIONE DELLA NOTIFICHE DI DESTINATARI NON RAGGIUNGIBILI            ###
     ############################################################################################
 
+    PaperNotificationFailedList:
+      title: Elenco notifiche non consegnate
+      description: Elenco delle notifiche non consegnate
+      type: array
+      items:
+        $ref: '#/components/schemas/ResponsePaperNotificationFailedDto'
+        
+    ResponsePaperNotificationFailedDto:
+      type: object
+      required:
+        - iun
+        - recipientInternalId
+      properties:
+        iun:
+          type: string
+          description: Identificativo Univoco della Notifica
+        recipientInternalId:
+          type: string
+          description: Identificativo anonimizzato del destinatario
+        aarUrl:
+          type: string
+          description: Url dell' avviso avvenuta ricezione
+          
+    ############################################################################################
+    ###                        INFORMAZIONI STORICHE DI UNA NOTIFICA                         ###
+    ############################################################################################
+        
     NotificationHistoryResponse:
       type: object
       properties:
@@ -188,22 +386,14 @@ components:
         - raddBusinessTransactionClosingDate
       properties:
         recipientType:
-          type: string
-          description: |
-            tipo del destinatario <br/>
-            __PF__: Persona Fisica <br/>
-            __PG__: Persona Giuridica <br/>
+          $ref: './schemas-pn-notification-v1.yaml#/components/schemas/RecipientType'
         recipientInternalId:
           type: string
           description: identificativo anonimizzato del destinatario
         raddType:
-          type: string
-          description: |
-            tipo di Rete Anti Digital Divide <br/>
-            __FSU__: Fornitore Servizio Universale <br/>
+          $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/RaddType'
         raddBusinessTransactionId:
-          type: string
-          description: Identificativo della pratica all'interno della rete RADD
+          $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/RaddTransactionId'
         raddBusinessTransactionDate:
           type: string
           format: date-time
@@ -215,8 +405,7 @@ components:
         - iun
       properties:
         iun:
-          type: string
-          description: Identificativo Univoco della Notifica
+          $ref: "./remote-refs.yaml#/components/schemas/IUN"
 
 
 

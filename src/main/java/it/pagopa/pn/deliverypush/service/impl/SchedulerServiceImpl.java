@@ -24,19 +24,39 @@ public class SchedulerServiceImpl implements SchedulerService {
 
     @Override
     public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType) {
+        this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, null);
+    }
+
+
+    @Override
+    public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType, String timelineEventId) {
         Action action = Action.builder()
                 .iun(iun)
                 .recipientIndex(recIndex)
                 .notBefore(dateToSchedule)
                 .type(actionType)
+                .timelineId(timelineEventId)
                 .build();
-        
+
         this.actionsPool.scheduleFutureAction(action.toBuilder()
                 .actionId(action.getType().buildActionId(action))
                 .build()
         );
     }
 
+
+
+    @Override
+    public void unscheduleEvent(String iun, Integer recIndex, ActionType actionType, String timelineEventId) {
+        Action action = Action.builder()
+                .iun(iun)
+                .recipientIndex(recIndex)
+                .type(actionType)
+                .timelineId(timelineEventId)
+                .build();
+
+        this.actionsPool.unscheduleFutureAction (action.getType().buildActionId(action));
+    }
 
 
     @Override

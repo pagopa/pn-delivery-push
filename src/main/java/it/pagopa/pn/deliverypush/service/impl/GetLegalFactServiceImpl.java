@@ -98,7 +98,7 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
     @NotNull
     public List<LegalFactListElement> getLegalFacts(String iun, String senderReceiverId, String mandateId) {
         log.debug( "Retrieve timeline elements for iun={}", iun );
-        Set<TimelineElementInternal> timelineElements = timelineService.getTimeline(iun);
+        Set<TimelineElementInternal> timelineElements = timelineService.getTimeline(iun, true);
         
         NotificationInt notification = notificationService.getNotificationByIun(iun);
 

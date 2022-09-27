@@ -31,7 +31,7 @@ public class PnNotificationViewController implements EventComunicationApi {
     @Override
     public Mono<ResponseEntity<ResponseNotificationViewedDto>> notifyNotificationViewed(String iun, Mono<RequestNotificationViewedDto> requestNotificationViewedDto, final ServerWebExchange exchange) {
         return requestNotificationViewedDto.flatMap(request -> Mono.fromSupplier(() -> {
-            log.info("Start notifyNotificationViewed - iun={} ", iun);
+            log.info("Start notifyNotificationViewed - iun={} internalId={} raddTransactionId={} raddType={}", iun, request.getRecipientInternalId(), request.getRaddBusinessTransactionId(), request.getRaddType());
             try {
                 // get notification from iun
                 NotificationInt notification = notificationService.getNotificationByIun(iun);
@@ -39,13 +39,12 @@ public class PnNotificationViewController implements EventComunicationApi {
                     log.debug("Notification not found - iun={}", iun);
                     return ResponseEntity.badRequest().build();
                 }
-                log.info("Process started for - internalId={} raddTransactionId={} raddType={}", request.getRecipientInternalId(), request.getRaddBusinessTransactionId(), request.getRaddType());
                 // get recipient index from internal id
                 int recIndex = notificationUtils.getRecipientIndexFromInternalId(notification, request.getRecipientInternalId());
                 // handle view event
                 notificationViewedHandler.handleViewNotification(iun, recIndex, request.getRaddType(), request.getRaddBusinessTransactionId(), request.getRaddBusinessTransactionDate());
                 // return iun
-                log.info("End notifyNotificationViewed - iun={}", iun);
+                log.info("End notifyNotificationViewed - iun={} internalId={} raddTransactionId={} raddType={}", iun, request.getRecipientInternalId(), request.getRaddBusinessTransactionId(), request.getRaddType());
                 ResponseNotificationViewedDto response = ResponseNotificationViewedDto.builder().iun(iun).build();
                 return ResponseEntity.ok(response);
             } catch (Exception exp) {

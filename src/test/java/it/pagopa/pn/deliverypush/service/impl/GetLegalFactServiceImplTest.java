@@ -101,7 +101,7 @@ class GetLegalFactServiceImplTest {
                 ).build()
         );
 
-        Mockito.when( timelineService.getTimeline( Mockito.anyString() ) )
+        Mockito.when( timelineService.getTimeline( Mockito.anyString(), Mockito.anyBoolean()) )
                 .thenReturn( timelineElementsResult );
 
         NotificationRecipientInt recipientInt = NotificationRecipientInt.builder()

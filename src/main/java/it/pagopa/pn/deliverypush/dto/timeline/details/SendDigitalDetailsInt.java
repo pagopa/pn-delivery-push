@@ -12,7 +12,7 @@ import lombok.*;
 @Builder(toBuilder = true)
 @EqualsAndHashCode
 @ToString
-public class SendDigitalDetailsInt implements RecipientRelatedTimelineElementDetails, DigitalAddressRelatedTimelineElement {
+public class SendDigitalDetailsInt implements DigitalSendTimelineElementDetails {
     private int recIndex;
     private LegalDigitalAddressInt digitalAddress;
     private DigitalAddressSourceInt digitalAddressSource;

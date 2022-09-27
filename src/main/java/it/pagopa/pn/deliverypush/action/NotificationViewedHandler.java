@@ -59,11 +59,9 @@ public class NotificationViewedHandler {
     }
 
     public void handleViewNotification(String iun, Integer recIndex, String raddType, String raddTransactionId, Instant eventTimestamp) {
-        
-        log.info("Start HandleViewNotification - iun={}", iun);
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_VIEW_RPC, "Start HandleViewNotification - iun={} id={}", iun, recIndex )
+                .before(PnAuditLogEventType.AUD_NT_VIEW_RPC, "Start HandleViewNotification - iun={} id={} raddType={} raddTransactionId", iun, recIndex, raddType, raddTransactionId )
                 .iun(iun)
                 .build();
         logEvent.log();
@@ -109,7 +107,7 @@ public class NotificationViewedHandler {
                 notification
         ) ;
 
-        paperNotificationFailedService.deleteNotificationFailed(recipient.getTaxId(), iun); //Viene eliminata l'eventuale istanza di notifica fallita dal momento che la stessa è stata letta
+        paperNotificationFailedService.deleteNotificationFailed(recipient.getInternalId(), iun); //Viene eliminata l'eventuale istanza di notifica fallita dal momento che la stessa è stata letta
     }
 
     @Nullable

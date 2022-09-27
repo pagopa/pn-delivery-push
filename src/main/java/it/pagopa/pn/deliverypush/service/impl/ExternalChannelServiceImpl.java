@@ -51,27 +51,28 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
      * Send pec notification to external channel
      * Messaggio con valore legale (PEC)
      * Tramite il sendAlreadyInProgress indica se è il primo tentativo, o se invece è un ritentativo breve
-     *
-     * @param notification notitica
+     *  @param notification notitica
      * @param digitalAddress indirizzo
      * @param addressSource sorgente
      * @param recIndex indice destinatario
      * @param sentAttemptMade tentativo
      * @param sendAlreadyInProgress indica se l'invio è già stato eseguito e si sta eseguendo un ritentativo
+     * @return
      */
     @Override
-    public void sendDigitalNotification(NotificationInt notification,
-                                        LegalDigitalAddressInt digitalAddress,
-                                        DigitalAddressSourceInt addressSource,
-                                        Integer recIndex,
-                                        int sentAttemptMade,
-                                        boolean sendAlreadyInProgress
+    public String sendDigitalNotification(NotificationInt notification,
+                                          LegalDigitalAddressInt digitalAddress,
+                                          DigitalAddressSourceInt addressSource,
+                                          Integer recIndex,
+                                          int sentAttemptMade,
+                                          boolean sendAlreadyInProgress
     ) {
+        String eventId;
         if (!sendAlreadyInProgress)
         {
             log.debug("Start sendDigitalNotification - iun={} recipientIndex={}", notification.getIun(), recIndex);
 
-            String eventId = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
+            eventId = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
                     EventId.builder()
                             .iun(notification.getIun())
                             .recIndex(recIndex)
@@ -89,7 +90,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
 
             log.debug("Start sendDigitalNotification for retry - iun={} recipientIndex={} progressIndex={}", notification.getIun(), recIndex, progressIndex);
 
-            String eventId = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
+            eventId = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
                     EventId.builder()
                             .iun(notification.getIun())
                             .recIndex(recIndex)
@@ -112,6 +113,8 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                     Instant.now());
 
         }
+
+        return eventId;
     }
 
     /**

@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.action;
 
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.action.utils.ChooseDeliveryModeUtils;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
@@ -10,7 +9,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
-import it.pagopa.pn.deliverypush.service.ExternalChannelService;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.PublicRegistryService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
@@ -24,7 +23,7 @@ import java.util.Optional;
 @Component
 @Slf4j
 public class ChooseDeliveryModeHandler {
-    private final ExternalChannelService externalChannelService;
+    private final DigitalWorkFlowHandler digitalWorkFlowHandler;
     private final SchedulerService schedulerService;
     private final PublicRegistryService publicRegistryService;
     private final ChooseDeliveryModeUtils chooseDeliveryUtils;
@@ -33,14 +32,14 @@ public class ChooseDeliveryModeHandler {
     private final NotificationService notificationService;
 
     public ChooseDeliveryModeHandler(ChooseDeliveryModeUtils chooseDeliveryUtils,
-                                     ExternalChannelService externalChannelService,
+                                     DigitalWorkFlowHandler digitalWorkFlowHandler,
                                      SchedulerService schedulerService,
                                      PublicRegistryService publicRegistryService,
                                      InstantNowSupplier instantNowSupplier,
                                      PnDeliveryPushConfigs pnDeliveryPushConfigs,
                                      NotificationService notificationService) {
         this.chooseDeliveryUtils = chooseDeliveryUtils;
-        this.externalChannelService = externalChannelService;
+        this.digitalWorkFlowHandler = digitalWorkFlowHandler;
         this.schedulerService = schedulerService;
         this.publicRegistryService = publicRegistryService;
         this.instantNowSupplier = instantNowSupplier;
@@ -69,7 +68,7 @@ public class ChooseDeliveryModeHandler {
             LegalDigitalAddressInt platformAddress = platformAddressOpt.get();
 
             chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, notification, DigitalAddressSourceInt.PLATFORM, true);
-            startDigitalWorkflow(notification, platformAddress, DigitalAddressSourceInt.PLATFORM, recIndex);
+            digitalWorkFlowHandler.startDigitalWorkflow(notification, platformAddress, DigitalAddressSourceInt.PLATFORM, recIndex);
         } else {
             log.info("Platform address isn't present - iun={} recipientIndex={}", notification.getIun(), recIndex);
             chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, notification, DigitalAddressSourceInt.PLATFORM, false);
@@ -80,7 +79,7 @@ public class ChooseDeliveryModeHandler {
                 log.info("Special address is present, Digital workflow can be started  - iun={} id={}", notification.getIun(), recIndex);
 
                 chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, notification, DigitalAddressSourceInt.SPECIAL, true);
-                startDigitalWorkflow(notification, specialAddress, DigitalAddressSourceInt.SPECIAL, recIndex);
+                digitalWorkFlowHandler.startDigitalWorkflow(notification, specialAddress, DigitalAddressSourceInt.SPECIAL, recIndex);
             } else {
                 log.info("Special address isn't present, need to get General address async - iun={} recipientIndex={}", notification.getIun(), recIndex);
                 chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, notification, DigitalAddressSourceInt.SPECIAL, false);
@@ -108,25 +107,12 @@ public class ChooseDeliveryModeHandler {
             log.info("General address is present, Digital workflow can be started  - iun={} id={}", notification.getIun(), recIndex);
 
             chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, notification, DigitalAddressSourceInt.GENERAL, true);
-            startDigitalWorkflow(notification, response.getDigitalAddress(), DigitalAddressSourceInt.GENERAL, recIndex);
+            digitalWorkFlowHandler.startDigitalWorkflow(notification, response.getDigitalAddress(), DigitalAddressSourceInt.GENERAL, recIndex);
         } else {
             log.info("General address is not present, digital workflow can't be started. Starting Analog Workflow  - iun={} id={}", notification.getIun(), recIndex);
             chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, notification, DigitalAddressSourceInt.GENERAL, false);
             scheduleAnalogWorkflow(notification, recIndex);
         }
-    }
-
-    /**
-     * Starting digital workflow sending notification information to external channel
-     *
-     * @param notification   Public Administration notification request
-     * @param digitalAddress User address
-     * @param addressSource Address source ( PLATFORM, SPECIAL, GENERAL );
-     * @param recIndex      User identifier
-     */
-    public void startDigitalWorkflow(NotificationInt notification, LegalDigitalAddressInt digitalAddress, DigitalAddressSourceInt addressSource, Integer recIndex) {
-        log.info("Starting digital workflow sending notification to external channel - iun={} id={} ", notification.getIun(), recIndex);
-        externalChannelService.sendDigitalNotification(notification, digitalAddress, addressSource, recIndex, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, false);
     }
 
     /**
