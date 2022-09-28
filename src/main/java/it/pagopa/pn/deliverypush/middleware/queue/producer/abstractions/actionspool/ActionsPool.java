@@ -6,5 +6,7 @@ public interface ActionsPool {
 
     void scheduleFutureAction( Action action );
 
+    void unscheduleFutureAction( String actionId );
+
     Optional<Action> loadActionById( String sendActionId );
 }

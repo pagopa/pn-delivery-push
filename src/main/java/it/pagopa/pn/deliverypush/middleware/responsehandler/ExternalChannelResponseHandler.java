@@ -3,7 +3,7 @@ package it.pagopa.pn.deliverypush.middleware.responsehandler;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.*;
 import it.pagopa.pn.deliverypush.action.AnalogWorkflowHandler;
-import it.pagopa.pn.deliverypush.action.DigitalWorkFlowHandler;
+import it.pagopa.pn.deliverypush.action.DigitalWorkFlowExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.*;
@@ -17,14 +17,14 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 @Component
 @Slf4j
 public class ExternalChannelResponseHandler {
-    private final DigitalWorkFlowHandler digitalWorkFlowHandler;
+    private final DigitalWorkFlowExternalChannelResponseHandler digitalWorkFlowExternalChannelResponseHandler;
     private final AnalogWorkflowHandler analogWorkflowHandler;
     private final TimelineUtils timelineUtils;
 
-    public ExternalChannelResponseHandler(DigitalWorkFlowHandler digitalWorkFlowHandler,
+    public ExternalChannelResponseHandler(DigitalWorkFlowExternalChannelResponseHandler digitalWorkFlowExternalChannelResponseHandler,
                                           AnalogWorkflowHandler analogWorkflowHandler,
                                           TimelineUtils timelineUtils) {
-        this.digitalWorkFlowHandler = digitalWorkFlowHandler;
+        this.digitalWorkFlowExternalChannelResponseHandler = digitalWorkFlowExternalChannelResponseHandler;
         this.analogWorkflowHandler = analogWorkflowHandler;
         this.timelineUtils = timelineUtils;
     }
@@ -114,8 +114,8 @@ public class ExternalChannelResponseHandler {
             log.info("Received ExternalChannel legal message event for requestId={} - status={} details={} eventCode={} generatedMessage={} eventTimestamp={}",
                     digitalSentResponseInt.getRequestId(), digitalSentResponseInt.getStatus(), digitalSentResponseInt.getEventDetails(), digitalSentResponseInt.getEventCode(),
                     digitalSentResponseInt.getGeneratedMessage(), digitalSentResponseInt.getEventTimestamp());
-
-            digitalWorkFlowHandler.handleExternalChannelResponse(digitalSentResponseInt);
+            
+            digitalWorkFlowExternalChannelResponseHandler.handleExternalChannelResponse(digitalSentResponseInt);
         } catch (PnInternalException e) {
             log.error("Exception legalUpdate", e);
             throw e;

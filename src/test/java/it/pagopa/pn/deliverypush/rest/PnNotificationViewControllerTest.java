@@ -39,7 +39,6 @@ public class PnNotificationViewControllerTest {
     void notifyNotificationViewedNoNotification() {
         // GIVEN
         RequestNotificationViewedDto request = RequestNotificationViewedDto.builder()
-                .iun(FakeIUN)
                 .recipientInternalId("recipientInternalId")
                 .raddType("raddType")
                 .raddBusinessTransactionId("raddTransactionId")
@@ -67,7 +66,6 @@ public class PnNotificationViewControllerTest {
                 .withIun(FakeIUN)
                 .build();
         RequestNotificationViewedDto request = RequestNotificationViewedDto.builder()
-                .iun(FakeIUN)
                 .recipientInternalId("recipientInternalId")
                 .raddType("raddType")
                 .raddBusinessTransactionId("raddTransactionId")

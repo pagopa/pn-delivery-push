@@ -27,6 +27,7 @@ public class FutureActionEntity {
     private Instant notBefore;
     private ActionType type;
     private Integer recipientIndex;
+    private String timelineId;
 
     @DynamoDbPartitionKey
     @DynamoDbAttribute(value = FIELD_TIME_SLOT )
@@ -76,5 +77,13 @@ public class FutureActionEntity {
 
     public void setRecipientIndex(Integer recipientIndex) {
         this.recipientIndex = recipientIndex;
+    }
+
+    public String getTimelineId() {
+        return timelineId;
+    }
+
+    public void setTimelineId(String timelineId) {
+        this.timelineId = timelineId;
     }
 }

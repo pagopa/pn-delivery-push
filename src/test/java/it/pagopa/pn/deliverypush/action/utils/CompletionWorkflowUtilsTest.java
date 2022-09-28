@@ -68,7 +68,7 @@ class CompletionWorkflowUtilsTest {
         
         Set<TimelineElementInternal> timeline = getTimeline(notification.getIun(), recIndex);
         
-        Mockito.when(timelineService.getTimeline(Mockito.anyString())).thenReturn(timeline);
+        Mockito.when(timelineService.getTimeline(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(timeline);
         Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
         
         //WHEN

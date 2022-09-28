@@ -54,15 +54,16 @@ public class ExternalChannelServiceImplOld implements ExternalChannelService {
     
 /**
  * Send pec notification to external channel
+ * @return
  */
 
     @Override
-    public void sendDigitalNotification(NotificationInt notification,
-                                        LegalDigitalAddressInt digitalAddress,
-                                        DigitalAddressSourceInt addressSource,
-                                        Integer recIndex,
-                                        int sentAttemptMade,
-                                        boolean sendAlreadyInProgress) {
+    public String sendDigitalNotification(NotificationInt notification,
+                                          LegalDigitalAddressInt digitalAddress,
+                                          DigitalAddressSourceInt addressSource,
+                                          Integer recIndex,
+                                          int sentAttemptMade,
+                                          boolean sendAlreadyInProgress) {
         log.debug("Start sendDigitalNotification - iun {} id {}", notification.getIun(), recIndex);
 
         PnExtChnPecEvent pnExtChnPecEvent = getExtChannelPecEvent(notification, digitalAddress, addressSource, recIndex, sentAttemptMade);
@@ -78,6 +79,8 @@ public class ExternalChannelServiceImplOld implements ExternalChannelService {
                         .build()
         );
         externalChannelUtils.addSendDigitalNotificationToTimeline(notification, digitalAddress, addressSource, recIndex, sentAttemptMade, eventId);
+
+        return eventId;
     }
     
     

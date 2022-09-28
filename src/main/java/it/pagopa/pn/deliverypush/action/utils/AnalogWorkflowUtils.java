@@ -54,7 +54,7 @@ public class AnalogWorkflowUtils {
      * * @return last sent feedback information
      */
     public SendAnalogFeedbackDetailsInt getLastTimelineSentFeedback(String iun, Integer recIndex) {
-        Set<TimelineElementInternal> timeline = timelineService.getTimeline(iun);
+        Set<TimelineElementInternal> timeline = timelineService.getTimeline(iun, true);
 
         Optional<SendAnalogFeedbackDetailsInt> sendPaperFeedbackDetailsOpt = timeline.stream()
                 .filter(timelineElement -> filterLastAttemptDateInTimeline(timelineElement, recIndex))

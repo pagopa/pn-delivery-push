@@ -54,7 +54,7 @@ class AarUtilsTest {
     @ExtendWith(MockitoExtension.class)
     @Test
     void generateAARAndSaveInSafeStorageAndAddTimelineeventFailed() {
-
+        
         String msg = "PN_DELIVERYPUSH_GENERATEPDFFAILED";
         NotificationInt notificationInt = newNotification();
         String elementId = "IUN_01_aar_gen_0";
@@ -79,9 +79,6 @@ class AarUtilsTest {
         PdfInfo pdfInfo = PdfInfo.builder().key("one").numberOfPages(1).build();
 
         Mockito.when(timelineService.getTimelineElement(notificationInt.getIun(), elementId)).thenReturn(timeline);
-        //Mockito.when(notificationUtils.getRecipientFromIndex(notificationInt, recIndex)).thenReturn(recipientInt);
-        //Mockito.when(saveLegalFactsService.saveAAR(notificationInt, recipientInt)).thenReturn(pdfInfo);
-        //Mockito.when((timelineUtils.buildAarGenerationTimelineElement(notificationInt, recIndex, pdfInfo.getKey(), pdfInfo.getNumberOfPages()))).thenReturn(newTimelineElementInternal());
 
         aarUtils.generateAARAndSaveInSafeStorageAndAddTimelineevent(notificationInt, recIndex);
 

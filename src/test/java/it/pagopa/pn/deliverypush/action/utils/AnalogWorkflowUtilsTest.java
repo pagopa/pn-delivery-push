@@ -72,7 +72,7 @@ class AnalogWorkflowUtilsTest {
 
         String expectErrorMsg = "PN_DELIVERYPUSH_FEEDBACKNOTFOUND";
 
-        Mockito.when(timelineService.getTimeline("1")).thenReturn(Collections.EMPTY_SET);
+        Mockito.when(timelineService.getTimeline("1", true)).thenReturn(Collections.EMPTY_SET);
 
         PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
             analogWorkflowUtils.getLastTimelineSentFeedback("1", recIndex);
@@ -115,7 +115,7 @@ class AnalogWorkflowUtilsTest {
                 .sentAttemptMade(0)
                 .build();
 
-        Mockito.when(timelineService.getTimeline("1")).thenReturn(timeline);
+        Mockito.when(timelineService.getTimeline("1", true)).thenReturn(timeline);
 
         SendAnalogFeedbackDetailsInt tmp = analogWorkflowUtils.getLastTimelineSentFeedback("1", recIndex);
 

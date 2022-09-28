@@ -69,7 +69,7 @@ class AnalogWorkflowHandlerTest {
         //GIVEN
         NotificationInt notification = getNotificationWithPhysicalAddress();
         NotificationRecipientInt recipient = notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
@@ -90,7 +90,7 @@ class AnalogWorkflowHandlerTest {
         //GIVEN
         NotificationInt notification = getNotificationWithoutPhisicalAddress();
         NotificationRecipientInt recipient = notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
@@ -111,8 +111,8 @@ class AnalogWorkflowHandlerTest {
         //GIVEN
         NotificationInt notification = getNotificationWithPhysicalAddress();
         NotificationRecipientInt recipient = notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
-
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        
         //WHEN
         handler.nextWorkflowStep(notification, recIndex, 1);
 
@@ -126,7 +126,7 @@ class AnalogWorkflowHandlerTest {
         //GIVEN
         NotificationInt notification = getNotificationWithPhysicalAddress();
         NotificationRecipientInt recipient = notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
@@ -143,7 +143,7 @@ class AnalogWorkflowHandlerTest {
         //GIVEN
         NotificationInt notification = getNotificationWithPhysicalAddress();
         NotificationRecipientInt recipient = notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         PublicRegistryResponse response = PublicRegistryResponse.builder()
                 .correlationId("corrId")
@@ -167,7 +167,7 @@ class AnalogWorkflowHandlerTest {
         //GIVEN
         NotificationInt notification = getNotificationWithPhysicalAddress();
         NotificationRecipientInt recipient = notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         PublicRegistryResponse response = PublicRegistryResponse.builder()
                 .correlationId("corrId")
@@ -203,7 +203,7 @@ class AnalogWorkflowHandlerTest {
         //GIVEN
         NotificationInt notification = getNotificationWithPhysicalAddress();
         NotificationRecipientInt recipient = notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         PublicRegistryResponse response = PublicRegistryResponse.builder()
                 .correlationId("corrId")
@@ -240,7 +240,7 @@ class AnalogWorkflowHandlerTest {
         //GIVEN
         NotificationInt notification = getNotificationWithPhysicalAddress();
         NotificationRecipientInt recipient = notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         PublicRegistryResponse response = PublicRegistryResponse.builder()
                 .correlationId("corrId")
@@ -312,7 +312,7 @@ class AnalogWorkflowHandlerTest {
     void startAnalogWorkflow() {
         NotificationInt notification = getNotificationWithPhysicalAddress();
         NotificationRecipientInt recipient = notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
@@ -332,7 +332,7 @@ class AnalogWorkflowHandlerTest {
     void nextWorkflowStep_case0() {
         NotificationInt notification = getNotificationWithPhysicalAddress();
         NotificationRecipientInt recipient = notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         Mockito.when(analogWorkflowUtils.getPhysicalAddress(Mockito.any(NotificationInt.class), Mockito.anyInt()))
                 .thenReturn(recipient.getPhysicalAddress());
@@ -349,7 +349,7 @@ class AnalogWorkflowHandlerTest {
     void nextWorkflowStep_case1() {
         NotificationInt notification = getNotificationWithPhysicalAddress();
         NotificationRecipientInt recipient = notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         handler.nextWorkflowStep(notification, recIndex, 1);
 
@@ -362,7 +362,7 @@ class AnalogWorkflowHandlerTest {
     void nextWorkflowStep_case2() {
         NotificationInt notification = getNotificationWithPhysicalAddress();
         NotificationRecipientInt recipient = notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         handler.nextWorkflowStep(notification, recIndex, 2);
 

@@ -65,7 +65,7 @@ class DigitalWorkFlowUtilsTest {
         Set<TimelineElementInternal> timeline = new HashSet<>();
         timeline.add(timelineElementInternal);
 
-        Mockito.when(timelineService.getTimeline("1")).thenReturn(timeline);
+        Mockito.when(timelineService.getTimeline("1", true)).thenReturn(timeline);
 
         DigitalAddressInfo tmp = digitalWorkFlowUtils.getNextAddressInfo("1", 1, addressInfo);
 
@@ -169,32 +169,6 @@ class DigitalWorkFlowUtilsTest {
         Assertions.assertEquals(optTimeLineScheduleDigitalWorkflow, scheduleDigitalWorkflowDetailsInt);
     }
 
-    @Test
-    void getSendDigitalDetailsTimelineElementFailed() {
-
-        String msg = "Internal Server Error";
-        Mockito.when(timelineService.getTimelineElement(Mockito.anyString(), Mockito.any())).thenReturn(Optional.empty());
-
-        Exception exception = Assertions.assertThrows(PnInternalException.class, () -> {
-            digitalWorkFlowUtils.getSendDigitalDetailsTimelineElement(Mockito.anyString(), Mockito.anyString());
-        });
-
-        Assertions.assertEquals(msg, exception.getMessage());
-
-    }
-
-    @Test
-    void getSendDigitalDetailsTimelineElement() {
-
-        TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
-
-        Mockito.when(timelineService.getTimelineElement(Mockito.anyString(), Mockito.any())).thenReturn(Optional.of(timelineElementInternal));
-
-        TimelineElementInternal tmp = digitalWorkFlowUtils.getSendDigitalDetailsTimelineElement(Mockito.anyString(), Mockito.anyString());
-
-        Assertions.assertEquals(tmp, timelineElementInternal);
-
-    }
 
     @Test
     void getTimelineElement() {

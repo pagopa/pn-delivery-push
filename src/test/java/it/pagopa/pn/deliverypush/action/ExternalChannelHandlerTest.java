@@ -21,7 +21,7 @@ import java.time.ZoneOffset;
 
 class ExternalChannelHandlerTest {
     @Mock
-    private DigitalWorkFlowHandler digitalWorkFlowHandler;
+    private DigitalWorkFlowExternalChannelResponseHandler digitalWorkFlowHandler;
     @Mock
     private AnalogWorkflowHandler analogWorkflowHandler;
     @Mock
