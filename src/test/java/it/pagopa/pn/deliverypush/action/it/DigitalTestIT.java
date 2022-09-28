@@ -20,6 +20,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.Notificati
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
@@ -44,6 +45,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -110,6 +112,15 @@ class DigitalTestIT {
         }
     }
 
+    @SpyBean
+    private ExternalChannelMock externalChannelMock;
+
+    @SpyBean
+    private CompletionWorkFlowHandler completionWorkflow;
+
+    @SpyBean
+    private LegalFactGenerator legalFactGenerator;
+    
     @Autowired
     private StartWorkflowHandler startWorkflowHandler;
 
@@ -118,12 +129,6 @@ class DigitalTestIT {
 
     @Autowired
     private InstantNowSupplier instantNowSupplier;
-    
-    @SpyBean
-    private ExternalChannelMock externalChannelMock;
-
-    @SpyBean
-    private CompletionWorkFlowHandler completionWorkflow;
     
     @Autowired
     private SafeStorageClientMock safeStorageClientMock;
@@ -177,7 +182,7 @@ class DigitalTestIT {
     }
 
     @Test
-    void completeFailWithRegisteredLetterAlreadyViewedCourtesyEmail(){
+    void completeFailWithRegisteredLetterAlreadyViewedCourtesyEmail() throws IOException {
         /*
        - Platform address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
        - Special address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il digitalDomicile del recipient con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
@@ -265,7 +270,7 @@ class DigitalTestIT {
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
         
-        checkAllAttemptsFails(platformAddress, digitalDomicile, pbDigitalAddress, iun, recIndex);
+        int sentPecAttemptNumber = checkAllAttemptsFails(platformAddress, digitalDomicile, pbDigitalAddress, iun, recIndex);
 
         //Viene verificato che il workflow sia fallito
         TestUtils.checkFailDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow);
@@ -276,13 +281,24 @@ class DigitalTestIT {
         //Viene verificato che non sia avvenuto il perfezionamento dal momento che la notifica è stata visualizzata
         TestUtils.checkIsNotPresentRefinement(iun, recIndex, timelineService);
         
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+                notification,
+                timelineService,
+                recipient,
+                recIndex,
+                sentPecAttemptNumber,
+                EndWorkflowStatus.FAILURE,
+                legalFactGenerator
+        );
+
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
     }
 
 
-    
+
     @Test
     void completeFailWithRegisteredLetterAlreadyViewedCourtesyAppIo(){
         /*
@@ -377,7 +393,7 @@ class DigitalTestIT {
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
         
-        checkAllAttemptsFails(platformAddress, digitalDomicile, pbDigitalAddress, iun, recIndex);
+        int sentPecAttemptNumber = checkAllAttemptsFails(platformAddress, digitalDomicile, pbDigitalAddress, iun, recIndex);
 
         //Viene verificato che il workflow sia fallito
         TestUtils.checkFailDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow);
@@ -387,6 +403,17 @@ class DigitalTestIT {
 
         //Viene verificato che non sia avvenuto il perfezionamento dal momento che la notifica è stata visualizzata
         TestUtils.checkIsNotPresentRefinement(iun, recIndex, timelineService);
+
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+                notification,
+                timelineService,
+                recipient,
+                recIndex,
+                sentPecAttemptNumber,
+                EndWorkflowStatus.FAILURE,
+                legalFactGenerator
+        );
 
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
@@ -460,7 +487,7 @@ class DigitalTestIT {
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
 
-        checkAllAttemptsFails(platformAddress, digitalDomicile, pbDigitalAddress, iun, recIndex);
+        int sentPecAttemptNumber = checkAllAttemptsFails(platformAddress, digitalDomicile, pbDigitalAddress, iun, recIndex);
 
         //Viene verificato che il workflow abbia avuto successo
         TestUtils.checkFailDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow);
@@ -471,9 +498,21 @@ class DigitalTestIT {
         //Viene verificato che sia avvenuto il perfezionamento
         TestUtils.checkIsPresentRefinement(iun, recIndex, timelineService);
 
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+                notification,
+                timelineService,
+                recipient,
+                recIndex,
+                sentPecAttemptNumber,
+                EndWorkflowStatus.FAILURE,
+                legalFactGenerator
+        );
+
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
     }
 
     @Test
@@ -539,7 +578,7 @@ class DigitalTestIT {
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
 
-        checkAllAttemptsFails(platformAddress, digitalDomicile, pbDigitalAddress, iun, recIndex);
+        int sentPecAttemptNumber = checkAllAttemptsFails(platformAddress, digitalDomicile, pbDigitalAddress, iun, recIndex);
 
         //Viene verificato che il workflow abbia avuto successo
         TestUtils.checkFailDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow);
@@ -550,13 +589,25 @@ class DigitalTestIT {
         //Viene verificato che sia avvenuto il perfezionamento
         TestUtils.checkRefinement(iun, recIndex, timelineService);
 
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+                notification,
+                timelineService,
+                recipient,
+                recIndex,
+                sentPecAttemptNumber,
+                EndWorkflowStatus.FAILURE,
+                legalFactGenerator
+        );
+
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
     }
 
 
-    private void checkAllAttemptsFails(LegalDigitalAddressInt platformAddress, LegalDigitalAddressInt digitalDomicile, LegalDigitalAddressInt pbDigitalAddress, String iun, Integer recIndex) {
+    private int checkAllAttemptsFails(LegalDigitalAddressInt platformAddress, LegalDigitalAddressInt digitalDomicile, LegalDigitalAddressInt pbDigitalAddress, String iun, Integer recIndex) {
+        
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
@@ -565,31 +616,38 @@ class DigitalTestIT {
         List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
 
         int sendAttemptMade = 0;
+        int sentPecAttemptNumber = 0;
         //Viene verificato che il primo tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, platformAddress.getAddress(), notificationIntsEvents.get(0).getIun(), digitalAddressesEvents.get(0).getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, platformAddress.getAddress(), notificationIntsEvents.get(sentPecAttemptNumber).getIun(), digitalAddressesEvents.get(0).getAddress());
         checkIsPresentAcceptanceAndDeliveringAttachmentInTimeline(platformAddress.getAddress(), iun, recIndex, sendAttemptMade, DigitalAddressSourceInt.PLATFORM, ResponseStatusInt.KO);
 
+        sentPecAttemptNumber +=1;
         //Viene verificato che il secondo tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, digitalDomicile.getAddress(), notificationIntsEvents.get(1).getIun(), digitalAddressesEvents.get(1).getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, digitalDomicile.getAddress(), notificationIntsEvents.get(sentPecAttemptNumber).getIun(), digitalAddressesEvents.get(1).getAddress());
         checkIsPresentAcceptanceAndDeliveringAttachmentInTimeline(digitalDomicile.getAddress(), iun, recIndex, sendAttemptMade, DigitalAddressSourceInt.SPECIAL, ResponseStatusInt.KO);
 
+        sentPecAttemptNumber +=1;
         //Viene verificato che il secondo tentativo sia avvenuto con l'indirizzo fornito dai registri pubblici
-        TestUtils.checkExternalChannelPecSend(iun, pbDigitalAddress.getAddress(), notificationIntsEvents.get(2).getIun(), digitalAddressesEvents.get(2).getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, pbDigitalAddress.getAddress(), notificationIntsEvents.get(sentPecAttemptNumber).getIun(), digitalAddressesEvents.get(2).getAddress());
         checkIsPresentAcceptanceAndDeliveringAttachmentInTimeline(pbDigitalAddress.getAddress(), iun, recIndex, sendAttemptMade, DigitalAddressSourceInt.GENERAL, ResponseStatusInt.KO);
 
         sendAttemptMade += 1;
-
+        sentPecAttemptNumber +=1;
         //Viene verificato che il quarto tentativo sia avvenuto con il platform address
-        TestUtils.checkExternalChannelPecSend(iun, platformAddress.getAddress(), notificationIntsEvents.get(3).getIun(), digitalAddressesEvents.get(3).getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, platformAddress.getAddress(), notificationIntsEvents.get(sentPecAttemptNumber).getIun(), digitalAddressesEvents.get(3).getAddress());
         checkIsPresentAcceptanceAndDeliveringAttachmentInTimeline(platformAddress.getAddress(), iun, recIndex, sendAttemptMade, DigitalAddressSourceInt.PLATFORM, ResponseStatusInt.KO);
 
+        sentPecAttemptNumber +=1;
         //Viene verificato che il quinto tentativo sia avvenuto con il domicilio digitale
-        TestUtils.checkExternalChannelPecSend(iun, digitalDomicile.getAddress(), notificationIntsEvents.get(4).getIun(), digitalAddressesEvents.get(4).getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, digitalDomicile.getAddress(), notificationIntsEvents.get(sentPecAttemptNumber).getIun(), digitalAddressesEvents.get(4).getAddress());
         checkIsPresentAcceptanceAndDeliveringAttachmentInTimeline(digitalDomicile.getAddress(), iun, recIndex, sendAttemptMade, DigitalAddressSourceInt.SPECIAL, ResponseStatusInt.KO);
 
+        sentPecAttemptNumber +=1;
         //Viene verificato che il sesto tentativo sia avvenuto con l'indirizzo fornito dai registri pubblici
-        TestUtils.checkExternalChannelPecSend(iun, pbDigitalAddress.getAddress(), notificationIntsEvents.get(5).getIun(), digitalAddressesEvents.get(5).getAddress());
+        TestUtils.checkExternalChannelPecSend(iun, pbDigitalAddress.getAddress(), notificationIntsEvents.get(sentPecAttemptNumber).getIun(), digitalAddressesEvents.get(5).getAddress());
         checkIsPresentAcceptanceAndDeliveringAttachmentInTimeline(pbDigitalAddress.getAddress(), iun, recIndex, sendAttemptMade, DigitalAddressSourceInt.GENERAL, ResponseStatusInt.KO);
+        
+        return sentPecAttemptNumber +1;
     }
 
     private void checkIsPresentAcceptanceAndDeliveringAttachmentInTimeline(String address,
@@ -654,7 +712,9 @@ class DigitalTestIT {
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
-        Mockito.verify(externalChannelMock, Mockito.times(1)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
+        
+        int sentPecAttemptNumber = 1;
+        Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
         List<NotificationInt> notificationIntsEvents = notificationIntEventCaptor.getAllValues();
         List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
 
@@ -666,6 +726,17 @@ class DigitalTestIT {
 
         //Viene verificato che sia avvenuto il perfezionamento
         TestUtils.checkRefinement(iun, recIndex, timelineService);
+
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+                notification,
+                timelineService,
+                recipient,
+                recIndex,
+                sentPecAttemptNumber,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator
+        );
 
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
@@ -718,7 +789,8 @@ class DigitalTestIT {
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
-        Mockito.verify(externalChannelMock, Mockito.times(1)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
+        int sentPecAttemptNumber = 1;
+        Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
         List<NotificationInt> notificationIntsEvents = notificationIntEventCaptor.getAllValues();
         List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
 
@@ -730,6 +802,17 @@ class DigitalTestIT {
 
         //Viene verificato che sia avvenuto il perfezionamento
         TestUtils.checkRefinement(iun, recIndex, timelineService);
+
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+                notification,
+                timelineService,
+                recipient,
+                recIndex,
+                sentPecAttemptNumber,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator
+        );
 
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
@@ -797,7 +880,8 @@ class DigitalTestIT {
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
-        Mockito.verify(externalChannelMock, Mockito.times(3)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
+        int sentPecAttemptNumber = 3;
+        Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
         List<NotificationInt> notificationIntsEvents = notificationIntEventCaptor.getAllValues();
         List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
 
@@ -818,6 +902,17 @@ class DigitalTestIT {
 
         //Viene verificato che sia avvenuto il perfezionamento
         TestUtils.checkRefinement(iun, recIndex, timelineService);
+
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+                notification,
+                timelineService,
+                recipient,
+                recIndex,
+                sentPecAttemptNumber,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator
+        );
 
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
@@ -868,7 +963,8 @@ class DigitalTestIT {
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         
         //Viene verificato che sia stata effettuata una sola chiamata ad external channel
-        Mockito.verify(externalChannelMock, Mockito.times(1)).sendLegalNotification(Mockito.any(NotificationInt.class), Mockito.any(), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString());
+        int sentPecAttemptNumber = 1;
+        Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(Mockito.any(NotificationInt.class), Mockito.any(), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString());
 
         //Viene verificato che il primo tentativo sia avvenuto con il platform address
         checkIsPresentAcceptanceAndDeliveringAttachmentInTimeline(platformAddress.getAddress(), iun, recIndex, 0, DigitalAddressSourceInt.PLATFORM, ResponseStatusInt.OK);
@@ -878,6 +974,17 @@ class DigitalTestIT {
 
         //Viene verificato che sia avvenuto il perfezionamento
         TestUtils.checkRefinement(iun, recIndex, timelineService);
+
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+                notification,
+                timelineService,
+                recipient,
+                recIndex,
+                sentPecAttemptNumber,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator
+        );
 
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
@@ -937,7 +1044,8 @@ class DigitalTestIT {
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
-        Mockito.verify(externalChannelMock, Mockito.times(2)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
+        int sentPecAttemptNumber = 2;
+        Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
         List<NotificationInt> notificationIntsEvents = notificationIntEventCaptor.getAllValues();
         List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
         
@@ -954,6 +1062,17 @@ class DigitalTestIT {
 
         //Viene verificato che sia avvenuto il perfezionamento
         TestUtils.checkRefinement(iun, recIndex, timelineService);
+
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+                notification,
+                timelineService,
+                recipient,
+                recIndex,
+                sentPecAttemptNumber,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator
+        );
 
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
@@ -1025,11 +1144,36 @@ class DigitalTestIT {
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
-        Mockito.verify(externalChannelMock, Mockito.times(6)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
+        int sentPecAttemptNumber = 6;
+        Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
         List<NotificationInt> notificationIntsEvents = notificationIntEventCaptor.getAllValues();
         List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
 
+        checkExternalChannelSentAttempt(platformAddress, digitalDomicile, pbDigitalAddress, iun, recIndex, notificationIntsEvents, digitalAddressesEvents);
 
+        //Viene verificato che il workflow abbia avuto successo
+        TestUtils.checkSuccessDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow, pbDigitalAddress, 1, 0);
+
+        //Viene verificato che sia avvenuto il perfezionamento
+        TestUtils.checkRefinement(iun, recIndex, timelineService);
+
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+                notification,
+                timelineService,
+                recipient,
+                recIndex,
+                sentPecAttemptNumber,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator
+        );
+
+        //Vengono stampati tutti i legalFacts generati
+        String className = this.getClass().getSimpleName();
+        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+    }
+
+    private void checkExternalChannelSentAttempt(LegalDigitalAddressInt platformAddress, LegalDigitalAddressInt digitalDomicile, LegalDigitalAddressInt pbDigitalAddress, String iun, Integer recIndex, List<NotificationInt> notificationIntsEvents, List<LegalDigitalAddressInt> digitalAddressesEvents) {
         int sendAttemptMade = 0;
 
         //Viene verificato che il primo tentativo sia avvenuto con il platform address
@@ -1045,7 +1189,7 @@ class DigitalTestIT {
         checkIsPresentAcceptanceAndDeliveringAttachmentInTimeline(pbDigitalAddress.getAddress(), iun, recIndex, sendAttemptMade, DigitalAddressSourceInt.GENERAL, ResponseStatusInt.KO);
 
         sendAttemptMade+=1;
-        
+
         //Viene verificato che il quarto tentativo sia avvenuto con il platform address
         TestUtils.checkExternalChannelPecSend(iun, platformAddress.getAddress(), notificationIntsEvents.get(3).getIun(), digitalAddressesEvents.get(3).getAddress());
         checkIsPresentAcceptanceAndDeliveringAttachmentInTimeline(platformAddress.getAddress(), iun, recIndex, sendAttemptMade, DigitalAddressSourceInt.PLATFORM, ResponseStatusInt.KO);
@@ -1057,16 +1201,6 @@ class DigitalTestIT {
         //Viene verificato che il sesto tentativo sia avvenuto con l'indirizzo fornito dai registri pubblici
         TestUtils.checkExternalChannelPecSend(iun, pbDigitalAddress.getAddress(), notificationIntsEvents.get(5).getIun(), digitalAddressesEvents.get(5).getAddress());
         checkIsPresentAcceptanceAndDeliveringAttachmentInTimeline(pbDigitalAddress.getAddress(), iun, recIndex, sendAttemptMade, DigitalAddressSourceInt.GENERAL, ResponseStatusInt.OK);
-        
-        //Viene verificato che il workflow abbia avuto successo
-        TestUtils.checkSuccessDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow, pbDigitalAddress, 1, 0);
-
-        //Viene verificato che sia avvenuto il perfezionamento
-        TestUtils.checkRefinement(iun, recIndex, timelineService);
-
-        //Vengono stampati tutti i legalFacts generati
-        String className = this.getClass().getSimpleName();
-        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
     }
 
     @Test
@@ -1132,13 +1266,38 @@ class DigitalTestIT {
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
-        Mockito.verify(externalChannelMock, Mockito.times(4)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
+        int sentPecAttemptNumber = 4;
+        Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
         List<NotificationInt> notificationIntsEvents = notificationIntEventCaptor.getAllValues();
         List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
+        
+        checkExternalChannelAttempt(platformAddress, digitalDomicile, pbDigitalAddress, iun, recIndex, notificationIntsEvents, digitalAddressesEvents);
 
-        
+        //Viene verificato che il workflow abbia avuto successo
+        TestUtils.checkSuccessDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow, platformAddress, 1, 0);
+
+        //Viene verificato che sia avvenuto il perfezionamento
+        TestUtils.checkRefinement(iun, recIndex, timelineService);
+
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+                notification,
+                timelineService,
+                recipient,
+                recIndex,
+                sentPecAttemptNumber,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator
+        );
+
+        //Vengono stampati tutti i legalFacts generati
+        String className = this.getClass().getSimpleName();
+        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+    }
+
+    private void checkExternalChannelAttempt(LegalDigitalAddressInt platformAddress, LegalDigitalAddressInt digitalDomicile, LegalDigitalAddressInt pbDigitalAddress, String iun, Integer recIndex, List<NotificationInt> notificationIntsEvents, List<LegalDigitalAddressInt> digitalAddressesEvents) {
         int sentAttemptMade = 0;
-        
+
         //Viene verificato che il primo tentativo sia avvenuto con il platform address
         TestUtils.checkExternalChannelPecSend(iun, platformAddress.getAddress(), notificationIntsEvents.get(0).getIun(), digitalAddressesEvents.get(0).getAddress());
         checkIsPresentAcceptanceAndDeliveringAttachmentInTimeline(platformAddress.getAddress(), iun, recIndex, sentAttemptMade, DigitalAddressSourceInt.PLATFORM, ResponseStatusInt.KO);
@@ -1155,16 +1314,6 @@ class DigitalTestIT {
         //Viene verificato che il quarto tentativo sia avvenuto con il platform address
         TestUtils.checkExternalChannelPecSend(iun, platformAddress.getAddress(), notificationIntsEvents.get(3).getIun(), digitalAddressesEvents.get(3).getAddress());
         checkIsPresentAcceptanceAndDeliveringAttachmentInTimeline(platformAddress.getAddress(), iun, recIndex, sentAttemptMade, DigitalAddressSourceInt.PLATFORM, ResponseStatusInt.OK);
-
-        //Viene verificato che il workflow abbia avuto successo
-        TestUtils.checkSuccessDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow, platformAddress, 1, 0);
-
-        //Viene verificato che sia avvenuto il perfezionamento
-        TestUtils.checkRefinement(iun, recIndex, timelineService);
-
-        //Vengono stampati tutti i legalFacts generati
-        String className = this.getClass().getSimpleName();
-        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
     }
 
     @Test
@@ -1230,7 +1379,8 @@ class DigitalTestIT {
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
-        Mockito.verify(externalChannelMock, Mockito.times(5)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
+        int sentPecAttemptNumber = 5;
+        Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
         List<NotificationInt> notificationIntsEvents = notificationIntEventCaptor.getAllValues();
         List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
 
@@ -1262,6 +1412,17 @@ class DigitalTestIT {
 
         //Viene verificato che sia avvenuto il perfezionamento
         TestUtils.checkRefinement(iun, recIndex, timelineService);
+
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+                notification,
+                timelineService,
+                recipient,
+                recIndex,
+                sentPecAttemptNumber,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator
+        );
 
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
@@ -1401,6 +1562,28 @@ class DigitalTestIT {
 
         //Viene verificato per il secondo recipient che sia avvenuto il perfezionamento
         TestUtils.checkRefinement(iun, recIndex2, timelineService);
+        
+        //Viene effettuato il check dei legalFacts generati per il primo recipient
+        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+                notification,
+                timelineService,
+                recipient1,
+                recIndex1,
+                2,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator
+        );
+
+        //Viene effettuato il check dei legalFacts generati per il secondo recipient
+        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+                notification,
+                timelineService,
+                recipient2,
+                recIndex2,
+                4,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator
+        );
 
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();

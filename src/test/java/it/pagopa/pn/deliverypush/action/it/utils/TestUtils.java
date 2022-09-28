@@ -21,12 +21,14 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.junit.jupiter.api.Assertions;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
@@ -364,7 +366,7 @@ public class TestUtils {
             safeStorageClientMock.createFile(fileCreationWithContentRequest, attachment.getDigests().getSha256());
         }
     }
-    
+
     public static void writeAllGeneratedLegalFacts(String iun, String className, TimelineService timelineService, SafeStorageClientMock safeStorageClientMock) {
         String testName = className + "-" + getMethodName(3);
 
@@ -375,17 +377,49 @@ public class TestUtils {
                         if( !LegalFactCategoryInt.PEC_RECEIPT.equals(legalFactsId.getCategory()) && !LegalFactCategoryInt.ANALOG_DELIVERY.equals(legalFactsId.getCategory())){
                             String key = legalFactsId.getKey().replace("safestorage://", "");
                             safeStorageClientMock.writeFile(key, legalFactsId.getCategory(), testName);
-
                         }
                     }
                 }
         );
     }
+    
+    public static void checkPecDeliveryWorkflowLegalFactsGeneration(NotificationInt notification,
+                                                                    TimelineService timelineService,
+                                                                    NotificationRecipientInt recipient,
+                                                                    Integer recIndex,
+                                                                    int sentPecAttemptNumber,
+                                                                    EndWorkflowStatus endWorkflowStatus,
+                                                                    LegalFactGenerator legalFactGenerator
+    ) {
+        String eventId = TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build()
+        );
 
+        Optional<PhysicalAddressInt> optionalPhysicalAddress =
+                timelineService.getTimelineElementDetails(notification.getIun(), eventId, SimpleRegisteredLetterDetailsInt.class ).map(
+                        SimpleRegisteredLetterDetailsInt::getPhysicalAddress
+                );
+
+        ArgumentCaptor<List<SendDigitalFeedbackDetailsInt>> sendDigitalFeedbackCaptor = ArgumentCaptor.forClass(List.class);
+
+        try {
+            Mockito.verify(legalFactGenerator).generatePecDeliveryWorkflowLegalFact(sendDigitalFeedbackCaptor.capture(), Mockito.eq(notification),
+                    Mockito.eq(recipient), Mockito.eq(endWorkflowStatus), Mockito.any(Instant.class), Mockito.eq(optionalPhysicalAddress.orElse(null)) );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        List<SendDigitalFeedbackDetailsInt> listSendDigitalFeedbackDetail = sendDigitalFeedbackCaptor.getValue();
+
+        Assertions.assertEquals(sentPecAttemptNumber, listSendDigitalFeedbackDetail.size());
+    }
+    
     public static String getMethodName(final int depth) {
         final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
         return ste[depth].getMethodName();
     }
-    
 
 }

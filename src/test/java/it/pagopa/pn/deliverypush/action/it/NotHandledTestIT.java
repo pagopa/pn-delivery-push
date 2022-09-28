@@ -23,6 +23,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalFailureWorkflowDeta
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotHandledDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -112,6 +113,15 @@ class NotHandledTestIT {
         }
     }
 
+    @SpyBean
+    private LegalFactGenerator legalFactGenerator;
+
+    @SpyBean
+    private ExternalChannelMock externalChannelMock;
+
+    @SpyBean
+    private CompletionWorkFlowHandler completionWorkflow;
+
     @Autowired
     private StartWorkflowHandler startWorkflowHandler;
 
@@ -121,12 +131,6 @@ class NotHandledTestIT {
     @Autowired
     private InstantNowSupplier instantNowSupplier;
     
-    @SpyBean
-    private ExternalChannelMock externalChannelMock;
-
-    @SpyBean
-    private CompletionWorkFlowHandler completionWorkflow;
-
     @Autowired
     private SafeStorageClientMock safeStorageClientMock;
 
@@ -177,12 +181,6 @@ class NotHandledTestIT {
 
     @Test
     void digitalFailureWorkflowNotHandled() {
-        /*
-       - Platform address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-       - Special address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il digitalDomicile del recipient con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-       - General address presente e invio fallito per entrambi gli invii (Ottenuto non valorizzando il pbDigitalAddress per il recipient in PUB_REGISTRY_DIGITAL con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-       - Invio Registered letter non avviene perchè NON GESTITO
-       */
 
         LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
                 .address("platformAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
@@ -232,8 +230,12 @@ class NotHandledTestIT {
                 Assertions.assertEquals(NotificationStatusInt.CANCELLED, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
 
+        //Viene verificato il numero di send PEC verso external channel
+        int sentPecAttemptNumber = 4;
+        Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(
+                Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString());
+
         //Viene verificato che la registered letter non sia stata inviata
-        
         Mockito.verify(externalChannelMock, Mockito.times(0)).sendAnalogNotification(Mockito.any(NotificationInt.class), 
                 Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
         
@@ -253,6 +255,17 @@ class NotHandledTestIT {
         //Viene verificata la presenza dell'elemento di timeline di fallimento
         isPresentDigitalFailureWorkflow(notification, recIndex);
 
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+                notification,
+                timelineService,
+                recipient,
+                recIndex,
+                sentPecAttemptNumber,
+                EndWorkflowStatus.FAILURE,
+                legalFactGenerator
+        );
+
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
@@ -260,13 +273,6 @@ class NotHandledTestIT {
 
     @Test
     void digitalFailureWorkflowNotHandledViewed() {
-        /*
-       - Platform address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-       - Special address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il digitalDomicile del recipient con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-       - General address presente e invio fallito per entrambi gli invii (Ottenuto non valorizzando il pbDigitalAddress per il recipient in PUB_REGISTRY_DIGITAL con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-       - Simulata visualizzazione notifica in fase di SEND_COURTESY_MESSAGE (Ottenuto valorizzando il tax id con TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION)
-       */
-
         LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
                 .address("platformAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -332,6 +338,11 @@ class NotHandledTestIT {
                 Assertions.assertTrue(timelineService.getTimelineElement(notification.getIun(), elementId).isPresent())
         );
 
+        //Viene verificato il numero di send PEC verso external channel
+        int sentPecAttemptNumber = 4;
+        Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(
+                Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString());
+
         //Viene verificato che la registered letter non sia stata inviata
         Mockito.verify(externalChannelMock, Mockito.times(0)).sendAnalogNotification(Mockito.any(NotificationInt.class),
                 Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
@@ -351,6 +362,17 @@ class NotHandledTestIT {
 
         //Anche se la notifica è stata visualizzata non dovrà essere presente l'elemento di timeline di fallimento
         isPresentDigitalFailureWorkflow(notification, recIndex);
+
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+                notification,
+                timelineService,
+                recipient,
+                recIndex,
+                sentPecAttemptNumber,
+                EndWorkflowStatus.FAILURE,
+                legalFactGenerator
+        );
 
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
@@ -407,6 +429,11 @@ class NotHandledTestIT {
         await().untilAsserted(() ->
                 Assertions.assertEquals(NotificationStatusInt.CANCELLED, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
+
+        //Viene verificato il numero di send PEC verso external channel
+        int sentPecAttemptNumber = 6;
+        Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(
+                Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString());
 
         //Viene verificato che sia stato inviato un messaggio ad ogni indirizzo presente nei courtesyaddress
         TestUtils.checkSendCourtesyAddresses(iun, recIndex, listCourtesyAddress, timelineService, externalChannelMock);
@@ -489,6 +516,11 @@ class NotHandledTestIT {
         with().pollDelay(2, SECONDS).await().untilAsserted(() ->
                 Assertions.assertTrue(timelineService.getTimelineElement(notification.getIun(), elementId).isPresent())
         );
+
+        //Viene verificato il numero di send PEC verso external channel
+        int sentPecAttemptNumber = 6;
+        Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(
+                Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString());
 
         //Viene verificato che non ci sia stato nessun invio verso externalChannel
         Mockito.verify(externalChannelMock, Mockito.times(0)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
