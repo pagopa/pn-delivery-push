@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_INVALIDRECEIVEDPAPERSTATUS;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND;
 
 @Component
 @Slf4j
@@ -217,6 +218,8 @@ public class AnalogWorkflowHandler {
                     analogWorkflowUtils.addAnalogFailureAttemptToTimeline(notification, sentAttemptMade, legalFactsListEntryIds, response.getDiscoveredAddress(), response.getDeliveryFailureCause() == null ? null : List.of(response.getDeliveryFailureCause()), sendPaperDetails);
                     nextWorkflowStep(notification, recIndex, sentAttemptMade);
                     break;
+                default:
+                    throw new PnInternalException("Invalid status from externalChannel response", ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND);
             }
         } else {
             handleStatusProgress(response, iun, recIndex);

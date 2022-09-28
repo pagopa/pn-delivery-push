@@ -23,6 +23,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.EnumMap;
 import java.util.Map;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_DOCUMENTCOMPOSITIONFAILED;
+
 @Component
 @Slf4j
 public class DocumentComposition {
@@ -123,7 +125,10 @@ public class DocumentComposition {
             template.process(model, stringWriter);
 
         } catch (IOException | TemplateException exc) {
-            throw new PnInternalException("Processing template " + templateType, exc.getMessage());
+            throw new PnInternalException(
+                    "Processing template " + templateType,
+                    ERROR_CODE_DELIVERYPUSH_DOCUMENTCOMPOSITIONFAILED,
+                    exc);
         }
 
         log.info("Execute templateType={} END", templateType);

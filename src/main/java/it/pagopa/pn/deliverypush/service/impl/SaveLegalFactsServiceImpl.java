@@ -166,7 +166,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
             logEvent.generateFailure("Error in saveNotificationViewedLegalFact,  exc=", exc).log();
 
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "NOTIFICATION_VIEWED", notification.getIun(), recipient.getTaxId());
-            throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_SAVENOTIFICATIONFAILED);
+            throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_SAVENOTIFICATIONFAILED, exc);
         }
     }
 }
