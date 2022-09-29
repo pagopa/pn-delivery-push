@@ -132,12 +132,12 @@ class CompletionWorkflowUtilsTest {
 
         //THEN
         Mockito.verify(saveLegalFactsService).savePecDeliveryWorkflowLegalFact(
-                Mockito.eq(Collections.singletonList(sendDigitalFeedbackDetailsInt)),
-                Mockito.eq(notification),
-                Mockito.eq(recipient),
-                Mockito.eq(status),
-                Mockito.eq(completionWorkflowDate),
-                Mockito.eq(registeredLetterDetails.getPhysicalAddress())
+                Collections.singletonList(sendDigitalFeedbackDetailsInt),
+                notification,
+                recipient,
+                status,
+                completionWorkflowDate,
+                registeredLetterDetails.getPhysicalAddress()
         );
     }
     
