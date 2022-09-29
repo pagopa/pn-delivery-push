@@ -11,26 +11,25 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.UpdateFileMetadataResponseInt;
+import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
+import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
+import it.pagopa.pn.deliverypush.exceptions.PnValidationNotMatchingShaException;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
-import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.function.Consumer;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ATTACHMENTCHANGESTATUSFAILED;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.*;
 
 @Component
 @Slf4j
 public class AttachmentUtils {
-    private final NotificationReceiverValidator validator;
     private final SafeStorageService safeStorageService;
     private final PnAuditLogBuilder auditLogBuilder;
 
-    public AttachmentUtils(NotificationReceiverValidator validator,
-                           SafeStorageService safeStorageService,
+    public AttachmentUtils(SafeStorageService safeStorageService,
                            PnAuditLogBuilder auditLogBuilder) {
-        this.validator = validator;
         this.safeStorageService = safeStorageService;
         this.auditLogBuilder = auditLogBuilder;
     }
@@ -83,19 +82,18 @@ public class AttachmentUtils {
 
     private void checkAttachment(NotificationDocumentInt attachment) {
         NotificationDocumentInt.Ref ref = attachment.getRef();
-
-        FileDownloadResponseInt fd = safeStorageService.getFile(ref.getKey(),true);
+        FileDownloadResponseInt fd = null;
+        try {
+            fd = safeStorageService.getFile(ref.getKey(),true);
+        } catch ( PnNotFoundException ex) {
+            throw new PnValidationFileNotFoundException( ERROR_CODE_DELIVERYPUSH_NOTFOUND ,ex.getProblem().getDetail() );
+        }
 
         String attachmentKey = fd.getKey();
-
         log.debug( "Check preload digest for attachment with key={}", attachmentKey);
-        validator.checkPreloadedDigests(
-                attachmentKey,
-                attachment.getDigests(),
-                NotificationDocumentInt.Digests.builder()
-                        .sha256( fd.getChecksum() )
-                        .build()
-        );
+        if ( !attachment.getDigests().getSha256().equals( fd.getChecksum() )) {
+            throw new PnValidationNotMatchingShaException( ERROR_CODE_DELIVERYPUSH_SHAFILEERROR, "Validation failed, different sha256" );
+        }
     }
 
     private void changeAttachmentStatusToAttached(NotificationDocumentInt attachment) {

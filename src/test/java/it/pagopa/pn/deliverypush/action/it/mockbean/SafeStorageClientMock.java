@@ -4,6 +4,7 @@ import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.*;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.Base64Utils;
 
 import java.io.File;
@@ -23,7 +24,7 @@ public class SafeStorageClientMock implements PnSafeStorageClient {
     }
 
     @Override
-    public FileDownloadResponse getFile(String fileKey, Boolean metadataOnly) {
+    public ResponseEntity<FileDownloadResponse> getFile(String fileKey, Boolean metadataOnly) {
         FileCreationWithContentRequest fileCreationWithContentRequest = savedFileMap.get(fileKey);
         
         FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
@@ -37,7 +38,7 @@ public class SafeStorageClientMock implements PnSafeStorageClient {
         downloadInfo.setRetryAfter(new BigDecimal(0));
         fileDownloadResponse.setDownload(downloadInfo);
         
-        return fileDownloadResponse;
+        return ResponseEntity.ok(fileDownloadResponse);
     }
 
     @Override

@@ -18,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -91,8 +93,7 @@ public class StartWorkflowHandler {
     }
     
     private void handleValidationError(NotificationInt notification, PnValidationException ex) {
-        List<String> errors =  ex.getProblem().getErrors().stream()
-                .map(ProblemError::getDetail).collect(Collectors.toList());
+        List<String> errors = Collections.singletonList( ex.getProblem().getDetail() );
         log.info("Notification refused, errors {} - iun {}", errors, notification.getIun());
         addTimelineElement( timelineUtils.buildRefusedRequestTimelineElement(notification, errors), notification);
     }

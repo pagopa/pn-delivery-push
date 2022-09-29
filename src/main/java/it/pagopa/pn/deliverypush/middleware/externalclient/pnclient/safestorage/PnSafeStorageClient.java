@@ -5,12 +5,13 @@ import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDow
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.OperationResultCodeResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.UpdateFileMetadataRequest;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
+import org.springframework.http.ResponseEntity;
 
 public interface PnSafeStorageClient {
 
     String SAFE_STORAGE_URL_PREFIX = "safestorage://";
 
-    FileDownloadResponse getFile(String fileKey, Boolean metadataOnly) ;
+    ResponseEntity<FileDownloadResponse> getFile(String fileKey, Boolean metadataOnly);
 
     FileCreationResponse createFile(FileCreationWithContentRequest fileCreationRequest, String sha256);
 

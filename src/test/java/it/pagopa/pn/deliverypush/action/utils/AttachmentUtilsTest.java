@@ -1,10 +1,7 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
-import it.pagopa.pn.commons.exceptions.ExceptionHelper;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.commons.exceptions.PnValidationExceptionBuilder;
-import it.pagopa.pn.commons.exceptions.dto.ProblemError;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
@@ -18,17 +15,13 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.UpdateFileMetadataResponseInt;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
-import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.List;
-import java.util.Optional;
+import org.springframework.util.Base64Utils;
 
 import static it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -39,8 +32,6 @@ class AttachmentUtilsTest {
     private AttachmentUtils attachmentUtils;
 
     @Mock
-    private NotificationReceiverValidator validator;
-    @Mock
     private SafeStorageService safeStorageService;
     @Mock
     private PnAuditLogBuilder auditLogBuilder;
@@ -49,9 +40,8 @@ class AttachmentUtilsTest {
     @BeforeEach
     public void setup() {
         auditLogBuilder = Mockito.mock(PnAuditLogBuilder.class);
-        validator = Mockito.mock(NotificationReceiverValidator.class);
         safeStorageService = Mockito.mock(SafeStorageService.class);
-        attachmentUtils = new AttachmentUtils(validator, safeStorageService, auditLogBuilder);
+        attachmentUtils = new AttachmentUtils(safeStorageService, auditLogBuilder);
     }
 
     @Test
@@ -68,18 +58,28 @@ class AttachmentUtilsTest {
         Mockito.when(logEvent.generateSuccess()).thenReturn(logEvent);
         Mockito.when(logEvent.generateFailure(Mockito.any(), Mockito.any())).thenReturn(logEvent);
 
-        FileDownloadResponseInt resp = new FileDownloadResponseInt();
-        resp.setKey("abcd");
+        FileDownloadResponseInt resp1 = new FileDownloadResponseInt();
+        resp1.setKey("abcd");
+        resp1.setChecksum( "c2hhMjU2X2RvYzAw" );
 
-        Mockito.doNothing().when(validator).checkPreloadedDigests(Mockito.anyString(), Mockito.any( NotificationDocumentInt.Digests.class), Mockito.any( NotificationDocumentInt.Digests.class));
-        Mockito.when(safeStorageService.getFile(Mockito.any(), Mockito.anyBoolean())).thenReturn(resp);
+        FileDownloadResponseInt resp2 = new FileDownloadResponseInt();
+        resp2.setKey("abcd");
+        resp2.setChecksum( "c2hhMjU2X2RvYzAx" );
+
+        FileDownloadResponseInt resp3 = new FileDownloadResponseInt();
+        resp3.setKey("keyf24flatrate");
+        resp3.setChecksum( "a2V5ZjI0ZmxhdHJhdGU=" );
+
+        //Mockito.doNothing().when(validator).checkPreloadedDigests(Mockito.anyString(), Mockito.any( NotificationDocumentInt.Digests.class), Mockito.any( NotificationDocumentInt.Digests.class));
+        Mockito.when(safeStorageService.getFile( "c2hhMjU2X2RvYzAw", true)).thenReturn(resp1);
+        Mockito.when(safeStorageService.getFile( "c2hhMjU2X2RvYzAx", true)).thenReturn(resp2);
+        Mockito.when(safeStorageService.getFile( "keyf24flatrate", true)).thenReturn(resp3);
 
         //WHEN
         attachmentUtils.validateAttachment(notification);
 
         //THEN
         Mockito.verify(safeStorageService, Mockito.times(3)).getFile(Mockito.any(), Mockito.anyBoolean());
-        Mockito.verify(validator, Mockito.times(3)).checkPreloadedDigests(Mockito.anyString(), Mockito.any(), Mockito.any());
         Mockito.verify(logEvent, Mockito.times(1)).generateSuccess();
         Mockito.verify(logEvent, Mockito.times(0)).generateFailure(Mockito.any(), Mockito.any());
     }
@@ -101,11 +101,6 @@ class AttachmentUtilsTest {
         FileDownloadResponseInt resp = new FileDownloadResponseInt();
         resp.setKey("abcd");
 
-        PnValidationException exception = new PnValidationExceptionBuilder(new ExceptionHelper(Optional.empty()))
-                .problemErrorList(List.of(ProblemError.builder().code("TEST").build()))
-                .build();
-
-        Mockito.doThrow(exception).when(validator).checkPreloadedDigests(Mockito.anyString(), Mockito.any( NotificationDocumentInt.Digests.class), Mockito.any( NotificationDocumentInt.Digests.class));
         Mockito.when(safeStorageService.getFile(Mockito.any(), Mockito.anyBoolean())).thenReturn(resp);
 
         //WHEN
@@ -197,6 +192,9 @@ class AttachmentUtilsTest {
                                 .ref(NotificationDocumentInt.Ref.builder()
                                         .key("keyf24flatrate")
                                         .build())
+                                .digests( NotificationDocumentInt.Digests.builder()
+                                        .sha256( Base64Utils.encodeToString("keyf24flatrate".getBytes()) )
+                                        .build() )
                                 .build())
                         .build())
                 .build();

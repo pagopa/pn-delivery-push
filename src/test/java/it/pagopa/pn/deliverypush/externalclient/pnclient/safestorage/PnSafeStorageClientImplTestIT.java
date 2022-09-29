@@ -80,10 +80,10 @@ class PnSafeStorageClientImplTestIT {
 
         Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(response);
-        FileDownloadResponse result = safeStorageClient.getFile(fileKey, false);
+        ResponseEntity<FileDownloadResponse> result = safeStorageClient.getFile(fileKey, false);
 
         //Then
-        Assertions.assertNotNull(result);
+        Assertions.assertNotNull(result.getBody());
     }
 
     @ExtendWith(MockitoExtension.class)

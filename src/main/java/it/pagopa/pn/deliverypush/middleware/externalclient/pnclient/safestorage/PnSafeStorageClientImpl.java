@@ -52,11 +52,11 @@ public class PnSafeStorageClientImpl implements PnSafeStorageClient {
     }
 
     @Override
-    public FileDownloadResponse getFile(String fileKey, Boolean metadataOnly) {
+    public ResponseEntity<FileDownloadResponse> getFile(String fileKey, Boolean metadataOnly) {
         log.debug("Start call getFile - fileKey={} metadataOnly={}", fileKey, metadataOnly);
         // elimino eventuale prefisso di safestorage
         fileKey = fileKey.replace(SAFE_STORAGE_URL_PREFIX, "");
-        return fileDownloadApi.getFile( fileKey, this.cfg.getSafeStorageCxId(), metadataOnly );
+        return fileDownloadApi.getFileWithHttpInfo( fileKey, this.cfg.getSafeStorageCxId(), metadataOnly );
     }
 
     @Override
