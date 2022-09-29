@@ -214,7 +214,7 @@ class NotHandledTestIT {
 
         TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
 
-        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
+        addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
         pnDeliveryClientMock.addNotification(notification);
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
@@ -231,7 +231,7 @@ class NotHandledTestIT {
         );
 
         //Viene verificato il numero di send PEC verso external channel
-        int sentPecAttemptNumber = 4;
+        int sentPecAttemptNumber = 6;
         Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(
                 Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString());
 
@@ -256,14 +256,22 @@ class NotHandledTestIT {
         isPresentDigitalFailureWorkflow(notification, recIndex);
 
         //Viene effettuato il check dei legalFacts generati
-        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
                 notification,
-                timelineService,
                 recipient,
                 recIndex,
                 sentPecAttemptNumber,
+                generatedLegalFactsInfo,
                 EndWorkflowStatus.FAILURE,
-                legalFactGenerator
+                legalFactGenerator,
+                timelineService
         );
 
         //Vengono stampati tutti i legalFacts generati
@@ -313,7 +321,7 @@ class NotHandledTestIT {
 
         TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
 
-        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
+        addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
         pnDeliveryClientMock.addNotification(notification);
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
@@ -339,7 +347,7 @@ class NotHandledTestIT {
         );
 
         //Viene verificato il numero di send PEC verso external channel
-        int sentPecAttemptNumber = 4;
+        int sentPecAttemptNumber = 6;
         Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(
                 Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString());
 
@@ -364,15 +372,24 @@ class NotHandledTestIT {
         isPresentDigitalFailureWorkflow(notification, recIndex);
 
         //Viene effettuato il check dei legalFacts generati
-        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(true)
+                .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
                 notification,
-                timelineService,
                 recipient,
                 recIndex,
                 sentPecAttemptNumber,
+                generatedLegalFactsInfo,
                 EndWorkflowStatus.FAILURE,
-                legalFactGenerator
+                legalFactGenerator,
+                timelineService
         );
+
 
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
@@ -431,7 +448,7 @@ class NotHandledTestIT {
         );
 
         //Viene verificato il numero di send PEC verso external channel
-        int sentPecAttemptNumber = 6;
+        int sentPecAttemptNumber = 0;
         Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(
                 Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString());
 
@@ -445,6 +462,25 @@ class NotHandledTestIT {
 
         //Viene verificata la presenza dell'elemento di timeline NOT_HANDLED
         isPresentNotHandled(iun, recIndex);
+
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient,
+                recIndex,
+                sentPecAttemptNumber,
+                generatedLegalFactsInfo,
+                EndWorkflowStatus.FAILURE,
+                legalFactGenerator,
+                timelineService
+        );
 
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
@@ -518,7 +554,7 @@ class NotHandledTestIT {
         );
 
         //Viene verificato il numero di send PEC verso external channel
-        int sentPecAttemptNumber = 6;
+        int sentPecAttemptNumber = 0;
         Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(
                 Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString());
 
@@ -530,6 +566,25 @@ class NotHandledTestIT {
         //Viene verificata la presenza dell'elemento di timeline NOT_HANDLED
         isNotPresentNotHandled(iun, recIndex);
 
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(true)
+                .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient,
+                recIndex,
+                sentPecAttemptNumber,
+                generatedLegalFactsInfo,
+                EndWorkflowStatus.FAILURE,
+                legalFactGenerator,
+                timelineService
+        );
+        
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);

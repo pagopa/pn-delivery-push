@@ -282,23 +282,31 @@ class DigitalTestIT {
         TestUtils.checkIsNotPresentRefinement(iun, recIndex, timelineService);
         
         //Viene effettuato il check dei legalFacts generati
-        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(true)
+                .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .build();
+
+        EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.FAILURE;
+
+        TestUtils.checkGeneratedLegalFacts(
                 notification,
-                timelineService,
                 recipient,
                 recIndex,
                 sentPecAttemptNumber,
-                EndWorkflowStatus.FAILURE,
-                legalFactGenerator
+                generatedLegalFactsInfo,
+                endWorkflowStatus,
+                legalFactGenerator,
+                timelineService
         );
 
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
     }
-
-
-
+    
     @Test
     void completeFailWithRegisteredLetterAlreadyViewedCourtesyAppIo(){
         /*
@@ -405,14 +413,24 @@ class DigitalTestIT {
         TestUtils.checkIsNotPresentRefinement(iun, recIndex, timelineService);
 
         //Viene effettuato il check dei legalFacts generati
-        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(true)
+                .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .build();
+
+        EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.FAILURE;
+
+        TestUtils.checkGeneratedLegalFacts(
                 notification,
-                timelineService,
                 recipient,
                 recIndex,
                 sentPecAttemptNumber,
-                EndWorkflowStatus.FAILURE,
-                legalFactGenerator
+                generatedLegalFactsInfo,
+                endWorkflowStatus,
+                legalFactGenerator,
+                timelineService
         );
 
         //Vengono stampati tutti i legalFacts generati
@@ -499,14 +517,24 @@ class DigitalTestIT {
         TestUtils.checkIsPresentRefinement(iun, recIndex, timelineService);
 
         //Viene effettuato il check dei legalFacts generati
-        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .build();
+
+        EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.FAILURE;
+
+        TestUtils.checkGeneratedLegalFacts(
                 notification,
-                timelineService,
                 recipient,
                 recIndex,
                 sentPecAttemptNumber,
-                EndWorkflowStatus.FAILURE,
-                legalFactGenerator
+                generatedLegalFactsInfo,
+                endWorkflowStatus,
+                legalFactGenerator,
+                timelineService
         );
 
         //Vengono stampati tutti i legalFacts generati
@@ -590,14 +618,24 @@ class DigitalTestIT {
         TestUtils.checkRefinement(iun, recIndex, timelineService);
 
         //Viene effettuato il check dei legalFacts generati
-        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .build();
+
+        EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.FAILURE;
+
+        TestUtils.checkGeneratedLegalFacts(
                 notification,
-                timelineService,
                 recipient,
                 recIndex,
                 sentPecAttemptNumber,
-                EndWorkflowStatus.FAILURE,
-                legalFactGenerator
+                generatedLegalFactsInfo,
+                endWorkflowStatus,
+                legalFactGenerator,
+                timelineService
         );
 
         //Vengono stampati tutti i legalFacts generati
@@ -727,15 +765,24 @@ class DigitalTestIT {
         //Viene verificato che sia avvenuto il perfezionamento
         TestUtils.checkRefinement(iun, recIndex, timelineService);
 
-        //Viene effettuato il check dei legalFacts generati
-        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .build();
+
+        EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.SUCCESS;
+
+        TestUtils.checkGeneratedLegalFacts(
                 notification,
-                timelineService,
                 recipient,
                 recIndex,
                 sentPecAttemptNumber,
-                EndWorkflowStatus.SUCCESS,
-                legalFactGenerator
+                generatedLegalFactsInfo,
+                endWorkflowStatus,
+                legalFactGenerator,
+                timelineService
         );
 
         //Vengono stampati tutti i legalFacts generati
@@ -802,17 +849,28 @@ class DigitalTestIT {
 
         //Viene verificato che sia avvenuto il perfezionamento
         TestUtils.checkRefinement(iun, recIndex, timelineService);
+        
+        //Viene effettuato il check dei legalFacts
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .build();
 
-        //Viene effettuato il check dei legalFacts generati
-        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+        EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.SUCCESS;
+
+        TestUtils.checkGeneratedLegalFacts(
                 notification,
-                timelineService,
                 recipient,
                 recIndex,
                 sentPecAttemptNumber,
-                EndWorkflowStatus.SUCCESS,
-                legalFactGenerator
+                generatedLegalFactsInfo,
+                endWorkflowStatus,
+                legalFactGenerator,
+                timelineService
         );
+
 
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
@@ -904,14 +962,24 @@ class DigitalTestIT {
         TestUtils.checkRefinement(iun, recIndex, timelineService);
 
         //Viene effettuato il check dei legalFacts generati
-        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .build();
+
+        EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.SUCCESS;
+
+        TestUtils.checkGeneratedLegalFacts(
                 notification,
-                timelineService,
                 recipient,
                 recIndex,
                 sentPecAttemptNumber,
-                EndWorkflowStatus.SUCCESS,
-                legalFactGenerator
+                generatedLegalFactsInfo,
+                endWorkflowStatus,
+                legalFactGenerator,
+                timelineService
         );
 
         //Vengono stampati tutti i legalFacts generati
@@ -976,14 +1044,24 @@ class DigitalTestIT {
         TestUtils.checkRefinement(iun, recIndex, timelineService);
 
         //Viene effettuato il check dei legalFacts generati
-        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .build();
+
+        EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.SUCCESS;
+
+        TestUtils.checkGeneratedLegalFacts(
                 notification,
-                timelineService,
                 recipient,
                 recIndex,
                 sentPecAttemptNumber,
-                EndWorkflowStatus.SUCCESS,
-                legalFactGenerator
+                generatedLegalFactsInfo,
+                endWorkflowStatus,
+                legalFactGenerator,
+                timelineService
         );
 
         //Vengono stampati tutti i legalFacts generati
@@ -1064,14 +1142,24 @@ class DigitalTestIT {
         TestUtils.checkRefinement(iun, recIndex, timelineService);
 
         //Viene effettuato il check dei legalFacts generati
-        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .build();
+
+        EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.SUCCESS;
+
+        TestUtils.checkGeneratedLegalFacts(
                 notification,
-                timelineService,
                 recipient,
                 recIndex,
                 sentPecAttemptNumber,
-                EndWorkflowStatus.SUCCESS,
-                legalFactGenerator
+                generatedLegalFactsInfo,
+                endWorkflowStatus,
+                legalFactGenerator,
+                timelineService
         );
 
         //Vengono stampati tutti i legalFacts generati
@@ -1158,15 +1246,26 @@ class DigitalTestIT {
         TestUtils.checkRefinement(iun, recIndex, timelineService);
 
         //Viene effettuato il check dei legalFacts generati
-        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .build();
+
+        EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.SUCCESS;
+
+        TestUtils.checkGeneratedLegalFacts(
                 notification,
-                timelineService,
                 recipient,
                 recIndex,
                 sentPecAttemptNumber,
-                EndWorkflowStatus.SUCCESS,
-                legalFactGenerator
+                generatedLegalFactsInfo,
+                endWorkflowStatus,
+                legalFactGenerator,
+                timelineService
         );
+
 
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
@@ -1280,15 +1379,26 @@ class DigitalTestIT {
         TestUtils.checkRefinement(iun, recIndex, timelineService);
 
         //Viene effettuato il check dei legalFacts generati
-        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .build();
+
+        EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.SUCCESS;
+
+        TestUtils.checkGeneratedLegalFacts(
                 notification,
-                timelineService,
                 recipient,
                 recIndex,
                 sentPecAttemptNumber,
-                EndWorkflowStatus.SUCCESS,
-                legalFactGenerator
+                generatedLegalFactsInfo,
+                endWorkflowStatus,
+                legalFactGenerator,
+                timelineService
         );
+
 
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
@@ -1414,15 +1524,26 @@ class DigitalTestIT {
         TestUtils.checkRefinement(iun, recIndex, timelineService);
 
         //Viene effettuato il check dei legalFacts generati
-        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .build();
+
+        EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.SUCCESS;
+
+        TestUtils.checkGeneratedLegalFacts(
                 notification,
-                timelineService,
                 recipient,
                 recIndex,
                 sentPecAttemptNumber,
-                EndWorkflowStatus.SUCCESS,
-                legalFactGenerator
+                generatedLegalFactsInfo,
+                endWorkflowStatus,
+                legalFactGenerator,
+                timelineService
         );
+
 
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
@@ -1564,25 +1685,46 @@ class DigitalTestIT {
         TestUtils.checkRefinement(iun, recIndex2, timelineService);
         
         //Viene effettuato il check dei legalFacts generati per il primo recipient
-        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .build();
+
+        EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.SUCCESS;
+
+        TestUtils.checkGeneratedLegalFacts(
                 notification,
-                timelineService,
                 recipient1,
                 recIndex1,
                 2,
-                EndWorkflowStatus.SUCCESS,
-                legalFactGenerator
+                generatedLegalFactsInfo,
+                endWorkflowStatus,
+                legalFactGenerator,
+                timelineService
         );
 
         //Viene effettuato il check dei legalFacts generati per il secondo recipient
-        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+        
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo2 = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .build();
+
+        EndWorkflowStatus endWorkflowStatus2 = EndWorkflowStatus.SUCCESS;
+
+        TestUtils.checkGeneratedLegalFacts(
                 notification,
-                timelineService,
                 recipient2,
                 recIndex2,
                 4,
-                EndWorkflowStatus.SUCCESS,
-                legalFactGenerator
+                generatedLegalFactsInfo2,
+                endWorkflowStatus2,
+                legalFactGenerator,
+                timelineService
         );
 
         //Vengono stampati tutti i legalFacts generati

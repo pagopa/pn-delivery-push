@@ -184,7 +184,7 @@ class ValidationDocumentErrorTestIT {
         byte[] differentFileSha = "error".getBytes();
         TestUtils.firstFileUploadFromNotificationError(notification, safeStorageClientMock, differentFileSha);
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
+        addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
