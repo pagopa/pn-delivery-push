@@ -42,7 +42,7 @@ public class SafeStorageServiceImpl implements SafeStorageService {
             return getFileDownloadResponseInt( fileDownloadResponse );
         } catch ( PnInternalException ex ) {
             String message = String.format("Get file failed for - fileKey=%s isMetadataOnly=%b", fileKey, metadataOnly);
-            throw new PnNotFoundException("Not found", message, ERROR_CODE_DELIVERYPUSH_NOTFOUND);
+            throw new PnNotFoundException("Not found", message, ERROR_CODE_DELIVERYPUSH_NOTFOUND, ex);
         }
     }
 
