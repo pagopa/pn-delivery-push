@@ -102,6 +102,21 @@ class LegalFactPdfGeneratorTest {
 		});
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
+
+	@Test
+	void generatePecDeliveryWorkflowLegalFactTestWithSpecialChar_OK() {
+		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_OK.pdf");
+		List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList = buildFeedbackFromECList( ResponseStatusInt.OK);
+		NotificationInt notification = buildNotification();
+		NotificationRecipientInt recipient = buildRecipientsWithSpecialChar().get(0);
+		EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.SUCCESS;
+		Instant sentDate = Instant.now().minus(Duration.ofDays(1));
+
+		Assertions.assertDoesNotThrow(() -> {
+			return Files.write(filePath, pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification, recipient, endWorkflowStatus, sentDate, null));
+		});
+		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+	}
 	
 	@Test 
 	void generatePecDeliveryWorkflowLegalFactTest_KO() {
@@ -273,6 +288,29 @@ class LegalFactPdfGeneratorTest {
 				))
 				.build();
 		
+		return Collections.singletonList( rec1 );
+	}
+
+	private List<NotificationRecipientInt> buildRecipientsWithSpecialChar() {
+		NotificationRecipientInt rec1 = NotificationRecipientInt.builder()
+				.taxId("CDCFSC11R99X001Z")
+				.denomination("Galileo Brunè")
+				.digitalDomicile(LegalDigitalAddressInt.builder()
+						.address("test@dominioàPec.it")
+						.type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+						.build())
+				.physicalAddress(new PhysicalAddressInt(
+						"Palazzò dell'Inquisizione",
+						"corso Italia 666",
+						"Pianô Terra (piatta)",
+						"00100",
+						"Roma",
+						null,
+						"RM",
+						"IT"
+				))
+				.build();
+
 		return Collections.singletonList( rec1 );
 	}
 

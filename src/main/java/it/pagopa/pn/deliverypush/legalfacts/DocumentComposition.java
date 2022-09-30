@@ -14,11 +14,16 @@ import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.EnumMap;
 import java.util.Map;
+
+import static org.springframework.web.util.HtmlUtils.htmlUnescape;
 
 @Component
 @Slf4j
@@ -146,7 +151,9 @@ public class DocumentComposition {
 
         PdfRendererBuilder builder = new PdfRendererBuilder();
 
-        builder.withHtmlContent( html, baseUri);
+        String escapedHtml = htmlUnescape(html);
+
+        builder.withHtmlContent( escapedHtml, baseUri);
         builder.toStream(baos);
         builder.run();
         baos.close();
