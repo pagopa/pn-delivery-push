@@ -8,7 +8,7 @@ import java.util.List;
 public class PnValidationFileNotFoundException extends PnValidationException {
 
     public PnValidationFileNotFoundException(String errorCode, String detail) {
-        super("Validazione fallita a causa file non trovato", List.of(ProblemError.builder()
+        super("Validazione fallita, file non trovato su safe-storage", List.of(ProblemError.builder()
                 .code(errorCode)
                 .detail(detail)
                 .build()), null );

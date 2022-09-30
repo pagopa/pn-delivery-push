@@ -24,7 +24,7 @@ public class SafeStorageClientMock implements PnSafeStorageClient {
     }
 
     @Override
-    public ResponseEntity<FileDownloadResponse> getFile(String fileKey, Boolean metadataOnly) {
+    public FileDownloadResponse getFile(String fileKey, Boolean metadataOnly) {
         FileCreationWithContentRequest fileCreationWithContentRequest = savedFileMap.get(fileKey);
         
         FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
@@ -38,7 +38,7 @@ public class SafeStorageClientMock implements PnSafeStorageClient {
         downloadInfo.setRetryAfter(new BigDecimal(0));
         fileDownloadResponse.setDownload(downloadInfo);
         
-        return ResponseEntity.ok(fileDownloadResponse);
+        return fileDownloadResponse;
     }
 
     @Override

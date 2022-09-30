@@ -85,14 +85,16 @@ public class AttachmentUtils {
         FileDownloadResponseInt fd = null;
         try {
             fd = safeStorageService.getFile(ref.getKey(),true);
-        } catch ( PnNotFoundException ex) {
+        } catch ( PnNotFoundException ex ) {
             throw new PnValidationFileNotFoundException( ERROR_CODE_DELIVERYPUSH_NOTFOUND ,ex.getProblem().getDetail() );
         }
 
         String attachmentKey = fd.getKey();
         log.debug( "Check preload digest for attachment with key={}", attachmentKey);
         if ( !attachment.getDigests().getSha256().equals( fd.getChecksum() )) {
-            throw new PnValidationNotMatchingShaException( ERROR_CODE_DELIVERYPUSH_SHAFILEERROR, "Validation failed, different sha256" );
+            throw new PnValidationNotMatchingShaException( ERROR_CODE_DELIVERYPUSH_SHAFILEERROR,
+                    "Validation failed, different sha256 expected="+ attachment.getDigests().getSha256()
+                            + " actual="+ fd.getChecksum() );
         }
     }
 

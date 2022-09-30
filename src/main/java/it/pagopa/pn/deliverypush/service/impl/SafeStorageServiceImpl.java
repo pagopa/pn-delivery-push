@@ -37,25 +37,12 @@ public class SafeStorageServiceImpl implements SafeStorageService {
 
     @Override
     public FileDownloadResponseInt getFile(String fileKey, Boolean metadataOnly) {
-        ResponseEntity<FileDownloadResponse> fileDownloadResponse = safeStorageClient.getFile(fileKey, metadataOnly);
-
-        if ( fileDownloadResponse.getStatusCode().is2xxSuccessful() ) {
-            FileDownloadResponse response = fileDownloadResponse.getBody();
-            if (Objects.nonNull( response )) {
-                return getFileDownloadResponseInt( response );
-            } else {
-                String error = String.format( "Get file not valid for - fileKey=%s isMetadataOnly=%b", fileKey, metadataOnly);
-                log.error( error );
-                throw new PnInternalException(error, ERROR_CODE_DELIVERYPUSH_GETFILEERROR);
-            }
-        }
-        if ( fileDownloadResponse.getStatusCode().equals( HttpStatus.NOT_FOUND ) ) {
+        try {
+            FileDownloadResponse fileDownloadResponse = safeStorageClient.getFile(fileKey, metadataOnly);
+            return getFileDownloadResponseInt( fileDownloadResponse );
+        } catch ( PnInternalException ex ) {
             String message = String.format("Get file failed for - fileKey=%s isMetadataOnly=%b", fileKey, metadataOnly);
-            throw new PnNotFoundException("Not found", message ,ERROR_CODE_DELIVERYPUSH_NOTFOUND);
-        } else {
-            String error = String.format( "Get file failed for - fileKey=%s isMetadataOnly=%b", fileKey, metadataOnly);
-            log.error( error );
-            throw new PnInternalException(error, ERROR_CODE_DELIVERYPUSH_GETFILEERROR);
+            throw new PnNotFoundException("Not found", message, ERROR_CODE_DELIVERYPUSH_NOTFOUND);
         }
     }
 

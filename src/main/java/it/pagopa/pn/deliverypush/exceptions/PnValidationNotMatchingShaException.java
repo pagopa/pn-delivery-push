@@ -8,7 +8,7 @@ import java.util.List;
 public class PnValidationNotMatchingShaException extends PnValidationException {
 
     public PnValidationNotMatchingShaException(String errorCode, String detail) {
-        super("Validazione fallita a causa di sha256 non congruente", List.of(ProblemError.builder()
+        super("Validazione fallita, sha256 non congruente", List.of(ProblemError.builder()
                 .code(errorCode)
                 .detail(detail)
                 .build()), null );
