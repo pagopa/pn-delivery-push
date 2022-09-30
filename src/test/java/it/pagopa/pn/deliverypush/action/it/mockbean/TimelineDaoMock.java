@@ -13,10 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.context.annotation.Lazy;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Optional;
-import java.util.Set;
+import java.time.Instant;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.awaitility.Awaitility.await;
@@ -34,7 +32,7 @@ public class TimelineDaoMock implements TimelineDao {
 
     public TimelineDaoMock(@Lazy NotificationViewedHandler notificationViewedHandler, @Lazy NotificationService notificationService,
                            @Lazy NotificationUtils notificationUtils) {
-        timelineList = new ArrayList<>();
+        timelineList = Collections.synchronizedList(new ArrayList<>());
         this.notificationViewedHandler = notificationViewedHandler;
         this.notificationService = notificationService;
         this.notificationUtils = notificationUtils;
@@ -55,7 +53,7 @@ public class TimelineDaoMock implements TimelineDao {
 
             if(notificationRecipientInt.getTaxId().startsWith(simulateViewNotificationString)){
                 //Viene simulata la visualizzazione della notifica prima di uno specifico inserimento in timeline
-                notificationViewedHandler.handleViewNotification( dto.getIun(), ((RecipientRelatedTimelineElementDetails) dto.getDetails()).getRecIndex() );
+                notificationViewedHandler.handleViewNotification( dto.getIun(), ((RecipientRelatedTimelineElementDetails) dto.getDetails()).getRecIndex(), Instant.now());
             }else if(notificationRecipientInt.getTaxId().startsWith(simulateRecipientWaitString)){
                 //Viene simulata l'attesa in un determinato stato (elemento di timeline) per uno specifico recipient. 
                 // L'attesa dura fino all'inserimento in timeline di un determinato elemento per un altro recipient
@@ -79,12 +77,12 @@ public class TimelineDaoMock implements TimelineDao {
     }
 
     @Override
-    public synchronized Optional<TimelineElementInternal> getTimelineElement(String iun, String timelineId) {
+    public Optional<TimelineElementInternal> getTimelineElement(String iun, String timelineId) {
         return timelineList.stream().filter(timelineElement -> timelineId.equals(timelineElement.getElementId()) && iun.equals(timelineElement.getIun())).findFirst();
     }
 
     @Override
-    public synchronized Set<TimelineElementInternal> getTimeline(String iun) {
+    public Set<TimelineElementInternal> getTimeline(String iun) {
         return timelineList.stream()
                 .filter(
                         timelineElement -> iun.equals(timelineElement.getIun())

@@ -16,7 +16,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.Optional;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_GENERATE_PDF_FAILED;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_GENERATEAARPDFFAILED;
 
 @Component
 @Slf4j
@@ -53,7 +53,7 @@ public class AarUtils {
             } else
                 log.debug("no need to recreate AAR iun={} timelineId={}", notification.getIun(), elementId);
         } catch (Exception e) {
-            throw new PnInternalException("cannot generate AAR pdf", ERROR_CODE_GENERATE_PDF_FAILED);
+            throw new PnInternalException("cannot generate AAR pdf", ERROR_CODE_DELIVERYPUSH_GENERATEAARPDFFAILED);
         }
     }
 

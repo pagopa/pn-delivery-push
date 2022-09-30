@@ -18,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+
 @Slf4j
 @Component
 public class NotificationViewedHandler {
@@ -51,13 +53,15 @@ public class NotificationViewedHandler {
         this.statusUtils = statusUtils;
         this.notificationCostService = notificationCostService;
     }
-    
-    public void handleViewNotification(String iun, Integer recIndex) {
-        
-        log.info("Start HandleViewNotification - iun={}", iun);
+
+    public void handleViewNotification(String iun, Integer recIndex, Instant eventTimestamp) {
+        handleViewNotification(iun, recIndex, null, null, eventTimestamp);
+    }
+
+    public void handleViewNotification(String iun, Integer recIndex, String raddType, String raddTransactionId, Instant eventTimestamp) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_VIEW_RPC, "Start HandleViewNotification - iun={} id={}", iun, recIndex )
+                .before(PnAuditLogEventType.AUD_NT_VIEW_RPC, "Start HandleViewNotification - iun={} id={} raddType={} raddTransactionId", iun, recIndex, raddType, raddTransactionId )
                 .iun(iun)
                 .build();
         logEvent.log();
@@ -74,7 +78,7 @@ public class NotificationViewedHandler {
             //Una notifica annullata non può essere perfezionata per visione
             if( !NotificationStatusInt.CANCELLED.equals(currentStatus) ){
                 try {
-                    handleViewNotification(iun, recIndex, notification);
+                    handleViewNotification(iun, recIndex, notification, raddType, raddTransactionId, eventTimestamp);
                     logEvent.generateSuccess().log();
                 } catch (Exception exc) {
                     logEvent.generateFailure("Exception in View notification ex={}", exc).log();
@@ -89,7 +93,7 @@ public class NotificationViewedHandler {
         }
     }
 
-    private void handleViewNotification(String iun, Integer recIndex, NotificationInt notification) {
+    private void handleViewNotification(String iun, Integer recIndex, NotificationInt notification, String raddType, String raddTransactionId, Instant eventTimestamp) {
         log.debug("handleViewNotification get recipient ok - iun={} id={}", iun, recIndex);
 
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
@@ -99,11 +103,11 @@ public class NotificationViewedHandler {
         log.debug("Notification cost is {} - iun {} id {}",notificationCost, iun, recIndex);
 
         addTimelineElement(
-                timelineUtils.buildNotificationViewedTimelineElement(notification, recIndex, legalFactId, notificationCost),
+                timelineUtils.buildNotificationViewedTimelineElement(notification, recIndex, legalFactId, notificationCost, raddType, raddTransactionId, eventTimestamp),
                 notification
         ) ;
 
-        paperNotificationFailedService.deleteNotificationFailed(recipient.getTaxId(), iun); //Viene eliminata l'eventuale istanza di notifica fallita dal momento che la stessa è stata letta
+        paperNotificationFailedService.deleteNotificationFailed(recipient.getInternalId(), iun); //Viene eliminata l'eventuale istanza di notifica fallita dal momento che la stessa è stata letta
     }
 
     @Nullable

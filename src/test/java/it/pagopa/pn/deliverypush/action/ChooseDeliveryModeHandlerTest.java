@@ -38,7 +38,7 @@ import static org.mockito.Mockito.times;
 class ChooseDeliveryModeHandlerTest {
 
     @Mock
-    private ExternalChannelService externalChannelService;
+    private DigitalWorkFlowHandler digitalWorkFlowHandler;
     @Mock
     private SchedulerService schedulerService;
     @Mock
@@ -59,7 +59,7 @@ class ChooseDeliveryModeHandlerTest {
     @BeforeEach
     public void setup() {
         handler = new ChooseDeliveryModeHandler(chooseDeliveryUtils,
-                externalChannelService, schedulerService,
+                digitalWorkFlowHandler, schedulerService,
                 publicRegistryService, instantNowSupplier, pnDeliveryPushConfigs, notificationService);
         notificationUtils= new NotificationUtils();
     }
@@ -71,7 +71,7 @@ class ChooseDeliveryModeHandlerTest {
         //GIVEN
         NotificationInt notification = getNotification();
         NotificationRecipientInt recipient =notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notification);
         
@@ -88,8 +88,8 @@ class ChooseDeliveryModeHandlerTest {
         ArgumentCaptor<DigitalAddressSourceInt> digitalAddressSourceCaptor = ArgumentCaptor.forClass(DigitalAddressSourceInt.class);
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);
 
-        Mockito.verify(externalChannelService).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class),
-                digitalAddressSourceCaptor.capture(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyBoolean());
+        Mockito.verify(digitalWorkFlowHandler).startDigitalWorkflow(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class),
+                digitalAddressSourceCaptor.capture(), Mockito.anyInt());
         Assertions.assertEquals(DigitalAddressSourceInt.PLATFORM, digitalAddressSourceCaptor.getValue());
 
         Mockito.verify(chooseDeliveryUtils).addAvailabilitySourceToTimeline(Mockito.anyInt(), Mockito.any(NotificationInt.class),
@@ -105,7 +105,7 @@ class ChooseDeliveryModeHandlerTest {
         //GIVEN
         NotificationInt notification = getNotification();
         NotificationRecipientInt recipient =notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notification);
 
@@ -136,8 +136,8 @@ class ChooseDeliveryModeHandlerTest {
         Assertions.assertEquals(DigitalAddressSourceInt.SPECIAL, listDigitalAddressSourceCaptorValues.get(1));
         Assertions.assertTrue(listIsAvailableCaptorValues.get(1));
 
-        Mockito.verify(externalChannelService).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class),
-                digitalAddressSourceCaptor.capture(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyBoolean());
+        Mockito.verify(digitalWorkFlowHandler).startDigitalWorkflow(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class),
+                digitalAddressSourceCaptor.capture(), Mockito.anyInt());
 
         Assertions.assertEquals(DigitalAddressSourceInt.SPECIAL, digitalAddressSourceCaptor.getValue());
     }
@@ -148,7 +148,7 @@ class ChooseDeliveryModeHandlerTest {
         //GIVEN
         NotificationInt notification = getNotificationWithoutDigitalDomicile();
         NotificationRecipientInt recipient =notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notification);
 
@@ -193,7 +193,7 @@ class ChooseDeliveryModeHandlerTest {
 
         NotificationInt notification = getNotification();
         NotificationRecipientInt recipient =notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
         
         //WHEN
         handler.handleGeneralAddressResponse(response, notification, recIndex);
@@ -202,8 +202,8 @@ class ChooseDeliveryModeHandlerTest {
         ArgumentCaptor<DigitalAddressSourceInt> digitalAddressSourceCaptor = ArgumentCaptor.forClass(DigitalAddressSourceInt.class);
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);
 
-        Mockito.verify(externalChannelService).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class),
-                digitalAddressSourceCaptor.capture(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyBoolean());
+        Mockito.verify(digitalWorkFlowHandler).startDigitalWorkflow(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class),
+                digitalAddressSourceCaptor.capture(), Mockito.anyInt());
         Assertions.assertEquals(DigitalAddressSourceInt.GENERAL, digitalAddressSourceCaptor.getValue());
 
         Mockito.verify(chooseDeliveryUtils).addAvailabilitySourceToTimeline(Mockito.anyInt(), Mockito.any(NotificationInt.class),
@@ -219,7 +219,7 @@ class ChooseDeliveryModeHandlerTest {
         //GIVEN
         NotificationInt notification = getNotification();
         NotificationRecipientInt recipient =notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         PublicRegistryResponse response = PublicRegistryResponse.builder()
                 .digitalAddress(null).build();
@@ -261,7 +261,7 @@ class ChooseDeliveryModeHandlerTest {
         //GIVEN
         NotificationInt notification = getNotification();
         NotificationRecipientInt recipient =notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 

@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush;
 import it.pagopa.pn.commons.conf.SharedAutoConfiguration;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
+import static it.pagopa.pn.deliverypush.utils.HtmlSanitizer.SanitizeMode;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -69,6 +70,8 @@ public class PnDeliveryPushConfigs {
 
     private Boolean paperMessageNotHandled;
 
+    private LegalFacts legalfacts;
+
     @Data
     public static class Topics {
 
@@ -112,6 +115,7 @@ public class PnDeliveryPushConfigs {
 
         private int digitalRetryCount;
         private Duration digitalRetryDelay;
+        private Duration digitalSendNoresponseTimeout;
     }
 
    @Data
@@ -152,5 +156,10 @@ public class PnDeliveryPushConfigs {
         private String tableName;
         private String lockTableName;
     }
-    
+
+    @Data
+    public static class LegalFacts {
+        private SanitizeMode sanitizeMode;
+    }
+
 }

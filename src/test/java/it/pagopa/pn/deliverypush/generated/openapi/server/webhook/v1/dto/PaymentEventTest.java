@@ -16,7 +16,7 @@ class PaymentEventTest {
         event = PaymentEvent.builder()
                 .iun("001")
                 .recipientTaxId("002")
-                .recipientType(PaymentEvent.RecipientTypeEnum.PF)
+                .recipientType(RecipientType.PF)
                 .paymentType(PaymentEvent.PaymentTypeEnum.F24)
                 .timestamp(instant)
                 .build();
@@ -36,8 +36,8 @@ class PaymentEventTest {
 
     @Test
     void getRecipientType() {
-        PaymentEvent.RecipientTypeEnum value = event.getRecipientType();
-        Assertions.assertEquals(PaymentEvent.RecipientTypeEnum.PF, value);
+        RecipientType value = event.getRecipientType();
+        Assertions.assertEquals(RecipientType.PF, value);
     }
 
     @Test

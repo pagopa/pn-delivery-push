@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.rest;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,7 +98,7 @@ class PnTimelineControllerTest {
         Mockito.verify(service).getTimelineAndStatusHistory(Mockito.anyString(), Mockito.anyInt(), Mockito.any());
     }
 
-    @Test
+    @Test @Disabled("enable after PN-2192")
     void getTimelineKoBadRequest() {
         Mockito.when(service.getTimelineAndStatusHistory(Mockito.anyString(), Mockito.anyInt(), Mockito.any()))
                 .thenThrow( new NullPointerException() );
@@ -116,12 +117,12 @@ class PnTimelineControllerTest {
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .exchange()
                 .expectStatus()
-                .is5xxServerError()
+                .is4xxClientError()
                 .expectBody(Problem.class).consumeWith(
                         elem -> {
                             Problem problem = elem.getResponseBody();
                             assert problem != null;
-                            Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), problem.getStatus());
+                            Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), problem.getStatus());
                             Assertions.assertNotNull(problem.getDetail());
                         }
                 );

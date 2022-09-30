@@ -67,7 +67,7 @@ public class TimeLineServiceImpl implements TimelineService {
 
         if (notification != null) {
             try{
-                Set<TimelineElementInternal> currentTimeline = getTimeline(dto.getIun());
+                Set<TimelineElementInternal> currentTimeline = getTimeline(dto.getIun(), true);
                 StatusService.NotificationStatusUpdate notificationStatuses = statusService.checkAndUpdateStatus(dto, currentTimeline, notification);
 
                 //Vengono salvate le informazioni confidenziali in sicuro, dal momento che successivamente non saranno salvate a DB
@@ -153,26 +153,27 @@ public class TimeLineServiceImpl implements TimelineService {
     }
 
     @Override
-    public Set<TimelineElementInternal> getTimeline(String iun) {
+    public Set<TimelineElementInternal> getTimeline(String iun, boolean confidentialInfoRequired) {
         log.debug("GetTimeline - iun={} ", iun);
         Set<TimelineElementInternal> setTimelineElements =  this.timelineDao.getTimeline(iun);
 
-        Optional<Map<String, ConfidentialTimelineElementDtoInt>> mapConfOtp;
-        mapConfOtp = confidentialInformationService.getTimelineConfidentialInformation(iun);
+        if (confidentialInfoRequired) {
+            Optional<Map<String, ConfidentialTimelineElementDtoInt>> mapConfOtp;
+            mapConfOtp = confidentialInformationService.getTimelineConfidentialInformation(iun);
 
-        if(mapConfOtp.isPresent()){
-            Map<String, ConfidentialTimelineElementDtoInt> mapConf = mapConfOtp.get();
-            
-            setTimelineElements.forEach(
-                    timelineElementInt -> {
-                        ConfidentialTimelineElementDtoInt dtoInt = mapConf.get(timelineElementInt.getElementId());
-                        if(dtoInt != null){
-                            enrichTimelineElementWithConfidentialInformation(timelineElementInt.getDetails(), dtoInt);
+            if (mapConfOtp.isPresent()) {
+                Map<String, ConfidentialTimelineElementDtoInt> mapConf = mapConfOtp.get();
+
+                setTimelineElements.forEach(
+                        timelineElementInt -> {
+                            ConfidentialTimelineElementDtoInt dtoInt = mapConf.get(timelineElementInt.getElementId());
+                            if (dtoInt != null) {
+                                enrichTimelineElementWithConfidentialInformation(timelineElementInt.getDetails(), dtoInt);
+                            }
                         }
-                    }
-            );
+                );
+            }
         }
-        
         return setTimelineElements;
     }
 
@@ -207,7 +208,7 @@ public class TimeLineServiceImpl implements TimelineService {
     public NotificationHistoryResponse getTimelineAndStatusHistory(String iun, int numberOfRecipients, Instant createdAt) {
         log.debug("getTimelineAndStatusHistory Start - iun={} ", iun);
         
-        Set<TimelineElementInternal> timelineElements = getTimeline(iun);
+        Set<TimelineElementInternal> timelineElements = getTimeline(iun, true);
         
         List<NotificationStatusHistoryElementInt> statusHistory = statusUtils
                 .getStatusHistory( timelineElements, numberOfRecipients, createdAt );
