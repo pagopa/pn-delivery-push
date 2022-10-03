@@ -179,7 +179,7 @@ public class TimeLineServiceImpl implements TimelineService {
 
     @Override
     public Set<TimelineElementInternal> getTimelineByIunTimelineId(String iun, String timelineId, boolean confidentialInfoRequired) {
-        log.debug("GetTimeline - iun={} timelineId={}", iun, timelineId);
+        log.debug("getTimelineByIunTimelineId - iun={} timelineId={}", iun, timelineId);
         Set<TimelineElementInternal> setTimelineElements =  this.timelineDao.getTimelineFilteredByElementId(iun, timelineId);
 
         if (confidentialInfoRequired)

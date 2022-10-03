@@ -242,7 +242,7 @@ public class TestUtils {
                 EventId.builder()
                         .iun(iun)
                         .recIndex(recIndex)
-                        .index(sendAttemptMade)
+                        .sentAttemptMade(sendAttemptMade)
                         .source(addressSource)
                         .progressIndex(1)
                         .build()

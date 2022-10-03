@@ -70,7 +70,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         String eventId;
         if (!sendAlreadyInProgress)
         {
-            log.debug("Start sendDigitalNotification - iun={} recipientIndex={}", notification.getIun(), recIndex);
+            log.debug("Start sendDigitalNotification - iun={} recipientIndex={} attempt={}", notification.getIun(), recIndex, sentAttemptMade);
 
             eventId = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
                     EventId.builder()
@@ -88,14 +88,14 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         {
             int progressIndex = digitalWorkFlowUtils.getPreviousTimelineProgress(notification, recIndex, sentAttemptMade, addressSource).size() + 1;
 
-            log.debug("Start sendDigitalNotification for retry - iun={} recipientIndex={} progressIndex={}", notification.getIun(), recIndex, progressIndex);
+            log.debug("Start sendDigitalNotification for retry - iun={} recipientIndex={} attempt={} progressIndex={}", notification.getIun(), recIndex, sentAttemptMade, progressIndex);
 
             eventId = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
                     EventId.builder()
                             .iun(notification.getIun())
                             .recIndex(recIndex)
                             .source(addressSource)
-                            .index(sentAttemptMade)
+                            .sentAttemptMade(sentAttemptMade)
                             .progressIndex(progressIndex)
                             .build()
             );
