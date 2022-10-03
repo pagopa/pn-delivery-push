@@ -11,6 +11,9 @@ import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.jetbrains.annotations.Nullable;
+import org.jsoup.Jsoup;
+import org.jsoup.helper.W3CDom;
+import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
 
@@ -22,8 +25,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.EnumMap;
 import java.util.Map;
-
-import static org.springframework.web.util.HtmlUtils.htmlUnescape;
 
 @Component
 @Slf4j
@@ -147,13 +148,14 @@ public class DocumentComposition {
 
     private byte[] html2Pdf( String baseUri, String html ) throws IOException {
 
+        Document jsoupDoc = Jsoup.parse(html); // org.jsoup.nodes.Document
+        W3CDom w3cDom = new W3CDom(); // org.jsoup.helper.W3CDom
+        org.w3c.dom.Document w3cDoc = w3cDom.fromJsoup(jsoupDoc);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         PdfRendererBuilder builder = new PdfRendererBuilder();
 
-        String escapedHtml = htmlUnescape(html);
-
-        builder.withHtmlContent( escapedHtml, baseUri);
+        builder.withW3cDocument( w3cDoc, baseUri);
         builder.toStream(baos);
         builder.run();
         baos.close();
