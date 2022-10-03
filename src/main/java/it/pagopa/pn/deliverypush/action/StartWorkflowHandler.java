@@ -17,8 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @Slf4j
@@ -90,7 +92,10 @@ public class StartWorkflowHandler {
     }
     
     private void handleValidationError(NotificationInt notification, PnValidationException ex) {
-        List<String> errors = Collections.singletonList( ex.getProblem().getDetail() );
+        List<String> errors = new ArrayList<>();
+        if (Objects.nonNull( ex.getProblem() )) {
+            errors = Collections.singletonList( ex.getProblem().getDetail() );
+        }
         log.info("Notification refused, errors {} - iun {}", errors, notification.getIun());
         addTimelineElement( timelineUtils.buildRefusedRequestTimelineElement(notification, errors), notification);
     }
