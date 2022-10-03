@@ -23,6 +23,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -111,6 +112,15 @@ class AnalogTestIT {
         }
     }
 
+    @SpyBean
+    private LegalFactGenerator legalFactGenerator;
+
+    @SpyBean
+    private ExternalChannelMock externalChannelMock;
+
+    @SpyBean
+    private CompletionWorkFlowHandler completionWorkflow;
+
     @Autowired
     private StartWorkflowHandler startWorkflowHandler;
 
@@ -122,13 +132,7 @@ class AnalogTestIT {
 
     @Autowired
     private SafeStorageClientMock safeStorageClientMock;
-
-    @SpyBean
-    private ExternalChannelMock externalChannelMock;
-
-    @SpyBean
-    private CompletionWorkFlowHandler completionWorkflow;
-
+    
     @Autowired
     private PnDeliveryClientMock pnDeliveryClientMock;
 
@@ -271,6 +275,25 @@ class AnalogTestIT {
         
         Assertions.assertNotNull(detailsInt.getNotificationCost());
 
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(true)
+                .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .build();
+        
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient,
+                recIndex,
+                0,
+                generatedLegalFactsInfo,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator,
+                timelineService
+        );
+        
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
@@ -361,6 +384,25 @@ class AnalogTestIT {
                                 .recIndex(recIndex)
                                 .build())).isPresent());
 
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(true)
+                .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient,
+                recIndex,
+                0,
+                generatedLegalFactsInfo,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator,
+                timelineService
+        );
+        
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
@@ -476,6 +518,25 @@ class AnalogTestIT {
                                 .recIndex(recIndex)
                                 .build())).isPresent());
 
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient,
+                recIndex,
+                0,
+                generatedLegalFactsInfo,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator,
+                timelineService
+        );
+
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
@@ -510,7 +571,7 @@ class AnalogTestIT {
         TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.emptyList());
+        addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.emptyList());
 
         publicRegistryMock.addPhysical(recipient.getTaxId(), publicRegistryAddress);
 
@@ -548,6 +609,25 @@ class AnalogTestIT {
 
         //Viene verificato che sia avvenuto il perfezionamento
         TestUtils.checkRefinement(iun, recIndex, timelineService);
+
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient,
+                recIndex,
+                0,
+                generatedLegalFactsInfo,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator,
+                timelineService
+        );
 
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
@@ -677,6 +757,44 @@ class AnalogTestIT {
                                 .iun(iun)
                                 .recIndex(recIndex1)
                                 .build())).isPresent());
+
+        //Viene effettuato il check dei legalFacts generati per il primo recipient
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient1,
+                recIndex1,
+                0,
+                generatedLegalFactsInfo,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator,
+                timelineService
+        );
+
+        //Viene effettuato il check dei legalFacts generati per il secondo recipient
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo2 = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient2,
+                recIndex2,
+                0,
+                generatedLegalFactsInfo2,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator,
+                timelineService
+        );
 
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
@@ -827,6 +945,44 @@ class AnalogTestIT {
                                 .recIndex(recIndex2)
                                 .build())).isPresent());
 
+        //Viene effettuato il check dei legalFacts generati per il primo recipient
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient1,
+                recIndex1,
+                1,
+                generatedLegalFactsInfo,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator,
+                timelineService
+        );
+
+        //Viene effettuato il check dei legalFacts generati per il secondo recipient
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo2 = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient2,
+                recIndex2,
+                0,
+                generatedLegalFactsInfo2,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator,
+                timelineService
+        );
+        
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
@@ -911,6 +1067,7 @@ class AnalogTestIT {
 
         String iun = notification.getIun();
         Integer rec1Index = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
+        Integer rec2Index = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -970,6 +1127,44 @@ class AnalogTestIT {
                                 .recIndex(rec1Index)
                                 .build())).isPresent());
 
+        //Viene effettuato il check dei legalFacts generati per il primo recipient
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient1,
+                rec1Index,
+                0,
+                generatedLegalFactsInfo,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator,
+                timelineService
+        );
+
+        //Viene effettuato il check dei legalFacts generati per il secondo recipient
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo2 = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient2,
+                rec2Index,
+                1,
+                generatedLegalFactsInfo2,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator,
+                timelineService
+        );
+        
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
@@ -1067,6 +1262,7 @@ class AnalogTestIT {
         addressBookMock.addCourtesyDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient2);
 
         Integer rec1Index = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
+        Integer rec2Index = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -1125,6 +1321,44 @@ class AnalogTestIT {
                                 .recIndex(rec1Index)
                                 .build())).isPresent());
 
+        //Viene effettuato il check dei legalFacts generati per il primo recipient
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient1,
+                rec1Index,
+                0,
+                generatedLegalFactsInfo,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator,
+                timelineService
+        );
+
+        //Viene effettuato il check dei legalFacts generati per il secondo recipient
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo2 = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient2,
+                rec2Index,
+                1,
+                generatedLegalFactsInfo2,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator,
+                timelineService
+        );
+        
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
