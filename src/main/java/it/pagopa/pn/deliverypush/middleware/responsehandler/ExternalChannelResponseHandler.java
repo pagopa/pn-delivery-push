@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.responsehandler;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.exceptions.PnRuntimeException;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.*;
 import it.pagopa.pn.deliverypush.action.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.DigitalWorkFlowExternalChannelResponseHandler;
@@ -54,7 +55,7 @@ public class ExternalChannelResponseHandler {
                     analogSentResponseInt.getRequestId(), analogSentResponseInt.getStatusCode(), analogSentResponseInt.getStatusDescription(), analogSentResponseInt.getDeliveryFailureCause());
 
             analogWorkflowHandler.extChannelResponseHandler(analogSentResponseInt);
-        } catch (PnInternalException e) {
+        } catch (PnRuntimeException e) {
             log.error("PnException legalUpdate", e);
             throw e;
         } catch (Exception e) {
