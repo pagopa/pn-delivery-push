@@ -14,6 +14,7 @@ import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
@@ -225,13 +226,18 @@ class DigitalTestIT {
                 )
                 .build();
 
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
         NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
                 .withIun(iun)
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
         
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
@@ -351,13 +357,18 @@ class DigitalTestIT {
                 )
                 .build();
 
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
         NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
                 .withIun(iun)
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
@@ -473,12 +484,17 @@ class DigitalTestIT {
                 )
                 .build();
 
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
         NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
                 .withIun("IUN01")
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
@@ -573,13 +589,18 @@ class DigitalTestIT {
                 .withDigitalDomicile(digitalDomicile)
                 .build();
 
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
         NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
                 .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
@@ -720,13 +741,18 @@ class DigitalTestIT {
                 .withTaxId("TAXID01")
                 .build();
 
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
         NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
                 .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
@@ -808,13 +834,18 @@ class DigitalTestIT {
                 .withDigitalDomicile(digitalDomicile)
                 .build();
 
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
         final NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
                 .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
 
@@ -907,13 +938,18 @@ class DigitalTestIT {
                 .withDigitalDomicile(digitalDomicile)
                 .build();
 
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
         final NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
                 .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
         pnDeliveryClientMock.addNotification(notification);
@@ -1005,13 +1041,18 @@ class DigitalTestIT {
                 .withInternalId("ANON_"+taxid01)
                 .build();
 
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
         NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
                 .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
@@ -1093,13 +1134,19 @@ class DigitalTestIT {
                 .withDigitalDomicile(digitalDomicile)
                 .build();
 
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
         NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
+                .withNotificationDocuments(notificationDocumentList)
                 .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
@@ -1197,13 +1244,18 @@ class DigitalTestIT {
                 .withDigitalDomicile(digitalDomicile)
                 .build();
 
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
         NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
                 .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
@@ -1332,13 +1384,18 @@ class DigitalTestIT {
                 .withDigitalDomicile(digitalDomicile)
                 .build();
 
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
         NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
                 .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
@@ -1455,13 +1512,18 @@ class DigitalTestIT {
                 .withDigitalDomicile(digitalDomicile)
                 .build();
 
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
         NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
                 .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
@@ -1605,13 +1667,18 @@ class DigitalTestIT {
         recipients.add(recipient1);
         recipients.add(recipient2);
 
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
         NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
                 .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipients(recipients)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress1));
