@@ -29,6 +29,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_GETFILEERROR;
+
 @Slf4j
 @Component
 @EnableRetry
@@ -56,7 +58,11 @@ public class PnSafeStorageClientImpl implements PnSafeStorageClient {
         log.debug("Start call getFile - fileKey={} metadataOnly={}", fileKey, metadataOnly);
         // elimino eventuale prefisso di safestorage
         fileKey = fileKey.replace(SAFE_STORAGE_URL_PREFIX, "");
-        return fileDownloadApi.getFile( fileKey, this.cfg.getSafeStorageCxId(), metadataOnly );
+        try {
+            return fileDownloadApi.getFile( fileKey, this.cfg.getSafeStorageCxId(), metadataOnly );
+        } catch (RestClientException ex) {
+            throw new PnInternalException("Safe Storage client get file error", ERROR_CODE_DELIVERYPUSH_GETFILEERROR, ex);
+        }
     }
 
     @Override

@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.action;
 
 
-import it.pagopa.pn.common.rest.error.v1.dto.ProblemError;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.deliverypush.action.utils.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
@@ -18,8 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 @Component
 @Slf4j
@@ -91,8 +92,10 @@ public class StartWorkflowHandler {
     }
     
     private void handleValidationError(NotificationInt notification, PnValidationException ex) {
-        List<String> errors =  ex.getProblem().getErrors().stream()
-                .map(ProblemError::getDetail).collect(Collectors.toList());
+        List<String> errors = new ArrayList<>();
+        if (Objects.nonNull( ex.getProblem() )) {
+            errors = Collections.singletonList( ex.getProblem().getDetail() );
+        }
         log.info("Notification refused, errors {} - iun {}", errors, notification.getIun());
         addTimelineElement( timelineUtils.buildRefusedRequestTimelineElement(notification, errors), notification);
     }

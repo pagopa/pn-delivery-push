@@ -21,12 +21,16 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
+import lombok.Builder;
+import lombok.Getter;
 import org.junit.jupiter.api.Assertions;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
@@ -364,7 +368,7 @@ public class TestUtils {
             safeStorageClientMock.createFile(fileCreationWithContentRequest, attachment.getDigests().getSha256());
         }
     }
-    
+
     public static void writeAllGeneratedLegalFacts(String iun, String className, TimelineService timelineService, SafeStorageClientMock safeStorageClientMock) {
         String testName = className + "-" + getMethodName(3);
 
@@ -375,17 +379,145 @@ public class TestUtils {
                         if( !LegalFactCategoryInt.PEC_RECEIPT.equals(legalFactsId.getCategory()) && !LegalFactCategoryInt.ANALOG_DELIVERY.equals(legalFactsId.getCategory())){
                             String key = legalFactsId.getKey().replace("safestorage://", "");
                             safeStorageClientMock.writeFile(key, legalFactsId.getCategory(), testName);
-
                         }
                     }
                 }
         );
     }
 
+    public static void checkGeneratedLegalFacts(NotificationInt notification,
+                                                NotificationRecipientInt recipient,
+                                                Integer recIndex,
+                                                int sentPecAttemptNumber,
+                                                TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo,
+                                                EndWorkflowStatus endWorkflowStatus,
+                                                LegalFactGenerator legalFactGenerator,
+                                                TimelineService timelineService
+    ) {
+        TestUtils.checkNotificationReceivedLegalFactGeneration(
+                notification,
+                legalFactGenerator,
+                generatedLegalFactsInfo.isNotificationReceivedLegalFactGenerated()
+        );
+
+        TestUtils.generateNotificationAAR(
+                notification,
+                recipient,
+                legalFactGenerator,
+                generatedLegalFactsInfo.isNotificationAARGenerated()
+        );
+
+        TestUtils.checkNotificationViewedLegalFact(
+                notification.getIun(),
+                recipient,
+                legalFactGenerator,
+                generatedLegalFactsInfo.isNotificationViewedLegalFactGenerated()
+        );
+
+        TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
+                notification,
+                timelineService,
+                recipient,
+                recIndex,
+                sentPecAttemptNumber,
+                endWorkflowStatus,
+                legalFactGenerator,
+                generatedLegalFactsInfo.isPecDeliveryWorkflowLegalFactsGenerated()
+        );
+    }
+
+    private static int getTimes(boolean itWasGenerated) {
+        return itWasGenerated ? 1 : 0;
+    }
+
+    private static void checkNotificationReceivedLegalFactGeneration(NotificationInt notification,
+                                                                    LegalFactGenerator legalFactGenerator,
+                                                                    boolean itWasGenerated){
+        int times = getTimes(itWasGenerated);
+        
+        try {
+            Mockito.verify(legalFactGenerator, Mockito.times(times)).generateNotificationReceivedLegalFact(notification);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void checkNotificationViewedLegalFact(String iun,
+                                                        NotificationRecipientInt recipient,
+                                                        LegalFactGenerator legalFactGenerator,
+                                                        boolean itWasGenerated){
+        int times = getTimes(itWasGenerated);
+
+        try {
+            Mockito.verify(legalFactGenerator, Mockito.times(times)).generateNotificationViewedLegalFact(Mockito.eq(iun), Mockito.eq(recipient), Mockito.any(Instant.class));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void generateNotificationAAR(NotificationInt notification,
+                                               NotificationRecipientInt recipient,
+                                               LegalFactGenerator legalFactGenerator,
+                                               boolean itWasGenerated){
+        int times = getTimes(itWasGenerated);
+
+        try {
+            Mockito.verify(legalFactGenerator, Mockito.times(times)).generateNotificationAAR(notification, recipient);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void checkPecDeliveryWorkflowLegalFactsGeneration(NotificationInt notification,
+                                                                    TimelineService timelineService,
+                                                                    NotificationRecipientInt recipient,
+                                                                    Integer recIndex,
+                                                                    int sentPecAttemptNumber,
+                                                                    EndWorkflowStatus endWorkflowStatus,
+                                                                    LegalFactGenerator legalFactGenerator,
+                                                                    boolean itWasGenerated
+    ) {
+        int times = getTimes(itWasGenerated);
+        
+        String eventId = TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build()
+        );
+
+        Optional<PhysicalAddressInt> optionalPhysicalAddress =
+                timelineService.getTimelineElementDetails(notification.getIun(), eventId, SimpleRegisteredLetterDetailsInt.class ).map(
+                        SimpleRegisteredLetterDetailsInt::getPhysicalAddress
+                );
+
+        ArgumentCaptor<List<SendDigitalFeedbackDetailsInt>> sendDigitalFeedbackCaptor = ArgumentCaptor.forClass(List.class);
+
+        try {
+            Mockito.verify(legalFactGenerator, Mockito.times(times)).generatePecDeliveryWorkflowLegalFact(sendDigitalFeedbackCaptor.capture(), Mockito.eq(notification),
+                    Mockito.eq(recipient), Mockito.eq(endWorkflowStatus), Mockito.any(Instant.class), Mockito.eq(optionalPhysicalAddress.orElse(null)) );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        
+        if(itWasGenerated){
+            List<SendDigitalFeedbackDetailsInt> listSendDigitalFeedbackDetail = sendDigitalFeedbackCaptor.getValue();
+
+            Assertions.assertEquals(sentPecAttemptNumber, listSendDigitalFeedbackDetail.size());
+        }
+    }
+    
     public static String getMethodName(final int depth) {
         final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
         return ste[depth].getMethodName();
     }
     
-
+    @Builder
+    @Getter
+    public static class GeneratedLegalFactsInfo{
+        boolean notificationReceivedLegalFactGenerated;
+        boolean notificationAARGenerated;
+        boolean notificationViewedLegalFactGenerated;
+        boolean pecDeliveryWorkflowLegalFactsGenerated;
+    }
 }
