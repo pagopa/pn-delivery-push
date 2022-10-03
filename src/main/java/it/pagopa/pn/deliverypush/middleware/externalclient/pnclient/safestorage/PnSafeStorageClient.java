@@ -10,7 +10,7 @@ public interface PnSafeStorageClient {
 
     String SAFE_STORAGE_URL_PREFIX = "safestorage://";
 
-    FileDownloadResponse getFile(String fileKey, Boolean metadataOnly) ;
+    FileDownloadResponse getFile(String fileKey, Boolean metadataOnly);
 
     FileCreationResponse createFile(FileCreationWithContentRequest fileCreationRequest, String sha256);
 

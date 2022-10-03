@@ -70,7 +70,7 @@ public class CompletionWorkflowUtils {
     }
 
     private Optional<RecipientRelatedTimelineElementDetails> getSpecificDetailRecipient(TimelineElementInternal element, int recIndex){
-        if (element instanceof RecipientRelatedTimelineElementDetails) {
+        if (element.getDetails() instanceof RecipientRelatedTimelineElementDetails) {
             RecipientRelatedTimelineElementDetails details = (RecipientRelatedTimelineElementDetails) element.getDetails();
             if( recIndex == details.getRecIndex()){
                 return Optional.of(details);

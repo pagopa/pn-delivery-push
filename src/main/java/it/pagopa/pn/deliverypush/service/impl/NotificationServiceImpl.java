@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_NOTIFICATIONFAILED;
+
 @Service
 @Slf4j
 public class NotificationServiceImpl implements NotificationService {
@@ -21,21 +23,21 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public NotificationInt getNotificationByIun(String iun) {
-        ResponseEntity<SentNotification> resp = pnDeliveryClient.getSentNotification( iun );
-        
+        ResponseEntity<SentNotification> resp = pnDeliveryClient.getSentNotification(iun);
+
         if (resp.getStatusCode().is2xxSuccessful()) {
             log.debug("Get notification OK for - iun {}", iun);
             SentNotification sentNotification = resp.getBody();
-            
-            if(sentNotification != null){
+
+            if (sentNotification != null) {
                 return NotificationMapper.externalToInternal(sentNotification);
-            }else {
+            } else {
                 log.error("Get notification is not valid for - iun {}", iun);
-                throw new PnInternalException("Get notification is not valid for - iun " + iun);
+                throw new PnInternalException("Get notification is not valid for - iun " + iun, ERROR_CODE_NOTIFICATIONFAILED);
             }
         } else {
             log.error("Get notification Failed for - iun {}", iun);
-            throw new PnInternalException("Get notification Failed for - iun " + iun);
+            throw new PnInternalException("Get notification Failed for - iun " + iun, ERROR_CODE_NOTIFICATIONFAILED);
         }
     }
 }

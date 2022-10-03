@@ -11,6 +11,9 @@ import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.jetbrains.annotations.Nullable;
+import org.jsoup.Jsoup;
+import org.jsoup.helper.W3CDom;
+import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
 
@@ -33,7 +36,7 @@ public class DocumentComposition {
         REQUEST_ACCEPTED("documents_composition_templates/NotificationReceivedLegalFact.html"),
         DIGITAL_NOTIFICATION_WORKFLOW("documents_composition_templates/PecDeliveryWorkflowLegalFact.html"),
         NOTIFICATION_VIEWED("documents_composition_templates/NotificationViewedLegalFact.html"),
-        AAR_NOTIFICATION("documents_composition_templates/NotificationAAR.html"),
+    	AAR_NOTIFICATION("documents_composition_templates/NotificationAAR.html"),
         AAR_NOTIFICATION_EMAIL("documents_composition_templates/NotificationAARForEMAIL.html"),
         AAR_NOTIFICATION_PEC("documents_composition_templates/NotificationAARForPEC.html"),
         AAR_NOTIFICATION_SUBJECT("documents_composition_templates/NotificationAARSubject.txt"),
@@ -64,15 +67,15 @@ public class DocumentComposition {
         baseUris = new EnumMap<>(TemplateType.class);
         StringTemplateLoader stringLoader = new StringTemplateLoader();
 
-        for (TemplateType templateType : TemplateType.values()) {
-            log.info(" - begin to preload template with templateType={}", templateType);
-            BaseUriAndTemplateBody info = preloadTemplate(templateType);
+        for( TemplateType templateType : TemplateType.values() ) {
+            log.info(" - begin to preload template with templateType={}", templateType );
+            BaseUriAndTemplateBody info = preloadTemplate( templateType );
 
-            this.baseUris.put(templateType, info.getBaseUri());
-            stringLoader.putTemplate(templateType.name(), info.templateBody);
+            this.baseUris.put( templateType, info.getBaseUri() );
+            stringLoader.putTemplate( templateType.name(), info.templateBody);
         }
         log.debug("Configure freemarker ... ");
-        this.freemarker.setTemplateLoader(stringLoader);
+        this.freemarker.setTemplateLoader( stringLoader );
         log.debug(" ... freemarker configured.");
         log.info("Preload templates END");
     }
@@ -84,45 +87,45 @@ public class DocumentComposition {
         private String templateBody;
     }
 
-    private static BaseUriAndTemplateBody preloadTemplate(TemplateType templateType) throws IOException {
+    private static BaseUriAndTemplateBody preloadTemplate( TemplateType templateType ) throws IOException {
         log.debug("Start pre-loading template with templateType={}", templateType);
 
         String templateResourceName = templateType.getHtmlTemplate();
-        URL templateUrl = getClasspathResourceURL(templateResourceName);
-        log.debug("Template with templateResourceName={} located at URL={}", templateResourceName, templateUrl);
+        URL templateUrl = getClasspathResourceURL( templateResourceName );
+        log.debug("Template with templateResourceName={} located at URL={}", templateResourceName, templateUrl );
 
         String baseUri = templateUrl.toString().replaceFirst("/[^/]*$", "/");
-        String templateBody = loadTemplateBody(templateUrl);
+        String templateBody = loadTemplateBody( templateUrl );
 
         log.debug("Template resources baseUri={}", baseUri);
-        return new BaseUriAndTemplateBody(baseUri, templateBody);
+        return new BaseUriAndTemplateBody( baseUri, templateBody );
     }
 
-    private static String loadTemplateBody(URL templateUrl) throws IOException {
+    private static String loadTemplateBody( URL templateUrl ) throws IOException {
 
         String templateContent;
-        try (InputStream templateIn = templateUrl.openStream()) {
-            templateContent = StreamUtils.copyToString(templateIn, StandardCharsets.UTF_8);
+        try( InputStream templateIn = templateUrl.openStream()) {
+            templateContent = StreamUtils.copyToString( templateIn, StandardCharsets.UTF_8 );
         } catch (IOException exc) {
-            log.error("Loading Document Composition Template " + templateUrl, exc);
+            log.error("Loading Document Composition Template " + templateUrl, exc );
             throw exc;
         }
         return templateContent;
     }
 
     @Nullable
-    private static URL getClasspathResourceURL(String resourceName) {
-        return Thread.currentThread().getContextClassLoader().getResource(resourceName);
+    private static URL getClasspathResourceURL( String resourceName ) {
+        return Thread.currentThread().getContextClassLoader().getResource( resourceName );
     }
 
-    public String executeTextTemplate(TemplateType templateType, Object model) {
-        log.info("Execute templateType={} START", templateType); // FIXME: loggiamo il model e ci accertiamo che i to string non contengano dati sensibili o mi astengo dal loggare il model ??
+    public String executeTextTemplate( TemplateType templateType, Object model) {
+        log.info("Execute templateType={} START", templateType ); // FIXME: loggiamo il model e ci accertiamo che i to string non contengano dati sensibili o mi astengo dal loggare il model ??
         StringWriter stringWriter = new StringWriter();
 
         try {
-            Template template = freemarker.getTemplate(templateType.name());
-            log.debug("For templateType={} use template={}", templateType, template);
-            template.process(model, stringWriter);
+            Template template = freemarker.getTemplate( templateType.name() );
+            log.debug("For templateType={} use template={}", templateType, template );
+            template.process( model, stringWriter );
 
         } catch (IOException | TemplateException exc) {
             throw new PnInternalException(
@@ -131,41 +134,44 @@ public class DocumentComposition {
                     exc);
         }
 
-        log.info("Execute templateType={} END", templateType);
+        log.info("Execute templateType={} END", templateType );
         return stringWriter.getBuffer().toString();
     }
-    
+
     public byte[] executePdfTemplate( TemplateType templateType, Object model ) throws IOException {
         Object trustedTemplateModel = htmlSanitizer.sanitize(model);
         String html = executeTextTemplate( templateType, trustedTemplateModel );
 
-        String baseUri = baseUris.get(templateType);
+        String baseUri = baseUris.get( templateType );
         log.info("Pdf conversion start for templateType={} with baseUri={}", templateType, baseUri);
 
-        byte[] pdf = html2Pdf(baseUri, html);
+        byte[] pdf = html2Pdf( baseUri, html );
 
         log.info("Pdf conversion done");
         return pdf;
     }
 
-    private byte[] html2Pdf(String baseUri, String html) throws IOException {
+    private byte[] html2Pdf( String baseUri, String html ) throws IOException {
 
+        Document jsoupDoc = Jsoup.parse(html); // org.jsoup.nodes.Document
+        W3CDom w3cDom = new W3CDom(); // org.jsoup.helper.W3CDom
+        org.w3c.dom.Document w3cDoc = w3cDom.fromJsoup(jsoupDoc);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         PdfRendererBuilder builder = new PdfRendererBuilder();
 
-        builder.withHtmlContent(html, baseUri);
+        builder.withW3cDocument( w3cDoc, baseUri);
         builder.toStream(baos);
         builder.run();
         baos.close();
-
+ 
         return baos.toByteArray();
     }
-
-    public int getNumberOfPageFromPdfBytes(byte[] pdf) {
-        try (PDDocument document = PDDocument.load(pdf)) {
+    
+    public int getNumberOfPageFromPdfBytes(byte[] pdf ){
+        try(PDDocument document = PDDocument.load(pdf)){
             return document.getNumberOfPages();
-        } catch (IOException ex) {
+        }catch (IOException ex){
             log.error("Exception in getNumberOfPageFromPdfBytes for pdf - ex", ex);
             throw new PnInternalException("Cannot get numberOfPages for pdf " + this.getClass(), ex.getMessage());
         }
