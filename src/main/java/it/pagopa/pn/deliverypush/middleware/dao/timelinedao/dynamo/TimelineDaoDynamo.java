@@ -4,10 +4,7 @@ import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineEntityDao;
-import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.DigitalAddressEntity;
-import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.PhysicalAddressEntity;
-import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementDetailsEntity;
-import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementEntity;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.*;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.DtoToEntityTimelineMapper;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.EntityToDtoTimelineMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -36,8 +33,9 @@ public class TimelineDaoDynamo implements TimelineDao {
     }
 
     @Override
-    public void addTimelineElement(TimelineElementInternal dto) {
+    public void addTimelineElement(TimelineElementInternal dto, StatusInfoEntity statusInfo) {
         TimelineElementEntity entity = dto2entity.dtoToEntity(dto);
+        entity.setStatusInfo(statusInfo);
 
         TimelineElementDetailsEntity details = entity.getDetails();
         if( details != null ) {

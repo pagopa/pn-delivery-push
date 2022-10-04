@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.timelinedao;
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRequestAcceptedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalDetailsInt;
@@ -8,6 +9,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.TimelineDaoDynamo;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.StatusInfoEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.DtoToEntityTimelineMapper;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.EntityToDtoTimelineMapper;
@@ -45,6 +47,7 @@ class TimelineDaoDynamoTest {
     void successfullyInsertAndRetrieve() {
         // GIVEN
         String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
+        StatusInfoEntity statusInfo = StatusInfoEntity.builder().actual(NotificationStatusInt.DELIVERING.getValue()).build();
 
         String id1 = "sender_ack";
         TimelineElementInternal row1 = TimelineElementInternal.builder()
@@ -64,8 +67,8 @@ class TimelineDaoDynamoTest {
                 .build();
         
         // WHEN
-        dao.addTimelineElement(row1);
-        dao.addTimelineElement(row2);
+        dao.addTimelineElement(row1, statusInfo);
+        dao.addTimelineElement(row2, statusInfo);
 
         // THEN
         // check first row
@@ -89,6 +92,8 @@ class TimelineDaoDynamoTest {
         // GIVEN
         String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
         String id_prefix = "SendDigitalDetails_";
+
+        StatusInfoEntity statusInfo = StatusInfoEntity.builder().actual(NotificationStatusInt.DELIVERING.getValue()).build();
 
         String id1 = "sender_ack";
         TimelineElementInternal row1 = TimelineElementInternal.builder()
@@ -116,9 +121,9 @@ class TimelineDaoDynamoTest {
                 .build();
 
         // WHEN
-        dao.addTimelineElement(row1);
-        dao.addTimelineElement(row2);
-        dao.addTimelineElement(row3);
+        dao.addTimelineElement(row1, statusInfo);
+        dao.addTimelineElement(row2, statusInfo);
+        dao.addTimelineElement(row3, statusInfo);
 
         // THEN
 
@@ -133,6 +138,8 @@ class TimelineDaoDynamoTest {
     void successfullyDelete() {
         // GIVEN
         String iun = "iun1";
+
+        StatusInfoEntity statusInfo = StatusInfoEntity.builder().actual(NotificationStatusInt.DELIVERING.getValue()).build();
 
         String id1 = "sender_ack";
         TimelineElementInternal row1 = TimelineElementInternal.builder()
@@ -152,8 +159,8 @@ class TimelineDaoDynamoTest {
                 .build();
 
         // WHEN
-        dao.addTimelineElement(row1);
-        dao.addTimelineElement(row2);
+        dao.addTimelineElement(row1, statusInfo);
+        dao.addTimelineElement(row2, statusInfo);
 
         dao.deleteTimeline(iun);
 

@@ -17,6 +17,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationSta
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.StatusInfoEntity;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.StatusService;
@@ -57,6 +58,8 @@ class TimeLineServiceImplTest {
         String iun = "iun";
         String elementId = "elementId";
 
+        StatusInfoEntity expectedStatusInfo = StatusInfoEntity.builder().actual(NotificationStatusInt.ACCEPTED.getValue()).build();
+
         NotificationInt notification = getNotification(iun);
         StatusService.NotificationStatusUpdate notificationStatuses = new StatusService.NotificationStatusUpdate(NotificationStatusInt.ACCEPTED, NotificationStatusInt.ACCEPTED);
         Mockito.when(statusService.checkAndUpdateStatus(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(notificationStatuses);
@@ -73,7 +76,11 @@ class TimeLineServiceImplTest {
         timeLineService.addTimelineElement(newElement, notification);
         
         //THEN
-        Mockito.verify(timelineDao).addTimelineElement(newElement);
+        StatusInfoEntity actualStatusInfo = timeLineService.buildStatusInfo(notificationStatuses);
+        Assertions.assertEquals(expectedStatusInfo.getActual(), actualStatusInfo.getActual());
+        Assertions.assertEquals(expectedStatusInfo.isStatusChanged(), actualStatusInfo.isStatusChanged());
+        Assertions.assertNull(actualStatusInfo.getStatusChangeTimestamp());
+        Mockito.verify(timelineDao).addTimelineElement(newElement, expectedStatusInfo);
         Mockito.verify(statusService).checkAndUpdateStatus(newElement, setTimelineElement, notification);
         Mockito.verify(confidentialInformationService).saveTimelineConfidentialInformation(newElement);
     }
@@ -100,6 +107,34 @@ class TimeLineServiceImplTest {
             timeLineService.addTimelineElement(newElement, notification);
         });
     }
+
+    @Test
+    void addTimelineElementWithChangedStatus(){
+        //GIVEN
+        String iun = "iun";
+        String elementId = "elementId";
+
+        String expectedNewStatus = NotificationStatusInt.ACCEPTED.getValue();
+        boolean expectedStatusChanged = true;
+
+        NotificationInt notification = getNotification(iun);
+        StatusService.NotificationStatusUpdate notificationStatuses = new StatusService.NotificationStatusUpdate(NotificationStatusInt.IN_VALIDATION, NotificationStatusInt.ACCEPTED);
+        Mockito.when(statusService.checkAndUpdateStatus(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(notificationStatuses);
+        Mockito.doNothing().when(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+
+
+        TimelineElementInternal newElement = getAarGenerationTimelineElement(iun, elementId);
+
+        //WHEN
+        timeLineService.addTimelineElement(newElement, notification);
+
+        //THEN
+        StatusInfoEntity actualStatusInfo = timeLineService.buildStatusInfo(notificationStatuses);
+        Assertions.assertEquals(expectedNewStatus, actualStatusInfo.getActual());
+        Assertions.assertEquals(expectedStatusChanged, actualStatusInfo.isStatusChanged());
+        Assertions.assertNotNull(actualStatusInfo.getStatusChangeTimestamp());
+    }
+
 
     @Test
     void getSendPaperFeedbackTimelineElement(){

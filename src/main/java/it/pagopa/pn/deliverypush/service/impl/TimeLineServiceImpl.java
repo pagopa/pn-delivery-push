@@ -19,6 +19,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHis
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.StatusInfoEntity;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.StatusService;
@@ -73,7 +74,10 @@ public class TimeLineServiceImpl implements TimelineService {
                 //Vengono salvate le informazioni confidenziali in sicuro, dal momento che successivamente non saranno salvate a DB
                 confidentialInformationService.saveTimelineConfidentialInformation(dto);
 
-                timelineDao.addTimelineElement(dto);
+                //Creo lo statusInfo che poi verrà salvato nell'entity
+                StatusInfoEntity statusInfo = buildStatusInfo(notificationStatuses);
+
+                timelineDao.addTimelineElement(dto, statusInfo);
                 // genero un messaggio per l'aggiunta in sqs in modo da salvarlo in maniera asincrona
                 schedulerService.scheduleWebhookEvent(
                         notification.getSender().getPaId(),
@@ -350,6 +354,26 @@ public class TimeLineServiceImpl implements TimelineService {
                 .zip(physicalAddress2.getZip())
                 .municipalityDetails(physicalAddress2.getMunicipalityDetails())
                 .build();
+    }
+
+    protected StatusInfoEntity buildStatusInfo(StatusService.NotificationStatusUpdate notificationStatuses) {
+        Instant statusChangeTimestamp = null;
+        boolean statusChanged = false;
+
+        if (isStatusChanged(notificationStatuses)) {
+            statusChanged = true;
+            statusChangeTimestamp = Instant.now();
+        }
+
+        return StatusInfoEntity.builder()
+                .statusChanged(statusChanged)
+                .statusChangeTimestamp(statusChangeTimestamp)
+                .actual(notificationStatuses.getNewStatus().getValue())
+                .build();
+    }
+
+    private boolean isStatusChanged(StatusService.NotificationStatusUpdate notificationStatuses) {
+        return notificationStatuses.getOldStatus() != notificationStatuses.getNewStatus();
     }
 
 
