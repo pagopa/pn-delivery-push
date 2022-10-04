@@ -45,7 +45,7 @@ class NotificationPaidHandlerTest {
         notificationUtils = Mockito.mock(NotificationUtils.class);
         notificationCostService = Mockito.mock(NotificationCostService.class);
 
-        handler = new NotificationPaidHandler(timelineService, timelineUtils, notificationService, notificationUtils, notificationCostService);
+        handler = new NotificationPaidHandler(timelineService, timelineUtils, notificationService, notificationCostService);
 
     }
 

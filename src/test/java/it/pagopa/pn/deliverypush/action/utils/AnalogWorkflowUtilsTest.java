@@ -56,7 +56,7 @@ class AnalogWorkflowUtilsTest {
     @Test
     void getSendAnalogNotificationDetailsFailed() {
 
-        String expectErrorMsg = "PN_GENERIC_ERROR";
+        String expectErrorMsg = "PN_DELIVERYPUSH_TIMELINENOTFOUND";
 
         Mockito.when(timelineService.getTimelineElementDetails("1", "1", SendAnalogDetailsInt.class)).thenReturn(Optional.empty());
 
@@ -70,7 +70,7 @@ class AnalogWorkflowUtilsTest {
     @Test
     void getLastTimelineSentFeedbackFailed() {
 
-        String expectErrorMsg = "PN_GENERIC_ERROR";
+        String expectErrorMsg = "PN_DELIVERYPUSH_FEEDBACKNOTFOUND";
 
         Mockito.when(timelineService.getTimeline("1", true)).thenReturn(Collections.EMPTY_SET);
 

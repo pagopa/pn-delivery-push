@@ -14,6 +14,9 @@ import it.pagopa.pn.deliverypush.service.NotificationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_CONTACTPHASENOTFOUND;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_DELIVERYNOTFOUND;
+
 @Component
 @Slf4j
 public class PublicRegistryResponseHandler {
@@ -80,7 +83,7 @@ public class PublicRegistryResponseHandler {
 
     private void handleContactPhaseError(String correlationId, PublicRegistryCallDetailsInt publicRegistryCallDetails) {
         log.error("Specified contactPhase {} does not exist for correlationId {}", publicRegistryCallDetails.getContactPhase(), correlationId);
-        throw new PnInternalException("Specified contactPhase " + publicRegistryCallDetails.getContactPhase() + " does not exist for correlationId " + correlationId);
+        throw new PnInternalException("Specified contactPhase " + publicRegistryCallDetails.getContactPhase() + " does not exist for correlationId " + correlationId, ERROR_CODE_DELIVERYPUSH_CONTACTPHASENOTFOUND);
     }
 
     private void handleResponseForSendAttempt(PublicRegistryResponse response, NotificationInt notification, PublicRegistryCallDetailsInt publicRegistryCallDetails) {
@@ -108,6 +111,6 @@ public class PublicRegistryResponseHandler {
 
     private void handleDeliveryModeError(String iun, DeliveryModeInt deliveryMode, Integer recIndex) {
         log.error("Specified deliveryMode {} does not exist - iun {} id {}", deliveryMode, iun, recIndex);
-        throw new PnInternalException("Specified deliveryMode " + deliveryMode + " does not exist - iun " + iun + " id " + recIndex);
+        throw new PnInternalException("Specified deliveryMode " + deliveryMode + " does not exist - iun " + iun + " id " + recIndex, ERROR_CODE_DELIVERYPUSH_DELIVERYNOTFOUND);
     }
 }

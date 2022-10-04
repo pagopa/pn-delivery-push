@@ -1,15 +1,17 @@
 package it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper;
 
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamListElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponse;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.UUID;
 
 @Component
 public class EntityToStreamListDtoStreamMapper {
+    
+    private EntityToStreamListDtoStreamMapper(){
+        
+    }
 
     public static StreamListElement entityToDto(StreamEntity entity ) {
         StreamListElement streamListElement = new StreamListElement();

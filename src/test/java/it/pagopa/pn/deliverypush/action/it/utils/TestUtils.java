@@ -29,10 +29,11 @@ import lombok.Getter;
 import org.junit.jupiter.api.Assertions;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.springframework.util.Base64Utils;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -351,12 +352,12 @@ public class TestUtils {
         Assertions.assertEquals(1, simpleRegisteredLetterDetails.getNumberOfPages());
     }
 
-    public static void firstFileUploadFromNotification(NotificationInt notification, SafeStorageClientMock safeStorageClientMock){
-        for(NotificationDocumentInt attachment : notification.getDocuments()) {
+    public static void firstFileUploadFromNotification(List<TestUtils.DocumentWithContent> documentWithContentList, SafeStorageClientMock safeStorageClientMock){
+        for(TestUtils.DocumentWithContent documentWithContent : documentWithContentList) {
             FileCreationWithContentRequest fileCreationWithContentRequest = new FileCreationWithContentRequest();
             fileCreationWithContentRequest.setContentType("application/pdf");
-            fileCreationWithContentRequest.setContent(attachment.getDigests().getSha256().getBytes(StandardCharsets.UTF_8));
-            safeStorageClientMock.createFile(fileCreationWithContentRequest, attachment.getDigests().getSha256());
+            fileCreationWithContentRequest.setContent(documentWithContent.getContent().getBytes());
+            safeStorageClientMock.createFile(fileCreationWithContentRequest, documentWithContent.getDocument().getDigests().getSha256());
         }
     }
 
@@ -369,6 +370,30 @@ public class TestUtils {
         }
     }
 
+    public static List<TestUtils.DocumentWithContent> getDocumentWithContents(String fileDoc, List<NotificationDocumentInt> notificationDocumentList) {
+        TestUtils.DocumentWithContent documentWithContent = TestUtils.DocumentWithContent.builder()
+                .content(fileDoc)
+                .document(notificationDocumentList.get(0))
+                .build();
+        return Collections.singletonList(documentWithContent);
+    }
+
+    public static List<NotificationDocumentInt> getDocumentList(String fileDoc) {
+        return List.of(
+                NotificationDocumentInt.builder()
+                        .ref(NotificationDocumentInt.Ref.builder()
+                                .key(Base64Utils.encodeToString(fileDoc.getBytes()))
+                                .versionToken("v01_doc00")
+                                .build()
+                        )
+                        .digests(NotificationDocumentInt.Digests.builder()
+                                .sha256(Base64Utils.encodeToString(fileDoc.getBytes()))
+                                .build()
+                        )
+                        .build()
+        );
+    }
+    
     public static void writeAllGeneratedLegalFacts(String iun, String className, TimelineService timelineService, SafeStorageClientMock safeStorageClientMock) {
         String testName = className + "-" + getMethodName(3);
 
@@ -519,5 +544,12 @@ public class TestUtils {
         boolean notificationAARGenerated;
         boolean notificationViewedLegalFactGenerated;
         boolean pecDeliveryWorkflowLegalFactsGenerated;
+    }
+
+    @Builder
+    @Getter
+    public static class DocumentWithContent{
+        String content;
+        NotificationDocumentInt document;
     }
 }
