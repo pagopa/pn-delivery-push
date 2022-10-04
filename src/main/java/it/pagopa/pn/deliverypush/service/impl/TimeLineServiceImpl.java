@@ -31,10 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED;
@@ -77,7 +74,8 @@ public class TimeLineServiceImpl implements TimelineService {
                 confidentialInformationService.saveTimelineConfidentialInformation(dto);
 
                 //Creo lo statusInfo che poi verrà salvato nell'entity
-                StatusInfoEntity statusInfo = buildStatusInfo(notificationStatuses);
+                Instant timestampLastTimelineElement = getTimestampLastTimelineElement(currentTimeline);
+                StatusInfoEntity statusInfo = buildStatusInfo(notificationStatuses, timestampLastTimelineElement);
 
                 timelineDao.addTimelineElement(dto, statusInfo);
                 // genero un messaggio per l'aggiunta in sqs in modo da salvarlo in maniera asincrona
@@ -355,13 +353,17 @@ public class TimeLineServiceImpl implements TimelineService {
                 .build();
     }
 
-    protected StatusInfoEntity buildStatusInfo(StatusService.NotificationStatusUpdate notificationStatuses) {
-        Instant statusChangeTimestamp = null;
+    protected StatusInfoEntity buildStatusInfo(StatusService.NotificationStatusUpdate notificationStatuses,
+                                               Instant timestampLastTimelineElement) {
+        Instant statusChangeTimestamp;
         boolean statusChanged = false;
 
         if (isStatusChanged(notificationStatuses)) {
             statusChanged = true;
             statusChangeTimestamp = Instant.now();
+        }
+        else {
+            statusChangeTimestamp = timestampLastTimelineElement;
         }
 
         return StatusInfoEntity.builder()
@@ -373,6 +375,11 @@ public class TimeLineServiceImpl implements TimelineService {
 
     private boolean isStatusChanged(StatusService.NotificationStatusUpdate notificationStatuses) {
         return notificationStatuses.getOldStatus() != notificationStatuses.getNewStatus();
+    }
+
+    private Instant getTimestampLastTimelineElement(Set<TimelineElementInternal> currentTimeline) {
+        Optional<TimelineElementInternal> max = currentTimeline.stream().max(Comparator.comparing(TimelineElementInternal::getTimestamp));
+        return max.map(TimelineElementInternal::getTimestamp).orElse(null);
     }
 
 

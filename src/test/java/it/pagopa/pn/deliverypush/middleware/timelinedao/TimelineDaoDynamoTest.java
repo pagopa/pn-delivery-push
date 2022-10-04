@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.timelinedao;
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRequestAcceptedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalDetailsInt;
@@ -17,6 +16,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
@@ -47,7 +47,7 @@ class TimelineDaoDynamoTest {
     void successfullyInsertAndRetrieve() {
         // GIVEN
         String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
-        StatusInfoEntity statusInfo = StatusInfoEntity.builder().actual(NotificationStatusInt.DELIVERING.getValue()).build();
+        StatusInfoEntity statusInfo = Mockito.mock(StatusInfoEntity.class);
 
         String id1 = "sender_ack";
         TimelineElementInternal row1 = TimelineElementInternal.builder()
@@ -93,7 +93,7 @@ class TimelineDaoDynamoTest {
         String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
         String id_prefix = "SendDigitalDetails_";
 
-        StatusInfoEntity statusInfo = StatusInfoEntity.builder().actual(NotificationStatusInt.DELIVERING.getValue()).build();
+        StatusInfoEntity statusInfo = Mockito.mock(StatusInfoEntity.class);
 
         String id1 = "sender_ack";
         TimelineElementInternal row1 = TimelineElementInternal.builder()
@@ -139,7 +139,7 @@ class TimelineDaoDynamoTest {
         // GIVEN
         String iun = "iun1";
 
-        StatusInfoEntity statusInfo = StatusInfoEntity.builder().actual(NotificationStatusInt.DELIVERING.getValue()).build();
+        StatusInfoEntity statusInfo = Mockito.mock(StatusInfoEntity.class);
 
         String id1 = "sender_ack";
         TimelineElementInternal row1 = TimelineElementInternal.builder()

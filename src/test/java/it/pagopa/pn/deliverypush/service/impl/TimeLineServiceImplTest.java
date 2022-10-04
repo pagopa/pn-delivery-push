@@ -58,17 +58,17 @@ class TimeLineServiceImplTest {
         String iun = "iun";
         String elementId = "elementId";
 
-        StatusInfoEntity expectedStatusInfo = StatusInfoEntity.builder().actual(NotificationStatusInt.ACCEPTED.getValue()).build();
-
         NotificationInt notification = getNotification(iun);
         StatusService.NotificationStatusUpdate notificationStatuses = new StatusService.NotificationStatusUpdate(NotificationStatusInt.ACCEPTED, NotificationStatusInt.ACCEPTED);
         Mockito.when(statusService.checkAndUpdateStatus(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(notificationStatuses);
         Mockito.doNothing().when(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
-
         String elementId2 = "elementId2";
         Set<TimelineElementInternal> setTimelineElement = getSendPaperDetailsList(iun, elementId2);
         Mockito.when(timelineDao.getTimeline(Mockito.anyString()))
                 .thenReturn(setTimelineElement);
+
+        Instant timestampLastElementInTimeline = setTimelineElement.iterator().next().getTimestamp();
+        StatusInfoEntity expectedStatusInfo = StatusInfoEntity.builder().actual(NotificationStatusInt.ACCEPTED.getValue()).statusChangeTimestamp(timestampLastElementInTimeline).build();
 
         TimelineElementInternal newElement = getAarGenerationTimelineElement(iun, elementId);
 
@@ -76,10 +76,10 @@ class TimeLineServiceImplTest {
         timeLineService.addTimelineElement(newElement, notification);
         
         //THEN
-        StatusInfoEntity actualStatusInfo = timeLineService.buildStatusInfo(notificationStatuses);
+        StatusInfoEntity actualStatusInfo = timeLineService.buildStatusInfo(notificationStatuses, timestampLastElementInTimeline);
         Assertions.assertEquals(expectedStatusInfo.getActual(), actualStatusInfo.getActual());
         Assertions.assertEquals(expectedStatusInfo.isStatusChanged(), actualStatusInfo.isStatusChanged());
-        Assertions.assertNull(actualStatusInfo.getStatusChangeTimestamp());
+        Assertions.assertEquals(timestampLastElementInTimeline, actualStatusInfo.getStatusChangeTimestamp());
         Mockito.verify(timelineDao).addTimelineElement(newElement, expectedStatusInfo);
         Mockito.verify(statusService).checkAndUpdateStatus(newElement, setTimelineElement, notification);
         Mockito.verify(confidentialInformationService).saveTimelineConfidentialInformation(newElement);
@@ -121,7 +121,12 @@ class TimeLineServiceImplTest {
         StatusService.NotificationStatusUpdate notificationStatuses = new StatusService.NotificationStatusUpdate(NotificationStatusInt.IN_VALIDATION, NotificationStatusInt.ACCEPTED);
         Mockito.when(statusService.checkAndUpdateStatus(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(notificationStatuses);
         Mockito.doNothing().when(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+        String elementId2 = "elementId2";
+        Set<TimelineElementInternal> setTimelineElement = getSendPaperDetailsList(iun, elementId2);
+        Mockito.when(timelineDao.getTimeline(Mockito.anyString()))
+                .thenReturn(setTimelineElement);
 
+        Instant timestampLastElementInTimeline = setTimelineElement.iterator().next().getTimestamp();
 
         TimelineElementInternal newElement = getAarGenerationTimelineElement(iun, elementId);
 
@@ -129,10 +134,10 @@ class TimeLineServiceImplTest {
         timeLineService.addTimelineElement(newElement, notification);
 
         //THEN
-        StatusInfoEntity actualStatusInfo = timeLineService.buildStatusInfo(notificationStatuses);
+        StatusInfoEntity actualStatusInfo = timeLineService.buildStatusInfo(notificationStatuses, timestampLastElementInTimeline);
         Assertions.assertEquals(expectedNewStatus, actualStatusInfo.getActual());
         Assertions.assertEquals(expectedStatusChanged, actualStatusInfo.isStatusChanged());
-        Assertions.assertNotNull(actualStatusInfo.getStatusChangeTimestamp());
+        Assertions.assertTrue(actualStatusInfo.getStatusChangeTimestamp().isAfter(timestampLastElementInTimeline));
     }
 
 
@@ -426,6 +431,7 @@ class TimeLineServiceImplTest {
                 .sentAttemptMade(0)
                 .build();
         return TimelineElementInternal.builder()
+                .timestamp(Instant.now())
                 .elementId(elementId)
                 .iun(iun)
                 .details( details )
