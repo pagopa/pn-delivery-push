@@ -7,7 +7,6 @@ import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.Pro
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.SingleStatusUpdate;
 import it.pagopa.pn.deliverypush.action.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.DigitalWorkFlowExternalChannelResponseHandler;
-import it.pagopa.pn.deliverypush.action.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelAnalogSentResponseInt;
@@ -124,7 +123,7 @@ class ExternalChannelResponseHandlerTest {
     @Test
     void paperUpdatePnInternalExceptionTest() {
 
-        String expectErrorMsg = "PN_GENERIC_ERROR";
+        String expectErrorMsg = "PN_DELIVERYPUSH_UPDATEFAILED";
 
         PaperProgressStatusEvent extChannelResponse = new PaperProgressStatusEvent();
         SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();

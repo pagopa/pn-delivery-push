@@ -301,7 +301,7 @@ public enum TimelineEventId {
     ;
 
     public String buildEventId(EventId eventId) {
-        throw new UnsupportedOperationException("Must be implemented for each action type");
+        throw new UnsupportedOperationException("Must be implemented for each action type event ID");
     }
 
     public String buildEventId(String eventId) {
