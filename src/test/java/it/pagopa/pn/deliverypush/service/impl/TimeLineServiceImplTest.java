@@ -18,7 +18,6 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationSta
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
-import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.StatusInfoEntity;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.StatusService;
@@ -70,7 +69,9 @@ class TimeLineServiceImplTest {
                 .thenReturn(setTimelineElement);
 
         Instant timestampLastElementInTimeline = setTimelineElement.iterator().next().getTimestamp();
-        StatusInfoEntity expectedStatusInfo = StatusInfoEntity.builder().actual(NotificationStatusInt.ACCEPTED.getValue()).statusChangeTimestamp(timestampLastElementInTimeline).build();
+        StatusInfoInternal expectedStatusInfo = StatusInfoInternal.builder()
+                .actual(NotificationStatusInt.ACCEPTED.getValue())
+                .statusChangeTimestamp(timestampLastElementInTimeline).build();
 
         TimelineElementInternal newElement = getAarGenerationTimelineElement(iun, elementId);
 
