@@ -8,7 +8,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.TimelineDaoDynamo;
-import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.StatusInfoEntity;
+import it.pagopa.pn.deliverypush.dto.timeline.StatusInfoInternal;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.DtoToEntityTimelineMapper;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.EntityToDtoTimelineMapper;
@@ -47,7 +47,6 @@ class TimelineDaoDynamoTest {
     void successfullyInsertAndRetrieve() {
         // GIVEN
         String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
-        StatusInfoEntity statusInfo = Mockito.mock(StatusInfoEntity.class);
 
         String id1 = "sender_ack";
         TimelineElementInternal row1 = TimelineElementInternal.builder()
@@ -56,6 +55,7 @@ class TimelineDaoDynamoTest {
                 .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
                 .details( NotificationRequestAcceptedDetailsInt.builder().build() )
                 .timestamp(Instant.now())
+                .statusInfo(StatusInfoInternal.builder().build())
                 .build();
         String id2 = "SendDigitalDetails";
         TimelineElementInternal row2 = TimelineElementInternal.builder()
@@ -64,11 +64,12 @@ class TimelineDaoDynamoTest {
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
                 .details( SendDigitalDetailsInt.builder().build() )
                 .timestamp(Instant.now())
+                .statusInfo(StatusInfoInternal.builder().build())
                 .build();
         
         // WHEN
-        dao.addTimelineElement(row1, statusInfo);
-        dao.addTimelineElement(row2, statusInfo);
+        dao.addTimelineElement(row1);
+        dao.addTimelineElement(row2);
 
         // THEN
         // check first row
@@ -93,8 +94,6 @@ class TimelineDaoDynamoTest {
         String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
         String id_prefix = "SendDigitalDetails_";
 
-        StatusInfoEntity statusInfo = Mockito.mock(StatusInfoEntity.class);
-
         String id1 = "sender_ack";
         TimelineElementInternal row1 = TimelineElementInternal.builder()
                 .iun(iun)
@@ -102,6 +101,7 @@ class TimelineDaoDynamoTest {
                 .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
                 .details( NotificationRequestAcceptedDetailsInt.builder().build() )
                 .timestamp(Instant.now())
+                .statusInfo(StatusInfoInternal.builder().build())
                 .build();
         String id2 = id_prefix + "1";
         TimelineElementInternal row2 = TimelineElementInternal.builder()
@@ -110,6 +110,7 @@ class TimelineDaoDynamoTest {
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
                 .details( SendDigitalDetailsInt.builder().build() )
                 .timestamp(Instant.now())
+                .statusInfo(StatusInfoInternal.builder().build())
                 .build();
         String id3 = id_prefix + "2";
         TimelineElementInternal row3 = TimelineElementInternal.builder()
@@ -118,12 +119,13 @@ class TimelineDaoDynamoTest {
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
                 .details( SendDigitalDetailsInt.builder().build() )
                 .timestamp(Instant.now())
+                .statusInfo(StatusInfoInternal.builder().build())
                 .build();
 
         // WHEN
-        dao.addTimelineElement(row1, statusInfo);
-        dao.addTimelineElement(row2, statusInfo);
-        dao.addTimelineElement(row3, statusInfo);
+        dao.addTimelineElement(row1);
+        dao.addTimelineElement(row2);
+        dao.addTimelineElement(row3);
 
         // THEN
 
@@ -139,7 +141,7 @@ class TimelineDaoDynamoTest {
         // GIVEN
         String iun = "iun1";
 
-        StatusInfoEntity statusInfo = Mockito.mock(StatusInfoEntity.class);
+        StatusInfoInternal statusInfo = Mockito.mock(StatusInfoInternal.class);
 
         String id1 = "sender_ack";
         TimelineElementInternal row1 = TimelineElementInternal.builder()
@@ -148,6 +150,7 @@ class TimelineDaoDynamoTest {
                 .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
                 .details( NotificationRequestAcceptedDetailsInt.builder().build() )
                 .timestamp(Instant.now())
+                .statusInfo(statusInfo)
                 .build();
         String id2 = "SendDigitalDetails";
         TimelineElementInternal row2 = TimelineElementInternal.builder()
@@ -156,11 +159,12 @@ class TimelineDaoDynamoTest {
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
                 .details( SendDigitalDetailsInt.builder().build() )
                 .timestamp(Instant.now())
+                .statusInfo(statusInfo)
                 .build();
 
         // WHEN
-        dao.addTimelineElement(row1, statusInfo);
-        dao.addTimelineElement(row2, statusInfo);
+        dao.addTimelineElement(row1);
+        dao.addTimelineElement(row2);
 
         dao.deleteTimeline(iun);
 

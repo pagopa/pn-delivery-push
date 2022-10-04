@@ -33,9 +33,8 @@ public class TimelineDaoDynamo implements TimelineDao {
     }
 
     @Override
-    public void addTimelineElement(TimelineElementInternal dto, StatusInfoEntity statusInfo) {
+    public void addTimelineElement(TimelineElementInternal dto) {
         TimelineElementEntity entity = dto2entity.dtoToEntity(dto);
-        entity.setStatusInfo(statusInfo);
 
         TimelineElementDetailsEntity details = entity.getDetails();
         if( details != null ) {

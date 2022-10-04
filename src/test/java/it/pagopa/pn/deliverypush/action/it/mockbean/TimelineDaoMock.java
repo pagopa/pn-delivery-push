@@ -44,7 +44,7 @@ public class TimelineDaoMock implements TimelineDao {
     }
     
     @Override
-    public void addTimelineElement(TimelineElementInternal dto, StatusInfoEntity statusInfo) {
+    public void addTimelineElement(TimelineElementInternal dto) {
         
         if( dto.getDetails() != null && dto.getDetails() instanceof RecipientRelatedTimelineElementDetails){
             
