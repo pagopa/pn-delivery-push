@@ -30,7 +30,7 @@ class PnPaperNotificationFailedControllerTest {
     @MockBean
     private PaperNotificationFailedService service;
 
-    @Test  @Disabled("enable after PN-2192")
+    @Test
     void searchPaperNotificationsFailedOk() {
         ResponsePaperNotificationFailedDto dto = ResponsePaperNotificationFailedDto.builder()
                 .iun(IUN)
@@ -58,7 +58,7 @@ class PnPaperNotificationFailedControllerTest {
         Mockito.verify(service).getPaperNotificationByRecipientId(Mockito.anyString(), Mockito.anyBoolean());
     }
 
-    @Test  @Disabled("enable after PN-2192")
+    @Test
     void searchPaperNotificationsFailedKoRuntimeEx() {
         Mockito.when(service.getPaperNotificationByRecipientId(Mockito.anyString(), Mockito.anyBoolean()))
                 .thenThrow(new NullPointerException());
@@ -74,12 +74,12 @@ class PnPaperNotificationFailedControllerTest {
                 .header("X-PagoPA-PN-PA", USER_ID)
                 .exchange()
                 .expectStatus()
-                .is4xxClientError()
+                .is5xxServerError()
                 .expectBody(Problem.class).consumeWith(
                         elem -> {
                             Problem problem = elem.getResponseBody();
                             assert problem != null;
-                            Assertions.assertEquals(HttpStatus.NOT_FOUND.value(), problem.getStatus());
+                            Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), problem.getStatus());
                         }
                 );
 

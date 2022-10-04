@@ -100,7 +100,7 @@ class PnWebhookEventsControllerTest {
                 );
     }
 
-    @Test @Disabled("enable after PN-2192")
+    @Test
     void consumeEventStreamKoBadRequest() {
 
         Mockito.when(service.consumeEventStream(Mockito.anyString(), Mockito.any(), Mockito.any()))
@@ -116,12 +116,12 @@ class PnWebhookEventsControllerTest {
                     httpHeaders.set("x-pagopa-pn-cx-groups", Collections.singletonList("test").toString());
                 })
                 .exchange()
-                .expectStatus().is4xxClientError()
+                .expectStatus().is5xxServerError()
                 .expectBody(Problem.class).consumeWith(
                         elem -> {
                             Problem problem = elem.getResponseBody();
                             assert problem != null;
-                            Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), problem.getStatus());
+                            Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), problem.getStatus());
                             Assertions.assertNotNull(problem.getDetail());
                         }
                 );
