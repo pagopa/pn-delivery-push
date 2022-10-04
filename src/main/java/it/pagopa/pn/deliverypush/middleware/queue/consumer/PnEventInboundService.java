@@ -79,7 +79,11 @@ public class PnEventInboundService {
                 //... e si tratta di una WEBHOOK ACTION, viene gestito con l'handleWebhookAction
                 return handleWebhookAction();
             }
-        } else {
+            else if(eventType.equals("EXTERNAL_CHANNELS_EVENT")) {
+                //TODO usato ora dal mock di external-channels, in futuro se viene modificato l'evento, adeguare anche il mock
+                eventType = handleExternalChannelEvent(message);
+            }
+        }else {
             //TODO EXTERNAL CHANNEL dovrà INVIARE UN EventType specifico
             //Se l'eventType non è valorizzato entro sicuramente qui, cioè negli eventi di externalChannel
             eventType = handleExternalChannelEvent(message);

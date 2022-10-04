@@ -23,6 +23,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -147,7 +148,7 @@ public class ActionsPoolImpl implements ActionsPool {
                 .header( StandardEventHeader.builder()
                         .publisher("deliveryPush")
                         .iun( action.getIun() )
-                        .eventId( action.getActionId() )
+                        .eventId( UUID.randomUUID().toString()) // per alcuni actionId la dimensione superava gli 80 caratteri permessi per id delle code
                         .createdAt( clock.instant() )
                         .eventType( ActionEventType.ACTION_GENERIC.name() )
                         .build()

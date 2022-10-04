@@ -195,6 +195,9 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
             // salvo l'evento come progress
             handleStatusProgress(digitalResultInfos, true);
 
+            // unschedulo eventuale timer programmato di invio
+            digitalWorkFlowHandler.unscheduleTimeoutAction(digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
+
             // è richiesto di ritentare, schedulo un nuovo evento in coda e aggiunto un evento di progress nella timeline
             restartWorkflowAfterRetryTime(digitalResultInfos.getNotification(), digitalResultInfos.getRecIndex(), DigitalAddressInfo.builder()
                 .digitalAddress(digitalResultInfos.getDigitalAddressInt())

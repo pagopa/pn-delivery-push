@@ -164,7 +164,7 @@ public class TimeLineServiceImpl implements TimelineService {
         if (confidentialInfoRequired) {
             Optional<Map<String, ConfidentialTimelineElementDtoInt>> mapConfOtp;
             mapConfOtp = confidentialInformationService.getTimelineConfidentialInformation(iun);
-            
+
             if (mapConfOtp.isPresent()) {
                 Map<String, ConfidentialTimelineElementDtoInt> mapConf = mapConfOtp.get();
 
@@ -183,8 +183,8 @@ public class TimeLineServiceImpl implements TimelineService {
 
     @Override
     public Set<TimelineElementInternal> getTimelineByIunTimelineId(String iun, String timelineId, boolean confidentialInfoRequired) {
-        log.debug("GetTimeline - iun={} timelineId={}", iun, timelineId);
-        Set<TimelineElementInternal> setTimelineElements = this.timelineDao.getTimelineFilteredByElementId(iun, timelineId);
+        log.debug("getTimelineByIunTimelineId - iun={} timelineId={}", iun, timelineId);
+        Set<TimelineElementInternal> setTimelineElements =  this.timelineDao.getTimelineFilteredByElementId(iun, timelineId);
 
         if (confidentialInfoRequired) {
             Optional<Map<String, ConfidentialTimelineElementDtoInt>> mapConfOtp;
