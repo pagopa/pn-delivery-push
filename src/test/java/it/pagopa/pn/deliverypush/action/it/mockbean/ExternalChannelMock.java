@@ -67,7 +67,7 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
         
         new Thread(() -> {
             Assertions.assertDoesNotThrow(() -> {
-                // Viene atteso fino a che l'elemento di timeline realtivo all'invio verso extChannel sia stato inserito
+                // Viene atteso fino a che l'elemento di timeline relativo all'invio verso extChannel sia stato inserito
                 await().untilAsserted(() ->
                         Assertions.assertTrue(timelineService.getTimelineElement(notification.getIun(), timelineEventId).isPresent())
                 );
@@ -157,7 +157,7 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
             String domainPart = address.replaceFirst(".*@", "");
 
             if (domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_BOTH)
-                    || (domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_FIRST) && "1".equals(retryNumberPart))) {
+                    || (domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_FIRST) && "0".equals(retryNumberPart))) {
                 status = ProgressEventCategory.ERROR;
                 eventCode = LegalMessageSentDetails.EventCodeEnum.C004;
             } else if (domainPart.startsWith(EXT_CHANNEL_WORKS) || domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_FIRST)) {

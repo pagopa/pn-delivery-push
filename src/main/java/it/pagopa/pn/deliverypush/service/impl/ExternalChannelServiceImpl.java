@@ -77,7 +77,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                             .iun(notification.getIun())
                             .recIndex(recIndex)
                             .source(addressSource)
-                            .index(sentAttemptMade)
+                            .sentAttemptMade(sentAttemptMade)
                             .build()
             );
 
@@ -204,7 +204,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                 EventId.builder()
                         .iun(notification.getIun())
                         .recIndex(recIndex)
-                        .index(sentAttemptMade)
+                        .sentAttemptMade(sentAttemptMade)
                         .build()
         );
 

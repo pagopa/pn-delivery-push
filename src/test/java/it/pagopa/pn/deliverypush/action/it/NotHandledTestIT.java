@@ -347,7 +347,7 @@ class NotHandledTestIT {
                 EventId.builder()
                         .iun(notification.getIun())
                         .recIndex(0)
-                        .index(1)
+                        .sentAttemptMade(1)
                         .source(DigitalAddressSourceInt.GENERAL)
                         .build()
         );
@@ -662,7 +662,7 @@ class NotHandledTestIT {
                 EventId.builder()
                         .iun(iun)
                         .recIndex(recIndex)
-                        .index(0)
+                        .sentAttemptMade(0)
                         .build());
 
         Optional<SendAnalogDetailsInt> sendPaperDetailsOpt = timelineService.getTimelineElementDetails(iun, eventIdSendAnalog, SendAnalogDetailsInt.class);

@@ -194,7 +194,7 @@ class AnalogTestIT {
         String taxId = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.SEND_PAPER_FEEDBACK.buildEventId(EventId.builder()
                 .iun(iun)
                 .recIndex(0)
-                .index(1)
+                .sentAttemptMade(1)
                 .build()
         );
 
@@ -496,7 +496,7 @@ class AnalogTestIT {
                 EventId.builder()
                         .iun(iun)
                         .recIndex(recIndex)
-                        .index(0)
+                        .sentAttemptMade(0)
                         .build());
 
         Optional<SendAnalogDetailsInt> sendPaperDetailsOpt = timelineService.getTimelineElementDetails(iun, eventIdFirstSend, SendAnalogDetailsInt.class);
@@ -1247,7 +1247,7 @@ class AnalogTestIT {
                 EventId.builder()
                         .iun(iun)
                         .recIndex(0)
-                        .index(1)
+                        .sentAttemptMade(1)
                         .build()
         );
 

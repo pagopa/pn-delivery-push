@@ -85,9 +85,9 @@ public class TestUtils {
                         .iun(iun)
                         .recIndex(recIndex)
                         .source(source)
-                        .index(sentAttempt)
+                        .sentAttemptMade(sentAttempt)
                         .build());
-
+        
         Optional<GetAddressInfoDetailsInt> getAddressInfoOpt = timelineService.getTimelineElementDetails(iun, correlationId, GetAddressInfoDetailsInt.class);
         Assertions.assertTrue(getAddressInfoOpt.isPresent());
         Assertions.assertEquals(isAvailable, getAddressInfoOpt.get().getIsAvailable());
@@ -98,7 +98,7 @@ public class TestUtils {
                 EventId.builder()
                         .iun(iun)
                         .recIndex(recIndex)
-                        .index(sendAttempt)
+                        .sentAttemptMade(sendAttempt)
                         .build());
 
         Optional<SendAnalogDetailsInt> sendPaperDetailsOpt = timelineService.getTimelineElementDetails(iun, eventIdFirstSend,  SendAnalogDetailsInt.class);
@@ -112,7 +112,7 @@ public class TestUtils {
                 EventId.builder()
                         .iun(iun)
                         .recIndex(recIndex)
-                        .index(sendAttempt)
+                        .sentAttemptMade(sendAttempt)
                         .build());
 
         Optional< SendAnalogDetailsInt> sendPaperDetailsOpt = timelineService.getTimelineElementDetails(iun, eventIdFirstSend,  SendAnalogDetailsInt.class);
@@ -229,7 +229,7 @@ public class TestUtils {
                 EventId.builder()
                         .iun(iun)
                         .recIndex(recIndex)
-                        .index(sendAttemptMade)
+                        .sentAttemptMade(sendAttemptMade)
                         .source(addressSource)
                         .build()
         );
@@ -270,7 +270,7 @@ public class TestUtils {
                 EventId.builder()
                         .iun(iun)
                         .recIndex(recIndex)
-                        .index(sendAttemptMade)
+                        .sentAttemptMade(sendAttemptMade)
                         .source(addressSource)
                         .build()
         );

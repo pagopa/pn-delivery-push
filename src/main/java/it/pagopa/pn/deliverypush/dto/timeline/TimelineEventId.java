@@ -28,11 +28,11 @@ public enum TimelineEventId {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
-                    "%s_get_address%d_source_%s_attempt_%d",
+                    "%s_get_address_%d_source_%s_attempt_%d",
                     eventId.getIun(),
                     eventId.getRecIndex(),
                     eventId.getSource(),
-                    eventId.getIndex()
+                    eventId.getSentAttemptMade()
             );
         }
     },
@@ -41,11 +41,11 @@ public enum TimelineEventId {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
-                    "%s_send_digital_feedback_%d_attempt_%d_source_%s",
+                    "%s_send_digital_feedback_%d_source_%s_attempt_%d",
                     eventId.getIun(),
                     eventId.getRecIndex(),
-                    eventId.getIndex(),
-                    eventId.getSource()
+                    eventId.getSource(),
+                    eventId.getSentAttemptMade()
             );
         }
     },
@@ -54,11 +54,11 @@ public enum TimelineEventId {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
-                    "%s_digital_delivering_progress_%d_attempt_%d_source%s_progidx_%s",
+                    "%s_digital_delivering_progress_%d_source_%s_attempt_%d_progidx_%s",
                     eventId.getIun(),
                     eventId.getRecIndex(),
-                    eventId.getSentAttemptMade() +1,
                     eventId.getSource(),
+                    eventId.getSentAttemptMade(),
                     eventId.getProgressIndex()<0?"":eventId.getProgressIndex()  // se passo un progressindex negativo, è perchè non voglio che venga inserito nell'eventid. Usato per cercare con l'inizia per
                     );
         }
@@ -80,17 +80,17 @@ public enum TimelineEventId {
                     "%s_send_paper_feedback_%d_attempt_%d",
                     eventId.getIun(),
                     eventId.getRecIndex(),
-                    eventId.getIndex()
+                    eventId.getSentAttemptMade()
             );
         }
     },
-    
+
     SEND_DIGITAL_DOMICILE() {
         @Override
         public String buildEventId(EventId eventId) {
-            int sendAttempt = eventId.getIndex() + 1; //TODO Nell'invio verso external channel viene incrementato il numero di tentativi effettuati (in questo modo viene passato il tentativo che si sta effettuando) per preservare le logiche di extchannel attualmente presenti
+            int sendAttempt = eventId.getSentAttemptMade();
             return String.format(
-                    "%s_send_digital_domicile%d_source_%s_attempt_%d",
+                    "%s_send_digital_domicile_%d_source_%s_attempt_%d",
                     eventId.getIun(),
                     eventId.getRecIndex(),
                     eventId.getSource(),
@@ -113,7 +113,7 @@ public enum TimelineEventId {
     SEND_ANALOG_DOMICILE() {
         @Override
         public String buildEventId(EventId eventId) {
-            int sendAttempt = eventId.getIndex() + 1; //TODO Nell'invio verso external channel viene incrementato il numero di tentativi effettuati (in questo modo viene passato il tentativo che si sta effettuando) per preservare le logiche di extchannel attualmente presenti
+            int sendAttempt = eventId.getSentAttemptMade();
             return String.format(
                     "%s_send_analog_domicile_%d_attempt_%d",
                     eventId.getIun(),
@@ -267,6 +267,7 @@ public enum TimelineEventId {
             );
         }
     },
+    
     AAR_GENERATION() {
         @Override
         public String buildEventId(EventId eventId) {
