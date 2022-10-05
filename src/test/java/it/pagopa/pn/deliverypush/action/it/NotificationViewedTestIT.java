@@ -98,7 +98,7 @@ import static org.mockito.ArgumentMatchers.eq;
 @TestPropertySource("classpath:/application-test.properties")
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
 class NotificationViewedTestIT {
-
+    
     @TestConfiguration
     static class SpringTestConfiguration extends AbstractWorkflowTestConfiguration {
         public SpringTestConfiguration() {
@@ -226,7 +226,8 @@ class NotificationViewedTestIT {
         );
 
         //Simulazione visualizzazione della notifica
-        notificationViewedHandler.handleViewNotification(iun, recIndex, Instant.now());
+        Instant notificationViewDate = Instant.now();
+        notificationViewedHandler.handleViewNotification(iun, recIndex, notificationViewDate);
         
         //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti
         checkTimelineElementIsPresent(iun, recIndex);
@@ -235,6 +236,8 @@ class NotificationViewedTestIT {
 
         //Simulazione seconda visualizzazione della notifica
         notificationViewedHandler.handleViewNotification(iun, recIndex, Instant.now());
+
+        checkIsNotificationViewed(iun, recIndex, notificationViewDate);
 
         //Viene effettuata la verifica che i processi correlati alla visualizzazione non siano avvenuti, dunque che il numero d'invocazioni dei metodi sia rimasto lo stesso
         Mockito.verify(legalFactStore, Mockito.times(1)).saveNotificationViewedLegalFact(eq(notification),eq(recipient), Mockito.any(Instant.class));
@@ -262,6 +265,19 @@ class NotificationViewedTestIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+    }
+
+    private void checkIsNotificationViewed(String iun, Integer recIndex, Instant notificationViewDate) {
+        Optional<TimelineElementInternal> notificationViewTimelineElementOpt = timelineService.getTimelineElement(iun, TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .build()
+        ));
+
+        Assertions.assertTrue(notificationViewTimelineElementOpt.isPresent());
+        TimelineElementInternal notificationViewTimelineElement = notificationViewTimelineElementOpt.get();
+        Assertions.assertEquals(notificationViewDate, notificationViewTimelineElement.getTimestamp());
     }
 
     private void checkTimelineElementIsPresent(String iun, Integer recIndex) {
@@ -345,7 +361,10 @@ class NotificationViewedTestIT {
         startWorkflowHandler.startWorkflow(iun);
 
         //Simulazione visualizzazione della notifica per il primo recipient
-        notificationViewedHandler.handleViewNotification(iun, recIndex1, Instant.now());
+        Instant notificationViewDate1 = Instant.now();
+        notificationViewedHandler.handleViewNotification(iun, recIndex1, notificationViewDate1);
+
+        checkIsNotificationViewed(iun, recIndex1, notificationViewDate1);
 
         //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti
         checkTimelineElementIsPresent(iun, recIndex1);
@@ -354,7 +373,10 @@ class NotificationViewedTestIT {
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient1.getInternalId(), iun);
 
         //Simulazione visualizzazione della notifica per il primo recipient
-        notificationViewedHandler.handleViewNotification(iun, recIndex2, Instant.now());
+        Instant notificationViewDate2 = Instant.now();
+        notificationViewedHandler.handleViewNotification(iun, recIndex2, notificationViewDate2);
+
+        checkIsNotificationViewed(iun, recIndex2, notificationViewDate2);
 
         //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti
         checkTimelineElementIsPresent(iun, recIndex2);
@@ -419,7 +441,10 @@ class NotificationViewedTestIT {
         );
 
         //Simulazione visualizzazione della notifica
-        notificationViewedHandler.handleViewNotification(iun, recIndex, Instant.now());
+        Instant notificationViewDate = Instant.now();
+        notificationViewedHandler.handleViewNotification(iun, recIndex, notificationViewDate);
+
+        checkIsNotificationViewed(iun, recIndex, notificationViewDate);
 
         //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti e siano corretti
         String timelineId = TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
