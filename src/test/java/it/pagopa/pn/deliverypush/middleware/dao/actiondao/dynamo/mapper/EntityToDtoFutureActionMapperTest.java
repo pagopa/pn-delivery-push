@@ -8,14 +8,17 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 
-class DtoToEntityFutureActionMapperTest {
+class EntityToDtoFutureActionMapperTest {
 
     @Test
-    void dtoToEntity() {
-        DtoToEntityFutureActionMapper mapper = new DtoToEntityFutureActionMapper();
-        Action action = buildAction();
-        FutureActionEntity expected = buildFutureActionEntity();
-        FutureActionEntity actual = mapper.dtoToEntity(action, "2021-09-16T15:24:00.00Z");
+    void entityToDto() {
+
+        EntityToDtoFutureActionMapper mapper = new EntityToDtoFutureActionMapper();
+        FutureActionEntity entity = buildFutureActionEntity();
+        Action expected = buildAction();
+
+        Action actual = mapper.entityToDto(entity);
+
         Assertions.assertEquals(expected, actual);
     }
 
@@ -25,7 +28,6 @@ class DtoToEntityFutureActionMapperTest {
         return Action.builder()
                 .iun("001")
                 .actionId("002")
-                .timeslot("2021-09-16T15:24:00.00Z")
                 .notBefore(instant)
                 .recipientIndex(1)
                 .type(ActionType.ANALOG_WORKFLOW)

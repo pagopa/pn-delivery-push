@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
@@ -250,7 +249,7 @@ class DigitalWorkFlowUtilsTest {
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
                 .legalFactsIds(legalFactsIds)
                 .build();
-        
+
         LegalDigitalAddressInt legalDigitalAddressInt = LegalDigitalAddressInt.builder()
                 .address("address")
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -283,38 +282,21 @@ class DigitalWorkFlowUtilsTest {
 
     @Test
     void addDigitalDeliveringProgressTimelineElement() {
-        List<LegalFactsIdInt> legalFactsIds = new ArrayList<>();
-        legalFactsIds.add(LegalFactsIdInt.builder()
-                .key("key")
-                .category(LegalFactCategoryInt.PEC_RECEIPT)
-                .build());
-
-        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
-                .iun("1")
-                .elementId("1")
-                .timestamp(Instant.now())
-                .paId("1")
-                .category(TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS)
-                .legalFactsIds(legalFactsIds)
-                .build();
-
-        // Mockito.when(timelineUtils.buildDigitalProgressFeedbackTimelineElement(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(timelineElementInternal);
-
-        // digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-
-        //  Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(Mockito.any(), Mockito.any());
     }
 
     @Test
-    void nextSource() {
+    void getPreviousTimelineProgress() {
+        NotificationInt notification = getNotification();
+        Set<TimelineElementInternal> expected = new HashSet<>();
+        expected.add(buildTimelineElementInternal());
 
-        /*
-        try (MockedStatic<DigitalWorkFlowUtils> staticMock = Mockito.mockStatic(DigitalWorkFlowUtils.class)) {
-            staticMock.when(() -> DigitalWorkFlowUtils.nextSource(DigitalAddressSourceInt.PLATFORM)).thenReturn(DigitalAddressSourceInt.SPECIAL);
-            Assertions.assertEquals(DigitalAddressSourceInt.SPECIAL, DigitalWorkFlowUtils.nextSource(DigitalAddressSourceInt.PLATFORM));
-        } 
-        */
+        Mockito.when(timelineService.getTimelineByIunTimelineId(notification.getIun(), "IUN_01_digital_delivering_progress_1_attempt_2_sourceGENERAL_progidx_", Boolean.FALSE)).thenReturn(expected);
+
+        Set<TimelineElementInternal> actual = digitalWorkFlowUtils.getPreviousTimelineProgress(notification, 1, 1, DigitalAddressSourceInt.GENERAL);
+
+        Assertions.assertEquals(expected, actual);
     }
+
 
     private TimelineElementInternal buildTimelineElementInternal() {
         List<LegalFactsIdInt> legalFactsIds = new ArrayList<>();
