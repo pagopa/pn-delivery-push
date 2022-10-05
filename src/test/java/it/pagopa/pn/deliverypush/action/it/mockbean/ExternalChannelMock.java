@@ -113,13 +113,13 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
         
         new Thread(() -> {
             Assertions.assertDoesNotThrow(() -> {
-                // Viene atteso fino a che l'elemento di timeline realtivo all'invio verso extChannel sia stato inserito
-                await().untilAsserted(() ->
-                        Assertions.assertTrue(timelineService.getTimelineElement(notificationInt.getIun(), timelineEventId).isPresent())
-                );
+            // Viene atteso fino a che l'elemento di timeline realtivo all'invio verso extChannel sia stato inserito
+            await().untilAsserted(() ->
+                    Assertions.assertTrue(timelineService.getTimelineElement(notificationInt.getIun(), timelineEventId).isPresent())
+            );
 
-                if (analogType != PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER)
-                    simulateExternalChannelAnalogResponse(notificationInt, physicalAddress, timelineEventId);
+            if (analogType != PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER)
+                simulateExternalChannelAnalogResponse(notificationInt, physicalAddress, timelineEventId);
             });
         }).start();
 

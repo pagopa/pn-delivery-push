@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper;
 
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
+import it.pagopa.pn.deliverypush.dto.timeline.StatusInfoInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.*;
@@ -22,6 +23,7 @@ public class DtoToEntityTimelineMapper {
                 .timestamp( dto.getTimestamp() )
                 .details( dtoToDetailsEntity( dto.getDetails() ) )
                 .legalFactIds( convertLegalFactsToEntity( dto.getLegalFactsIds() ) )
+                .statusInfo(dtoToStatusInfoEntity(dto.getStatusInfo()))
                 .build();
     }
 
@@ -44,5 +46,14 @@ public class DtoToEntityTimelineMapper {
     
     private TimelineElementDetailsEntity dtoToDetailsEntity(TimelineElementDetailsInt details) {
         return SmartMapper.mapToClass(details, TimelineElementDetailsEntity.class );
+    }
+
+    private StatusInfoEntity dtoToStatusInfoEntity(StatusInfoInternal statusInfoInternal) {
+        if(statusInfoInternal == null) return null;
+        return StatusInfoEntity.builder()
+                .statusChangeTimestamp(statusInfoInternal.getStatusChangeTimestamp())
+                .statusChanged(statusInfoInternal.isStatusChanged())
+                .actual(statusInfoInternal.getActual())
+                .build();
     }
 }

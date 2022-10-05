@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.TimelineDaoDynamo;
+import it.pagopa.pn.deliverypush.dto.timeline.StatusInfoInternal;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.DtoToEntityTimelineMapper;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.EntityToDtoTimelineMapper;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
@@ -53,6 +55,7 @@ class TimelineDaoDynamoTest {
                 .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
                 .details( NotificationRequestAcceptedDetailsInt.builder().build() )
                 .timestamp(Instant.now())
+                .statusInfo(StatusInfoInternal.builder().build())
                 .build();
         String id2 = "SendDigitalDetails";
         TimelineElementInternal row2 = TimelineElementInternal.builder()
@@ -61,6 +64,7 @@ class TimelineDaoDynamoTest {
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
                 .details( SendDigitalDetailsInt.builder().build() )
                 .timestamp(Instant.now())
+                .statusInfo(StatusInfoInternal.builder().build())
                 .build();
         
         // WHEN
@@ -97,6 +101,7 @@ class TimelineDaoDynamoTest {
                 .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
                 .details( NotificationRequestAcceptedDetailsInt.builder().build() )
                 .timestamp(Instant.now())
+                .statusInfo(StatusInfoInternal.builder().build())
                 .build();
         String id2 = id_prefix + "1";
         TimelineElementInternal row2 = TimelineElementInternal.builder()
@@ -105,6 +110,7 @@ class TimelineDaoDynamoTest {
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
                 .details( SendDigitalDetailsInt.builder().build() )
                 .timestamp(Instant.now())
+                .statusInfo(StatusInfoInternal.builder().build())
                 .build();
         String id3 = id_prefix + "2";
         TimelineElementInternal row3 = TimelineElementInternal.builder()
@@ -113,6 +119,7 @@ class TimelineDaoDynamoTest {
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
                 .details( SendDigitalDetailsInt.builder().build() )
                 .timestamp(Instant.now())
+                .statusInfo(StatusInfoInternal.builder().build())
                 .build();
 
         // WHEN
@@ -134,6 +141,8 @@ class TimelineDaoDynamoTest {
         // GIVEN
         String iun = "iun1";
 
+        StatusInfoInternal statusInfo = Mockito.mock(StatusInfoInternal.class);
+
         String id1 = "sender_ack";
         TimelineElementInternal row1 = TimelineElementInternal.builder()
                 .iun(iun)
@@ -141,6 +150,7 @@ class TimelineDaoDynamoTest {
                 .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
                 .details( NotificationRequestAcceptedDetailsInt.builder().build() )
                 .timestamp(Instant.now())
+                .statusInfo(statusInfo)
                 .build();
         String id2 = "SendDigitalDetails";
         TimelineElementInternal row2 = TimelineElementInternal.builder()
@@ -149,6 +159,7 @@ class TimelineDaoDynamoTest {
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
                 .details( SendDigitalDetailsInt.builder().build() )
                 .timestamp(Instant.now())
+                .statusInfo(statusInfo)
                 .build();
 
         // WHEN
