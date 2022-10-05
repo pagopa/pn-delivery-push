@@ -1,9 +1,7 @@
 package it.pagopa.pn.deliverypush.dto.ext.externalchannel;
 
 import lombok.Getter;
-import lombok.ToString;
 
-@ToString
 @Getter
 public enum ResponseStatusInt {
   OK("OK"),
@@ -18,6 +16,11 @@ public enum ResponseStatusInt {
 
   ResponseStatusInt(String value) {
     this.value = value;
+  }
+
+  @Override
+  public String toString() {
+    return String.valueOf(value);
   }
 }
 
