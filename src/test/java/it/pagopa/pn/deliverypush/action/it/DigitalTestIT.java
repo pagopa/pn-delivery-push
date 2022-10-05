@@ -25,6 +25,7 @@ import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
+import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
@@ -115,12 +116,18 @@ class DigitalTestIT {
 
     @SpyBean
     private ExternalChannelMock externalChannelMock;
-
+    
     @SpyBean
     private CompletionWorkFlowHandler completionWorkflow;
 
     @SpyBean
     private LegalFactGenerator legalFactGenerator;
+    
+    @SpyBean
+    private SchedulerService scheduler;
+    
+    @Autowired
+    private PnDeliveryPushConfigs pnDeliveryPushConfigs;
     
     @Autowired
     private StartWorkflowHandler startWorkflowHandler;
@@ -280,7 +287,7 @@ class DigitalTestIT {
 
         //Viene verificato che il workflow sia fallito
         TestUtils.checkFailDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow);
-
+        
         //Viene verificato il mancato invio della registered letter, dal momento che la notifica è stata già visualizzata
         Mockito.verify(externalChannelMock, Mockito.never()).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
 
@@ -532,6 +539,9 @@ class DigitalTestIT {
         //Viene verificato che sia avvenuto il perfezionamento
         TestUtils.checkIsPresentRefinement(iun, recIndex, timelineService);
 
+        int refinementNumberOfInvocation = 4;
+        TestUtils.checkFailureRefinement(iun, recIndex, refinementNumberOfInvocation, timelineService, scheduler, pnDeliveryPushConfigs);
+
         //Viene effettuato il check dei legalFacts generati
         TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
                 .notificationReceivedLegalFactGenerated(true)
@@ -558,7 +568,7 @@ class DigitalTestIT {
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
 
     }
-
+    
     @Test
     void completeFailWithoutRegisteredLetter() {
         /*

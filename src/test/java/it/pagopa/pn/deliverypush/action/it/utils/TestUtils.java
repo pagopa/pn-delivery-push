@@ -1,5 +1,7 @@
 package it.pagopa.pn.deliverypush.action.it.utils;
 
+import it.pagopa.pn.commons.utils.DateFormatUtils;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock;
 import it.pagopa.pn.deliverypush.action.it.mockbean.SafeStorageClientMock;
@@ -22,6 +24,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
+import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import lombok.Builder;
@@ -33,10 +36,9 @@ import org.springframework.util.Base64Utils;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.time.ZonedDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class TestUtils {
 
@@ -183,7 +185,7 @@ public class TestUtils {
 
     public static void checkFailDigitalWorkflow(String iun, Integer recIndex, TimelineService timelineService, CompletionWorkFlowHandler completionWorkflow) {
         //Viene verificato che il workflow sia fallito
-        Optional<TimelineElementInternal> timelineElementOpt = timelineService.getTimelineElement(
+        Optional<TimelineElementInternal> failDigitalWorkflowOpt = timelineService.getTimelineElement(
                 iun,
                 TimelineEventId.DIGITAL_FAILURE_WORKFLOW.buildEventId(
                         EventId.builder()
@@ -191,9 +193,9 @@ public class TestUtils {
                                 .recIndex(recIndex)
                                 .build()));
                 
-        Assertions.assertTrue(timelineElementOpt.isPresent());
-        TimelineElementInternal timelineElementInternal = timelineElementOpt.get();
-        Assertions.assertNotNull(timelineElementInternal.getLegalFactsIds().get(0));
+        Assertions.assertTrue(failDigitalWorkflowOpt.isPresent());
+        TimelineElementInternal failDigitalWorkflow = failDigitalWorkflowOpt.get();
+        Assertions.assertNotNull(failDigitalWorkflow.getLegalFactsIds().get(0));
         
         ArgumentCaptor<EndWorkflowStatus> endWorkflowStatusArgumentCaptor = ArgumentCaptor.forClass(EndWorkflowStatus.class);
         ArgumentCaptor<NotificationInt> notificationCaptor = ArgumentCaptor.forClass(NotificationInt.class);
@@ -323,6 +325,33 @@ public class TestUtils {
         TimelineElementInternal timelineElement = timelineElementOpt.get();
         RefinementDetailsInt detailsInt = (RefinementDetailsInt) timelineElement.getDetails();
         Assertions.assertNotNull(detailsInt.getNotificationCost());
+    }
+
+    public static void checkFailureRefinement(String iun,
+                                        Integer recIndex,
+                                        int refinementNumberOfInvocation,
+                                        TimelineService timelineService,
+                                        SchedulerService scheduler,
+                                        PnDeliveryPushConfigs pnDeliveryPushConfigs){
+        ArgumentCaptor<Instant> instantArgumentCaptor = ArgumentCaptor.forClass(Instant.class);
+
+        Mockito.verify(scheduler, Mockito.times(refinementNumberOfInvocation)).scheduleEvent(Mockito.eq(iun), Mockito.eq(recIndex), instantArgumentCaptor.capture(), Mockito.any() );
+        List<Instant> instantArgumentCaptorList = instantArgumentCaptor.getAllValues();
+        //Viene ottenuta la data di perfezionamento (Valutare se inserire la data di scheduling come campo del timeline element details)
+        Instant refinementDate = instantArgumentCaptorList.get(instantArgumentCaptorList.size() - 1);
+
+        List<TimelineElementInternal> lastSendDigitalElementList = timelineService.getTimeline(iun, false).stream()
+                .filter(element -> TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE.equals(element.getCategory()))
+                .sorted(Comparator.comparing(TimelineElementInternal::getTimestamp)).collect(Collectors.toList());
+
+        Instant lastSendDigitalDate = lastSendDigitalElementList.get(lastSendDigitalElementList.size() - 1).getTimestamp();
+        //Viene ottenuta la data dell'ultimo invio verso externalChannel
+        ZonedDateTime notificationDateTime = DateFormatUtils.parseInstantToZonedDateTime(lastSendDigitalDate);
+
+        ZonedDateTime schedulingDate = notificationDateTime.plus( pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysFailureDigitalRefinement() );
+
+        //Viene verificato che la data di perfezionamento sia uguale alla data dell'ultimo invio + giorni previsti dal perfezionamento
+        Assertions.assertEquals(schedulingDate.toInstant(), refinementDate);
     }
 
     public static void checkSendRegisteredLetter(NotificationRecipientInt recipient, String iun, Integer recIndex, ExternalChannelMock externalChannelMock, TimelineService timelineService) {

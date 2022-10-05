@@ -38,7 +38,6 @@ public class PnLegalFactsController implements LegalFactsApi {
         );
     }
     
-    //TODO Da analizzare, il FE non dovrebbe utilizzarlo, probabilmente può essere eliminato
     @Override
     public Mono<ResponseEntity<Flux<LegalFactListElement>>> getNotificationLegalFacts(
             String xPagopaPnUid,
