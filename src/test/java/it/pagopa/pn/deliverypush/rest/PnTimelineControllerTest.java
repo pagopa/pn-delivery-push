@@ -98,7 +98,7 @@ class PnTimelineControllerTest {
         Mockito.verify(service).getTimelineAndStatusHistory(Mockito.anyString(), Mockito.anyInt(), Mockito.any());
     }
 
-    @Test @Disabled("enable after PN-2192")
+    @Test
     void getTimelineKoBadRequest() {
         Mockito.when(service.getTimelineAndStatusHistory(Mockito.anyString(), Mockito.anyInt(), Mockito.any()))
                 .thenThrow( new NullPointerException() );

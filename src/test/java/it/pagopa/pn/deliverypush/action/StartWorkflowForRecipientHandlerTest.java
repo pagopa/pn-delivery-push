@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.action;
 
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
@@ -18,7 +19,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.webjars.NotFoundException;
 
 import java.time.Instant;
 
@@ -87,10 +87,10 @@ class StartWorkflowForRecipientHandlerTest {
         Mockito.when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
         Mockito.when(logEvent.generateFailure(Mockito.any(), Mockito.any())).thenReturn(logEvent);
 
-        doThrow(new NotFoundException("not found")).when(aarUtils).generateAARAndSaveInSafeStorageAndAddTimelineevent(Mockito.any(NotificationInt.class), Mockito.anyInt());
+        doThrow(new PnNotFoundException("Not found","","")).when(aarUtils).generateAARAndSaveInSafeStorageAndAddTimelineevent(Mockito.any(NotificationInt.class), Mockito.anyInt());
         
         //WHEN
-        assertThrows(NotFoundException.class, () -> {
+        assertThrows(PnNotFoundException.class, () -> {
             handler.startNotificationWorkflowForRecipient(iun, 0);
         });
 
