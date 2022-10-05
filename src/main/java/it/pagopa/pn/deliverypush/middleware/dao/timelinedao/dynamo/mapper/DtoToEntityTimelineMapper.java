@@ -49,6 +49,11 @@ public class DtoToEntityTimelineMapper {
     }
 
     private StatusInfoEntity dtoToStatusInfoEntity(StatusInfoInternal statusInfoInternal) {
-        return SmartMapper.mapToClass(statusInfoInternal, StatusInfoEntity.class );
+        if(statusInfoInternal == null) return null;
+        return StatusInfoEntity.builder()
+                .statusChangeTimestamp(statusInfoInternal.getStatusChangeTimestamp())
+                .statusChanged(statusInfoInternal.isStatusChanged())
+                .actual(statusInfoInternal.getActual())
+                .build();
     }
 }
