@@ -18,6 +18,10 @@ Parameters:
   Version:
     Type: String
     Description: 'keep track of used projects commitIds'
+  
+  CdcKinesisSourceStreamArn:
+    Type: String
+    Description: 'Where to send CDC'
 
 Resources:
 
@@ -86,7 +90,7 @@ Resources:
           KeyType: "RANGE"
       BillingMode: "PAY_PER_REQUEST"
       KinesisStreamSpecification:
-        StreamArn: !GetAtt TimelineCdcKinesis.Outputs.KinesisStreamArn
+        StreamArn: !Ref CdcKinesisSourceStreamArn
       StreamSpecification: 
         StreamViewType: NEW_IMAGE
 
@@ -198,29 +202,9 @@ Resources:
           KeyType: "RANGE"
       BillingMode: "PAY_PER_REQUEST"
 
-
-  ## KINESIS SOURCE STREAM FOR TIMELINE Change Data Capture
-  TimelineCdcKinesis:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/kinesis-stream.yaml"
-      Parameters:
-        StreamName: !Sub '${ProjectName}-timeline-cdc-stream'
-        StreamRetentionPeriodHours: 24
-
   
       
 Outputs:
-
-  # Legal facts S3 bucket
-  LegalFactsBucketName:
-    Description: name of bucket going to contains notification documents
-    Value: !Ref LegalFactsBucket
-
-  LegalFactsBucketArn:
-    Description: ARN of bucket going to contains notification documents
-    Value: !Sub '${LegalFactsBucket.Arn}'
-
 
   # Scheduled Actions
   ScheduledActionsQueueName:
@@ -302,17 +286,3 @@ Outputs:
     Description: ARN of dynamodb table containing
     Value: !Sub '${PnDeliveryPushWebhookEventsTable.Arn}'
 
-  
-  # Timeline Change Data Capture kinesis stream
-  TimelineCdcKinesisStreamName:
-    Value: !GetAtt TimelineCdcKinesis.Outputs.KinesisStreamName
-    Description: kinesis stream name for timeline dynamo table
-  TimelineCdcKinesisStreamArn:
-    Value: !GetAtt TimelineCdcKinesis.Outputs.KinesisStreamArn
-    Description: kinesis stream Arn for timeline dynamo table
-  TimelineCdcKinesisKeyArn:
-    Value: !GetAtt TimelineCdcKinesis.Outputs.KinesisStreamKeyArn
-    Description: KMS key arn for timeline stream decryption
-  TimelineCdcKinesisStreamReadOnlyRoleArn:
-    Value: !GetAtt TimelineCdcKinesis.Outputs.KinesisStreamReadOnlyRoleArn
-    Description: KMS key arn for timeline stream decryption
