@@ -8,6 +8,8 @@ import it.pagopa.pn.deliverypush.service.WebhookService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_WEBHOOK_EVENTFAILED;
+
 @Service
 @Slf4j
 public class WebhookActionsEventHandler {
@@ -31,11 +33,11 @@ public class WebhookActionsEventHandler {
                     doHandlePurgeEvent(evt);
                     break;
                 default:
-                    throw new PnInternalException("Error handling webhook event");
+                    throw new PnInternalException("Error handling webhook event", ERROR_CODE_WEBHOOK_EVENTFAILED);
             }
         } catch (Exception e) {
             log.error("error handling event", e);
-            throw new PnInternalException("Error handling webhook event", e);
+            throw new PnInternalException("Error handling webhook event", ERROR_CODE_WEBHOOK_EVENTFAILED, e);
         }
 
     }

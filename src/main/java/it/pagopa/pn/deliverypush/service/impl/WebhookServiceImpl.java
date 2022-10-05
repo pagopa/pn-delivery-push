@@ -173,7 +173,7 @@ public class WebhookServiceImpl implements WebhookService {
         log.info("purgeEvents streamId={} eventId={} olderThan={}", streamId, eventId, olderThan);
         return eventEntityDao.delete(streamId, eventId, olderThan)
                 .map(thereAreMore -> {
-                    if (thereAreMore)
+                    if (Boolean.TRUE.equals(thereAreMore))
                     {
                         log.info("purgeEvents streamId={} eventId={} olderThan={} there are more event to purge", streamId, eventId, olderThan);
                         schedulerService.scheduleWebhookEvent(streamId, eventId, purgeDeletionWaittime, olderThan?WebhookEventType.PURGE_STREAM_OLDER_THAN:WebhookEventType.PURGE_STREAM);

@@ -15,13 +15,13 @@ class ActionTypeTest {
                 .build();
 
         Assertions.assertAll(
-                () -> Assertions.assertEquals(ActionType.SENDER_ACK.buildActionId(action), "1_start"),
-                () -> Assertions.assertEquals(ActionType.REFINEMENT_NOTIFICATION.buildActionId(action), "1_refinement_notification_1"),
-                () -> Assertions.assertEquals(ActionType.DIGITAL_WORKFLOW_NEXT_ACTION.buildActionId(action), "1_digital_workflow_e_1"),
-                () -> Assertions.assertEquals(ActionType.ANALOG_WORKFLOW.buildActionId(action), "1_analog_workflow_e_1"),
-                () -> Assertions.assertEquals(ActionType.CHOOSE_DELIVERY_MODE.buildActionId(action), "1_choose_delivery_mode_1"),
-                () -> Assertions.assertEquals(ActionType.START_RECIPIENT_WORKFLOW.buildActionId(action), "1_start_recipient_workflow_1")
+                () -> Assertions.assertEquals("1_start", ActionType.SENDER_ACK.buildActionId(action)),
+                () -> Assertions.assertEquals("1_refinement_notification_1", ActionType.REFINEMENT_NOTIFICATION.buildActionId(action)),
+                () -> Assertions.assertEquals("1_digital_workflow_e_1", ActionType.DIGITAL_WORKFLOW_NEXT_ACTION.buildActionId(action)),
+                () -> Assertions.assertEquals("1_analog_workflow_e_1", ActionType.ANALOG_WORKFLOW.buildActionId(action)),
+                () -> Assertions.assertEquals("1_choose_delivery_mode_1", ActionType.CHOOSE_DELIVERY_MODE.buildActionId(action)),
+                () -> Assertions.assertEquals("1_start_recipient_workflow_1", ActionType.START_RECIPIENT_WORKFLOW.buildActionId(action))
         );
     }
-    
+
 }

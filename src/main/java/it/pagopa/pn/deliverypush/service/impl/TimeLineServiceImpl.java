@@ -36,6 +36,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED;
+
 @Service
 @Slf4j
 public class TimeLineServiceImpl implements TimelineService {
@@ -44,10 +46,10 @@ public class TimeLineServiceImpl implements TimelineService {
     private final ConfidentialInformationService confidentialInformationService;
     private final StatusService statusService;
     private final SchedulerService schedulerService;
-    
+
     public TimeLineServiceImpl(TimelineDao timelineDao,
                                StatusUtils statusUtils,
-                               StatusService statusService, 
+                               StatusService statusService,
                                ConfidentialInformationService confidentialInformationService,
                                SchedulerService schedulerService) {
         this.timelineDao = timelineDao;
@@ -85,16 +87,16 @@ public class TimeLineServiceImpl implements TimelineService {
                         dto.getCategory().getValue()
                 );
                 logEvent.generateSuccess().log();
-            } catch (Exception ex){
+            } catch (Exception ex) {
                 logEvent.generateFailure("Exception in addTimelineElement, ex={}", ex).log();
-                throw new PnInternalException("Exception in addTimelineElement - iun="+notification.getIun()+" elementId="+dto.getElementId(), ex);
+                throw new PnInternalException("Exception in addTimelineElement - iun=" + notification.getIun() + " elementId=" + dto.getElementId(), ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED, ex);
             }
-            
+
         } else {
             logEvent.generateFailure("Try to update Timeline and Status for non existing iun={}", dto.getIun());
-            throw new PnInternalException("Try to update Timeline and Status for non existing iun " + dto.getIun());
+            throw new PnInternalException("Try to update Timeline and Status for non existing iun " + dto.getIun(), ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED);
         }
-        
+
     }
 
     private PnAuditLogEvent getPnAuditLogEvent(TimelineElementInternal dto, PnAuditLogBuilder auditLogBuilder) {
@@ -118,15 +120,15 @@ public class TimeLineServiceImpl implements TimelineService {
         log.debug("GetTimelineElement - IUN={} and timelineId={}", iun, timelineId);
 
         Optional<TimelineElementInternal> timelineElementInternalOpt = timelineDao.getTimelineElement(iun, timelineId);
-        if(timelineElementInternalOpt.isPresent()){
+        if (timelineElementInternalOpt.isPresent()) {
             TimelineElementInternal timelineElementInt = timelineElementInternalOpt.get();
-            
+
             confidentialInformationService.getTimelineElementConfidentialInformation(iun, timelineId).ifPresent(
                     confidentialDto -> enrichTimelineElementWithConfidentialInformation(
                             timelineElementInt.getDetails(), confidentialDto
                     )
             );
-            
+
             return Optional.of(timelineElementInt);
         }
         return Optional.empty();
@@ -135,27 +137,27 @@ public class TimeLineServiceImpl implements TimelineService {
     @Override
     public <T> Optional<T> getTimelineElementDetails(String iun, String timelineId, Class<T> timelineDetailsClass) {
         log.debug("GetTimelineElement - IUN={} and timelineId={}", iun, timelineId);
-        
+
         Optional<TimelineElementInternal> timelineElementOpt = this.timelineDao.getTimelineElement(iun, timelineId);
-        if(timelineElementOpt.isPresent()){
+        if (timelineElementOpt.isPresent()) {
             TimelineElementInternal timelineElement = timelineElementOpt.get();
-            
+
             confidentialInformationService.getTimelineElementConfidentialInformation(iun, timelineId).ifPresent(
                     confidentialDto -> enrichTimelineElementWithConfidentialInformation(
                             timelineElement.getDetails(), confidentialDto
                     )
             );
-            
+
             return Optional.of(timelineDetailsClass.cast(timelineElement.getDetails()));
         }
-       
+
         return Optional.empty();
     }
 
     @Override
     public Set<TimelineElementInternal> getTimeline(String iun, boolean confidentialInfoRequired) {
         log.debug("GetTimeline - iun={} ", iun);
-        Set<TimelineElementInternal> setTimelineElements =  this.timelineDao.getTimeline(iun);
+        Set<TimelineElementInternal> setTimelineElements = this.timelineDao.getTimeline(iun);
 
         if (confidentialInfoRequired) {
             Optional<Map<String, ConfidentialTimelineElementDtoInt>> mapConfOtp;
@@ -179,21 +181,20 @@ public class TimeLineServiceImpl implements TimelineService {
 
     @Override
     public Set<TimelineElementInternal> getTimelineByIunTimelineId(String iun, String timelineId, boolean confidentialInfoRequired) {
-        log.debug("GetTimeline - iun={} timelineId={}", iun, timelineId);
+        log.debug("getTimelineByIunTimelineId - iun={} timelineId={}", iun, timelineId);
         Set<TimelineElementInternal> setTimelineElements =  this.timelineDao.getTimelineFilteredByElementId(iun, timelineId);
 
-        if (confidentialInfoRequired)
-        {
+        if (confidentialInfoRequired) {
             Optional<Map<String, ConfidentialTimelineElementDtoInt>> mapConfOtp;
             mapConfOtp = confidentialInformationService.getTimelineConfidentialInformation(iun);
 
-            if(mapConfOtp.isPresent()){
+            if (mapConfOtp.isPresent()) {
                 Map<String, ConfidentialTimelineElementDtoInt> mapConf = mapConfOtp.get();
 
                 setTimelineElements.forEach(
                         timelineElementInt -> {
-                             ConfidentialTimelineElementDtoInt dtoInt = mapConf.get(timelineElementInt.getElementId());
-                            if(dtoInt != null){
+                            ConfidentialTimelineElementDtoInt dtoInt = mapConf.get(timelineElementInt.getElementId());
+                            if (dtoInt != null) {
                                 enrichTimelineElementWithConfidentialInformation(timelineElementInt.getDetails(), dtoInt);
                             }
                         }
@@ -211,39 +212,39 @@ public class TimeLineServiceImpl implements TimelineService {
         Set<TimelineElementInternal> timelineElements = getTimeline(iun, true);
         
         List<NotificationStatusHistoryElementInt> statusHistory = statusUtils
-                .getStatusHistory( timelineElements, numberOfRecipients, createdAt );
+                .getStatusHistory(timelineElements, numberOfRecipients, createdAt);
 
         removeNotToBeReturnedElements(statusHistory);
 
-        NotificationStatusInt currentStatus = statusUtils.getCurrentStatus( statusHistory );
-        
+        NotificationStatusInt currentStatus = statusUtils.getCurrentStatus(statusHistory);
+
         log.debug("getTimelineAndStatusHistory Ok - iun={} ", iun);
 
         return createResponse(timelineElements, statusHistory, currentStatus);
     }
 
     private void removeNotToBeReturnedElements(List<NotificationStatusHistoryElementInt> statusHistory) {
-        
+
         //Viene eliminato l'elemento InValidation dalla response
         Optional<Instant> inValidationStatusActiveFromOpt = Optional.empty();
-        
-        for(NotificationStatusHistoryElementInt element : statusHistory){
-            
-            if(NotificationStatusInt.IN_VALIDATION.equals( element.getStatus() )){
+
+        for (NotificationStatusHistoryElementInt element : statusHistory) {
+
+            if (NotificationStatusInt.IN_VALIDATION.equals(element.getStatus())) {
                 inValidationStatusActiveFromOpt = Optional.of(element.getActiveFrom());
                 statusHistory.remove(element);
                 break;
             }
         }
-        
-        if( inValidationStatusActiveFromOpt.isPresent() ){
-            
+
+        if (inValidationStatusActiveFromOpt.isPresent()) {
+
             //Viene sostituito il campo ActiveFrom dell'elemento ACCEPTED con quella dell'elemento eliminato IN_VALIDATION
             Instant inValidationStatusActiveFrom = inValidationStatusActiveFromOpt.get();
 
             statusHistory.stream()
                     .filter(
-                            statusHistoryElement -> NotificationStatusInt.ACCEPTED.equals( statusHistoryElement.getStatus() )
+                            statusHistoryElement -> NotificationStatusInt.ACCEPTED.equals(statusHistoryElement.getStatus())
                     ).findFirst()
                     .ifPresent(
                             el -> el.setActiveFrom(inValidationStatusActiveFrom)
@@ -257,7 +258,7 @@ public class TimeLineServiceImpl implements TimelineService {
         List<TimelineElement> timelineList = timelineElements.stream()
                 .map(TimelineElementMapper::internalToExternal)
                 .collect(Collectors.toList());
-        
+
         return NotificationHistoryResponse.builder()
                 .timeline(timelineList)
                 .notificationStatusHistory(
@@ -280,15 +281,15 @@ public class TimeLineServiceImpl implements TimelineService {
 
     public void enrichTimelineElementWithConfidentialInformation(TimelineElementDetailsInt details,
                                                                  ConfidentialTimelineElementDtoInt confidentialDto) {
-        
-        if( details instanceof CourtesyAddressRelatedTimelineElement && confidentialDto.getDigitalAddress() != null ){
+
+        if (details instanceof CourtesyAddressRelatedTimelineElement && confidentialDto.getDigitalAddress() != null) {
             CourtesyDigitalAddressInt address = ((CourtesyAddressRelatedTimelineElement) details).getDigitalAddress();
 
             address = getCourtesyDigitalAddress(confidentialDto, address);
             ((CourtesyAddressRelatedTimelineElement) details).setDigitalAddress(address);
         }
 
-        if( details instanceof DigitalAddressRelatedTimelineElement && confidentialDto.getDigitalAddress() != null){
+        if (details instanceof DigitalAddressRelatedTimelineElement && confidentialDto.getDigitalAddress() != null) {
 
             LegalDigitalAddressInt address = ((DigitalAddressRelatedTimelineElement) details).getDigitalAddress();
 
@@ -297,7 +298,7 @@ public class TimeLineServiceImpl implements TimelineService {
             ((DigitalAddressRelatedTimelineElement) details).setDigitalAddress(address);
         }
 
-        if( details instanceof PhysicalAddressRelatedTimelineElement && confidentialDto.getPhysicalAddress() != null ) {
+        if (details instanceof PhysicalAddressRelatedTimelineElement && confidentialDto.getPhysicalAddress() != null) {
             PhysicalAddressInt physicalAddress = ((PhysicalAddressRelatedTimelineElement) details).getPhysicalAddress();
 
             physicalAddress = getPhysicalAddress(physicalAddress, confidentialDto.getPhysicalAddress());
@@ -305,20 +306,19 @@ public class TimeLineServiceImpl implements TimelineService {
             ((PhysicalAddressRelatedTimelineElement) details).setPhysicalAddress(physicalAddress);
         }
 
-        if( details instanceof NewAddressRelatedTimelineElement && confidentialDto.getNewPhysicalAddress() != null ){
-            
+        if (details instanceof NewAddressRelatedTimelineElement && confidentialDto.getNewPhysicalAddress() != null) {
+
             PhysicalAddressInt newAddress = ((NewAddressRelatedTimelineElement) details).getNewAddress();
 
             newAddress = getPhysicalAddress(newAddress, confidentialDto.getNewPhysicalAddress());
 
             ((NewAddressRelatedTimelineElement) details).setNewAddress(newAddress);
-            
+
         }
     }
 
     private LegalDigitalAddressInt getDigitalAddress(ConfidentialTimelineElementDtoInt confidentialDto, LegalDigitalAddressInt address) {
-        if (address == null)
-        {
+        if (address == null) {
             address = LegalDigitalAddressInt.builder().build();
         }
 
@@ -327,8 +327,7 @@ public class TimeLineServiceImpl implements TimelineService {
     }
 
     private CourtesyDigitalAddressInt getCourtesyDigitalAddress(ConfidentialTimelineElementDtoInt confidentialDto, CourtesyDigitalAddressInt address) {
-        if (address == null)
-        {
+        if (address == null) {
             address = CourtesyDigitalAddressInt.builder().build();
         }
 

@@ -26,6 +26,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.EnumMap;
 import java.util.Map;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_DOCUMENTCOMPOSITIONFAILED;
+
 @Component
 @Slf4j
 public class DocumentComposition {
@@ -126,7 +128,10 @@ public class DocumentComposition {
             template.process( model, stringWriter );
 
         } catch (IOException | TemplateException exc) {
-            throw new PnInternalException( "Processing template " + templateType, exc );
+            throw new PnInternalException(
+                    "Processing template " + templateType,
+                    ERROR_CODE_DELIVERYPUSH_DOCUMENTCOMPOSITIONFAILED,
+                    exc);
         }
 
         log.info("Execute templateType={} END", templateType );
@@ -168,7 +173,7 @@ public class DocumentComposition {
             return document.getNumberOfPages();
         }catch (IOException ex){
             log.error("Exception in getNumberOfPageFromPdfBytes for pdf - ex", ex);
-            throw new PnInternalException( "Cannot get numberOfPages for pdf " + this.getClass(), ex );
+            throw new PnInternalException("Cannot get numberOfPages for pdf " + this.getClass(), ex.getMessage());
         }
     }
 
