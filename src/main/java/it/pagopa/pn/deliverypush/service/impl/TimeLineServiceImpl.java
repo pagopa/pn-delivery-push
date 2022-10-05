@@ -19,6 +19,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHis
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
+import it.pagopa.pn.deliverypush.dto.timeline.StatusInfoInternal;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.StatusService;
@@ -30,10 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED;
@@ -75,16 +73,19 @@ public class TimeLineServiceImpl implements TimelineService {
                 //Vengono salvate le informazioni confidenziali in sicuro, dal momento che successivamente non saranno salvate a DB
                 confidentialInformationService.saveTimelineConfidentialInformation(dto);
 
-                timelineDao.addTimelineElement(dto);
+                //aggiungo al DTO lo status info che poi verrà mappato sull'entity e salvato
+                TimelineElementInternal dtoWithStatusInfo = enrichWithStatusInfo(dto, currentTimeline, notificationStatuses);
+
+                timelineDao.addTimelineElement(dtoWithStatusInfo);
                 // genero un messaggio per l'aggiunta in sqs in modo da salvarlo in maniera asincrona
                 schedulerService.scheduleWebhookEvent(
                         notification.getSender().getPaId(),
-                        dto.getIun(),
-                        dto.getElementId(),
-                        dto.getTimestamp(),
+                        dtoWithStatusInfo.getIun(),
+                        dtoWithStatusInfo.getElementId(),
+                        dtoWithStatusInfo.getTimestamp(),
                         notificationStatuses.getOldStatus().getValue(),
                         notificationStatuses.getNewStatus().getValue(),
-                        dto.getCategory().getValue()
+                        dtoWithStatusInfo.getCategory().getValue()
                 );
                 logEvent.generateSuccess().log();
             } catch (Exception ex) {
@@ -349,6 +350,47 @@ public class TimeLineServiceImpl implements TimelineService {
                 .zip(physicalAddress2.getZip())
                 .municipalityDetails(physicalAddress2.getMunicipalityDetails())
                 .build();
+    }
+
+    private TimelineElementInternal enrichWithStatusInfo(TimelineElementInternal dto, Set<TimelineElementInternal> currentTimeline,
+                                      StatusService.NotificationStatusUpdate notificationStatuses) {
+
+        Instant timestampLastTimelineElement = getTimestampLastUpdateStatus(currentTimeline);
+        StatusInfoInternal statusInfo = buildStatusInfo(notificationStatuses, timestampLastTimelineElement);
+        return dto.toBuilder().statusInfo(statusInfo).build();
+    }
+
+    private Instant getTimestampLastUpdateStatus(Set<TimelineElementInternal> currentTimeline) {
+        Optional<StatusInfoInternal> max = currentTimeline.stream()
+                .map(TimelineElementInternal::getStatusInfo)
+                .filter(Objects::nonNull)
+                .max(Comparator.comparing(StatusInfoInternal::getStatusChangeTimestamp));
+
+        return max.map(StatusInfoInternal::getStatusChangeTimestamp).orElse(null);
+    }
+
+    protected StatusInfoInternal buildStatusInfo(StatusService.NotificationStatusUpdate notificationStatuses,
+                                                 Instant timestampLastUpdateStatus) {
+        Instant statusChangeTimestamp;
+        boolean statusChanged = false;
+
+        if (isStatusChanged(notificationStatuses)) {
+            statusChanged = true;
+            statusChangeTimestamp = Instant.now();
+        }
+        else {
+            statusChangeTimestamp = timestampLastUpdateStatus;
+        }
+
+        return StatusInfoInternal.builder()
+                .statusChanged(statusChanged)
+                .statusChangeTimestamp(statusChangeTimestamp)
+                .actual(notificationStatuses.getNewStatus().getValue())
+                .build();
+    }
+
+    private boolean isStatusChanged(StatusService.NotificationStatusUpdate notificationStatuses) {
+        return notificationStatuses.getOldStatus() != notificationStatuses.getNewStatus();
     }
 
 

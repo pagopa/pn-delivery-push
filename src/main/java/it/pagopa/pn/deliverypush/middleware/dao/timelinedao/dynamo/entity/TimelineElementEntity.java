@@ -26,6 +26,7 @@ public class TimelineElementEntity {
     private TimelineElementCategoryEntity category;
     private List<LegalFactsIdEntity> legalFactIds;
     private TimelineElementDetailsEntity details;
+    private StatusInfoEntity statusInfo;
     
     @DynamoDbPartitionKey
     @DynamoDbAttribute(value = FIELD_IUN )
@@ -82,5 +83,13 @@ public class TimelineElementEntity {
         this.details = details;
     }
 
+    @DynamoDbAttribute(value = "statusInfo") @DynamoDbIgnoreNulls
+    public StatusInfoEntity getStatusInfo() {
+        return statusInfo;
+    }
+
+    public void setStatusInfo(StatusInfoEntity statusInfo) {
+        this.statusInfo = statusInfo;
+    }
 }
 
