@@ -97,7 +97,7 @@ class PnTimelineControllerTest {
 
         Mockito.verify(service).getTimelineAndStatusHistory(Mockito.anyString(), Mockito.anyInt(), Mockito.any());
     }
-
+ 
     @Test
     void getTimelineKoBadRequest() {
         Mockito.when(service.getTimelineAndStatusHistory(Mockito.anyString(), Mockito.anyInt(), Mockito.any()))
