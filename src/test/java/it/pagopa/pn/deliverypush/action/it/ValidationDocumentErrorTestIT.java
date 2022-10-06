@@ -2,13 +2,12 @@ package it.pagopa.pn.deliverypush.action.it;
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.*;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
+import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -16,14 +15,12 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
-import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +34,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collections;
 
@@ -49,6 +45,7 @@ import java.util.Collections;
         AnalogWorkflowHandler.class,
         ChooseDeliveryModeHandler.class,
         DigitalWorkFlowHandler.class,
+        DigitalWorkFlowExternalChannelResponseHandler.class,
         CompletionWorkFlowHandler.class,
         PublicRegistryResponseHandler.class,
         PublicRegistryServiceImpl.class,
@@ -69,6 +66,7 @@ import java.util.Collections;
         StatusUtils.class,
         PublicRegistryUtils.class,
         NotificationUtils.class,
+        CompletionWorkflowUtils.class,
         NotificationServiceImpl.class,
         StatusServiceImpl.class,
         PaperNotificationFailedServiceImpl.class,
@@ -106,12 +104,10 @@ class ValidationDocumentErrorTestIT {
     
     @SpyBean
     private ExternalChannelMock externalChannelMock;
-    
-    @SpyBean
-    private PnSafeStorageClient safeStorageClient;
 
     @Autowired
-    private NotificationReceiverValidator notificationReceiverValidator;
+    private SafeStorageClientMock safeStorageClientMock;
+
 
     @Autowired
     private PnDeliveryClientMock pnDeliveryClientMock;
@@ -139,20 +135,8 @@ class ValidationDocumentErrorTestIT {
         //Mock for get current date
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
         
-        //File mock to return for getFileAndDownloadContent
-        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
-        fileDownloadResponse.setContentType("application/pdf");
-        fileDownloadResponse.setContentLength(new BigDecimal(0));
-        fileDownloadResponse.setChecksum("123");
-        fileDownloadResponse.setKey("123");
-        fileDownloadResponse.setDownload(new FileDownloadInfo());
-        fileDownloadResponse.getDownload().setUrl("https://www.url.qualcosa.it");
-        fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
-
-        Mockito.when( safeStorageClient.getFile( Mockito.anyString(), Mockito.anyBoolean()))
-                .thenReturn( fileDownloadResponse );
-        
         //Clear mock
+        safeStorageClientMock.clear();
         pnDeliveryClientMock.clear();
         addressBookMock.clear();
         publicRegistryMock.clear();
@@ -163,7 +147,6 @@ class ValidationDocumentErrorTestIT {
 
     @Test
     void workflowTest() throws PnIdConflictException {
-        
         // GIVEN
         
         // Platform address is present and all sending attempts fail
@@ -195,12 +178,14 @@ class ValidationDocumentErrorTestIT {
                 .withNotificationRecipient(recipient)
                 .build();
 
+        byte[] differentFileSha = "error".getBytes();
+        TestUtils.firstFileUploadFromNotificationError(notification, safeStorageClientMock, differentFileSha);
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
+        addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //WHEN the workflow start
         startWorkflowHandler.startWorkflow(iun, true);

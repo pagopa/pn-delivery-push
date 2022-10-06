@@ -23,4 +23,7 @@ public class Action {
     // Required and used for SEND_PEC and RECEIVE_PEC ActionType
     private Integer recipientIndex;
 
+    private String timelineId;
+
+    private String timeslot;
 }

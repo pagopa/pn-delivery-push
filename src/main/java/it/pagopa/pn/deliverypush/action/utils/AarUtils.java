@@ -16,6 +16,8 @@ import org.springframework.util.StringUtils;
 
 import java.util.Optional;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_GENERATEPDFFAILED;
+
 @Component
 @Slf4j
 public class AarUtils {
@@ -31,8 +33,7 @@ public class AarUtils {
         this.notificationUtils = notificationUtils;
     }
 
-    public void generateAARAndSaveInSafeStorageAndAddTimelineevent(NotificationInt notification, Integer recIndex)
-    {
+    public void generateAARAndSaveInSafeStorageAndAddTimelineevent(NotificationInt notification, Integer recIndex) {
         try {
             // check se già esiste
             String elementId = TimelineEventId.AAR_GENERATION.buildEventId(
@@ -42,19 +43,18 @@ public class AarUtils {
                             .build());
 
             Optional<TimelineElementInternal> timeline = timelineService.getTimelineElement(notification.getIun(), elementId);
-            if (!timeline.isPresent())
-            {
-                PdfInfo pdfInfo = saveLegalFactsService.saveAAR(notification, notificationUtils.getRecipientFromIndex(notification,recIndex));
+            if (!timeline.isPresent()) {
+                PdfInfo pdfInfo = saveLegalFactsService.saveAAR(notification, notificationUtils.getRecipientFromIndex(notification, recIndex));
 
                 timelineService.addTimelineElement(
                         timelineUtils.buildAarGenerationTimelineElement(notification, recIndex, pdfInfo.getKey(), pdfInfo.getNumberOfPages()),
                         notification
                 );
-            }
-            else
+            } else
                 log.debug("no need to recreate AAR iun={} timelineId={}", notification.getIun(), elementId);
         } catch (Exception e) {
-            throw new PnInternalException("cannot generate AAR pdf", e);
+            log.error("cannot generate AAR pdf iun={} ex={}", notification.getIun(), e);
+            throw new PnInternalException("cannot generate AAR pdf", ERROR_CODE_DELIVERYPUSH_GENERATEPDFFAILED, e);
         }
     }
 
@@ -68,12 +68,13 @@ public class AarUtils {
                         .build()
         );
 
-        Optional<AarGenerationDetailsInt> detailOpt = 
+        Optional<AarGenerationDetailsInt> detailOpt =
                 timelineService.getTimelineElementDetails(notification.getIun(), aarGenerationEventId, AarGenerationDetailsInt.class);
 
-        if (detailOpt.isEmpty() || !StringUtils.hasText(detailOpt.get().getGeneratedAarUrl()) || detailOpt.get().getNumberOfPages() == null ) 
-            throw new PnInternalException("cannot retreieve AAR pdf safestoragekey");
-        
+        if (detailOpt.isEmpty() || !StringUtils.hasText(detailOpt.get().getGeneratedAarUrl()) || detailOpt.get().getNumberOfPages() == null) {
+            log.error("cannot retreieve AAR pdf safestoragekey iun={}", notification.getIun());
+            throw new PnInternalException("cannot retreieve AAR pdf safestoragekey", ERROR_CODE_DELIVERYPUSH_GENERATEPDFFAILED);
+        }
         return detailOpt.get();
     }
 }

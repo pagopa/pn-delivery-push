@@ -1,10 +1,6 @@
 package it.pagopa.pn.deliverypush.action.it;
 
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.OperationResultCodeResponse;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.*;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
@@ -17,10 +13,10 @@ import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
-import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
@@ -28,7 +24,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalFailureWorkflowDeta
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotHandledDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -48,7 +44,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -67,6 +62,7 @@ import static org.awaitility.Awaitility.with;
         AnalogWorkflowHandler.class,
         ChooseDeliveryModeHandler.class,
         DigitalWorkFlowHandler.class,
+        DigitalWorkFlowExternalChannelResponseHandler.class,
         CompletionWorkFlowHandler.class,
         PublicRegistryResponseHandler.class,
         PublicRegistryServiceImpl.class,
@@ -95,6 +91,7 @@ import static org.awaitility.Awaitility.with;
         ConfidentialInformationServiceImpl.class,
         AttachmentUtils.class,
         NotificationUtils.class,
+        CompletionWorkflowUtils.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
         ExternalChannelMock.class,
@@ -117,6 +114,15 @@ class NotHandledTestIT {
         }
     }
 
+    @SpyBean
+    private LegalFactGenerator legalFactGenerator;
+
+    @SpyBean
+    private ExternalChannelMock externalChannelMock;
+
+    @SpyBean
+    private CompletionWorkFlowHandler completionWorkflow;
+
     @Autowired
     private StartWorkflowHandler startWorkflowHandler;
 
@@ -126,14 +132,8 @@ class NotHandledTestIT {
     @Autowired
     private InstantNowSupplier instantNowSupplier;
     
-    @SpyBean
-    private ExternalChannelMock externalChannelMock;
-
-    @SpyBean
-    private CompletionWorkFlowHandler completionWorkflow;
-
-    @SpyBean
-    private PnSafeStorageClient safeStorageClientMock;
+    @Autowired
+    private SafeStorageClientMock safeStorageClientMock;
 
     @Autowired
     private PnDeliveryClientMock pnDeliveryClientMock;
@@ -169,34 +169,8 @@ class NotHandledTestIT {
     public void setup() {
         
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
-
-        //File mock to return for getFileAndDownloadContent
-        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
-        fileDownloadResponse.setContentType("application/pdf");
-        fileDownloadResponse.setContentLength(new BigDecimal(0));
-        fileDownloadResponse.setChecksum("123");
-        fileDownloadResponse.setKey("123");
-        fileDownloadResponse.setDownload(new FileDownloadInfo());
-        fileDownloadResponse.getDownload().setUrl("https://www.url.qualcosa.it");
-        fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
-
-
-        FileCreationResponse fileCreationResponse = new FileCreationResponse();
-        fileCreationResponse.setKey("123");
-        fileCreationResponse.setSecret("abc");
-        fileCreationResponse.setUploadUrl("https://www.unqualcheurl.it");
-        fileCreationResponse.setUploadMethod(FileCreationResponse.UploadMethodEnum.POST);
-
-
-        OperationResultCodeResponse operationResultCodeResponse = new OperationResultCodeResponse();
-        operationResultCodeResponse.setResultCode("200.00");
-        operationResultCodeResponse.setResultDescription("OK");
-
-        Mockito.when( safeStorageClientMock.getFile( Mockito.anyString(), Mockito.anyBoolean()))
-                .thenReturn( fileDownloadResponse );
-        Mockito.when( safeStorageClientMock.createFile(Mockito.any(FileCreationWithContentRequest.class), Mockito.anyString())).thenReturn(fileCreationResponse);
-        Mockito.when( safeStorageClientMock.updateFileMetadata(Mockito.anyString(), Mockito.any())).thenReturn(operationResultCodeResponse);
-
+        
+        safeStorageClientMock.clear();
         pnDeliveryClientMock.clear();
         addressBookMock.clear();
         publicRegistryMock.clear();
@@ -208,12 +182,6 @@ class NotHandledTestIT {
 
     @Test
     void digitalFailureWorkflowNotHandled() {
-        /*
-       - Platform address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-       - Special address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il digitalDomicile del recipient con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-       - General address presente e invio fallito per entrambi gli invii (Ottenuto non valorizzando il pbDigitalAddress per il recipient in PUB_REGISTRY_DIGITAL con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-       - Invio Registered letter non avviene perchè NON GESTITO
-       */
 
         LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
                 .address("platformAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
@@ -240,18 +208,25 @@ class NotHandledTestIT {
                 )
                 .build();
 
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
         NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
                 .withIun("IUN01")
                 .withNotificationRecipient(recipient)
                 .build();
 
-        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
+
+        addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
         pnDeliveryClientMock.addNotification(notification);
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun, true);
@@ -261,8 +236,12 @@ class NotHandledTestIT {
                 Assertions.assertEquals(NotificationStatusInt.CANCELLED, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
 
+        //Viene verificato il numero di send PEC verso external channel
+        int sentPecAttemptNumber = 6;
+        Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(
+                Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString());
+
         //Viene verificato che la registered letter non sia stata inviata
-        
         Mockito.verify(externalChannelMock, Mockito.times(0)).sendAnalogNotification(Mockito.any(NotificationInt.class), 
                 Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
         
@@ -281,17 +260,33 @@ class NotHandledTestIT {
 
         //Viene verificata la presenza dell'elemento di timeline di fallimento
         isPresentDigitalFailureWorkflow(notification, recIndex);
+
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient,
+                recIndex,
+                sentPecAttemptNumber,
+                generatedLegalFactsInfo,
+                EndWorkflowStatus.FAILURE,
+                legalFactGenerator,
+                timelineService
+        );
+
+        //Vengono stampati tutti i legalFacts generati
+        String className = this.getClass().getSimpleName();
+        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
     }
 
     @Test
     void digitalFailureWorkflowNotHandledViewed() {
-        /*
-       - Platform address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-       - Special address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il digitalDomicile del recipient con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-       - General address presente e invio fallito per entrambi gli invii (Ottenuto non valorizzando il pbDigitalAddress per il recipient in PUB_REGISTRY_DIGITAL con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-       - Simulata visualizzazione notifica in fase di SEND_COURTESY_MESSAGE (Ottenuto valorizzando il tax id con TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION)
-       */
-
         LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
                 .address("platformAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -325,17 +320,24 @@ class NotHandledTestIT {
                 )
                 .build();
 
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
         NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
                 .withIun(iun)
                 .withNotificationRecipient(recipient)
                 .build();
+    
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
-        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
+        addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
         pnDeliveryClientMock.addNotification(notification);
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun, true);
@@ -345,7 +347,7 @@ class NotHandledTestIT {
                 EventId.builder()
                         .iun(notification.getIun())
                         .recIndex(0)
-                        .index(1)
+                        .sentAttemptMade(1)
                         .source(DigitalAddressSourceInt.GENERAL)
                         .build()
         );
@@ -354,6 +356,11 @@ class NotHandledTestIT {
         with().pollDelay(2, SECONDS).await().untilAsserted(() ->
                 Assertions.assertTrue(timelineService.getTimelineElement(notification.getIun(), elementId).isPresent())
         );
+
+        //Viene verificato il numero di send PEC verso external channel
+        int sentPecAttemptNumber = 6;
+        Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(
+                Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString());
 
         //Viene verificato che la registered letter non sia stata inviata
         Mockito.verify(externalChannelMock, Mockito.times(0)).sendAnalogNotification(Mockito.any(NotificationInt.class),
@@ -374,6 +381,30 @@ class NotHandledTestIT {
 
         //Anche se la notifica è stata visualizzata non dovrà essere presente l'elemento di timeline di fallimento
         isPresentDigitalFailureWorkflow(notification, recIndex);
+
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(true)
+                .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient,
+                recIndex,
+                sentPecAttemptNumber,
+                generatedLegalFactsInfo,
+                EndWorkflowStatus.FAILURE,
+                legalFactGenerator,
+                timelineService
+        );
+
+
+        //Vengono stampati tutti i legalFacts generati
+        String className = this.getClass().getSimpleName();
+        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
     }
 
     @Test
@@ -400,12 +431,18 @@ class NotHandledTestIT {
                 .withPhysicalAddress(paPhysicalAddress)
                 .build();
 
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
         NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
                 .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
 
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         List<CourtesyDigitalAddressInt> listCourtesyAddress = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test@works.it")
@@ -416,7 +453,7 @@ class NotHandledTestIT {
         addressBookMock.addCourtesyDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), listCourtesyAddress);
 
         String iun = notification.getIun();
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun, true);
@@ -425,6 +462,11 @@ class NotHandledTestIT {
         await().untilAsserted(() ->
                 Assertions.assertEquals(NotificationStatusInt.CANCELLED, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
+
+        //Viene verificato il numero di send PEC verso external channel
+        int sentPecAttemptNumber = 0;
+        Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(
+                Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString());
 
         //Viene verificato che sia stato inviato un messaggio ad ogni indirizzo presente nei courtesyaddress
         TestUtils.checkSendCourtesyAddresses(iun, recIndex, listCourtesyAddress, timelineService, externalChannelMock);
@@ -436,6 +478,29 @@ class NotHandledTestIT {
 
         //Viene verificata la presenza dell'elemento di timeline NOT_HANDLED
         isPresentNotHandled(iun, recIndex);
+
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient,
+                recIndex,
+                sentPecAttemptNumber,
+                generatedLegalFactsInfo,
+                EndWorkflowStatus.FAILURE,
+                legalFactGenerator,
+                timelineService
+        );
+
+        //Vengono stampati tutti i legalFacts generati
+        String className = this.getClass().getSimpleName();
+        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
     }
 
     @Test
@@ -463,19 +528,26 @@ class NotHandledTestIT {
                 .recIndex(0)
                 .build()
         );
-
+        
+        
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId)
                 .withInternalId("ANON_"+taxId)
                 .withPhysicalAddress(paPhysicalAddress)
                 .build();
 
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
         NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
                 .withIun(iun)
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
 
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         List<CourtesyDigitalAddressInt> listCourtesyAddress = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test@works.it")
@@ -485,7 +557,7 @@ class NotHandledTestIT {
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addCourtesyDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), listCourtesyAddress);
 
-        Integer recIndex = notificationUtils.getRecipientIndex(notification, recipient.getTaxId());
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun, true);
@@ -503,6 +575,11 @@ class NotHandledTestIT {
                 Assertions.assertTrue(timelineService.getTimelineElement(notification.getIun(), elementId).isPresent())
         );
 
+        //Viene verificato il numero di send PEC verso external channel
+        int sentPecAttemptNumber = 0;
+        Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(
+                Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString());
+
         //Viene verificato che non ci sia stato nessun invio verso externalChannel
         Mockito.verify(externalChannelMock, Mockito.times(0)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
 
@@ -510,6 +587,29 @@ class NotHandledTestIT {
 
         //Viene verificata la presenza dell'elemento di timeline NOT_HANDLED
         isNotPresentNotHandled(iun, recIndex);
+
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(true)
+                .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient,
+                recIndex,
+                sentPecAttemptNumber,
+                generatedLegalFactsInfo,
+                EndWorkflowStatus.FAILURE,
+                legalFactGenerator,
+                timelineService
+        );
+        
+        //Vengono stampati tutti i legalFacts generati
+        String className = this.getClass().getSimpleName();
+        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
     }
     
     private void isPresentNotHandled(String iun, Integer recIndex) {
@@ -556,24 +656,13 @@ class NotHandledTestIT {
         DigitalFailureWorkflowDetailsInt digitalFailureWorkflowDetails = (DigitalFailureWorkflowDetailsInt) digitalFailureWorkflow.getDetails();
         Assertions.assertEquals(recIndex, digitalFailureWorkflowDetails.getRecIndex());
     }
-
-    private void isNotPresentDigitalFailureWorkflow(NotificationInt notification, Integer recIndex) {
-        String elementId = TimelineEventId.DIGITAL_FAILURE_WORKFLOW.buildEventId(
-                EventId.builder()
-                        .iun(notification.getIun())
-                        .recIndex(recIndex)
-                        .build());
-
-        Optional<TimelineElementInternal> digitalFailureWorkflowOpt = timelineService.getTimelineElement(notification.getIun(), elementId);
-        Assertions.assertFalse(digitalFailureWorkflowOpt.isPresent());
-    }
     
     private void checkNotSendAnalogNotification(String iun, Integer recIndex) {
         String eventIdSendAnalog = TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(
                 EventId.builder()
                         .iun(iun)
                         .recIndex(recIndex)
-                        .index(0)
+                        .sentAttemptMade(0)
                         .build());
 
         Optional<SendAnalogDetailsInt> sendPaperDetailsOpt = timelineService.getTimelineElementDetails(iun, eventIdSendAnalog, SendAnalogDetailsInt.class);

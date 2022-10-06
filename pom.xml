@@ -33,7 +33,7 @@
 		<dependency>
 			<groupId>de.idealo.spring</groupId>
 			<artifactId>spring-cloud-stream-binder-sqs</artifactId>
-			<version>1.5.0</version>
+			<version>1.9.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -111,7 +111,7 @@
 		<dependency>
 			<groupId>io.swagger</groupId>
 			<artifactId>swagger-annotations</artifactId>
-			<version>1.6.5</version>
+			<version>1.6.7</version>
 		</dependency>
 		<dependency>
 			<groupId>org.modelmapper</groupId>
@@ -123,6 +123,22 @@
 			<artifactId>awaitility</artifactId>
 			<version>4.2.0</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
+			<artifactId>owasp-java-html-sanitizer</artifactId>
+			<version>20220608.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-text</artifactId>
+			<version>1.9</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
+		<dependency>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+			<version>1.15.3</version>
 		</dependency>
 	</dependencies>
 
@@ -250,7 +266,7 @@
 						</goals>
 						<phase>process-resources</phase>
 						<configuration>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/ee031cd9f76da6ec2a766a19298966710c4ac4f8/docs/openapi/api-private-v1.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/ed61108cc61fb8bb9421d3ba12694c9a20ef2367/docs/openapi/api-private-v1.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>

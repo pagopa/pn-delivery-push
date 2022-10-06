@@ -51,32 +51,33 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
      * Send pec notification to external channel
      * Messaggio con valore legale (PEC)
      * Tramite il sendAlreadyInProgress indica se è il primo tentativo, o se invece è un ritentativo breve
-     *
-     * @param notification notitica
+     *  @param notification notitica
      * @param digitalAddress indirizzo
      * @param addressSource sorgente
      * @param recIndex indice destinatario
      * @param sentAttemptMade tentativo
      * @param sendAlreadyInProgress indica se l'invio è già stato eseguito e si sta eseguendo un ritentativo
+     * @return
      */
     @Override
-    public void sendDigitalNotification(NotificationInt notification,
-                                        LegalDigitalAddressInt digitalAddress,
-                                        DigitalAddressSourceInt addressSource,
-                                        Integer recIndex,
-                                        int sentAttemptMade,
-                                        boolean sendAlreadyInProgress
+    public String sendDigitalNotification(NotificationInt notification,
+                                          LegalDigitalAddressInt digitalAddress,
+                                          DigitalAddressSourceInt addressSource,
+                                          Integer recIndex,
+                                          int sentAttemptMade,
+                                          boolean sendAlreadyInProgress
     ) {
+        String eventId;
         if (!sendAlreadyInProgress)
         {
-            log.debug("Start sendDigitalNotification - iun={} recipientIndex={}", notification.getIun(), recIndex);
+            log.debug("Start sendDigitalNotification - iun={} recipientIndex={} attempt={}", notification.getIun(), recIndex, sentAttemptMade);
 
-            String eventId = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
+            eventId = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
                     EventId.builder()
                             .iun(notification.getIun())
                             .recIndex(recIndex)
                             .source(addressSource)
-                            .index(sentAttemptMade)
+                            .sentAttemptMade(sentAttemptMade)
                             .build()
             );
 
@@ -87,14 +88,14 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         {
             int progressIndex = digitalWorkFlowUtils.getPreviousTimelineProgress(notification, recIndex, sentAttemptMade, addressSource).size() + 1;
 
-            log.debug("Start sendDigitalNotification for retry - iun={} recipientIndex={} progressIndex={}", notification.getIun(), recIndex, progressIndex);
+            log.debug("Start sendDigitalNotification for retry - iun={} recipientIndex={} attempt={} progressIndex={}", notification.getIun(), recIndex, sentAttemptMade, progressIndex);
 
-            String eventId = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
+            eventId = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
                     EventId.builder()
                             .iun(notification.getIun())
                             .recIndex(recIndex)
                             .source(addressSource)
-                            .index(sentAttemptMade)
+                            .sentAttemptMade(sentAttemptMade)
                             .progressIndex(progressIndex)
                             .build()
             );
@@ -112,6 +113,8 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                     Instant.now());
 
         }
+
+        return eventId;
     }
 
     /**
@@ -201,7 +204,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                 EventId.builder()
                         .iun(notification.getIun())
                         .recIndex(recIndex)
-                        .index(sentAttemptMade)
+                        .sentAttemptMade(sentAttemptMade)
                         .build()
         );
 

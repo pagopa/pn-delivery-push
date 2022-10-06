@@ -1,8 +1,8 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
-import it.pagopa.pn.api.dto.notification.failednotification.PaperNotificationFailed;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.papernotificationfailed.PaperNotificationFailed;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
@@ -52,7 +52,7 @@ public class CompletelyUnreachableUtils  {
         paperNotificationFailedService.addPaperNotificationFailed(
                 PaperNotificationFailed.builder()
                         .iun(notification.getIun())
-                        .recipientId(recipient.getTaxId())
+                        .recipientId(recipient.getInternalId())
                         .build()
         );
     }

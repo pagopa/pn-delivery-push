@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.middleware.responsehandler;
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatusEvent;
 import it.pagopa.pn.api.dto.events.PnExtChnProgressStatusEventPayload;
 import it.pagopa.pn.deliverypush.action.AnalogWorkflowHandler;
+import it.pagopa.pn.deliverypush.action.DigitalWorkFlowExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.utils.ExternalChannelUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -26,13 +27,13 @@ import java.util.stream.Collectors;
 @Component
 public class ExternalChannelResponseHandlerOld {
 
-    private final DigitalWorkFlowHandler digitalWorkFlowHandler;
+    private final DigitalWorkFlowExternalChannelResponseHandler digitalWorkFlowExternalChannelResponseHandler;
     private final AnalogWorkflowHandler analogWorkflowHandler;
     private final ExternalChannelUtils externalChannelUtils;
 
-    public ExternalChannelResponseHandlerOld(DigitalWorkFlowHandler digitalWorkFlowHandler, AnalogWorkflowHandler analogWorkflowHandler,
-                                          ExternalChannelUtils externalChannelUtils) {
-        this.digitalWorkFlowHandler = digitalWorkFlowHandler;
+    public ExternalChannelResponseHandlerOld(DigitalWorkFlowExternalChannelResponseHandler digitalWorkFlowExternalChannelResponseHandler, AnalogWorkflowHandler analogWorkflowHandler,
+                                             ExternalChannelUtils externalChannelUtils) {
+        this.digitalWorkFlowExternalChannelResponseHandler = digitalWorkFlowExternalChannelResponseHandler;
         this.analogWorkflowHandler = analogWorkflowHandler;
         this.externalChannelUtils = externalChannelUtils;
     }
@@ -54,7 +55,7 @@ public class ExternalChannelResponseHandlerOld {
             switch (notificationTimelineElement.getCategory()) {
                 case SEND_DIGITAL_DOMICILE:
                     ExtChannelDigitalSentResponseInt responseDigital = mapToDigital(response.getPayload());
-                    digitalWorkFlowHandler.handleExternalChannelResponse(responseDigital);
+                    digitalWorkFlowExternalChannelResponseHandler.handleExternalChannelResponse(responseDigital);
                     break;
                 case SEND_ANALOG_DOMICILE:
                     ExtChannelAnalogSentResponseInt responseAnalog = mapToAnalog(response.getPayload());

@@ -5,7 +5,6 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import org.springframework.util.Base64Utils;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -14,10 +13,12 @@ public class NotificationTestBuilder {
     private String paId;
     private List<NotificationRecipientInt> recipients;
     private Instant sentAt;
-
+    List<NotificationDocumentInt> notificationDocument;
+    
     public NotificationTestBuilder() {
         sentAt = Instant.now();
         recipients = Collections.emptyList();
+        notificationDocument = Collections.emptyList();
     }
 
     public static NotificationTestBuilder builder() {
@@ -55,8 +56,31 @@ public class NotificationTestBuilder {
         this.sentAt = sentAt;
         return this;
     }
+
+    public NotificationTestBuilder withNotificationDocuments(List<NotificationDocumentInt> documents) {
+        this.notificationDocument = documents;
+        return this;
+    }
     
     public NotificationInt build() {
+        if( notificationDocument.isEmpty() ){
+            String fileDoc = "sha256_doc00";
+
+            notificationDocument = List.of(
+                    NotificationDocumentInt.builder()
+                            .ref(NotificationDocumentInt.Ref.builder()
+                                    .key(Base64Utils.encodeToString(fileDoc.getBytes()))
+                                    .versionToken("v01_doc00")
+                                    .build()
+                            )
+                            .digests(NotificationDocumentInt.Digests.builder()
+                                    .sha256(Base64Utils.encodeToString(fileDoc.getBytes()))
+                                    .build()
+                            )
+                            .build()
+            );
+        }
+        
         return NotificationInt.builder()
                 .iun(iun)
                 .paProtocolNumber("protocol_01")
@@ -73,30 +97,7 @@ public class NotificationTestBuilder {
                 )
                 .sentAt( sentAt )
                 .recipients(recipients)
-                .documents(Arrays.asList(
-                        NotificationDocumentInt.builder()
-                                .ref(NotificationDocumentInt.Ref.builder()
-                                        .key("key_doc00")
-                                        .versionToken("v01_doc00")
-                                        .build()
-                                )
-                                .digests(NotificationDocumentInt.Digests.builder()
-                                        .sha256(Base64Utils.encodeToString("sha256_doc00".getBytes()))
-                                        .build()
-                                )
-                                .build(),
-                        NotificationDocumentInt.builder()
-                                .ref(NotificationDocumentInt.Ref.builder()
-                                        .key("key_doc01")
-                                        .versionToken("v01_doc01")
-                                        .build()
-                                )
-                                .digests(NotificationDocumentInt.Digests.builder()
-                                        .sha256(Base64Utils.encodeToString("sha256_doc01".getBytes()))
-                                        .build()
-                                )
-                                .build()
-                ))
+                .documents(notificationDocument)
                 .build();
     }
 }

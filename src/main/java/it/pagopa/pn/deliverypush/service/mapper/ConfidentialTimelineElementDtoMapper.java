@@ -7,13 +7,14 @@ import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDtoInt;
 
 public class ConfidentialTimelineElementDtoMapper {
-    private ConfidentialTimelineElementDtoMapper(){};
-    
-    public static ConfidentialTimelineElementDto internalToExternal(ConfidentialTimelineElementDtoInt dtoInt){
+    private ConfidentialTimelineElementDtoMapper() {
+    }
+
+    public static ConfidentialTimelineElementDto internalToExternal(ConfidentialTimelineElementDtoInt dtoInt) {
         ConfidentialTimelineElementDto.ConfidentialTimelineElementDtoBuilder dtoExtBuilder = ConfidentialTimelineElementDto.builder()
                 .timelineElementId(dtoInt.getTimelineElementId());
-        
-        if(dtoInt.getDigitalAddress() != null){
+
+        if (dtoInt.getDigitalAddress() != null) {
             dtoExtBuilder.digitalAddress(
                     AddressDto.builder()
                             .value(dtoInt.getDigitalAddress())
@@ -22,7 +23,7 @@ public class ConfidentialTimelineElementDtoMapper {
         }
 
         PhysicalAddressInt physicalAddressInt = dtoInt.getPhysicalAddress();
-        if (physicalAddressInt != null){
+        if (physicalAddressInt != null) {
             dtoExtBuilder.physicalAddress(
                     AnalogDomicile.builder()
                             .address(physicalAddressInt.getAddress())
@@ -37,7 +38,7 @@ public class ConfidentialTimelineElementDtoMapper {
         }
 
         PhysicalAddressInt newPhysicalAddressInt = dtoInt.getNewPhysicalAddress();
-        if (newPhysicalAddressInt != null){
+        if (newPhysicalAddressInt != null) {
             dtoExtBuilder.newPhysicalAddress(
                     AnalogDomicile.builder()
                             .address(newPhysicalAddressInt.getAddress())
@@ -50,35 +51,35 @@ public class ConfidentialTimelineElementDtoMapper {
                             .build()
             );
         }
-        
+
         return dtoExtBuilder.build();
     }
 
-    public static ConfidentialTimelineElementDtoInt externalToInternal(ConfidentialTimelineElementDto dtoExt){
+    public static ConfidentialTimelineElementDtoInt externalToInternal(ConfidentialTimelineElementDto dtoExt) {
         ConfidentialTimelineElementDtoInt.ConfidentialTimelineElementDtoIntBuilder dtoIntBuilder = ConfidentialTimelineElementDtoInt.builder()
                 .timelineElementId(dtoExt.getTimelineElementId());
 
-        if(dtoExt.getDigitalAddress() != null){
+        if (dtoExt.getDigitalAddress() != null) {
             dtoIntBuilder.digitalAddress(dtoExt.getDigitalAddress().getValue());
         }
 
         AnalogDomicile physicalAddress = dtoExt.getPhysicalAddress();
-        if (physicalAddress != null){
+        if (physicalAddress != null) {
             dtoIntBuilder.physicalAddress(
-                PhysicalAddressInt.builder()
-                        .address(physicalAddress.getAddress())
-                        .addressDetails(physicalAddress.getAddressDetails())
-                        .at(physicalAddress.getAt())
-                        .municipality(physicalAddress.getMunicipality())
-                        .zip(physicalAddress.getCap())
-                        .foreignState(physicalAddress.getState())
-                        .province(physicalAddress.getProvince())
-                        .build()
+                    PhysicalAddressInt.builder()
+                            .address(physicalAddress.getAddress())
+                            .addressDetails(physicalAddress.getAddressDetails())
+                            .at(physicalAddress.getAt())
+                            .municipality(physicalAddress.getMunicipality())
+                            .zip(physicalAddress.getCap())
+                            .foreignState(physicalAddress.getState())
+                            .province(physicalAddress.getProvince())
+                            .build()
             );
         }
 
         AnalogDomicile newPhysicalAddress = dtoExt.getNewPhysicalAddress();
-        if (newPhysicalAddress != null){
+        if (newPhysicalAddress != null) {
             dtoIntBuilder.newPhysicalAddress(
                     PhysicalAddressInt.builder()
                             .address(newPhysicalAddress.getAddress())
@@ -91,7 +92,7 @@ public class ConfidentialTimelineElementDtoMapper {
                             .build()
             );
         }
-        
+
         return dtoIntBuilder.build();
     }
 }

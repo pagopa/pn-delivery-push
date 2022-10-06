@@ -23,6 +23,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -52,7 +53,18 @@ public class ActionsPoolImpl implements ActionsPool {
                         .build();
         }
         final String timeSlot = computeTimeSlot( action.getNotBefore() );
+        action = action.toBuilder()
+                .timeslot( timeSlot)
+                .build();
         actionService.addAction( action, timeSlot);
+    }
+
+    @Override
+    public void unscheduleFutureAction(String actionId) {
+        Optional<Action> actionEntity = actionService.getActionById(actionId);
+        if (actionEntity.isPresent() && actionEntity.get().getTimeslot() != null) {
+            actionService.unSchedule(actionEntity.get(), actionEntity.get().getTimeslot());
+        }
     }
 
     @Override
@@ -136,7 +148,7 @@ public class ActionsPoolImpl implements ActionsPool {
                 .header( StandardEventHeader.builder()
                         .publisher("deliveryPush")
                         .iun( action.getIun() )
-                        .eventId( action.getActionId() )
+                        .eventId( UUID.randomUUID().toString()) // per alcuni actionId la dimensione superava gli 80 caratteri permessi per id delle code
                         .createdAt( clock.instant() )
                         .eventType( ActionEventType.ACTION_GENERIC.name() )
                         .build()

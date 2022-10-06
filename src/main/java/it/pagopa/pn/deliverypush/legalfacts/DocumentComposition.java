@@ -6,18 +6,27 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.utils.HtmlSanitizer;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.jetbrains.annotations.Nullable;
+import org.jsoup.Jsoup;
+import org.jsoup.helper.W3CDom;
+import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.EnumMap;
 import java.util.Map;
+
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_DOCUMENTCOMPOSITIONFAILED;
 
 @Component
 @Slf4j
@@ -48,8 +57,11 @@ public class DocumentComposition {
     private final Map<TemplateType, String> baseUris;
     private final Configuration freemarker;
 
-    public DocumentComposition(Configuration freemarker) throws IOException {
+    private final HtmlSanitizer htmlSanitizer;
+
+    public DocumentComposition(Configuration freemarker, HtmlSanitizer htmlSanitizer) throws IOException {
         this.freemarker = freemarker;
+        this.htmlSanitizer = htmlSanitizer;
 
         log.info("Preload templates START");
         baseUris = new EnumMap<>(TemplateType.class);
@@ -116,7 +128,10 @@ public class DocumentComposition {
             template.process( model, stringWriter );
 
         } catch (IOException | TemplateException exc) {
-            throw new PnInternalException( "Processing template " + templateType, exc );
+            throw new PnInternalException(
+                    "Processing template " + templateType,
+                    ERROR_CODE_DELIVERYPUSH_DOCUMENTCOMPOSITIONFAILED,
+                    exc);
         }
 
         log.info("Execute templateType={} END", templateType );
@@ -124,7 +139,8 @@ public class DocumentComposition {
     }
 
     public byte[] executePdfTemplate( TemplateType templateType, Object model ) throws IOException {
-        String html = executeTextTemplate( templateType, model );
+        Object trustedTemplateModel = htmlSanitizer.sanitize(model);
+        String html = executeTextTemplate( templateType, trustedTemplateModel );
 
         String baseUri = baseUris.get( templateType );
         log.info("Pdf conversion start for templateType={} with baseUri={}", templateType, baseUri);
@@ -137,11 +153,14 @@ public class DocumentComposition {
 
     private byte[] html2Pdf( String baseUri, String html ) throws IOException {
 
+        Document jsoupDoc = Jsoup.parse(html); // org.jsoup.nodes.Document
+        W3CDom w3cDom = new W3CDom(); // org.jsoup.helper.W3CDom
+        org.w3c.dom.Document w3cDoc = w3cDom.fromJsoup(jsoupDoc);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         PdfRendererBuilder builder = new PdfRendererBuilder();
 
-        builder.withHtmlContent( html, baseUri);
+        builder.withW3cDocument( w3cDoc, baseUri);
         builder.toStream(baos);
         builder.run();
         baos.close();
@@ -154,7 +173,7 @@ public class DocumentComposition {
             return document.getNumberOfPages();
         }catch (IOException ex){
             log.error("Exception in getNumberOfPageFromPdfBytes for pdf - ex", ex);
-            throw new PnInternalException( "Cannot get numberOfPages for pdf " + this.getClass(), ex );
+            throw new PnInternalException("Cannot get numberOfPages for pdf " + this.getClass(), ex.getMessage());
         }
     }
 

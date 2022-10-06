@@ -14,7 +14,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
-import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
@@ -58,7 +57,7 @@ public class DigitalWorkFlowUtils {
     }
 
     private DigitalAddressInfo getNextAddressInfo(String iun, Integer recIndex, DigitalAddressSourceInt nextAddressSource) {
-        Set<TimelineElementInternal> timeline = timelineService.getTimeline(iun);
+        Set<TimelineElementInternal> timeline = timelineService.getTimeline(iun, true);
 
         //Ottiene il numero di tentativi effettuati per tale indirizzo
         int nextSourceAttemptsMade = getAttemptsMadeForSource(recIndex, nextAddressSource, timeline);
@@ -168,31 +167,21 @@ public class DigitalWorkFlowUtils {
         }
     }
 
-
-    public SendDigitalProgressDetailsInt getMostRecentSendDigitalProgressTimelineElement(String iun, Integer recIndex) {
-        String eventId = TimelineEventId.SEND_DIGITAL_PROGRESS.buildSearchEventIdByIunAndRecipientIndex(iun, recIndex);
-
-        Set<TimelineElementInternal> timelineElementInternals = timelineService.getTimelineByIunTimelineId(iun, eventId, true);
+    /**
+     * Ritorna l'evento più recente per iun/recipient
+     * @param iun
+     * @param recIndex
+     * @return
+     */
+    public TimelineElementInternal getMostRecentTimelineElement(String iun, Integer recIndex) {
+        Set<TimelineElementInternal> timelineElementInternals = timelineService.getTimeline(iun, false);
         Optional<TimelineElementInternal> timelineElementInternal = timelineElementInternals.stream().max(Comparator.comparing(TimelineElementInternal::getTimestamp));
 
         if (timelineElementInternal.isPresent()) {
-            return (SendDigitalProgressDetailsInt) timelineElementInternal.get().getDetails();
+            return timelineElementInternal.get();
         } else {
-            log.error("TimelineElementInternal element for digital_delivering_progress not exist - iun {} eventId {}", iun, eventId);
-            throw new PnInternalException("TimelineElementInternal element for digital_delivering_progress not exist - iun " + iun + " eventId " + eventId, ERROR_CODE_DELIVERYPUSH_DIGITALPROGRESSTIMELINEEVENTNOTFOUND);
-        }
-    }
-
-    public TimelineElementInternal getSendDigitalDetailsTimelineElement(String iun, String eventId) {
-
-        Optional<TimelineElementInternal> sendDigitalTimelineElement = timelineService.getTimelineElement(iun, eventId);
-        
-        if (sendDigitalTimelineElement.isPresent()) {
-            return sendDigitalTimelineElement.get();
-        } else {
-            String error = String.format("SendDigital timeline element not exist -iun=%s requestId=%s", iun, eventId);
-            log.error(error);
-            throw new PnInternalException(error, ERROR_CODE_DELIVERYPUSH_SENDDIGITALTIMELINEEVENTNOTFOUND);
+            log.error("TimelineElementInternal element for recindex not exist - iun {} recIndex {}", iun, recIndex);
+            throw new PnInternalException("TimelineElementInternal element for recindex not exist - iun " + iun + " recIndex " + recIndex, ERROR_CODE_DELIVERYPUSH_TIMELINEEVENTNOTFOUND);
         }
     }
 

@@ -34,19 +34,19 @@ Parameters:
   
   SchedulingDaysSuccessDigitalRefinement:
     Type: String
-    Description: 'refinement time for digital workflow success. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
+    Description: 'Refinement time for digital workflow success. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
 
   SchedulingDaysFailureDigitalRefinement:
     Type: String
-    Description: 'refinement time for digital workflow failure. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
+    Description: 'Refinement time for digital workflow failure. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
 
   SchedulingDaysSuccessAnalogRefinement:
     Type: String
-    Description: 'refinement time for Analog workflow success. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
+    Description: 'Refinement time for Analog workflow success. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
 
   SchedulingDaysFailureAnalogRefinement:
     Type: String
-    Description: 'refinement time for Analog workflow failure. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
+    Description: 'Refinement time for Analog workflow failure. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
   
   ApiDnsName:
     Type: String
@@ -142,108 +142,134 @@ Parameters:
 
   NetworkLoadBalancerLink:
     Type: String
-    Description: 'network load balancer link for API-GW'
+    Description: 'Network load balancer link for API-GW'
 
   TimelinesDynamoTableName:
     Type: String
-    Description: Name of dynamodb table containing timelines
+    Description: 'Name of dynamodb table containing timelines'
 
   TimelinesDynamoTableArn:
     Type: String
-    Description: ARN of dynamodb table containing timelines
+    Description: 'ARN of dynamodb table containing timelines'
 
   PaperNotificationFailedDynamoTableName:
     Type: String
-    Description: Name of dynamodb table containing unreacheble notifications recipients
+    Description: 'Name of dynamodb table containing unreacheble notifications recipients'
 
   PaperNotificationFailedDynamoTableArn:
     Type: String
-    Description: ARN of dynamodb table containing unreacheble notifications recipients
+    Description: 'ARN of dynamodb table containing unreacheble notifications recipients'
 
   ActionDynamoTableName:
     Type: String
-    Description: Name of dynamodb table containing
+    Description: 'Name of dynamodb table containing'
 
   ActionDynamoTableArn:
     Type: String
-    Description: ARN of dynamodb table containing
+    Description: 'ARN of dynamodb table containing'
 
   FutureActionDynamoTableName:
     Type: String
-    Description: Name of dynamodb table containing
+    Description: 'Name of dynamodb table containing'
 
   FutureActionDynamoTableArn:
     Type: String
-    Description: ARN of dynamodb table containing
+    Description: 'ARN of dynamodb table containing'
 
   LastPollForFutureActionDynamoTableName:
     Type: String
-    Description: Name of dynamodb table containing
+    Description: 'Name of dynamodb table containing'
 
   LastPollForFutureActionDynamoTableArn:
     Type: String
-    Description: ARN of dynamodb table containing
+    Description: 'ARN of dynamodb table containing'
 
   PnDeliveryPushShedLockDynamoTableName:
     Type: String
-    Description: Name of dynamodb table containing
+    Description: 'Name of dynamodb table containing'
 
   PnDeliveryPushShedLockDynamoTableArn:
     Type: String
-    Description: ARN of dynamodb table containing
+    Description: 'ARN of dynamodb table containing'
 
   PnDeliveryPushWebhookStreamsTableName:
     Type: String
-    Description: Name of dynamodb table containing
+    Description: 'Name of dynamodb table containing'
 
   PnDeliveryPushWebhookStreamsTableArn:
     Type: String
-    Description: ARN of dynamodb table containing
+    Description: 'ARN of dynamodb table containing'
 
   PnDeliveryPushWebhookEventsTableName:
     Type: String
-    Description: Name of dynamodb table containing
+    Description: 'Name of dynamodb table containing'
 
   PnDeliveryPushWebhookEventsTableArn:
     Type: String
-    Description: ARN of dynamodb table containing
+    Description: 'ARN of dynamodb table containing'
 
   AlarmSNSTopicArn:
     Type: String
-    Description: ARN of alarm topic
+    Description: 'ARN of alarm topic'
 
   ExternalChannelBaseUrl:
     Type: String
-    Description: url base di external channel
+    Description: 'External channel base url'
 
   SandboxSafeStorageBaseUrl:
     Type: String
-    Description: url base di safe storage
+    Description: 'Safe storage base url'
   
   LogsBucketName:
     Type: String
-    Description: Bucket name where the logs must be exported
+    Description: 'Bucket name where the logs must be exported'
     
   LogsExporterRoleArn:
     Type: String
-    Description: ARN of the role used to write to external logs bucket
+    Description: 'ARN of the role used to write to external logs bucket'
   
   TimelineCdcKinesisStreamArn:
     Type: String
-    Description: kinesis stream Arn for timeline dynamo table
+    Description: 'kinesis stream Arn for timeline dynamo table'
   
   TimelineCdcKinesisKeyArn:
     Type: String
-    Description: KMS key arn for timeline stream decryption
+    Description: 'KMS key arn for timeline stream decryption'
 
   Version:
     Type: String
-    Description: 'keep track of used projects commitIds'
+    Description: 'Keep track of used projects commitIds'
 
   PnDeliveryPushPaperMessageNotHandled:
     Type: String
-    Description: feature flag disabilitazione invio messaggi cartacei
+    Description: 'Feature flag for disabling paper messages send'
+
+  NotificationNonVisibilityTime:
+    Type: String
+    Description: 'After this time the notification may not have been read by recipient in that day. Format hh:mm example 21:00. 
+    Link Documentation https://pagopa.atlassian.net/wiki/spaces/PN/pages/523304961/Piattaforma+Notifiche+-+Manuale+Operativo#:~:text=La%20notifica%20si,L.%2076/2020).'
+
+  TimeToAddInNonVisibilityTimeCase:
+    Type: String
+    Description: 'Time to add to scheduling in case the notification arrived after the time defined in notificationNonVisibilityTime
+    Link Documentation https://pagopa.atlassian.net/wiki/spaces/PN/pages/523304961/Piattaforma+Notifiche+-+Manuale+Operativo#:~:text=La%20notifica%20si,L.%2076/2020).'
+
+  ExternalChannelDigitalRetryCount:
+    Type: String
+    Description: 'Numero ritentativi nel caso di esiti con retry ricevuti da ext-channel'
+
+  ExternalChannelDigitalRetryDelay:
+    Type: String
+    Description: 'Delay fra ritentativi nel caso di esiti con retry ricevuti da ext-channel'
+
+  ExternalChannelDigitalSendNoResponseTimeout:
+    Type: String
+    Description: 'Massima durata di attesa di risposta da parte di ext-channel'
   
+  LogsKinesisSourceStreamArn:
+    Type: String
+    Description: 'Kinesis stream that receive logs'
+
 Resources:
 
   # PN-Delivery-push microservice
@@ -277,24 +303,27 @@ Resources:
         ContainerEnvEntry17: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSFAILUREDIGITALREFINEMENT=${SchedulingDaysFailureDigitalRefinement}'
         ContainerEnvEntry18: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSSUCCESSANALOGREFINEMENT=${SchedulingDaysSuccessAnalogRefinement}'
         ContainerEnvEntry19: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYFAILUREANALOGREFINEMENT=${SchedulingDaysFailureAnalogRefinement}'
-        ContainerEnvEntry20: !Sub 'PN_CLIENTS_ADDRESSBOOKBASEURL=${AddressBookUrl}'
-        ContainerEnvEntry21: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNELBASEURL=${ExternalChannelBaseUrl}'
-        ContainerEnvEntry22: 'PN_DELIVERYPUSH_DATAVAULTBASEURL=http://alb.confidential.pn.internal:8080'
-        ContainerEnvEntry23: !Sub 'PN_DELIVERYPUSH_USERATTRIBUTESBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry24: !Sub 'PN_DELIVERYPUSH_SAFESTORAGEBASEURL=${SandboxSafeStorageBaseUrl}'
-        ContainerEnvEntry25: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry26: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry27: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry28: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName}'
-        ContainerEnvEntry29: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
-        ContainerEnvEntry30: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
-        ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
-        ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_ACTIONDAO_TABLENAME=${ActionDynamoTableName}'
-        ContainerEnvEntry33: !Sub 'PN_DELIVERYPUSH_FUTUREACTIONDAO_TABLENAME=${FutureActionDynamoTableName}'
-        ContainerEnvEntry34: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_TABLENAME=${LastPollForFutureActionDynamoTableName}'
-        ContainerEnvEntry35: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_LOCKTABLENAME=${PnDeliveryPushShedLockDynamoTableName}'
-        ContainerEnvEntry36: !Sub 'PN_DELIVERYPUSH_PAPERMESSAGENOTHANDLED=${PnDeliveryPushPaperMessageNotHandled}'
-        ContainerEnvEntry37: !Sub 'PN_DELIVERYPUSH_WEBAPP_FAQURLTEMPLATE=${PhysicalPersonPortalUrl}/faq.html'
+        ContainerEnvEntry20: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNELBASEURL=${ExternalChannelBaseUrl}'
+        ContainerEnvEntry21: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNEL_DIGITALRETRYCOUNT=${ExternalChannelDigitalRetryCount}'
+        ContainerEnvEntry22: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNEL_DIGITALRETRYDELAY=${ExternalChannelDigitalRetryDelay}'
+        ContainerEnvEntry23: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNEL_DIGITALSENDNORESPONSETIMEOUT=${ExternalChannelDigitalSendNoResponseTimeout}'
+        ContainerEnvEntry24: !Sub 'PN_DELIVERYPUSH_USERATTRIBUTESBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry25: !Sub 'PN_DELIVERYPUSH_SAFESTORAGEBASEURL=${SandboxSafeStorageBaseUrl}'
+        ContainerEnvEntry26: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry27: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName}'
+        ContainerEnvEntry30: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
+        ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
+        ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
+        ContainerEnvEntry33: !Sub 'PN_DELIVERYPUSH_ACTIONDAO_TABLENAME=${ActionDynamoTableName}'
+        ContainerEnvEntry34: !Sub 'PN_DELIVERYPUSH_FUTUREACTIONDAO_TABLENAME=${FutureActionDynamoTableName}'
+        ContainerEnvEntry35: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_TABLENAME=${LastPollForFutureActionDynamoTableName}'
+        ContainerEnvEntry36: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_LOCKTABLENAME=${PnDeliveryPushShedLockDynamoTableName}'
+        ContainerEnvEntry37: !Sub 'PN_DELIVERYPUSH_PAPERMESSAGENOTHANDLED=${PnDeliveryPushPaperMessageNotHandled}'
+        ContainerEnvEntry38: !Sub 'PN_DELIVERYPUSH_WEBAPP_FAQURLTEMPLATE=${PhysicalPersonPortalUrl}/faq.html'
+        ContainerEnvEntry39: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_NOTIFICATIONNONVISIBILITYTIME=${NotificationNonVisibilityTime}'
+        ContainerEnvEntry40: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_TIMETOADDINNONVISIBILITYTIME=${TimeToAddInNonVisibilityTimeCase}'
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*,/delivery-progresses/*'
         ECSClusterName: !Ref ECSClusterName
@@ -303,6 +332,7 @@ Resources:
         EcsDefaultSecurityGroup: !Ref EcsDefaultSecurityGroup
         LoadBalancerListenerArn: !Ref ApplicationLoadBalancerListenerArn
         LoadbalancerRulePriority: !Ref MicroserviceNumber
+        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
 
   # Grant operational rights to PN-Delivery-push microservice microservice
   DeliveryPushMicroserviceTaskPolicy:

@@ -16,11 +16,11 @@ import java.util.List;
 @Builder(toBuilder = true)
 @EqualsAndHashCode
 @ToString
-public class SendDigitalProgressDetailsInt implements RecipientRelatedTimelineElementDetails, DigitalAddressRelatedTimelineElement {
+public class SendDigitalProgressDetailsInt implements DigitalSendTimelineElementDetails {
     private int recIndex;
     private LegalDigitalAddressInt digitalAddress;
     private DigitalAddressSourceInt digitalAddressSource;
-    private int retryNumber;
+    private Integer retryNumber;
     private Instant notificationDate;
     private List<SendingReceipt> sendingReceipts;
     private String eventCode;
