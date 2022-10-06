@@ -44,7 +44,7 @@ class ExternalChannelUtilsTest {
         timelineService = Mockito.mock(TimelineService.class);
         timelineUtils = Mockito.mock(TimelineUtils.class);
         instantNowSupplier = Mockito.mock(InstantNowSupplier.class);
-        channelUtils = new ExternalChannelUtils(timelineService, timelineUtils);
+        channelUtils = new ExternalChannelUtils(timelineService, timelineUtils, instantNowSupplier);
     }
 
     @Test
