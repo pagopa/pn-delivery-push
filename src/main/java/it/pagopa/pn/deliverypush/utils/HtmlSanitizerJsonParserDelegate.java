@@ -7,6 +7,7 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.owasp.html.PolicyFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GENERIC_ERROR;
 import static it.pagopa.pn.deliverypush.utils.HtmlSanitizer.SanitizeMode;
@@ -51,6 +52,7 @@ public class HtmlSanitizerJsonParserDelegate extends JsonParserDelegate {
      */
     @Override
     public String getText() throws IOException {
+        ArrayList arrayList = new ArrayList();
         String text = this.delegate.getText();
 
         if (sanitizeMode == SanitizeMode.DELETE_HTML) {
