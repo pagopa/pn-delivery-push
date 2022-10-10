@@ -129,6 +129,18 @@ class LegalFactPdfGeneratorTest {
 		Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification, recipient, endWorkflowStatus, Instant.now(), recipient.getPhysicalAddress())));
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
+
+	@Test
+	void generatePecDeliveryWorkflowLegalFactTest_KO_WithoutAddress() {
+		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_KO_withoutAddress.pdf");
+		List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList = buildFeedbackFromECList(ResponseStatusInt.KO);
+		NotificationInt notification = buildNotification();
+		NotificationRecipientInt recipient = buildRecipients().get(0);
+		EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.FAILURE;
+
+		Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification, recipient, endWorkflowStatus, Instant.now(), null)));
+		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+	}
 	
 	@Test 
 	void generategenerateFileComplianceTest() throws IOException {	
