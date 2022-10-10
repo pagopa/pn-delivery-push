@@ -79,15 +79,36 @@ public class DigitalWorkFlowUtils {
 
     }
 
+    /**
+     * Devo recuperare l'evento più recente per un certo source.
+     * L'evento potrebbe essere la GET_ADDRESS (se poi non ha dato luogo ad un indirizzo da usare)
+     * o una DIGITAL_FEEDBACK se invece è stato effettuato un tentativo di invio e ho un esito
+     *
+     * @param recIndex indice recipient
+     * @param nextAddressSource sorgente su cui cercare
+     * @param timeline lista timeline
+     * @return Data dell'ultimo evento per il source passato
+     */
     private Instant getLastAttemptDateForSource(Integer recIndex, DigitalAddressSourceInt nextAddressSource, Set<TimelineElementInternal> timeline) {
+        // Cerco l'evento di get_address più recente, qui si guarda l'attemptDate
         Optional<GetAddressInfoDetailsInt> lastAddressAttemptOpt = timeline.stream()
-                .filter(timelineElement -> filterTimelineForRecIndexAndSource(timelineElement, recIndex, nextAddressSource))
+                .filter(timelineElement -> filterTimelineForRecIndexAndSource(timelineElement, TimelineElementCategoryInt.GET_ADDRESS, recIndex, nextAddressSource))
                 .map(timelineElement -> (GetAddressInfoDetailsInt) timelineElement.getDetails())
                 .max(Comparator.comparing(GetAddressInfoDetailsInt::getAttemptDate));
 
-        if (lastAddressAttemptOpt.isPresent()) {
-            log.debug("Get getLastAddressAttempt OK - id {}", recIndex);
-            return lastAddressAttemptOpt.get().getAttemptDate();
+        // Cerco l'evento di digital_feedback più recente, qui si guarda la notificationDate
+        Optional<SendDigitalFeedbackDetailsInt> lastAddressResultOpt = timeline.stream()
+                .filter(timelineElement -> filterTimelineForRecIndexAndSource(timelineElement, TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK, recIndex, nextAddressSource))
+                .map(timelineElement -> (SendDigitalFeedbackDetailsInt) timelineElement.getDetails())
+                .max(Comparator.comparing(SendDigitalFeedbackDetailsInt::getNotificationDate));
+
+        // risolvo prendendo il più recente tra i 2 eventi
+        Instant lastAttemptDate = lastAddressAttemptOpt.isPresent()?lastAddressAttemptOpt.get().getAttemptDate() : Instant.EPOCH;
+        lastAttemptDate = lastAddressResultOpt.isPresent() && lastAttemptDate.isBefore(lastAddressResultOpt.get().getNotificationDate())?lastAddressResultOpt.get().getNotificationDate() : lastAttemptDate;
+
+        if (lastAttemptDate.isAfter(Instant.EPOCH)) {
+            log.debug("Get getLastAttemptDateForSource OK - id {}", recIndex);
+            return lastAttemptDate;
         } else {
             log.error("Last address attempt not found - id {}", recIndex);
             throw new PnInternalException("Last address attempt not found - id" + recIndex, ERROR_CODE_DELIVERYPUSH_LASTADDRESSATTEMPTNOTFOUND);
@@ -98,17 +119,20 @@ public class DigitalWorkFlowUtils {
     // Get attempts attempt made for source
     private int getAttemptsMadeForSource(Integer recIndex, DigitalAddressSourceInt nextAddressSource, Set<TimelineElementInternal> timeline) {
         return (int) timeline.stream()
-                .filter(timelineElement -> filterTimelineForRecIndexAndSource(timelineElement, recIndex, nextAddressSource)).count();
+                .filter(timelineElement -> filterTimelineForRecIndexAndSource(timelineElement, TimelineElementCategoryInt.GET_ADDRESS, recIndex, nextAddressSource)).count();
     }
 
-    private boolean filterTimelineForRecIndexAndSource(TimelineElementInternal el, Integer recIndex, DigitalAddressSourceInt source) {
-        boolean availableAddressCategory = TimelineElementCategoryInt.GET_ADDRESS.equals(el.getCategory());
-        
-        if (availableAddressCategory) {
-            GetAddressInfoDetailsInt getAddressInfo = (GetAddressInfoDetailsInt) el.getDetails();
-            return recIndex.equals(getAddressInfo.getRecIndex()) && source.equals(getAddressInfo.getDigitalAddressSource());
-        }
-        return false;
+
+
+    private boolean filterTimelineForRecIndexAndSource(
+            TimelineElementInternal el, TimelineElementCategoryInt filterByCategory, Integer recIndex, DigitalAddressSourceInt source) {
+        boolean availableAddressCategory = filterByCategory.equals(el.getCategory());
+        TimelineElementDetailsInt detailsInt = el.getDetails();
+
+        return availableAddressCategory
+            && detailsInt instanceof DigitalAddressSourceRelatedTimelineElement
+            && recIndex.equals(((DigitalAddressSourceRelatedTimelineElement)detailsInt).getRecIndex())
+            && source.equals(((DigitalAddressSourceRelatedTimelineElement) detailsInt).getDigitalAddressSource());
     }
 
     @Nullable
@@ -169,9 +193,9 @@ public class DigitalWorkFlowUtils {
 
     /**
      * Ritorna l'evento più recente per iun/recipient
-     * @param iun
-     * @param recIndex
-     * @return
+     * @param iun IUN notifica
+     * @param recIndex indice recipient
+     * @return Evento timeline più recente
      */
     public TimelineElementInternal getMostRecentTimelineElement(String iun, Integer recIndex) {
         Set<TimelineElementInternal> timelineElementInternals = timelineService.getTimeline(iun, false);

@@ -155,6 +155,7 @@ public class TimelineUtils {
         SendDigitalFeedbackDetailsInt details = SendDigitalFeedbackDetailsInt.builder()
                 .errors(errors)
                 .digitalAddress(digitalAddressInt)
+                .digitalAddressSource(digitalAddressSourceInt)
                 .responseStatus(status)
                 .recIndex(recIndex)
                 .notificationDate(instantNowSupplier.get())
