@@ -120,7 +120,7 @@ public class TimelineUtils {
                         .iun(notification.getIun())
                         .recIndex(recIndex)
                         .source(source)
-                        .index(sentAttemptMade)
+                        .sentAttemptMade(sentAttemptMade)
                         .build()
         );
 
@@ -147,7 +147,7 @@ public class TimelineUtils {
                 EventId.builder()
                         .iun(notification.getIun())
                         .recIndex(recIndex)
-                        .index(retryNumber)
+                        .sentAttemptMade(retryNumber)
                         .source(digitalAddressSourceInt)
                         .build()
         );
@@ -418,7 +418,7 @@ public class TimelineUtils {
                 EventId.builder()
                         .iun(notification.getIun())
                         .recIndex(sendPaperDetails.getRecIndex())
-                        .index(sentAttemptMade)
+                        .sentAttemptMade(sentAttemptMade)
                         .build()
         );
 

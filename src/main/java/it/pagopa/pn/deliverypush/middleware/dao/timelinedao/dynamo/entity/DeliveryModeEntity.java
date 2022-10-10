@@ -14,4 +14,5 @@ public enum DeliveryModeEntity {
     public String getValue() {
         return value;
     }
+    
 }

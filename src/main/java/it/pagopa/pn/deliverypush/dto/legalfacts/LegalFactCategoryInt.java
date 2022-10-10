@@ -1,11 +1,9 @@
 package it.pagopa.pn.deliverypush.dto.legalfacts;
 
 import lombok.Getter;
-import lombok.ToString;
 
 
 @Getter
-@ToString
 public enum LegalFactCategoryInt {
     SENDER_ACK("SENDER_ACK"),
 
@@ -23,4 +21,8 @@ public enum LegalFactCategoryInt {
         this.value = value;
     }
 
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
 }

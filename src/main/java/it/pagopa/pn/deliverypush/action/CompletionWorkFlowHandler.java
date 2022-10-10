@@ -69,7 +69,7 @@ public class CompletionWorkFlowHandler {
                         sendSimpleRegisteredLetter(notification, recIndex);
                         generateLegaFactAndSaveInTimeline(notification, recIndex, status, completionWorkflowDate);
                         scheduleRefinement(notification, recIndex, completionWorkflowDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysFailureDigitalRefinement());
-                    }else {
+                    } else {
                         generateLegaFactAndSaveInTimeline(notification, recIndex, status, completionWorkflowDate);
 
                         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);

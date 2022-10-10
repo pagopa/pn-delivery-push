@@ -265,6 +265,10 @@ Parameters:
   ExternalChannelDigitalSendNoResponseTimeout:
     Type: String
     Description: 'Massima durata di attesa di risposta da parte di ext-channel'
+  
+  LogsKinesisSourceStreamArn:
+    Type: String
+    Description: 'Kinesis stream that receive logs'
 
 Resources:
 
@@ -328,6 +332,7 @@ Resources:
         EcsDefaultSecurityGroup: !Ref EcsDefaultSecurityGroup
         LoadBalancerListenerArn: !Ref ApplicationLoadBalancerListenerArn
         LoadbalancerRulePriority: !Ref MicroserviceNumber
+        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
 
   # Grant operational rights to PN-Delivery-push microservice microservice
   DeliveryPushMicroserviceTaskPolicy:

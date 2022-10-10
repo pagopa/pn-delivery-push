@@ -64,24 +64,26 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
 
     private void sendDigitalNotification(String address, NotificationInt notification, String timelineEventId){
         log.info("sendDigitalNotification address:{} requestId:{}", address, timelineEventId);
+        
         new Thread(() -> {
-            // Viene atteso fino a che l'elemento di timeline realtivo all'invio verso extChannel sia stato inserito
-            await().untilAsserted(() ->
-                    Assertions.assertTrue(timelineService.getTimelineElement(notification.getIun(), timelineEventId).isPresent())
-            );
+            Assertions.assertDoesNotThrow(() -> {
+                // Viene atteso fino a che l'elemento di timeline relativo all'invio verso extChannel sia stato inserito
+                await().untilAsserted(() ->
+                        Assertions.assertTrue(timelineService.getTimelineElement(notification.getIun(), timelineEventId).isPresent())
+                );
 
-            simulateExternalChannelDigitalProgressResponse(timelineEventId);
+                simulateExternalChannelDigitalProgressResponse(timelineEventId);
 
-            Optional<SendDigitalDetailsInt> sendDigitalDetailsOpt = timelineService.getTimelineElementDetails(notification.getIun(), timelineEventId, SendDigitalDetailsInt.class);
-            if(sendDigitalDetailsOpt.isPresent()){
-                waitForProgressTimelineElement(notification, sendDigitalDetailsOpt.get());
-                
-                simulateExternalChannelDigitalResponse(address, timelineEventId);
-                
-            }else {
-                log.error("SendDigitalDetails is not present");
-            }
+                Optional<SendDigitalDetailsInt> sendDigitalDetailsOpt = timelineService.getTimelineElementDetails(notification.getIun(), timelineEventId, SendDigitalDetailsInt.class);
+                if(sendDigitalDetailsOpt.isPresent()){
+                    waitForProgressTimelineElement(notification, sendDigitalDetailsOpt.get());
 
+                    simulateExternalChannelDigitalResponse(address, timelineEventId);
+
+                }else {
+                    log.error("SendDigitalDetails is not present");
+                }
+            });
         }).start();
     }
 
@@ -108,16 +110,18 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
     @Override
     public void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, PhysicalAddressInt physicalAddress, String timelineEventId, PhysicalAddressInt.ANALOG_TYPE analogType, String aarKey) {
         log.info("sendAnalogNotification address:{} recipient:{} requestId:{} aarkey:{}", physicalAddress.getAddress(), recipientInt.getDenomination(), timelineEventId, aarKey);
+        
+        new Thread(() -> {
+            Assertions.assertDoesNotThrow(() -> {
+            // Viene atteso fino a che l'elemento di timeline realtivo all'invio verso extChannel sia stato inserito
+            await().untilAsserted(() ->
+                    Assertions.assertTrue(timelineService.getTimelineElement(notificationInt.getIun(), timelineEventId).isPresent())
+            );
 
-        Assertions.assertDoesNotThrow(() -> {
-                    // Viene atteso fino a che l'elemento di timeline realtivo all'invio verso extChannel sia stato inserito
-                    await().untilAsserted(() ->
-                            Assertions.assertTrue(timelineService.getTimelineElement(notificationInt.getIun(), timelineEventId).isPresent())
-                    );
-
-                    if (analogType != PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER)
-                        simulateExternalChannelAnalogResponse(notificationInt, physicalAddress, timelineEventId);
-                });
+            if (analogType != PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER)
+                simulateExternalChannelAnalogResponse(notificationInt, physicalAddress, timelineEventId);
+            });
+        }).start();
 
     }
 
@@ -153,7 +157,7 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
             String domainPart = address.replaceFirst(".*@", "");
 
             if (domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_BOTH)
-                    || (domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_FIRST) && "1".equals(retryNumberPart))) {
+                    || (domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_FIRST) && "0".equals(retryNumberPart))) {
                 status = ProgressEventCategory.ERROR;
                 eventCode = LegalMessageSentDetails.EventCodeEnum.C004;
             } else if (domainPart.startsWith(EXT_CHANNEL_WORKS) || domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_FIRST)) {

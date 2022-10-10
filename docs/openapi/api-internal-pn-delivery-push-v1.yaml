@@ -75,13 +75,13 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
         '500':
           description: Internal Server Error
           content:
             application/problem+json:
               schema:
-                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
   '/delivery-push/{iun}/legal-facts/{legalFactType}/{legalFactId}':
     get:
@@ -114,13 +114,13 @@ paths:
           content: 
             application/problem+json: 
               schema: 
-                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'       
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
         '500': 
           description: Internal Server Error                                        
           content: 
             application/problem+json: 
               schema: 
-                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'                  
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
 
 
