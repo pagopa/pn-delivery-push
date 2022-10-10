@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
-import it.pagopa.pn.commons.utils.DateFormatUtils;
 import it.pagopa.pn.deliverypush.dto.address.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
@@ -17,7 +16,7 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.time.*;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -530,9 +529,7 @@ public class TimelineUtils {
                 .notificationCost(notificationCost)
                 .build();
         
-        Instant instantEndOfDay = DateFormatUtils.getEndOfTheDay();
-
-        return buildTimeline(notification, TimelineElementCategoryInt.REFINEMENT, elementId, instantEndOfDay, details);
+        return buildTimeline(notification, TimelineElementCategoryInt.REFINEMENT, elementId, details);
     }
     
     public TimelineElementInternal buildScheduleRefinement(NotificationInt notification, Integer recIndex) {
