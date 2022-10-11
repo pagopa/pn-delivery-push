@@ -269,7 +269,10 @@ Parameters:
   LogsKinesisSourceStreamArn:
     Type: String
     Description: 'Kinesis stream that receive logs'
-
+  
+Conditions:
+  UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
+  
 Resources:
 
   # PN-Delivery-push microservice
@@ -303,7 +306,11 @@ Resources:
         ContainerEnvEntry17: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSFAILUREDIGITALREFINEMENT=${SchedulingDaysFailureDigitalRefinement}'
         ContainerEnvEntry18: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSSUCCESSANALOGREFINEMENT=${SchedulingDaysSuccessAnalogRefinement}'
         ContainerEnvEntry19: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYFAILUREANALOGREFINEMENT=${SchedulingDaysFailureAnalogRefinement}'
-        ContainerEnvEntry20: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNELBASEURL=${ExternalChannelBaseUrl}'
+        ContainerEnvEntry20:
+          Fn::If:
+            - UseExternalChannelMock
+            - !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNELBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+            - !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNELBASEURL=${ExternalChannelBaseUrl}'
         ContainerEnvEntry21: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNEL_DIGITALRETRYCOUNT=${ExternalChannelDigitalRetryCount}'
         ContainerEnvEntry22: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNEL_DIGITALRETRYDELAY=${ExternalChannelDigitalRetryDelay}'
         ContainerEnvEntry23: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNEL_DIGITALSENDNORESPONSETIMEOUT=${ExternalChannelDigitalSendNoResponseTimeout}'
@@ -324,6 +331,8 @@ Resources:
         ContainerEnvEntry38: !Sub 'PN_DELIVERYPUSH_WEBAPP_FAQURLTEMPLATE=${PhysicalPersonPortalUrl}/faq.html'
         ContainerEnvEntry39: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_NOTIFICATIONNONVISIBILITYTIME=${NotificationNonVisibilityTime}'
         ContainerEnvEntry40: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_TIMETOADDINNONVISIBILITYTIME=${TimeToAddInNonVisibilityTimeCase}'
+        
+        
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*,/delivery-progresses/*'
         ECSClusterName: !Ref ECSClusterName
