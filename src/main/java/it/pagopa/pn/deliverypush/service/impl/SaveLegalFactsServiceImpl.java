@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.List;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_SAVED_LEGALFACT_FAILED;
 import static it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient.SAFE_STORAGE_URL_PREFIX;
 
 @Slf4j
@@ -51,7 +52,6 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
         fileCreationRequest.setContent(legalFact);
         FileCreationResponseInt fileCreationResponse = safeStorageService.createAndUploadContent(fileCreationRequest);
 
-
         return SAFE_STORAGE_URL_PREFIX + fileCreationResponse.getKey();
     }
 
@@ -80,7 +80,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
         catch ( Exception exc ) {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "AAR",  notification.getIun(), "N/A");
             log.error("Exception in saveAAR ex=", exc);
-            throw new PnInternalException( msg, exc);
+            throw new PnInternalException( msg, ERROR_CODE_DELIVERYPUSH_SAVED_LEGALFACT_FAILED);
         }
     }
 
@@ -103,7 +103,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
         catch ( Exception exc ) {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "REQUEST_ACCEPTED",  notification.getIun(), "N/A");
             logEvent.generateFailure("Exception in saveNotificationReceivedLegalFact ex={}", exc).log();
-            throw new PnInternalException( msg, exc);
+            throw new PnInternalException( msg, ERROR_CODE_DELIVERYPUSH_SAVED_LEGALFACT_FAILED);
         }
 
     }
@@ -139,7 +139,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
             logEvent.generateFailure("Error in savePecDeliveryWorkflowLegalFact, exc=", exc).log();
             
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "DIGITAL_DELIVERY",  notification.getIun(), recipient.getTaxId());
-            throw new PnInternalException( msg, exc);
+            throw new PnInternalException( msg, ERROR_CODE_DELIVERYPUSH_SAVED_LEGALFACT_FAILED);
         }
     }
 
