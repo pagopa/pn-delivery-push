@@ -14,14 +14,6 @@ import static it.pagopa.pn.api.dto.events.StandardEventHeader.*;
 class HandleEventUtilsTest {
 
     @Test
-    void handleException() {
-        MessageHeaders headers = buildMessageHeaders();
-        Exception exception = new Exception();
-
-        HandleEventUtils.handleException(headers, exception);
-    }
-
-    @Test
     void mapStandardEventHeader() {
 
         StandardEventHeader actual = HandleEventUtils.mapStandardEventHeader(buildMessageHeaders());

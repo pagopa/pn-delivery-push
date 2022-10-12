@@ -12,7 +12,6 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSende
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.util.Base64Utils;
@@ -42,10 +41,6 @@ class ExternalChannelResponseHandlerOldTest {
         analogWorkflowHandler = Mockito.mock(AnalogWorkflowHandler.class);
         externalChannelUtils = Mockito.mock(ExternalChannelUtils.class);
         handlerOld = new ExternalChannelResponseHandlerOld(digitalWorkFlowExternalChannelResponseHandler, analogWorkflowHandler, externalChannelUtils);
-    }
-
-    @Test
-    void extChannelResponseReceiver() {
     }
 
     private TimelineElementInternal buildTimelineElementInternal() {
