@@ -13,6 +13,7 @@ import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
@@ -23,6 +24,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -111,6 +113,15 @@ class AnalogTestIT {
         }
     }
 
+    @SpyBean
+    private LegalFactGenerator legalFactGenerator;
+
+    @SpyBean
+    private ExternalChannelMock externalChannelMock;
+
+    @SpyBean
+    private CompletionWorkFlowHandler completionWorkflow;
+
     @Autowired
     private StartWorkflowHandler startWorkflowHandler;
 
@@ -122,13 +133,7 @@ class AnalogTestIT {
 
     @Autowired
     private SafeStorageClientMock safeStorageClientMock;
-
-    @SpyBean
-    private ExternalChannelMock externalChannelMock;
-
-    @SpyBean
-    private CompletionWorkFlowHandler completionWorkflow;
-
+    
     @Autowired
     private PnDeliveryClientMock pnDeliveryClientMock;
 
@@ -189,7 +194,7 @@ class AnalogTestIT {
         String taxId = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.SEND_PAPER_FEEDBACK.buildEventId(EventId.builder()
                 .iun(iun)
                 .recIndex(0)
-                .index(1)
+                .sentAttemptMade(1)
                 .build()
         );
 
@@ -199,13 +204,18 @@ class AnalogTestIT {
                 .withPhysicalAddress(paPhysicalAddress)
                 .build();
 
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
         NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
                 .withIun(iun)
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         List<CourtesyDigitalAddressInt> listCourtesyAddress = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
@@ -271,6 +281,25 @@ class AnalogTestIT {
         
         Assertions.assertNotNull(detailsInt.getNotificationCost());
 
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(true)
+                .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .build();
+        
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient,
+                recIndex,
+                0,
+                generatedLegalFactsInfo,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator,
+                timelineService
+        );
+        
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
@@ -307,13 +336,18 @@ class AnalogTestIT {
                 .withPhysicalAddress(paPhysicalAddress)
                 .build();
 
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
         NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
                 .withIun(iun)
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         List<CourtesyDigitalAddressInt> listCourtesyAddress = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
@@ -361,6 +395,25 @@ class AnalogTestIT {
                                 .recIndex(recIndex)
                                 .build())).isPresent());
 
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(true)
+                .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient,
+                recIndex,
+                0,
+                generatedLegalFactsInfo,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator,
+                timelineService
+        );
+        
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
@@ -390,13 +443,18 @@ class AnalogTestIT {
                 .withPhysicalAddress(paPhysicalAddress)
                 .build();
 
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
         NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
                 .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         List<CourtesyDigitalAddressInt> listCourtesyAddress = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test@works.it")
@@ -438,7 +496,7 @@ class AnalogTestIT {
                 EventId.builder()
                         .iun(iun)
                         .recIndex(recIndex)
-                        .index(0)
+                        .sentAttemptMade(0)
                         .build());
 
         Optional<SendAnalogDetailsInt> sendPaperDetailsOpt = timelineService.getTimelineElementDetails(iun, eventIdFirstSend, SendAnalogDetailsInt.class);
@@ -476,6 +534,25 @@ class AnalogTestIT {
                                 .recIndex(recIndex)
                                 .build())).isPresent());
 
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient,
+                recIndex,
+                0,
+                generatedLegalFactsInfo,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator,
+                timelineService
+        );
+
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
@@ -501,16 +578,21 @@ class AnalogTestIT {
                 .withTaxId("TAXID01")
                 .build();
 
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
         NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
                 .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.emptyList());
+        addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.emptyList());
 
         publicRegistryMock.addPhysical(recipient.getTaxId(), publicRegistryAddress);
 
@@ -548,6 +630,25 @@ class AnalogTestIT {
 
         //Viene verificato che sia avvenuto il perfezionamento
         TestUtils.checkRefinement(iun, recIndex, timelineService);
+
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient,
+                recIndex,
+                0,
+                generatedLegalFactsInfo,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator,
+                timelineService
+        );
 
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
@@ -610,13 +711,18 @@ class AnalogTestIT {
                 .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL )
                 .build());
 
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
         NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
                 .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient( List.of(recipient1, recipient2) )
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addCourtesyDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient1);
@@ -677,6 +783,44 @@ class AnalogTestIT {
                                 .iun(iun)
                                 .recIndex(recIndex1)
                                 .build())).isPresent());
+
+        //Viene effettuato il check dei legalFacts generati per il primo recipient
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient1,
+                recIndex1,
+                0,
+                generatedLegalFactsInfo,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator,
+                timelineService
+        );
+
+        //Viene effettuato il check dei legalFacts generati per il secondo recipient
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo2 = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient2,
+                recIndex2,
+                0,
+                generatedLegalFactsInfo2,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator,
+                timelineService
+        );
 
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
@@ -744,13 +888,18 @@ class AnalogTestIT {
                 .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL )
                 .build());
 
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
         NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
                 .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient( List.of(recipient1, recipient2) )
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
         
@@ -827,6 +976,44 @@ class AnalogTestIT {
                                 .recIndex(recIndex2)
                                 .build())).isPresent());
 
+        //Viene effettuato il check dei legalFacts generati per il primo recipient
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient1,
+                recIndex1,
+                1,
+                generatedLegalFactsInfo,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator,
+                timelineService
+        );
+
+        //Viene effettuato il check dei legalFacts generati per il secondo recipient
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo2 = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient2,
+                recIndex2,
+                0,
+                generatedLegalFactsInfo2,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator,
+                timelineService
+        );
+        
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
@@ -894,13 +1081,18 @@ class AnalogTestIT {
                 .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL )
                 .build());
 
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
         NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
                 .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient( List.of(recipient1, recipient2) )
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
 
@@ -911,6 +1103,7 @@ class AnalogTestIT {
 
         String iun = notification.getIun();
         Integer rec1Index = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
+        Integer rec2Index = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -970,6 +1163,44 @@ class AnalogTestIT {
                                 .recIndex(rec1Index)
                                 .build())).isPresent());
 
+        //Viene effettuato il check dei legalFacts generati per il primo recipient
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient1,
+                rec1Index,
+                0,
+                generatedLegalFactsInfo,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator,
+                timelineService
+        );
+
+        //Viene effettuato il check dei legalFacts generati per il secondo recipient
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo2 = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient2,
+                rec2Index,
+                1,
+                generatedLegalFactsInfo2,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator,
+                timelineService
+        );
+        
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
@@ -1016,7 +1247,7 @@ class AnalogTestIT {
                 EventId.builder()
                         .iun(iun)
                         .recIndex(0)
-                        .index(1)
+                        .sentAttemptMade(1)
                         .build()
         );
 
@@ -1051,13 +1282,18 @@ class AnalogTestIT {
                 .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL )
                 .build());
 
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
         NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
                 .withIun(iun)
                 .withPaId("paId01")
                 .withNotificationRecipient( List.of(recipient1, recipient2) )
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(notification, safeStorageClientMock);
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
 
@@ -1067,6 +1303,7 @@ class AnalogTestIT {
         addressBookMock.addCourtesyDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient2);
 
         Integer rec1Index = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
+        Integer rec2Index = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -1125,6 +1362,44 @@ class AnalogTestIT {
                                 .recIndex(rec1Index)
                                 .build())).isPresent());
 
+        //Viene effettuato il check dei legalFacts generati per il primo recipient
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient1,
+                rec1Index,
+                0,
+                generatedLegalFactsInfo,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator,
+                timelineService
+        );
+
+        //Viene effettuato il check dei legalFacts generati per il secondo recipient
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo2 = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient2,
+                rec2Index,
+                1,
+                generatedLegalFactsInfo2,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator,
+                timelineService
+        );
+        
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);

@@ -105,8 +105,8 @@ class PnWebhookStreamsControllerTest {
 
         Mockito.verify(service).deleteEventStream(Mockito.anyString(), Mockito.any(UUID.class));
     }
-
-    @Test @Disabled("enable after PN-2192")
+    
+    @Test @Disabled("enable after PN-2330")
     void deleteEventStreamKoRuntime() {
         String streamId = UUID.randomUUID().toString();
         Mockito.when(service.deleteEventStream(Mockito.anyString(), Mockito.any(UUID.class)))

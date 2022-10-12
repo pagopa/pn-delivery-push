@@ -41,7 +41,6 @@ class TimelineUtilsTest {
 
     @BeforeEach
     void setUp() {
-
         instantNowSupplier = Mockito.mock(InstantNowSupplier.class);
         timelineService = Mockito.mock(TimelineService.class);
         timelineUtils = new TimelineUtils(instantNowSupplier, timelineService);
@@ -94,7 +93,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("Example_IUN_1234_Test_get_address1_source_PLATFORM_attempt_1", actual.getElementId()),
+                () -> Assertions.assertEquals("Example_IUN_1234_Test_get_address_1_source_PLATFORM_attempt_1", actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -111,7 +110,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("Example_IUN_1234_Test_send_digital_feedback_1_attempt_1_source_GENERAL", actual.getElementId()),
+                () -> Assertions.assertEquals("Example_IUN_1234_Test_send_digital_feedback_1_source_GENERAL_attempt_1", actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -135,7 +134,7 @@ class TimelineUtilsTest {
                 recIndex, sentAttemptMade, eventCode, shouldRetry, digitalAddressInt, digitalAddressSourceInt, digitalMessageReference, progressIndex, eventTimestamp);
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("Example_IUN_1234_Test_digital_delivering_progress_1_attempt_2_sourceGENERAL_progidx_1", actual.getElementId()),
+                () -> Assertions.assertEquals("Example_IUN_1234_Test_digital_delivering_progress_1_source_GENERAL_attempt_1_progidx_1", actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }

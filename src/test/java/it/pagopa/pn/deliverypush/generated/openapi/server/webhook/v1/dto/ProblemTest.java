@@ -150,8 +150,10 @@ class ProblemTest {
                 "    title: 003\n" +
                 "    detail: 001\n" +
                 "    traceId: 005\n" +
+                "    timestamp: null\n" +
                 "    errors: [class ProblemError {\n" +
                 "        code: null\n" +
+                "        element: null\n" +
                 "        detail: 001\n" +
                 "    }]\n" +
                 "}";

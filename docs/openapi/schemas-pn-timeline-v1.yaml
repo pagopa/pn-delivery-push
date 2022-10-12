@@ -8,31 +8,30 @@ components:
       type: string
       description: >
         stato di avanzamento del processo di notifica:`
-          * `REQUEST_ACCEPTED` - 
-          * `SEND_COURTESY_MESSAGE` - 
-          * `GET_ADDRESS` - 
-          * `PUBLIC_REGISTRY_CALL` - 
-          * `PUBLIC_REGISTRY_RESPONSE` - 
-          * `SCHEDULE_ANALOG_WORKFLOW` - 
-          * `SCHEDULE_DIGITAL_WORKFLOW` - 
-          * `SEND_DIGITAL_DOMICILE` - 
-          * `SEND_DIGITAL_DOMICILE_FEEDBACK` - 
-          * `SEND_DIGITAL_FEEDBACK` - 
-          * `REFINEMENT` - 
-          * `SCHEDULE_REFINEMENT` - 
-          * `DIGITAL_SUCCESS_WORKFLOW` - 
-          * `DIGITAL_FAILURE_WORKFLOW` - 
-          * `ANALOG_SUCCESS_WORKFLOW` - 
-          * `ANALOG_FAILURE_WORKFLOW` - 
-          * `SEND_SIMPLE_REGISTERED_LETTER` - 
-          * `NOTIFICATION_VIEWED` - 
-          * `SEND_ANALOG_DOMICILE` - 
-          * `SEND_PAPER_FEEDBACK` - 
-          * `PAYMENT` - 
-          * `COMPLETELY_UNREACHABLE` - 
-          * `REQUEST_REFUSED` - 
-          * `AAR_GENERATION` - 
-          * `NOT_HANDLED` -
+          * `REQUEST_ACCEPTED` - La richiesta di notifica è stata validata e accetta
+          * `SEND_COURTESY_MESSAGE` - E' stato inviato il messaggio di cortesia
+          * `GET_ADDRESS` - Informazioni sulla disponibilità dello specifico indirizzo
+          * `PUBLIC_REGISTRY_CALL` - E' stata effettuata la richiesta ai registri pubblici per ottenere l'indirizzo SPECIALE
+          * `PUBLIC_REGISTRY_RESPONSE` - E' stata ricevuta la risposta dei registri pubblici alla richiesta di ottenimento dell'indirizzo SPECIALE
+          * `SCHEDULE_ANALOG_WORKFLOW` - E' stato schedulato il Workflow analogico 
+          * `SCHEDULE_DIGITAL_WORKFLOW` - E' stato schedulato il Workflow digitale 
+          * `SEND_DIGITAL_DOMICILE` - E' stata inviata una richiesta di notifica ad un indirizzo digitale 
+          * `SEND_DIGITAL_FEEDBACK` - Risposta ottenuta ad invio digitale
+          * `SCHEDULE_REFINEMENT` - E' stato schedulato il perfezionamento per decorrenza termini
+          * `REFINEMENT` - La richiesta è stata perfezionata per decorrenza termini
+          * `DIGITAL_SUCCESS_WORKFLOW` - Il workflow digitale è stato completato con successo
+          * `DIGITAL_FAILURE_WORKFLOW` - Il workflow digitale è fallito
+          * `ANALOG_SUCCESS_WORKFLOW` - Il workflow analogico è stato completato con successo
+          * `ANALOG_FAILURE_WORKFLOW` - Il workflow analogico è fallito
+          * `SEND_SIMPLE_REGISTERED_LETTER` - E' stato richiesto l'invio di notifica tramite raccomandata semplice
+          * `NOTIFICATION_VIEWED` - La notifica è stata visualizzata
+          * `SEND_ANALOG_DOMICILE` - E' stata inviata una richiesta di notifica ad un indirizzo analogico 
+          * `SEND_PAPER_FEEDBACK` - Risposta ottenuta ad invio analogico
+          * `PAYMENT` - La notifica è stata pagata
+          * `COMPLETELY_UNREACHABLE` - Il destinatario risulta essere irraggiungibile
+          * `REQUEST_REFUSED` - La richiesta non ha passato la validazione, viene dunque rifiutata
+          * `AAR_GENERATION` - E' stato generato l'avviso di avvenuta ricezione
+          * `NOT_HANDLED` - Per MVP l'invio analogico non è previsto, viene inserito tale elemento di timeline
       enum:
         - REQUEST_ACCEPTED
         - SEND_COURTESY_MESSAGE

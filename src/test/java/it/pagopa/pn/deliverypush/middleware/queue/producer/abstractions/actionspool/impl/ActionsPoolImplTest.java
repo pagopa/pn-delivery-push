@@ -7,6 +7,7 @@ import it.pagopa.pn.deliverypush.middleware.dao.actiondao.LastPollForFutureActio
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.ActionService;
+import net.javacrumbs.shedlock.core.LockAssert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,7 +46,7 @@ class ActionsPoolImplTest {
 
     @BeforeEach
     void setup() {
-        //actionsQueue = Mockito.mock(MomProducer<ActionEvent>);
+        LockAssert.TestHelper.makeAllAssertsPass(true);
         actionService = Mockito.mock(ActionService.class);
         clock = Mockito.mock(Clock.class);
         lastFutureActionPoolExecutionTimeDao = Mockito.mock(LastPollForFutureActionsDao.class);
@@ -75,7 +76,7 @@ class ActionsPoolImplTest {
     void pollForFutureActions() {
 
         String now = "2022-09-14T06:25";
-        Instant instantTimeSlot = DateFormatUtils.getInstantFromString( now, TIMESLOT_PATTERN);
+        Instant instantTimeSlot = DateFormatUtils.getInstantFromString(now, TIMESLOT_PATTERN);
         Action action = Action.builder()
                 .iun("01")
                 .actionId("001")
@@ -86,15 +87,14 @@ class ActionsPoolImplTest {
 
         List<Action> actions = new ArrayList<>();
         actions.add(action);
-
-       
+        
         Mockito.when(lastFutureActionPoolExecutionTimeDao.getLastPollTime()).thenReturn(Optional.of(instantTimeSlot));
         Mockito.when(clock.instant()).thenReturn(instantTimeSlot);
         Mockito.when(actionService.findActionsByTimeSlot("001")).thenReturn(actions);
+        
+        actionsPool.pollForFutureActions();
 
-        // actionsPool.pollForFutureActions();
-
-        // Mockito.verify(lastFutureActionPoolExecutionTimeDao, Mockito.times(1)).updateLastPollTime(instantTimeSlot);
+        Assertions.assertSame(action, actionService.findActionsByTimeSlot("001").get(0));
     }
 
     private String computeTimeSlot(Instant instant) {

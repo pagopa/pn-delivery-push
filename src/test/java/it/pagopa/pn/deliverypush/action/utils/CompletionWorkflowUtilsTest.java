@@ -4,10 +4,13 @@ import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -22,10 +25,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+
+import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK;
 
 class CompletionWorkflowUtilsTest {
     private CompletionWorkflowUtils completionWorkflowUtils;
@@ -46,7 +48,7 @@ class CompletionWorkflowUtilsTest {
 
     @ExtendWith(MockitoExtension.class)
     @Test
-    void generatePecDeliveryWorkflowLegalFact() {
+    void generatePecDeliveryWorkflowLegalFactWithFeedback() {
         //GIVEN
         
         int recIndex = 0;
@@ -66,21 +68,79 @@ class CompletionWorkflowUtilsTest {
                 .withNotificationRecipient(recipient)
                 .build();
         
-        Set<TimelineElementInternal> timeline = getTimeline(notification.getIun(), recIndex);
+        List<TimelineElementInternal> timeline = getTimeline(notification.getIun(), recIndex);
         
-        Mockito.when(timelineService.getTimeline(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(timeline);
+        Mockito.when(timelineService.getTimeline(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(new HashSet<>(timeline));
         Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
         
         //WHEN
         EndWorkflowStatus status = EndWorkflowStatus.SUCCESS;
         Instant completionWorkflowDate = Instant.now();
         completionWorkflowUtils.generatePecDeliveryWorkflowLegalFact(notification, recIndex, status, completionWorkflowDate);
+
+        TimelineElementInternal timelineElementInternal = timeline.get(0);
+        SendDigitalFeedbackDetailsInt details = (SendDigitalFeedbackDetailsInt) timelineElementInternal.getDetails();
         
         //THEN
         Mockito.verify(saveLegalFactsService).savePecDeliveryWorkflowLegalFact(
-                Mockito.anyList(), Mockito.eq(notification), Mockito.eq(recipient), Mockito.eq(status), Mockito.eq(completionWorkflowDate), Mockito.any());
+                Mockito.eq(Collections.singletonList(details)),
+                Mockito.eq(notification),
+                Mockito.eq(recipient),
+                Mockito.eq(status),
+                Mockito.eq(completionWorkflowDate),
+                Mockito.isNull()
+        );
     }
 
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void generatePecDeliveryWorkflowLegalFactWithFeedbackAndRegisteredLetter() {
+        //GIVEN
+
+        int recIndex = 0;
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
+                .withTaxId("taxId")
+                .withInternalId("ANON_"+"taxId")
+                .withPhysicalAddress(
+                        PhysicalAddressBuilder.builder()
+                                .withAddress("_Via Nuova")
+                                .build()
+                )
+                .build();
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withIun("iun")
+                .withPaId("paId01")
+                .withNotificationRecipient(recipient)
+                .build();
+
+        List<TimelineElementInternal> timeline = getTimelineWithRegisteredLetter(notification.getIun(), recIndex);
+
+        Mockito.when(timelineService.getTimeline(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(new HashSet<>(timeline));
+        Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
+
+        //WHEN
+        EndWorkflowStatus status = EndWorkflowStatus.SUCCESS;
+        Instant completionWorkflowDate = Instant.now();
+        completionWorkflowUtils.generatePecDeliveryWorkflowLegalFact(notification, recIndex, status, completionWorkflowDate);
+
+        TimelineElementInternal timelineElementInternal = timeline.get(0);
+        SendDigitalFeedbackDetailsInt sendDigitalFeedbackDetailsInt = (SendDigitalFeedbackDetailsInt) timelineElementInternal.getDetails();
+
+        TimelineElementInternal timelineElementInternal2 = timeline.get(1);
+        SimpleRegisteredLetterDetailsInt registeredLetterDetails = (SimpleRegisteredLetterDetailsInt) timelineElementInternal2.getDetails();
+
+        //THEN
+        Mockito.verify(saveLegalFactsService).savePecDeliveryWorkflowLegalFact(
+                Collections.singletonList(sendDigitalFeedbackDetailsInt),
+                notification,
+                recipient,
+                status,
+                completionWorkflowDate,
+                registeredLetterDetails.getPhysicalAddress()
+        );
+    }
+    
     @ExtendWith(MockitoExtension.class)
     @Test
     void getSchedulingDateBeforeNotificationVisibilityTime() {
@@ -165,11 +225,11 @@ class CompletionWorkflowUtilsTest {
     }
 
 
-    private Set<TimelineElementInternal> getTimeline(String iun, int recIndex){
+    private List<TimelineElementInternal> getTimeline(String iun, int recIndex){
         List<TimelineElementInternal> timelineElementList = new ArrayList<>();
         TimelineElementInternal timelineElementInternal = getSendDigitalFeedbackDetailsTimelineElement(iun, recIndex);
         timelineElementList.add(timelineElementInternal);
-        return new HashSet<>(timelineElementList);
+        return timelineElementList;
     }
 
     private TimelineElementInternal getSendDigitalFeedbackDetailsTimelineElement(String iun, int recIndex) {
@@ -177,7 +237,40 @@ class CompletionWorkflowUtilsTest {
                 .recIndex(recIndex)
                 .build();
         return TimelineElementInternal.builder()
+                .timestamp(Instant.now())
                 .elementId("elementId")
+                .category(SEND_DIGITAL_FEEDBACK)
+                .iun(iun)
+                .details( details )
+                .build();
+    }
+
+    private List<TimelineElementInternal> getTimelineWithRegisteredLetter(String iun, int recIndex){
+        List<TimelineElementInternal> timelineElementList = new ArrayList<>();
+        timelineElementList.add(getSendDigitalFeedbackDetailsTimelineElement(iun, recIndex));
+        timelineElementList.add(getRegisteredLetterDetailsTimelineElement(iun, recIndex));
+        return timelineElementList;
+    }
+    
+    private TimelineElementInternal getRegisteredLetterDetailsTimelineElement(String iun, int recIndex) {
+        SimpleRegisteredLetterDetailsInt details =  SimpleRegisteredLetterDetailsInt.builder()
+                .recIndex(recIndex)
+                .physicalAddress(
+                        PhysicalAddressInt.builder()
+                                .at("001")
+                                .address("002")
+                                .addressDetails("003")
+                                .zip("004")
+                                .municipality("005")
+                                .province("007")
+                                .foreignState("008").build()
+                )
+                .build();
+        
+        return TimelineElementInternal.builder()
+                .elementId("elementId2")
+                .timestamp(Instant.now())
+                .category(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER)
                 .iun(iun)
                 .details( details )
                 .build();

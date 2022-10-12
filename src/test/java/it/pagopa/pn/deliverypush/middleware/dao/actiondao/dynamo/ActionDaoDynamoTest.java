@@ -77,10 +77,16 @@ class ActionDaoDynamoTest {
     void getActionById() {
         Action action = buildAction(ActionType.ANALOG_WORKFLOW);
         ActionEntity actionEntity = buildActionEntity(action);
+        Key keyToSearch = Key.builder()
+                .partitionValue("2")
+                .build();
 
         Mockito.when(entityToDtoActionMapper.entityToDto(actionEntity)).thenReturn(action);
+        Mockito.when(actionEntityDao.get(keyToSearch)).thenReturn(Optional.of(actionEntity));
 
-        Optional<Action> opt = dynamo.getActionById("02");
+        Optional<Action> opt = dynamo.getActionById("2");
+
+        Assertions.assertEquals(ActionType.ANALOG_WORKFLOW, opt.get().getType());
     }
 
     @Test
@@ -97,7 +103,7 @@ class ActionDaoDynamoTest {
 
         List<Action> actionList = dynamo.findActionsByTimeSlot(timeslot);
 
-        Assertions.assertEquals(actionList.size(), 1);
+        Assertions.assertEquals(1, actionList.size());
     }
 
     @Test

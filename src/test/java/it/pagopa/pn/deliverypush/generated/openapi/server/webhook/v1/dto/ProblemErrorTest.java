@@ -56,6 +56,7 @@ class ProblemErrorTest {
     void testToString() {
         String expected = "class ProblemError {\n" +
                 "    code: code\n" +
+                "    element: null\n" +
                 "    detail: detail\n" +
                 "}";
         Assertions.assertEquals(expected, problemError.toString());

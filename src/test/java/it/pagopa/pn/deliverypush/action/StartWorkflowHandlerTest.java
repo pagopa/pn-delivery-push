@@ -8,6 +8,9 @@ import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
+import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
+import it.pagopa.pn.deliverypush.exceptions.PnValidationNotMatchingShaException;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
@@ -74,6 +77,40 @@ class StartWorkflowHandlerTest {
 
         doThrow(new PnValidationException("ex", Collections.emptySet())).when(checkAttachmentUtils).validateAttachment(Mockito.any(NotificationInt.class));
         
+        //WHEN
+        handler.startWorkflow("IUN_01");
+
+        //THEN
+        Mockito.verify(saveLegalFactsService, Mockito.times(0)).saveNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
+        Mockito.verify(timelineUtils).buildRefusedRequestTimelineElement(Mockito.any(NotificationInt.class), Mockito.any());
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void startWorkflowKoFileNotFound() {
+        //GIVEN
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+                .thenReturn(getNotification());
+
+        doThrow(new PnValidationFileNotFoundException("ex", "exception detail", new PnNotFoundException("message", "description", "erroeCode"))).when(checkAttachmentUtils).validateAttachment(Mockito.any(NotificationInt.class));
+
+        //WHEN
+        handler.startWorkflow("IUN_01");
+
+        //THEN
+        Mockito.verify(saveLegalFactsService, Mockito.times(0)).saveNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
+        Mockito.verify(timelineUtils).buildRefusedRequestTimelineElement(Mockito.any(NotificationInt.class), Mockito.any());
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void startWorkflowKoUnmatchedSha() {
+        //GIVEN
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+                .thenReturn(getNotification());
+
+        doThrow(new PnValidationNotMatchingShaException("ex", "exception detail")).when(checkAttachmentUtils).validateAttachment(Mockito.any(NotificationInt.class));
+
         //WHEN
         handler.startWorkflow("IUN_01");
 

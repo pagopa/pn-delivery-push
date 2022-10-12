@@ -19,6 +19,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND;
+
 @Component
 @Slf4j
 public class CompletionWorkFlowHandler {
@@ -67,7 +69,7 @@ public class CompletionWorkFlowHandler {
                         sendSimpleRegisteredLetter(notification, recIndex);
                         generateLegaFactAndSaveInTimeline(notification, recIndex, status, completionWorkflowDate);
                         scheduleRefinement(notification, recIndex, completionWorkflowDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysFailureDigitalRefinement());
-                    }else {
+                    } else {
                         generateLegaFactAndSaveInTimeline(notification, recIndex, status, completionWorkflowDate);
 
                         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
@@ -155,7 +157,7 @@ public class CompletionWorkFlowHandler {
     
     private void handleError(String iun, Integer recIndex, EndWorkflowStatus status) {
         log.error("Specified status {} does not exist. Iun {}, id {}", status, iun, recIndex);
-        throw new PnInternalException("Specified status " + status + " does not exist. Iun " + iun + " id" + recIndex);
+        throw new PnInternalException("Specified status " + status + " does not exist. Iun " + iun + " id" + recIndex, ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND);
     }
 
     public void addPaperNotificationNotHandledToTimeline(NotificationInt notification, Integer recIndex) {

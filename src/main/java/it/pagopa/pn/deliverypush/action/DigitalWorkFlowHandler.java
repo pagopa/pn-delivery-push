@@ -125,8 +125,8 @@ public class DigitalWorkFlowHandler {
             }
         } else {
             //Sono stati già effettuati tutti i tentativi possibili, la notificazione è quindi fallita
-            log.info("All attempts were unsuccessful. Digital workflow is failed.  - iun={} id={}", iun, recIndex);
-            completionWorkflow.completionDigitalWorkflow(notification, recIndex, instantNowSupplier.get(), null, EndWorkflowStatus.FAILURE);
+            log.info("All attempts were unsuccessful. Digital workflow is failed, lastAttemptDate={} - iun={} id={}", lastAttemptMade.getLastAttemptDate(), iun, recIndex);
+            completionWorkflow.completionDigitalWorkflow(notification, recIndex, lastAttemptMade.getLastAttemptDate(), null, EndWorkflowStatus.FAILURE);
         }
     }
 

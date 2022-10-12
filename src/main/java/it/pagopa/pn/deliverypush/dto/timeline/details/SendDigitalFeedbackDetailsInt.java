@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.dto.timeline.details;
 
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.utils.AuditLogUtils;
@@ -15,9 +16,10 @@ import java.util.List;
 @Builder(toBuilder = true)
 @EqualsAndHashCode
 @ToString
-public class SendDigitalFeedbackDetailsInt implements RecipientRelatedTimelineElementDetails, DigitalAddressRelatedTimelineElement {
+public class SendDigitalFeedbackDetailsInt implements DigitalAddressRelatedTimelineElement, DigitalAddressSourceRelatedTimelineElement {
     private int recIndex;
     private LegalDigitalAddressInt digitalAddress;
+    private DigitalAddressSourceInt digitalAddressSource;
     private ResponseStatusInt responseStatus;
     private Instant notificationDate;
     private List<String> errors;

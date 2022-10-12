@@ -25,7 +25,6 @@ import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryRespon
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.impl.SaveLegalFactsServiceImpl;
 import it.pagopa.pn.deliverypush.utils.HtmlSanitizer;
-import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
 import org.mockito.Mockito;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -113,18 +112,6 @@ public class AbstractWorkflowTestConfiguration {
                 chooseDeliveryModeHandler);
     }
 
-    @Bean
-    @ConditionalOnProperty( name = "pn.delivery-push.validation-document-test", havingValue = "true")
-    public NotificationReceiverValidator notificationReceiverValidatorTest() {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        return new NotificationReceiverValidator( factory.getValidator() );
-    }
-
-    @Bean
-    @ConditionalOnProperty( name = "pn.delivery-push.validation-document-test", havingValue = "false")
-    public NotificationReceiverValidator notificationReceiverValidatorTestMock() {
-        return Mockito.mock(NotificationReceiverValidator.class);
-    }
     
     @Bean
     public PnExternalRegistryClient pnExternalRegistryClientTest() {

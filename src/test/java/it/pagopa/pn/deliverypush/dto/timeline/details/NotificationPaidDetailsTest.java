@@ -16,6 +16,7 @@ class NotificationPaidDetailsTest {
 
     @Test
     void toLog() {
+
         Assertions.assertEquals("recIndex=1", details.toLog());
     }
 }

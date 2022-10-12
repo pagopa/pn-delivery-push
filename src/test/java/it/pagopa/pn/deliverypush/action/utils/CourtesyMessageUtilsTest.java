@@ -13,6 +13,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSende
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
+import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
 import it.pagopa.pn.deliverypush.service.ExternalChannelService;
 import it.pagopa.pn.deliverypush.service.IoService;
@@ -26,7 +27,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.Base64Utils;
-import org.webjars.NotFoundException;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -217,7 +217,7 @@ class CourtesyMessageUtilsTest {
         Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Optional.of(Collections.singletonList(courtesyDigitalAddressInt)));
 
-        doThrow(new NotFoundException("Not found")).when(iOservice).sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt());
+        doThrow(new PnNotFoundException("Not found","","")).when(iOservice).sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt());
 
         //WHEN
         courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, 0);
@@ -248,7 +248,7 @@ class CourtesyMessageUtilsTest {
         Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Optional.of(List.of(courtesyDigitalAddressAppIo, courtesyDigitalAddressSms)));
 
-        doThrow(new NotFoundException("Not found")).when(iOservice).sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt());
+        doThrow(new PnNotFoundException("Not found","","")).when(iOservice).sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt());
 
         //WHEN
         courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, 0);

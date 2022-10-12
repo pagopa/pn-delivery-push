@@ -75,7 +75,7 @@ public class ExternalChannelServiceImplOld implements ExternalChannelService {
                         .iun(notification.getIun())
                         .recIndex(recIndex)
                         .source(addressSource)
-                        .index(sentAttemptMade)
+                        .sentAttemptMade(sentAttemptMade)
                         .build()
         );
         externalChannelUtils.addSendDigitalNotificationToTimeline(notification, digitalAddress, addressSource, recIndex, sentAttemptMade, eventId);
@@ -146,7 +146,7 @@ public class ExternalChannelServiceImplOld implements ExternalChannelService {
                     EventId.builder()
                             .iun(notification.getIun())
                             .recIndex(recIndex)
-                            .index(sentAttemptMade)
+                            .sentAttemptMade(sentAttemptMade)
                             .build()
             );
 
@@ -175,7 +175,7 @@ public class ExternalChannelServiceImplOld implements ExternalChannelService {
                         .iun(notification.getIun())
                         .recIndex(recIndex)
                         .source(addressSource)
-                        .index(sentAttemptMade)
+                        .sentAttemptMade(sentAttemptMade)
                         .build()
         );
         log.info("SendDigitalNotification to external channel - iun {} id {} eventId{}", notification.getIun(), recIndex, eventId);
@@ -238,7 +238,7 @@ public class ExternalChannelServiceImplOld implements ExternalChannelService {
                 EventId.builder()
                         .iun(notification.getIun())
                         .recIndex(recIndex)
-                        .index(sentAttemptMade)
+                        .sentAttemptMade(sentAttemptMade)
                         .build()
         );
         log.info("SendAnalogNotification to external channel eventId{} - iun {} id {}", eventId, notification.getIun(), recIndex);

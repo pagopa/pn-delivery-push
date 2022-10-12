@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
-import it.pagopa.pn.commons.utils.DateFormatUtils;
 import it.pagopa.pn.deliverypush.dto.address.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
@@ -17,7 +16,7 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.time.*;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -120,7 +119,7 @@ public class TimelineUtils {
                         .iun(notification.getIun())
                         .recIndex(recIndex)
                         .source(source)
-                        .index(sentAttemptMade)
+                        .sentAttemptMade(sentAttemptMade)
                         .build()
         );
 
@@ -147,7 +146,7 @@ public class TimelineUtils {
                 EventId.builder()
                         .iun(notification.getIun())
                         .recIndex(recIndex)
-                        .index(retryNumber)
+                        .sentAttemptMade(retryNumber)
                         .source(digitalAddressSourceInt)
                         .build()
         );
@@ -155,6 +154,7 @@ public class TimelineUtils {
         SendDigitalFeedbackDetailsInt details = SendDigitalFeedbackDetailsInt.builder()
                 .errors(errors)
                 .digitalAddress(digitalAddressInt)
+                .digitalAddressSource(digitalAddressSourceInt)
                 .responseStatus(status)
                 .recIndex(recIndex)
                 .notificationDate(instantNowSupplier.get())
@@ -418,7 +418,7 @@ public class TimelineUtils {
                 EventId.builder()
                         .iun(notification.getIun())
                         .recIndex(sendPaperDetails.getRecIndex())
-                        .index(sentAttemptMade)
+                        .sentAttemptMade(sentAttemptMade)
                         .build()
         );
 
@@ -530,9 +530,7 @@ public class TimelineUtils {
                 .notificationCost(notificationCost)
                 .build();
         
-        Instant instantEndOfDay = DateFormatUtils.getEndOfTheDay();
-
-        return buildTimeline(notification, TimelineElementCategoryInt.REFINEMENT, elementId, instantEndOfDay, details);
+        return buildTimeline(notification, TimelineElementCategoryInt.REFINEMENT, elementId, details);
     }
     
     public TimelineElementInternal buildScheduleRefinement(NotificationInt notification, Integer recIndex) {

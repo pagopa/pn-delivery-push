@@ -1,10 +1,11 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
-import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.middleware.externalclient.publicregistry.PublicRegistry;
+import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
+import org.junit.jupiter.api.Assertions;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,12 +40,15 @@ public class PublicRegistryMock implements PublicRegistry {
     @Override
     public void sendRequestForGetDigitalAddress(String taxId, String correlationId) {
         new Thread(() -> {
-            try {
-                Thread.sleep(WAITING_TIME);
-            } catch (InterruptedException exc) {
-                throw new RuntimeException( exc );
-            }
-            simulateDigitalAddressResponse(taxId, correlationId);
+            Assertions.assertDoesNotThrow(() -> {
+                try {
+                    Thread.sleep(WAITING_TIME);
+                } catch (InterruptedException exc) {
+                    throw new RuntimeException( exc );
+                }
+                simulateDigitalAddressResponse(taxId, correlationId);
+
+            });
         }).start();
     }
 
@@ -61,12 +65,15 @@ public class PublicRegistryMock implements PublicRegistry {
     @Override
     public void sendRequestForGetPhysicalAddress(String taxId, String correlationId) {
         new Thread(() -> {
-            try {
-                Thread.sleep(WAITING_TIME);
-            } catch (InterruptedException exc) {
-                throw new RuntimeException( exc );
-            }
-            simulatePhysicalAddressResponse(taxId, correlationId);
+            Assertions.assertDoesNotThrow(() -> {
+                try {
+                    Thread.sleep(WAITING_TIME);
+                } catch (InterruptedException exc) {
+                    throw new RuntimeException( exc );
+                }
+                simulatePhysicalAddressResponse(taxId, correlationId);
+
+            });
         }).start();
     }
 

@@ -86,7 +86,7 @@ class SaveLegalFactsServiceImplTest {
             saveLegalFactsService.saveAAR(notification, recipient);
         });
 
-        String expectErrorMsg = "PN_DELIVERYPUSH_SAVEDLEGALFACTFAILED";
+        String expectErrorMsg = "PN_DELIVERYPUSH_SAVELEGALFACTSFAILED";
 
         Assertions.assertEquals(expectErrorMsg, pnInternalException.getProblem().getErrors().get(0).getCode());
 
@@ -118,7 +118,7 @@ class SaveLegalFactsServiceImplTest {
             saveLegalFactsService.saveNotificationReceivedLegalFact(notification);
         });
 
-        String expectErrorMsg = "PN_DELIVERYPUSH_SAVEDLEGALFACTFAILED";
+        String expectErrorMsg = "PN_DELIVERYPUSH_SAVELEGALFACTSFAILED";
 
         Assertions.assertEquals(expectErrorMsg, pnInternalException.getProblem().getErrors().get(0).getCode());
     }
@@ -164,7 +164,7 @@ class SaveLegalFactsServiceImplTest {
                     notification, recipient, status, completionWorkflowDate, sendRegisteredLetterAddress);
         });
 
-        String expectErrorMsg = "PN_DELIVERYPUSH_SAVEDLEGALFACTFAILED";
+        String expectErrorMsg = "PN_DELIVERYPUSH_SAVELEGALFACTSFAILED";
 
         Assertions.assertEquals(expectErrorMsg, pnInternalException.getProblem().getErrors().get(0).getCode());
     }
@@ -200,7 +200,7 @@ class SaveLegalFactsServiceImplTest {
             saveLegalFactsService.saveNotificationViewedLegalFact(notification, recipient, timeStamp);
         });
 
-        String expectErrorMsg = "PN_GENERIC_ERROR";
+        String expectErrorMsg = "PN_DELIVERYPUSH_SAVENOTIFICATIONFAILED";
 
         Assertions.assertEquals(expectErrorMsg, pnInternalException.getProblem().getErrors().get(0).getCode());
     }

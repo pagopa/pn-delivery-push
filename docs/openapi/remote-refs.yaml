@@ -24,3 +24,9 @@ components:
     ############################################################################################
     IUN:
       $ref: "https://raw.githubusercontent.com/pagopa/pn-delivery/c32e6a432dd94a3d14bdc8f08bf2a535156598fa/docs/openapi/schemas-pn-notification-v1.yaml#/components/schemas/IUN"
+
+    ############################################################################################
+    ###                          STRUTTURE DATI DI PN-ERROR                                  ###
+    ############################################################################################
+    Problem:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-commons/61cdf0712f133c8c69e056abfad6ce5223242ba0/docs/openapi/pn-errors.yaml#/components/schemas/Problem'

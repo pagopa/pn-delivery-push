@@ -175,7 +175,4 @@ class ActionDaoDynamoTestIT {
         actionDao.unSchedule(action2, timeSlot2);
     }
     
-    @Test
-    void unSchedule() {
-    }
 }

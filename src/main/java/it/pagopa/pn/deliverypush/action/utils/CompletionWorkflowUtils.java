@@ -70,7 +70,7 @@ public class CompletionWorkflowUtils {
     }
 
     private Optional<RecipientRelatedTimelineElementDetails> getSpecificDetailRecipient(TimelineElementInternal element, int recIndex){
-        if (element instanceof RecipientRelatedTimelineElementDetails) {
+        if (element.getDetails() instanceof RecipientRelatedTimelineElementDetails) {
             RecipientRelatedTimelineElementDetails details = (RecipientRelatedTimelineElementDetails) element.getDetails();
             if( recIndex == details.getRecIndex()){
                 return Optional.of(details);
@@ -79,7 +79,7 @@ public class CompletionWorkflowUtils {
         return Optional.empty();
     }
     
-    public Instant getSchedulingDate(Instant notificationDate, Duration scheduleTime, String iun) {
+    public Instant getSchedulingDate(Instant completionWorkflowDate, Duration scheduleTime, String iun) {
         String notificationNonVisibilityTime = pnDeliveryPushConfigs.getTimeParams().getNotificationNonVisibilityTime();
         String[] arrayTime = notificationNonVisibilityTime.split(":");
         int hour = Integer.parseInt(arrayTime[0]);
@@ -87,10 +87,10 @@ public class CompletionWorkflowUtils {
         int second = 0;
         int nanoOfSecond = 0;
 
-        log.debug("Start getSchedulingDate with notificationDate={} scheduleTime={} notificationNonVisibilityTime={}:{}:{}:{} - iun={}",
-                notificationDate, scheduleTime, hour, minute, second, nanoOfSecond, iun);
+        log.debug("Start getSchedulingDate with completionWorkflowDate={} scheduleTime={} notificationNonVisibilityTime={}:{}:{}:{} - iun={}",
+                completionWorkflowDate, scheduleTime, hour, minute, second, nanoOfSecond, iun);
 
-        ZonedDateTime notificationDateTime = DateFormatUtils.parseInstantToZonedDateTime(notificationDate);
+        ZonedDateTime notificationDateTime = DateFormatUtils.parseInstantToZonedDateTime(completionWorkflowDate);
         ZonedDateTime notificationNonVisibilityDateTime = DateFormatUtils.setSpecificTimeToDate(notificationDateTime, hour, minute, second, nanoOfSecond);
 
         log.debug("Formatted notificationDateTime={} and notificationNonVisibilityDateTime={} - iun={}", notificationDateTime, notificationNonVisibilityDateTime, iun);
@@ -103,7 +103,7 @@ public class CompletionWorkflowUtils {
             log.debug("NotificationDateTime is not after notificationNonVisibilityDateTime, don't need to add any day to schedulingTime. scheduleTime={} - iun={}", scheduleTime, iun);
         }
 
-        Instant schedulingDate = notificationDate.plus(scheduleTime);
+        Instant schedulingDate = completionWorkflowDate.plus(scheduleTime);
 
         log.info("Scheduling Date is {} - iun={}", schedulingDate, iun);
 

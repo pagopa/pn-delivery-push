@@ -23,4 +23,5 @@ public class TimelineElementInternal {
     private final List<LegalFactsIdInt> legalFactsIds;
     private final TimelineElementCategoryInt category;
     private final TimelineElementDetailsInt details;
+    private StatusInfoInternal statusInfo;
 }

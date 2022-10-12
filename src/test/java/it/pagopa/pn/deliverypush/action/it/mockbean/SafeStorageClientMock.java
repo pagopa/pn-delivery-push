@@ -4,6 +4,7 @@ import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.*;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.Base64Utils;
 
 import java.io.File;

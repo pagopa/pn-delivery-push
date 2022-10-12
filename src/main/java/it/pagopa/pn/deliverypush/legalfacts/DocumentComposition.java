@@ -11,14 +11,22 @@ import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.jetbrains.annotations.Nullable;
+import org.jsoup.Jsoup;
+import org.jsoup.helper.W3CDom;
+import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.EnumMap;
 import java.util.Map;
+
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_DOCUMENTCOMPOSITIONFAILED;
 
 @Component
 @Slf4j
@@ -120,7 +128,10 @@ public class DocumentComposition {
             template.process( model, stringWriter );
 
         } catch (IOException | TemplateException exc) {
-            throw new PnInternalException( "Processing template " + templateType, exc );
+            throw new PnInternalException(
+                    "Processing template " + templateType,
+                    ERROR_CODE_DELIVERYPUSH_DOCUMENTCOMPOSITIONFAILED,
+                    exc);
         }
 
         log.info("Execute templateType={} END", templateType );
@@ -142,11 +153,14 @@ public class DocumentComposition {
 
     private byte[] html2Pdf( String baseUri, String html ) throws IOException {
 
+        Document jsoupDoc = Jsoup.parse(html); // org.jsoup.nodes.Document
+        W3CDom w3cDom = new W3CDom(); // org.jsoup.helper.W3CDom
+        org.w3c.dom.Document w3cDoc = w3cDom.fromJsoup(jsoupDoc);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         PdfRendererBuilder builder = new PdfRendererBuilder();
 
-        builder.withHtmlContent( html, baseUri);
+        builder.withW3cDocument( w3cDoc, baseUri);
         builder.toStream(baos);
         builder.run();
         baos.close();
@@ -159,7 +173,7 @@ public class DocumentComposition {
             return document.getNumberOfPages();
         }catch (IOException ex){
             log.error("Exception in getNumberOfPageFromPdfBytes for pdf - ex", ex);
-            throw new PnInternalException( "Cannot get numberOfPages for pdf " + this.getClass(), ex );
+            throw new PnInternalException("Cannot get numberOfPages for pdf " + this.getClass(), ex.getMessage());
         }
     }
 

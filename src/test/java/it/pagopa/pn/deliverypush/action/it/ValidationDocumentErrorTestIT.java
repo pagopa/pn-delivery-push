@@ -21,7 +21,6 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
-import it.pagopa.pn.deliverypush.validator.NotificationReceiverValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -109,8 +108,6 @@ class ValidationDocumentErrorTestIT {
     @Autowired
     private SafeStorageClientMock safeStorageClientMock;
 
-    @Autowired
-    private NotificationReceiverValidator notificationReceiverValidator;
 
     @Autowired
     private PnDeliveryClientMock pnDeliveryClientMock;
@@ -184,7 +181,7 @@ class ValidationDocumentErrorTestIT {
         byte[] differentFileSha = "error".getBytes();
         TestUtils.firstFileUploadFromNotificationError(notification, safeStorageClientMock, differentFileSha);
         pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.addLegalDigitalAddresses(recipient.getTaxId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
+        addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();

@@ -11,7 +11,7 @@ import software.amazon.awssdk.enhanced.dynamodb.EnhancedType;
 import software.amazon.awssdk.enhanced.dynamodb.internal.converter.attribute.EnhancedAttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_JSON_FAILED;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_JSONEXCEPTION;
 
 @Slf4j
 public class TimelineElementDetailsEntityConverter implements AttributeConverter<TimelineElementDetailsEntity> {
@@ -24,7 +24,7 @@ public class TimelineElementDetailsEntityConverter implements AttributeConverter
             jsonValue = jsonMapper.writeValueAsString( input );
         } catch (JsonProcessingException ex) {
             log.error("exception in processing json ex {}", ex);
-            throw new PnInternalException(ex.getMessage(), ERROR_CODE_DELIVERYPUSH_JSON_FAILED);
+            throw new PnInternalException(ex.getMessage(), ERROR_CODE_DELIVERYPUSH_JSONEXCEPTION);
         }
         return EnhancedAttributeValue.fromString(jsonValue).toAttributeValue();
     }
@@ -35,8 +35,8 @@ public class TimelineElementDetailsEntityConverter implements AttributeConverter
             try {
                 return jsonMapper.readValue( input.s(), TimelineElementDetailsEntity.class );
             } catch (JsonProcessingException ex) {
-                log.error("exception in processing json ex {}", ex);
-                throw new PnInternalException(ex.getMessage(), ERROR_CODE_DELIVERYPUSH_JSON_FAILED);
+                log.error("exception in processing json {}", ex);
+                throw new PnInternalException(ex.getMessage(), ERROR_CODE_DELIVERYPUSH_JSONEXCEPTION);
             }
         }
 
