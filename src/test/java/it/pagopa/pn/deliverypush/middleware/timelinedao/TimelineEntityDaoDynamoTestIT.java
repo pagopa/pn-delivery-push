@@ -596,7 +596,7 @@ class TimelineEntityDaoDynamoTestIT {
                                 )
                                 .digitalAddressSource(DigitalAddressSourceEntity.PLATFORM)
                                 .retryNumber(0)
-                                .notificationDate(Instant.now())
+                                .extChannelsFeedbackDate(Instant.now())
                                 .sendingReceipts(
                                         Collections.singletonList(
                                                 SendingReceiptEntity.builder()

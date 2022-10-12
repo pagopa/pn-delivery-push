@@ -157,7 +157,7 @@ public class TimelineUtils {
                 .digitalAddressSource(digitalAddressSourceInt)
                 .responseStatus(status)
                 .recIndex(recIndex)
-                .notificationDate(instantNowSupplier.get())
+                .extChannelsFeedbackDate(eventTimestamp)
                 .sendingReceipts(
                         (digitalMessageReference != null && digitalMessageReference.getId() != null)?
                                 Collections.singletonList(SendingReceipt.builder()

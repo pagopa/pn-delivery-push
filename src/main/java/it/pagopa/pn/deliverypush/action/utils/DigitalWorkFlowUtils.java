@@ -100,11 +100,11 @@ public class DigitalWorkFlowUtils {
         Optional<SendDigitalFeedbackDetailsInt> lastAddressResultOpt = timeline.stream()
                 .filter(timelineElement -> filterTimelineForRecIndexAndSource(timelineElement, TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK, recIndex, nextAddressSource))
                 .map(timelineElement -> (SendDigitalFeedbackDetailsInt) timelineElement.getDetails())
-                .max(Comparator.comparing(SendDigitalFeedbackDetailsInt::getNotificationDate));
+                .max(Comparator.comparing(SendDigitalFeedbackDetailsInt::getExtChannelsFeedbackDate));
 
         // risolvo prendendo il più recente tra i 2 eventi
         Instant lastAttemptDate = lastAddressAttemptOpt.isPresent()?lastAddressAttemptOpt.get().getAttemptDate() : Instant.EPOCH;
-        lastAttemptDate = lastAddressResultOpt.isPresent() && lastAttemptDate.isBefore(lastAddressResultOpt.get().getNotificationDate())?lastAddressResultOpt.get().getNotificationDate() : lastAttemptDate;
+        lastAttemptDate = lastAddressResultOpt.isPresent() && lastAttemptDate.isBefore(lastAddressResultOpt.get().getExtChannelsFeedbackDate())?lastAddressResultOpt.get().getExtChannelsFeedbackDate() : lastAttemptDate;
 
         if (lastAttemptDate.isAfter(Instant.EPOCH)) {
             log.debug("Get getLastAttemptDateForSource OK - id {}", recIndex);

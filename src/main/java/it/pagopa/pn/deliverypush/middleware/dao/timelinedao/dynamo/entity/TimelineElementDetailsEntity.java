@@ -32,7 +32,7 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("retryNumber")})) private Integer retryNumber;
     @Getter(onMethod=@__({@DynamoDbAttribute("downstreamId")})) private DownstreamIdEntity downstreamId;
     @Getter(onMethod=@__({@DynamoDbAttribute("responseStatus")})) private ResponseStatusEntity responseStatus;
-    @Getter(onMethod=@__({@DynamoDbAttribute("notificationDate")})) private Instant notificationDate;
+    @Getter(onMethod=@__({@DynamoDbAttribute("extChannelsFeedbackDate")})) private Instant extChannelsFeedbackDate;
     @Getter(onMethod=@__({@DynamoDbAttribute("serviceLevel")})) private ServiceLevelEntity serviceLevel;
     @Getter(onMethod=@__({@DynamoDbAttribute("investigation")})) private Boolean investigation;
     @Getter(onMethod=@__({@DynamoDbAttribute("newAddress")})) private PhysicalAddressEntity newAddress;
