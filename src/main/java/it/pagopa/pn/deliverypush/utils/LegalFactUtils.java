@@ -10,7 +10,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class LegalFactUtils {
 
-    public static LegalFactListElement convert(LegalFactListElement element){
+    private LegalFactUtils() {
+    }
+
+    public static LegalFactListElement convert(LegalFactListElement element) {
         LegalFactListElement legalFactListElement = new LegalFactListElement();
 
         LegalFactsId legalFactsId = getLegalFactsId(element);

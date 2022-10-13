@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.mapper;
 
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.entity.FutureActionEntity;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,28 +16,6 @@ public class DtoToEntityFutureActionMapper {
                 .type(dto.getType())
                 .timelineId(dto.getTimelineId())
                 .iun(dto.getIun());
-/*
-                 .attachmentKeys(dto.getAttachmentKeys())
-                .digitalAddressSource(dto.getDigitalAddressSource())
-                .responseStatus(dto.getResponseStatus())
-                .retryNumber(dto.getRetryNumber())
-
-
-        if (dto.getNewPhysicalAddress() != null) {
-            builder.newPhysicalAddress(
-                    PhysicalAddressConv.builder()
-                            .address(dto.getNewPhysicalAddress().getAddress())
-                            .at(dto.getNewPhysicalAddress().getAt())
-                            .addressDetails(dto.getNewPhysicalAddress().getAddressDetails())
-                            .foreignState(dto.getNewPhysicalAddress().getForeignState())
-                            .municipality(dto.getNewPhysicalAddress().getMunicipality())
-                            .province(dto.getNewPhysicalAddress().getProvince())
-                            .zip(dto.getNewPhysicalAddress().getZip())
-                            .build()
-            );
-        }
-*/
-
         return builder.build();
     }
 

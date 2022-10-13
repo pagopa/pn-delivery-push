@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.utils;
 
-import com.amazonaws.util.Base64;
+
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.util.Base64Utils;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -37,7 +38,7 @@ class AuthUtilsTest {
         //GIVEN
         String iun = "iun";
         String taxId = "testTaxId";
-        String taxIdAnon = Base64.encodeAsString(taxId.getBytes());
+        String taxIdAnon = Base64Utils.encodeToString(taxId.getBytes());
         String paId01 = "paId01";
         Instant sentAt = Instant.now();
 
@@ -52,7 +53,7 @@ class AuthUtilsTest {
         //GIVEN
         String iun = "iun";
         String taxId = "testTaxId";
-        String taxIdAnon = Base64.encodeAsString(taxId.getBytes());
+        String taxIdAnon = Base64Utils.encodeToString(taxId.getBytes());
         String senderTaxId = "SenderTxId";
         String paId01 = "paId01";
         Instant sentAt = Instant.now();
@@ -70,7 +71,7 @@ class AuthUtilsTest {
         //GIVEN
         String iun = "iun";
         String taxId = "testTaxId";
-        String taxIdAnon = Base64.encodeAsString(taxId.getBytes());
+        String taxIdAnon = Base64Utils.encodeToString(taxId.getBytes());
         String paId01 = "paId01";
         Instant sentAt = Instant.now();
 
@@ -85,7 +86,7 @@ class AuthUtilsTest {
         //GIVEN
         String iun = "iun";
         String taxId = "testTaxId";
-        String taxIdAnon = Base64.encodeAsString(taxId.getBytes());
+        String taxIdAnon = Base64Utils.encodeToString(taxId.getBytes());
         String paId01 = "paId01";
         String senderPaId01 = "paId02";
         Instant sentAt = Instant.now();
@@ -103,7 +104,7 @@ class AuthUtilsTest {
         //GIVEN
         String iun = "iun";
         String taxId = "testTaxId";
-        String taxIdAnon = Base64.encodeAsString(taxId.getBytes());
+        String taxIdAnon = Base64Utils.encodeToString(taxId.getBytes());
         String paId01 = "paId01";
         Instant sentAt = Instant.now();
 
@@ -133,7 +134,7 @@ class AuthUtilsTest {
         //GIVEN
         String iun = "iun";
         String taxId = "testTaxId";
-        String taxIdAnon = Base64.encodeAsString(taxId.getBytes());
+        String taxIdAnon = Base64Utils.encodeToString(taxId.getBytes());
         String paId01 = "paId01";
         Instant sentAt = Instant.now();
 
@@ -165,7 +166,7 @@ class AuthUtilsTest {
         //GIVEN
         String iun = "iun";
         String taxId = "testTaxId";
-        String taxIdAnon = Base64.encodeAsString(taxId.getBytes());
+        String taxIdAnon = Base64Utils.encodeToString(taxId.getBytes());
         String paId01 = "paId01";
         Instant sentAt = Instant.now();
 
@@ -186,7 +187,7 @@ class AuthUtilsTest {
         //GIVEN
         String iun = "iun";
         String taxId = "testTaxId";
-        String taxIdAnon = Base64.encodeAsString(taxId.getBytes());
+        String taxIdAnon = Base64Utils.encodeToString(taxId.getBytes());
         String paId01 = "paId01";
         String paId02 = "paId02";
 

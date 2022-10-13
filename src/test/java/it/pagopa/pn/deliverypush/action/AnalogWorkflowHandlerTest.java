@@ -112,7 +112,7 @@ class AnalogWorkflowHandlerTest {
         NotificationInt notification = getNotificationWithPhysicalAddress();
         NotificationRecipientInt recipient = notification.getRecipients().get(0);
         Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
-        
+
         //WHEN
         handler.nextWorkflowStep(notification, recIndex, 1);
 
@@ -397,14 +397,14 @@ class AnalogWorkflowHandlerTest {
 
         handler.extChannelResponseHandler(response);
 
-       /* Mockito.verify(completionWorkFlow)
+        Mockito.verify(completionWorkFlow)
                 .completionAnalogWorkflow(
                         notification,
                         sendPaperDetails.getRecIndex(),
                         legalFactsListEntryIds,
                         response.getStatusDateTime(),
                         sendPaperDetails.getPhysicalAddress(),
-                        EndWorkflowStatus.SUCCESS); */
+                        EndWorkflowStatus.SUCCESS);
     }
 
     private SendAnalogDetailsInt buildSendAnalogDetailsInt() {

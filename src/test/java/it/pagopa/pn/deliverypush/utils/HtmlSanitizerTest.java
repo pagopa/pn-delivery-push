@@ -1,8 +1,5 @@
 package it.pagopa.pn.deliverypush.utils;
 
-import static it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator.*;
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -12,6 +9,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.legalfacts.CustomInstantWriter;
 import it.pagopa.pn.deliverypush.legalfacts.PhysicalAddressWriter;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +19,9 @@ import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.*;
+
+import static it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @JsonTest
 class HtmlSanitizerTest {
@@ -118,7 +119,6 @@ class HtmlSanitizerTest {
     void sanitizeStringWithImgAndOtherHTMLElementsTest() {
         String actualHTML = "<html><h1>SSRF WITH IMAGE POC</h1> <img src='https://prova.it'></img></html>";
         String sanitized = (String) htmlSanitizer.sanitize(actualHTML);
-        System.out.println(sanitized);
         assertThat(sanitized).doesNotContain("<img", "<h1>", "<html>");
     }
 
@@ -126,7 +126,6 @@ class HtmlSanitizerTest {
     @Test
     void sanitizeRequestAcceptedTemplateWithNoHTMlElement() {
         Map<?, ?> templateModel = getTemplateModelForRequestAccepted(null);
-        System.out.println("OLD MAP: " + templateModel);
         NotificationInt notificationInt = (NotificationInt) templateModel.get(FIELD_NOTIFICATION);
 
         Object sanitizedTemplateModel = htmlSanitizer.sanitize(templateModel);
@@ -136,12 +135,12 @@ class HtmlSanitizerTest {
         System.out.println("NEW MAP: " + sanitizedTemplateModelMap);
         NotificationInt sanitizedNotificationInt = (NotificationInt) sanitizedTemplateModelMap.get(FIELD_NOTIFICATION);
 
-        assertThat(sanitizedNotificationInt).isEqualTo(notificationInt);
-
-        assertThat(sanitizedTemplateModelMap.get(FIELD_SEND_DATE)).isEqualTo(templateModel.get(FIELD_SEND_DATE));
-        assertThat(sanitizedTemplateModelMap.get(FIELD_SEND_DATE_NO_TIME)).isEqualTo(templateModel.get(FIELD_SEND_DATE_NO_TIME));
-        assertThat(sanitizedTemplateModelMap.get(FIELD_DIGESTS)).isEqualTo(templateModel.get(FIELD_DIGESTS));
-        assertThat(sanitizedTemplateModelMap.get(FIELD_ADDRESS_WRITER)).isNotNull().isInstanceOf(PhysicalAddressWriter.class);
+        Assertions.assertAll(
+                () -> Assertions.assertEquals(sanitizedNotificationInt, notificationInt),
+                () -> Assertions.assertEquals(sanitizedTemplateModelMap.get(FIELD_SEND_DATE), templateModel.get(FIELD_SEND_DATE)),
+                () -> Assertions.assertEquals(sanitizedTemplateModelMap.get(FIELD_SEND_DATE_NO_TIME), templateModel.get(FIELD_SEND_DATE_NO_TIME)),
+                () -> Assertions.assertEquals(sanitizedTemplateModelMap.get(FIELD_DIGESTS), templateModel.get(FIELD_DIGESTS))
+        );
     }
 
     @Test
@@ -151,25 +150,21 @@ class HtmlSanitizerTest {
         NotificationInt notificationInt = (NotificationInt) templateModel.get(FIELD_NOTIFICATION);
 
         Object sanitizedTemplateModel = htmlSanitizer.sanitize(templateModel);
-        assertThat(sanitizedTemplateModel).isNotEqualTo(templateModel);
-        assertThat(sanitizedTemplateModel).isInstanceOf(Map.class);
-
         Map<String, Object> sanitizedTemplateModelMap = (Map<String, Object>) sanitizedTemplateModel;
         NotificationInt sanitizedNotificationInt = (NotificationInt) sanitizedTemplateModelMap.get(FIELD_NOTIFICATION);
 
-        assertThat(sanitizedNotificationInt.getRecipients().get(0).getDenomination()).doesNotContain("<h1>", "<img");
-        assertThat(sanitizedNotificationInt.getIun()).isEqualTo(notificationInt.getIun());
-        assertThat(sanitizedNotificationInt.getSender()).isEqualTo(notificationInt.getSender());
-        assertThat(sanitizedNotificationInt.getAmount()).isEqualTo(notificationInt.getAmount());
-        assertThat(sanitizedNotificationInt.getPaProtocolNumber()).isEqualTo(notificationInt.getPaProtocolNumber());
-        assertThat(sanitizedNotificationInt.getSubject()).isEqualTo(notificationInt.getSubject());
-        assertThat(sanitizedNotificationInt.getSentAt()).isEqualTo(notificationInt.getSentAt());
-        assertThat(sanitizedNotificationInt.getDocuments()).isEqualTo(notificationInt.getDocuments());
-
-        assertThat(sanitizedTemplateModelMap.get(FIELD_SEND_DATE)).isEqualTo(templateModel.get(FIELD_SEND_DATE));
-        assertThat(sanitizedTemplateModelMap.get(FIELD_SEND_DATE_NO_TIME)).isEqualTo(templateModel.get(FIELD_SEND_DATE_NO_TIME));
-        assertThat(sanitizedTemplateModelMap.get(FIELD_DIGESTS)).isEqualTo(templateModel.get(FIELD_DIGESTS));
-        assertThat(sanitizedTemplateModelMap.get(FIELD_ADDRESS_WRITER)).isNotNull().isInstanceOf(PhysicalAddressWriter.class);
+        Assertions.assertAll(
+                () -> Assertions.assertEquals(sanitizedNotificationInt.getIun(), notificationInt.getIun()),
+                () -> Assertions.assertEquals(sanitizedNotificationInt.getSender(), notificationInt.getSender()),
+                () -> Assertions.assertEquals(sanitizedNotificationInt.getAmount(), notificationInt.getAmount()),
+                () -> Assertions.assertEquals(sanitizedNotificationInt.getPaProtocolNumber(), notificationInt.getPaProtocolNumber()),
+                () -> Assertions.assertEquals(sanitizedNotificationInt.getSubject(), notificationInt.getSubject()),
+                () -> Assertions.assertEquals(sanitizedNotificationInt.getSentAt(), notificationInt.getSentAt()),
+                () -> Assertions.assertEquals(sanitizedNotificationInt.getDocuments(), notificationInt.getDocuments()),
+                () -> Assertions.assertEquals(sanitizedTemplateModelMap.get(FIELD_SEND_DATE), templateModel.get(FIELD_SEND_DATE)),
+                () -> Assertions.assertEquals(sanitizedTemplateModelMap.get(FIELD_SEND_DATE_NO_TIME), templateModel.get(FIELD_SEND_DATE_NO_TIME)),
+                () -> Assertions.assertEquals(sanitizedTemplateModelMap.get(FIELD_DIGESTS), templateModel.get(FIELD_DIGESTS))
+        );
     }
 
     @Test
