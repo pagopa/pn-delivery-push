@@ -474,5 +474,12 @@ Resources:
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+  DeliveryPushMicroservicePublicIoApiWaf:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
+      Parameters:
+        WAFName: !Sub '${ProjectName}-delivery-push-io'
+        APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicIoAPI.Outputs.APIGatewayARN
 
 
