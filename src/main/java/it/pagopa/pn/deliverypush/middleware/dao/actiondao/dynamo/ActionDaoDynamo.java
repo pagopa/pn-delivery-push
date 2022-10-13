@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo;
 
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
+import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.ActionDao;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.ActionEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.FutureActionEntityDao;
@@ -10,6 +10,8 @@ import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.mapper.DtoToEnt
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.mapper.DtoToEntityFutureActionMapper;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.mapper.EntityToDtoActionMapper;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.mapper.EntityToDtoFutureActionMapper;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
@@ -20,6 +22,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 @ConditionalOnProperty(name = ActionDao.IMPLEMENTATION_TYPE_PROPERTY_NAME, havingValue = MiddlewareTypes.DYNAMO)
 public class ActionDaoDynamo implements ActionDao {
     private final ActionEntityDao actionEntityDao;
@@ -45,6 +48,16 @@ public class ActionDaoDynamo implements ActionDao {
         futureActionEntityDao.put(dtoToEntityFutureActionMapper.dtoToEntity(action,timeSlot));
     }
 
+    @Override
+    public void addActionIfAbsent(Action action, String timeSlot) {
+        try {
+            actionEntityDao.putIfAbsent(dtoToEntityActionMapper.dtoToEntity(action));
+            futureActionEntityDao.put(dtoToEntityFutureActionMapper.dtoToEntity(action,timeSlot));
+        } catch (PnIdConflictException ex){
+            log.error("Conflict in addActionIfAbsent ", ex);
+        }
+    }
+    
     @Override
     public Optional<Action> getActionById(String actionId) {
         Key keyToSearch = Key.builder()

@@ -20,7 +20,7 @@ public class ActionServiceImpl implements ActionService {
 
     @Override
     public void addAction(Action action, String timeSlot) {
-        actionDao.addAction(action, timeSlot);
+        actionDao.addActionIfAbsent(action, timeSlot);
     }
 
     @Override
