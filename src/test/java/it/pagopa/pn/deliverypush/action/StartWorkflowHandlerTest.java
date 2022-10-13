@@ -95,7 +95,7 @@ class StartWorkflowHandlerTest {
         doThrow(new PnValidationFileNotFoundException("ex", "exception detail", new PnNotFoundException("message", "description", "erroeCode"))).when(checkAttachmentUtils).validateAttachment(Mockito.any(NotificationInt.class));
 
         //WHEN
-        handler.startWorkflow("IUN_01");
+        handler.startWorkflow("IUN_01", true);
 
         //THEN
         Mockito.verify(saveLegalFactsService, Mockito.times(0)).saveNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
@@ -112,7 +112,7 @@ class StartWorkflowHandlerTest {
         doThrow(new PnValidationNotMatchingShaException("ex", "exception detail")).when(checkAttachmentUtils).validateAttachment(Mockito.any(NotificationInt.class));
 
         //WHEN
-        handler.startWorkflow("IUN_01");
+        handler.startWorkflow("IUN_01", true);
 
         //THEN
         Mockito.verify(saveLegalFactsService, Mockito.times(0)).saveNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
