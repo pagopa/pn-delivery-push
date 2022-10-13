@@ -51,11 +51,16 @@ class CompletelyUnreachableUtilsTest {
     }
 
     @Test
-    void handleCompletelyUnreachableTrue() {
+    void handleCompletelyUnreachableNotificationViewed() {
         NotificationInt notification = buildNotification();
         TimelineElementInternal t1 = TimelineElementInternal.builder()
                 .iun("iun1").elementId("aaaa1").timestamp(Instant.now().minusMillis(30000))
                 .details(SendDigitalProgressDetailsInt.builder().build())
+                .build();
+        NotificationRecipientInt recipient = buildRecipient("Galileo Bruno");
+        PaperNotificationFailed notificationFailed = PaperNotificationFailed.builder()
+                .iun(notification.getIun())
+                .recipientId(recipient.getInternalId())
                 .build();
 
         Mockito.when(timelineService.isPresentTimeLineElement(notification.getIun(), 1, TimelineEventId.NOTIFICATION_VIEWED)).thenReturn(Boolean.TRUE);
@@ -63,6 +68,7 @@ class CompletelyUnreachableUtilsTest {
 
         unreachableUtils.handleCompletelyUnreachable(notification, 1);
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(t1, notification);
+        Mockito.verify(paperNotificationFailedService, Mockito.times(0)).addPaperNotificationFailed(notificationFailed);
     }
 
     @Test
@@ -80,9 +86,11 @@ class CompletelyUnreachableUtilsTest {
                 .build();
         Mockito.when(timelineService.isPresentTimeLineElement(notification.getIun(), 1, TimelineEventId.NOTIFICATION_VIEWED)).thenReturn(Boolean.FALSE);
         Mockito.when(notificationUtils.getRecipientFromIndex(notification, 1)).thenReturn(recipient);
+        Mockito.when(timelineUtils.buildCompletelyUnreachableTimelineElement(notification, 1)).thenReturn(t1);
 
         unreachableUtils.handleCompletelyUnreachable(notification, 1);
 
+        Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(t1, notification);
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).addPaperNotificationFailed(notificationFailed);
     }
 
