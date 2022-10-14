@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.service.impl;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
+import it.pagopa.pn.deliverypush.exceptions.PnWebhookForbiddenException;
 import it.pagopa.pn.deliverypush.exceptions.PnWebhookMaxStreamsCountReachedException;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
@@ -100,7 +101,7 @@ public class WebhookServiceImpl implements WebhookService {
     @Override
     public Mono<StreamMetadataResponse> updateEventStream(String xPagopaPnCxId, UUID streamId, Mono<StreamCreationRequest> streamCreationRequest) {
         return streamEntityDao.get(xPagopaPnCxId, streamId.toString())
-                .switchIfEmpty(Mono.error(new PnInternalException("Pa " + xPagopaPnCxId + " is not allowed to see this streamId " + streamId, PnDeliveryPushExceptionCodes.ERROR_CODE_WEBHOOK_UPDATEEVENTSTREAM)))
+                .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Pa " + xPagopaPnCxId + " is not allowed to update this streamId " + streamId)))
                 .then(streamCreationRequest)
                 .map(r -> DtoToEntityStreamMapper.dtoToEntity(xPagopaPnCxId, streamId.toString(), r))
                 .flatMap(streamEntityDao::save)
@@ -114,7 +115,7 @@ public class WebhookServiceImpl implements WebhookService {
         // che permette di ritornare anche il record con (X-1ms) se presente. NB: vado a filtrare il record con lastEventId perchè quello SICURAMENTE glielo avevo già tornato.
         String lastEventIdWithBuffer = computeLastEventIdWithBufferForSearch(lastEventId);
         return streamEntityDao.get(xPagopaPnCxId, streamId.toString())
-                .switchIfEmpty(Mono.error(new PnInternalException("Pa " + xPagopaPnCxId + " is not allowed to see this streamId " + streamId, ERROR_CODE_WEBHOOK_CONSUMEEVENTSTREAM)))
+                .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Pa " + xPagopaPnCxId + " is not allowed to see this streamId " + streamId)))
                 .flatMap(stream -> eventEntityDao.findByStreamId(stream.getStreamId(), lastEventIdWithBuffer))
                 .map(res -> {
                     List<ProgressResponseElement> eventList = res.getEvents().stream().filter(ev -> !ev.getEventId().equals(lastEventId)).map(ev -> {
