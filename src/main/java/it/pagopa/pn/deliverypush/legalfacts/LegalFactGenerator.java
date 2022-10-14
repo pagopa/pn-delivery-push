@@ -169,14 +169,14 @@ public class LegalFactGenerator {
                 .map( feedbackFromExtChannel -> {
 
                     ResponseStatusInt sentPecStatus = feedbackFromExtChannel.getResponseStatus();
-                    Instant extChannelsFeedbackDate = feedbackFromExtChannel.getExtChannelsFeedbackDate();
+                    Instant notificationDate = feedbackFromExtChannel.getNotificationDate();
 
                     return new PecDeliveryInfo(
                             recipient.getDenomination(),
                             recipient.getTaxId(),
                             feedbackFromExtChannel.getDigitalAddress().getAddress(),
-                            extChannelsFeedbackDate,
-                            instantWriter.instantToDate(extChannelsFeedbackDate),
+                            notificationDate,
+                            instantWriter.instantToDate(notificationDate),
                             ResponseStatusInt.OK.equals( sentPecStatus )
                     );
                 })

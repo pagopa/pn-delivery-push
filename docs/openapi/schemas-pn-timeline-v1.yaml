@@ -406,7 +406,7 @@ components:
         - recIndex
         - digitalAddress
         - responseStatus
-        - extChannelsFeedbackDate
+        - notificationDate
       properties:
         recIndex:
           type: integer
@@ -416,7 +416,7 @@ components:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
         responseStatus:
           $ref: '#/components/schemas/ResponseStatus'
-        extChannelsFeedbackDate:
+        notificationDate:
           type: string
           description: data notifica
           format: date-time

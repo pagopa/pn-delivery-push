@@ -238,7 +238,7 @@ class LegalFactPdfGeneratorTest {
 						.address("prova@test.com")
 						.build())
 				.responseStatus(ResponseStatusInt.KO)
-				.extChannelsFeedbackDate(Instant.now().minus(10, ChronoUnit.MINUTES))
+				.notificationDate(Instant.now().minus(10, ChronoUnit.MINUTES))
 				.build();
 
 		SendDigitalFeedbackDetailsInt sdf2 = SendDigitalFeedbackDetailsInt.builder()
@@ -248,7 +248,7 @@ class LegalFactPdfGeneratorTest {
 						.address("pçroà2@test.com")
 						.build())
 				.responseStatus(status)
-				.extChannelsFeedbackDate(Instant.now().minus(5, ChronoUnit.MINUTES))
+				.notificationDate(Instant.now().minus(5, ChronoUnit.MINUTES))
 				.build();
 		
 		List<SendDigitalFeedbackDetailsInt> result = new ArrayList<SendDigitalFeedbackDetailsInt>();
