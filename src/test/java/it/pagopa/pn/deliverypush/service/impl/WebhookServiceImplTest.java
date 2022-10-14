@@ -414,10 +414,11 @@ class WebhookServiceImplTest {
         eventEntityBatch.setLastEventIdRead(null);
 
 
+        lasteventid = list.get(0).getEventId();
 
         Mockito.when(streamEntityDao.get(xpagopacxid, uuid)).thenReturn(Mono.just(entity));
         Mockito.doNothing().when(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any());
-        Mockito.when(eventEntityDao.findByStreamId(uuid, lasteventid)).thenReturn(Mono.just(eventEntityBatch));
+        Mockito.when(eventEntityDao.findByStreamId(Mockito.anyString() , Mockito.anyString())).thenReturn(Mono.just(eventEntityBatch));
 
 
         //WHEN
@@ -425,7 +426,7 @@ class WebhookServiceImplTest {
 
         //THEN
         assertNotNull(res);
-        assertEquals(list.size(), res.getProgressResponseElementList().size());
+        assertEquals(list.size()-1, res.getProgressResponseElementList().size());
         Mockito.verify(streamEntityDao).get(xpagopacxid, uuid);
         Mockito.verify(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any());
     }
