@@ -54,7 +54,7 @@ public class CompletionWorkflowUtils {
                 getSpecificDetailRecipient(element, recIndex).ifPresent(
                         details -> listFeedbackFromExtChannel.add((SendDigitalFeedbackDetailsInt) details)
                 );
-            } else {
+            } else { //TODO eliminare se confermata modifica di legal da Alessio
                 if(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER.equals(element.getCategory())){
                     Optional<RecipientRelatedTimelineElementDetails> opt = getSpecificDetailRecipient(element, recIndex);
                     if(opt.isPresent()){
