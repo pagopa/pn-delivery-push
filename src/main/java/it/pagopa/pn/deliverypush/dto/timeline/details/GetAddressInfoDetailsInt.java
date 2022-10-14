@@ -13,7 +13,7 @@ import java.time.Instant;
 @Builder(toBuilder = true)
 @EqualsAndHashCode
 @ToString
-public class GetAddressInfoDetailsInt implements RecipientRelatedTimelineElementDetails {
+public class GetAddressInfoDetailsInt implements DigitalAddressSourceRelatedTimelineElement {
     private int recIndex;
     private DigitalAddressSourceInt digitalAddressSource;
     private Boolean isAvailable;
