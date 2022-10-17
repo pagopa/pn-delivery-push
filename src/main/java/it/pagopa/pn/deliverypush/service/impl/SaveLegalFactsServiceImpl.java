@@ -53,7 +53,6 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
         fileCreationRequest.setContent(legalFact);
         FileCreationResponseInt fileCreationResponse = safeStorageService.createAndUploadContent(fileCreationRequest);
 
-
         return SAFE_STORAGE_URL_PREFIX + fileCreationResponse.getKey();
     }
 

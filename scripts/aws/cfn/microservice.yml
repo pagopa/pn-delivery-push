@@ -220,22 +220,6 @@ Parameters:
     Type: String
     Description: 'Safe storage base url'
   
-  LogsBucketName:
-    Type: String
-    Description: 'Bucket name where the logs must be exported'
-    
-  LogsExporterRoleArn:
-    Type: String
-    Description: 'ARN of the role used to write to external logs bucket'
-  
-  TimelineCdcKinesisStreamArn:
-    Type: String
-    Description: 'kinesis stream Arn for timeline dynamo table'
-  
-  TimelineCdcKinesisKeyArn:
-    Type: String
-    Description: 'KMS key arn for timeline stream decryption'
-
   Version:
     Type: String
     Description: 'Keep track of used projects commitIds'

@@ -1,10 +1,11 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.dto.webhook.ProgressResponseElementDto;
+import it.pagopa.pn.deliverypush.exceptions.PnWebhookForbiddenException;
+import it.pagopa.pn.deliverypush.exceptions.PnWebhookMaxStreamsCountReachedException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequest;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamListElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponse;
@@ -37,6 +38,8 @@ class WebhookServiceImplTest {
     private SchedulerService schedulerService;
     private WebhookService webhookService;
 
+    private int MAX_STREAMS = 5;
+
     @BeforeEach
     void setup() {
         streamEntityDao = Mockito.mock( StreamEntityDao.class );
@@ -49,6 +52,8 @@ class WebhookServiceImplTest {
         webhook.setMaxLength(10);
         webhook.setPurgeDeletionWaittime(1000);
         webhook.setReadBufferDelay(1000);
+        webhook.setMaxStreams(MAX_STREAMS);
+        webhook.setTtl(Duration.ofDays(30));
         Mockito.when(pnDeliveryPushConfigs.getWebhook()).thenReturn(webhook);
 
         webhookService = new WebhookServiceImpl(streamEntityDao, eventEntityDao, pnDeliveryPushConfigs, schedulerService);
@@ -72,7 +77,16 @@ class WebhookServiceImplTest {
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
 
+        StreamEntity pentity = new StreamEntity();
+        pentity.setStreamId(uuid);
+        pentity.setTitle(req.getTitle());
+        pentity.setPaId(xpagopacxid);
+        pentity.setEventType(req.getEventType().toString());
+        pentity.setFilterValues(new HashSet<>());
+        pentity.setActivationDate(Instant.now());
 
+
+        Mockito.when(streamEntityDao.findByPa(Mockito.anyString())).thenReturn(Flux.fromIterable(List.of(pentity)));
         Mockito.when(streamEntityDao.save(Mockito.any())).thenReturn(Mono.just(entity));
 
 
@@ -83,6 +97,50 @@ class WebhookServiceImplTest {
         assertNotNull(res);
 
         Mockito.verify(streamEntityDao).save(Mockito.any());
+    }
+
+
+    @Test
+    void createEventStreamMaxReached() {
+        //GIVEN
+        String xpagopacxid = "PA-xpagopacxid";
+        StreamCreationRequest req = new StreamCreationRequest();
+        req.setTitle("titolo");
+        req.setEventType(StreamCreationRequest.EventTypeEnum.STATUS);
+        req.setFilterValues(null);
+
+        String uuid = UUID.randomUUID().toString();
+        StreamEntity entity = new StreamEntity();
+        entity.setStreamId(uuid);
+        entity.setTitle(req.getTitle());
+        entity.setPaId(xpagopacxid);
+        entity.setEventType(req.getEventType().toString());
+        entity.setFilterValues(new HashSet<>());
+        entity.setActivationDate(Instant.now());
+
+        List<StreamEntity> sss = new ArrayList<>();
+        for(int i = 0;i<MAX_STREAMS;i++) {
+            StreamEntity pentity = new StreamEntity();
+            pentity.setStreamId(UUID.randomUUID().toString());
+            pentity.setTitle(req.getTitle());
+            pentity.setPaId(xpagopacxid);
+            pentity.setEventType(req.getEventType().toString());
+            pentity.setFilterValues(new HashSet<>());
+            pentity.setActivationDate(Instant.now());
+            sss.add(pentity);
+        }
+
+        Mockito.when(streamEntityDao.findByPa(Mockito.anyString())).thenReturn(Flux.fromIterable(sss));
+        Mockito.when(streamEntityDao.save(Mockito.any())).thenReturn(Mono.just(entity));
+
+        //WHEN
+        Mono<StreamMetadataResponse> mono = webhookService.createEventStream(xpagopacxid, Mono.just(req));
+        assertThrows(PnWebhookMaxStreamsCountReachedException.class, () -> {
+           mono.block(d);
+        });
+
+        //THEN
+        Mockito.verify(streamEntityDao, Mockito.never()).save(Mockito.any());
     }
 
     @Test
@@ -111,6 +169,37 @@ class WebhookServiceImplTest {
 
         //THEN
         Mockito.verify(streamEntityDao).delete(xpagopacxid, uuid);
+    }
+
+    @Test
+    void updateEventStreamNotAllowed() {
+        //GIVEN
+        String xpagopacxid = "PA-xpagopacxid";
+        StreamCreationRequest req = new StreamCreationRequest();
+        req.setTitle("titolo");
+        req.setEventType(StreamCreationRequest.EventTypeEnum.STATUS);
+        req.setFilterValues(null);
+
+        UUID uuidd = UUID.randomUUID();
+        String uuid = uuidd.toString();
+        StreamEntity entity = new StreamEntity();
+        entity.setStreamId(uuid);
+        entity.setTitle(req.getTitle());
+        entity.setPaId(xpagopacxid);
+        entity.setEventType(req.getEventType().toString());
+        entity.setFilterValues(new HashSet<>());
+        entity.setActivationDate(Instant.now());
+
+
+        Mockito.when(streamEntityDao.get(xpagopacxid, uuid)).thenReturn(Mono.empty());
+        Mockito.when(streamEntityDao.save(Mockito.any())).thenReturn(Mono.just(entity));
+
+
+        Mono mono = webhookService.updateEventStream(xpagopacxid, uuidd, Mono.just(req));
+        assertThrows(PnWebhookForbiddenException.class, () -> mono.block(d));
+
+        //THEN
+        Mockito.verify(streamEntityDao, Mockito.never()).save(Mockito.any());
     }
 
     @Test
@@ -277,6 +366,71 @@ class WebhookServiceImplTest {
         Mockito.verify(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any());
     }
 
+
+    @Test
+    void consumeEventStreamNearEvents() {
+        //GIVEN
+        String xpagopacxid = "PA-xpagopacxid";
+        String lasteventid = null;
+
+
+        UUID uuidd = UUID.randomUUID();
+        String uuid = uuidd.toString();
+        StreamEntity entity = new StreamEntity();
+        entity.setStreamId(uuid);
+        entity.setTitle("1");
+        entity.setPaId(xpagopacxid);
+        entity.setEventType(StreamMetadataResponse.EventTypeEnum.STATUS.toString());
+        entity.setFilterValues(new HashSet<>());
+        entity.setActivationDate(Instant.now());
+
+
+        List<EventEntity> list = new ArrayList<>();
+        EventEntity eventEntity = new EventEntity();
+        eventEntity.setEventId(Instant.now() + "_" + "timeline_event_id");
+        eventEntity.setTimestamp(Instant.now());
+        eventEntity.setTimelineEventCategory(TimelineElementCategoryInt.AAR_GENERATION.getValue());
+        eventEntity.setNewStatus(NotificationStatusInt.ACCEPTED.getValue());
+        eventEntity.setIun("");
+        eventEntity.setNotificationRequestId("");
+        eventEntity.setStreamId(uuid);
+        list.add(eventEntity);
+
+
+
+        eventEntity = new EventEntity();
+        eventEntity.setEventId(Instant.now().plusMillis(1) + "_" + "timeline_event_id2");
+        eventEntity.setTimestamp(Instant.now());
+        eventEntity.setTimelineEventCategory(TimelineElementCategoryInt.AAR_GENERATION.getValue());
+        eventEntity.setNewStatus(NotificationStatusInt.ACCEPTED.getValue());
+        eventEntity.setIun("");
+        eventEntity.setNotificationRequestId("");
+        eventEntity.setStreamId(uuid);
+        list.add(eventEntity);
+
+        EventEntityBatch eventEntityBatch = new EventEntityBatch();
+        eventEntityBatch.setEvents(list);
+        eventEntityBatch.setStreamId(uuid);
+        eventEntityBatch.setLastEventIdRead(null);
+
+
+        lasteventid = list.get(0).getEventId();
+
+        Mockito.when(streamEntityDao.get(xpagopacxid, uuid)).thenReturn(Mono.just(entity));
+        Mockito.doNothing().when(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.when(eventEntityDao.findByStreamId(Mockito.anyString() , Mockito.anyString())).thenReturn(Mono.just(eventEntityBatch));
+
+
+        //WHEN
+        ProgressResponseElementDto res = webhookService.consumeEventStream(xpagopacxid, uuidd, lasteventid).block(d);
+
+        //THEN
+        assertNotNull(res);
+        assertEquals(list.size()-1, res.getProgressResponseElementList().size());
+        Mockito.verify(streamEntityDao).get(xpagopacxid, uuid);
+        Mockito.verify(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any());
+    }
+
     @Test
     void consumeEventStreamNotAllowed() {
         //GIVEN
@@ -294,7 +448,7 @@ class WebhookServiceImplTest {
 
         //WHEN
         Mono mono = webhookService.consumeEventStream(xpagopacxid, uuidd, lasteventid);
-        assertThrows(PnInternalException.class, () -> mono.block(d));
+        assertThrows(PnWebhookForbiddenException.class, () -> mono.block(d));
 
         //THEN
         Mockito.verify(eventEntityDao, Mockito.never()).findByStreamId(Mockito.anyString(), Mockito.any());
