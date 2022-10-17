@@ -7,6 +7,7 @@ import com.amazonaws.services.sqs.AmazonSQSAsyncClientBuilder;
 import it.pagopa.pn.commons.configs.aws.AwsConfigs;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 
 @Configuration
 public class SQSConfig {
@@ -26,8 +27,13 @@ public class SQSConfig {
      */
     @Bean
     public AmazonSQSAsync amazonSQS() {
-        return AmazonSQSAsyncClientBuilder.standard()
-                .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(awsConfigs.getEndpointUrl(), awsConfigs.getRegionCode()))
-                .build();
+        if (StringUtils.hasText(awsConfigs.getEndpointUrl()))
+            return AmazonSQSAsyncClientBuilder.standard()
+                    .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(awsConfigs.getEndpointUrl(), awsConfigs.getRegionCode()))
+                    .build();
+        else
+            return AmazonSQSAsyncClientBuilder.standard()
+                    .withRegion(awsConfigs.getRegionCode())
+                    .build();
     }
 }
