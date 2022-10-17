@@ -15,7 +15,7 @@
 	<description>Orchestrate Notification Workflow</description>
 
 	<properties>
-		<jacoco.min.line.cover.ratio>0.90</jacoco.min.line.cover.ratio>
+		<jacoco.min.line.cover.ratio>0.70</jacoco.min.line.cover.ratio>
 	</properties>
 	
 	<dependencies>
