@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils;
 
 import it.pagopa.pn.api.dto.events.StandardEventHeader;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.messaging.MessageHeaders;
@@ -20,6 +21,19 @@ class HandleEventUtilsTest {
 
         Assertions.assertEquals(buildStandardEventHeader(), actual);
     }
+
+    @Test
+    void mapStandardEventHeaderException() {
+
+        PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
+            HandleEventUtils.mapStandardEventHeader(null);
+        });
+
+        String expectErrorMsg = "PN_DELIVERYPUSH_HANDLEEVENTFAILED";
+
+        Assertions.assertEquals(expectErrorMsg, pnInternalException.getProblem().getErrors().get(0).getCode());
+    }
+
 
     private MessageHeaders buildMessageHeaders() {
         Map<String, Object> map = new HashMap<>();
