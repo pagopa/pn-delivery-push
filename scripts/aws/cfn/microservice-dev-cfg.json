@@ -12,7 +12,7 @@
     "WebhookMaxLength": "10",
     "PnDeliveryPushPaperMessageNotHandled": "true",
     "SandboxSafeStorageBaseUrl": "https://14ej9p2krd.execute-api.eu-south-1.amazonaws.com/dev",
-    "ExternalChannelBaseUrl": "http://internal-pn-in-Appli-1HXGA7HK0CJQ3-1346751104.eu-south-1.elb.amazonaws.com:8080",
+    "ExternalChannelBaseUrl": "Mock",
     "ExternalChannelDigitalRetryCount": "3",
     "ExternalChannelDigitalRetryDelay": "10m",
     "ExternalChannelDigitalSendNoResponseTimeout": "26h",

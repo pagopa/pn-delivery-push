@@ -220,22 +220,6 @@ Parameters:
     Type: String
     Description: 'Safe storage base url'
   
-  LogsBucketName:
-    Type: String
-    Description: 'Bucket name where the logs must be exported'
-    
-  LogsExporterRoleArn:
-    Type: String
-    Description: 'ARN of the role used to write to external logs bucket'
-  
-  TimelineCdcKinesisStreamArn:
-    Type: String
-    Description: 'kinesis stream Arn for timeline dynamo table'
-  
-  TimelineCdcKinesisKeyArn:
-    Type: String
-    Description: 'KMS key arn for timeline stream decryption'
-
   Version:
     Type: String
     Description: 'Keep track of used projects commitIds'
@@ -269,7 +253,10 @@ Parameters:
   LogsKinesisSourceStreamArn:
     Type: String
     Description: 'Kinesis stream that receive logs'
-
+  
+Conditions:
+  UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
+  
 Resources:
 
   # PN-Delivery-push microservice
@@ -303,7 +290,11 @@ Resources:
         ContainerEnvEntry17: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSFAILUREDIGITALREFINEMENT=${SchedulingDaysFailureDigitalRefinement}'
         ContainerEnvEntry18: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSSUCCESSANALOGREFINEMENT=${SchedulingDaysSuccessAnalogRefinement}'
         ContainerEnvEntry19: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYFAILUREANALOGREFINEMENT=${SchedulingDaysFailureAnalogRefinement}'
-        ContainerEnvEntry20: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNELBASEURL=${ExternalChannelBaseUrl}'
+        ContainerEnvEntry20:
+          Fn::If:
+            - UseExternalChannelMock
+            - !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNELBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+            - !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNELBASEURL=${ExternalChannelBaseUrl}'
         ContainerEnvEntry21: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNEL_DIGITALRETRYCOUNT=${ExternalChannelDigitalRetryCount}'
         ContainerEnvEntry22: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNEL_DIGITALRETRYDELAY=${ExternalChannelDigitalRetryDelay}'
         ContainerEnvEntry23: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNEL_DIGITALSENDNORESPONSETIMEOUT=${ExternalChannelDigitalSendNoResponseTimeout}'
@@ -324,6 +315,8 @@ Resources:
         ContainerEnvEntry38: !Sub 'PN_DELIVERYPUSH_WEBAPP_FAQURLTEMPLATE=${PhysicalPersonPortalUrl}/faq.html'
         ContainerEnvEntry39: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_NOTIFICATIONNONVISIBILITYTIME=${NotificationNonVisibilityTime}'
         ContainerEnvEntry40: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_TIMETOADDINNONVISIBILITYTIME=${TimeToAddInNonVisibilityTimeCase}'
+        
+        
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*,/delivery-progresses/*'
         ECSClusterName: !Ref ECSClusterName
@@ -449,6 +442,7 @@ Resources:
       Parameters:
         WAFName: !Sub '${ProjectName}-delivery--push-web'
         APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicWebAPI.Outputs.APIGatewayARN
+        Limit: 6000
 
 
   # Expose PN-Delivery-push microservice public API with API-GW for IO usage
@@ -465,5 +459,12 @@ Resources:
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+  DeliveryPushMicroservicePublicIoApiWaf:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
+      Parameters:
+        WAFName: !Sub '${ProjectName}-delivery-push-io'
+        APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicIoAPI.Outputs.APIGatewayARN
 
 

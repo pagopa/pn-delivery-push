@@ -12,7 +12,7 @@ import java.util.Map;
 import static it.pagopa.pn.api.dto.events.StandardEventHeader.*;
 
 class HandleEventUtilsTest {
-    
+
     @Test
     void mapStandardEventHeader() {
 
