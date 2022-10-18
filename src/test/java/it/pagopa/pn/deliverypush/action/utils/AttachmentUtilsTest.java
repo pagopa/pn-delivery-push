@@ -17,10 +17,7 @@ import it.pagopa.pn.deliverypush.dto.ext.safestorage.UpdateFileMetadataResponseI
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.Base64Utils;
 
 import static it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS;
@@ -31,12 +28,9 @@ class AttachmentUtilsTest {
 
     private AttachmentUtils attachmentUtils;
 
-    @Mock
     private SafeStorageService safeStorageService;
-    @Mock
     private PnAuditLogBuilder auditLogBuilder;
 
-    @ExtendWith(MockitoExtension.class)
     @BeforeEach
     public void setup() {
         auditLogBuilder = Mockito.mock(PnAuditLogBuilder.class);

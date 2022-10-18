@@ -11,7 +11,6 @@ import net.javacrumbs.shedlock.core.LockAssert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.time.Clock;
@@ -27,19 +26,14 @@ import static it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.a
 
 class ActionsPoolImplTest {
 
-    @Mock
     private MomProducer<ActionEvent> actionsQueue;
 
-    @Mock
     private ActionService actionService;
 
-    @Mock
     private Clock clock;
 
-    @Mock
     private LastPollForFutureActionsDao lastFutureActionPoolExecutionTimeDao;
 
-    @Mock
     private PnDeliveryPushConfigs configs;
 
     private ActionsPoolImpl actionsPool;

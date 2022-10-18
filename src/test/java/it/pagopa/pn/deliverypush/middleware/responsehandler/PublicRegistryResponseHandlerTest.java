@@ -15,26 +15,20 @@ import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.util.Collections;
 
 class PublicRegistryResponseHandlerTest {
 
-    @Mock
     private ChooseDeliveryModeHandler chooseDeliveryHandler;
 
-    @Mock
     private DigitalWorkFlowHandler digitalWorkFlowHandler;
 
-    @Mock
     private AnalogWorkflowHandler analogWorkflowHandler;
 
-    @Mock
     private PublicRegistryUtils publicRegistryUtils;
 
-    @Mock
     private NotificationService notificationService;
 
     private PublicRegistryResponseHandler handler;
