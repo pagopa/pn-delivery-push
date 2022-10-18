@@ -87,8 +87,7 @@ class CompletionWorkflowUtilsTest {
                 Mockito.eq(notification),
                 Mockito.eq(recipient),
                 Mockito.eq(status),
-                Mockito.eq(completionWorkflowDate),
-                Mockito.isNull()
+                Mockito.eq(completionWorkflowDate)
         );
     }
 
@@ -136,8 +135,7 @@ class CompletionWorkflowUtilsTest {
                 notification,
                 recipient,
                 status,
-                completionWorkflowDate,
-                registeredLetterDetails.getPhysicalAddress()
+                completionWorkflowDate
         );
     }
     
