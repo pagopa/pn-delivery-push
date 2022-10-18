@@ -23,7 +23,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.Base64Utils;
@@ -39,19 +38,13 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 
 class CourtesyMessageUtilsTest {
-    @Mock
+
     private AddressBookService addressBookService;
-    @Mock
     private ExternalChannelService externalChannelService;
-    @Mock
     private TimelineService timelineService;
-    @Mock
     private TimelineUtils timelineUtils;
-    @Mock
     private InstantNowSupplier instantNowSupplier;
-    @Mock
     private NotificationUtils notificationUtils;
-    @Mock
     private IoService iOservice;
 
     private CourtesyMessageUtils courtesyMessageUtils;
@@ -72,7 +65,6 @@ class CourtesyMessageUtilsTest {
 
 
     @Test
-    @ExtendWith(MockitoExtension.class)
     void checkAddressesForSendCourtesyMessage() {
         //GIVEN
         NotificationRecipientInt recipient = getNotificationRecipientInt();
@@ -98,7 +90,6 @@ class CourtesyMessageUtilsTest {
     }
 
     @Test
-    @ExtendWith(MockitoExtension.class)
     void checkAddressesForSendCourtesyMessageIoNotEnabled() {
         //GIVEN
         NotificationRecipientInt recipient = getNotificationRecipientInt();
@@ -124,7 +115,6 @@ class CourtesyMessageUtilsTest {
     }
 
     @Test
-    @ExtendWith(MockitoExtension.class)
     void checkAddressesForSendMultiCourtesyMessage() {
         //GIVEN
         NotificationRecipientInt recipient = getNotificationRecipientInt();
@@ -182,7 +172,6 @@ class CourtesyMessageUtilsTest {
     }
 
     @Test
-    @ExtendWith(MockitoExtension.class)
     void checkAddressesForSendCourtesyMessageCourtesyEmpty() {
         //GIVEN
         NotificationRecipientInt recipient = getNotificationRecipientInt();
@@ -201,7 +190,6 @@ class CourtesyMessageUtilsTest {
     }
 
     @Test
-    @ExtendWith(MockitoExtension.class)
     void checkAddressesForSendCourtesySendMessageError() {
         //GIVEN
         NotificationRecipientInt recipient = getNotificationRecipientInt();
@@ -227,7 +215,6 @@ class CourtesyMessageUtilsTest {
     }
 
     @Test
-    @ExtendWith(MockitoExtension.class)
     void checkAddressesForSendMultiCourtesyMessageWithSendError() {
         //GIVEN
         NotificationRecipientInt recipient = getNotificationRecipientInt();

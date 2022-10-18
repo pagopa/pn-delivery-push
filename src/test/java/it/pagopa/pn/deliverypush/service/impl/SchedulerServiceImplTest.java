@@ -8,17 +8,14 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhooks
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhooksPool;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.time.Instant;
 
 class SchedulerServiceImplTest {
 
-    @Mock
     private ActionsPool actionsPool;
 
-    @Mock
     private WebhooksPool webhooksPool;
 
     private SchedulerServiceImpl schedulerService;
