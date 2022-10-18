@@ -6,7 +6,6 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhooks
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.time.Clock;
@@ -16,10 +15,8 @@ import java.util.function.Predicate;
 
 class WebhooksPoolImplTest {
 
-    @Mock
     private MomProducer<WebhookEvent> actionsQueue;
 
-    @Mock
     private Clock clock;
 
     private WebhooksPoolImpl web;
