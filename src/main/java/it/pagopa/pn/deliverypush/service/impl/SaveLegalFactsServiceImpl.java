@@ -139,7 +139,8 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "DIGITAL_DELIVERY", notification.getIun(), recipient.getTaxId());
             throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_SAVELEGALFACTSFAILED, exc);
         }
-    }
+    } 
+    
 
     public String saveNotificationViewedLegalFact(
             NotificationInt notification,
