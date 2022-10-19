@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.impl;
 
 import it.pagopa.pn.api.dto.events.StandardEventHeader;
-import it.pagopa.pn.commons.abstractions.MomProducer;
+import it.pagopa.pn.api.dto.events.MomProducer;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookAction;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhooksPool;
 import lombok.extern.slf4j.Slf4j;
