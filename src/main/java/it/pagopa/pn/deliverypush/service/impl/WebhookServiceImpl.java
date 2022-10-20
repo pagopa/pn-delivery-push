@@ -197,7 +197,6 @@ public class WebhookServiceImpl implements WebhookService {
                 || (eventType == StreamCreationRequest.EventTypeEnum.STATUS && stream.getFilterValues().contains(newStatus))
                 || (eventType == StreamCreationRequest.EventTypeEnum.TIMELINE && stream.getFilterValues().contains(timelineEventCategory))))
         {
-
             EventEntity eventEntity = new EventEntity();
             if (!ttl.isZero())
                 eventEntity.setTtl(LocalDateTime.now().plus(ttl).atZone(ZoneId.systemDefault()).toEpochSecond());
