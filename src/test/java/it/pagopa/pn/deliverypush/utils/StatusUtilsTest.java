@@ -140,7 +140,7 @@ class StatusUtilsTest {
     // tutti e 3 destinatari sono raggiungibili via domicilio digitale ma un destinatario visualizza la notifica sul portale di PN
     // prima che la visualizzi su PEC, e poi la paga. Stato finale: PAID
     @Test
-    void getTimelineHistoryMultiRecipientWithOneViewInPNTest() {
+    void getTimelineHistoryMultiRecipientWithOneViewViaPNTest() {
         final int NUMBER_OF_RECIPIENTS = 3;
 
         // GIVEN a timeline
@@ -287,6 +287,149 @@ class StatusUtilsTest {
         );
     }
 
+    // IN_VALIDATION - ACCEPTED - DELIVERING - DELIVERED - VIEWED
+    // tutti e 3 destinatari sono raggiungibili via domicilio digitale, un destinatario visualizza la notifica dalla PEC
+    // prima che PN riceva un feedback positivo da External Channels per gli altri 2 destinatari. Stato finale: VIEWED
+    @Test
+    void getTimelineHistoryMultiRecipientWithOneViewViaPecTest() {
+        final int NUMBER_OF_RECIPIENTS = 3;
+
+        // GIVEN a timeline
+        TimelineElementInternal requestAcceptedTimelineElement = TimelineElementInternal.builder()
+                .elementId("requestAcceptedTimelineElement")
+                .timestamp(Instant.parse("2021-09-16T15:24:00.00Z"))
+                .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
+                .build();
+        TimelineElementInternal sendPecFirstRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("sendPecFirstRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:26:00.00Z")))
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .build();
+        TimelineElementInternal sendPecSecondRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("sendPecSecondRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:26:30.00Z")))
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .build();
+        TimelineElementInternal sendPecThirdRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("sendPecThirdRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:26:40.00Z")))
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .build();
+        //PN riceve feedback positivo da External Channels per uno dei destinatari
+        TimelineElementInternal feedbackOKFirstRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("feedbackOKFirstRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:30:00.00Z")))
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK)
+                .build();
+        TimelineElementInternal pecReceivedFirstRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("pecReceivedFirstRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:32:00.00Z")))
+                .category(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW)
+                .build();
+        //Questo stesso destinatario visualizza la notifica via PEC
+        TimelineElementInternal viewedFromPNTimelineElement = TimelineElementInternal.builder()
+                .elementId("viewedFromPNTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:35:00.00Z")))
+                .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .build();
+        //PN riceve feedback positivo da External Channels per gli altri 2 destinatari
+        TimelineElementInternal feedbackOKSecondRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("feedbackOKSecondRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:40:00.00Z")))
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK)
+                .build();
+        TimelineElementInternal feedbackOKThirdRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("feedbackOKThirdRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:40:10.00Z")))
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK)
+                .build();
+        TimelineElementInternal pecReceivedSecondRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("pecReceivedSecondRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:41:00.00Z")))
+                .category(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW)
+                .build();
+        TimelineElementInternal pecReceivedThirdRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("pecReceivedThirdRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:41:10.00Z")))
+                .category(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW)
+                .build();
+
+        Set<TimelineElementInternal> timelineElementList = Set.of(requestAcceptedTimelineElement,
+                sendPecFirstRecipientTimelineElement, sendPecSecondRecipientTimelineElement, sendPecThirdRecipientTimelineElement,
+                feedbackOKFirstRecipientTimelineElement, pecReceivedFirstRecipientTimelineElement, viewedFromPNTimelineElement,
+                feedbackOKSecondRecipientTimelineElement, feedbackOKThirdRecipientTimelineElement, pecReceivedSecondRecipientTimelineElement,
+                pecReceivedThirdRecipientTimelineElement);
+
+
+        // WHEN ask for status history
+        Instant notificationCreatedAt = Instant.parse("2021-09-16T15:20:00.00Z");
+
+        List<NotificationStatusHistoryElementInt> actualStatusHistory = statusUtils.getStatusHistory(
+                timelineElementList,
+                NUMBER_OF_RECIPIENTS,
+                notificationCreatedAt
+        );
+
+        printStatus(actualStatusHistory);
+
+        // THEN status histories have 5 elements
+        Assertions.assertEquals(5, actualStatusHistory.size(), "Check length");
+
+//        //  ... 1st initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.IN_VALIDATION)
+                        .activeFrom(notificationCreatedAt)
+                        .relatedTimelineElements(List.of())
+                        .build(),
+                actualStatusHistory.get(0),
+                "1st status wrong"
+        );
+//
+//        //  ... 2nd initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.ACCEPTED)
+                        .activeFrom(requestAcceptedTimelineElement.getTimestamp())
+                        .relatedTimelineElements(List.of("requestAcceptedTimelineElement"))
+                        .build(),
+                actualStatusHistory.get(1),
+                "2nd status wrong"
+        );
+//
+//        //  ... 3rd initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.DELIVERING)
+                        .activeFrom(sendPecFirstRecipientTimelineElement.getTimestamp())
+                        .relatedTimelineElements(List.of("sendPecFirstRecipientTimelineElement",
+                                "sendPecSecondRecipientTimelineElement", "sendPecThirdRecipientTimelineElement",
+                                "feedbackOKFirstRecipientTimelineElement"))
+                        .build(),
+                actualStatusHistory.get(2),
+                "3rd status wrong"
+        );
+//
+//        //  ... 4th initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.DELIVERED)
+                        .activeFrom(pecReceivedFirstRecipientTimelineElement.getTimestamp())
+                        .relatedTimelineElements(List.of("pecReceivedFirstRecipientTimelineElement"))
+                        .build(),
+                actualStatusHistory.get(3),
+                "4th status wrong"
+        );
+//
+//        //  ... 5th initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.VIEWED)
+                        .activeFrom(viewedFromPNTimelineElement.getTimestamp())
+                        .relatedTimelineElements(List.of("viewedFromPNTimelineElement", "feedbackOKSecondRecipientTimelineElement",
+                                "feedbackOKThirdRecipientTimelineElement", "pecReceivedSecondRecipientTimelineElement",
+                                "pecReceivedThirdRecipientTimelineElement"))
+                        .build(),
+                actualStatusHistory.get(4),
+                "5th status wrong"
+        );
+    }
+
     // IN VALIDATION - ACCEPTED - DELIVERING - DELIVERED
     // 2 destinatari su 3 sono non raggiungibili, uno è raggiungibile, stato finale: DELIVERED
     @Test
@@ -348,8 +491,10 @@ class StatusUtilsTest {
                 .build();
 
 
-        Set<TimelineElementInternal> timelineElementList = Set.of(requestAcceptedTimelineElement, sendPecFirstRecipientTimelineElement, sendPecSecondRecipientTimelineElement, sendPecThirdRecipientTimelineElement,
-                feedbackKOFirstRecipientTimelineElement, feedbackKOSecondRecipientTimelineElement, feedbackOKThirdRecipientTimelineElement, unreachableFirstRecipientTimelineElement, unreachableSecondRecipientTimelineElement, pecReceivedTimelineElement
+        Set<TimelineElementInternal> timelineElementList = Set.of(requestAcceptedTimelineElement, sendPecFirstRecipientTimelineElement,
+                sendPecSecondRecipientTimelineElement, sendPecThirdRecipientTimelineElement, feedbackKOFirstRecipientTimelineElement,
+                feedbackKOSecondRecipientTimelineElement, feedbackOKThirdRecipientTimelineElement, unreachableFirstRecipientTimelineElement,
+                unreachableSecondRecipientTimelineElement, pecReceivedTimelineElement
                 );
 
 
@@ -538,7 +683,7 @@ class StatusUtilsTest {
     }
 
     // IN VALIDATION - ACCEPTED - DELIVERING - UNREACHABLE - VIEWED
-    // tutti e 3 destinatari non sono raggiungibili ma 1 dei 3 visualizza la notifica su PN, dopo che PN ha ricevuto i
+    // tutti e 3 destinatari non sono raggiungibili ma 1 dei 3 visualizza la notifica su PN, DOPO che PN ha ricevuto i
     // feedback negativi da External Channels. Stato finale: VIEWED
     @Test
     void getTimelineHistoryMultiRecipientWithAllUnreachableButOneViewedAfterKOFeedbackFromPNTest() {
@@ -679,6 +824,142 @@ class StatusUtilsTest {
                 "5th status wrong"
         );
     }
+
+    // IN VALIDATION - ACCEPTED - DELIVERING - VIEWED
+    // tutti e 3 destinatari non sono raggiungibili ma 1 dei 3 visualizza la notifica su PN, PRIMA che PN ha ricevuto i
+    // feedback negativi da External Channels. Stato finale: VIEWED
+    @Test
+    void getTimelineHistoryMultiRecipientWithAllUnreachableButOneViewedBeforeKOFeedbackFromPNTest() {
+        final int NUMBER_OF_RECIPIENTS = 3;
+
+        // GIVEN a timeline
+        TimelineElementInternal requestAcceptedTimelineElement = TimelineElementInternal.builder()
+                .elementId("requestAcceptedTimelineElement")
+                .timestamp(Instant.parse("2021-09-16T15:24:00.00Z"))
+                .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
+                .build();
+        TimelineElementInternal sendPecFirstRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("sendPecFirstRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:26:00.00Z")))
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .build();
+        TimelineElementInternal sendPecSecondRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("sendPecSecondRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:26:30.00Z")))
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .build();
+        TimelineElementInternal sendPecThirdRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("sendPecThirdRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:26:40.00Z")))
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .build();
+        TimelineElementInternal feedbackKOFirstRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("feedbackKOFirstRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:27:00.00Z")))
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK)
+                .build();
+        TimelineElementInternal viewedFromPNTimelineElement = TimelineElementInternal.builder()
+                .elementId("viewedFromPNTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:27:10.00Z")))
+                .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .build();
+        TimelineElementInternal feedbackKOSecondRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("feedbackKOSecondRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:28:10.00Z")))
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK)
+                .build();
+        TimelineElementInternal feedbackKOThirdRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("feedbackKOThirdRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:28:30.00Z")))
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK)
+                .build();
+
+        //tutti i destinatari non sono raggiungibili
+        TimelineElementInternal unreachableFirstRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("unreachableFirstRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:32:00.00Z")))
+                .category(TimelineElementCategoryInt.COMPLETELY_UNREACHABLE)
+                .build();
+        TimelineElementInternal unreachableSecondRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("unreachableSecondRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:33:00.00Z")))
+                .category(TimelineElementCategoryInt.COMPLETELY_UNREACHABLE)
+                .build();
+        TimelineElementInternal unreachableThirdRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("unreachableThirdRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:34:00.00Z")))
+                .category(TimelineElementCategoryInt.COMPLETELY_UNREACHABLE)
+                .build();
+
+
+        Set<TimelineElementInternal> timelineElementList = Set.of(requestAcceptedTimelineElement, sendPecFirstRecipientTimelineElement,
+                sendPecSecondRecipientTimelineElement, sendPecThirdRecipientTimelineElement, feedbackKOFirstRecipientTimelineElement,
+                viewedFromPNTimelineElement, feedbackKOSecondRecipientTimelineElement, feedbackKOThirdRecipientTimelineElement,
+                unreachableFirstRecipientTimelineElement, unreachableSecondRecipientTimelineElement, unreachableThirdRecipientTimelineElement
+        );
+
+
+        // WHEN ask for status history
+        Instant notificationCreatedAt = Instant.parse("2021-09-16T15:20:00.00Z");
+
+        List<NotificationStatusHistoryElementInt> actualStatusHistory = statusUtils.getStatusHistory(
+                timelineElementList,
+                NUMBER_OF_RECIPIENTS,
+                notificationCreatedAt
+        );
+
+
+        // THEN status histories have 4 elements
+        Assertions.assertEquals(4, actualStatusHistory.size(), "Check length");
+
+//        //  ... 1st initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.IN_VALIDATION)
+                        .activeFrom(notificationCreatedAt)
+                        .relatedTimelineElements(List.of())
+                        .build(),
+                actualStatusHistory.get(0),
+                "1st status wrong"
+        );
+//
+//        //  ... 2nd initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.ACCEPTED)
+                        .activeFrom(requestAcceptedTimelineElement.getTimestamp())
+                        .relatedTimelineElements(List.of("requestAcceptedTimelineElement"))
+                        .build(),
+                actualStatusHistory.get(1),
+                "2nd status wrong"
+        );
+//
+//        //  ... 3rd initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.DELIVERING)
+                        .activeFrom(sendPecFirstRecipientTimelineElement.getTimestamp())
+                        .relatedTimelineElements(List.of("sendPecFirstRecipientTimelineElement",
+                                "sendPecSecondRecipientTimelineElement", "sendPecThirdRecipientTimelineElement",
+                                "feedbackKOFirstRecipientTimelineElement"))
+                        .build(),
+                actualStatusHistory.get(2),
+                "3rd status wrong"
+        );
+//
+//
+        //  ... 4th initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.VIEWED)
+                        .activeFrom(viewedFromPNTimelineElement.getTimestamp())
+                        .relatedTimelineElements(List.of("viewedFromPNTimelineElement",
+                                "feedbackKOSecondRecipientTimelineElement", "feedbackKOThirdRecipientTimelineElement",
+                                "unreachableFirstRecipientTimelineElement", "unreachableSecondRecipientTimelineElement",
+                                "unreachableThirdRecipientTimelineElement"))
+                        .build(),
+                actualStatusHistory.get(3),
+                "4th status wrong"
+        );
+    }
+
+
 
 
     @Test
@@ -894,6 +1175,12 @@ class StatusUtilsTest {
         List<NotificationStatusHistoryElementInt> responseList = statusUtils.getStatusHistory(timelineElementList, 3, notificationCreatedAt);
 
         Assertions.assertEquals(responseList.size(), 3);
+    }
+
+    private void printStatus(List<NotificationStatusHistoryElementInt> notificationHistoryElements) {
+        notificationHistoryElements.stream()
+                .map(NotificationStatusHistoryElementInt::getStatus)
+                .forEach(notificationStatusInt -> System.out.print(notificationStatusInt + " "));
     }
 
 }
