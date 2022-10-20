@@ -1,12 +1,6 @@
 package it.pagopa.pn.deliverypush.utils;
 
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusHistoryElementInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -14,11 +8,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.util.Base64Utils;
-import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.*;
@@ -32,11 +22,9 @@ class StatusUtilsTest {
     @BeforeEach
     public void setup() {
         pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
-        //Mockito.when(pnDeliveryPushConfigs.getPaperMessageNotHandled()).thenReturn(false);
         this.statusUtils = new StatusUtils(pnDeliveryPushConfigs);
     }
 
-    @ExtendWith(MockitoExtension.class)
     @Test
     void getTimelineHistoryTest() {
 
@@ -148,8 +136,8 @@ class StatusUtilsTest {
         );
     }
 
-    //IN_VALIDATION - ACCEPTED - DELIVERING - VIEWED - PAID
-    //tutti e 3 destinatari sono raggiungibili via domicilio digitale ma un destinatario visualizza la notifica sul portale di PN
+    // IN_VALIDATION - ACCEPTED - DELIVERING - VIEWED - PAID
+    // tutti e 3 destinatari sono raggiungibili via domicilio digitale ma un destinatario visualizza la notifica sul portale di PN
     // prima che la visualizzi su PEC, e poi la paga. Stato finale: PAID
     @Test
     void getTimelineHistoryMultiRecipientWithOneViewInPNTest() {
@@ -242,7 +230,7 @@ class StatusUtilsTest {
         );
 
 
-        // THEN status histories have same length
+        // THEN status histories have 5 elements
         Assertions.assertEquals(5, actualStatusHistory.size(), "Check length");
 
 //        //  ... 1st initial status
@@ -299,8 +287,8 @@ class StatusUtilsTest {
         );
     }
 
-    //IN VALIDATION - ACCEPTED - DELIVERING - DELIVERED
-    //2 destinatari su 3 sono non raggiungibili, uno è raggiungibile, stato finale: DELIVERED
+    // IN VALIDATION - ACCEPTED - DELIVERING - DELIVERED
+    // 2 destinatari su 3 sono non raggiungibili, uno è raggiungibile, stato finale: DELIVERED
     @Test
     void getTimelineHistoryMultiRecipientWithOneSuccessTest() {
         final int NUMBER_OF_RECIPIENTS = 3;
@@ -375,7 +363,7 @@ class StatusUtilsTest {
         );
 
 
-        // THEN status histories have same length
+        // THEN status histories have 4 elements
         Assertions.assertEquals(4, actualStatusHistory.size(), "Check length");
 
 //        //  ... 1st initial status
@@ -424,8 +412,8 @@ class StatusUtilsTest {
         );
     }
 
-    //IN VALIDATION - ACCEPTED - DELIVERING - UNREACHABLE
-    //tutti e 3 destinatari non sono raggiungibili e nessuno dei 3 visualizza la notifica su PN, stato finale: UNREACHABLE
+    // IN VALIDATION - ACCEPTED - DELIVERING - UNREACHABLE
+    // tutti e 3 destinatari non sono raggiungibili e nessuno dei 3 visualizza la notifica su PN, stato finale: UNREACHABLE
     @Test
     void getTimelineHistoryMultiRecipientWithAllUnreachableTest() {
         final int NUMBER_OF_RECIPIENTS = 3;
@@ -500,7 +488,7 @@ class StatusUtilsTest {
         );
 
 
-        // THEN status histories have same length
+        // THEN status histories have 4 elements
         Assertions.assertEquals(4, actualStatusHistory.size(), "Check length");
 
 //        //  ... 1st initial status
@@ -549,8 +537,150 @@ class StatusUtilsTest {
         );
     }
 
+    // IN VALIDATION - ACCEPTED - DELIVERING - UNREACHABLE - VIEWED
+    // tutti e 3 destinatari non sono raggiungibili ma 1 dei 3 visualizza la notifica su PN, dopo che PN ha ricevuto i
+    // feedback negativi da External Channels. Stato finale: VIEWED
+    @Test
+    void getTimelineHistoryMultiRecipientWithAllUnreachableButOneViewedAfterKOFeedbackFromPNTest() {
+        final int NUMBER_OF_RECIPIENTS = 3;
 
-    @ExtendWith(MockitoExtension.class)
+        // GIVEN a timeline
+        TimelineElementInternal requestAcceptedTimelineElement = TimelineElementInternal.builder()
+                .elementId("requestAcceptedTimelineElement")
+                .timestamp(Instant.parse("2021-09-16T15:24:00.00Z"))
+                .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
+                .build();
+        TimelineElementInternal sendPecFirstRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("sendPecFirstRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:26:00.00Z")))
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .build();
+        TimelineElementInternal sendPecSecondRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("sendPecSecondRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:26:30.00Z")))
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .build();
+        TimelineElementInternal sendPecThirdRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("sendPecThirdRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:26:40.00Z")))
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .build();
+        TimelineElementInternal feedbackKOFirstRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("feedbackKOFirstRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:27:00.00Z")))
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK)
+                .build();
+        TimelineElementInternal feedbackKOSecondRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("feedbackKOSecondRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:27:10.00Z")))
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK)
+                .build();
+        TimelineElementInternal feedbackKOThirdRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("feedbackKOThirdRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:27:30.00Z")))
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK)
+                .build();
+
+        //tutti i destinatari non sono raggiungibili
+        TimelineElementInternal unreachableFirstRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("unreachableFirstRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:32:00.00Z")))
+                .category(TimelineElementCategoryInt.COMPLETELY_UNREACHABLE)
+                .build();
+        TimelineElementInternal unreachableSecondRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("unreachableSecondRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:33:00.00Z")))
+                .category(TimelineElementCategoryInt.COMPLETELY_UNREACHABLE)
+                .build();
+        TimelineElementInternal unreachableThirdRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("unreachableThirdRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:34:00.00Z")))
+                .category(TimelineElementCategoryInt.COMPLETELY_UNREACHABLE)
+                .build();
+        TimelineElementInternal viewedFromPNTimelineElement = TimelineElementInternal.builder()
+                .elementId("viewedFromPNTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T16:00:00.00Z")))
+                .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .build();
+
+
+        Set<TimelineElementInternal> timelineElementList = Set.of(requestAcceptedTimelineElement, sendPecFirstRecipientTimelineElement,
+                sendPecSecondRecipientTimelineElement, sendPecThirdRecipientTimelineElement, feedbackKOFirstRecipientTimelineElement,
+                feedbackKOSecondRecipientTimelineElement, feedbackKOThirdRecipientTimelineElement, unreachableFirstRecipientTimelineElement,
+                unreachableSecondRecipientTimelineElement, unreachableThirdRecipientTimelineElement, viewedFromPNTimelineElement
+        );
+
+
+        // WHEN ask for status history
+        Instant notificationCreatedAt = Instant.parse("2021-09-16T15:20:00.00Z");
+
+        List<NotificationStatusHistoryElementInt> actualStatusHistory = statusUtils.getStatusHistory(
+                timelineElementList,
+                NUMBER_OF_RECIPIENTS,
+                notificationCreatedAt
+        );
+
+
+        // THEN status histories have 5 elements
+        Assertions.assertEquals(5, actualStatusHistory.size(), "Check length");
+
+//        //  ... 1st initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.IN_VALIDATION)
+                        .activeFrom(notificationCreatedAt)
+                        .relatedTimelineElements(List.of())
+                        .build(),
+                actualStatusHistory.get(0),
+                "1st status wrong"
+        );
+//
+//        //  ... 2nd initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.ACCEPTED)
+                        .activeFrom(requestAcceptedTimelineElement.getTimestamp())
+                        .relatedTimelineElements(List.of("requestAcceptedTimelineElement"))
+                        .build(),
+                actualStatusHistory.get(1),
+                "2nd status wrong"
+        );
+//
+//        //  ... 3rd initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.DELIVERING)
+                        .activeFrom(sendPecFirstRecipientTimelineElement.getTimestamp())
+                        .relatedTimelineElements(List.of("sendPecFirstRecipientTimelineElement",
+                                "sendPecSecondRecipientTimelineElement", "sendPecThirdRecipientTimelineElement",
+                                "feedbackKOFirstRecipientTimelineElement", "feedbackKOSecondRecipientTimelineElement",
+                                "feedbackKOThirdRecipientTimelineElement", "unreachableFirstRecipientTimelineElement",
+                                "unreachableSecondRecipientTimelineElement"))
+                        .build(),
+                actualStatusHistory.get(2),
+                "3rd status wrong"
+        );
+//
+//
+//        //  ... 4th initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.UNREACHABLE)
+                        .activeFrom(unreachableThirdRecipientTimelineElement.getTimestamp())
+                        .relatedTimelineElements(List.of("unreachableThirdRecipientTimelineElement"))
+                        .build(),
+                actualStatusHistory.get(3),
+                "4th status wrong"
+        );
+
+        //  ... 5th initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.VIEWED)
+                        .activeFrom(viewedFromPNTimelineElement.getTimestamp())
+                        .relatedTimelineElements(List.of("viewedFromPNTimelineElement"))
+                        .build(),
+                actualStatusHistory.get(4),
+                "5th status wrong"
+        );
+    }
+
+
     @Test
     void getTimelineHistoryMoreRecipientTest() {
         // GIVEN a timeline
@@ -652,7 +782,6 @@ class StatusUtilsTest {
         Assertions.assertEquals(historyElementList, resHistoryElementList);
     }
 
-    @ExtendWith(MockitoExtension.class)
     @Test
     void getTimelineHistoryErrorTest() {
         // creare TimelineElement
@@ -714,14 +843,12 @@ class StatusUtilsTest {
         Assertions.assertEquals(historyElementList, resHistoryElementList);
     }
 
-    @ExtendWith(MockitoExtension.class)
     @Test
     void emptyTimelineInitialStateTest() {
         //
         Assertions.assertEquals(NotificationStatusInt.IN_VALIDATION, statusUtils.getCurrentStatus(Collections.emptyList()));
     }
 
-    @ExtendWith(MockitoExtension.class)
     @Test
     void getCurrentStatusTest() {
         List<NotificationStatusHistoryElementInt> statusHistory = new ArrayList<>();
@@ -769,63 +896,4 @@ class StatusUtilsTest {
         Assertions.assertEquals(responseList.size(), 3);
     }
 
-    private NotificationSenderInt createSender() {
-        return NotificationSenderInt.builder()
-                .paId("TEST_PA_ID")
-                .paTaxId("TEST_TAX_ID")
-                .paDenomination("TEST_PA_DENOMINATION")
-                .build();
-    }
-
-    private NotificationInt buildNotification(String denomination) {
-        return NotificationInt.builder()
-                .sender(createSender())
-                .sentAt(Instant.now())
-                .iun("Example_IUN_1234_Test")
-                .subject("notification test subject")
-                .documents(Arrays.asList(
-                                NotificationDocumentInt.builder()
-                                        .ref(NotificationDocumentInt.Ref.builder()
-                                                .key("doc00")
-                                                .versionToken("v01_doc00")
-                                                .build()
-                                        )
-                                        .digests(NotificationDocumentInt.Digests.builder()
-                                                .sha256((Base64Utils.encodeToString("sha256_doc01".getBytes())))
-                                                .build()
-                                        )
-                                        .build()
-                        )
-                )
-                .recipients(Collections.singletonList(buildRecipient(denomination)))
-                .build();
-    }
-
-    private NotificationRecipientInt buildRecipient(String denomination) {
-        String defaultDenomination = StringUtils.hasText(denomination) ? denomination : "Galileo Bruno";
-        NotificationRecipientInt rec1 = NotificationRecipientInt.builder()
-                .taxId("CDCFSC11R99X001Z")
-                .denomination(defaultDenomination)
-                .digitalDomicile(LegalDigitalAddressInt.builder()
-                        .address("test@dominioPec.it")
-                        .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
-                        .build())
-                .physicalAddress(buildPhysicalAddressInt())
-                .build();
-
-        return rec1;
-    }
-
-    private PhysicalAddressInt buildPhysicalAddressInt() {
-        return new PhysicalAddressInt(
-                "Palazzo dell'Inquisizione",
-                "corso Italia 666",
-                "Piano Terra (piatta)",
-                "00100",
-                "Roma",
-                null,
-                "RM",
-                "IT"
-        );
-    }
 }
