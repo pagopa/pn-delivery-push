@@ -33,7 +33,7 @@ public class NewNotificationEventHandler {
                 String iun = pnDeliveryNewNotificationEvent.getHeader().getIun();
 
                 startWorkflowHandler.startWorkflow(iun);
-                throw new RuntimeException("TEST RITENTATIVI");
+
             }catch (Exception ex){
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
