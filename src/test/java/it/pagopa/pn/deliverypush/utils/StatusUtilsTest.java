@@ -147,6 +147,150 @@ class StatusUtilsTest {
                 "6th status wrong"
         );
     }
+    @Test
+    void getTimelineHistoryNewTest() {
+        final int NUMBER_OF_RECIPIENTS = 3;
+
+        // GIVEN a timeline
+        TimelineElementInternal timelineElement1 = TimelineElementInternal.builder()
+                .elementId("el1")
+                .timestamp(Instant.parse("2021-09-16T15:24:00.00Z"))
+                .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
+                .build();
+        TimelineElementInternal timelineElement2 = TimelineElementInternal.builder()
+                .elementId("el2")
+                .timestamp((Instant.parse("2021-09-16T15:26:00.00Z")))
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .build();
+        TimelineElementInternal timelineElement3 = TimelineElementInternal.builder()
+                .elementId("el3")
+                .timestamp((Instant.parse("2021-09-16T15:26:30.00Z")))
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .build();
+        TimelineElementInternal timelineElement4 = TimelineElementInternal.builder()
+                .elementId("el4")
+                .timestamp((Instant.parse("2021-09-16T15:27:00.00Z")))
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK)
+                .build();
+        TimelineElementInternal timelineElement5 = TimelineElementInternal.builder()
+                .elementId("el5")
+                .timestamp((Instant.parse("2021-09-16T15:27:10.00Z")))
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK)
+                .build();
+
+        //uno dei 3 destinatari visualizza la notifica sul portale di PN
+        TimelineElementInternal timelineElement6 = TimelineElementInternal.builder()
+                .elementId("el6")
+                .timestamp((Instant.parse("2021-09-16T15:30:00.00Z")))
+                .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .build();
+        //tutti e 3 destinatari ricevono con successo la notifica via PEC
+        TimelineElementInternal timelineElement7 = TimelineElementInternal.builder()
+                .elementId("el7")
+                .timestamp((Instant.parse("2021-09-16T15:32:00.00Z")))
+                .category(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW)
+                .build();
+        TimelineElementInternal timelineElement8 = TimelineElementInternal.builder()
+                .elementId("el8")
+                .timestamp((Instant.parse("2021-09-16T15:33:00.00Z")))
+                .category(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW)
+                .build();
+        TimelineElementInternal timelineElement9 = TimelineElementInternal.builder()
+                .elementId("el9")
+                .timestamp((Instant.parse("2021-09-16T15:34:00.00Z")))
+                .category(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW)
+                .build();
+        //uno dei 3 destinatari visualizza la notifica dalla PEC
+        TimelineElementInternal timelineElement10 = TimelineElementInternal.builder()
+                .elementId("el10")
+                .timestamp((Instant.parse("2021-09-16T16:00:00.00Z")))
+                .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .build();
+        //uno dei 3 destinatari paga la multa
+        TimelineElementInternal timelineElement11 = TimelineElementInternal.builder()
+                .elementId("el11")
+                .timestamp((Instant.parse("2021-09-16T17:30:00.00Z")))
+                .category(TimelineElementCategoryInt.PAYMENT)
+                .build();
+
+        Set<TimelineElementInternal> timelineElementList = Set.of(timelineElement1, timelineElement3,
+                timelineElement4, timelineElement5, timelineElement6, timelineElement7, timelineElement8, timelineElement9,
+                timelineElement10, timelineElement11);
+
+
+        // WHEN ask for status history
+        Instant notificationCreatedAt = Instant.parse("2021-09-16T15:20:00.00Z");
+
+        List<NotificationStatusHistoryElementInt> actualStatusHistory = statusUtils.getStatusHistory(
+                timelineElementList,
+                NUMBER_OF_RECIPIENTS,
+                notificationCreatedAt
+        );
+
+        //IN_VALIDATION - ACCEPTED - DELIVERING - VIEWED - PAID
+        // THEN status histories have same length
+        Assertions.assertEquals(5, actualStatusHistory.size(), "Check length");
+
+//        //  ... 1st initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.IN_VALIDATION)
+                        .activeFrom(notificationCreatedAt)
+                        .relatedTimelineElements(List.of())
+                        .build(),
+                actualStatusHistory.get(0),
+                "1st status wrong"
+        );
+//
+//        //  ... 2nd initial status
+//        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+//                        .status(NotificationStatusInt.ACCEPTED)
+//                        .activeFrom(timelineElement1.getTimestamp())
+//                        .relatedTimelineElements(List.of("el1"))
+//                        .build(),
+//                actualStatusHistory.get(1),
+//                "2nd status wrong"
+//        );
+//
+//        //  ... 3rd initial status
+//        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+//                        .status(NotificationStatusInt.DELIVERING)
+//                        .activeFrom(timelineElement3.getTimestamp())
+//                        .relatedTimelineElements(Arrays.asList("el3", "el4"))
+//                        .build(),
+//                actualStatusHistory.get(2),
+//                "3rd status wrong"
+//        );
+//
+//        //  ... 4th initial status
+//        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+//                        .status(NotificationStatusInt.DELIVERED)
+//                        .activeFrom(timelineElement5.getTimestamp())
+//                        .relatedTimelineElements(List.of("el5"))
+//                        .build(),
+//                actualStatusHistory.get(3),
+//                "4th status wrong"
+//        );
+//
+//        //  ... 5th initial status
+//        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+//                        .status(NotificationStatusInt.VIEWED)
+//                        .activeFrom(timelineElement6.getTimestamp())
+//                        .relatedTimelineElements(List.of("el6"))
+//                        .build(),
+//                actualStatusHistory.get(4),
+//                "2nd status wrong"
+//        );
+//
+//        //  ... 6th initial status
+//        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+//                        .status(NotificationStatusInt.PAID)
+//                        .activeFrom(timelineElement7.getTimestamp())
+//                        .relatedTimelineElements(List.of("el7"))
+//                        .build(),
+//                actualStatusHistory.get(5),
+//                "6th status wrong"
+//        );
+    }
 
 
     @ExtendWith(MockitoExtension.class)
