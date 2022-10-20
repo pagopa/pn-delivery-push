@@ -76,17 +76,14 @@ public class TimeLineServiceImpl implements TimelineService {
                 //aggiungo al DTO lo status info che poi verrà mappato sull'entity e salvato
                 TimelineElementInternal dtoWithStatusInfo = enrichWithStatusInfo(dto, currentTimeline, notificationStatuses);
 
-                timelineDao.addTimelineElement(dtoWithStatusInfo);
+                timelineDao.addTimelineElementIfAbsent(dtoWithStatusInfo);
                 // genero un messaggio per l'aggiunta in sqs in modo da salvarlo in maniera asincrona
                 schedulerService.scheduleWebhookEvent(
                         notification.getSender().getPaId(),
                         dtoWithStatusInfo.getIun(),
-                        dtoWithStatusInfo.getElementId(),
-                        dtoWithStatusInfo.getTimestamp(),
-                        notificationStatuses.getOldStatus().getValue(),
-                        notificationStatuses.getNewStatus().getValue(),
-                        dtoWithStatusInfo.getCategory().getValue()
+                        dtoWithStatusInfo.getElementId()
                 );
+
                 logEvent.generateSuccess().log();
             } catch (Exception ex) {
                 logEvent.generateFailure("Exception in addTimelineElement, ex={}", ex).log();

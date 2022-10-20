@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo;
 
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.ActionEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.FutureActionEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.entity.ActionEntity;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Instant;
@@ -44,6 +46,12 @@ class ActionDaoDynamoTest {
     private EntityToDtoFutureActionMapper entityToDtoFutureActionMapper;
 
     @Mock
+    private PnDeliveryPushConfigs pnDeliveryPushConfigs;
+
+    @Mock
+    private DynamoDbEnhancedClient dynamoDbEnhancedClient;
+
+    @Mock
     private ActionDaoDynamo dynamo;
 
     @BeforeEach
@@ -54,7 +62,19 @@ class ActionDaoDynamoTest {
         dtoToEntityFutureActionMapper = Mockito.mock(DtoToEntityFutureActionMapper.class);
         entityToDtoActionMapper = Mockito.mock(EntityToDtoActionMapper.class);
         entityToDtoFutureActionMapper = Mockito.mock(EntityToDtoFutureActionMapper.class);
-        dynamo = new ActionDaoDynamo(actionEntityDao, futureActionEntityDao, dtoToEntityActionMapper, dtoToEntityFutureActionMapper, entityToDtoActionMapper, entityToDtoFutureActionMapper);
+        pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
+        dynamoDbEnhancedClient = Mockito.mock(DynamoDbEnhancedClient.class);
+
+        PnDeliveryPushConfigs.ActionDao actionDao = new PnDeliveryPushConfigs.ActionDao();
+        actionDao.setTableName("Action");
+        PnDeliveryPushConfigs.FutureActionDao factionDao = new PnDeliveryPushConfigs.FutureActionDao();
+        factionDao.setTableName("FutureAction");
+        Mockito.when(pnDeliveryPushConfigs.getActionDao()).thenReturn(actionDao);
+        Mockito.when(pnDeliveryPushConfigs.getFutureActionDao()).thenReturn(factionDao);
+
+        dynamo = new ActionDaoDynamo(actionEntityDao, futureActionEntityDao, dtoToEntityActionMapper,
+                dtoToEntityFutureActionMapper, entityToDtoActionMapper, entityToDtoFutureActionMapper,
+                dynamoDbEnhancedClient, pnDeliveryPushConfigs);
     }
 
     @Test

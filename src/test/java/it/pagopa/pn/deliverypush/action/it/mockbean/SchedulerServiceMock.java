@@ -76,7 +76,7 @@ public class SchedulerServiceMock implements SchedulerService {
     }
 
     @Override
-    public void scheduleWebhookEvent(String paId, String iun, String timelineId, Instant timestamp, String oldStatus, String newStatus, String timelineEventCategory) {
+    public void scheduleWebhookEvent(String paId, String iun, String timelineId) {
         // non usato come mock
     }
 

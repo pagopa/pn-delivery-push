@@ -55,11 +55,7 @@ class WebhooksPoolImplTest {
                 .paId("003")
                 .iun("004")
                 .delay(5)
-                .timestamp(instant)
                 .timelineId("006")
-                .oldStatus("007")
-                .newStatus("008")
-                .timelineEventCategory("009")
                 .type(WebhookEventType.REGISTER_EVENT)
                 .build();
     }

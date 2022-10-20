@@ -41,11 +41,6 @@ public class TimelineDaoMock implements TimelineDao {
     public void clear() {
         this.timelineList = new ArrayList<>();
     }
-    
-    @Override
-    public void addTimelineElement(TimelineElementInternal dto) {
-        checkAndAddTimelineElement(dto);
-    }
 
     private void checkAndAddTimelineElement(TimelineElementInternal dto) {
         if( dto.getDetails() != null && dto.getDetails() instanceof RecipientRelatedTimelineElementDetails){
@@ -80,7 +75,7 @@ public class TimelineDaoMock implements TimelineDao {
             NotificationInt notificationInt = this.notificationService.getNotificationByIun(row.getIun());
             return notificationUtils.getRecipientFromIndex(notificationInt, ((RecipientRelatedTimelineElementDetails) row.getDetails()).getRecIndex());
         }else {
-            throw new PnInternalException("There isn't recipient index for timeline element");
+            throw new PnInternalException("There isn't recipient index for timeline element", "test");
         }
     }
 
