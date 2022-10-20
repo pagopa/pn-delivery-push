@@ -15,7 +15,6 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelProgressEvent
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.time.Instant;
@@ -25,13 +24,10 @@ import java.time.format.DateTimeFormatter;
 
 class ExternalChannelResponseHandlerTest {
 
-    @Mock
     private DigitalWorkFlowExternalChannelResponseHandler digitalWorkFlowHandler;
 
-    @Mock
     private AnalogWorkflowHandler analogWorkflowHandler;
 
-    @Mock
     private TimelineUtils timelineUtils;
 
     private ExternalChannelResponseHandler handler;

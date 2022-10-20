@@ -15,7 +15,6 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.util.Collections;
@@ -23,10 +22,8 @@ import java.util.Optional;
 
 class PublicRegistryUtilsTest {
 
-    @Mock
     private TimelineService timelineService;
 
-    @Mock
     private TimelineUtils timelineUtils;
 
     private PublicRegistryUtils publicRegistryUtils;
