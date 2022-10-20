@@ -127,6 +127,7 @@ public class CompletionWorkFlowHandler {
                     break;
                 case FAILURE:
                     completionWorkflowUtils.addTimelineElement( timelineUtils.buildFailureAnalogWorkflowTimelineElement(notification, recIndex, attachments), notification );
+                    //TODO Per il workflow analogico capire se una notifica visualizzata da un recipient può prevedere il caso di completely unreachable
                     completelyUnreachableUtils.handleCompletelyUnreachable(notification, recIndex);
                     scheduleRefinement(notification, recIndex, notificationDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysFailureAnalogRefinement());
                     break;
