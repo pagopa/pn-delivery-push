@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
@@ -11,6 +12,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
@@ -69,7 +71,6 @@ class DigitalWorkFlowUtilsTest {
         DigitalAddressInfo tmp = digitalWorkFlowUtils.getNextAddressInfo("1", 1, addressInfo);
 
         Assertions.assertNotNull(tmp);
-
     }
 
     @Test
@@ -249,7 +250,7 @@ class DigitalWorkFlowUtilsTest {
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
                 .legalFactsIds(legalFactsIds)
                 .build();
-        
+
         LegalDigitalAddressInt legalDigitalAddressInt = LegalDigitalAddressInt.builder()
                 .address("address")
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -282,37 +283,58 @@ class DigitalWorkFlowUtilsTest {
 
     @Test
     void addDigitalDeliveringProgressTimelineElement() {
-        List<LegalFactsIdInt> legalFactsIds = new ArrayList<>();
-        legalFactsIds.add(LegalFactsIdInt.builder()
-                .key("key")
-                .category(LegalFactCategoryInt.PEC_RECEIPT)
-                .build());
+        NotificationInt notification = getNotification();
+        EventCodeInt eventCode = EventCodeInt.C008;
+        int recIndex = 1;
+        int sentAttemptMade = 1;
+        LegalDigitalAddressInt digitalAddressInt = buildLegalDigitalAddressInt();
+        DigitalAddressSourceInt digitalAddressSourceInt = DigitalAddressSourceInt.SPECIAL;
+        boolean shouldRetry = Boolean.TRUE;
+        DigitalMessageReferenceInt digitalMessageReference = buildDigitalMessageReferenceInt();
+        Instant eventTimestamp = Instant.parse("2021-09-16T15:24:00.00Z");
+        TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
 
-        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
-                .iun("1")
-                .elementId("1")
-                .timestamp(Instant.now())
-                .paId("1")
-                .category(TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS)
-                .legalFactsIds(legalFactsIds)
-                .build();
+        Set<TimelineElementInternal> timelineElementInternalSet = new HashSet<>();
+        timelineElementInternalSet.add(timelineElementInternal);
 
-        // Mockito.when(timelineUtils.buildDigitalProgressFeedbackTimelineElement(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(timelineElementInternal);
+        Mockito.when(timelineService.getTimelineByIunTimelineId("IUN_01", "IUN_01_digital_delivering_progress_1_source_SPECIAL_attempt_1_progidx_", Boolean.FALSE)).thenReturn(timelineElementInternalSet);
+        Mockito.when(timelineUtils.buildDigitalProgressFeedbackTimelineElement(notification,
+                recIndex, sentAttemptMade, eventCode, shouldRetry, digitalAddressInt, digitalAddressSourceInt, digitalMessageReference, 2, eventTimestamp)).thenReturn(timelineElementInternal);
 
-        // digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(
+                notification, eventCode, recIndex, sentAttemptMade,
+                digitalAddressInt, digitalAddressSourceInt, shouldRetry,
+                digitalMessageReference, eventTimestamp
+        );
 
-        //  Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(Mockito.any(), Mockito.any());
+        Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);
     }
 
     @Test
     void nextSource() {
+        Assertions.assertAll(
+                () -> Assertions.assertEquals(DigitalAddressSourceInt.SPECIAL, DigitalWorkFlowUtils.nextSource(DigitalAddressSourceInt.PLATFORM)),
+                () -> Assertions.assertEquals(DigitalAddressSourceInt.GENERAL, DigitalWorkFlowUtils.nextSource(DigitalAddressSourceInt.SPECIAL)),
+                () -> Assertions.assertEquals(DigitalAddressSourceInt.PLATFORM, DigitalWorkFlowUtils.nextSource(DigitalAddressSourceInt.GENERAL))
+        );
+    }
 
-        /*
-        try (MockedStatic<DigitalWorkFlowUtils> staticMock = Mockito.mockStatic(DigitalWorkFlowUtils.class)) {
-            staticMock.when(() -> DigitalWorkFlowUtils.nextSource(DigitalAddressSourceInt.PLATFORM)).thenReturn(DigitalAddressSourceInt.SPECIAL);
-            Assertions.assertEquals(DigitalAddressSourceInt.SPECIAL, DigitalWorkFlowUtils.nextSource(DigitalAddressSourceInt.PLATFORM));
-        } 
-        */
+    @Test
+    void getMostRecentTimelineElement() {
+        TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
+
+        Set<TimelineElementInternal> timelineElementInternalSet = new HashSet<>();
+        timelineElementInternalSet.add(timelineElementInternal);
+
+        Mockito.when(timelineService.getTimeline("001", Boolean.FALSE)).thenReturn(timelineElementInternalSet);
+
+        PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
+            digitalWorkFlowUtils.getMostRecentTimelineElement("IUN_01", 1);
+        });
+
+        String expectErrorMsg = "PN_DELIVERYPUSH_TIMELINEEVENTNOTFOUND";
+
+        Assertions.assertEquals(expectErrorMsg, pnInternalException.getProblem().getErrors().get(0).getCode());
     }
 
     private TimelineElementInternal buildTimelineElementInternal() {
@@ -368,6 +390,21 @@ class DigitalWorkFlowUtilsTest {
                                         .build())
                                 .build()
                 ))
+                .build();
+    }
+
+    private LegalDigitalAddressInt buildLegalDigitalAddressInt() {
+        return LegalDigitalAddressInt.builder()
+                .address("address")
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                .build();
+    }
+
+    private DigitalMessageReferenceInt buildDigitalMessageReferenceInt() {
+        return DigitalMessageReferenceInt.builder()
+                .id("id")
+                .system("system")
+                .location("location")
                 .build();
     }
 }
