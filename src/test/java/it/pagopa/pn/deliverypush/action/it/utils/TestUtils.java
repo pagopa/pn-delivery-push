@@ -540,16 +540,11 @@ public class TestUtils {
                         .build()
         );
 
-        Optional<PhysicalAddressInt> optionalPhysicalAddress =
-                timelineService.getTimelineElementDetails(notification.getIun(), eventId, SimpleRegisteredLetterDetailsInt.class ).map(
-                        SimpleRegisteredLetterDetailsInt::getPhysicalAddress
-                );
-
         ArgumentCaptor<List<SendDigitalFeedbackDetailsInt>> sendDigitalFeedbackCaptor = ArgumentCaptor.forClass(List.class);
 
         try {
             Mockito.verify(legalFactGenerator, Mockito.times(times)).generatePecDeliveryWorkflowLegalFact(sendDigitalFeedbackCaptor.capture(), Mockito.eq(notification),
-                    Mockito.eq(recipient), Mockito.eq(endWorkflowStatus), Mockito.any(Instant.class), Mockito.eq(optionalPhysicalAddress.orElse(null)) );
+                    Mockito.eq(recipient), Mockito.eq(endWorkflowStatus), Mockito.any(Instant.class));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
