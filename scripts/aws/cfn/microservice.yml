@@ -220,22 +220,6 @@ Parameters:
     Type: String
     Description: 'Safe storage base url'
   
-  LogsBucketName:
-    Type: String
-    Description: 'Bucket name where the logs must be exported'
-    
-  LogsExporterRoleArn:
-    Type: String
-    Description: 'ARN of the role used to write to external logs bucket'
-  
-  TimelineCdcKinesisStreamArn:
-    Type: String
-    Description: 'kinesis stream Arn for timeline dynamo table'
-  
-  TimelineCdcKinesisKeyArn:
-    Type: String
-    Description: 'KMS key arn for timeline stream decryption'
-
   Version:
     Type: String
     Description: 'Keep track of used projects commitIds'
@@ -458,6 +442,7 @@ Resources:
       Parameters:
         WAFName: !Sub '${ProjectName}-delivery--push-web'
         APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicWebAPI.Outputs.APIGatewayARN
+        Limit: 6000
 
 
   # Expose PN-Delivery-push microservice public API with API-GW for IO usage
@@ -474,5 +459,12 @@ Resources:
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+  DeliveryPushMicroservicePublicIoApiWaf:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
+      Parameters:
+        WAFName: !Sub '${ProjectName}-delivery-push-io'
+        APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicIoAPI.Outputs.APIGatewayARN
 
 

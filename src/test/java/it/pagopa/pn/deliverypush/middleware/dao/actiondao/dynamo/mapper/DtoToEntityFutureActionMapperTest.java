@@ -12,34 +12,38 @@ class DtoToEntityFutureActionMapperTest {
 
     @Test
     void dtoToEntity() {
-        FutureActionEntity expected = buildFutureActionEntity();
-        Action action = buildAction();
         DtoToEntityFutureActionMapper mapper = new DtoToEntityFutureActionMapper();
-        FutureActionEntity actual = mapper.dtoToEntity(action, "1");
+        Action action = buildAction();
+        FutureActionEntity expected = buildFutureActionEntity();
+        FutureActionEntity actual = mapper.dtoToEntity(action, "2021-09-16T15:24:00.00Z");
         Assertions.assertEquals(expected, actual);
     }
 
-    private FutureActionEntity buildFutureActionEntity() {
-        Instant instant = Instant.parse("2021-09-16T15:23:00.00Z");
-        return FutureActionEntity.builder()
-                .timeSlot("1")
-                .actionId("2")
+    private Action buildAction() {
+        Instant instant = Instant.parse("2021-09-16T15:24:00.00Z");
+
+        return Action.builder()
+                .iun("001")
+                .actionId("002")
+                .timeslot("2021-09-16T15:24:00.00Z")
                 .notBefore(instant)
-                .recipientIndex(3)
+                .recipientIndex(1)
                 .type(ActionType.ANALOG_WORKFLOW)
-                .timelineId("4")
-                .iun("5").build();
+                .timelineId("2021-09-16T15:24:00.00Z")
+                .build();
     }
 
-    private Action buildAction() {
-        Instant instant = Instant.parse("2021-09-16T15:23:00.00Z");
-        return Action.builder()
-                .timelineId("4")
-                .type(ActionType.ANALOG_WORKFLOW)
-                .recipientIndex(3)
+    private FutureActionEntity buildFutureActionEntity() {
+        Instant instant = Instant.parse("2021-09-16T15:24:00.00Z");
+
+        return FutureActionEntity.builder()
+                .iun("001")
+                .actionId("002")
                 .notBefore(instant)
-                .iun("5")
-                .actionId("2")
+                .recipientIndex(1)
+                .type(ActionType.ANALOG_WORKFLOW)
+                .timelineId("2021-09-16T15:24:00.00Z")
+                .timeSlot("2021-09-16T15:24:00.00Z")
                 .build();
     }
 }

@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.Base64Utils;
@@ -25,7 +24,7 @@ import java.time.Instant;
 import java.util.*;
 
 class StatusUtilsTest {
-    @Mock
+
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     private StatusUtils statusUtils;
@@ -148,6 +147,7 @@ class StatusUtilsTest {
                 "6th status wrong"
         );
     }
+
 
     @ExtendWith(MockitoExtension.class)
     @Test

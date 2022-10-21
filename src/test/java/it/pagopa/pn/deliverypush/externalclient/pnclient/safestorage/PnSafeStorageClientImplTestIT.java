@@ -16,8 +16,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
@@ -28,12 +26,10 @@ import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
 
-@ExtendWith(SpringExtension.class)
-@ActiveProfiles("test")
 class PnSafeStorageClientImplTestIT {
 
     private static ClientAndServer mockServer;
-
+//
     @BeforeAll
     public static void startMockServer() {
         mockServer = startClientAndServer(9998);

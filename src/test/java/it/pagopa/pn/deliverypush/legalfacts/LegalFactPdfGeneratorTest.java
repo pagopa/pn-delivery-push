@@ -32,6 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -237,7 +238,7 @@ class LegalFactPdfGeneratorTest {
 						.address("prova@test.com")
 						.build())
 				.responseStatus(ResponseStatusInt.KO)
-				.notificationDate(Instant.now())
+				.notificationDate(Instant.now().minus(10, ChronoUnit.MINUTES))
 				.build();
 
 		SendDigitalFeedbackDetailsInt sdf2 = SendDigitalFeedbackDetailsInt.builder()
@@ -246,8 +247,8 @@ class LegalFactPdfGeneratorTest {
 						.type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
 						.address("pçroà2@test.com")
 						.build())
-				.responseStatus(ResponseStatusInt.OK)
-				.notificationDate(Instant.now())
+				.responseStatus(status)
+				.notificationDate(Instant.now().minus(5, ChronoUnit.MINUTES))
 				.build();
 		
 		List<SendDigitalFeedbackDetailsInt> result = new ArrayList<SendDigitalFeedbackDetailsInt>();

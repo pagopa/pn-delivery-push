@@ -97,6 +97,8 @@ public class PnDeliveryPushConfigs {
         private Integer maxLength;
         private Integer purgeDeletionWaittime;
         private Integer readBufferDelay;
+        private Integer maxStreams;
+        private Duration ttl;
     }
 
     @Data
