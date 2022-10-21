@@ -4,7 +4,7 @@ info:
   title: 'Piattaforma Notifiche: API B2B avanzamento notifiche'
   x-summary: 'API B2B avanzamento notifiche'
   version: '1.0.0'
-  x-api-id: api-internal-b2b-webhook
+  x-api-id: api-external-b2b-webhook # ONLY EXTERNAL
   description: >- 
     I mittenti di notifica possono seguire il flusso di avanzamento delle notifiche in modo 
     automatico. E' possibile definire fino ad un massimo di 5 configurazioni di flussi per 
@@ -118,12 +118,12 @@ info:
     Le operazioni con il tag __Events__ sono quelle utilizzate per la [lettura degli eventi](#/Events/consumeEventStream) 
     filtrati in base alla configurazione impostata negli streams.
     
-    La api restituisce un massimo di 10 elementi. Se ci sono ulteriori eventi nello stream sarà restituito 
-    l'elemento `retryAfter = 0`; per ottenere gli eventi successivi è necessario richiamare il servizio 
-    passando il parametro _lastEventId_ valorizzato con l'ultimo _eventId_ della richiesta precedente.
-    Questo permetterà alla piattaforma di cancellare gli eventi precedenti.</br>
-    Se il valore di `retryAfter = 60000` significa che è necessario attendere che vengano generati 
-    nuovo eventi nello stream.</br>
+    La api restituisce un massimo di 10 elementi.</br>
+    Se <u>esistono</u> ulteriori eventi nello stream allora la response del servizio restituisce 
+    l'elemento `retryAfter = 0` ed è quindi possibile richiamare immediatamente il servizio per ottenere gli eventi successivi, utilizzando
+    il parametro _lastEventId_ valorizzato con l'ultimo _eventId_ della richiesta precedente.
+    Si evidenzia che ogni nuova chiamata al servizio con lastEventId implica la cancellazione degli eventi precedenti.</br>
+    Se <u>non esistono</u> ulteriori eventi nello stream, allora la response del servizio restituisce il valore di `retryAfter ≠ 0` ed è quindi necessario attendere il tempo indicato dalla _retryAfter_ per consumare eventualmente nuovi eventi nello stream.</br>
 
     </br>
     </br>
@@ -558,7 +558,7 @@ components:
           type: string
         iun:
           description: >-
-            Identificativo della notifica, presente solo le la richiesta di notifica è 
+            Identificativo della notifica, presente solo se la richiesta di notifica è 
             stata accettata.
           type: string
 
