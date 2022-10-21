@@ -2,13 +2,11 @@ package it.pagopa.pn.deliverypush.action.utils;
 
 import it.pagopa.pn.commons.utils.DateFormatUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.RecipientRelatedTimelineElementDetails;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -47,26 +45,17 @@ public class CompletionWorkflowUtils {
                 .collect(Collectors.toList());
 
         List<SendDigitalFeedbackDetailsInt> listFeedbackFromExtChannel = new ArrayList<>();
-        PhysicalAddressInt sendRegisteredLetterAddress = null;
 
         for(TimelineElementInternal element : timelineByTimestampSorted){
             if(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK.equals(element.getCategory())){
                 getSpecificDetailRecipient(element, recIndex).ifPresent(
                         details -> listFeedbackFromExtChannel.add((SendDigitalFeedbackDetailsInt) details)
                 );
-            } else { //TODO eliminare se confermata modifica di legal da Alessio
-                if(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER.equals(element.getCategory())){
-                    Optional<RecipientRelatedTimelineElementDetails> opt = getSpecificDetailRecipient(element, recIndex);
-                    if(opt.isPresent()){
-                        SimpleRegisteredLetterDetailsInt simpleRegisteredLetterDetails = (SimpleRegisteredLetterDetailsInt) opt.get();
-                        sendRegisteredLetterAddress = simpleRegisteredLetterDetails.getPhysicalAddress();
-                    }
-                }
             }
         }
 
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
-        return saveLegalFactsService.savePecDeliveryWorkflowLegalFact(listFeedbackFromExtChannel, notification, recipient, status, completionWorkflowDate, sendRegisteredLetterAddress);
+        return saveLegalFactsService.savePecDeliveryWorkflowLegalFact(listFeedbackFromExtChannel, notification, recipient, status, completionWorkflowDate);
     }
 
     private Optional<RecipientRelatedTimelineElementDetails> getSpecificDetailRecipient(TimelineElementInternal element, int recIndex){
