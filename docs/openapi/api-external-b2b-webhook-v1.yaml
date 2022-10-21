@@ -383,7 +383,7 @@ paths:
                 type: integer
                 format: int32
               description: >-
-                Numero di secondi di attesa prima di effettuare una nuova lettura di eventi. <br/>
+                Numero di millisecondi di attesa prima di effettuare una nuova lettura di eventi. <br/>
                 Sarà valorizzato a zero se ci sono eventi in coda che non sono stati forniti per 
                 raggiunta dimensione massima della risposta. <br/>
                 Sarà maggiore di zero se gli eventi in coda sono stati tutti inviati.
@@ -399,7 +399,7 @@ paths:
                 type: integer
                 format: int32
               description: >-
-                Numero di secondi di attesa prima di effettuare una nuova lettura di eventi.
+                Numero di millisecondi di attesa prima di effettuare una nuova lettura di eventi.
         '400':
           description: Invalid input
           content:
