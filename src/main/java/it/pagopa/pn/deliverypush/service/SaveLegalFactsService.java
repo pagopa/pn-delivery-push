@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.service;
 
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
-import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.PdfInfo;
@@ -20,8 +19,7 @@ public interface SaveLegalFactsService {
             NotificationInt notification,
             NotificationRecipientInt recipient,
             EndWorkflowStatus status,
-            Instant completionWorkflowDate,
-            PhysicalAddressInt sendRegisteredLetterAddress
+            Instant completionWorkflowDate
     );
     
     String saveNotificationViewedLegalFact(

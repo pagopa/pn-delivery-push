@@ -220,20 +220,7 @@
 
     <#if endWorkflowStatus != "SUCCESS">
       <div class="paragraph">
-        In data <strong>${endWorkflowDate}</strong> il gestore della piattaforma ha reso disponibile l’avviso di mancato recapito del messaggio ai sensi dell’art. 26, comma 6 del D.L. 76 del 16 luglio
-        <#if sendRegisteredLetterAddress??>
-        <!--  in caso di fallimento, nelle attestazioni che non prevedono l'invio analogico, non inserire la dicitura dell'indirizzo nel template     -->
-        2020 e comunicato l’Avviso di Avvenuta Ricezione all’indirizzo:
-        <#else>
-        2020.
-        </#if>
-        <p>
-          <strong>
-            <#if addressWriter.nullSafePhysicalAddressToString( sendRegisteredLetterAddress, recipient.denomination, '<br/>')??>
-            <br/> ${addressWriter.nullSafePhysicalAddressToString( sendRegisteredLetterAddress, "<strong>"+recipient.denomination+"</strong>", '<br/>')}
-            </#if>
-          </strong>
-        </p>
+        In data <strong>${endWorkflowDate}</strong> il gestore della piattaforma ha reso disponibile l’avviso di mancato recapito del messaggio ai sensi dell’art. 26, comma 6 del D.L. 76 del 16 luglio 2020.
       </div>
     </#if>
     

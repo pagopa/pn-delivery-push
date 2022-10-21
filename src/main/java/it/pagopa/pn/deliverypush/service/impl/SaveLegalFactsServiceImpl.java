@@ -5,7 +5,6 @@ import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
-import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationResponseInt;
@@ -112,8 +111,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
             NotificationInt notification,
             NotificationRecipientInt recipient,
             EndWorkflowStatus status,
-            Instant completionWorkflowDate,
-            PhysicalAddressInt sendRegisteredLetterAddress
+            Instant completionWorkflowDate
     ) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
@@ -126,7 +124,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
             log.debug("Start savePecDeliveryWorkflowLegalFact - iun={}", notification.getIun());
 
             String url = this.saveLegalFact(legalFactBuilder.generatePecDeliveryWorkflowLegalFact(
-                    listFeedbackFromExtChannel, notification, recipient, status, completionWorkflowDate, sendRegisteredLetterAddress));
+                    listFeedbackFromExtChannel, notification, recipient, status, completionWorkflowDate));
 
             log.debug("End savePecDeliveryWorkflowLegalFact - iun={}", notification.getIun());
 

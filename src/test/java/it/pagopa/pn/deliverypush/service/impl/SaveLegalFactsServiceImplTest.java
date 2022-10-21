@@ -132,16 +132,15 @@ class SaveLegalFactsServiceImplTest {
         NotificationRecipientInt recipient = buildRecipient(denomination);
         EndWorkflowStatus status = EndWorkflowStatus.SUCCESS;
         Instant completionWorkflowDate = Instant.parse("2021-09-16T15:24:00.00Z");
-        PhysicalAddressInt sendRegisteredLetterAddress = buildPhysicalAddressInt();
         FileCreationWithContentRequest fileCreation = buildFileCreationWithContentRequest(PN_LEGAL_FACTS);
         FileCreationResponseInt file = buildFileCreationResponseInt();
 
         Mockito.when(legalFactBuilder.generatePecDeliveryWorkflowLegalFact(
-                listFeedbackFromExtChannel, notification, recipient, status, completionWorkflowDate, sendRegisteredLetterAddress)).thenReturn(denomination.getBytes());
+                listFeedbackFromExtChannel, notification, recipient, status, completionWorkflowDate)).thenReturn(denomination.getBytes());
         Mockito.when(safeStorageService.createAndUploadContent(fileCreation)).thenReturn(file);
 
         String actual = saveLegalFactsService.savePecDeliveryWorkflowLegalFact(listFeedbackFromExtChannel,
-                notification, recipient, status, completionWorkflowDate, sendRegisteredLetterAddress);
+                notification, recipient, status, completionWorkflowDate);
 
         Assertions.assertEquals("safestorage://001", actual);
     }
@@ -155,13 +154,12 @@ class SaveLegalFactsServiceImplTest {
         NotificationRecipientInt recipient = buildRecipient(denomination);
         EndWorkflowStatus status = EndWorkflowStatus.SUCCESS;
         Instant completionWorkflowDate = Instant.parse("2021-09-16T15:24:00.00Z");
-        PhysicalAddressInt sendRegisteredLetterAddress = buildPhysicalAddressInt();
         FileCreationWithContentRequest fileCreation = buildFileCreationWithContentRequest(PN_LEGAL_FACTS);
         FileCreationResponseInt file = buildFileCreationResponseInt();
 
         PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
             saveLegalFactsService.savePecDeliveryWorkflowLegalFact(listFeedbackFromExtChannel,
-                    notification, recipient, status, completionWorkflowDate, sendRegisteredLetterAddress);
+                    notification, recipient, status, completionWorkflowDate);
         });
 
         String expectErrorMsg = "PN_DELIVERYPUSH_SAVELEGALFACTSFAILED";
