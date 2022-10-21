@@ -124,7 +124,7 @@ info:
     l'elemento `retryAfter = 0` ed è quindi possibile richiamare immediatamente il servizio per ottenere gli eventi successivi, utilizzando
     il parametro _lastEventId_ valorizzato con l'ultimo _eventId_ della richiesta precedente.
     Si evidenzia che ogni nuova chiamata al servizio con lastEventId implica la cancellazione degli eventi precedenti.</br>
-    Se <u>non esistono</u> ulteriori eventi nello stream, allora la response del servizio restituisce il valore di `retryAfter ≠ 0` ed è quindi necessario attendere il tempo indicato dalla _retryAfter_ per consumare eventualmente nuovi eventi nello stream.</br>
+    Se <u>non esistono</u> ulteriori eventi nello stream, allora la response del servizio restituisce il valore di `retryAfter ≠ 0` ed è quindi necessario attendere il tempo indicato dalla _retryAfter_ in millisecondi per consumare eventualmente nuovi eventi nello stream.</br>
     <font color="red">__Gli eventi sono mantenuti per un massimo di 7 giorni dopo i quali sono automaticamente cancellati anche se non sono stati prelevati dallo stream. (Questa parte è in fase di implementazione)__</font> # NOT YET IMPLEMENTED
 
     </br>
