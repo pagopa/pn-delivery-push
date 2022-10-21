@@ -129,6 +129,8 @@ public class StatusUtils {
     ) {
         NotificationStatusInt nextState;
 
+        boolean multiRecipient = numberOfRecipients > 1;
+
         //(Gli stati ACCEPTED e DELIVERING sono gli stati in cui ci sono differenze di gestione per il multi destinatario, dunque prevedono una logica ad-hoc per il cambio stato)
         // Se sono nello stato ACCEPTED o DELIVERING e l'elemento di timeline preso in considerazione è uno degli stati di successo o fallimento del workflow ...
         if ( ( currentState.equals(NotificationStatusInt.ACCEPTED) || currentState.equals(NotificationStatusInt.DELIVERING) ) 
@@ -145,7 +147,7 @@ public class StatusUtils {
             }
         } else {
             //... Altrimenti lo stato viene calcolato normalmente dalla mappa
-                nextState = stateMap.getStateTransition(currentState, timelineElementCategory);
+                nextState = stateMap.getStateTransition(currentState, timelineElementCategory, multiRecipient);
         }
         
         return nextState;
@@ -153,6 +155,7 @@ public class StatusUtils {
 
     private NotificationStatusInt getNextState(NotificationStatusInt currentState, List<TimelineElementCategoryInt> relatedCategoryElements, int numberOfRecipient) {
         int failureWorkflow = 0;
+        boolean multiRecipient = numberOfRecipient > 1;
         
         //Viene effettuato un ciclo su tutti gli elementi relati allo stato corrente
         for (TimelineElementCategoryInt category : relatedCategoryElements){
@@ -160,7 +163,7 @@ public class StatusUtils {
             //Se almeno per un recipient il workflow è andato a buon fine
             if( SUCCES_DELIVERY_WORKFLOW_CATEGORY.contains(category) ) {
                 //Viene ottenuto lo stato relato alla category di successo
-                return stateMap.getStateTransition(currentState, category);
+                return stateMap.getStateTransition(currentState, category, multiRecipient);
                 
                 //Se per tutti i recipient il workflow è fallito
             }else if( FAILURE_DELIVERY_WORKFLOW_CATEGORY.contains(category) ) {
@@ -168,7 +171,7 @@ public class StatusUtils {
                 if( failureWorkflow == numberOfRecipient) {
                     
                     //Viene ottenuto lo stato relato alla category di fallimento
-                    return stateMap.getStateTransition(currentState, category);
+                    return stateMap.getStateTransition(currentState, category, multiRecipient);
                 }
             }
         }
