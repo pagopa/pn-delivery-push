@@ -11,11 +11,11 @@ components:
           * `REQUEST_ACCEPTED` - Richiesta di notifica accettata a seguito dei controlli di validazione
           * `REQUEST_REFUSED` - Richiesta di notifica rifiutata per fallimento di validazione
           * `SEND_COURTESY_MESSAGE` - Invio di un messaggio di cortesia
-          * `GET_ADDRESS` - Informazioni sulla disponibilità dello specifico indirizzo
           * `PUBLIC_REGISTRY_CALL` - Effettuata la richiesta ai registri pubblici per ottenere l'indirizzo generale
           * `PUBLIC_REGISTRY_RESPONSE` - Ricevuta la risposta dei registri pubblici alla richiesta di ottenimento dell'indirizzo generale
+          * `GET_ADDRESS` - Informazioni sulla disponibilità dello specifico indirizzo
           * `SCHEDULE_ANALOG_WORKFLOW` - Inizio del workflow per invio cartaceo
-          * `SCHEDULE_DIGITAL_WORKFLOW` - Inizio del workflow per invio digitale (PEC)
+          * `SCHEDULE_DIGITAL_WORKFLOW`- Inizio del workflow per invio digitale (PEC)
           * `SEND_DIGITAL_DOMICILE` - Invio digitale dell’avviso di notifica
           * `SEND_DIGITAL_FEEDBACK` - Ottenuto esito ad un invio digitale
           * `SCHEDULE_REFINEMENT` - Pianificato il perfezionamento per decorrenza termini
@@ -33,18 +33,18 @@ components:
           * `PAYMENT` - Ricezione pagamento della notifica
           * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
       enum:
+        - REQUEST_REFUSED
         - REQUEST_ACCEPTED
         - SEND_COURTESY_MESSAGE
-        - GET_ADDRESS
         - PUBLIC_REGISTRY_CALL
         - PUBLIC_REGISTRY_RESPONSE
+        - GET_ADDRESS
         - SCHEDULE_ANALOG_WORKFLOW
         - SCHEDULE_DIGITAL_WORKFLOW
         - SEND_DIGITAL_DOMICILE
-        - SEND_DIGITAL_PROGRESS
         - SEND_DIGITAL_FEEDBACK
-        - REFINEMENT
         - SCHEDULE_REFINEMENT
+        - REFINEMENT
         - DIGITAL_SUCCESS_WORKFLOW
         - DIGITAL_FAILURE_WORKFLOW
         - ANALOG_SUCCESS_WORKFLOW
@@ -53,10 +53,9 @@ components:
         - NOTIFICATION_VIEWED
         - SEND_ANALOG_DOMICILE
         - SEND_PAPER_FEEDBACK
-        - PAYMENT
         - COMPLETELY_UNREACHABLE
-        - REQUEST_REFUSED
         - AAR_GENERATION
+        - PAYMENT
         - NOT_HANDLED
     
     TimelineElement:
