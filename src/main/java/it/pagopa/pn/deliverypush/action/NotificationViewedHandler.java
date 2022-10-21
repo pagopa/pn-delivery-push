@@ -61,7 +61,7 @@ public class NotificationViewedHandler {
     public void handleViewNotification(String iun, Integer recIndex, String raddType, String raddTransactionId, Instant eventTimestamp) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_VIEW_RPC, "Start HandleViewNotification - iun={} id={} raddType={} raddTransactionId", iun, recIndex, raddType, raddTransactionId )
+                .before(PnAuditLogEventType.AUD_NT_VIEW_RCP, "Start HandleViewNotification - iun={} id={} raddType={} raddTransactionId", iun, recIndex, raddType, raddTransactionId )
                 .iun(iun)
                 .build();
         logEvent.log();
