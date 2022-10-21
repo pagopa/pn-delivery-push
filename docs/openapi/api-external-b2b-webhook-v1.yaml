@@ -151,7 +151,7 @@ info:
       <summary><strong>Dopo aver creato uno stream ed inserite alcune notifiche, come posso vedere gli eventi da esse generati?</strong></summary>
       <em>Per ottenere gli eventi bisogna chiamare il servizio per la [lettura degli eventi](#/Events/consumeEventStream) inserendo nel path variabile lo _streamId_ dello stream che si vuole interrogare. A questo punto:</br>
       >><small><strong>1) </strong>Se nell'header della response ottengo <strong>retry-after = 0</strong> significa che è possibile consumare ulteriori eventi presenti nello stream;</br> quindi, per ottenere gli eventi successivi dovrò richiamare nuovamente lo stesso servizio, aggiungendo come query param l'<strong>eventId</strong> dell'ultimo evento.</small></br></br>
-      <small><strong>2) </strong>Se nell'header della response ottengo <strong>retry-after = 60000</strong> ed ho eventi nel body della response, significa che lo stream non contiene altri eventi e sarà necessario</br> attendere che ne siano generati di nuovi, prima di poter richiamare di nuovamente il servizio sullo stesso stream.</small></em></br></br>
+      <small><strong>2) </strong>Se nell'header della response ottengo <strong>retry-after ≠ 0</strong> ed ho eventi nel body della response, significa che lo stream non contiene altri eventi e sarà necessario</br> attendere che ne siano generati di nuovi, prima di poter richiamare di nuovamente il servizio sullo stesso stream.</small></em></br></br>
       </details>      
 
       ><details>
