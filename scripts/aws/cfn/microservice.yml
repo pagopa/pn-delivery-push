@@ -467,4 +467,42 @@ Resources:
         WAFName: !Sub '${ProjectName}-delivery-push-io'
         APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicIoAPI.Outputs.APIGatewayARN
 
-
+  ## Dashboard
+  MandateMicroserviceCloudWatchDashboard:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/microservice-cloudwatch-dashboard.yaml"
+      Parameters:
+        DashboardName: !Sub "${ProjectName}-delivery-push"
+        DynamoDBTableNames: !Join 
+          - ',' 
+          - - !Ref TimelinesDynamoTableName 
+            - !Ref PaperNotificationFailedDynamoTableName
+            - !Ref ActionDynamoTableName
+            - !Ref FutureActionDynamoTableName
+            - !Ref LastPollForFutureActionDynamoTableName
+            - !Ref PnDeliveryPushShedLockDynamoTableName
+            - !Ref PnDeliveryPushWebhookStreamsTableName
+            - !Ref PnDeliveryPushWebhookEventsTableName
+        RestApiStageArns: !Join
+          - ','
+          - - !GetAtt DeliveryPushMicroservicePublicAPI.Outputs.RestApiStageArn
+            - !GetAtt DeliveryProgressMicroservicePublicAPI.Outputs.RestApiStageArn
+            - !GetAtt DeliveryPushMicroservicePublicWebAPI.Outputs.RestApiStageArn
+            - !GetAtt DeliveryPushMicroservicePublicIoAPI.Outputs.RestApiStageArn
+        RestApiNames: !Join
+          - ','
+          - - !GetAtt DeliveryPushMicroservicePublicAPI.Outputs.RestApiName
+            - !GetAtt DeliveryProgressMicroservicePublicAPI.Outputs.RestApiName
+            - !GetAtt DeliveryPushMicroservicePublicWebAPI.Outputs.RestApiName
+            - !GetAtt DeliveryPushMicroservicePublicIoAPI.Outputs.RestApiName
+        AlarmArns: !Join
+          - ','
+          - - !GetAtt DeliveryPushMicroservice.Outputs.AutoScalingAlarmArn
+        QueueArns: !Join
+          - ','
+          - - !Ref DeliveryPushInputsQueueARN
+            - !Ref ExternalChannelsInputsQueueARN
+            - !Ref ExternalChannelsOutputsQueueARN
+            - !Ref ScheduledActionsQueueARN
+            - !Ref DoneActionsQueueARN

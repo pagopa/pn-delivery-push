@@ -1,0 +1,719 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "termsOfService": "https://termofservice.it",
+    "title": "API B2B avanzamento notifiche",
+    "x-summary": "API B2B avanzamento notifiche",
+    "version": "1.0.0",
+    "x-api-id": "api-external-b2b-webhook",
+    "description": "I mittenti di notifica possono seguire il flusso di avanzamento delle notifiche in modo  automatico. E' possibile definire fino ad un massimo di 5 configurazioni di flussi per  informazioni relative a: <br/>\n  - cambiamento di stato della notifica;  <br/>\n  - inserimento di elementi nella timeline. <br/>\n\nPer ognuno di questi elementi è possibile definire un filtro per ricevere solo alcuni  cambiamenti di stato o determinati eventi di timeline.\nEsempio: - Ricezione dell'accettazione o rifiuto delle notifiche:\n`` {\n  \"title\": \"NotificationAccepted\",\n  \"eventType\": \"STATUS\",\n  \"filterValues\": [\n    \"ACCEPTED\",\"\n  ]\n} ``\nGli stati della notifica sono: $ref: './schemas-pn-status-v1.yaml#/components/schemas/NotificationStatus'\nLe categorie degli eventi di timeline sono:  $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/TimelineElementCategory'\nLe operazioni con il tag __Streams__ gestiscono la configurazione: <br/>\n  - Creazione; <br/>\n  - Modifica; <br/>\n  - Cancellazione. <br/>\n\nLe operazioni con il tag __Events__ sono quelle utilizzate per la lettura degli eventi  filtrati in base alla configurazione impostata negli streams.\nLa api restituisce un massimo di 100 elementi. Se ci sono ulteriori eventi nello stream sarà restituito  l'elemento `retryAfter = 0`, per ottenere gli eventi successivi è necessario richiamare il servizio  passando il parametro _lastEventId_ valorizzato con l'ultimo _eventId_ della richiesta precedente. Questo permetterà alla piattaforma di cancellare gli eventi precedenti.\nGli eventi sono mantenuti per un massimo di X giorni dopo i quali sono automaticamente cancellati anche se non sono stati prelevati dallo stream.",
+    "contact": {
+      "email": "pn@pagopa.it"
+    },
+    "license": {
+      "name": "Licenza di PN",
+      "url": "https://da-definire/"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.pn.pagopa.it",
+      "description": "Ambiente di produzione"
+    },
+    {
+      "url": "https://api.uat.pn.pagopa.it",
+      "description": "Ambiente di test"
+    },
+    {
+      "url": "https://api.dev.pn.pagopa.it",
+      "description": "Ambiente di sviluppo"
+    }
+  ],
+  "tags": [
+    {
+      "name": "HealthCheck",
+      "description": "Invocazioni per sapere lo stato del microservizio"
+    },
+    {
+      "name": "Streams",
+      "description": "Gestione degli stream di eventi che PN mette a disposizione"
+    },
+    {
+      "name": "Events",
+      "description": "Metodi per la lettura degli eventi dagli stream"
+    }
+  ],
+  "paths": {
+    "/status": {
+      "get": {
+        "summary": "healthCheck path",
+        "description": "healtCheck path per verificare lo stato del microservizio",
+        "tags": [
+          "HealthCheck"
+        ],
+        "operationId": "status",
+        "responses": {
+          "200": {
+            "description": "Ok"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/delivery-progresses/streams": {
+      "post": {
+        "summary": "Crea nuovo stream di eventi",
+        "description": "Viene richiesta la creazione di un flusso di eventi specificando se gli eventi saranno  relativi ai cambi di stato o agli eventi di timeline. <br/> In risposta, Piattaforma Notifiche, comunicherà un identificativo dello stream e il  timestamp di effettiva attivazione del flusso, tipicamente pochi secondi dopo che è stata  invocata l'operazione.",
+        "tags": [
+          "Streams"
+        ],
+        "operationId": "createEventStream",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StreamCreationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamMetadataResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/paths/~1delivery-progresses~1streams/get/responses/400/content/application~1problem%2Bjson/schema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/paths/~1delivery-progresses~1streams/get/responses/400/content/application~1problem%2Bjson/schema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Elenca stream di eventi",
+        "description": "",
+        "tags": [
+          "Streams"
+        ],
+        "operationId": "listEventStreams",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "properties": {
+                    "type": {
+                      "description": "URI reference of type definition",
+                      "type": "string"
+                    },
+                    "status": {
+                      "description": "The HTTP status code generated by the origin server for this occurrence of the problem.",
+                      "example": 400,
+                      "exclusiveMaximum": true,
+                      "format": "int32",
+                      "maximum": 600,
+                      "minimum": 100,
+                      "type": "integer"
+                    },
+                    "title": {
+                      "description": "A short, summary of the problem type. Written in english and readable",
+                      "example": "Bad Request",
+                      "maxLength": 64,
+                      "pattern": "^[ -~]{0,64}$",
+                      "type": "string"
+                    },
+                    "detail": {
+                      "description": "A human readable explanation of the problem.",
+                      "example": "required field 'name' missing",
+                      "maxLength": 4096,
+                      "pattern": "^.{0,4096}$",
+                      "type": "string"
+                    },
+                    "traceId": {
+                      "description": "Internal support identifier associated to error",
+                      "example": "123e4567-e89b-12d3-a456-426614174000",
+                      "type": "string"
+                    },
+                    "errors": {
+                      "type": "array",
+                      "minItems": 0,
+                      "items": {
+                        "properties": {
+                          "code": {
+                            "description": "Internal code of the error",
+                            "example": "400-0001",
+                            "minLength": 8,
+                            "maxLength": 8,
+                            "pattern": "^[0-9]{3}-[0-9]{4}$",
+                            "type": "string"
+                          },
+                          "detail": {
+                            "description": "A human readable explanation specific to this occurrence of the problem.",
+                            "example": "Parameter not valid",
+                            "maxLength": 4096,
+                            "pattern": "^.{0,4096}$",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "code",
+                          "detail"
+                        ]
+                      }
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "status",
+                    "title",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/paths/~1delivery-progresses~1streams/get/responses/400/content/application~1problem%2Bjson/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/delivery-progresses/streams/{streamId}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/pathStreamId"
+        }
+      ],
+      "get": {
+        "summary": "Leggi metadati dello stream",
+        "description": "Permette di leggere le configurazioni di uno stream di eventi.",
+        "tags": [
+          "Streams"
+        ],
+        "operationId": "getEventStream",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamMetadataResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/paths/~1delivery-progresses~1streams/get/responses/400/content/application~1problem%2Bjson/schema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/paths/~1delivery-progresses~1streams/get/responses/400/content/application~1problem%2Bjson/schema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update Stream metadata",
+        "description": "Permette di cambiare le configurazioni dei filtri associati a uno stream di eventi",
+        "tags": [
+          "Streams"
+        ],
+        "operationId": "updateEventStream",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StreamCreationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamMetadataResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/paths/~1delivery-progresses~1streams/get/responses/400/content/application~1problem%2Bjson/schema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/paths/~1delivery-progresses~1streams/get/responses/400/content/application~1problem%2Bjson/schema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove Event Stream",
+        "description": "Elimina uno steam di eventi: elimina sia le configurazioni sia tutti gli eventi  associati allo stream e non ancora consumati.",
+        "tags": [
+          "Streams"
+        ],
+        "operationId": "deleteEventStream",
+        "responses": {
+          "204": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/paths/~1delivery-progresses~1streams/get/responses/400/content/application~1problem%2Bjson/schema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/paths/~1delivery-progresses~1streams/get/responses/400/content/application~1problem%2Bjson/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/delivery-progresses/streams/{streamId}/events": {
+      "get": {
+        "summary": "Leggi progressi notifiche",
+        "description": "Permette di leggere gli eventi presenti nello stream di aggiornamenti e indica che  la P.A. ha ricevuto e memorizzato l'evento identificato dal parametro _lastEventId_ e tutti gli eventi precedenti. Tali eventi potranno essere cancellati dallo stream.",
+        "tags": [
+          "Events"
+        ],
+        "operationId": "consumeEventStream",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/pathStreamId"
+          },
+          {
+            "$ref": "#/components/parameters/queryLastEventId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "retry-after": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "description": "Numero di secondi di attesa prima di effettuare una nuova lettura di eventi. <br/> Sarà valorizzato a zero se ci sono eventi in coda che non sono stati forniti per  raggiunta dimensione massima della risposta. <br/> Sarà maggiore di zero se gli eventi in coda sono stati tutti inviati."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProgressResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/paths/~1delivery-progresses~1streams/get/responses/400/content/application~1problem%2Bjson/schema"
+                }
+              }
+            }
+          },
+          "419": {
+            "description": "Too Many Requests",
+            "headers": {
+              "retry-after": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "description": "Numero di secondi di attesa prima di effettuare una nuova lettura di eventi."
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/paths/~1delivery-progresses~1streams/get/responses/400/content/application~1problem%2Bjson/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "cxTypeAuthFleet": {
+        "name": "x-pagopa-pn-cx-type",
+        "in": "header",
+        "description": "Customer/Receiver Type",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "PA",
+            "PF",
+            "PG"
+          ]
+        }
+      },
+      "cxIdAuthFleet": {
+        "name": "x-pagopa-pn-cx-id",
+        "in": "header",
+        "description": "Customer/Receiver Identifier",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "uidAuthFleet": {
+        "name": "x-pagopa-pn-uid",
+        "in": "header",
+        "description": "User Identifier",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "queryLastEventId": {
+        "description": "Identificativo dell'ultimo evento memorizzato dal chiamante, se non passato si intende dal primo evento presente nello stream",
+        "name": "lastEventId",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "pathStreamId": {
+        "description": "Identificativo dello stream di eventi",
+        "name": "streamId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
+    "schemas": {
+      "StreamCreationRequest": {
+        "description": "Richiesta di creazione di uno stream di eventi di avanzamento delle notifiche.",
+        "type": "object",
+        "required": [
+          "title",
+          "eventTYpe"
+        ],
+        "properties": {
+          "title": {
+            "description": "Nome sintetico dello stream",
+            "type": "string"
+          },
+          "eventType": {
+            "description": "Tipo di eventi presenti nel flusso:\n  - _STATUS_: cambiamenti di stato delle notifiche\n  - _TIMELINE_: eventi a granularità fine",
+            "type": "string",
+            "enum": [
+              "STATUS",
+              "TIMELINE"
+            ]
+          },
+          "filterValues": {
+            "description": "Se non _null_ indica l'elenco degli stati o elementi di timeline che  si vogliono ricevere.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "StreamMetadataResponse": {
+        "description": "Configurazioni di un flusso di eventi",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StreamCreationRequest"
+          },
+          {
+            "type": "object",
+            "required": [
+              "streamId",
+              "activationDate"
+            ],
+            "properties": {
+              "streamId": {
+                "description": "Identificativo del flusso di eventi",
+                "type": "string",
+                "format": "uuid"
+              },
+              "activationDate": {
+                "description": "Timestamp in cui il flusso di eventi è stato attivato",
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        ]
+      },
+      "StreamListResponse": {
+        "description": "Elenco di flussi di eventi",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/StreamListElement"
+        }
+      },
+      "StreamListElement": {
+        "type": "object",
+        "required": [
+          "title",
+          "streamId"
+        ],
+        "properties": {
+          "streamId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "ProgressResponse": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ProgressResponseElement"
+        }
+      },
+      "ProgressResponseElement": {
+        "type": "object",
+        "required": [
+          "eventId",
+          "timestamp"
+        ],
+        "properties": {
+          "eventId": {
+            "description": "Elemento che garantisce univocità e ordinamento temporale all'interno dello stream",
+            "type": "string"
+          },
+          "timestamp": {
+            "description": "Istante a cui è avvenuto l'evento",
+            "type": "string",
+            "format": "date-time"
+          },
+          "notificationRequestId": {
+            "description": "Identificativo della richiesta di notifica",
+            "type": "string"
+          },
+          "iun": {
+            "description": "Identificativo della notifica, presente solo le la richiesta di notifica è  stata accettata.",
+            "type": "string"
+          },
+          "newStatus": {
+            "type": "string",
+            "description": "stato di avanzamento del processo di notifica:\n  * `IN_VALIDATION` - notifica depositata in attesa di validazione\n  * `ACCEPTED` - notifica accettata \n  * `REFUSED` - notifica rifiutata\n  * `DELIVERING` - notifica in spedita\n  * `DELIVERED` - notifica ricevuta da tutti i destinatari\n  * `VIEWED` - notifica presa visione per almeno un destinatario\n  * `EFFECTIVE_DATE` - notifica perfezionata per un destinatario\n  * `PAID` - notifica pagata\n  * `UNREACHABLE` - notifica non recapitabile\n  * `CANCELLED` - notifica annullata dal mittente\n",
+            "enum": [
+              "IN_VALIDATION",
+              "ACCEPTED",
+              "DELIVERING",
+              "DELIVERED",
+              "VIEWED",
+              "EFFECTIVE_DATE",
+              "PAID",
+              "UNREACHABLE",
+              "REFUSED",
+              "CANCELLED"
+            ]
+          },
+          "timelineEventCategory": {
+            "type": "string",
+            "description": "stato di avanzamento del processo di notifica:`\n  * `REQUEST_ACCEPTED` - \n  * `SEND_COURTESY_MESSAGE` - \n  * `GET_ADDRESS` - \n  * `PUBLIC_REGISTRY_CALL` - \n  * `PUBLIC_REGISTRY_RESPONSE` - \n  * `SCHEDULE_ANALOG_WORKFLOW` - \n  * `SCHEDULE_DIGITAL_WORKFLOW` - \n  * `SEND_DIGITAL_DOMICILE` - \n  * `SEND_DIGITAL_DOMICILE_FEEDBACK` - \n  * `SEND_DIGITAL_FEEDBACK` - \n  * `REFINEMENT` - \n  * `SCHEDULE_REFINEMENT` - \n  * `DIGITAL_SUCCESS_WORKFLOW` - \n  * `DIGITAL_FAILURE_WORKFLOW` - \n  * `ANALOG_SUCCESS_WORKFLOW` - \n  * `ANALOG_FAILURE_WORKFLOW` - \n  * `SEND_SIMPLE_REGISTERED_LETTER` - \n  * `NOTIFICATION_VIEWED` - \n  * `SEND_ANALOG_DOMICILE` - \n  * `SEND_PAPER_FEEDBACK` - \n  * `PAYMENT` - \n  * `COMPLETELY_UNREACHABLE` - \n  * `REQUEST_REFUSED` - \n  * `AAR_GENERATION` - \n  * `NOT_HANDLED` -\n",
+            "enum": [
+              "REQUEST_ACCEPTED",
+              "SEND_COURTESY_MESSAGE",
+              "GET_ADDRESS",
+              "PUBLIC_REGISTRY_CALL",
+              "PUBLIC_REGISTRY_RESPONSE",
+              "SCHEDULE_ANALOG_WORKFLOW",
+              "SCHEDULE_DIGITAL_WORKFLOW",
+              "SEND_DIGITAL_DOMICILE",
+              "SEND_DIGITAL_PROGRESS",
+              "SEND_DIGITAL_FEEDBACK",
+              "REFINEMENT",
+              "SCHEDULE_REFINEMENT",
+              "DIGITAL_SUCCESS_WORKFLOW",
+              "DIGITAL_FAILURE_WORKFLOW",
+              "ANALOG_SUCCESS_WORKFLOW",
+              "ANALOG_FAILURE_WORKFLOW",
+              "SEND_SIMPLE_REGISTERED_LETTER",
+              "NOTIFICATION_VIEWED",
+              "SEND_ANALOG_DOMICILE",
+              "SEND_PAPER_FEEDBACK",
+              "PAYMENT",
+              "COMPLETELY_UNREACHABLE",
+              "REQUEST_REFUSED",
+              "AAR_GENERATION",
+              "NOT_HANDLED"
+            ]
+          }
+        }
+      },
+      "ExternalEventsRequest": {
+        "title": "Invio eventi da P.A. a P.N.",
+        "description": "Richiesta contenente un array di eventi di cui una Pubblica Amministrazione deve avvisare Piattaforma Notifiche.",
+        "type": "object",
+        "required": [
+          "events"
+        ],
+        "properties": {
+          "events": {
+            "description": "Elenco degli eventi",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExternalEvent"
+            }
+          }
+        }
+      },
+      "ExternalEvent": {
+        "title": "Un evento generato all'esterno di PN.",
+        "description": "Un evento riguardante la notifica generato all'esterno di Piattaforma Notifiche come, ad esempio, il pagamento che può avvenire anche tramite F24. <br/>\nDeve essere valorizzata una solo campo, quello specifico del tipo di evento.",
+        "type": "object",
+        "properties": {
+          "payment": {
+            "$ref": "#/components/schemas/PaymentEvent"
+          }
+        }
+      },
+      "PaymentEvent": {
+        "title": "Evento di pagamento",
+        "description": "Comprende: <br/>\n  - data e ora del pagamento, <br/>\n  - modalità di pagamento (PAGOPA / F24), <br/>\n  - lo _IUN_ della notifica pagata, <br/>\n  - il codice fiscale del destinatario pagatore, <br/>\n  - e la tipologia del destinatario pagatore (PF / PG). <br/>",
+        "type": "object",
+        "required": [
+          "iun",
+          "recipientTaxId",
+          "recipientType",
+          "paymentType",
+          "timestamp"
+        ],
+        "properties": {
+          "iun": {
+            "type": "string"
+          },
+          "recipientTaxId": {
+            "type": "string"
+          },
+          "recipientType": {
+            "type": "string",
+            "enum": [
+              "PF",
+              "PG"
+            ]
+          },
+          "paymentType": {
+            "type": "string",
+            "enum": [
+              "F24",
+              "PAGOPA"
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key"
+      }
+    }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ]
+}
+

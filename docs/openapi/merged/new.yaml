@@ -1,0 +1,566 @@
+openapi: 3.0.3
+info:
+  title: FMCC API - Modern
+  version: 0.0.1
+paths:
+  /v1/validate-order:
+    post:
+      description: Receive OrderId, Payment card number and FAD Code
+      tags:
+        - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderValidationRequestV1"
+
+      responses:
+        "200":
+          description: "OK."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderValidationResponseV1"
+        "400":
+          description: "Bad Request."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseV1"
+        "500":
+          description: "Internal Server Error."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseV1"
+
+      security:
+        - lambda-authorizer: []
+      x-amazon-apigateway-integration:
+        type: AWS_PROXY
+        httpMethod: POST
+        uri: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:hrz-mod-fmcc-api-validate-order/invocations
+        payloadFormatVersion: "1.0"
+        passthroughBehavior: NEVER
+  /v1/validate-partial-fulfilment:
+    post:
+      description: Used to validate the minimum value for partial  fulfilment  and  calculate  the amounts  to  be  printed  on  the  Horizon receipt
+      tags:
+        - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ValidatePartialFulfilmentRequestV1"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidatePartialFulfilmentResponseV1"
+        "400":
+          description: "Bad Request."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseV1"
+        "500":
+          description: "Internal Server Error."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseV1"
+      security:
+        - lambda-authorizer: []
+      x-amazon-apigateway-integration:
+        type: AWS_PROXY
+        httpMethod: POST
+        uri: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:hrz-mod-fmcc-api-validate-partial-fulfilment/invocations
+        payloadFormatVersion: "1.0"
+        passthroughBehavior: NEVER
+  /v1/update-order-collection:
+    post:
+      description: Acknowledges the receipt of Order Collection. The service will be used for collections, refunds and partial fulfilment of orders
+      tags:
+        - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CollectionUpdateRequestV1"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollectionUpdateResponseV1"
+        "400":
+          description: "Bad Request."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseV1"
+        "500":
+          description: "Internal Server Error."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseV1"
+      security:
+        - lambda-authorizer: []
+      x-amazon-apigateway-integration:
+        type: AWS_PROXY
+        httpMethod: POST
+        uri: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:hrz-mod-fmcc-api-update-order-collection/invocations
+        payloadFormatVersion: "1.0"
+        passthroughBehavior: NEVER
+  /v1/create-branch-order:
+    post:
+      description: Captures all Buy / Sell on demand transactions in the Horizon system for on demand Notes transaction.
+      tags:
+        - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BranchOrderEntryRequestV1"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BranchOrderEntryResponseV1"
+        "400":
+          description: "Bad Request."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseV1"
+        "500":
+          description: "Internal Server Error."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseV1"
+      security:
+        - lambda-authorizer: []
+      x-amazon-apigateway-integration:
+        type: AWS_PROXY
+        httpMethod: POST
+        uri: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:hrz-mod-fmcc-api-create-branch-order/invocations
+        payloadFormatVersion: "1.0"
+        passthroughBehavior: NEVER
+  /v1/get-order-list:
+    post:
+      description: Returns the list of all TMO Orders that are due for collection for a given Branch. The list includes both branch fulfilled and Cash Centre fulfilled orders
+      tags:
+        - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetOrderListRequestV1"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetOrderListResponseV1"
+        "400":
+          description: "Bad Request."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseV1"
+        "500":
+          description: "Internal Server Error."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseV1"
+      security:
+        - lambda-authorizer: []
+      x-amazon-apigateway-integration:
+        type: AWS_PROXY
+        httpMethod: POST
+        uri: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:hrz-mod-fmcc-api-get-order-list/invocations
+        payloadFormatVersion: "1.0"
+        passthroughBehavior: NEVER
+
+components:
+  schemas:
+    OrderValidationRequestV1:
+      type: object
+      required:
+        - orderId
+        - paymentReference
+        - branchCode
+      properties:
+        orderId:
+          type: string
+          description: The order number
+        paymentReference:
+          type: string
+          description: The payment card
+        branchCode:
+          type: string
+          description: The branch sort code for the account number
+    OrderValidationResponseV1:
+      type: object
+      properties:
+        orderId:
+          type: string
+        orderExpiryDateTime:
+          type: string
+        orderCollectionDateTime:
+          type: string
+        orderCreationDateTime:
+          type: string
+        orderFulfilmentType:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        orderDetails:
+          type: array
+          items:
+            type: object
+            properties:
+              orderLineNumber:
+                type: integer
+              productType:
+                type: string
+              productCode:
+                type: string
+              currencyCode:
+                type: string
+              denominationPreference:
+                type: string
+              minValForPartialFulfilment:
+                type: integer
+              baseTransactionAmount:
+                type: integer
+              gbp:
+                type: string
+              foreignTransactionAmount:
+                type: string
+              exchangeRate:
+                type: number
+              spotRate:
+                type: number
+              type:
+                type: string
+    ValidatePartialFulfilmentRequestV1:
+      type: object
+      required:
+        - orderId
+        - paymentReference
+        - branchCode
+      properties:
+        orderId:
+          type: string
+          description: The order number
+        paymentReference:
+          type: string
+          description: The payment card
+        branchCode:
+          type: string
+          description: The branch sort code for the account number
+        orderDetails:
+          type: object
+          properties:
+            orderDetail:
+              type: object
+              properties:
+                orderLineNumber:
+                  type: string
+                isPartialFulfilment:
+                  type: boolean
+                partialFulfilmentReasonCode:
+                  type: string
+                productCode:
+                  type: string
+                currencyCode:
+                  type: string
+                foreignTransactionAmount:
+                  type: integer
+
+    ValidatePartialFulfilmentResponseV1:
+      type: object
+      properties:
+        orderId:
+          type: string
+        orderLineNumber:
+          type: string
+        isPartialFulfilment:
+          type: boolean
+        orderDetails:
+          type: object
+          properties:
+            productLineItem:
+              type: array
+              items:
+                type: object
+                properties:
+                  productType:
+                    type: string
+                  productCode:
+                    type: string
+                  currencyCode:
+                    type: string
+                  denominationPreference:
+                    type: string
+                  minValForPartialFulfilment:
+                    type: string
+                  baseTransactionAmount:
+                    type: string
+                  gbp:
+                    type: string
+                  doreignTransactionAmount:
+                    type: string
+                  exchangeRate:
+                    type: string
+                  spotRate:
+                    type: string
+                  type:
+                    type: string
+    CollectionUpdateRequestV1:
+      type: object
+      required:
+        - orderId
+        - transactionID
+        - transactionEndDateTime
+        - branchCode
+      properties:
+        orderId:
+          type: string
+          description: The order number
+        transactionID:
+          type: string
+          description: The transaction id.
+        transactionEndDateTime:
+          type: string
+          description: The transaction timestamp
+        refundIndicator:
+          type: string
+          description: The refund indicator
+        branchCode:
+          type: string
+          description: The branch Code
+        terminalUserId:
+          type: string
+          description: The branch sort code for the account number
+        terminalId:
+          type: string
+          description: The Terminal ID
+        orderDetails:
+          type: object
+          properties:
+            orderDetail:
+              type: object
+              properties:
+                orderLineNumber:
+                  type: string
+                isPartialFulfilment:
+                  type: boolean
+                partialFulfilmentReasonCode:
+                  type: string
+                product:
+                  type: object
+                  properties:
+                    productType:
+                      type: string
+                    productCode:
+                      type: string
+                    currencyCode:
+                      type: string
+                    productLineItem:
+                      type: object
+                      properties:
+                        baseTransactionAmount:
+                          type: string
+                        foreignTransactionAmount:
+                          type: string
+                        exchangeRate:
+                          type: string
+                        spotRate:
+                          type: string
+                        type:
+                          type: string
+    CollectionUpdateResponseV1:
+      type: string
+      nullable: true
+
+    BranchOrderEntryRequestV1:
+      type: object
+      required:
+        - orderFulfilmentType
+        - transactionID
+        - transactionEndDateTime
+        - transactionType
+        - orderDetails
+        - branchCode
+        - tillUserID
+        - tillID
+      properties:
+        orderFulfilmentType:
+          type: string
+          description: The Order Fulfilment Type
+        transactionID:
+          type: string
+          description: The transaction id.
+        transactionEndDateTime:
+          type: string
+          description: The transaction timestamp
+        transactionType:
+          type: string
+          description: The Transaction Type
+        orderDetails:
+          type: object
+          properties:
+            orderDetail:
+              type: object
+              required:
+                - productType
+                - productCode
+                - currencyCode
+                - baseTransactionAmount
+                - foreignTransactionAmount
+                - exchangeRate
+                - spotRate
+                - type
+              properties:
+                productType:
+                  type: string
+                productCode:
+                  type: string
+                currencyCode:
+                  type: string
+                baseTransactionAmount:
+                  type: string
+                foreignTransactionAmount:
+                  type: string
+                exchangeRate:
+                  type: string
+                spotRate:
+                  type: string
+                type:
+                  type: string
+        branchCode:
+          type: string
+          description: The Till User ID
+        tillUserID:
+          type: string
+          description: The branch sort code for the account number
+        tillID:
+          type: string
+          description: The Till ID
+
+    BranchOrderEntryResponseV1:
+      type: object
+      nullable: true
+      properties:
+        orderSummary:
+          type: object
+          required:
+            - "transactionID"
+          properties:
+            transactionID:
+              type: string
+              description: Id of the transaction
+            collectionDetails:
+              type: object
+              properties:
+                branch:
+                  type: object
+                  required:
+                    - "branchCode"
+                  properties:
+                    branchCode:
+                      type: string
+                      description: Code of the branch
+
+    GetOrderListRequestV1:
+      type: object
+      required:
+        - branchCode
+      properties:
+        branchCode:
+          type: string
+          description: The branch sort code for the account number
+    GetOrderListResponseV1:
+      type: object
+      properties:
+        orders:
+          type: object
+          properties:
+            order:
+              type: array
+              items:
+                type: object
+                properties:
+                  orderFullfillmentType:
+                    type: string
+                  orderId:
+                    type: string
+                  orderCollectionDateTime:
+                    type: string
+                  currencyCode:
+                    type: string
+                  foreignTransactionAmount:
+                    type: string
+                  minValForPartialFulfilment:
+                    type: string
+                  denominationPreference:
+                    type: string
+    ErrorResponseV1:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          example: 9999
+          description: "The error code."
+        message:
+          type: string
+          example: "An unknown error happened."
+          description: "The text description of the error."
+    ResponseStatusV1:
+      type: object
+      required:
+        - responseCode
+        - errorCode
+        - errorText
+      properties:
+        responseCode:
+          type: string
+          example: "0"
+          enum: ["0", "1", "2"]
+          description: "The response code."
+        errorCode:
+          type: string
+          example: "0"
+          description: "The error code."
+        errorText:
+          type: string
+          example: ""
+          description: "The error text."
+
+  securitySchemes:
+    lambda-authorizer:
+      type: apiKey
+      name: auth
+      in: header
+      x-amazon-apigateway-authtype: custom
+      x-amazon-apigateway-authorizer:
+        type: request
+        identitySource:
+        authorizerUri: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:hrz-mod-fmcc-api-authorizer/invocations
+        authorizerResultTtlInSeconds: 0
