@@ -8,30 +8,30 @@ components:
       type: string
       description: >
         stato di avanzamento del processo di notifica:`
-          * `REQUEST_ACCEPTED` - La richiesta di notifica è stata validata e accetta
-          * `SEND_COURTESY_MESSAGE` - E' stato inviato il messaggio di cortesia
+          * `REQUEST_ACCEPTED` - Richiesta di notifica accettata a seguito dei controlli di validazione
+          * `REQUEST_REFUSED` - Richiesta di notifica rifiutata per fallimento di validazione
+          * `SEND_COURTESY_MESSAGE` - Invio di un messaggio di cortesia
           * `GET_ADDRESS` - Informazioni sulla disponibilità dello specifico indirizzo
-          * `PUBLIC_REGISTRY_CALL` - E' stata effettuata la richiesta ai registri pubblici per ottenere l'indirizzo SPECIALE
-          * `PUBLIC_REGISTRY_RESPONSE` - E' stata ricevuta la risposta dei registri pubblici alla richiesta di ottenimento dell'indirizzo SPECIALE
-          * `SCHEDULE_ANALOG_WORKFLOW` - E' stato schedulato il Workflow analogico 
-          * `SCHEDULE_DIGITAL_WORKFLOW` - E' stato schedulato il Workflow digitale 
-          * `SEND_DIGITAL_DOMICILE` - E' stata inviata una richiesta di notifica ad un indirizzo digitale 
-          * `SEND_DIGITAL_FEEDBACK` - Risposta ottenuta ad invio digitale
-          * `SCHEDULE_REFINEMENT` - E' stato schedulato il perfezionamento per decorrenza termini
-          * `REFINEMENT` - La richiesta è stata perfezionata per decorrenza termini
-          * `DIGITAL_SUCCESS_WORKFLOW` - Il workflow digitale è stato completato con successo
-          * `DIGITAL_FAILURE_WORKFLOW` - Il workflow digitale è fallito
-          * `ANALOG_SUCCESS_WORKFLOW` - Il workflow analogico è stato completato con successo
-          * `ANALOG_FAILURE_WORKFLOW` - Il workflow analogico è fallito
-          * `SEND_SIMPLE_REGISTERED_LETTER` - E' stato richiesto l'invio di notifica tramite raccomandata semplice
-          * `NOTIFICATION_VIEWED` - La notifica è stata visualizzata
-          * `SEND_ANALOG_DOMICILE` - E' stata inviata una richiesta di notifica ad un indirizzo analogico 
-          * `SEND_PAPER_FEEDBACK` - Risposta ottenuta ad invio analogico
-          * `PAYMENT` - La notifica è stata pagata
-          * `COMPLETELY_UNREACHABLE` - Il destinatario risulta essere irraggiungibile
-          * `REQUEST_REFUSED` - La richiesta non ha passato la validazione, viene dunque rifiutata
-          * `AAR_GENERATION` - E' stato generato l'avviso di avvenuta ricezione
-          * `NOT_HANDLED` - Per MVP l'invio analogico non è previsto, viene inserito tale elemento di timeline
+          * `PUBLIC_REGISTRY_CALL` - Effettuata la richiesta ai registri pubblici per ottenere l'indirizzo generale
+          * `PUBLIC_REGISTRY_RESPONSE` - Ricevuta la risposta dei registri pubblici alla richiesta di ottenimento dell'indirizzo generale
+          * `SCHEDULE_ANALOG_WORKFLOW` - Inizio del workflow per invio cartaceo
+          * `SCHEDULE_DIGITAL_WORKFLOW` - Inizio del workflow per invio digitale (PEC)
+          * `SEND_DIGITAL_DOMICILE` - Invio digitale dell’avviso di notifica
+          * `SEND_DIGITAL_FEEDBACK` - Ottenuto esito ad un invio digitale
+          * `SCHEDULE_REFINEMENT` - Pianificato il perfezionamento per decorrenza termini
+          * `REFINEMENT` - Perfezionamento per decorrenza termini
+          * `DIGITAL_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio digitale
+          * `DIGITAL_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio digitale
+          * `ANALOG_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio cartaceo
+          * `ANALOG_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio cartaceo
+          * `SEND_SIMPLE_REGISTERED_LETTER` - Invio di raccomandata semplice
+          * `NOTIFICATION_VIEWED` - Perfezionamento per presa visione
+          * `SEND_ANALOG_DOMICILE` - Invio cartaceo dell’avviso di notifica
+          * `SEND_PAPER_FEEDBACK` - Ricezione esito dell'invio cartaceo
+          * `COMPLETELY_UNREACHABLE` - Tutti i destinatari risultano irraggiungibili
+          * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
+          * `PAYMENT` - Ricezione pagamento della notifica
+          * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
       enum:
         - REQUEST_ACCEPTED
         - SEND_COURTESY_MESSAGE

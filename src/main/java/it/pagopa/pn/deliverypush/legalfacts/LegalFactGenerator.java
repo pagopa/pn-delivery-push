@@ -4,7 +4,6 @@ import it.pagopa.pn.commons.utils.FileUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
-import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
@@ -46,7 +45,6 @@ public class LegalFactGenerator {
     public static final String FIELD_PN_FAQ_URL = "PNFaqURL";
     public static final String FIELD_END_WORKFLOW_STATUS = "endWorkflowStatus";
     public static final String FIELD_END_WORKFLOW_DATE = "endWorkflowDate";
-    public static final String FIELD_SEND_REGISTERED_LETTER_ADDRESS = "sendRegisteredLetterAddress";
     public static final String FIELD_LEGALFACT_CREATION_DATE = "legalFactCreationDate";
 
     private final DocumentComposition documentComposition;
@@ -162,8 +160,7 @@ public class LegalFactGenerator {
                                                        NotificationInt notification,
                                                        NotificationRecipientInt recipient,
                                                        EndWorkflowStatus status,
-                                                       Instant completionWorkflowDate,
-                                                       PhysicalAddressInt sendRegisteredLetterAddress) throws IOException {
+                                                       Instant completionWorkflowDate) throws IOException {
 
         List<PecDeliveryInfo> pecDeliveries = feedbackFromExtChannelList.stream()
                 .map( feedbackFromExtChannel -> {
@@ -189,7 +186,6 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_DELIVERIES, pecDeliveries);
         templateModel.put(FIELD_END_WORKFLOW_STATUS, status.toString() );
         templateModel.put(FIELD_END_WORKFLOW_DATE, instantWriter.instantToDate( completionWorkflowDate ) );
-        templateModel.put(FIELD_SEND_REGISTERED_LETTER_ADDRESS, sendRegisteredLetterAddress);
         templateModel.put(FIELD_RECIPIENT, recipient);
         templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
         templateModel.put(FIELD_LEGALFACT_CREATION_DATE, instantWriter.instantToDate( instantNowSupplier.get() ) );

@@ -99,7 +99,7 @@ class LegalFactPdfGeneratorTest {
 		Instant sentDate = Instant.now().minus(Duration.ofDays(1));
 
 		Assertions.assertDoesNotThrow(() -> {
-			return Files.write(filePath, pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification, recipient, endWorkflowStatus, sentDate, null));
+			return Files.write(filePath, pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification, recipient, endWorkflowStatus, sentDate));
 		});
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
@@ -114,7 +114,7 @@ class LegalFactPdfGeneratorTest {
 		Instant sentDate = Instant.now().minus(Duration.ofDays(1));
 
 		Assertions.assertDoesNotThrow(() -> {
-			return Files.write(filePath, pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification, recipient, endWorkflowStatus, sentDate, null));
+			return Files.write(filePath, pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification, recipient, endWorkflowStatus, sentDate));
 		});
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
@@ -127,19 +127,7 @@ class LegalFactPdfGeneratorTest {
 		NotificationRecipientInt recipient = buildRecipients().get(0);
 		EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.FAILURE;
 
-		Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification, recipient, endWorkflowStatus, Instant.now(), recipient.getPhysicalAddress())));
-		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
-	}
-
-	@Test
-	void generatePecDeliveryWorkflowLegalFactTest_KO_WithoutAddress() {
-		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_KO_withoutAddress.pdf");
-		List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList = buildFeedbackFromECList(ResponseStatusInt.KO);
-		NotificationInt notification = buildNotification();
-		NotificationRecipientInt recipient = buildRecipients().get(0);
-		EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.FAILURE;
-
-		Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification, recipient, endWorkflowStatus, Instant.now(), null)));
+		Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification, recipient, endWorkflowStatus, Instant.now())));
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
 	
