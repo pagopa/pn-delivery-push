@@ -468,7 +468,7 @@ Resources:
         APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicIoAPI.Outputs.APIGatewayARN
 
   ## Dashboard
-  MandateMicroserviceCloudWatchDashboard:
+  DeliveryPushMicroserviceCloudWatchDashboard:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/microservice-cloudwatch-dashboard.yaml"
