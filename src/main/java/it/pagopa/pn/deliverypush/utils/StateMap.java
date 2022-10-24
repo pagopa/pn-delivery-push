@@ -1,9 +1,9 @@
 package it.pagopa.pn.deliverypush.utils;
 
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.dto.transition.TransitionRequest;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
@@ -12,7 +12,7 @@ import java.util.Map;
 
 @Slf4j
 class StateMap {
-    private final static boolean FOR_MULTI_RECIPIENT = true; // il multi-destinatario comprende casi AGGIUNTIVI al singolo destinatario
+    private final static boolean ONLY_MULTI_RECIPIENT = true; // il multi-destinatario comprende transizioni di stato AGGIUNTIVI al singolo destinatario
     private final static boolean SINGLE_RECIPINET = false;
 
     private final Map<MapKey, MapValue> mappings = new HashMap<>();
@@ -112,7 +112,8 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.NOT_HANDLED, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.COMPLETELY_UNREACHABLE, NotificationStatusInt.VIEWED, SINGLE_RECIPINET) // TODO Aggiunto ma è da chiarire se è possibile questa casistica
-
+                .withTimelineGoToState(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_VIEWED, NotificationStatusInt.VIEWED, ONLY_MULTI_RECIPIENT)
                 //STATE CHANGE
                 .withTimelineGoToState(TimelineElementCategoryInt.PAYMENT, NotificationStatusInt.PAID, SINGLE_RECIPINET)
         ;
@@ -155,31 +156,36 @@ class StateMap {
         this.fromState(NotificationStatusInt.REFUSED);
     }
 
-    NotificationStatusInt getStateTransition(NotificationStatusInt fromStatus, TimelineElementCategoryInt timelineRowType, boolean multiRecipient) throws PnInternalException {
+    NotificationStatusInt getStateTransition(TransitionRequest transitionRequest) {
+        NotificationStatusInt fromStatus = transitionRequest.getFromStatus();
+        TimelineElementCategoryInt timelineRowType = transitionRequest.getTimelineRowType();
+        boolean multiRecipient = transitionRequest.isMultiRecipient();
         MapKey key = new MapKey(fromStatus, timelineRowType, multiRecipient);
-        if (!isValidTransition(fromStatus, timelineRowType, multiRecipient, key)) {
+
+        if(isValidTransition(key)) {
+            return this.mappings.get(key).getStatus();
+        }
+        else {
+            // se non è stata trovata la transizione nella mappa degli stati, controllo se siamo nel caso del multiRecipient,
+            // perché potrebbe essere il caso in cui l'elemento è presente nella mappa con chiave multiRecipient = false
+            // (StatiMultiDestinatario = StatiMonoDestinatario + statiAdHocMultiDestinatario)
+            if(multiRecipient == ONLY_MULTI_RECIPIENT) {
+                log.trace("Transition for only multiRecipient not found, trying for singleRecipient key");
+                TransitionRequest transitionRequestForSingleRecipient = TransitionRequest.builder()
+                        .fromStatus(transitionRequest.getFromStatus())
+                        .timelineRowType(transitionRequest.getTimelineRowType())
+                        .multiRecipient(SINGLE_RECIPINET)
+                        .build();
+                return getStateTransition(transitionRequestForSingleRecipient);
+            }
             log.warn("Illegal input \"" + timelineRowType + "\" in state \"" + fromStatus + "\"");
             return fromStatus;
         }
-
-        return getStatus(fromStatus, timelineRowType);
     }
 
-    private boolean isValidTransition(NotificationStatusInt fromStatus, TimelineElementCategoryInt timelineRowType, boolean multiRecipient, MapKey key) {
-        if (!this.mappings.containsKey(key)) {
-            if(multiRecipient == FOR_MULTI_RECIPIENT) {
-                MapKey mapKeySingleRecipient = new MapKey(fromStatus, timelineRowType, SINGLE_RECIPINET);
-                return this.mappings.containsKey(mapKeySingleRecipient);
-            }
-            return false;
-        }
-        return true;
+    private boolean isValidTransition(MapKey mapKey) {
+        return this.mappings.containsKey(mapKey);
     }
-
-    private NotificationStatusInt getStatus(NotificationStatusInt fromStatus, TimelineElementCategoryInt timelineRowType) {
-        return this.mappings.get(new MapKey(fromStatus, timelineRowType, SINGLE_RECIPINET)).getStatus();
-    }
-
 
     private InputMapper fromState(NotificationStatusInt fromStatus) {
         return new InputMapper(fromStatus);
