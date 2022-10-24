@@ -37,14 +37,10 @@ public class TimelineDaoDynamo implements TimelineDao {
     }
 
     @Override
-    public void addTimelineElementIfAbsent(TimelineElementInternal dto) {
+    public void addTimelineElementIfAbsent(TimelineElementInternal dto) throws PnIdConflictException {
         TimelineElementEntity entity = getTimelineElementEntity(dto);
 
-        try {
-            entityDao.putIfAbsent(entity);
-        } catch (PnIdConflictException ex){
-            log.warn("Conflict in addTimelineElementIfAbsent ", ex);
-        }
+        entityDao.putIfAbsent(entity);
     }
     
     @NotNull

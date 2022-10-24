@@ -15,10 +15,13 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionsp
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.TransactWriteItemsEnhancedRequest;
+import software.amazon.awssdk.services.dynamodb.model.CancellationReason;
 import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
+import software.amazon.awssdk.services.dynamodb.model.TransactionCanceledException;
 
 import java.util.List;
 import java.util.Optional;
@@ -71,8 +74,20 @@ public class ActionDaoDynamo implements ActionDao {
                     .addPutItem(dynamoDbTableFutureAction, putItemEnhancedRequestFuture)
                     .build();
             dynamoDbEnhancedClient.transactWriteItems(transactWriteItemsEnhancedRequest);
-        } catch (ConditionalCheckFailedException ex){
-            log.warn("Conditional check exception on ActionDaoDynamo addActionIfAbsent", ex);
+        } catch (TransactionCanceledException ex){
+            if (ex.hasCancellationReasons())
+            {
+                for (CancellationReason cr:
+                     ex.cancellationReasons()) {
+                    if (StringUtils.hasText(cr.code()) && cr.code().equals("ConditionalCheckFailed"))
+                    {
+                        log.warn("Exception code ConditionalCheckFailed is expected for retry, letting flow continue");
+                        return;
+                    }
+                }
+            }
+            else
+                throw ex;
         }
     }
     
