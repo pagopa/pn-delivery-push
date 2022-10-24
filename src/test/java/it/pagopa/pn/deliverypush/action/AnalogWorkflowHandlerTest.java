@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.eq;
 
 class AnalogWorkflowHandlerTest {
@@ -395,16 +396,9 @@ class AnalogWorkflowHandlerTest {
         Mockito.when(analogWorkflowUtils.getSendAnalogNotificationDetails(response.getIun(), response.getRequestId())).thenReturn(sendPaperDetails);
         Mockito.when(notificationService.getNotificationByIun(response.getIun())).thenReturn(notification);
 
-        handler.extChannelResponseHandler(response);
-
-       /* Mockito.verify(completionWorkFlow)
-                .completionAnalogWorkflow(
-                        notification,
-                        sendPaperDetails.getRecIndex(),
-                        legalFactsListEntryIds,
-                        response.getStatusDateTime(),
-                        sendPaperDetails.getPhysicalAddress(),
-                        EndWorkflowStatus.SUCCESS); */
+        assertDoesNotThrow(() -> {
+            handler.extChannelResponseHandler(response);
+        });
     }
 
     private SendAnalogDetailsInt buildSendAnalogDetailsInt() {

@@ -365,7 +365,7 @@ class StatusUtilsTest {
         Mockito.when(pnDeliveryPushConfigs.getPaperMessageNotHandled()).thenReturn(Boolean.FALSE);
         List<NotificationStatusHistoryElementInt> responseList = statusUtils.getStatusHistory(timelineElementList, 3, notificationCreatedAt);
 
-        Assertions.assertEquals(responseList.size(), 3);
+        Assertions.assertEquals(3, responseList.size());
     }
 
     private NotificationSenderInt createSender() {
