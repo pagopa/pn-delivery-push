@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo;
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementEntity;
 import lombok.extern.slf4j.Slf4j;
@@ -71,9 +72,14 @@ public class TimelineEntityDaoDynamo  extends AbstractDynamoKeyValueStore<Timeli
 
     @Override
     public void putIfAbsent(TimelineElementEntity value) throws PnIdConflictException {
-        String expression = "attribute_not_exists(" + TimelineElementEntity.FIELD_IUN 
-                +") AND attribute_not_exists("+ TimelineElementEntity.FIELD_TIMELINE_ELEMENT_ID +")";
-                
+        String expression = String.format(
+                "%s(%s) AND %s(%s)",
+                ATTRIBUTE_NOT_EXISTS,
+                TimelineElementEntity.FIELD_IUN,
+                ATTRIBUTE_NOT_EXISTS,
+                TimelineElementEntity.FIELD_TIMELINE_ELEMENT_ID
+        );
+        
         Expression conditionExpressionPut = Expression.builder()
                 .expression(expression)
                 .build();
@@ -82,11 +88,16 @@ public class TimelineEntityDaoDynamo  extends AbstractDynamoKeyValueStore<Timeli
                 .item(value )
                 .conditionExpression( conditionExpressionPut )
                 .build();
+        
         try {
             table.putItem(request);
-        }catch (ConditionalCheckFailedException ex){
-            log.error("Conditional check exception on TimelineEntityDaoDynamo putIfAbsent", ex);
-            throw new PnIdConflictException( Collections.singletonMap("timelineElementId", value.getTimelineElementId()) );
+        } catch (ConditionalCheckFailedException ex){
+            log.warn("Conditional check exception on TimelineEntityDaoDynamo putIfAbsent timelineId=" + value.getTimelineElementId() + " exmessage=" + ex.getMessage());
+            throw new PnIdConflictException(
+                    PnDeliveryPushExceptionCodes.ERROR_CODE_DUPLICATED_ITEMD,
+                    Collections.singletonMap("timelineElementId", value.getTimelineElementId()),
+                    ex
+            );
         }
     }
 }

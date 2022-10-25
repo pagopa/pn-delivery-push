@@ -34,7 +34,7 @@ class ActionServiceImplTest {
 
         actionService.addAction(action, time);
 
-        Mockito.verify(actionDao, Mockito.times(1)).addAction(action, time);
+        Mockito.verify(actionDao, Mockito.times(1)).addActionIfAbsent(action, time);
     }
 
     @Test

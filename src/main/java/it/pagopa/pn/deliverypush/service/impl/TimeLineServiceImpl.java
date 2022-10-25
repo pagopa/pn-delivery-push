@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
@@ -64,6 +65,7 @@ public class TimeLineServiceImpl implements TimelineService {
 
         PnAuditLogEvent logEvent = getPnAuditLogEvent(dto, auditLogBuilder);
         logEvent.log();
+        boolean timelineInsertSkipped;
 
         if (notification != null) {
             try{
@@ -76,18 +78,17 @@ public class TimeLineServiceImpl implements TimelineService {
                 //aggiungo al DTO lo status info che poi verrà mappato sull'entity e salvato
                 TimelineElementInternal dtoWithStatusInfo = enrichWithStatusInfo(dto, currentTimeline, notificationStatuses);
 
-                timelineDao.addTimelineElement(dtoWithStatusInfo);
+                timelineInsertSkipped = persistTimelineElement(dtoWithStatusInfo);
+
+
                 // genero un messaggio per l'aggiunta in sqs in modo da salvarlo in maniera asincrona
                 schedulerService.scheduleWebhookEvent(
                         notification.getSender().getPaId(),
                         dtoWithStatusInfo.getIun(),
-                        dtoWithStatusInfo.getElementId(),
-                        dtoWithStatusInfo.getTimestamp(),
-                        notificationStatuses.getOldStatus().getValue(),
-                        notificationStatuses.getNewStatus().getValue(),
-                        dtoWithStatusInfo.getCategory().getValue()
+                        dtoWithStatusInfo.getElementId()
                 );
-                logEvent.generateSuccess().log();
+
+                logEvent.generateSuccess(timelineInsertSkipped?"Timeline event was already inserted before":null).log();
             } catch (Exception ex) {
                 logEvent.generateFailure("Exception in addTimelineElement, ex={}", ex).log();
                 throw new PnInternalException("Exception in addTimelineElement - iun=" + notification.getIun() + " elementId=" + dto.getElementId(), ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED, ex);
@@ -98,6 +99,16 @@ public class TimeLineServiceImpl implements TimelineService {
             throw new PnInternalException("Try to update Timeline and Status for non existing iun " + dto.getIun(), ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED);
         }
 
+    }
+
+    private boolean persistTimelineElement(TimelineElementInternal dtoWithStatusInfo) {
+        try {
+            timelineDao.addTimelineElementIfAbsent(dtoWithStatusInfo);
+        } catch (PnIdConflictException ex){
+            log.warn("Exception idconflict is expected for retry, letting flow continue");
+            return true;
+        }
+        return false;
     }
 
     private PnAuditLogEvent getPnAuditLogEvent(TimelineElementInternal dto, PnAuditLogBuilder auditLogBuilder) {

@@ -9,8 +9,8 @@ public interface TimelineDao {
 
     String IMPLEMENTATION_TYPE_PROPERTY_NAME = "pn.middleware.impl.timeline-dao";
 
-    void addTimelineElement(TimelineElementInternal row);
-
+    void addTimelineElementIfAbsent(TimelineElementInternal dto);
+    
     Optional<TimelineElementInternal> getTimelineElement( String iun, String timelineId );
 
     Set<TimelineElementInternal> getTimeline(String iun );

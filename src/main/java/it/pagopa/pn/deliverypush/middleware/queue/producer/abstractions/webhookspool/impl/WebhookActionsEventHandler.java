@@ -52,9 +52,9 @@ public class WebhookActionsEventHandler {
 
     private void doHandleRegisterEvent(WebhookAction evt) {
         log.debug("[enter] doHandleRegisterEvent evt={}", evt);
+
         webhookService
-            .saveEvent(evt.getPaId(), evt.getEventId(), evt.getIun(), evt.getTimestamp(),
-                    evt.getOldStatus(), evt.getNewStatus(), evt.getTimelineEventCategory())
+            .saveEvent(evt.getPaId(), evt.getTimelineId(), evt.getIun())
                 .block();
         log.debug("[exit] doHandleRegisterEvent evt={}", evt);
     }

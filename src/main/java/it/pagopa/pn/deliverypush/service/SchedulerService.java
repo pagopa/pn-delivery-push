@@ -12,7 +12,7 @@ public interface SchedulerService {
 
     void unscheduleEvent(String iun, Integer recIndex, ActionType actionType, String timelineId);
 
-    void scheduleWebhookEvent(String paId, String iun, String timelineId, Instant timestamp, String oldStatus, String newStatus, String timelineEventCategory);
+    void scheduleWebhookEvent(String paId, String iun, String timelineId);
 
     void scheduleWebhookEvent(String streamId, String eventId, Integer delay, WebhookEventType actionType);
 }

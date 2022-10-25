@@ -8,7 +8,6 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.RecipientRelatedTimelineElementDetails;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
-import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.StatusInfoEntity;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -42,10 +41,8 @@ public class TimelineDaoMock implements TimelineDao {
     public void clear() {
         this.timelineList = new ArrayList<>();
     }
-    
-    @Override
-    public void addTimelineElement(TimelineElementInternal dto) {
-        
+
+    private void checkAndAddTimelineElement(TimelineElementInternal dto) {
         if( dto.getDetails() != null && dto.getDetails() instanceof RecipientRelatedTimelineElementDetails){
             
             NotificationRecipientInt notificationRecipientInt = getRecipientInt(dto);
@@ -64,8 +61,13 @@ public class TimelineDaoMock implements TimelineDao {
                 );
             }
         }
-        
+
         timelineList.add(dto);
+    }
+
+    @Override
+    public void addTimelineElementIfAbsent(TimelineElementInternal dto) {
+        checkAndAddTimelineElement(dto);
     }
 
     private NotificationRecipientInt getRecipientInt(TimelineElementInternal row) {
@@ -73,7 +75,7 @@ public class TimelineDaoMock implements TimelineDao {
             NotificationInt notificationInt = this.notificationService.getNotificationByIun(row.getIun());
             return notificationUtils.getRecipientFromIndex(notificationInt, ((RecipientRelatedTimelineElementDetails) row.getDetails()).getRecIndex());
         }else {
-            throw new PnInternalException("There isn't recipient index for timeline element");
+            throw new PnInternalException("There isn't recipient index for timeline element", "test");
         }
     }
 
