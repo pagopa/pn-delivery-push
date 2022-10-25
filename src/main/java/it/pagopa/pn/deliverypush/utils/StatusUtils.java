@@ -72,6 +72,7 @@ public class StatusUtils {
         int numberOfCompletedWorkflow = 0;
 
         for (TimelineElementInternal timelineElement : timelineByTimestampSorted) {
+            
             TimelineElementCategoryInt category = timelineElement.getCategory();
             
             if( SUCCES_DELIVERY_WORKFLOW_CATEGORY.contains( category ) || FAILURE_DELIVERY_WORKFLOW_CATEGORY.contains( category ) ) {
@@ -79,7 +80,7 @@ public class StatusUtils {
                 numberOfCompletedWorkflow += 1;
             }
             
-            relatedCategoryElements.add( timelineElement.getCategory() );
+            relatedCategoryElements.add( category );
 
             NotificationStatusInt nextState = computeStateAfterEvent(
                         currentState, category, numberOfCompletedWorkflow, numberOfRecipients, relatedCategoryElements);
