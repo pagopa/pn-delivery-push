@@ -12,8 +12,8 @@ import java.util.Map;
 
 @Slf4j
 class StateMap {
-    private final static boolean ONLY_MULTI_RECIPIENT = true; // il multi-destinatario comprende transizioni di stato AGGIUNTIVI al singolo destinatario
-    private final static boolean SINGLE_RECIPINET = false;
+    private static final boolean ONLY_MULTI_RECIPIENT = true; // il multi-destinatario comprende transizioni di stato AGGIUNTIVI al singolo destinatario
+    private static final boolean SINGLE_RECIPINET = false;
 
     private final Map<MapKey, MapValue> mappings = new HashMap<>();
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
