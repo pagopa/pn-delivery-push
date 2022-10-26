@@ -248,13 +248,13 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: 'remote-ref.yaml#/components/schemas/Problem'
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
         '500':
           description: Internal Server Error
           content:
             application/problem+json:
               schema:
-                $ref: 'remote-ref.yaml#/components/schemas/Problem'
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
     get:
       summary: Elenca stream di eventi
       description: >-
@@ -274,13 +274,13 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: 'remote-ref.yaml#/components/schemas/Problem'
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
         '500':
           description: Internal Server Error
           content:
             application/problem+json:
               schema:
-                $ref: 'remote-ref.yaml#/components/schemas/Problem'
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
   '/delivery-progresses/streams/{streamId}':
     parameters:
@@ -304,13 +304,13 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: 'remote-ref.yaml#/components/schemas/Problem'
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
         '500':
           description: Internal Server Error
           content:
             application/problem+json:
               schema:
-                $ref: 'remote-ref.yaml#/components/schemas/Problem'
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
     put:
       summary: Update Stream metadata
       description: >-
@@ -336,13 +336,13 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: 'remote-ref.yaml#/components/schemas/Problem'
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
         '500':
           description: Internal Server Error
           content:
             application/problem+json:
               schema:
-                $ref: 'remote-ref.yaml#/components/schemas/Problem'
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
     delete:
       summary: Remove Event Stream
       description: >-
@@ -359,13 +359,13 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: './remote-ref.yaml#/components/schemas/Problem'
+                $ref: './remote-refs.yaml#/components/schemas/Problem'
         '500':
           description: Internal Server Error
           content:
             application/problem+json:
               schema:
-                $ref: 'remote-ref.yaml#/components/schemas/Problem'
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
 
     ############################################################################################
@@ -416,13 +416,13 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: 'remote-ref.yaml#/components/schemas/Problem'
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
         '500':
           description: Internal Server Error
           content:
             application/problem+json:
               schema:
-                $ref: 'remote-ref.yaml#/components/schemas/Problem'
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
     
 
     ############################################################################################
