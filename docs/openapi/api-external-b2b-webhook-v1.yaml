@@ -1,3 +1,7 @@
+# di seguito le variabili che possono subire variazioni in caso di modifiche all'applicazione, da ricercare in base all'ID
+# <span id="webhookMaxLength">10</span> pn.delivery-push.webhook.max-length = lunghezza massima della response degli eventi
+# <span id="webhookMaxStreams">5</span> pn.delivery-push.webhook.max-streams = numero massimo di stram confgurabili per PA
+# <span id="webhookTtl">7</span> pn.delivery-push.webhook.ttl = retention per gli eventi webhook PN-2264
 openapi: 3.0.3
 info:
   termsOfService: https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html
@@ -7,7 +11,7 @@ info:
   x-api-id: api-external-b2b-webhook # ONLY EXTERNAL
   description: >- 
     I mittenti di notifica possono seguire il flusso di avanzamento delle notifiche in modo 
-    automatico. E' possibile definire fino ad un massimo di 5 configurazioni di flussi per 
+    automatico. E' possibile definire fino ad un <font color="red"><strong>massimo di <span id="webhookMaxStreams">5</span> configurazioni di flussi</strong></font> per 
     informazioni relative a: <br/>
       - cambiamento di stato della notifica;  <br/>
       - inserimento di elementi nella timeline. <br/>
@@ -118,12 +122,15 @@ info:
     Le operazioni con il tag __Events__ sono quelle utilizzate per la [lettura degli eventi](#/Events/consumeEventStream) 
     filtrati in base alla configurazione impostata negli streams.
     
-    La api restituisce un massimo di 10 elementi.</br>
-    Se <u>esistono</u> ulteriori eventi nello stream allora la response del servizio restituisce 
-    l'elemento `retryAfter = 0` ed è quindi possibile richiamare immediatamente il servizio per ottenere gli eventi successivi, utilizzando
+    La api restituisce un massimo di <span id="webhookMaxLength">10</span> elementi. Se <u>esistono</u> ulteriori eventi nello stream, allora la response del servizio 
+    restituice l'elemento `retryAfter = 0`; ed è quindi possibile richiamare immediatamente il servizio per ottenere gli eventi successivi, utilizzando 
     il parametro _lastEventId_ valorizzato con l'ultimo _eventId_ della richiesta precedente.
-    Si evidenzia che ogni nuova chiamata al servizio con lastEventId implica la cancellazione degli eventi precedenti.</br>
-    Se <u>non esistono</u> ulteriori eventi nello stream, allora la response del servizio restituisce il valore di `retryAfter ≠ 0` ed è quindi necessario attendere il tempo indicato dalla _retryAfter_ in millisecondi per consumare eventualmente nuovi eventi nello stream.</br>
+    Si evidenzia che ogni nuova chiamata al servizio con _lastEventId_ implica la cancellazione degli eventi precedenti.
+    Tuttavia, in fase di implementazione del client che consumerà i servizi, bisogna considerare il fattore della __non univocità degli eventi__: è possibile che
+    se in un dato secondo avvengano più eventi contemporaneamente, nella chiamata successiva allo stream dove si inserisce l'_eventId_, non vengano cancellati
+    gli altri eventi contemporanei avvenuti nello stesso secondo dell'_eventId_ indicato; ottenendo quindi una riproposizione di eventi già ottenuti dalla chiamata precedente.</br>
+    Se <u>non esistono</u> ulteriori eventi nello stream, allora la response del servizio restituisce il valore di `retryAfter ≠ 0` ed è quindi necessario attendere il tempo indicato dalla retryAfter per consumare eventualmente nuovi eventi nello stream.</br>
+    <font color="red">__Gli eventi sono mantenuti per un massimo di <span id="webhookTtl">7</span> giorni dopo i quali sono automaticamente cancellati anche se non sono stati prelevati dallo stream.__</font> 
 
     </br>
     </br>
@@ -144,26 +151,30 @@ info:
 
       ><details>
       <summary><strong>E' meglio avere più stream filtrati, per inquadrare specifici eventi di interesse?</strong></summary>
-      <em>SI, è consigliato generare uno o più stream applicando i filtri sugli eventi di status / timeline di maggior interesse.</em>
+      <em>SI, è consigliato generare uno o più stream applicando i filtri sugli eventi di status / timeline di maggior interesse, 
+      <font color="red"><strong>restando nel limite massimo di <span id="webhookMaxStreams">5</span> 
+      stream per PA.</font></strong></em>
       </details>      
 
       ><details>
       <summary><strong>Dopo aver creato uno stream ed inserite alcune notifiche, come posso vedere gli eventi da esse generati?</strong></summary>
       <em>Per ottenere gli eventi bisogna chiamare il servizio per la [lettura degli eventi](#/Events/consumeEventStream) inserendo nel path variabile lo _streamId_ dello stream che si vuole interrogare. A questo punto:</br>
-      >><small><strong>1) </strong>Se nell'header della response ottengo <strong>retry-after = 0</strong> significa che è possibile consumare ulteriori eventi presenti nello stream;</br> quindi, per ottenere gli eventi successivi dovrò richiamare nuovamente lo stesso servizio, aggiungendo come query param l'<strong>eventId</strong> dell'ultimo evento.</small></br></br>
-      <small><strong>2) </strong>Se nell'header della response ottengo <strong>retry-after ≠ 0</strong> ed ho eventi nel body della response, significa che lo stream non contiene altri eventi e sarà necessario</br> attendere che ne siano generati di nuovi, prima di poter richiamare di nuovamente il servizio sullo stesso stream.</small></em></br></br>
+      >><strong>1) </strong>Se nell'header della response ottengo <strong>retry-after = 0</strong> significa che è possibile consumare ulteriori eventi presenti nello stream;</br> quindi, per ottenere gli eventi successivi dovrò richiamare nuovamente lo stesso servizio, aggiungendo come query param l'<strong>eventId</strong> dell'ultimo evento.</br></br>
+      <strong>2) </strong>Se nell'header della response ottengo <strong>retryAfter ≠ 0</strong> ed ho eventi nel body della response, significa che lo stream non contiene altri eventi e sarà necessario</br> attendere che ne siano generati di nuovi, prima di poter richiamare di nuovamente il servizio sullo stesso stream.</em></br></br>
       </details>      
 
       ><details>
-      <summary><strong>Posso ottenere più di 10 eventi da una singola chiamata?</strong></summary>
-      <em>NO, questo valore è configurato pari a 10 a livello applicativo e non può essere modificato.</em>
+      <summary><strong>Posso ottenere più di <span id="webhookMaxLength">10</span> eventi da una singola chiamata?</strong></summary>
+      <em>NO, questo valore è configurato pari a <span id="webhookMaxLength">10</span> a livello applicativo e non può essere modificato.</em>
       </details> 
 
       ><details>
-      <summary><strong>Ho interrogato uno stream inserendo come path variabile lo _streamId_ di mio interesse ed ho ottenuto 10 eventi, ognuno con il proprio _eventId_. Ho richiamato di nuovo lo stesso servizio aggiungendo come query param l'_eventId_ dell'ultimo evento ottenuto nella prima chiamata ed ottengo gli eventi successivi a quelli ottenuti nella prima chiamata. Posso vedere di nuovo gli eventi ottenuti dalla prima chiamata?</strong></summary>
+      <summary><strong>Ho interrogato uno stream inserendo come path variabile lo _streamId_ di mio interesse ed ho ottenuto <span id="webhookMaxLength">10</span> eventi, ognuno con il proprio _eventId_. Ho richiamato di nuovo lo stesso servizio aggiungendo come query param l'_eventId_ dell'ultimo evento ottenuto nella prima chiamata ed ottengo gli eventi successivi a quelli ottenuti nella prima chiamata. Posso vedere di nuovo gli eventi ottenuti dalla prima chiamata?</strong></summary>
       <em>NO, una volta passato il query param __eventId__ alla chiamata del servizio, tutti gli eventi precedenti sono cancellati dallo stream e non possono più essere recuperati. E' quindi fondamentale salvare gli eventi ottenuti da ogni chiamata, prima di richiedere i successivi.</em></br></br>
       </details> 
 
+      ><details><summary><strong>Per quanto tempo gli eventi restano registrati su uno stream?</strong></summary><em>Gli eventi restano registrati su uno stream per <span id="webhookTtl">7</span> 
+      giorni, trascorsi i quali non potranno più essere recuperati.</em></details>
 
     </details>
 
@@ -237,13 +248,13 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: 'remote-ref.yaml#/components/schemas/Problem'
         '500':
           description: Internal Server Error
           content:
             application/problem+json:
               schema:
-                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: 'remote-ref.yaml#/components/schemas/Problem'
     get:
       summary: Elenca stream di eventi
       description: >-
@@ -263,13 +274,13 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: 'remote-ref.yaml#/components/schemas/Problem'
         '500':
           description: Internal Server Error
           content:
             application/problem+json:
               schema:
-                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: 'remote-ref.yaml#/components/schemas/Problem'
 
   '/delivery-progresses/streams/{streamId}':
     parameters:
@@ -293,13 +304,13 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: 'remote-ref.yaml#/components/schemas/Problem'
         '500':
           description: Internal Server Error
           content:
             application/problem+json:
               schema:
-                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: 'remote-ref.yaml#/components/schemas/Problem'
     put:
       summary: Update Stream metadata
       description: >-
@@ -325,13 +336,13 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: 'remote-ref.yaml#/components/schemas/Problem'
         '500':
           description: Internal Server Error
           content:
             application/problem+json:
               schema:
-                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: 'remote-ref.yaml#/components/schemas/Problem'
     delete:
       summary: Remove Event Stream
       description: >-
@@ -348,13 +359,13 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: './remote-ref.yaml#/components/schemas/Problem'
         '500':
           description: Internal Server Error
           content:
             application/problem+json:
               schema:
-                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: 'remote-ref.yaml#/components/schemas/Problem'
 
 
     ############################################################################################
@@ -405,13 +416,13 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: 'remote-ref.yaml#/components/schemas/Problem'
         '500':
           description: Internal Server Error
           content:
             application/problem+json:
               schema:
-                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: 'remote-ref.yaml#/components/schemas/Problem'
     
 
     ############################################################################################
