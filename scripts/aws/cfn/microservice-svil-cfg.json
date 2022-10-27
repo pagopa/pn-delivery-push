@@ -10,13 +10,13 @@
     "SchedulingDaysFailureAnalogRefinement": "8m",
     "WebhookScanInterval": "60000",
     "WebhookMaxLength": "10",
-    "PnDeliveryPushPaperMessageNotHandled": "true",
     "SandboxSafeStorageBaseUrl": "https://ewlg4idc89.execute-api.eu-south-1.amazonaws.com/dev",
     "ExternalChannelBaseUrl": "https://zq5g01oxkb.execute-api.eu-south-1.amazonaws.com/dev/",
     "ExternalChannelDigitalRetryCount": "3",
     "ExternalChannelDigitalRetryDelay": "10m",
     "ExternalChannelDigitalSendNoResponseTimeout": "26h",
     "NotificationNonVisibilityTime": "21:00",
-    "TimeToAddInNonVisibilityTimeCase": "10m"
+    "TimeToAddInNonVisibilityTimeCase": "10m",
+    "IsMvpDefaultValue": "true"
   }
 }

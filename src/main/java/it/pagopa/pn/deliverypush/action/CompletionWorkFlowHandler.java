@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action;
 
+import it.pagopa.pn.commons.configs.IsMVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.utils.*;
@@ -31,15 +32,16 @@ public class CompletionWorkFlowHandler {
     private final TimelineUtils timelineUtils;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private final CompletionWorkflowUtils completionWorkflowUtils;
-    
+    private final IsMVPParameterConsumer isMVPParameterConsumer;
+
     public CompletionWorkFlowHandler(NotificationUtils notificationUtils,
                                      SchedulerService scheduler,
                                      ExternalChannelService externalChannelService,
                                      CompletelyUnreachableUtils completelyUnreachableUtils,
                                      TimelineUtils timelineUtils,
-                                     PnDeliveryPushConfigs pnDeliveryPushConfigs, 
-                                     CompletionWorkflowUtils completionWorkflowUtils
-    ) {
+                                     PnDeliveryPushConfigs pnDeliveryPushConfigs,
+                                     CompletionWorkflowUtils completionWorkflowUtils,
+                                     IsMVPParameterConsumer isMVPParameterConsumer) {
         this.notificationUtils = notificationUtils;
         this.scheduler = scheduler;
         this.externalChannelService = externalChannelService;
@@ -47,6 +49,7 @@ public class CompletionWorkFlowHandler {
         this.timelineUtils = timelineUtils;
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
         this.completionWorkflowUtils = completionWorkflowUtils;
+        this.isMVPParameterConsumer = isMVPParameterConsumer;
     }
 
     /**
@@ -65,9 +68,11 @@ public class CompletionWorkFlowHandler {
                     scheduleRefinement(notification, recIndex, completionWorkflowDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysSuccessDigitalRefinement());
                     break;
                 case FAILURE:
-                    if( Boolean.FALSE.equals( pnDeliveryPushConfigs.getPaperMessageNotHandled()) ){
-                        sendSimpleRegisteredLetter(notification, recIndex);
+                    String senderTaxId = notification.getSender().getPaTaxId();
+
+                    if( Boolean.FALSE.equals( isMVPParameterConsumer.isMvp( senderTaxId ) ) ){
                         generateLegaFactAndSaveInTimeline(notification, recIndex, status, completionWorkflowDate);
+                        sendSimpleRegisteredLetter(notification, recIndex);
                         scheduleRefinement(notification, recIndex, completionWorkflowDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysFailureDigitalRefinement());
                     } else {
                         generateLegaFactAndSaveInTimeline(notification, recIndex, status, completionWorkflowDate);
@@ -108,7 +113,7 @@ public class CompletionWorkFlowHandler {
             log.info("Sending simple registered letter  - iun {} id {}", notification.getIun(), recIndex);
             externalChannelService.sendNotificationForRegisteredLetter(notification, physicalAddress, recIndex);
         } else {
-            log.info("Simple registered letter can't be send, there isn't physical address for recipient. iun {} id {}", notification.getIun(), recIndex);
+            log.error("Simple registered letter can't be send, there isn't physical address for recipient. iun {} id {}", notification.getIun(), recIndex);
         }
     }
 

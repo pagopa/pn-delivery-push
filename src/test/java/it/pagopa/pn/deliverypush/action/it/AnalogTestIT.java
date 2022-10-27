@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.it;
 
+import it.pagopa.pn.commons.configs.IsMVPParameterConsumer;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.*;
@@ -98,6 +99,7 @@ import static org.awaitility.Awaitility.with;
         PaperNotificationFailedDaoMock.class,
         PnDataVaultClientMock.class,
         PnDeliveryPushConfigs.class,
+        IsMVPParameterConsumer.class,
         AnalogTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")

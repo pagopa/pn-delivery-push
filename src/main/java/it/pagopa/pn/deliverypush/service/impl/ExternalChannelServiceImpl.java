@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.commons.configs.IsMVPParameterConsumer;
 import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
@@ -29,7 +29,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     private final NotificationUtils notificationUtils;
     private final AarUtils aarUtils;
     private final TimelineUtils timelineUtils;
-    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
+    private final IsMVPParameterConsumer isMVPParameterConsumer;
     private final DigitalWorkFlowUtils digitalWorkFlowUtils;
     
     public ExternalChannelServiceImpl(ExternalChannelUtils externalChannelUtils,
@@ -37,13 +37,14 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                                       NotificationUtils notificationUtils,
                                       AarUtils aarUtils,
                                       TimelineUtils timelineUtils,
-                                      PnDeliveryPushConfigs pnDeliveryPushConfigs, DigitalWorkFlowUtils digitalWorkFlowUtils) {
+                                      IsMVPParameterConsumer isMVPParameterConsumer,
+                                      DigitalWorkFlowUtils digitalWorkFlowUtils) {
         this.externalChannelUtils = externalChannelUtils;
         this.externalChannel = externalChannel;
         this.notificationUtils = notificationUtils;
         this.aarUtils = aarUtils;
         this.timelineUtils = timelineUtils;
-        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
+        this.isMVPParameterConsumer = isMVPParameterConsumer;
         this.digitalWorkFlowUtils = digitalWorkFlowUtils;
     }
 
@@ -184,8 +185,9 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
 
         if( !isNotificationAlreadyViewed ){
+            String senderTaxId = notification.getSender().getPaTaxId();
             
-            if( Boolean.FALSE.equals( pnDeliveryPushConfigs.getPaperMessageNotHandled()) ){
+            if( Boolean.FALSE.equals( isMVPParameterConsumer.isMvp( senderTaxId ) ) ){
                 
                 sendAnalogToExternalChannel(notification, physicalAddress, recIndex, investigation, sentAttemptMade);
                 log.info("Paper notification sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);

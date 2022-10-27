@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.utils;
 
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusHistoryElementInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -9,7 +8,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
@@ -23,9 +21,7 @@ class StatusUtilsMultiRecipientTest {
 
     @BeforeEach
     public void setup() {
-        PnDeliveryPushConfigs pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
-        Mockito.when(pnDeliveryPushConfigs.getPaperMessageNotHandled()).thenReturn(false);
-        this.statusUtils = new StatusUtils(pnDeliveryPushConfigs);
+        this.statusUtils = new StatusUtils();
     }
     
     @Test

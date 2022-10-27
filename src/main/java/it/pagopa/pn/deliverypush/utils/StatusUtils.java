@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusHistoryElementInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
@@ -21,8 +20,8 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 public class StatusUtils {
     private final StateMap stateMap;
     
-    public StatusUtils(PnDeliveryPushConfigs pnDeliveryPushConfigs){
-        stateMap = new StateMap(pnDeliveryPushConfigs);
+    public StatusUtils(){
+        this.stateMap = new StateMap();
     }
     
     private static final NotificationStatusInt INITIAL_STATUS = NotificationStatusInt.IN_VALIDATION;
@@ -40,7 +39,11 @@ public class StatusUtils {
     public NotificationStatusInt getCurrentStatusFromNotification(NotificationInt notification, TimelineService timelineService) {
         Set<TimelineElementInternal> timelineElements =  timelineService.getTimeline(notification.getIun(), true);
 
-        List<NotificationStatusHistoryElementInt> statusHistory = getStatusHistory( timelineElements, notification.getRecipients().size(), notification.getSentAt() );
+        List<NotificationStatusHistoryElementInt> statusHistory = getStatusHistory( 
+                timelineElements,
+                notification.getRecipients().size(),
+                notification.getSentAt()
+        );
 
         return getCurrentStatus( statusHistory );
     }
@@ -53,11 +56,9 @@ public class StatusUtils {
         }
     }
     
-    public List<NotificationStatusHistoryElementInt> getStatusHistory( //
-                                                                    Set<TimelineElementInternal> timelineElementList, //
-                                                                    int numberOfRecipients, //
-                                                                    Instant notificationCreatedAt //
-    ) {
+    public List<NotificationStatusHistoryElementInt> getStatusHistory(Set<TimelineElementInternal> timelineElementList, 
+                                                                      int numberOfRecipients, 
+                                                                      Instant notificationCreatedAt) {
         //La timeline ricevuta in ingresso è relativa a tutta la notifica e non al singolo recipient
         List<TimelineElementInternal> timelineByTimestampSorted = timelineElementList.stream()
                 .sorted(Comparator.comparing(TimelineElementInternal::getTimestamp))
@@ -84,7 +85,12 @@ public class StatusUtils {
             relatedCategoryElements.add( category );
 
             NotificationStatusInt nextState = computeStateAfterEvent(
-                        currentState, category, numberOfCompletedWorkflow, numberOfRecipients, relatedCategoryElements);
+                    currentState,
+                    category,
+                    numberOfCompletedWorkflow,
+                    numberOfRecipients,
+                    relatedCategoryElements
+            );
 
             //Se lo stato corrente è diverso dal prossimo stato
             if (!Objects.equals(currentState, nextState)) {
@@ -148,11 +154,13 @@ public class StatusUtils {
             }
         } else {
             //... Altrimenti lo stato viene calcolato normalmente dalla mappa
-                nextState = stateMap.getStateTransition(TransitionRequest.builder()
+                nextState = stateMap.getStateTransition(
+                        TransitionRequest.builder()
                                 .fromStatus(currentState)
                                 .timelineRowType(timelineElementCategory)
                                 .multiRecipient(multiRecipient)
-                                .build());
+                                .build()
+                );
         }
         
         return nextState;

@@ -8,7 +8,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.time.Instant;
 import java.util.*;
@@ -21,8 +20,7 @@ class StatusUtilsTest {
 
     @BeforeEach
     public void setup() {
-        pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
-        this.statusUtils = new StatusUtils(pnDeliveryPushConfigs);
+        this.statusUtils = new StatusUtils();
     }
 
     @Test
@@ -2357,7 +2355,6 @@ class StatusUtilsTest {
 
         Instant notificationCreatedAt = Instant.parse("2021-09-16T15:23:00.00Z");
 
-        Mockito.when(pnDeliveryPushConfigs.getPaperMessageNotHandled()).thenReturn(Boolean.FALSE);
         List<NotificationStatusHistoryElementInt> responseList = statusUtils.getStatusHistory(timelineElementList, 3, notificationCreatedAt);
 
         Assertions.assertEquals(responseList.size(), 3);
