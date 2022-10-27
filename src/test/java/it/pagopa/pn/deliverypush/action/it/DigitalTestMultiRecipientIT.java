@@ -1390,6 +1390,169 @@ class DigitalTestMultiRecipientIT {
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
     }
 
+    // Entrambi i destinatari sono raggiungibili e il primo visualizza la notifica su PN dopo che il workflow
+    // sia completato (in fallimento). Successivamente, anche il secondo destinatario visualizza la notifica
+    @Test
+    void rec1OKRec2OKAndFirstViewedAfterWorkflow() throws InterruptedException {
+       /* Primo recipient
+       - Platform address non presente
+       - Special address presente e primo invio con successo
+       - General address vuoto
+
+       Secondo recipient
+       - Platform address non presente
+       - Special address presente e primo invio con successo
+       - General address vuoto
+    */
+
+        //Primo Recipient
+        LegalDigitalAddressInt digitalDomicile1 = LegalDigitalAddressInt.builder()
+                .address("digitalDomicile1@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                .build();
+
+        //Simulazione visualizzazione notifica a valle della fine del workflow di successo
+        String taxId01 = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.buildEventId(
+                EventId.builder()
+                        .iun("IUN01")
+                        .recIndex(0)
+                        .source(DigitalAddressSourceInt.SPECIAL)
+                        .sentAttemptMade(0)
+                        .build()
+        );
+        NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder()
+                .withTaxId(taxId01)
+                .withInternalId("ANON_"+taxId01)
+                .withDigitalDomicile(digitalDomicile1)
+                .build();
+
+        //Secondo recipient
+        LegalDigitalAddressInt digitalDomicile2 = LegalDigitalAddressInt.builder()
+                .address("digitalDomicile2@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                .build();
+
+        //Simulazione visualizzazione notifica a valle della fine del workflow di successo
+        String taxId02 = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.buildEventId(
+                EventId.builder()
+                        .iun("IUN01")
+                        .recIndex(1)
+                        .source(DigitalAddressSourceInt.SPECIAL)
+                        .sentAttemptMade(0)
+                        .build()
+        );
+        NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder()
+                .withTaxId(taxId02)
+                .withInternalId("ANON_"+taxId02)
+                .withDigitalDomicile(digitalDomicile2)
+                .build();
+
+        List<NotificationRecipientInt> recipients = new ArrayList<>();
+
+        recipients.add(recipient1);
+        recipients.add(recipient2);
+
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
+                .withIun("IUN01")
+                .withPaId("paId01")
+                .withNotificationRecipients(recipients)
+                .build();
+
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
+
+        pnDeliveryClientMock.addNotification(notification);
+
+        String iun = notification.getIun();
+        int recIndex1 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
+        int recIndex2 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
+
+        //Start del workflow
+        startWorkflowHandler.startWorkflow(iun);
+
+        //Viene verificato il numero di send PEC verso external channel
+        ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
+        ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
+        Mockito.verify(externalChannelMock, Mockito.times(2)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
+
+        Thread.sleep(5000L);
+        //attendo la fine del workflow
+        //CHECK PRIMO RECIPIENT
+
+        //Viene verificata la disponibilità degli indirizzi per il primo tentativo per il primo recipient
+        TestUtils.checkGetAddress(iun, recIndex1, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+
+        //Viene verificato per il primo recipient che il primo tentativo sia avvenuto con il domicilio digitale e con successo
+        TestUtils.checkExternalChannelPecSendFromTimeline(iun, recIndex1, 0, digitalDomicile1, DigitalAddressSourceInt.SPECIAL, timelineService);
+        checkIsPresentAcceptanceAndDeliveringAttachmentInTimeline(digitalDomicile1.getAddress(), iun, recIndex1, 0, DigitalAddressSourceInt.SPECIAL, ResponseStatusInt.OK);
+
+        //Viene verificato per il primo recipient che il workflow abbia avuto esito positivo
+        TestUtils.checkSuccessDigitalWorkflowFromTimeline(iun, recIndex1, digitalDomicile1, timelineService);
+
+        //CHECK SECONDO RECIPIENT
+
+        //Viene verificata la disponibilità degli indirizzi per il primo tentativo per il secondo recipient
+        TestUtils.checkGetAddress(iun, recIndex2, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+
+        //Viene verificato per il secondo recipient che il primo tentativo sia avvenuto con il domicilio digitale e con successo
+        TestUtils.checkExternalChannelPecSendFromTimeline(iun, recIndex2, 0, digitalDomicile2, DigitalAddressSourceInt.SPECIAL, timelineService);
+        checkIsPresentAcceptanceAndDeliveringAttachmentInTimeline(digitalDomicile2.getAddress(), iun, recIndex2, 0, DigitalAddressSourceInt.SPECIAL, ResponseStatusInt.OK);
+
+        //Viene verificato per il secondo recipient che il workflow abbia avuto esito positivo
+        TestUtils.checkSuccessDigitalWorkflowFromTimeline(iun, recIndex2, digitalDomicile2,  timelineService);
+
+        //Viene effettuato il check dei legalFacts generati per il primo recipient
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(true)
+                .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .build();
+
+        EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.SUCCESS;
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient1,
+                recIndex1,
+                1,
+                generatedLegalFactsInfo,
+                endWorkflowStatus,
+                legalFactGenerator,
+                timelineService
+        );
+
+        //Viene effettuato il check dei legalFacts generati per il secondo recipient
+
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo2 = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(true)
+                .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .build();
+
+        EndWorkflowStatus endWorkflowStatus2 = EndWorkflowStatus.SUCCESS;
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient2,
+                recIndex2,
+                1,
+                generatedLegalFactsInfo2,
+                endWorkflowStatus2,
+                legalFactGenerator,
+                timelineService
+        );
+
+        //Vengono stampati tutti i legalFacts generati
+        String className = this.getClass().getSimpleName();
+        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+    }
+
     private void checkIsPresentAcceptanceAndDeliveringAttachmentInTimeline(String address,
                                                                            String iun,
                                                                            Integer recIndex,
