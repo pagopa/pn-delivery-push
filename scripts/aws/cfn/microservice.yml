@@ -84,6 +84,10 @@ Parameters:
     Type: String
     Description: 'Queue to pull for inputs event'
 
+  DeliveryPushInputsQueueAlarmARN:
+    Type: String
+    Description: 'Alarm of queue to pull for inputs event'
+
   ExternalChannelsInputsQueueName:
     Type: String
     Description: 'Send external-channel messages to this Queue'
@@ -91,6 +95,10 @@ Parameters:
   ExternalChannelsInputsQueueARN:
     Type: String
     Description: 'Send external-channel messages to this Queue'
+
+  ExternalChannelsInputsQueueAlarmARN:
+    Type: String
+    Description: 'Alarm of external-channel messages Queue'
 
   ExternalChannelsOutputsQueueName:
     Type: String
@@ -100,6 +108,10 @@ Parameters:
     Type: String
     Description: 'Pull external-channel messages from this Queue'
 
+  ExternalChannelsOutputsQueueAlarmARN:
+    Type: String
+    Description: 'Alarm of external-channel messages pull Queue'
+
   ScheduledActionsQueueName:
     Type: String
     Description: 'Send and pull ready-to-do actions th this queue'
@@ -108,6 +120,10 @@ Parameters:
     Type: String
     Description: 'Send and pull ready-to-do actions th this queue'
 
+  ScheduledActionsQueueAlarmARN:
+    Type: String
+    Description: 'Alarm of Send and pull ready-to-do actions queue'
+
   DoneActionsQueueName:
     Type: String
     Description: 'Send done actions to this queue read by webhook'
@@ -115,6 +131,10 @@ Parameters:
   DoneActionsQueueARN:
     Type: String
     Description: 'Send done actions to this queue read by webhook'
+
+  DoneActionsQueueAlarmARN:
+    Type: String
+    Description: 'Alarm of send done actions queue'
 
   ECSClusterName:
     Type: String
@@ -500,6 +520,15 @@ Resources:
           - ','
           - - !GetAtt DeliveryPushMicroservice.Outputs.AutoScalingAlarmArn
             - !GetAtt DeliveryPushMicroservice.Outputs.FatalLogsMetricAlarmArn
+            - !GetAtt DeliveryPushMicroservicePublicAPI.Outputs.RestApiErrorAlarmArn
+            - !GetAtt DeliveryProgressMicroservicePublicAPI.Outputs.RestApiErrorAlarmArn
+            - !GetAtt DeliveryPushMicroservicePublicWebAPI.Outputs.RestApiErrorAlarmArn
+            - !GetAtt DeliveryPushMicroservicePublicIoAPI.Outputs.RestApiErrorAlarmArn
+            - !Ref DeliveryPushInputsQueueAlarmARN
+            - !Ref ExternalChannelsInputsQueueAlarmARN
+            - !Ref ExternalChannelsOutputsQueueAlarmARN
+            - !Ref ScheduledActionsQueueAlarmARN
+            - !Ref DoneActionsQueueAlarmARN
         QueueArns: !Join
           - ','
           - - !Ref DeliveryPushInputsQueueARN

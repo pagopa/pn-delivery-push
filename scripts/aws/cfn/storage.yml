@@ -219,6 +219,9 @@ Outputs:
   ScheduledActionsQueueARN:
     Value: !GetAtt ScheduledActionsQueue.Outputs.QueueARN
     Description: pn-delivery-push input queue ARN
+  ScheduledActionsQueueAlarmARN:
+    Value: !GetAtt ScheduledActionsQueue.Outputs.SqsDLQAlarmArn
+    Description: pn-delivery-push input queue alarm ARN
 
   # Already Done Actions
   DoneActionsQueueName:
@@ -230,6 +233,9 @@ Outputs:
   DoneActionsQueueARN:
     Value: !GetAtt DoneActionsQueue.Outputs.QueueARN
     Description: pn-delivery-push input queue ARN
+  DoneActionsQueueAlarmARN:
+    Value: !GetAtt DoneActionsQueue.Outputs.SqsDLQAlarmArn
+    Description: pn-delivery-push input queue alarmARN    
 
   # Dynamo tables
   TimelinesDynamoTableName:
