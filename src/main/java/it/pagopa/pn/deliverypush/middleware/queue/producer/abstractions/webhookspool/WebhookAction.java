@@ -2,8 +2,6 @@ package it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhook
 
 import lombok.*;
 
-import java.time.Instant;
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -22,15 +20,7 @@ public class WebhookAction {
 
     private Integer delay;
 
-    private Instant timestamp;
-
     private String timelineId;
-
-    private String oldStatus;
-
-    private String newStatus;
-
-    private String timelineEventCategory;
 
     private WebhookEventType type;
 }

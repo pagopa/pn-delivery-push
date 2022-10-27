@@ -8,8 +8,10 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhooks
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhooksPool;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import java.time.Clock;
 import java.time.Instant;
 
 class SchedulerServiceImplTest {
@@ -18,13 +20,18 @@ class SchedulerServiceImplTest {
 
     private WebhooksPool webhooksPool;
 
+    @Mock
+    private Clock clock;
+
     private SchedulerServiceImpl schedulerService;
 
     @BeforeEach
     void setup() {
         actionsPool = Mockito.mock(ActionsPool.class);
         webhooksPool = Mockito.mock(WebhooksPool.class);
-        schedulerService = new SchedulerServiceImpl(actionsPool, webhooksPool);
+        clock = Mockito.mock(Clock.class);
+
+        schedulerService = new SchedulerServiceImpl(actionsPool, webhooksPool, clock);
 
     }
 
@@ -41,18 +48,16 @@ class SchedulerServiceImplTest {
     @Test
     void scheduleWebhookEvent() {
         Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
+        Mockito.when(clock.instant()).thenReturn(instant);
         WebhookAction action = WebhookAction.builder()
                 .iun("01")
                 .paId("02")
-                .timestamp(instant)
                 .eventId(instant + "_" + "03")
-                .oldStatus("active")
-                .newStatus("inactive")
-                .timelineEventCategory("test")
+                .timelineId("03")
                 .type(WebhookEventType.REGISTER_EVENT)
                 .build();
 
-        schedulerService.scheduleWebhookEvent("02", "01", "03", instant, "active", "inactive", "test");
+        schedulerService.scheduleWebhookEvent("02", "01", "03");
 
         Mockito.verify(webhooksPool, Mockito.times(1)).scheduleFutureAction(action);
     }

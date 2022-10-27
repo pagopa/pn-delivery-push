@@ -9,6 +9,8 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhooks
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.time.Clock;
 import java.time.Instant;
 
 @Service
@@ -16,10 +18,12 @@ import java.time.Instant;
 public class SchedulerServiceImpl implements SchedulerService {
     private final ActionsPool actionsPool;
     private final WebhooksPool webhooksPool;
+    private final Clock clock;
 
-    public SchedulerServiceImpl(ActionsPool actionsPool, WebhooksPool webhooksPool) {
+    public SchedulerServiceImpl(ActionsPool actionsPool, WebhooksPool webhooksPool, Clock clock) {
         this.actionsPool = actionsPool;
         this.webhooksPool = webhooksPool;
+        this.clock = clock;
     }
 
     @Override
@@ -60,16 +64,13 @@ public class SchedulerServiceImpl implements SchedulerService {
 
 
     @Override
-    public void scheduleWebhookEvent(String paId, String iun, String timelineId, Instant timestamp, String oldStatus, String newStatus, String timelineEventCategory) {
+    public void scheduleWebhookEvent(String paId, String iun, String timelineId) {
         WebhookAction action = WebhookAction.builder()
                 .iun(iun)
                 .paId(paId)
-                .timestamp(timestamp)
-                .eventId(timestamp + "_" + timelineId)
+                .timelineId(timelineId)
+                .eventId(clock.instant() + "_" + timelineId)
                 //.delay(null)
-                .oldStatus(oldStatus)
-                .newStatus(newStatus)
-                .timelineEventCategory(timelineEventCategory)
                 .type(WebhookEventType.REGISTER_EVENT)
                 .build();
 

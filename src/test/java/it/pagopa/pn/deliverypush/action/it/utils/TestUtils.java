@@ -91,8 +91,12 @@ public class TestUtils {
                         .build());
         
         Optional<GetAddressInfoDetailsInt> getAddressInfoOpt = timelineService.getTimelineElementDetails(iun, correlationId, GetAddressInfoDetailsInt.class);
-        Assertions.assertTrue(getAddressInfoOpt.isPresent());
-        Assertions.assertEquals(isAvailable, getAddressInfoOpt.get().getIsAvailable());
+        if(isAvailable){
+            Assertions.assertTrue(getAddressInfoOpt.isPresent());
+            Assertions.assertEquals(true, getAddressInfoOpt.get().getIsAvailable());
+        }else {
+            Assertions.assertTrue(getAddressInfoOpt.isEmpty() || !getAddressInfoOpt.get().getIsAvailable() );
+        }
     }
 
     public static void checkSendPaperToExtChannel(String iun, Integer recIndex, PhysicalAddressInt physicalAddress, int sendAttempt, TimelineService timelineService) {
@@ -185,18 +189,8 @@ public class TestUtils {
 
     public static void checkFailDigitalWorkflow(String iun, Integer recIndex, TimelineService timelineService, CompletionWorkFlowHandler completionWorkflow) {
         //Viene verificato che il workflow sia fallito
-        Optional<TimelineElementInternal> failDigitalWorkflowOpt = timelineService.getTimelineElement(
-                iun,
-                TimelineEventId.DIGITAL_FAILURE_WORKFLOW.buildEventId(
-                        EventId.builder()
-                                .iun(iun)
-                                .recIndex(recIndex)
-                                .build()));
-                
-        Assertions.assertTrue(failDigitalWorkflowOpt.isPresent());
-        TimelineElementInternal failDigitalWorkflow = failDigitalWorkflowOpt.get();
-        Assertions.assertNotNull(failDigitalWorkflow.getLegalFactsIds().get(0));
-        
+        checkInTimlineIsFailedDigitalWorkflow(iun, recIndex, timelineService);
+
         ArgumentCaptor<EndWorkflowStatus> endWorkflowStatusArgumentCaptor = ArgumentCaptor.forClass(EndWorkflowStatus.class);
         ArgumentCaptor<NotificationInt> notificationCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<Integer> recIndexCaptor = ArgumentCaptor.forClass(Integer.class);
@@ -207,6 +201,33 @@ public class TestUtils {
         Assertions.assertEquals(iun, notificationCaptor.getValue().getIun());
         Assertions.assertEquals(recIndex, recIndexCaptor.getValue());
         Assertions.assertEquals(EndWorkflowStatus.FAILURE, endWorkflowStatusArgumentCaptor.getValue());
+    }
+
+    public static void checkFailDigitalWorkflowMultiRec(String iun, Integer recIndex, int numberOfCompletedWorkflow,  TimelineService timelineService, CompletionWorkFlowHandler completionWorkflow) {
+        //Viene verificato che il workflow sia fallito
+        checkInTimlineIsFailedDigitalWorkflow(iun, recIndex, timelineService);
+
+        ArgumentCaptor<EndWorkflowStatus> endWorkflowStatusArgumentCaptor = ArgumentCaptor.forClass(EndWorkflowStatus.class);
+        ArgumentCaptor<NotificationInt> notificationCaptor = ArgumentCaptor.forClass(NotificationInt.class);
+        ArgumentCaptor<Integer> recIndexCaptor = ArgumentCaptor.forClass(Integer.class);
+
+        Mockito.verify(completionWorkflow, Mockito.times(numberOfCompletedWorkflow)).completionDigitalWorkflow(
+                notificationCaptor.capture(), recIndexCaptor.capture(), Mockito.any(Instant.class), Mockito.any(), endWorkflowStatusArgumentCaptor.capture()
+        );
+    }
+
+    private static void checkInTimlineIsFailedDigitalWorkflow(String iun, Integer recIndex, TimelineService timelineService) {
+        Optional<TimelineElementInternal> failDigitalWorkflowOpt = timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.DIGITAL_FAILURE_WORKFLOW.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recIndex(recIndex)
+                                .build()));
+
+        Assertions.assertTrue(failDigitalWorkflowOpt.isPresent());
+        TimelineElementInternal failDigitalWorkflow = failDigitalWorkflowOpt.get();
+        Assertions.assertNotNull(failDigitalWorkflow.getLegalFactsIds().get(0));
     }
 
     public static void checkRefinement(String iun, Integer recIndex, TimelineService timelineService) {
@@ -311,8 +332,21 @@ public class TestUtils {
         ).isPresent());
     }
 
+    public static boolean checkIsPresentViewed(String iun, Integer recIndex, TimelineService timelineService) {
+        Optional<TimelineElementInternal> timelineElementOpt = timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recIndex(recIndex)
+                                .build()));
 
-    public static void checkIsPresentRefinement(String iun, Integer recIndex, TimelineService timelineService) {
+        Assertions.assertTrue(timelineElementOpt.isPresent());
+
+        return true;
+    }
+    
+    public static boolean checkIsPresentRefinement(String iun, Integer recIndex, TimelineService timelineService) {
         Optional<TimelineElementInternal> timelineElementOpt = timelineService.getTimelineElement(
                 iun,
                 TimelineEventId.REFINEMENT.buildEventId(
@@ -325,6 +359,8 @@ public class TestUtils {
         TimelineElementInternal timelineElement = timelineElementOpt.get();
         RefinementDetailsInt detailsInt = (RefinementDetailsInt) timelineElement.getDetails();
         Assertions.assertNotNull(detailsInt.getNotificationCost());
+        
+        return true;
     }
 
     public static void checkFailureRefinement(String iun,

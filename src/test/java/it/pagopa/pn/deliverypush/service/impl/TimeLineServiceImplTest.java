@@ -62,7 +62,7 @@ class TimeLineServiceImplTest {
         NotificationInt notification = getNotification(iun);
         StatusService.NotificationStatusUpdate notificationStatuses = new StatusService.NotificationStatusUpdate(NotificationStatusInt.ACCEPTED, NotificationStatusInt.ACCEPTED);
         Mockito.when(statusService.checkAndUpdateStatus(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(notificationStatuses);
-        Mockito.doNothing().when(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+        Mockito.doNothing().when(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
         String elementId2 = "elementId2";
         Set<TimelineElementInternal> setTimelineElement = getSendPaperDetailsList(iun, elementId2);
         Mockito.when(timelineDao.getTimeline(Mockito.anyString()))
@@ -86,7 +86,7 @@ class TimeLineServiceImplTest {
         Assertions.assertEquals(expectedStatusInfo.getActual(), actualStatusInfo.getActual());
         Assertions.assertEquals(expectedStatusInfo.isStatusChanged(), actualStatusInfo.isStatusChanged());
         Assertions.assertNull(actualStatusInfo.getStatusChangeTimestamp());
-        Mockito.verify(timelineDao).addTimelineElement(dtoWithStatusInfo);
+        Mockito.verify(timelineDao).addTimelineElementIfAbsent(dtoWithStatusInfo);
         Mockito.verify(statusService).checkAndUpdateStatus(newElement, setTimelineElement, notification);
         Mockito.verify(confidentialInformationService).saveTimelineConfidentialInformation(newElement);
     }
@@ -106,7 +106,7 @@ class TimeLineServiceImplTest {
 
         TimelineElementInternal newElement = getSendPaperFeedbackTimelineElement(iun, elementId);
 
-        Mockito.doThrow(new PnInternalException("error")).when(statusService).checkAndUpdateStatus(Mockito.any(TimelineElementInternal.class), Mockito.anySet(), Mockito.any(NotificationInt.class));
+        Mockito.doThrow(new PnInternalException("error", "test")).when(statusService).checkAndUpdateStatus(Mockito.any(TimelineElementInternal.class), Mockito.anySet(), Mockito.any(NotificationInt.class));
 
         // WHEN
         assertThrows(PnInternalException.class, () -> {
@@ -126,7 +126,7 @@ class TimeLineServiceImplTest {
         NotificationInt notification = getNotification(iun);
         StatusService.NotificationStatusUpdate notificationStatuses = new StatusService.NotificationStatusUpdate(NotificationStatusInt.IN_VALIDATION, NotificationStatusInt.ACCEPTED);
         Mockito.when(statusService.checkAndUpdateStatus(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(notificationStatuses);
-        Mockito.doNothing().when(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+        Mockito.doNothing().when(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
         String elementId2 = "elementId2";
         Set<TimelineElementInternal> setTimelineElement = getSendPaperDetailsList(iun, elementId2);
         Set<TimelineElementInternal> timelineElementsWithStatusInfo = setTimelineElement.stream().map(timelineElementInternal -> timelineElementInternal.toBuilder()
@@ -165,7 +165,7 @@ class TimeLineServiceImplTest {
         NotificationInt notification = getNotification(iun);
         StatusService.NotificationStatusUpdate notificationStatuses = new StatusService.NotificationStatusUpdate(NotificationStatusInt.IN_VALIDATION, NotificationStatusInt.IN_VALIDATION);
         Mockito.when(statusService.checkAndUpdateStatus(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(notificationStatuses);
-        Mockito.doNothing().when(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+        Mockito.doNothing().when(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
         String elementId2 = "elementId2";
         Set<TimelineElementInternal> setTimelineElement = getSendPaperDetailsList(iun, elementId2);
         Set<TimelineElementInternal> timelineElementsWithStatusInfo = setTimelineElement.stream().map(timelineElementInternal -> timelineElementInternal.toBuilder()

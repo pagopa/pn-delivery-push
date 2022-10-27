@@ -4,6 +4,7 @@ import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.dynamo.entity.PaperNotificationFailedEntity;
@@ -46,9 +47,14 @@ public class PaperNotificationFailedEntityDaoDynamo extends AbstractDynamoKeyVal
 
     @Override
     public void putIfAbsent(PaperNotificationFailedEntity value) throws PnIdConflictException {
-        String expression = "attribute_not_exists(" + PaperNotificationFailedEntity.FIELD_RECIPIENT_ID
-                +") AND attribute_not_exists("+ PaperNotificationFailedEntity.FIELD_IUN +")";
-
+        String expression = String.format(
+                "%s(%s) AND %s(%s)",
+                ATTRIBUTE_NOT_EXISTS,
+                PaperNotificationFailedEntity.FIELD_RECIPIENT_ID,
+                ATTRIBUTE_NOT_EXISTS,
+                PaperNotificationFailedEntity.FIELD_IUN
+        );
+        
         Expression conditionExpressionPut = Expression.builder()
                 .expression(expression)
                 .build();
@@ -61,10 +67,16 @@ public class PaperNotificationFailedEntityDaoDynamo extends AbstractDynamoKeyVal
             table.putItem(request);
         }catch (ConditionalCheckFailedException ex){
             log.error("Conditional check exception on PaperNotificationFailedEntityDaoDynamo putIfAbsent", ex);
+
             Map<String, String> keyValues = new HashMap<>();
             keyValues.put("iun", value.getIun());
             keyValues.put("recipient", value.getRecipientId());
-            throw new PnIdConflictException( keyValues );
+
+            throw new PnIdConflictException(
+                    PnDeliveryPushExceptionCodes.ERROR_CODE_DUPLICATED_ITEMD,
+                    keyValues,
+                    ex
+            );
         }
     }
 }

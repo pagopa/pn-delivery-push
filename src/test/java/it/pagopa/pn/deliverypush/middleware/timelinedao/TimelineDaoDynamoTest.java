@@ -68,8 +68,8 @@ class TimelineDaoDynamoTest {
                 .build();
         
         // WHEN
-        dao.addTimelineElement(row1);
-        dao.addTimelineElement(row2);
+        dao.addTimelineElementIfAbsent(row1);
+        dao.addTimelineElementIfAbsent(row2);
 
         // THEN
         // check first row
@@ -123,9 +123,9 @@ class TimelineDaoDynamoTest {
                 .build();
 
         // WHEN
-        dao.addTimelineElement(row1);
-        dao.addTimelineElement(row2);
-        dao.addTimelineElement(row3);
+        dao.addTimelineElementIfAbsent(row1);
+        dao.addTimelineElementIfAbsent(row2);
+        dao.addTimelineElementIfAbsent(row3);
 
         // THEN
 
@@ -163,8 +163,8 @@ class TimelineDaoDynamoTest {
                 .build();
 
         // WHEN
-        dao.addTimelineElement(row1);
-        dao.addTimelineElement(row2);
+        dao.addTimelineElementIfAbsent(row1);
+        dao.addTimelineElementIfAbsent(row2);
 
         dao.deleteTimeline(iun);
 
