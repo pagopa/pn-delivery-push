@@ -361,7 +361,6 @@ Resources:
               - 'dynamodb:PutItem'
             Resource:
               - !Sub "${TimelinesDynamoTableArn}"
-              - !Sub "${PaperNotificationFailedDynamoTableArn}"
               - !Sub "${ActionDynamoTableArn}"
           - Effect: Allow
             Action:
@@ -371,6 +370,7 @@ Resources:
               - 'dynamodb:DeleteItem'
               - 'dynamodb:UpdateItem'
             Resource:
+              - !Sub "${PaperNotificationFailedDynamoTableArn}"
               - !Sub "${FutureActionDynamoTableArn}"
               - !Sub "${LastPollForFutureActionDynamoTableArn}"
               - !Sub "${PnDeliveryPushShedLockDynamoTableArn}"
