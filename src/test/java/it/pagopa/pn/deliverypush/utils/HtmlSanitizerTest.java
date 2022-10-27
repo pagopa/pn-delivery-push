@@ -1,5 +1,4 @@
 package it.pagopa.pn.deliverypush.utils;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -9,7 +8,6 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.legalfacts.CustomInstantWriter;
 import it.pagopa.pn.deliverypush.legalfacts.PhysicalAddressWriter;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,6 +117,7 @@ class HtmlSanitizerTest {
     void sanitizeStringWithImgAndOtherHTMLElementsTest() {
         String actualHTML = "<html><h1>SSRF WITH IMAGE POC</h1> <img src='https://prova.it'></img></html>";
         String sanitized = (String) htmlSanitizer.sanitize(actualHTML);
+        System.out.println(sanitized);
         assertThat(sanitized).doesNotContain("<img", "<h1>", "<html>");
     }
 
@@ -126,21 +125,23 @@ class HtmlSanitizerTest {
     @Test
     void sanitizeRequestAcceptedTemplateWithNoHTMlElement() {
         Map<?, ?> templateModel = getTemplateModelForRequestAccepted(null);
+        System.out.println("OLD MAP: " + templateModel);
         NotificationInt notificationInt = (NotificationInt) templateModel.get(FIELD_NOTIFICATION);
 
         Object sanitizedTemplateModel = htmlSanitizer.sanitize(templateModel);
-        assertThat(sanitizedTemplateModel).isInstanceOf(Map.class);
+        assertThat((Map<?, ?>)sanitizedTemplateModel).isNotEqualTo(templateModel).isInstanceOf(Map.class);
 
         Map<String, Object> sanitizedTemplateModelMap = (Map<String, Object>) sanitizedTemplateModel;
         System.out.println("NEW MAP: " + sanitizedTemplateModelMap);
         NotificationInt sanitizedNotificationInt = (NotificationInt) sanitizedTemplateModelMap.get(FIELD_NOTIFICATION);
 
-        Assertions.assertAll(
-                () -> Assertions.assertEquals(sanitizedNotificationInt, notificationInt),
-                () -> Assertions.assertEquals(sanitizedTemplateModelMap.get(FIELD_SEND_DATE), templateModel.get(FIELD_SEND_DATE)),
-                () -> Assertions.assertEquals(sanitizedTemplateModelMap.get(FIELD_SEND_DATE_NO_TIME), templateModel.get(FIELD_SEND_DATE_NO_TIME)),
-                () -> Assertions.assertEquals(sanitizedTemplateModelMap.get(FIELD_DIGESTS), templateModel.get(FIELD_DIGESTS))
-        );
+        assertThat(sanitizedNotificationInt).isEqualTo(notificationInt);
+
+        assertThat(sanitizedTemplateModelMap)
+                .containsEntry(FIELD_SEND_DATE, templateModel.get(FIELD_SEND_DATE))
+                .containsEntry(FIELD_SEND_DATE_NO_TIME, templateModel.get(FIELD_SEND_DATE_NO_TIME))
+                .containsEntry(FIELD_DIGESTS, templateModel.get(FIELD_DIGESTS));
+        assertThat(sanitizedTemplateModelMap.get(FIELD_ADDRESS_WRITER)).isNotNull().isInstanceOf(PhysicalAddressWriter.class);
     }
 
     @Test
@@ -150,21 +151,25 @@ class HtmlSanitizerTest {
         NotificationInt notificationInt = (NotificationInt) templateModel.get(FIELD_NOTIFICATION);
 
         Object sanitizedTemplateModel = htmlSanitizer.sanitize(templateModel);
+        assertThat((Map<?, ?>)sanitizedTemplateModel).isNotEqualTo(templateModel).isInstanceOf(Map.class);
+
         Map<String, Object> sanitizedTemplateModelMap = (Map<String, Object>) sanitizedTemplateModel;
         NotificationInt sanitizedNotificationInt = (NotificationInt) sanitizedTemplateModelMap.get(FIELD_NOTIFICATION);
 
-        Assertions.assertAll(
-                () -> Assertions.assertEquals(sanitizedNotificationInt.getIun(), notificationInt.getIun()),
-                () -> Assertions.assertEquals(sanitizedNotificationInt.getSender(), notificationInt.getSender()),
-                () -> Assertions.assertEquals(sanitizedNotificationInt.getAmount(), notificationInt.getAmount()),
-                () -> Assertions.assertEquals(sanitizedNotificationInt.getPaProtocolNumber(), notificationInt.getPaProtocolNumber()),
-                () -> Assertions.assertEquals(sanitizedNotificationInt.getSubject(), notificationInt.getSubject()),
-                () -> Assertions.assertEquals(sanitizedNotificationInt.getSentAt(), notificationInt.getSentAt()),
-                () -> Assertions.assertEquals(sanitizedNotificationInt.getDocuments(), notificationInt.getDocuments()),
-                () -> Assertions.assertEquals(sanitizedTemplateModelMap.get(FIELD_SEND_DATE), templateModel.get(FIELD_SEND_DATE)),
-                () -> Assertions.assertEquals(sanitizedTemplateModelMap.get(FIELD_SEND_DATE_NO_TIME), templateModel.get(FIELD_SEND_DATE_NO_TIME)),
-                () -> Assertions.assertEquals(sanitizedTemplateModelMap.get(FIELD_DIGESTS), templateModel.get(FIELD_DIGESTS))
-        );
+        assertThat(sanitizedNotificationInt.getRecipients().get(0).getDenomination()).doesNotContain("<h1>", "<img");
+        assertThat(sanitizedNotificationInt.getIun()).isEqualTo(notificationInt.getIun());
+        assertThat(sanitizedNotificationInt.getSender()).isEqualTo(notificationInt.getSender());
+        assertThat(sanitizedNotificationInt.getAmount()).isEqualTo(notificationInt.getAmount());
+        assertThat(sanitizedNotificationInt.getPaProtocolNumber()).isEqualTo(notificationInt.getPaProtocolNumber());
+        assertThat(sanitizedNotificationInt.getSubject()).isEqualTo(notificationInt.getSubject());
+        assertThat(sanitizedNotificationInt.getSentAt()).isEqualTo(notificationInt.getSentAt());
+        assertThat(sanitizedNotificationInt.getDocuments()).isEqualTo(notificationInt.getDocuments());
+
+        assertThat(sanitizedTemplateModelMap)
+                .containsEntry(FIELD_SEND_DATE, templateModel.get(FIELD_SEND_DATE))
+                .containsEntry(FIELD_SEND_DATE_NO_TIME, templateModel.get(FIELD_SEND_DATE_NO_TIME))
+                .containsEntry(FIELD_DIGESTS, templateModel.get(FIELD_DIGESTS));
+        assertThat(sanitizedTemplateModelMap.get(FIELD_ADDRESS_WRITER)).isNotNull().isInstanceOf(PhysicalAddressWriter.class);
     }
 
     @Test
@@ -173,17 +178,18 @@ class HtmlSanitizerTest {
         NotificationRecipientInt notificationRecipientInt = (NotificationRecipientInt) templateModel.get(FIELD_RECIPIENT);
 
         Object sanitizedTemplateModel = htmlSanitizer.sanitize(templateModel);
-        assertThat(sanitizedTemplateModel).isInstanceOf(Map.class);
+        assertThat((Map<?, ?>)sanitizedTemplateModel).isNotEqualTo(templateModel).isInstanceOf(Map.class);
 
         Map<String, Object> sanitizedTemplateModelMap = (Map<String, Object>) sanitizedTemplateModel;
         NotificationRecipientInt sanitizedNotificationRecipientInt = (NotificationRecipientInt) sanitizedTemplateModelMap.get(FIELD_RECIPIENT);
 
-        Assertions.assertAll(
-                () -> Assertions.assertEquals(sanitizedNotificationRecipientInt, notificationRecipientInt),
-                () -> Assertions.assertEquals(sanitizedTemplateModelMap.get(FIELD_IUN), templateModel.get(FIELD_IUN)),
-                () -> Assertions.assertEquals(sanitizedTemplateModelMap.get(FIELD_WHEN), templateModel.get(FIELD_WHEN)),
-                () -> Assertions.assertEquals(sanitizedTemplateModelMap.get(FIELD_SEND_DATE_NO_TIME), templateModel.get(FIELD_SEND_DATE_NO_TIME))
-        );
+        assertThat(sanitizedNotificationRecipientInt).isEqualTo(notificationRecipientInt);
+
+        assertThat(sanitizedTemplateModelMap)
+                .containsEntry(FIELD_IUN, templateModel.get(FIELD_IUN))
+                .containsEntry(FIELD_WHEN, templateModel.get(FIELD_WHEN))
+                .containsEntry(FIELD_SEND_DATE_NO_TIME, templateModel.get(FIELD_SEND_DATE_NO_TIME));
+        assertThat(sanitizedTemplateModelMap.get(FIELD_ADDRESS_WRITER)).isNotNull().isInstanceOf(PhysicalAddressWriter.class);
     }
 
     @Test
@@ -192,16 +198,17 @@ class HtmlSanitizerTest {
         Map<?, ?> templateModel = getTemplateModelForNotificationViewed(customDenomination);
 
         Object sanitizedTemplateModel = htmlSanitizer.sanitize(templateModel);
+        assertThat((Map<?, ?>)sanitizedTemplateModel).isNotEqualTo(templateModel).isInstanceOf(Map.class);
 
         Map<String, Object> sanitizedTemplateModelMap = (Map<String, Object>) sanitizedTemplateModel;
         NotificationRecipientInt notificationRecipientInt = (NotificationRecipientInt) sanitizedTemplateModelMap.get(FIELD_RECIPIENT);
 
-        Assertions.assertAll(
-                () -> Assertions.assertEquals(sanitizedTemplateModelMap.get(FIELD_IUN), templateModel.get(FIELD_IUN)),
-                () -> Assertions.assertEquals(sanitizedTemplateModelMap.get(FIELD_WHEN), templateModel.get(FIELD_WHEN)),
-                () -> Assertions.assertEquals(sanitizedTemplateModelMap.get(FIELD_SEND_DATE_NO_TIME), templateModel.get(FIELD_SEND_DATE_NO_TIME)),
-                () -> Assertions.assertNotNull(sanitizedTemplateModelMap.get(FIELD_ADDRESS_WRITER))
-        );
+        assertThat(notificationRecipientInt.getDenomination()).doesNotContain("<h1>", "<img");
+        assertThat(sanitizedTemplateModelMap)
+                .containsEntry(FIELD_IUN, templateModel.get(FIELD_IUN))
+                .containsEntry(FIELD_WHEN, templateModel.get(FIELD_WHEN))
+                .containsEntry(FIELD_SEND_DATE_NO_TIME, templateModel.get(FIELD_SEND_DATE_NO_TIME));
+        assertThat(sanitizedTemplateModelMap.get(FIELD_ADDRESS_WRITER)).isNotNull().isInstanceOf(PhysicalAddressWriter.class);
     }
 
     @Test
@@ -219,16 +226,17 @@ class HtmlSanitizerTest {
         List<PecDeliveryInfo> deliveryInfosActual = (List<PecDeliveryInfo>) templateModel.get(FIELD_DELIVERIES);
 
         Object sanitizedTemplateModel = htmlSanitizer.sanitize(templateModel);
+        assertThat((Map<?, ?>)sanitizedTemplateModel).isNotEqualTo(templateModel).isInstanceOf(Map.class);
 
         Map<String, Object> sanitizedTemplateModelMap = (Map<String, Object>) sanitizedTemplateModel;
         List<PecDeliveryInfo> sanitizedDeliveryInfos = (List<PecDeliveryInfo>) sanitizedTemplateModelMap.get(FIELD_DELIVERIES);
 
-        Assertions.assertAll(
-                () -> Assertions.assertEquals(1, sanitizedDeliveryInfos.size()),
-                () -> Assertions.assertEquals(deliveryInfosActual.get(0).getAddress(), sanitizedDeliveryInfos.get(0).getAddress()),
-                () -> Assertions.assertEquals(templateModel.get(FIELD_SEND_DATE_NO_TIME), sanitizedTemplateModelMap.get(FIELD_SEND_DATE_NO_TIME)),
-                () -> Assertions.assertEquals(templateModel.get(FIELD_IUN), sanitizedTemplateModelMap.get(FIELD_IUN))
-        );
+        assertThat(sanitizedDeliveryInfos).isNotNull().hasSize(1);
+        assertThat(sanitizedDeliveryInfos.get(0).getDenomination()).doesNotContain("<h1>", "<img");
+        assertThat(sanitizedDeliveryInfos.get(0).getAddress()).isEqualTo(deliveryInfosActual.get(0).getAddress());
+        assertThat(sanitizedTemplateModelMap)
+                .containsEntry(FIELD_IUN, templateModel.get(FIELD_IUN))
+                .containsEntry(FIELD_SEND_DATE_NO_TIME, templateModel.get(FIELD_SEND_DATE_NO_TIME));
     }
 
     @Test
@@ -245,14 +253,15 @@ class HtmlSanitizerTest {
         Map<?, ?> templateModel = getTemplateModelForFileCompliance(customSignature);
 
         Object sanitizedTemplateModel = htmlSanitizer.sanitize(templateModel);
+        assertThat((Map<?, ?>)sanitizedTemplateModel).isNotEqualTo(templateModel).isInstanceOf(Map.class);
 
         Map<String, Object> sanitizedTemplateModelMap = (Map<String, Object>) sanitizedTemplateModel;
 
-        Assertions.assertAll(
-                () -> Assertions.assertEquals(templateModel.get(FIELD_TIME_REFERENCE), sanitizedTemplateModelMap.get(FIELD_TIME_REFERENCE)),
-                () -> Assertions.assertEquals(templateModel.get(FIELD_PDF_FILE_NAME), sanitizedTemplateModelMap.get(FIELD_PDF_FILE_NAME)),
-                () -> Assertions.assertEquals(templateModel.get(FIELD_SEND_DATE), sanitizedTemplateModelMap.get(FIELD_SEND_DATE))
-        );
+        assertThat((String) sanitizedTemplateModelMap.get(FIELD_SIGNATURE)).doesNotContain("<h1>", "<img");
+        assertThat(sanitizedTemplateModelMap)
+                .containsEntry(FIELD_TIME_REFERENCE, templateModel.get(FIELD_TIME_REFERENCE))
+                .containsEntry(FIELD_PDF_FILE_NAME, templateModel.get(FIELD_PDF_FILE_NAME))
+                .containsEntry(FIELD_SEND_DATE, templateModel.get(FIELD_SEND_DATE));
     }
 
     @Test
@@ -269,14 +278,13 @@ class HtmlSanitizerTest {
         NotificationInt sanitizedNotificationInt = (NotificationInt) sanitizedTemplateModelMap.get(FIELD_NOTIFICATION);
         NotificationRecipientInt sanitizedNotificationRecipientInt = (NotificationRecipientInt) sanitizedTemplateModelMap.get(FIELD_RECIPIENT);
 
-        Assertions.assertAll(
-                () -> Assertions.assertEquals(notificationInt, sanitizedNotificationInt),
-                () -> Assertions.assertEquals(notificationRecipientInt, sanitizedNotificationRecipientInt),
-                () -> Assertions.assertEquals(templateModel.get(FIELD_SEND_DATE), sanitizedTemplateModelMap.get(FIELD_SEND_DATE)),
-                () -> Assertions.assertEquals(templateModel.get(FIELD_SEND_DATE_NO_TIME), sanitizedTemplateModelMap.get(FIELD_SEND_DATE_NO_TIME)),
-                () -> Assertions.assertNotNull(sanitizedTemplateModelMap.get(FIELD_ADDRESS_WRITER))
+        assertThat(sanitizedNotificationInt).isEqualTo(notificationInt);
+        assertThat(sanitizedNotificationRecipientInt).isEqualTo(notificationRecipientInt);
 
-        );
+        assertThat(sanitizedTemplateModelMap)
+                .containsEntry(FIELD_SEND_DATE, templateModel.get(FIELD_SEND_DATE))
+                .containsEntry(FIELD_SEND_DATE_NO_TIME, templateModel.get(FIELD_SEND_DATE_NO_TIME));
+        assertThat(sanitizedTemplateModelMap.get(FIELD_ADDRESS_WRITER)).isNotNull().isInstanceOf(PhysicalAddressWriter.class);
     }
 
     @Test
@@ -287,6 +295,7 @@ class HtmlSanitizerTest {
         NotificationRecipientInt notificationRecipientInt = (NotificationRecipientInt) templateModel.get(FIELD_RECIPIENT);
 
         Object sanitizedTemplateModel = htmlSanitizer.sanitize(templateModel);
+        assertThat((Map<?, ?>)sanitizedTemplateModel).isNotEqualTo(templateModel).isInstanceOf(Map.class);
 
         Map<String, Object> sanitizedTemplateModelMap = (Map<String, Object>) sanitizedTemplateModel;
         NotificationInt sanitizedNotificationInt = (NotificationInt) sanitizedTemplateModelMap.get(FIELD_NOTIFICATION);
@@ -305,11 +314,10 @@ class HtmlSanitizerTest {
         assertThat(sanitizedNotificationRecipientInt.getDenomination()).doesNotContain("<h1>", "<img");
         assertThat(sanitizedNotificationRecipientInt.getTaxId()).isEqualTo(notificationRecipientInt.getTaxId());
 
-        Assertions.assertAll(
-                () -> Assertions.assertEquals(templateModel.get(FIELD_SEND_DATE), sanitizedTemplateModelMap.get(FIELD_SEND_DATE)),
-                () -> Assertions.assertEquals(templateModel.get(FIELD_SEND_DATE_NO_TIME), sanitizedTemplateModelMap.get(FIELD_SEND_DATE_NO_TIME)),
-                () -> Assertions.assertNotNull(sanitizedTemplateModelMap.get(FIELD_ADDRESS_WRITER))
-        );
+        assertThat(sanitizedTemplateModelMap)
+                .containsEntry(FIELD_SEND_DATE, templateModel.get(FIELD_SEND_DATE))
+                .containsEntry(FIELD_SEND_DATE_NO_TIME, templateModel.get(FIELD_SEND_DATE_NO_TIME));
+        assertThat(sanitizedTemplateModelMap.get(FIELD_ADDRESS_WRITER)).isNotNull().isInstanceOf(PhysicalAddressWriter.class);
     }
 
     private Map<String, Object> getTemplateModelForRequestAccepted(String customDenomination) {
