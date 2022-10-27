@@ -31,27 +31,41 @@ public class StatusServiceImpl implements StatusService {
     }
 
     @Override
-    public NotificationStatusUpdate checkAndUpdateStatus(TimelineElementInternal dto, Set<TimelineElementInternal> currentTimeline, NotificationInt notification) {
-        log.debug("Notification is present paProtocolNumber {} for iun {}", notification.getPaProtocolNumber(), dto.getIun());
+    public NotificationStatusUpdate computeStatusChange(TimelineElementInternal dto, Set<TimelineElementInternal> currentTimeline, NotificationInt notification) {
+        log.debug("computeStatusChange Notification is present paProtocolNumber {} for iun {}", notification.getPaProtocolNumber(), dto.getIun());
 
         // - Calcolare lo stato corrente
         NotificationStatusInt currentState = computeLastStatusHistoryElement(notification, currentTimeline).getStatus();
-        log.debug("CurrentState is {} for iun {}", currentState, dto.getIun());
+        log.debug("computeStatusChange CurrentState is {} for iun {}", currentState, dto.getIun());
 
         currentTimeline.add(dto);
 
         // - Calcolare il nuovo stato
         NotificationStatusHistoryElementInt nextState = computeLastStatusHistoryElement(notification, currentTimeline);
 
-        log.debug("Next state is {} for iun {}", nextState.getStatus(), dto.getIun());
-
-        // - se i due stati differiscono
-        if (!currentState.equals(nextState.getStatus()) && !nextState.getStatus().equals(NotificationStatusInt.REFUSED)) {
-
-            updateStatus(dto.getIun(), nextState.getStatus(), dto.getTimestamp());
-        }
+        log.debug("computeStatusChange Next state is {} for iun {}", nextState.getStatus(), dto.getIun());
 
         return new NotificationStatusUpdate(currentState, nextState.getStatus());
+    }
+
+
+    @Override
+    public NotificationStatusUpdate checkAndUpdateStatus(TimelineElementInternal dto, Set<TimelineElementInternal> currentTimeline, NotificationInt notification) {
+        log.debug("checkAndUpdateStatus is present paProtocolNumber {} for iun {}", notification.getPaProtocolNumber(), dto.getIun());
+
+        NotificationStatusUpdate notificationStatusUpdate = computeStatusChange(dto, currentTimeline, notification);
+        NotificationStatusInt currentState = notificationStatusUpdate.getOldStatus();
+        NotificationStatusInt nextState = notificationStatusUpdate.getNewStatus();
+
+        log.debug("checkAndUpdateStatus Next state is {} for iun {}", nextState, dto.getIun());
+
+        // - se i due stati differiscono
+        if (!currentState.equals(nextState) && !nextState.equals(NotificationStatusInt.REFUSED)) {
+
+            updateStatus(dto.getIun(), nextState, dto.getTimestamp());
+        }
+
+        return new NotificationStatusUpdate(currentState, nextState);
     }
 
     private void updateStatus(String iun, NotificationStatusInt nextState, Instant timeStamp) {

@@ -107,7 +107,7 @@ class ExternalChannelResponseHandlerTest {
         SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();
         singleStatusUpdate.setDigitalLegal(extChannelResponse);
 
-        Mockito.when(timelineUtils.getIunFromTimelineId(Mockito.any())).thenThrow(new PnInternalException("Exception legalUpdate"));
+        Mockito.when(timelineUtils.getIunFromTimelineId(Mockito.any())).thenThrow(new PnInternalException("Exception legalUpdate", "PN_GENERIC_ERROR"));
 
         PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
             handler.extChannelResponseReceiver(singleStatusUpdate);

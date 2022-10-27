@@ -1,10 +1,14 @@
 package it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo;
 
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
+import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineEntityDao;
-import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.*;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.DigitalAddressEntity;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.PhysicalAddressEntity;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementDetailsEntity;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.DtoToEntityTimelineMapper;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.EntityToDtoTimelineMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -33,18 +37,25 @@ public class TimelineDaoDynamo implements TimelineDao {
     }
 
     @Override
-    public void addTimelineElement(TimelineElementInternal dto) {
+    public void addTimelineElementIfAbsent(TimelineElementInternal dto) throws PnIdConflictException {
+        TimelineElementEntity entity = getTimelineElementEntity(dto);
+
+        entityDao.putIfAbsent(entity);
+    }
+    
+    @NotNull
+    private TimelineElementEntity getTimelineElementEntity(TimelineElementInternal dto) {
         TimelineElementEntity entity = dto2entity.dtoToEntity(dto);
 
         TimelineElementDetailsEntity details = entity.getDetails();
-        if( details != null ) {
+        if (details != null) {
 
             TimelineElementDetailsEntity newDetails = cloneWithoutSensitiveInformation(details);
-            entity.setDetails( newDetails );
+            entity.setDetails(newDetails);
         }
-        entityDao.put(entity);
+        return entity;
     }
-
+    
     @NotNull
     private TimelineElementDetailsEntity cloneWithoutSensitiveInformation(TimelineElementDetailsEntity details) {
         TimelineElementDetailsEntity newDetails = details.toBuilder().build();

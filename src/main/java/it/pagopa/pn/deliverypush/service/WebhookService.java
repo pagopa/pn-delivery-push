@@ -7,7 +7,6 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamM
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.Instant;
 import java.util.UUID;
 
 public interface WebhookService {
@@ -23,8 +22,7 @@ public interface WebhookService {
 
     Mono<ProgressResponseElementDto> consumeEventStream(String xPagopaPnCxId, UUID streamId, String lastEventId);
 
-    Mono<Void> saveEvent(String paId, String eventId, String iun, Instant timestamp,
-                         String oldStatus, String newStatus, String timelineEventCategory);
+    Mono<Void> saveEvent(String paId, String eventId, String iun);
 
     Mono<Void> purgeEvents(String streamId, String eventId, boolean olderThan);
 }
