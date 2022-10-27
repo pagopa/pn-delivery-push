@@ -136,6 +136,14 @@ Parameters:
     Type: String
     Description: 'Alarm of send done actions queue'
 
+  SafeStorageToDeliveryPushQueueARN:
+    Type: String
+    Description: 'ARN of safe storage to delivery push queue'
+
+  SafeStorageToDeliveryPushQueueAlarmARN:
+    Type: String
+    Description: 'Alarm of safe storage to delivery push queue'
+
   ECSClusterName:
     Type: String
     Description: 'The name of the ECS cluster where the microservice is going to be deployed'
@@ -525,14 +533,14 @@ Resources:
             - !GetAtt DeliveryPushMicroservicePublicWebAPI.Outputs.RestApiErrorAlarmArn
             - !GetAtt DeliveryPushMicroservicePublicIoAPI.Outputs.RestApiErrorAlarmArn
             - !Ref DeliveryPushInputsQueueAlarmARN
-            - !Ref ExternalChannelsInputsQueueAlarmARN
             - !Ref ExternalChannelsOutputsQueueAlarmARN
             - !Ref ScheduledActionsQueueAlarmARN
             - !Ref DoneActionsQueueAlarmARN
+            - !Ref SafeStorageToDeliveryPushQueueAlarmARN
         QueueArns: !Join
           - ','
           - - !Ref DeliveryPushInputsQueueARN
-            - !Ref ExternalChannelsInputsQueueARN
             - !Ref ExternalChannelsOutputsQueueARN
             - !Ref ScheduledActionsQueueARN
             - !Ref DoneActionsQueueARN
+            - !Ref SafeStorageToDeliveryPushQueueARN
