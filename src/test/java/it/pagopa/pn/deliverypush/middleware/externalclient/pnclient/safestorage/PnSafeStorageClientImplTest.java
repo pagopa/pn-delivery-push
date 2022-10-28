@@ -1,5 +1,4 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage;
-
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.ApiClient;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.api.FileDownloadApi;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.api.FileMetadataUpdateApi;
@@ -10,7 +9,6 @@ import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequ
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.RequestEntity;
@@ -19,19 +17,14 @@ import org.springframework.web.client.RestTemplate;
 
 class PnSafeStorageClientImplTest {
 
-    @Mock
     private FileDownloadApi fileDownloadApi;
 
-    @Mock
     private FileUploadApi fileUploadApi;
 
-    @Mock
     private FileMetadataUpdateApi fileMetadataUpdateApi;
 
-    @Mock
     private PnDeliveryPushConfigs cfg;
 
-    @Mock
     private RestTemplate restTemplate;
 
     private PnSafeStorageClientImpl client;
