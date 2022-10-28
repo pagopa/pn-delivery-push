@@ -6,7 +6,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsId;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class LegalFactUtilsTest {
+class LegalFactUtilsTest {
 
     @Test
     void checkLegalFactConversion() {
