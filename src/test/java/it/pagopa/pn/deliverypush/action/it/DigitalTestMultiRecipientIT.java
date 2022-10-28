@@ -1393,7 +1393,7 @@ class DigitalTestMultiRecipientIT {
     // Entrambi i destinatari sono raggiungibili e il primo visualizza la notifica su PN dopo che il workflow
     // sia completato (con successo). Successivamente, anche il secondo destinatario visualizza la notifica
     @Test
-    void rec1OKRec2OKAndFirstViewedAfterWorkflow() throws InterruptedException {
+    void rec1OKRec2OKAndFirstViewedAfterWorkflow() {
        /* Primo recipient
        - Platform address non presente
        - Special address presente e primo invio con successo
@@ -1479,8 +1479,16 @@ class DigitalTestMultiRecipientIT {
         ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
         Mockito.verify(externalChannelMock, Mockito.times(2)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
 
-        Thread.sleep(5000L);
-        //attendo la fine del workflow
+        //attendo la fine del workflow del primo destinatario
+        await().untilAsserted(() ->
+                Assertions.assertTrue(TestUtils.checkSuccessDigitalWorkflowFromTimeline(iun, recIndex1, digitalDomicile1, timelineService))
+        );
+        //attendo la fine del workflow del secondo destinatario
+        await().untilAsserted(() ->
+                Assertions.assertTrue(TestUtils.checkSuccessDigitalWorkflowFromTimeline(iun, recIndex2, digitalDomicile2, timelineService))
+        );
+
+
         //CHECK PRIMO RECIPIENT
 
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo per il primo recipient
@@ -1490,9 +1498,6 @@ class DigitalTestMultiRecipientIT {
         TestUtils.checkExternalChannelPecSendFromTimeline(iun, recIndex1, 0, digitalDomicile1, DigitalAddressSourceInt.SPECIAL, timelineService);
         checkIsPresentAcceptanceAndDeliveringAttachmentInTimeline(digitalDomicile1.getAddress(), iun, recIndex1, 0, DigitalAddressSourceInt.SPECIAL, ResponseStatusInt.OK);
 
-        //Viene verificato per il primo recipient che il workflow abbia avuto esito positivo
-        TestUtils.checkSuccessDigitalWorkflowFromTimeline(iun, recIndex1, digitalDomicile1, timelineService);
-
         //CHECK SECONDO RECIPIENT
 
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo per il secondo recipient
@@ -1501,9 +1506,6 @@ class DigitalTestMultiRecipientIT {
         //Viene verificato per il secondo recipient che il primo tentativo sia avvenuto con il domicilio digitale e con successo
         TestUtils.checkExternalChannelPecSendFromTimeline(iun, recIndex2, 0, digitalDomicile2, DigitalAddressSourceInt.SPECIAL, timelineService);
         checkIsPresentAcceptanceAndDeliveringAttachmentInTimeline(digitalDomicile2.getAddress(), iun, recIndex2, 0, DigitalAddressSourceInt.SPECIAL, ResponseStatusInt.OK);
-
-        //Viene verificato per il secondo recipient che il workflow abbia avuto esito positivo
-        TestUtils.checkSuccessDigitalWorkflowFromTimeline(iun, recIndex2, digitalDomicile2,  timelineService);
 
         //Viene effettuato il check dei legalFacts generati per il primo recipient
         TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
