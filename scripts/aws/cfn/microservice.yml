@@ -376,6 +376,12 @@ Resources:
               - !Sub "${PnDeliveryPushShedLockDynamoTableArn}"
               - !Sub "${PnDeliveryPushWebhookStreamsTableArn}"
               - !Sub "${PnDeliveryPushWebhookEventsTableArn}"
+          - Effect: Allow
+              Action:
+                - ssm:GetParameter
+                - ssm:GetParameters
+              Resource:
+                - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapPaMVP'
 
   # Expose PN-Delivery-push microservice public API with API-GW for B2B usage
   DeliveryPushMicroservicePublicAPI:
