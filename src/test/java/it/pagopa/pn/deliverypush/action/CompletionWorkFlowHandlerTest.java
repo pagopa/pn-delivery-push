@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.action;
 
-import it.pagopa.pn.commons.configs.IsMVPParameterConsumer;
+import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -42,7 +42,7 @@ class CompletionWorkFlowHandlerTest {
     @Mock
     private CompletionWorkflowUtils completionWorkflowUtils;
     @Mock
-    private IsMVPParameterConsumer isMVPParameterConsumer;
+    private MVPParameterConsumer mvpParameterConsumer;
 
     private CompletionWorkFlowHandler handler;
     
@@ -60,7 +60,7 @@ class CompletionWorkFlowHandlerTest {
                 timelineUtils,
                 pnDeliveryPushConfigs,
                 completionWorkflowUtils,
-                isMVPParameterConsumer);
+                mvpParameterConsumer);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -140,7 +140,7 @@ class CompletionWorkFlowHandlerTest {
         NotificationRecipientInt recipient = notification.getRecipients().get(0);
         Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
-        Mockito.when(isMVPParameterConsumer.isMvp(Mockito.anyString())).thenReturn(true);
+        Mockito.when(mvpParameterConsumer.isMvp(Mockito.anyString())).thenReturn(true);
         
         Instant notificationDate = Instant.now();
 
@@ -173,7 +173,7 @@ class CompletionWorkFlowHandlerTest {
         NotificationRecipientInt recipient = notification.getRecipients().get(0);
         Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
         
-        Mockito.when(isMVPParameterConsumer.isMvp(Mockito.anyString())).thenReturn(true);
+        Mockito.when(mvpParameterConsumer.isMvp(Mockito.anyString())).thenReturn(true);
         
         Instant notificationDate = Instant.now();
 

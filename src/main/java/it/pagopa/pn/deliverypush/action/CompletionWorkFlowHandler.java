@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.action;
 
-import it.pagopa.pn.commons.configs.IsMVPParameterConsumer;
+import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.utils.*;
@@ -32,7 +32,7 @@ public class CompletionWorkFlowHandler {
     private final TimelineUtils timelineUtils;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private final CompletionWorkflowUtils completionWorkflowUtils;
-    private final IsMVPParameterConsumer isMVPParameterConsumer;
+    private final MVPParameterConsumer mvpParameterConsumer;
 
     public CompletionWorkFlowHandler(NotificationUtils notificationUtils,
                                      SchedulerService scheduler,
@@ -41,7 +41,7 @@ public class CompletionWorkFlowHandler {
                                      TimelineUtils timelineUtils,
                                      PnDeliveryPushConfigs pnDeliveryPushConfigs,
                                      CompletionWorkflowUtils completionWorkflowUtils,
-                                     IsMVPParameterConsumer isMVPParameterConsumer) {
+                                     MVPParameterConsumer mvpParameterConsumer) {
         this.notificationUtils = notificationUtils;
         this.scheduler = scheduler;
         this.externalChannelService = externalChannelService;
@@ -49,7 +49,7 @@ public class CompletionWorkFlowHandler {
         this.timelineUtils = timelineUtils;
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
         this.completionWorkflowUtils = completionWorkflowUtils;
-        this.isMVPParameterConsumer = isMVPParameterConsumer;
+        this.mvpParameterConsumer = mvpParameterConsumer;
     }
 
     /**
@@ -70,7 +70,7 @@ public class CompletionWorkFlowHandler {
                 case FAILURE:
                     String senderTaxId = notification.getSender().getPaTaxId();
 
-                    if( Boolean.FALSE.equals( isMVPParameterConsumer.isMvp( senderTaxId ) ) ){
+                    if( Boolean.FALSE.equals( mvpParameterConsumer.isMvp( senderTaxId ) ) ){
                         generateLegaFactAndSaveInTimeline(notification, recIndex, status, completionWorkflowDate);
                         sendSimpleRegisteredLetter(notification, recIndex);
                         scheduleRefinement(notification, recIndex, completionWorkflowDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysFailureDigitalRefinement());

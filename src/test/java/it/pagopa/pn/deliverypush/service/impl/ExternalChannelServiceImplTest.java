@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.commons.configs.IsMVPParameterConsumer;
+import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
@@ -42,7 +42,7 @@ class ExternalChannelServiceImplTest {
     @Mock
     private TimelineUtils timelineUtils;
     @Mock
-    private IsMVPParameterConsumer isMVPParameterConsumer;
+    private MVPParameterConsumer mvpParameterConsumer;
     @Mock
     private DigitalWorkFlowUtils digitalWorkFlowUtils;
 
@@ -56,7 +56,7 @@ class ExternalChannelServiceImplTest {
                 notificationUtils,
                 aarUtils,
                 timelineUtils,
-                isMVPParameterConsumer, 
+                mvpParameterConsumer, 
                 digitalWorkFlowUtils);
     }
 
@@ -332,7 +332,7 @@ class ExternalChannelServiceImplTest {
         Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
         
         Mockito.when( timelineUtils.checkNotificationIsAlreadyViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
-        Mockito.when(isMVPParameterConsumer.isMvp(Mockito.anyString())).thenReturn(false);
+        Mockito.when(mvpParameterConsumer.isMvp(Mockito.anyString())).thenReturn(false);
          
         AarGenerationDetailsInt aarGenerationDetailsInt = AarGenerationDetailsInt.builder()
                 .numberOfPages(1)
@@ -394,7 +394,7 @@ class ExternalChannelServiceImplTest {
 
 
         Mockito.when( timelineUtils.checkNotificationIsAlreadyViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
-        Mockito.when(isMVPParameterConsumer.isMvp(Mockito.anyString())).thenReturn(true);
+        Mockito.when(mvpParameterConsumer.isMvp(Mockito.anyString())).thenReturn(true);
         
         int recIndex = 0;
         boolean investigation = false;

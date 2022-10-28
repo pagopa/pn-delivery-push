@@ -25,7 +25,7 @@ class ActivatorTest {
             new AwsConfigsActivation();
             new AwsServicesClientsConfigActivation(awsConfigs);
             new ClockConfigActivation();
-            new IsMVPParameterConsumerActivation(abstractCachedSsmParameterConsumer);
+            new MVPParameterConsumerActivation(abstractCachedSsmParameterConsumer);
             new PnErrorWebExceptionHandlerActivation(exceptionHelper);
             new PnResponseEntityExceptionHandlerActivation(exceptionHelper);
         });
