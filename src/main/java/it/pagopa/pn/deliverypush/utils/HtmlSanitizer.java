@@ -70,8 +70,8 @@ public class HtmlSanitizer {
         JsonNode jsonNode = objectMapper.valueToTree(model);
         JsonParser traverse = jsonNode.traverse();
         HtmlSanitizerJsonParserDelegate htmlSanitizerJsonParserDelegate = new HtmlSanitizerJsonParserDelegate(traverse, policy, sanitizeMode);
-        Object sanitizedObject = objectMapper.readValue(htmlSanitizerJsonParserDelegate, model.getClass());
-        return sanitizedObject;
+
+        return objectMapper.readValue(htmlSanitizerJsonParserDelegate, model.getClass());
     }
 
     public Map doSanitize(Map modelMap) {

@@ -32,6 +32,5 @@ class FutureActionEntityDaoDynamoTest {
     @Test
     void testPreparePut() {
         Assertions.assertDoesNotThrow(() -> actionEntityDaoDynamo.preparePut(new FutureActionEntity()));
-
     }
 }

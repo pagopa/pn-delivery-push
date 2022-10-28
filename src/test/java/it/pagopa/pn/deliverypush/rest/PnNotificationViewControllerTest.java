@@ -19,7 +19,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
 @WebFluxTest(PnNotificationViewController.class)
-public class PnNotificationViewControllerTest {
+class PnNotificationViewControllerTest {
 
     private static final String FakeIUN = "fake_iun";
 
