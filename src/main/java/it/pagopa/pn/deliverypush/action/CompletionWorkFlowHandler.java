@@ -108,7 +108,8 @@ public class CompletionWorkFlowHandler {
 
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         PhysicalAddressInt physicalAddress = recipient.getPhysicalAddress();
-
+        
+        //TODO E' previsto che il physicalAddress sia obbligatorio anche fuori MVP altrimenti la notifica non passa mai in delivered PN-2509
         if (physicalAddress != null) {
             log.info("Sending simple registered letter  - iun {} id {}", notification.getIun(), recIndex);
             externalChannelService.sendNotificationForRegisteredLetter(notification, physicalAddress, recIndex);
