@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action;
 
+import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -40,7 +41,9 @@ class CompletionWorkFlowHandlerTest {
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
     @Mock
     private CompletionWorkflowUtils completionWorkflowUtils;
-    
+    @Mock
+    private MVPParameterConsumer mvpParameterConsumer;
+
     private CompletionWorkFlowHandler handler;
     
     private NotificationUtils notificationUtils;
@@ -56,8 +59,8 @@ class CompletionWorkFlowHandlerTest {
                 completelyUnreachableUtils, 
                 timelineUtils,
                 pnDeliveryPushConfigs,
-                completionWorkflowUtils
-        );
+                completionWorkflowUtils,
+                mvpParameterConsumer);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -137,7 +140,7 @@ class CompletionWorkFlowHandlerTest {
         NotificationRecipientInt recipient = notification.getRecipients().get(0);
         Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
-        Mockito.when(pnDeliveryPushConfigs.getPaperMessageNotHandled()).thenReturn(true);
+        Mockito.when(mvpParameterConsumer.isMvp(Mockito.anyString())).thenReturn(true);
         
         Instant notificationDate = Instant.now();
 
@@ -170,7 +173,7 @@ class CompletionWorkFlowHandlerTest {
         NotificationRecipientInt recipient = notification.getRecipients().get(0);
         Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
         
-        Mockito.when(pnDeliveryPushConfigs.getPaperMessageNotHandled()).thenReturn(true);
+        Mockito.when(mvpParameterConsumer.isMvp(Mockito.anyString())).thenReturn(true);
         
         Instant notificationDate = Instant.now();
 
@@ -259,6 +262,7 @@ class CompletionWorkFlowHandlerTest {
                 .paProtocolNumber("protocol_01")
                 .sender(NotificationSenderInt.builder()
                         .paId(" pa_02")
+                        .paTaxId("paTaxId")
                         .build()
                 )
                 .recipients(Collections.singletonList(

@@ -3,7 +3,6 @@ package it.pagopa.pn.deliverypush;
 import it.pagopa.pn.commons.conf.SharedAutoConfiguration;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
-import static it.pagopa.pn.deliverypush.utils.HtmlSanitizer.SanitizeMode;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +11,8 @@ import org.springframework.context.annotation.Import;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+
+import static it.pagopa.pn.deliverypush.utils.HtmlSanitizer.SanitizeMode;
 
 @Configuration
 @ConfigurationProperties( prefix = "pn.delivery-push")
@@ -67,9 +68,7 @@ public class PnDeliveryPushConfigs {
     private LastPollForFutureActionDao lastPollForFutureActionDao;
 
     private ExternalChannel externalChannel;
-
-    private Boolean paperMessageNotHandled;
-
+    
     private LegalFacts legalfacts;
 
     @Data

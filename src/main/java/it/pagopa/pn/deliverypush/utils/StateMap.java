@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.utils;
 
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.dto.transition.TransitionRequest;
@@ -16,10 +15,8 @@ class StateMap {
     private static final boolean SINGLE_RECIPINET = false;
 
     private final Map<MapKey, MapValue> mappings = new HashMap<>();
-    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
-    public StateMap(PnDeliveryPushConfigs pnDeliveryPushConfigs) {
-        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
+    public StateMap() {
         
         // Received state
         this.fromState(NotificationStatusInt.IN_VALIDATION)
@@ -54,7 +51,6 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.PUBLIC_REGISTRY_CALL, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.PUBLIC_REGISTRY_RESPONSE, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
-                .withTimelineGoToState(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET) //Fallito workflow analogico, ci sarà l'elemento di timeline Completely unreachable che porta allo stato UNREACHABLE
                 .withTimelineGoToState(TimelineElementCategoryInt.SCHEDULE_DIGITAL_WORKFLOW, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SCHEDULE_REFINEMENT, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET) //Per le notifiche multi recipient potrebbe esserci il REFINEMENT anche in fase di DELIVERING (perchè la notifica potrebbe essere stata consegnata per un destinatario ma non per i restanti)
@@ -63,14 +59,16 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_COURTESY_MESSAGE, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET) //Con i MultiDestinatari potrebbe essere inviato il messaggio di cortesia in delivering
                 .withTimelineGoToState(TimelineElementCategoryInt.AAR_GENERATION, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET) //Multi Destinatari
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
-        
+                .withTimelineGoToState(TimelineElementCategoryInt.DIGITAL_FAILURE_WORKFLOW, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
+
                 //STATE CHANGE
                 .withTimelineGoToState(TimelineElementCategoryInt.COMPLETELY_UNREACHABLE, NotificationStatusInt.UNREACHABLE, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_VIEWED, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW, NotificationStatusInt.DELIVERED, SINGLE_RECIPINET)
-                .withTimelineGoToState(TimelineElementCategoryInt.DIGITAL_FAILURE_WORKFLOW, NotificationStatusInt.DELIVERED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.ANALOG_SUCCESS_WORKFLOW, NotificationStatusInt.DELIVERED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER, NotificationStatusInt.DELIVERED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.NOT_HANDLED, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+
         ;
 
         // Delivered state
@@ -159,6 +157,11 @@ class StateMap {
     NotificationStatusInt getStateTransition(TransitionRequest transitionRequest) {
         NotificationStatusInt fromStatus = transitionRequest.getFromStatus();
         TimelineElementCategoryInt timelineRowType = transitionRequest.getTimelineRowType();
+        
+        return handleStateTransition(transitionRequest, fromStatus, timelineRowType);
+    }
+
+    private NotificationStatusInt handleStateTransition(TransitionRequest transitionRequest, NotificationStatusInt fromStatus, TimelineElementCategoryInt timelineRowType) {
         boolean multiRecipient = transitionRequest.isMultiRecipient();
         MapKey key = new MapKey(fromStatus, timelineRowType, multiRecipient);
 
@@ -201,14 +204,7 @@ class StateMap {
         }
 
         public InputMapper withTimelineGoToState(TimelineElementCategoryInt timelineRowType, NotificationStatusInt destinationStatus, boolean multiRecipient) {
-            if( this.fromStatus.equals(NotificationStatusInt.DELIVERING) &&
-                    TimelineElementCategoryInt.DIGITAL_FAILURE_WORKFLOW.equals(timelineRowType) &&
-                    Boolean.TRUE.equals( pnDeliveryPushConfigs.getPaperMessageNotHandled()) ){
-                //Solo per l'MVP in caso di FAILURE del workflow non avviene il passaggio di stato in DELIVERED ma resta in DELIVERING
-                StateMap.this.mappings.put(new MapKey(fromStatus, timelineRowType, multiRecipient), new MapValue(NotificationStatusInt.DELIVERING));
-            }else {
-                StateMap.this.mappings.put(new MapKey(fromStatus, timelineRowType, multiRecipient), new MapValue(destinationStatus));
-            }
+            StateMap.this.mappings.put(new MapKey(fromStatus, timelineRowType, multiRecipient), new MapValue(destinationStatus));
             return this;
         }
     }
