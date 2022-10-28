@@ -1,20 +1,30 @@
 package it.pagopa.pn.deliverypush.utils;
 
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusHistoryElementInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
 class StatusUtilsTest {
-
+    @Mock
+    private TimelineService timelineService;
+    
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     private StatusUtils statusUtils;
@@ -2505,8 +2515,14 @@ class StatusUtilsTest {
     }
 
     @Test
-    void getStatusHistory() {
-
+    @ExtendWith(SpringExtension.class)
+    void getCurrentStatusFromNotification() {
+        NotificationRecipientInt recipient = NotificationRecipientInt.builder().build();
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withIun("test")
+                .withNotificationRecipient(recipient)
+                .build();
+        
         TimelineElementInternal timelineElement1 = TimelineElementInternal.builder()
                 .elementId("el1")
                 .timestamp((Instant.parse("2021-09-16T15:24:00.00Z")))
@@ -2526,13 +2542,14 @@ class StatusUtilsTest {
         Set<TimelineElementInternal> timelineElementList = Set.of(timelineElement1,
                 timelineElement2, timelineElement3);
 
-        Instant notificationCreatedAt = Instant.parse("2021-09-16T15:23:00.00Z");
+        Mockito.when(timelineService.getTimeline(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(timelineElementList);
 
-        List<NotificationStatusHistoryElementInt> responseList = statusUtils.getStatusHistory(timelineElementList, 3, notificationCreatedAt);
 
-        Assertions.assertEquals(responseList.size(), 3);
+        NotificationStatusInt response = statusUtils.getCurrentStatusFromNotification(notification, timelineService);
+
+        Assertions.assertEquals( NotificationStatusInt.VIEWED, response);
     }
-
+    
     private void printStatus(List<NotificationStatusHistoryElementInt> notificationHistoryElements, String methodName) {
         System.out.print(methodName + " - ");
         notificationHistoryElements.stream()
