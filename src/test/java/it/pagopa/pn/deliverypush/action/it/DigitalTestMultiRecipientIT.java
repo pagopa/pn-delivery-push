@@ -1391,7 +1391,7 @@ class DigitalTestMultiRecipientIT {
     }
 
     // Entrambi i destinatari sono raggiungibili e il primo visualizza la notifica su PN dopo che il workflow
-    // sia completato (in fallimento). Successivamente, anche il secondo destinatario visualizza la notifica
+    // sia completato (con successo). Successivamente, anche il secondo destinatario visualizza la notifica
     @Test
     void rec1OKRec2OKAndFirstViewedAfterWorkflow() throws InterruptedException {
        /* Primo recipient
