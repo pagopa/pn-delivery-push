@@ -364,6 +364,12 @@ Resources:
               - !Sub "${ActionDynamoTableArn}"
           - Effect: Allow
             Action:
+              - 'ssm:GetParameter'
+              - 'ssm:GetParameters'
+            Resource:
+              - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapPaMVP'
+          - Effect: Allow
+            Action:
               - 'dynamodb:GetItem'
               - 'dynamodb:Query'
               - 'dynamodb:PutItem'
