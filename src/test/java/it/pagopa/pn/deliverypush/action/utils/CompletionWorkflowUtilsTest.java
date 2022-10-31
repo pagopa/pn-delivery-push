@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
+import it.pagopa.pn.commons.utils.DateFormatUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
@@ -171,8 +172,8 @@ class CompletionWorkflowUtilsTest {
         //GIVEN
         Instant notificationDate = Instant.now();
 
-        notificationDate = notificationDate.atZone(ZoneOffset.UTC)
-                .withHour(19)
+        notificationDate = notificationDate.atZone(DateFormatUtils.italianZoneId)
+                .withHour(21)
                 .withMinute(1)
                 .withSecond(0)
                 .withNano(0)
