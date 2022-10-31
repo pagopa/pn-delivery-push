@@ -173,7 +173,7 @@ public class TestUtils {
         Assertions.assertEquals(address, addressCaptorValue.get(invocation));
     }
 
-    public static void checkSuccessDigitalWorkflowFromTimeline(String iun, Integer recIndex, LegalDigitalAddressInt address, TimelineService timelineService) {
+    public static boolean checkSuccessDigitalWorkflowFromTimeline(String iun, Integer recIndex, LegalDigitalAddressInt address, TimelineService timelineService) {
         Optional<TimelineElementInternal> timelineElementOpt = timelineService.getTimelineElement(
                 iun,
                 TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.buildEventId(
@@ -185,6 +185,7 @@ public class TestUtils {
         Assertions.assertTrue(timelineElementOpt.isPresent());
         TimelineElementInternal timelineElementInternal = timelineElementOpt.get();
         Assertions.assertEquals(address.getAddress(), ((DigitalSuccessWorkflowDetailsInt) timelineElementInternal.getDetails()).getDigitalAddress().getAddress());
+        return true;
     }
 
     public static void checkFailDigitalWorkflow(String iun, Integer recIndex, TimelineService timelineService, CompletionWorkFlowHandler completionWorkflow) {
