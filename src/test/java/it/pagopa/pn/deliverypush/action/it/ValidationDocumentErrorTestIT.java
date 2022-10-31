@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.it;
 
+import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
@@ -80,6 +81,7 @@ import java.util.Collections;
         PaperNotificationFailedDaoMock.class,
         PnDataVaultClientMock.class,
         PnDeliveryPushConfigs.class,
+        MVPParameterConsumer.class,
         ValidationDocumentErrorTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource(

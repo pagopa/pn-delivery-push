@@ -1,28 +1,37 @@
 package it.pagopa.pn.deliverypush.utils;
 
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusHistoryElementInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
 class StatusUtilsTest {
-
+    @Mock
+    private TimelineService timelineService;
+    
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     private StatusUtils statusUtils;
 
     @BeforeEach
     public void setup() {
-        pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
-        this.statusUtils = new StatusUtils(pnDeliveryPushConfigs);
+        this.statusUtils = new StatusUtils();
     }
 
     @Test
@@ -138,6 +147,178 @@ class StatusUtilsTest {
         );
     }
 
+    @Test
+    void checkStatusNotDeliveredWithDigitalFailure() {
+
+        // GIVEN a timeline
+        TimelineElementInternal requestAccepted = TimelineElementInternal.builder()
+                .elementId("el1")
+                .timestamp(Instant.parse("2021-09-16T15:24:00.00Z"))
+                .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
+                .build();
+        TimelineElementInternal sendDigitalDomicile = TimelineElementInternal.builder()
+                .elementId("el3")
+                .timestamp((Instant.parse("2021-09-16T15:26:00.00Z")))
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .build();
+        TimelineElementInternal sendDigitalFeedback = TimelineElementInternal.builder()
+                .elementId("el4")
+                .timestamp((Instant.parse("2021-09-16T15:27:00.00Z")))
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK)
+                .build();
+        TimelineElementInternal digitalFailureWorkflow = TimelineElementInternal.builder()
+                .elementId("el5")
+                .timestamp((Instant.parse("2021-09-16T15:28:00.00Z")))
+                .category(TimelineElementCategoryInt.DIGITAL_FAILURE_WORKFLOW)
+                .build();
+
+
+        Set<TimelineElementInternal> timelineElementList = Set.of(requestAccepted, sendDigitalDomicile,
+                sendDigitalFeedback, digitalFailureWorkflow);
+
+
+        // WHEN ask for status history
+        Instant notificationCreatedAt = requestAccepted.getTimestamp().minus(Duration.ofHours(1));
+
+        List<NotificationStatusHistoryElementInt> actualStatusHistory = statusUtils.getStatusHistory(
+                timelineElementList, 
+                1,
+                notificationCreatedAt
+        );
+
+        printStatus(actualStatusHistory, new Object(){}.getClass().getEnclosingMethod().getName());
+
+        // THEN status histories have same length
+        Assertions.assertEquals(3, actualStatusHistory.size(), "Check length");
+
+        //  ... 1st initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.IN_VALIDATION)
+                        .activeFrom(notificationCreatedAt)
+                        .relatedTimelineElements(List.of())
+                        .build(),
+                actualStatusHistory.get(0),
+                "1st status wrong"
+        );
+
+        //  ... 2nd initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.ACCEPTED)
+                        .activeFrom(requestAccepted.getTimestamp())
+                        .relatedTimelineElements(List.of(requestAccepted.getElementId()))
+                        .build(),
+                actualStatusHistory.get(1),
+                "2nd status wrong"
+        );
+
+        //  ... 3rd initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.DELIVERING)
+                        .activeFrom(sendDigitalDomicile.getTimestamp())
+                        .relatedTimelineElements(Arrays.asList(
+                                sendDigitalDomicile.getElementId(),
+                                sendDigitalFeedback.getElementId(),
+                                digitalFailureWorkflow.getElementId())
+                        )
+                        .build(),
+                actualStatusHistory.get(2),
+                "3rd status wrong"
+        );
+    }
+
+    @Test
+    void checkStatusDeliveredWithRegisteredLetter() {
+
+        // GIVEN a timeline
+        TimelineElementInternal requestAccepted = TimelineElementInternal.builder()
+                .elementId("el1")
+                .timestamp(Instant.parse("2021-09-16T15:24:00.00Z"))
+                .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
+                .build();
+        TimelineElementInternal sendDigitalDomicile = TimelineElementInternal.builder()
+                .elementId("el3")
+                .timestamp((Instant.parse("2021-09-16T15:26:00.00Z")))
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .build();
+        TimelineElementInternal sendDigitalFeedback = TimelineElementInternal.builder()
+                .elementId("el4")
+                .timestamp((Instant.parse("2021-09-16T15:27:00.00Z")))
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK)
+                .build();
+        TimelineElementInternal digitalFailureWorkflow = TimelineElementInternal.builder()
+                .elementId("el5")
+                .timestamp((Instant.parse("2021-09-16T15:28:00.00Z")))
+                .category(TimelineElementCategoryInt.DIGITAL_FAILURE_WORKFLOW)
+                .build();
+        TimelineElementInternal sendSimpleRegisteredLetter = TimelineElementInternal.builder()
+                .elementId("el6")
+                .timestamp((Instant.parse("2021-09-16T15:29:00.00Z")))
+                .category(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER)
+                .build();
+
+        Set<TimelineElementInternal> timelineElementList = Set.of(requestAccepted, sendDigitalDomicile,
+                sendDigitalFeedback, digitalFailureWorkflow, sendSimpleRegisteredLetter);
+
+
+        // WHEN ask for status history
+        Instant notificationCreatedAt = requestAccepted.getTimestamp().minus(Duration.ofHours(1));
+
+        List<NotificationStatusHistoryElementInt> actualStatusHistory = statusUtils.getStatusHistory(
+                timelineElementList,
+                1,
+                notificationCreatedAt
+        );
+
+        printStatus(actualStatusHistory, new Object(){}.getClass().getEnclosingMethod().getName());
+
+        // THEN status histories have same length
+        Assertions.assertEquals(4, actualStatusHistory.size(), "Check length");
+
+        //  ... 1st initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.IN_VALIDATION)
+                        .activeFrom(notificationCreatedAt)
+                        .relatedTimelineElements(List.of())
+                        .build(),
+                actualStatusHistory.get(0),
+                "1st status wrong"
+        );
+
+        //  ... 2nd initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.ACCEPTED)
+                        .activeFrom(requestAccepted.getTimestamp())
+                        .relatedTimelineElements(List.of(requestAccepted.getElementId()))
+                        .build(),
+                actualStatusHistory.get(1),
+                "2nd status wrong"
+        );
+
+        //  ... 3rd initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.DELIVERING)
+                        .activeFrom(sendDigitalDomicile.getTimestamp())
+                        .relatedTimelineElements(Arrays.asList(
+                                sendDigitalDomicile.getElementId(),
+                                sendDigitalFeedback.getElementId(),
+                                digitalFailureWorkflow.getElementId())
+                        )
+                        .build(),
+                actualStatusHistory.get(2),
+                "3rd status wrong"
+        );
+
+        //  ... 4rd initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.DELIVERED)
+                        .activeFrom(sendSimpleRegisteredLetter.getTimestamp())
+                        .relatedTimelineElements(List.of(sendSimpleRegisteredLetter.getElementId()))
+                        .build(),
+                actualStatusHistory.get(3),
+                "4rd status wrong"
+        );
+    }
+    
     // IN_VALIDATION - ACCEPTED - DELIVERING
     // un destinatario è in fase di SEND_DIGITAL_DOMICILE
     @Test
@@ -2334,8 +2515,14 @@ class StatusUtilsTest {
     }
 
     @Test
-    void getStatusHistory() {
-
+    @ExtendWith(SpringExtension.class)
+    void getCurrentStatusFromNotification() {
+        NotificationRecipientInt recipient = NotificationRecipientInt.builder().build();
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withIun("test")
+                .withNotificationRecipient(recipient)
+                .build();
+        
         TimelineElementInternal timelineElement1 = TimelineElementInternal.builder()
                 .elementId("el1")
                 .timestamp((Instant.parse("2021-09-16T15:24:00.00Z")))
@@ -2355,14 +2542,14 @@ class StatusUtilsTest {
         Set<TimelineElementInternal> timelineElementList = Set.of(timelineElement1,
                 timelineElement2, timelineElement3);
 
-        Instant notificationCreatedAt = Instant.parse("2021-09-16T15:23:00.00Z");
+        Mockito.when(timelineService.getTimeline(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(timelineElementList);
 
-        Mockito.when(pnDeliveryPushConfigs.getPaperMessageNotHandled()).thenReturn(Boolean.FALSE);
-        List<NotificationStatusHistoryElementInt> responseList = statusUtils.getStatusHistory(timelineElementList, 3, notificationCreatedAt);
 
-        Assertions.assertEquals(3, responseList.size());
+        NotificationStatusInt response = statusUtils.getCurrentStatusFromNotification(notification, timelineService);
+
+        Assertions.assertEquals( NotificationStatusInt.VIEWED, response);
     }
-
+    
     private void printStatus(List<NotificationStatusHistoryElementInt> notificationHistoryElements, String methodName) {
         System.out.print(methodName + " - ");
         notificationHistoryElements.stream()

@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.it;
 
+import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
@@ -100,6 +101,7 @@ import static org.awaitility.Awaitility.await;
         PaperNotificationFailedDaoMock.class,
         PnDataVaultClientMock.class,
         PnDeliveryPushConfigs.class,
+        MVPParameterConsumer.class,
         DigitalTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")
@@ -598,6 +600,11 @@ class DigitalTestIT {
                 .withTaxId(taxid01)
                 .withInternalId("ANON_"+taxid01)
                 .withDigitalDomicile(digitalDomicile)
+                .withPhysicalAddress(
+                        PhysicalAddressBuilder.builder()
+                                .withAddress("_Via Nuova")
+                                .build()
+                )
                 .build();
 
         String fileDoc = "sha256_doc00";
@@ -642,10 +649,7 @@ class DigitalTestIT {
 
         //Viene verificato che il workflow abbia avuto successo
         TestUtils.checkFailDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow);
-
-        //Viene verificato il mancato invio della registered letter, dal momento che non è presente il physicalAddress per il recipient
-        Mockito.verify(externalChannelMock, Mockito.never()).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
-
+        
         //Viene verificato che sia avvenuto il perfezionamento
         TestUtils.checkRefinement(iun, recIndex, timelineService);
 

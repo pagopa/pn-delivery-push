@@ -8,6 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import freemarker.template.Configuration;
 import freemarker.template.Version;
 import freemarker.template._TemplateAPI;
+import it.pagopa.pn.commons.abstractions.ParameterConsumer;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.*;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
@@ -26,12 +27,9 @@ import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.impl.SaveLegalFactsServiceImpl;
 import it.pagopa.pn.deliverypush.utils.HtmlSanitizer;
 import org.mockito.Mockito;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 
-import javax.validation.Validation;
-import javax.validation.ValidatorFactory;
 import java.io.IOException;
 
 public class AbstractWorkflowTestConfiguration {
@@ -117,5 +115,10 @@ public class AbstractWorkflowTestConfiguration {
     public PnExternalRegistryClient pnExternalRegistryClientTest() {
         return Mockito.mock(PnExternalRegistryClientImpl.class);
     }
-
+    
+    @Bean
+    public ParameterConsumer pnParameterConsumerClientTest(){
+        return new AbstractCachedSsmParameterConsumerMock();
+    }
+    
 }
