@@ -16,11 +16,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import software.amazon.awssdk.enhanced.dynamodb.*;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
+import software.amazon.awssdk.enhanced.dynamodb.Key;
+import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.TransactWriteItemsEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.model.CancellationReason;
-import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
 import software.amazon.awssdk.services.dynamodb.model.TransactionCanceledException;
 
 import java.util.List;
@@ -34,25 +36,19 @@ import java.util.stream.Collectors;
 public class ActionDaoDynamo implements ActionDao {
     private final ActionEntityDao actionEntityDao;
     private final FutureActionEntityDao futureActionEntityDao;
-    private final DtoToEntityActionMapper dtoToEntityActionMapper;
-    private final DtoToEntityFutureActionMapper dtoToEntityFutureActionMapper;
-    private final EntityToDtoActionMapper entityToDtoActionMapper;
-    private final EntityToDtoFutureActionMapper entityToDtoFutureActionMapper;
     private final DynamoDbEnhancedClient dynamoDbEnhancedClient;
     private final DynamoDbTable<ActionEntity> dynamoDbTableAction;
     private final DynamoDbTable<FutureActionEntity> dynamoDbTableFutureAction;
 
 
-    public ActionDaoDynamo(ActionEntityDao actionEntityDao, FutureActionEntityDao futureActionEntityDao, DtoToEntityActionMapper dtoToEntityActionMapper,
-                           DtoToEntityFutureActionMapper dtoToEntityFutureActionMapper, EntityToDtoActionMapper entityToDtoActionMapper, EntityToDtoFutureActionMapper entityToDtoFutureActionMapper, DynamoDbEnhancedClient dynamoDbEnhancedClient, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
+    public ActionDaoDynamo(ActionEntityDao actionEntityDao,
+                           FutureActionEntityDao futureActionEntityDao,
+                           DynamoDbEnhancedClient dynamoDbEnhancedClient,
+                           PnDeliveryPushConfigs pnDeliveryPushConfigs
+    ) {
         this.actionEntityDao = actionEntityDao;
         this.futureActionEntityDao = futureActionEntityDao;
-        this.dtoToEntityActionMapper = dtoToEntityActionMapper;
-        this.dtoToEntityFutureActionMapper = dtoToEntityFutureActionMapper;
-        this.entityToDtoActionMapper = entityToDtoActionMapper;
-        this.entityToDtoFutureActionMapper = entityToDtoFutureActionMapper;
         this.dynamoDbEnhancedClient = dynamoDbEnhancedClient;
-
         this.dynamoDbTableAction = dynamoDbEnhancedClient.table(  pnDeliveryPushConfigs.getActionDao().getTableName(), TableSchema.fromClass(ActionEntity.class));
         this.dynamoDbTableFutureAction = dynamoDbEnhancedClient.table( pnDeliveryPushConfigs.getFutureActionDao().getTableName(), TableSchema.fromClass(FutureActionEntity.class));
 
@@ -60,15 +56,15 @@ public class ActionDaoDynamo implements ActionDao {
 
     @Override
     public void addAction(Action action, String timeSlot) {
-        actionEntityDao.put(dtoToEntityActionMapper.dtoToEntity(action));
-        futureActionEntityDao.put(dtoToEntityFutureActionMapper.dtoToEntity(action,timeSlot));
+        actionEntityDao.put(DtoToEntityActionMapper.dtoToEntity(action));
+        futureActionEntityDao.put(DtoToEntityFutureActionMapper.dtoToEntity(action,timeSlot));
     }
 
     @Override
     public void addActionIfAbsent(Action action, String timeSlot) {
         try {
-            PutItemEnhancedRequest<ActionEntity> putItemEnhancedRequest = actionEntityDao.preparePutIfAbsent(dtoToEntityActionMapper.dtoToEntity(action));
-            PutItemEnhancedRequest<FutureActionEntity> putItemEnhancedRequestFuture = futureActionEntityDao.preparePut(dtoToEntityFutureActionMapper.dtoToEntity(action,timeSlot));
+            PutItemEnhancedRequest<ActionEntity> putItemEnhancedRequest = actionEntityDao.preparePutIfAbsent(DtoToEntityActionMapper.dtoToEntity(action));
+            PutItemEnhancedRequest<FutureActionEntity> putItemEnhancedRequestFuture = futureActionEntityDao.preparePut(DtoToEntityFutureActionMapper.dtoToEntity(action,timeSlot));
             TransactWriteItemsEnhancedRequest transactWriteItemsEnhancedRequest = TransactWriteItemsEnhancedRequest.builder()
                     .addPutItem(dynamoDbTableAction,  putItemEnhancedRequest)
                     .addPutItem(dynamoDbTableFutureAction, putItemEnhancedRequestFuture)
@@ -98,7 +94,7 @@ public class ActionDaoDynamo implements ActionDao {
                 .build();
         
         return actionEntityDao.get(keyToSearch)
-                .map(entityToDtoActionMapper::entityToDto);
+                .map(EntityToDtoActionMapper::entityToDto);
     }
 
     @Override
@@ -107,7 +103,7 @@ public class ActionDaoDynamo implements ActionDao {
         Set<FutureActionEntity> entities = futureActionEntityDao.findByTimeSlot(timeSlot);
 
         return entities.stream()
-                .map(entityToDtoFutureActionMapper::entityToDto)
+                .map(EntityToDtoFutureActionMapper::entityToDto)
                 .collect(Collectors.toList());
     }
 
