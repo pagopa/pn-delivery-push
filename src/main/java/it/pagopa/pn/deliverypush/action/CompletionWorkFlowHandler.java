@@ -109,7 +109,7 @@ public class CompletionWorkFlowHandler {
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         PhysicalAddressInt physicalAddress = recipient.getPhysicalAddress();
         
-        //TODO E' previsto che il physicalAddress sia obbligatorio anche fuori MVP altrimenti la notifica non passa mai in delivered PN-2509
+        // NOTA è previsto che il physicalAddress sia obbligatorio anche fuori MVP altrimenti la notifica non passa mai in delivered PN-2509
         if (physicalAddress != null) {
             log.info("Sending simple registered letter  - iun {} id {}", notification.getIun(), recIndex);
             externalChannelService.sendNotificationForRegisteredLetter(notification, physicalAddress, recIndex);
@@ -133,7 +133,6 @@ public class CompletionWorkFlowHandler {
                     break;
                 case FAILURE:
                     completionWorkflowUtils.addTimelineElement( timelineUtils.buildFailureAnalogWorkflowTimelineElement(notification, recIndex, attachments), notification );
-                    //TODO Per il workflow analogico capire se una notifica visualizzata da un recipient può prevedere il caso di completely unreachable
                     completelyUnreachableUtils.handleCompletelyUnreachable(notification, recIndex);
                     scheduleRefinement(notification, recIndex, notificationDate, pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysFailureAnalogRefinement());
                     break;

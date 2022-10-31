@@ -41,13 +41,7 @@ public class PublicRegistryMock implements PublicRegistry {
     public void sendRequestForGetDigitalAddress(String taxId, String correlationId) {
         new Thread(() -> {
             Assertions.assertDoesNotThrow(() -> {
-                try {
-                    Thread.sleep(WAITING_TIME);
-                } catch (InterruptedException exc) {
-                    throw new RuntimeException( exc );
-                }
                 simulateDigitalAddressResponse(taxId, correlationId);
-
             });
         }).start();
     }
@@ -66,13 +60,7 @@ public class PublicRegistryMock implements PublicRegistry {
     public void sendRequestForGetPhysicalAddress(String taxId, String correlationId) {
         new Thread(() -> {
             Assertions.assertDoesNotThrow(() -> {
-                try {
-                    Thread.sleep(WAITING_TIME);
-                } catch (InterruptedException exc) {
-                    throw new RuntimeException( exc );
-                }
                 simulatePhysicalAddressResponse(taxId, correlationId);
-
             });
         }).start();
     }

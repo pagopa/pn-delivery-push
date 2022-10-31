@@ -28,7 +28,7 @@ public class WebhooksPoolImpl implements WebhooksPool {
 
     @Override
     public void scheduleFutureAction(WebhookAction action) {
-        // TODO prevedere la gestione del delay passato nella action in fase di inserimento
+        // prevedere la gestione del delay passato nella action in fase di inserimento
         addWebhookAction(action);
     }
 
