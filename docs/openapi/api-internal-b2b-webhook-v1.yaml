@@ -489,7 +489,7 @@ components:
           type: string
         iun:
           description: >-
-            Identificativo della notifica, presente solo le la richiesta di notifica è 
+            Identificativo della notifica, presente solo se la richiesta di notifica è
             stata accettata.
           type: string
 

@@ -392,7 +392,7 @@ components:
           description: Identificativo della richiesta di notifica
           type: string
         iun:
-          description: 'Identificativo della notifica, presente solo le la richiesta di notifica è  stata accettata.'
+          description: 'Identificativo della notifica, presente solo se la richiesta di notifica è stata accettata.'
           type: string
         newStatus:
           type: string
