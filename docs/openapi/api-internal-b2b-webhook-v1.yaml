@@ -130,7 +130,7 @@ paths:
     get:
       summary: Elenca stream di eventi
       description: >-
-        
+        Elenca gli stream di eventi
       tags:
         - Streams
       operationId: listEventStreams
@@ -166,7 +166,8 @@ paths:
         Permette di leggere le configurazioni di uno stream di eventi.
       tags:
         - Streams
-      operationId: getEventStream
+      operationId: getEventStream                             # NO EXTERNAL
+#      operationId: retrieveEventStream                       # ONLY EXTERNAL
       responses:
         '200':
           description: OK
@@ -225,7 +226,8 @@ paths:
         associati allo stream e non ancora consumati.
       tags:
         - Streams
-      operationId: deleteEventStream
+      operationId: deleteEventStream                          # NO EXTERNAL
+#      operationId: removeEventStream                         # ONLY EXTERNAL
       responses:
         '204':
           description: OK
@@ -356,12 +358,12 @@ components:
     ############################################################################################
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
     ############################################################################################
-    cxTypeAuthFleet:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTypeAuthFleet'
-    cxIdAuthFleet:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet'
-    uidAuthFleet:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/uidAuthFleet'
+    cxTypeAuthFleet:                                                                                                                                            # NO EXTERNAL
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTypeAuthFleet'  # NO EXTERNAL
+    cxIdAuthFleet:                                                                                                                                              # NO EXTERNAL
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet'    # NO EXTERNAL
+    uidAuthFleet:                                                                                                                                               # NO EXTERNAL
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/uidAuthFleet'     # NO EXTERNAL
 
 
     ############################################################################################
@@ -498,64 +500,64 @@ components:
     
     ###  - EVENTI GENERATI DALLA P.A.
     ###################################
-    ExternalEventsRequest:
-      title: Invio eventi da P.A. a P.N.
-      description: >- 
-        Richiesta contenente un array di eventi di cui una Pubblica Amministrazione
-        deve avvisare Piattaforma Notifiche.
-      type: object
-      required:
-        - events
-      properties:
-        events:
-          description: Elenco degli eventi
-          type: array
-          items:
-            $ref: '#/components/schemas/ExternalEvent'
+    ExternalEventsRequest:                                                              # NOT YET IMPLEMENTED
+      title: Invio eventi da P.A. a P.N.                                                # NOT YET IMPLEMENTED
+      description: >-                                                                   # NOT YET IMPLEMENTED
+        Richiesta contenente un array di eventi di cui una Pubblica Amministrazione     # NOT YET IMPLEMENTED
+        deve avvisare Piattaforma Notifiche.                                            # NOT YET IMPLEMENTED
+      type: object                                                                      # NOT YET IMPLEMENTED
+      required:                                                                         # NOT YET IMPLEMENTED
+        - events                                                                        # NOT YET IMPLEMENTED
+      properties:                                                                       # NOT YET IMPLEMENTED
+        events:                                                                         # NOT YET IMPLEMENTED
+          description: Elenco degli eventi                                              # NOT YET IMPLEMENTED
+          type: array                                                                   # NOT YET IMPLEMENTED
+          items:                                                                        # NOT YET IMPLEMENTED
+            $ref: '#/components/schemas/ExternalEvent'                                  # NOT YET IMPLEMENTED
     
-    ExternalEvent:
-      title: Un evento generato all'esterno di PN.
-      description: >-
-        Un evento riguardante la notifica generato all'esterno di Piattaforma Notifiche come,
-        ad esempio, il pagamento che può avvenire anche tramite F24. <br/>
-
-        Deve essere valorizzata una solo campo, quello specifico del tipo di evento.
-      type: object
-      properties:
-        payment:
-          $ref: '#/components/schemas/PaymentEvent'
+    ExternalEvent:                                                                      # NOT YET IMPLEMENTED
+      title: Un evento generato all'esterno di PN.                                      # NOT YET IMPLEMENTED
+      description: >-                                                                   # NOT YET IMPLEMENTED
+        Un evento riguardante la notifica generato all'esterno di Piattaforma Notifiche come, # NOT YET IMPLEMENTED
+        ad esempio, il pagamento che può avvenire anche tramite F24. <br/>                    # NOT YET IMPLEMENTED
+                                                                                              # NOT YET IMPLEMENTED
+        Deve essere valorizzata una solo campo, quello specifico del tipo di evento.          # NOT YET IMPLEMENTED
+      type: object                                                                      # NOT YET IMPLEMENTED
+      properties:                                                                       # NOT YET IMPLEMENTED
+        payment:                                                                        # NOT YET IMPLEMENTED
+          $ref: '#/components/schemas/PaymentEvent'                                     # NOT YET IMPLEMENTED
     
-    PaymentEvent:
-      title: Evento di pagamento
-      description: >-
-        Comprende: <br/>
-          - data e ora del pagamento, <br/>
-          - modalità di pagamento (PAGOPA / F24), <br/>
-          - lo _IUN_ della notifica pagata, <br/>
-          - il codice fiscale del destinatario pagatore, <br/>
-          - e la tipologia del destinatario pagatore (PF / PG). <br/>
-      type: object
-      required:
-        - iun
-        - recipientTaxId
-        - recipientType
-        - paymentType
-        - timestamp
-      properties:
-        iun:
-          type: string
-        recipientTaxId:
-          type: string
-        recipientType:
-          $ref: './schemas-pn-notification-v1.yaml#/components/schemas/RecipientType'
-        paymentType:
-          type: string
-          enum:
-            - F24
-            - PAGOPA
-        timestamp:
-          type: string
-          format: date-time
+    PaymentEvent:                                                                       # NOT YET IMPLEMENTED
+      title: Evento di pagamento                                                        # NOT YET IMPLEMENTED
+      description: >-                                                                   # NOT YET IMPLEMENTED
+        Comprende: <br/>                                                                # NOT YET IMPLEMENTED
+          - data e ora del pagamento, <br/>                                             # NOT YET IMPLEMENTED
+          - modalità di pagamento (PAGOPA / F24), <br/>                                 # NOT YET IMPLEMENTED
+          - lo _IUN_ della notifica pagata, <br/>                                       # NOT YET IMPLEMENTED
+          - il codice fiscale del destinatario pagatore, <br/>                          # NOT YET IMPLEMENTED
+          - e la tipologia del destinatario pagatore (PF / PG). <br/>                   # NOT YET IMPLEMENTED
+      type: object                                                                      # NOT YET IMPLEMENTED
+      required:                                                                         # NOT YET IMPLEMENTED
+        - iun                                                                           # NOT YET IMPLEMENTED
+        - recipientTaxId                                                                # NOT YET IMPLEMENTED
+        - recipientType                                                                 # NOT YET IMPLEMENTED
+        - paymentType                                                                   # NOT YET IMPLEMENTED
+        - timestamp                                                                     # NOT YET IMPLEMENTED
+      properties:                                                                       # NOT YET IMPLEMENTED
+        iun:                                                                            # NOT YET IMPLEMENTED
+          type: string                                                                  # NOT YET IMPLEMENTED
+        recipientTaxId:                                                                 # NOT YET IMPLEMENTED
+          type: string                                                                  # NOT YET IMPLEMENTED
+        recipientType:                                                                  # NOT YET IMPLEMENTED
+          $ref: './schemas-pn-notification-v1.yaml#/components/schemas/RecipientType'   # NOT YET IMPLEMENTED
+        paymentType:                                                                    # NOT YET IMPLEMENTED
+          type: string                                                                  # NOT YET IMPLEMENTED
+          enum:                                                                         # NOT YET IMPLEMENTED
+            - F24                                                                       # NOT YET IMPLEMENTED
+            - PAGOPA                                                                    # NOT YET IMPLEMENTED
+        timestamp:                                                                      # NOT YET IMPLEMENTED
+          type: string                                                                  # NOT YET IMPLEMENTED
+          format: date-time                                                             # NOT YET IMPLEMENTED
         
   
 #  securitySchemes:        # ONLY EXTERNAL
