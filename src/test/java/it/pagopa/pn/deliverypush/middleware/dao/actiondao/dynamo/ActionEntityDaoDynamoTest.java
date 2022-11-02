@@ -8,8 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class ActionEntityDaoDynamoTest {
 
     private ActionEntityDaoDynamo actionEntityDaoDynamo;
@@ -34,6 +32,7 @@ class ActionEntityDaoDynamoTest {
 
     @Test
     void putIfAbsent() {
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> actionEntityDaoDynamo.putIfAbsent(new ActionEntity()));
+        ActionEntity actionEntity = new ActionEntity();
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> actionEntityDaoDynamo.putIfAbsent(actionEntity));
     }
 }

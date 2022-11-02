@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class PublicRegistryImpl implements PublicRegistry {
-    //FIXME In attesa della risoluzione della PN-1145, la richiesta a PublicRegistry restituisce sempre una risposta vuota
+    //In attesa della risoluzione della PN-1145, la richiesta a PublicRegistry restituisce sempre una risposta vuota
     
     private final PublicRegistryResponseHandler publicRegistryResponseHandler;
 

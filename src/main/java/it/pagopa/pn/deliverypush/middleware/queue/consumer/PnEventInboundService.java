@@ -80,11 +80,12 @@ public class PnEventInboundService {
                 return handleWebhookAction();
             }
             else if(eventType.equals("EXTERNAL_CHANNELS_EVENT")) {
-                //TODO usato ora dal mock di external-channels, in futuro se viene modificato l'evento, adeguare anche il mock
+                //usato ora dal mock di external-channels, in futuro se viene modificato l'evento, adeguare anche il mock
                 eventType = handleExternalChannelEvent(message);
             }
         }else {
-            //TODO EXTERNAL CHANNEL dovrà INVIARE UN EventType specifico
+            //EXTERNAL CHANNEL dovrà INVIARE UN EventType specifico PN-1998
+            
             //Se l'eventType non è valorizzato entro sicuramente qui, cioè negli eventi di externalChannel
             eventType = handleExternalChannelEvent(message);
         }
@@ -119,7 +120,7 @@ public class PnEventInboundService {
     }
 
     private String handleGenericAction(Message<?> message) {
-        /*TODO Quando verrà utilizzata la sola versione v2 verificare se si può evitare di dover gestire la action in modo separato, valorizzando direttamente in fase
+        /*Quando verrà utilizzata la sola versione v2 verificare se si può evitare di dover gestire la action in modo separato, valorizzando direttamente in fase
             di scheduling l'eventType con il valore del type della action (ActionPoolImpl -> addToActionsQueue)
          */
         Map<String, String> actionMap = getActionMapFromMessage(message);

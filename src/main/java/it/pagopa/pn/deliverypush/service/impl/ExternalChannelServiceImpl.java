@@ -15,14 +15,12 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
 import it.pagopa.pn.deliverypush.service.ExternalChannelService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 
 @Slf4j
 @Service
-@ConditionalOnProperty( name = "pn.delivery-push.featureflags.externalchannel", havingValue = "new")
 public class ExternalChannelServiceImpl implements ExternalChannelService {
     private final ExternalChannelUtils externalChannelUtils;
     private final ExternalChannelSendClient externalChannel;
