@@ -1,16 +1,19 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
 import it.pagopa.pn.deliverypush.action.*;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Lazy;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
+@Slf4j
 public class SchedulerServiceMock implements SchedulerService {
     private final DigitalWorkFlowHandler digitalWorkFlowHandler;
     private final DigitalWorkFlowRetryHandler digitalWorkFlowRetryHandler;
@@ -38,31 +41,37 @@ public class SchedulerServiceMock implements SchedulerService {
 
     @Override
     public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType) {
-        mockSchedulingDate(dateToSchedule);
+        log.info("Start scheduling - iun={} id={} actionType={} ", iun, recIndex, actionType);
+        
+        new Thread( () ->{
+            Assertions.assertDoesNotThrow(() -> {
+                mockSchedulingDate(dateToSchedule);
 
-        switch (actionType) {
-            case START_RECIPIENT_WORKFLOW:
-                startWorkflowForRecipientHandler.startNotificationWorkflowForRecipient(iun, recIndex);
-                break;
-            case CHOOSE_DELIVERY_MODE:
-                chooseDeliveryModeHandler.chooseDeliveryTypeAndStartWorkflow(iun, recIndex);
-                break;
-            case ANALOG_WORKFLOW:
-                analogWorkflowHandler.startAnalogWorkflow(iun, recIndex);
-                break;
-            case REFINEMENT_NOTIFICATION:
-                refinementHandler.handleRefinement(iun, recIndex);
-                break;
-            case DIGITAL_WORKFLOW_NEXT_ACTION:
-                digitalWorkFlowHandler.startScheduledNextWorkflow(iun, recIndex);
-                break;
-            case DIGITAL_WORKFLOW_RETRY_ACTION:
-                digitalWorkFlowRetryHandler.startScheduledRetryWorkflow(iun, recIndex, iun + "_retry_action_" + recIndex);
-                break;
-            case DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION:
-                digitalWorkFlowRetryHandler.elapsedExtChannelTimeout(iun, recIndex, iun + "_retry_action_" + recIndex);
-                break;
-        }
+                switch (actionType) {
+                    case START_RECIPIENT_WORKFLOW:
+                        startWorkflowForRecipientHandler.startNotificationWorkflowForRecipient(iun, recIndex);
+                        break;
+                    case CHOOSE_DELIVERY_MODE:
+                        chooseDeliveryModeHandler.chooseDeliveryTypeAndStartWorkflow(iun, recIndex);
+                        break;
+                    case ANALOG_WORKFLOW:
+                        analogWorkflowHandler.startAnalogWorkflow(iun, recIndex);
+                        break;
+                    case REFINEMENT_NOTIFICATION:
+                        refinementHandler.handleRefinement(iun, recIndex);
+                        break;
+                    case DIGITAL_WORKFLOW_NEXT_ACTION:
+                        digitalWorkFlowHandler.startScheduledNextWorkflow(iun, recIndex);
+                        break;
+                    case DIGITAL_WORKFLOW_RETRY_ACTION:
+                        digitalWorkFlowRetryHandler.startScheduledRetryWorkflow(iun, recIndex, iun + "_retry_action_" + recIndex);
+                        break;
+                    case DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION:
+                        digitalWorkFlowRetryHandler.elapsedExtChannelTimeout(iun, recIndex, iun + "_retry_action_" + recIndex);
+                        break;
+                }
+            });
+        }).start();
     }
 
     @Override

@@ -1012,7 +1012,8 @@ class DigitalTestMultiRecipientIT {
        - Platform address presente ed entrambi gli invii con fallimento
        - Special address presente ed entrambi gli invii con fallimento
        - General address vuoto
-
+       - Viene però visualizzata la notifica a valle del workflow fallito
+       
        Secondo recipient
        - Platform address presente ed entrambi gli invii con fallimento
        - Special address presente ed entrambi gli invii con fallimento
@@ -1039,6 +1040,7 @@ class DigitalTestMultiRecipientIT {
                         .sentAttemptMade(0)
                         .build()
         );
+        
         NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId01)
                 .withInternalId("ANON_"+taxId01)
@@ -1092,11 +1094,12 @@ class DigitalTestMultiRecipientIT {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-        // Viene atteso fino a che non sia presente il REFINEMENT per entrambi i recipient
-//        await().untilAsserted(() ->
-//                Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex1, timelineService))
-//        );
+        // Viene atteso fino a che non sia presente il Viewed per il primo recipient
+        await().untilAsserted(() ->
+                Assertions.assertTrue(TestUtils.checkIsPresentViewed(iun, recIndex1, timelineService))
+       );
 
+        // Viene atteso fino a che non sia presente il Refinement per il secondo recipient
         await().untilAsserted(() ->
                 Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex2, timelineService))
         );
@@ -1233,6 +1236,7 @@ class DigitalTestMultiRecipientIT {
                         .sentAttemptMade(0)
                         .build()
         );
+        
         NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId01)
                 .withInternalId("ANON_"+taxId01)
@@ -1286,10 +1290,16 @@ class DigitalTestMultiRecipientIT {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-        // Viene atteso fino a che non sia presente il REFINEMENT per entrambi i recipient
-//        await().untilAsserted(() ->
-//                Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex1, timelineService))
-//        );
+        String timelineId = TimelineEventId.DIGITAL_FAILURE_WORKFLOW.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex1)
+                        .build()
+        );
+
+        await().untilAsserted(() ->
+                Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent())
+        );
 
         await().untilAsserted(() ->
                 Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex2, timelineService))
@@ -1476,6 +1486,14 @@ class DigitalTestMultiRecipientIT {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
+        await().untilAsserted(() ->
+                Assertions.assertTrue(TestUtils.checkIsPresentViewed(iun, recIndex1, timelineService))
+        );
+
+        await().untilAsserted(() ->
+                Assertions.assertTrue(TestUtils.checkIsPresentViewed(iun, recIndex2, timelineService))
+        );
+        
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
@@ -1624,6 +1642,14 @@ class DigitalTestMultiRecipientIT {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
+        await().untilAsserted(() ->
+                Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex1, timelineService))
+        );
+
+        await().untilAsserted(() ->
+                Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex2, timelineService))
+        );
+        
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
