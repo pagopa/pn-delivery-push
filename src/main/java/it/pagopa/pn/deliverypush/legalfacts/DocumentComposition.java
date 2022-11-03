@@ -119,7 +119,7 @@ public class DocumentComposition {
     }
 
     public String executeTextTemplate( TemplateType templateType, Object model) {
-        log.info("Execute templateType={} START", templateType ); // FIXME: loggiamo il model e ci accertiamo che i to string non contengano dati sensibili o mi astengo dal loggare il model ??
+        log.info("Execute templateType={} START", templateType );
         StringWriter stringWriter = new StringWriter();
 
         try {

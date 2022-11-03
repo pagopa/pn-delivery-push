@@ -26,7 +26,8 @@ class FutureActionEntityDaoDynamoTest {
 
     @Test
     void putIfAbsent() {
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> actionEntityDaoDynamo.putIfAbsent(new FutureActionEntity()));
+        FutureActionEntity futureActionEntity = new FutureActionEntity();
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> actionEntityDaoDynamo.putIfAbsent(futureActionEntity));
     }
 
     @Test

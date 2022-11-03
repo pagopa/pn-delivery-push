@@ -139,7 +139,6 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
 
     private String readRecipientId( TimelineElementInternal timelineElement, NotificationInt notification ) {
         String recipientId = null;
-        //TODO Verificare se è necessario restituire il taxId o se può bastare il recIndex
 
         if (timelineElement != null) {
             TimelineElementDetailsInt details = timelineElement.getDetails();

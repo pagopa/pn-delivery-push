@@ -41,7 +41,6 @@ public class PublicRegistryMock implements PublicRegistry {
         new Thread(() -> {
             Assertions.assertDoesNotThrow(() -> {
                 simulateDigitalAddressResponse(taxId, correlationId);
-
             });
         }).start();
     }

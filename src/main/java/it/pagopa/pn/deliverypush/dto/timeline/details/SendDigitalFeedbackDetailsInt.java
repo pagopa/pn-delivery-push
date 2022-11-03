@@ -21,7 +21,7 @@ public class SendDigitalFeedbackDetailsInt implements DigitalAddressRelatedTimel
     private LegalDigitalAddressInt digitalAddress;
     private DigitalAddressSourceInt digitalAddressSource;
     private ResponseStatusInt responseStatus;
-    private Instant notificationDate; //TODO cambiare il nome del campo in extChannelsFeedbackDate
+    private Instant notificationDate; //Cambiare il nome del campo in extChannelsFeedbackDate
     private List<String> errors;
     private List<SendingReceipt> sendingReceipts;
 

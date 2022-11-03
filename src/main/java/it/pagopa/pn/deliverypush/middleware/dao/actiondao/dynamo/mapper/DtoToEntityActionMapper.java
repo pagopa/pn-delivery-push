@@ -1,13 +1,12 @@
 package it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.mapper;
 
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.entity.ActionEntity;
-import org.springframework.stereotype.Component;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 
-@Component
 public class DtoToEntityActionMapper {
-
-    public ActionEntity dtoToEntity(Action dto) {
+    private DtoToEntityActionMapper(){}
+    
+    public static ActionEntity dtoToEntity(Action dto) {
         ActionEntity.ActionEntityBuilder builder =  ActionEntity.builder()
                 .actionId(dto.getActionId())
                 .notBefore(dto.getNotBefore())

@@ -4,7 +4,7 @@ info:
   title: 'API B2B avanzamento notifiche'
   x-summary: 'API B2B avanzamento notifiche'
   version: '1.0.0'
-  x-api-id: api-external-b2b-webhook
+  x-api-id: api-internal-b2b-webhook
   description: >- 
     I mittenti di notifica possono seguire il flusso di avanzamento delle notifiche in modo 
     automatico. E' possibile definire fino ad un massimo di 5 configurazioni di flussi per 
@@ -126,7 +126,7 @@ paths:
     get:
       summary: Elenca stream di eventi
       description: >-
-        
+        Elenca gli stream di eventi
       tags:
         - Streams
       operationId: listEventStreams
@@ -159,7 +159,7 @@ paths:
         Permette di leggere le configurazioni di uno stream di eventi.
       tags:
         - Streams
-      operationId: getEventStream
+      operationId: retrieveEventStream                       # ONLY EXTERNAL
       responses:
         '200':
           description: OK
@@ -218,7 +218,7 @@ paths:
         associati allo stream e non ancora consumati.
       tags:
         - Streams
-      operationId: deleteEventStream
+      operationId: removeEventStream                         # ONLY EXTERNAL
       responses:
         '204':
           description: OK
@@ -306,12 +306,6 @@ components:
     ############################################################################################
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
     ############################################################################################
-    cxTypeAuthFleet:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTypeAuthFleet'
-    cxIdAuthFleet:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet'
-    uidAuthFleet:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/uidAuthFleet'
 
 
     ############################################################################################
@@ -448,64 +442,8 @@ components:
     
     ###  - EVENTI GENERATI DALLA P.A.
     ###################################
-    ExternalEventsRequest:
-      title: Invio eventi da P.A. a P.N.
-      description: >- 
-        Richiesta contenente un array di eventi di cui una Pubblica Amministrazione
-        deve avvisare Piattaforma Notifiche.
-      type: object
-      required:
-        - events
-      properties:
-        events:
-          description: Elenco degli eventi
-          type: array
-          items:
-            $ref: '#/components/schemas/ExternalEvent'
     
-    ExternalEvent:
-      title: Un evento generato all'esterno di PN.
-      description: >-
-        Un evento riguardante la notifica generato all'esterno di Piattaforma Notifiche come,
-        ad esempio, il pagamento che può avvenire anche tramite F24. <br/>
-
-        Deve essere valorizzata una solo campo, quello specifico del tipo di evento.
-      type: object
-      properties:
-        payment:
-          $ref: '#/components/schemas/PaymentEvent'
     
-    PaymentEvent:
-      title: Evento di pagamento
-      description: >-
-        Comprende: <br/>
-          - data e ora del pagamento, <br/>
-          - modalità di pagamento (PAGOPA / F24), <br/>
-          - lo _IUN_ della notifica pagata, <br/>
-          - il codice fiscale del destinatario pagatore, <br/>
-          - e la tipologia del destinatario pagatore (PF / PG). <br/>
-      type: object
-      required:
-        - iun
-        - recipientTaxId
-        - recipientType
-        - paymentType
-        - timestamp
-      properties:
-        iun:
-          type: string
-        recipientTaxId:
-          type: string
-        recipientType:
-          $ref: './schemas-pn-notification-v1.yaml#/components/schemas/RecipientType'
-        paymentType:
-          type: string
-          enum:
-            - F24
-            - PAGOPA
-        timestamp:
-          type: string
-          format: date-time
         
   
   securitySchemes:        # ONLY EXTERNAL
