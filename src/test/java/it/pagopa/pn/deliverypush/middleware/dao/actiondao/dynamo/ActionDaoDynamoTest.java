@@ -10,8 +10,10 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionsp
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
@@ -38,16 +40,15 @@ class ActionDaoDynamoTest {
 
     @Mock
     private DynamoDbEnhancedClient dynamoDbEnhancedClient;
+    
+    @Mock
+    private EnhancedRequestBuilder enhancedRequestBuilder;
 
     @Mock
     private ActionDaoDynamo dynamo;
 
     @BeforeEach
     void setup() {
-        actionEntityDao = Mockito.mock(ActionEntityDao.class);
-        futureActionEntityDao = Mockito.mock(FutureActionEntityDao.class);
-        pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
-        dynamoDbEnhancedClient = Mockito.mock(DynamoDbEnhancedClient.class);
 
         PnDeliveryPushConfigs.ActionDao actionDao = new PnDeliveryPushConfigs.ActionDao();
         actionDao.setTableName("Action");
@@ -57,10 +58,11 @@ class ActionDaoDynamoTest {
         Mockito.when(pnDeliveryPushConfigs.getFutureActionDao()).thenReturn(factionDao);
 
         dynamo = new ActionDaoDynamo(actionEntityDao, futureActionEntityDao,
-                dynamoDbEnhancedClient, pnDeliveryPushConfigs);
+                dynamoDbEnhancedClient, pnDeliveryPushConfigs, enhancedRequestBuilder);
     }
 
     @Test
+    @ExtendWith(SpringExtension.class)
     void addAction() {
         String timeslot = "2022-08-30T16:04:13.913859900Z";
         Action action = buildAction(ActionType.ANALOG_WORKFLOW);
@@ -75,6 +77,7 @@ class ActionDaoDynamoTest {
 
 
     @Test
+    @ExtendWith(SpringExtension.class)
     void addActionIfAbsent() {
         String timeslot = "2022-08-30T16:04:13.913859900Z";
         Action action = buildAction(ActionType.ANALOG_WORKFLOW);
@@ -89,15 +92,18 @@ class ActionDaoDynamoTest {
         
         Mockito.when(dynamoDbEnhancedClient.table(Mockito.anyString(), Mockito.eq(TableSchema.fromClass(ActionEntity.class)))).thenReturn(Mockito.mock(DynamoDbTable.class));
         Mockito.when(dynamoDbEnhancedClient.table(Mockito.anyString(), Mockito.eq(TableSchema.fromClass(FutureActionEntity.class)))).thenReturn(Mockito.mock(DynamoDbTable.class));
-
+        Mockito.when(enhancedRequestBuilder.getEnhancedRequest(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(TransactWriteItemsEnhancedRequest.builder().build());
 
         Mockito.doNothing().when(dynamoDbEnhancedClient).transactWriteItems(Mockito.any(TransactWriteItemsEnhancedRequest.class));
 
         // non si riesce a mockare TransactWriteItemsEnhancedRequest
-        //Assertions.assertDoesNotThrow(() -> dynamo.addActionIfAbsent(action, timeslot));
+        Assertions.assertDoesNotThrow(() ->
+                dynamo.addActionIfAbsent(action, timeslot)
+        );
     }
 
     @Test
+    @ExtendWith(SpringExtension.class)
     void getActionById() {
         Action action = buildAction(ActionType.ANALOG_WORKFLOW);
         ActionEntity actionEntity = buildActionEntity(action);
@@ -113,6 +119,7 @@ class ActionDaoDynamoTest {
     }
 
     @Test
+    @ExtendWith(SpringExtension.class)
     void findActionsByTimeSlot() {
         String timeslot = "2022-08-30T16:04:13.913859900Z";
         Action action = buildAction(ActionType.ANALOG_WORKFLOW);
@@ -130,6 +137,7 @@ class ActionDaoDynamoTest {
     }
 
     @Test
+    @ExtendWith(SpringExtension.class)
     void unSchedule() {
         String timeslot = "2022-08-30T16:04:13.913859900Z";
         Action action = buildAction(ActionType.ANALOG_WORKFLOW);
