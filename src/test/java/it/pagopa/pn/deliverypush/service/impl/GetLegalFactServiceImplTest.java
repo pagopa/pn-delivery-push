@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -129,12 +128,6 @@ class GetLegalFactServiceImplTest {
     @Test
     void getAnalogLegalFactMetadataSuccess() {
         //Given
-        NotificationAttachment.Ref ref = NotificationAttachment.Ref.builder()
-                .key( KEY )
-                .versionToken( VERSION_TOKEN )
-                .build();
-
-
         String[] urls = new String[1];
         try {
             Path path = Files.createTempFile( null,null );
@@ -172,12 +165,6 @@ class GetLegalFactServiceImplTest {
     @Test
     void getAnalogLegalFactMetadataSuccessXML() {
         //Given
-        NotificationAttachment.Ref ref = NotificationAttachment.Ref.builder()
-                .key( KEY )
-                .versionToken( VERSION_TOKEN )
-                .build();
-
-
         String[] urls = new String[1];
         try {
             Path path = Files.createTempFile( null,null );
