@@ -86,7 +86,11 @@ public class AttachmentUtils {
         try {
             fd = safeStorageService.getFile(ref.getKey(),true);
         } catch ( PnNotFoundException ex ) {
-            throw new PnValidationFileNotFoundException( ERROR_CODE_DELIVERYPUSH_NOTFOUND ,ex.getProblem().getDetail(), ex );
+            throw new PnValidationFileNotFoundException(
+                    ERROR_CODE_DELIVERYPUSH_NOTFOUND,
+                    ex.getProblem().getDetail(),
+                    ex 
+            );
         }
 
         String attachmentKey = fd.getKey();
