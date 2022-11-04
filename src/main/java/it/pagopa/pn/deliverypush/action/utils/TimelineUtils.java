@@ -134,30 +134,30 @@ public class TimelineUtils {
     }
 
 
-    public TimelineElementInternal buildDigitalFeedbackTimelineElement(NotificationInt notification, ResponseStatusInt status, List<String> errors,
-                                                                       int recIndex, int retryNumber,
-                                                                       LegalDigitalAddressInt digitalAddressInt,
-                                                                       DigitalAddressSourceInt digitalAddressSourceInt,
+    public TimelineElementInternal buildDigitalFeedbackTimelineElement(NotificationInt notification, 
+                                                                       ResponseStatusInt status,
+                                                                       List<String> errors,
+                                                                       int recIndex,
                                                                        DigitalMessageReferenceInt digitalMessageReference,
-                                                                       Instant eventTimestamp) {
+                                                                       DigitalAddressFeedback digitalAddressInfo) {
         log.debug("buildDigitaFeedbackTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
 
         String elementId = TimelineEventId.SEND_DIGITAL_FEEDBACK.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())
                         .recIndex(recIndex)
-                        .sentAttemptMade(retryNumber)
-                        .source(digitalAddressSourceInt)
+                        .sentAttemptMade(digitalAddressInfo.getRetryNumber())
+                        .source(digitalAddressInfo.getDigitalAddressSource())
                         .build()
         );
 
         SendDigitalFeedbackDetailsInt details = SendDigitalFeedbackDetailsInt.builder()
                 .errors(errors)
-                .digitalAddress(digitalAddressInt)
-                .digitalAddressSource(digitalAddressSourceInt)
+                .digitalAddress(digitalAddressInfo.getDigitalAddress())
+                .digitalAddressSource(digitalAddressInfo.getDigitalAddressSource())
                 .responseStatus(status)
                 .recIndex(recIndex)
-                .notificationDate(eventTimestamp)
+                .notificationDate(digitalAddressInfo.getEventTimestamp())
                 .sendingReceipts(
                         (digitalMessageReference != null && digitalMessageReference.getId() != null)?
                                 Collections.singletonList(SendingReceipt.builder()
@@ -171,35 +171,32 @@ public class TimelineUtils {
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds(  (digitalMessageReference!=null && digitalMessageReference.getLocation()!=null)?singleLegalFactId(digitalMessageReference.getLocation(), LegalFactCategoryInt.PEC_RECEIPT):null );
         
-        return buildTimeline(notification, TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK, elementId, eventTimestamp, details, timelineBuilder);
+        return buildTimeline(notification, TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK, elementId, digitalAddressInfo.getEventTimestamp(), details, timelineBuilder);
     }
 
     public TimelineElementInternal buildDigitalProgressFeedbackTimelineElement(NotificationInt notification,
                                                                                int recIndex,
-                                                                               int sentAttemptMade,
                                                                                EventCodeInt eventCode,
                                                                                boolean shouldRetry,
-                                                                               LegalDigitalAddressInt digitalAddressInt,
-                                                                               DigitalAddressSourceInt digitalAddressSourceInt,
                                                                                DigitalMessageReferenceInt digitalMessageReference,
                                                                                int progressIndex,
-                                                                               Instant eventTimestamp) {
+                                                                               DigitalAddressFeedback digitalAddressFeedback) {
         log.debug("buildDigitalDeliveringProgressTimelineElement - IUN={} and id={} and progressIndex={}", notification.getIun(), recIndex, progressIndex);
 
         String elementId = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())
                         .recIndex(recIndex)
-                        .sentAttemptMade(sentAttemptMade)
-                        .source(digitalAddressSourceInt)
+                        .sentAttemptMade(digitalAddressFeedback.getRetryNumber())
+                        .source(digitalAddressFeedback.getDigitalAddressSource())
                         .progressIndex(progressIndex)
                         .build()
         );
 
         SendDigitalProgressDetailsInt details = SendDigitalProgressDetailsInt.builder()
-                .digitalAddress(digitalAddressInt)
-                .digitalAddressSource(digitalAddressSourceInt)
-                .retryNumber(sentAttemptMade)
+                .digitalAddress(digitalAddressFeedback.getDigitalAddress())
+                .digitalAddressSource(digitalAddressFeedback.getDigitalAddressSource())
+                .retryNumber(digitalAddressFeedback.getRetryNumber())
                 .recIndex(recIndex)
                 .notificationDate(instantNowSupplier.get())
                 .eventCode(eventCode.getValue())
@@ -217,7 +214,7 @@ public class TimelineUtils {
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds( (digitalMessageReference!=null && digitalMessageReference.getLocation()!=null)?singleLegalFactId(digitalMessageReference.getLocation(), LegalFactCategoryInt.PEC_RECEIPT):null );
 
-        return buildTimeline(notification, TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS, elementId, eventTimestamp, details, timelineBuilder);
+        return buildTimeline(notification, TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS, elementId, digitalAddressFeedback.getEventTimestamp(), details, timelineBuilder);
     }
     
     public TimelineElementInternal buildSendCourtesyMessageTimelineElement(Integer recIndex, NotificationInt notification, CourtesyDigitalAddressInt address, Instant sendDate, String eventId) {
@@ -482,7 +479,7 @@ public class TimelineUtils {
         return buildTimeline(notification, TimelineElementCategoryInt.COMPLETELY_UNREACHABLE, elementId, details);
     }
 
-    public TimelineElementInternal buildScheduleDigitalWorkflowTimeline(NotificationInt notification, Integer recIndex, DigitalAddressInfo lastAttemptInfo) {
+    public TimelineElementInternal buildScheduleDigitalWorkflowTimeline(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt lastAttemptInfo) {
         log.debug("buildScheduledActionTimeline - iun={} and id={}", notification.getIun(), recIndex);
         String elementId = TimelineEventId.SCHEDULE_DIGITAL_WORKFLOW.buildEventId(
                 EventId.builder()

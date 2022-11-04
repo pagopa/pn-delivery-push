@@ -5,10 +5,7 @@ import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilde
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
 import it.pagopa.pn.deliverypush.action.utils.*;
-import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
-import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
@@ -25,8 +22,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.Instant;
 
 import static org.mockito.ArgumentMatchers.eq;
 
@@ -168,8 +163,16 @@ class ExternalChannelServiceImplTest {
         );
 
         Mockito.verify(externalChannel).sendLegalNotification(notification, recipient,  digitalDomicile, eventIdExpected);
-        Mockito.verify(digitalWorkFlowUtils).addDigitalDeliveringProgressTimelineElement( eq(notification), eq(EventCodeInt.DP00), eq(recIndex), eq(sentAttemptMade), eq(digitalDomicile),
-                eq(addressSource), eq(false), eq(null), Mockito.any(Instant.class));
+        
+        Mockito.verify(digitalWorkFlowUtils).addDigitalDeliveringProgressTimelineElement(
+                eq(notification),
+                eq(EventCodeInt.DP00),
+                        eq(recIndex),
+                                eq(false),
+                                        eq(null),
+                                                Mockito.any(DigitalAddressFeedback.class)
+        );
+        
     }
 
     @ExtendWith(MockitoExtension.class)

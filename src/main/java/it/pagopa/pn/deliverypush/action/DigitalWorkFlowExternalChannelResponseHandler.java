@@ -7,7 +7,8 @@ import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.utils.DigitalWorkFlowUtils;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfo;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressFeedback;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
@@ -138,8 +139,21 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
         // unschedulo eventuale timer programmato di invio
         digitalWorkFlowHandler.unscheduleTimeoutAction(iun, digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
 
-        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(digitalResultInfos.getNotification(), digitalResultInfos.getStatus(), digitalResultInfos.getResponse().getEventDetails() == null ? new ArrayList<>() : List.of(digitalResultInfos.getResponse().getEventDetails()),
-                digitalResultInfos.getRecIndex(), digitalResultInfos.getRetryNumber(), digitalResultInfos.getDigitalAddressInt(), digitalResultInfos.getDigitalAddressSourceInt(), digitalResultInfos.getResponse().getGeneratedMessage(), digitalResultInfos.getResponse().getEventTimestamp());
+        DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
+                .retryNumber(digitalResultInfos.getRetryNumber())
+                .eventTimestamp(digitalResultInfos.getResponse().getEventTimestamp())
+                .digitalAddressSource(digitalResultInfos.getDigitalAddressSourceInt())
+                .digitalAddress(digitalResultInfos.getDigitalAddressInt())
+                .build();
+        
+        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(
+                digitalResultInfos.getNotification(),
+                digitalResultInfos.getStatus(),
+                digitalResultInfos.getResponse().getEventDetails() == null ? new ArrayList<>() : List.of(digitalResultInfos.getResponse().getEventDetails()),
+                digitalResultInfos.getRecIndex(),
+                digitalResultInfos.getResponse().getGeneratedMessage(),
+                digitalAddressFeedback
+        );
 
         digitalWorkFlowHandler.nextWorkflowStep( digitalResultInfos );
     }
@@ -158,8 +172,21 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
         // unschedulo eventuale timer programmato di invio
         digitalWorkFlowHandler.unscheduleTimeoutAction(iun, digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
 
-        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(digitalResultInfos.getNotification(), digitalResultInfos.getStatus(), Collections.emptyList(),
-                digitalResultInfos.getRecIndex(), digitalResultInfos.getRetryNumber(), digitalResultInfos.getDigitalAddressInt(), digitalResultInfos.getDigitalAddressSourceInt(), digitalResultInfos.getResponse().getGeneratedMessage(), digitalResultInfos.getResponse().getEventTimestamp());
+        DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
+                .retryNumber(digitalResultInfos.getRetryNumber())
+                .eventTimestamp(digitalResultInfos.getResponse().getEventTimestamp())
+                .digitalAddressSource(digitalResultInfos.getDigitalAddressSourceInt())
+                .digitalAddress(digitalResultInfos.getDigitalAddressInt())
+                .build();
+        
+        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(
+                digitalResultInfos.getNotification(),
+                digitalResultInfos.getStatus(),
+                Collections.emptyList(),
+                digitalResultInfos.getRecIndex(),
+                digitalResultInfos.getResponse().getGeneratedMessage(),
+                digitalAddressFeedback
+        );
 
         log.info("Notification sent successfully, starting completion workflow - iun={} id={}",  digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex());
 
@@ -178,10 +205,22 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
 
         log.info("Received PROGRESS response with eventCode={}  GeneratedMessage is {} - iun={} id={}",
                 digitalResultInfos.getResponse().getEventCode(), digitalResultInfos.getResponse().getGeneratedMessage(), digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex());
-
-        digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(digitalResultInfos.getNotification(), digitalResultInfos.getResponse().getEventCode(),
-                digitalResultInfos.getRecIndex(), digitalResultInfos.getRetryNumber(), digitalResultInfos.getDigitalAddressInt(), digitalResultInfos.getDigitalAddressSourceInt(),
-                shouldRetry, digitalResultInfos.getResponse().getGeneratedMessage(), digitalResultInfos.getResponse().getEventTimestamp());
+        
+        DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
+                .retryNumber(digitalResultInfos.getRetryNumber())
+                .eventTimestamp(digitalResultInfos.getResponse().getEventTimestamp())
+                .digitalAddressSource(digitalResultInfos.getDigitalAddressSourceInt())
+                .digitalAddress(digitalResultInfos.getDigitalAddressInt())
+                .build();
+        
+        digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(
+                digitalResultInfos.getNotification(),
+                digitalResultInfos.getResponse().getEventCode(),
+                digitalResultInfos.getRecIndex(),
+                shouldRetry, 
+                digitalResultInfos.getResponse().getGeneratedMessage(),
+                digitalAddressFeedback
+        );
     }
 
     private void handleStatusProgressWithRetry( DigitalWorkFlowHandler.DigitalResultInfos digitalResultInfos )
@@ -199,7 +238,7 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
             digitalWorkFlowHandler.unscheduleTimeoutAction(digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
 
             // è richiesto di ritentare, schedulo un nuovo evento in coda e aggiunto un evento di progress nella timeline
-            restartWorkflowAfterRetryTime(digitalResultInfos.getNotification(), digitalResultInfos.getRecIndex(), DigitalAddressInfo.builder()
+            restartWorkflowAfterRetryTime(digitalResultInfos.getNotification(), digitalResultInfos.getRecIndex(), DigitalAddressInfoSentAttempt.builder()
                 .digitalAddress(digitalResultInfos.getDigitalAddressInt())
                 .digitalAddressSource(digitalResultInfos.getDigitalAddressSourceInt())
                 .lastAttemptDate(digitalResultInfos.getResponse().getEventTimestamp()==null? Instant.now():digitalResultInfos.getResponse().getEventTimestamp())
@@ -234,7 +273,7 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
     /**
      * schedule retry for this workflow
      */
-    private void restartWorkflowAfterRetryTime(NotificationInt notification, Integer recIndex, DigitalAddressInfo lastAddressInfo, TimelineElementInternal referenceTimelineId) {
+    private void restartWorkflowAfterRetryTime(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt lastAddressInfo, TimelineElementInternal referenceTimelineId) {
         log.debug("restartWorkflowAfterRetryTime - iun={} id={}", notification.getIun(), recIndex);
 
         String iun = notification.getIun();

@@ -1,7 +1,8 @@
 package it.pagopa.pn.deliverypush.action;
 
 import it.pagopa.pn.deliverypush.action.utils.DigitalWorkFlowUtils;
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfo;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressFeedback;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -10,7 +11,6 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentRe
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelProgressEventCat;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalSendTimelineElementDetails;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalProgressDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import lombok.extern.slf4j.Slf4j;
@@ -57,7 +57,7 @@ public class DigitalWorkFlowRetryHandler {
             if (checkIfEventIsStillValid(iun, recIndex, timelineElement.get())) {
                 digitalWorkFlowHandler.sendDigitalNotificationAndScheduleTimeoutAction(notification,
                         originalSendDigitalProgressDetailsInt.getDigitalAddress(),
-                        DigitalAddressInfo.builder()
+                        DigitalAddressInfoSentAttempt.builder()
                                 .digitalAddress(originalSendDigitalProgressDetailsInt.getDigitalAddress())
                                 .digitalAddressSource(originalSendDigitalProgressDetailsInt.getDigitalAddressSource())
                                 .lastAttemptDate(timelineElement.get().getTimestamp())
@@ -139,15 +139,20 @@ public class DigitalWorkFlowRetryHandler {
         {
             // salvo cmq in timeline il fatto che ho deciso di non rischedulare i tentativi
             NotificationInt notification = notificationService.getNotificationByIun(iun);
+
+            DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
+                    .retryNumber(originalRetryNumber)
+                    .eventTimestamp(Instant.now())
+                    .digitalAddressSource(originalAddressSource)
+                    .digitalAddress(originalAddressInfo)
+                    .build();
+            
             digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(notification,
                     EventCodeInt.DP10,
                     recIndex,
-                    originalRetryNumber,
-                    originalAddressInfo,
-                    originalAddressSource,
                     false,
                     null,
-                    Instant.now());
+                    digitalAddressFeedback);
 
             log.error("elapsedExtChannelTimeout Last timelineevent doesn't match original timelineevent source and retrynumber, skipping more actions iun={} recIdx={}", iun, recIndex);
         }

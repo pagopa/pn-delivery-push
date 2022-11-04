@@ -2,10 +2,7 @@ package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.deliverypush.action.utils.*;
-import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
-import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
@@ -100,16 +97,21 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
             );
 
             externalChannel.sendLegalNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), digitalAddress, eventId);
+
+            DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
+                    .retryNumber(sentAttemptMade)
+                    .eventTimestamp(Instant.now())
+                    .digitalAddressSource(addressSource)
+                    .digitalAddress(digitalAddress)
+                    .build();
+            
             digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(
                     notification, 
                     EventCodeInt.DP00,
                     recIndex,
-                    sentAttemptMade, 
-                    digitalAddress,
-                    addressSource, 
                     false, 
-                    null, 
-                    Instant.now());
+                    null,
+                    digitalAddressFeedback);
 
         }
 
