@@ -7,15 +7,14 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnD
 import it.pagopa.pn.deliverypush.service.mapper.NotificationMapper;
 import org.springframework.http.ResponseEntity;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class PnDeliveryClientMock implements PnDeliveryClient {
-    private Collection<SentNotification> notifications;
+    private CopyOnWriteArrayList<SentNotification> notifications;
 
     public void clear() {
-        this.notifications = new ArrayList<>();
+        this.notifications = new CopyOnWriteArrayList<>();
     }
 
     public void addNotification(NotificationInt notification) {

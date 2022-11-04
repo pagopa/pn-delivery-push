@@ -26,12 +26,14 @@ public class PaperNotificationFailedDaoMock implements PaperNotificationFailedDa
 
     @Override
     public Set<PaperNotificationFailed> getPaperNotificationFailedByRecipientId(String recipientId) {
-        return paperNotificationsFailed.stream().filter(paperNotificationFailed -> recipientId.equals(paperNotificationFailed.getRecipientId())).collect(Collectors.toSet());
+        Collection<PaperNotificationFailed> paperNotificationsFailedCopy = new ArrayList<>(paperNotificationsFailed);
+        return paperNotificationsFailedCopy.stream().filter(paperNotificationFailed -> recipientId.equals(paperNotificationFailed.getRecipientId())).collect(Collectors.toSet());
     }
 
     @Override
     public void deleteNotificationFailed(String recipientId, String iun) {
-        paperNotificationsFailed.stream().filter(
+        Collection<PaperNotificationFailed> paperNotificationsFailedCopy = new ArrayList<>(paperNotificationsFailed);
+        paperNotificationsFailedCopy.stream().filter(
                 paperNotificationFailed -> recipientId.equals(paperNotificationFailed.getRecipientId()) && iun.equals(paperNotificationFailed.getIun()))
                 .findFirst()
                 .ifPresent(notificationFailed -> paperNotificationsFailed.remove(notificationFailed));
