@@ -1,7 +1,8 @@
-package it.pagopa.pn.deliverypush.action.utils;
+package it.pagopa.pn.deliverypush.action.completionworkflow;
 
-import it.pagopa.pn.commons.utils.DateFormatUtils;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
+import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
+import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -13,26 +14,21 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.time.Duration;
 import java.time.Instant;
-import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
 @Slf4j
-public class CompletionWorkflowUtils {
-    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
+public class PecDeliveryWorkflowLegalFactsGenerator {
     private final TimelineService timelineService;
+    private final TimelineUtils timelineUtils;
     private final SaveLegalFactsService saveLegalFactsService;
     private final NotificationUtils notificationUtils;
-    
-    public CompletionWorkflowUtils(PnDeliveryPushConfigs pnDeliveryPushConfigs,
-                                   TimelineService timelineService,
-                                   SaveLegalFactsService saveLegalFactsService,
-                                   NotificationUtils notificationUtils) {
-        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
+
+    public PecDeliveryWorkflowLegalFactsGenerator(TimelineService timelineService, TimelineUtils timelineUtils, SaveLegalFactsService saveLegalFactsService, NotificationUtils notificationUtils) {
         this.timelineService = timelineService;
+        this.timelineUtils = timelineUtils;
         this.saveLegalFactsService = saveLegalFactsService;
         this.notificationUtils = notificationUtils;
     }
@@ -66,37 +62,6 @@ public class CompletionWorkflowUtils {
             }
         }
         return Optional.empty();
-    }
-    
-    public Instant getSchedulingDate(Instant completionWorkflowDate, Duration scheduleTime, String iun) {
-        String notificationNonVisibilityTime = pnDeliveryPushConfigs.getTimeParams().getNotificationNonVisibilityTime();
-        String[] arrayTime = notificationNonVisibilityTime.split(":");
-        int hour = Integer.parseInt(arrayTime[0]);
-        int minute = Integer.parseInt(arrayTime[1]);
-        int second = 0;
-        int nanoOfSecond = 0;
-
-        log.debug("Start getSchedulingDate with completionWorkflowDate={} scheduleTime={} notificationNonVisibilityTime={}:{}:{}:{} - iun={}",
-                completionWorkflowDate, scheduleTime, hour, minute, second, nanoOfSecond, iun);
-
-        ZonedDateTime notificationDateTime = DateFormatUtils.parseInstantToZonedDateTime(completionWorkflowDate);
-        ZonedDateTime notificationNonVisibilityDateTime = DateFormatUtils.setSpecificTimeToDate(notificationDateTime, hour, minute, second, nanoOfSecond);
-
-        log.debug("Formatted notificationDateTime={} and notificationNonVisibilityDateTime={} - iun={}", notificationDateTime, notificationNonVisibilityDateTime, iun);
-
-        if (notificationDateTime.isAfter(notificationNonVisibilityDateTime)){
-            Duration timeToAddToScheduledTime = pnDeliveryPushConfigs.getTimeParams().getTimeToAddInNonVisibilityTimeCase();
-            scheduleTime = scheduleTime.plus(timeToAddToScheduledTime);
-            log.debug("NotificationDateTime is after notificationNonVisibilityDateTime, need to add {} day to schedulingTime. scheduleTime={} - iun={}", timeToAddToScheduledTime, scheduleTime, iun);
-        } else {
-            log.debug("NotificationDateTime is not after notificationNonVisibilityDateTime, don't need to add any day to schedulingTime. scheduleTime={} - iun={}", scheduleTime, iun);
-        }
-
-        Instant schedulingDate = completionWorkflowDate.plus(scheduleTime);
-
-        log.info("Scheduling Date is {} - iun={}", schedulingDate, iun);
-
-        return schedulingDate;
     }
 
     public void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {

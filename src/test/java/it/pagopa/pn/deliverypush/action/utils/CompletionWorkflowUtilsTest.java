@@ -1,36 +1,7 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
-import it.pagopa.pn.commons.utils.DateFormatUtils;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
-import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
-import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
-import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
-import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.util.*;
-
-import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK;
-
 class CompletionWorkflowUtilsTest {
+/*
     private CompletionWorkflowUtils completionWorkflowUtils;
 
     @Mock
@@ -44,7 +15,7 @@ class CompletionWorkflowUtilsTest {
 
     @BeforeEach
     public void setup() {
-        completionWorkflowUtils = new CompletionWorkflowUtils(pnDeliveryPushConfigs, timelineService, saveLegalFactsService, notificationUtils);
+       // completionWorkflowUtils = new CompletionWorkflowUtils(pnDeliveryPushConfigs, timelineService, saveLegalFactsService, notificationUtils);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -274,4 +245,5 @@ class CompletionWorkflowUtilsTest {
                 .details( details )
                 .build();
     }
+*/
 }

@@ -5,6 +5,10 @@ import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.*;
+import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
+import it.pagopa.pn.deliverypush.action.completionworkflow.PecDeliveryWorkflowLegalFactsGenerator;
+import it.pagopa.pn.deliverypush.action.completionworkflow.RefinementScheduler;
+import it.pagopa.pn.deliverypush.action.completionworkflow.RegisteredLetterSender;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
@@ -67,7 +71,9 @@ import java.util.Collections;
         StatusUtils.class,
         PublicRegistryUtils.class,
         NotificationUtils.class,
-        CompletionWorkflowUtils.class,
+        PecDeliveryWorkflowLegalFactsGenerator.class,
+        RefinementScheduler.class,
+        RegisteredLetterSender.class,
         NotificationServiceImpl.class,
         StatusServiceImpl.class,
         PaperNotificationFailedServiceImpl.class,
