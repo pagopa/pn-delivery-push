@@ -2,7 +2,6 @@ package it.pagopa.pn.deliverypush.action.completionworkflow;
 
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
-import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -22,13 +21,14 @@ import java.util.stream.Collectors;
 @Slf4j
 public class PecDeliveryWorkflowLegalFactsGenerator {
     private final TimelineService timelineService;
-    private final TimelineUtils timelineUtils;
     private final SaveLegalFactsService saveLegalFactsService;
     private final NotificationUtils notificationUtils;
 
-    public PecDeliveryWorkflowLegalFactsGenerator(TimelineService timelineService, TimelineUtils timelineUtils, SaveLegalFactsService saveLegalFactsService, NotificationUtils notificationUtils) {
+    public PecDeliveryWorkflowLegalFactsGenerator(TimelineService timelineService, 
+                                                  SaveLegalFactsService saveLegalFactsService, 
+                                                  NotificationUtils notificationUtils
+    ) {
         this.timelineService = timelineService;
-        this.timelineUtils = timelineUtils;
         this.saveLegalFactsService = saveLegalFactsService;
         this.notificationUtils = notificationUtils;
     }
@@ -62,9 +62,5 @@ public class PecDeliveryWorkflowLegalFactsGenerator {
             }
         }
         return Optional.empty();
-    }
-
-    public void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
-        timelineService.addTimelineElement(element, notification);
     }
 }

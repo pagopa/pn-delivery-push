@@ -103,7 +103,7 @@ public class RefinementScheduler {
         }
     }
 
-    public Instant getSchedulingDate(Instant completionWorkflowDate, Duration scheduleTime, String iun) {
+    private Instant getSchedulingDate(Instant completionWorkflowDate, Duration scheduleTime, String iun) {
         String notificationNonVisibilityTime = pnDeliveryPushConfigs.getTimeParams().getNotificationNonVisibilityTime();
         String[] arrayTime = notificationNonVisibilityTime.split(":");
         int hour = Integer.parseInt(arrayTime[0]);
@@ -134,7 +134,7 @@ public class RefinementScheduler {
         return schedulingDate;
     }
 
-    public void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
+    private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
         timelineService.addTimelineElement(element, notification);
     }
     
