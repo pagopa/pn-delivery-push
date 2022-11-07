@@ -2,6 +2,8 @@ package it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.mapper;
 
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.entity.ActionEntity;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionBase;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionBase.ActionBaseBuilder;
 
 public class EntityToDtoActionMapper {
     private EntityToDtoActionMapper(){}
@@ -14,7 +16,10 @@ public class EntityToDtoActionMapper {
                 .type(entity.getType())
                 .timelineId(entity.getTimelineId())
                 .timeslot(entity.getTimeslot())
-                .iun(entity.getIun());
+                .iun(entity.getIun())
+                .details(entity.getDetails());
         return builder.build();
+        
     }
+
 }

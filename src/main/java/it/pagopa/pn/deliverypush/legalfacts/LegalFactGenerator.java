@@ -4,19 +4,21 @@ import it.pagopa.pn.commons.utils.FileUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
+import it.pagopa.pn.deliverypush.utils.QrCodeUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-
+import org.springframework.util.Base64Utils;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -46,6 +48,7 @@ public class LegalFactGenerator {
     public static final String FIELD_END_WORKFLOW_STATUS = "endWorkflowStatus";
     public static final String FIELD_END_WORKFLOW_DATE = "endWorkflowDate";
     public static final String FIELD_LEGALFACT_CREATION_DATE = "legalFactCreationDate";
+    public static final String FIELD_QRCODE_QUICK_ACCESS_LINK = "qrCodeQuickAccessLink";
 
     private final DocumentComposition documentComposition;
     private final CustomInstantWriter instantWriter;
@@ -228,7 +231,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_NOTIFICATION, notification);
         templateModel.put(FIELD_RECIPIENT, recipient);
         templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
-
+        templateModel.put(FIELD_QRCODE_QUICK_ACCESS_LINK, this.getQrCodeQuickAccessUrlAarDetail(recipient) );
         return documentComposition.executePdfTemplate(
                 DocumentComposition.TemplateType.AAR_NOTIFICATION,
                 templateModel
@@ -316,8 +319,17 @@ public class LegalFactGenerator {
             log.warn("cannot get host", e);
             return pnDeliveryPushConfigs.getWebapp().getDirectAccessUrlTemplate();
         }
+    }   
+
+    private String getQrCodeQuickAccessUrlAarDetail(NotificationRecipientInt recipient) {
+      String templateUrl = RecipientTypeInt.PF == recipient.getRecipientType()  
+          ? pnDeliveryPushConfigs.getWebapp().getQuickAccessUrlAarDetailPfTemplate() 
+          : pnDeliveryPushConfigs.getWebapp().getQuickAccessUrlAarDetailPgTemplate();
+    
+      String url = String.format(templateUrl, recipient.getQuickAccessLinkToken());
+      return "data:image/png;base64, ".concat(Base64Utils.encodeToString(QrCodeUtils.generateQRCodeImage(url, 0, 0)));
     }
 
-
+    
 }
 

@@ -35,11 +35,11 @@ public class StartWorkflowForRecipientHandler {
         this.auditLogBuilder = pnAuditLogBuilder;
     }
 
-    public void startNotificationWorkflowForRecipient(String iun, int recIndex) {
+    public void startNotificationWorkflowForRecipient(String iun, int recIndex, String quickAccessLinkToken) {
         log.info("Start notification workflow for recipient - iun {} id {}", iun, recIndex);
         
         NotificationInt notification = notificationService.getNotificationByIun(iun);
-
+        notification.getRecipients().get(recIndex).toBuilder().quickAccessLinkToken(quickAccessLinkToken);
         generateAAR(notification, recIndex);
 
         //... Invio messaggio di cortesia ... 

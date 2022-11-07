@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actions
 import lombok.*;
 
 import java.time.Instant;
+import java.util.Map;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,4 +27,6 @@ public class Action {
     private String timelineId;
 
     private String timeslot;
+    
+    private Map<String, ?> details;
 }

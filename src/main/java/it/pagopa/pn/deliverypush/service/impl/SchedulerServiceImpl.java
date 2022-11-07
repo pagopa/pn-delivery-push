@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -27,19 +28,25 @@ public class SchedulerServiceImpl implements SchedulerService {
     }
 
     @Override
+    public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType, Map<String, ?> notificationDetails) {
+        this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, null, notificationDetails);
+    }
+    
+    @Override
     public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType) {
-        this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, null);
+        this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, null, null);
     }
 
 
     @Override
-    public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType, String timelineEventId) {
+    public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType, String timelineEventId, Map<String, ?> notificationDetails) {
         Action action = Action.builder()
                 .iun(iun)
                 .recipientIndex(recIndex)
                 .notBefore(dateToSchedule)
                 .type(actionType)
                 .timelineId(timelineEventId)
+                .details(notificationDetails)
                 .build();
 
         this.actionsPool.scheduleFutureAction(action.toBuilder()

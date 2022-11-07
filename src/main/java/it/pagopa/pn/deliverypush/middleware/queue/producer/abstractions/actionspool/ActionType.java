@@ -1,5 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool;
 
+import java.util.HashMap;
+
 public enum ActionType {
     
     START_RECIPIENT_WORKFLOW() {
@@ -91,5 +93,9 @@ public enum ActionType {
 
     public String buildActionId(Action action) {
         throw new UnsupportedOperationException("Must be implemented for each action type");
+    }
+    
+    public  Class<?> getActionDetailsType(){
+      return String.class;
     }
 }

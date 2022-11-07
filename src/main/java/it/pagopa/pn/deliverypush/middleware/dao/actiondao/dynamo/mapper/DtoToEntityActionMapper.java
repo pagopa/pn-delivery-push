@@ -14,7 +14,8 @@ public class DtoToEntityActionMapper {
                 .type(dto.getType())
                 .timeslot(dto.getTimeslot())
                 .timelineId(dto.getTimelineId())
-                .iun(dto.getIun());
+                .iun(dto.getIun())
+                .details(dto.getDetails());
         
         return builder.build();
     }

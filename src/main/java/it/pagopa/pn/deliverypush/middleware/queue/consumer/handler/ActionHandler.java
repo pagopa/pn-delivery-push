@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
-
+import java.util.Map;
 import java.util.function.Consumer;
 
 @Configuration
@@ -44,7 +44,7 @@ public class ActionHandler {
             try {
                 log.debug("pnDeliveryPushStartRecipientWorkflow, message {}", message);
                 Action action = message.getPayload();
-                startWorkflowForRecipientHandler.startNotificationWorkflowForRecipient(action.getIun(), action.getRecipientIndex());
+                startWorkflowForRecipientHandler.startNotificationWorkflowForRecipient(action.getIun(), action.getRecipientIndex(), (String) action.getDetails().get("quickAccessLinkToken"));
             } catch (Exception ex) {
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;

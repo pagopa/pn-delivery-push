@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.service.mapper;
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.*;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -17,7 +18,8 @@ public class RecipientMapper {
                 .builder()
                 .taxId(recipient.getTaxId())
                 .internalId(recipient.getInternalId())
-                .denomination(recipient.getDenomination());
+                .denomination(recipient.getDenomination())
+                .recipientType(RecipientTypeInt.valueOf(recipient.getRecipientType().name()));
 
         it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationDigitalAddress digitalDomicile = recipient.getDigitalDomicile();
         if(digitalDomicile != null){

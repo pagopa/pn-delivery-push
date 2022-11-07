@@ -10,6 +10,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
 import java.time.Instant;
+import java.util.Map;
 
 @Builder
 @NoArgsConstructor
@@ -26,6 +27,7 @@ public class ActionEntity {
     private Integer recipientIndex;
     private String timeslot;
     private String timelineId;
+    private Map<String, ?> details;
     
     @DynamoDbPartitionKey
     @DynamoDbAttribute(value = FIELD_ACTION_ID )
@@ -82,5 +84,11 @@ public class ActionEntity {
 
     public void setTimelineId(String timelineId) {
         this.timelineId = timelineId;
+    }
+    public Map<String, ?> getDetails() {
+      return details;
+    }
+    public void setDetails(Map<String, ?> details) {
+      this.details = details;
     }
 }

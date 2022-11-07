@@ -20,6 +20,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Component
@@ -58,7 +59,7 @@ public class StartWorkflowHandler {
     public void startWorkflow(String iun) {
         log.info("Start notification process - iun={}", iun);
         NotificationInt notification = notificationService.getNotificationByIun(iun);
-
+        Map<String, String> quickAccessLinkTokens = Map.of();
         try {
             //Validazione degli allegati della notifica
             attachmentUtils.validateAttachment(notification);
@@ -67,7 +68,8 @@ public class StartWorkflowHandler {
 
             for (NotificationRecipientInt recipient : notification.getRecipients()) {
                 Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
-                scheduleStartRecipientWorkflow(iun, recIndex);
+                String quickAccessLinkToken = quickAccessLinkTokens.get(recipient.getInternalId()); 
+                scheduleStartRecipientWorkflow(iun, recIndex, quickAccessLinkToken);
             }
         } catch (PnValidationException ex) {
             handleValidationError(notification, ex);
@@ -85,10 +87,10 @@ public class StartWorkflowHandler {
         addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification, legalFactId), notification);
     }
     
-    private void scheduleStartRecipientWorkflow(String iun, Integer recIndex) {
+    private void scheduleStartRecipientWorkflow(String iun, Integer recIndex, String quickAccessLinkToken) {
         Instant schedulingDate = Instant.now();
         log.info("Scheduling start workflow for recipient schedulingDate={} - iun={} id={}", schedulingDate, iun, recIndex);
-        schedulerService.scheduleEvent(iun, recIndex, schedulingDate, ActionType.START_RECIPIENT_WORKFLOW);
+        schedulerService.scheduleEvent(iun, recIndex, schedulingDate, ActionType.START_RECIPIENT_WORKFLOW, Map.of("quickAccessLinkToken", quickAccessLinkToken));
     }
     
     private void handleValidationError(NotificationInt notification, PnValidationException ex) {

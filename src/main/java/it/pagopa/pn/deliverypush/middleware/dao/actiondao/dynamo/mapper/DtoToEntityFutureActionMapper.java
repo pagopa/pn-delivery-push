@@ -15,7 +15,8 @@ public class DtoToEntityFutureActionMapper {
                 .recipientIndex(dto.getRecipientIndex())
                 .type(dto.getType())
                 .timelineId(dto.getTimelineId())
-                .iun(dto.getIun());
+                .iun(dto.getIun())
+                .details(dto.getDetails());
         return builder.build();
     }
 

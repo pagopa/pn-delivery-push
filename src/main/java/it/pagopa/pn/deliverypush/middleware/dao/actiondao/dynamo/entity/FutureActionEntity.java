@@ -11,6 +11,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbParti
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
 
 import java.time.Instant;
+import java.util.Map;
 
 @Builder
 @NoArgsConstructor
@@ -28,6 +29,7 @@ public class FutureActionEntity {
     private ActionType type;
     private Integer recipientIndex;
     private String timelineId;
+    private Map<String, ?> details;
 
     @DynamoDbPartitionKey
     @DynamoDbAttribute(value = FIELD_TIME_SLOT )
