@@ -46,6 +46,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -1227,21 +1228,12 @@ class AnalogTestIT {
            - General address vuoto (Ottenuto non valorizzando nessun digital address per il recipient in PUB_REGISTRY_DIGITAL)
            
            - Indirizzo courtesy message presente, dunque inviato (Ottenuto valorizzando il courtesyAddress del addressBookEntry)
-           - Pa physical address presente con struttura indirizzo che porta al fallimento dell'invio tramite external channel (Ottenuto inserendo nell'indirizzo ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR)
-             e invio di una seconda notifica (all'indirizzo ottenuto dall'investigazione) con successivo fallimento (ottenuto concatenando all'indirizzo ExternalChannelMock.EXTCHANNEL_SEND_FAIL) 
-           - Public Registry Indirizzo fisico non trovato (Ottenuto non valorizzando nessun indirizzo fisico per il recipient in PUB_REGISTRY_PHYSICAL)
-
      */
-
-        LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
-                .address("test@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
-                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
-                .build();
-
+        
         PhysicalAddressInt paPhysicalAddress1 = PhysicalAddressBuilder.builder()
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
-
+        
         String iun = "IUN01";
 
         //Simulazione attesa del primo recipient in 
@@ -1260,11 +1252,11 @@ class AnalogTestIT {
                         .build()
         );
         
-        String taxId = TimelineDaoMock.SIMULATE_RECIPIENT_WAIT + elementIdInWait + TimelineDaoMock.WAIT_SEPARATOR + elementIdToWait;
+        String taxId1 = TimelineDaoMock.SIMULATE_RECIPIENT_WAIT + elementIdInWait + TimelineDaoMock.WAIT_SEPARATOR + elementIdToWait;
         
         NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder()
-                .withTaxId(taxId)
-                .withInternalId("ANON_"+taxId)
+                .withTaxId(taxId1)
+                .withInternalId("ANON_"+taxId1)
                 .withPhysicalAddress(paPhysicalAddress1)
                 .build();
 
@@ -1273,16 +1265,21 @@ class AnalogTestIT {
                 .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL )
                 .build());
 
-        String taxid02 = "TAXID02";
+        String taxId2 = "TAXID02";
         NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder()
-                .withTaxId(taxid02)
-                .withInternalId("ANON_"+taxid02)
+                .withTaxId(taxId2)
+                .withInternalId("ANON_"+taxId2)
                 .build();
 
         List<CourtesyDigitalAddressInt> listCourtesyAddressRecipient2 = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test2@mail.it")
                 .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL )
                 .build());
+
+        LegalDigitalAddressInt platformAddress2 = LegalDigitalAddressInt.builder()
+                .address("test@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                .build();
 
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
@@ -1299,7 +1296,7 @@ class AnalogTestIT {
 
         pnDeliveryClientMock.addNotification(notification);
 
-        addressBookMock.addLegalDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
+        addressBookMock.addLegalDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress2));
 
         addressBookMock.addCourtesyDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient1);
         addressBookMock.addCourtesyDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient2);
@@ -1311,7 +1308,7 @@ class AnalogTestIT {
         startWorkflowHandler.startWorkflow(iun);
 
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
-        await().untilAsserted(() ->
+        await().atMost(Duration.ofSeconds(100)).untilAsserted(() ->
                 Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
 
