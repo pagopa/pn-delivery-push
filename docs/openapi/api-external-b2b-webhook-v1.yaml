@@ -389,6 +389,26 @@ paths:
         '200':
           description: OK
           headers:
+            Cache-Control:
+              schema:
+                type: string
+              description: >-
+                Direttiva valorizza sempre a no-cache poichè gli eventi possono avvenire in qualunque momento
+            RateLimit-Limit:
+              schema:
+                type: string
+              description: >-
+                Direttiva valorizza sempre a no-cache poichè gli eventi possono avvenire in qualunque momento
+            RateLimit-Remaining:
+              schema:
+                type: string
+              description: >-
+                Direttiva valorizza sempre a no-cache poichè gli eventi possono avvenire in qualunque momento
+            RateLimit-Reset:
+              schema:
+                type: string
+              description: >-
+                Direttiva valorizza sempre a no-cache poichè gli eventi possono avvenire in qualunque momento
             retry-after:
               schema:
                 type: integer
