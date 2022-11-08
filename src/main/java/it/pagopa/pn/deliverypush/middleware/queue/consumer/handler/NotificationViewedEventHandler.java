@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
 import it.pagopa.pn.api.dto.events.PnDeliveryNotificationViewedEvent;
-import it.pagopa.pn.deliverypush.action.NotificationViewedHandler;
+import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -14,10 +14,10 @@ import java.util.function.Consumer;
 @Configuration
 @Slf4j
 public class NotificationViewedEventHandler {
-    private final NotificationViewedHandler notificationViewedHandler;
+    private final NotificationViewedRequestHandler notificationViewedRequestHandler;
 
-    public NotificationViewedEventHandler(NotificationViewedHandler notificationViewedHandler) {
-        this.notificationViewedHandler = notificationViewedHandler;
+    public NotificationViewedEventHandler(NotificationViewedRequestHandler notificationViewedRequestHandler) {
+        this.notificationViewedRequestHandler = notificationViewedRequestHandler;
     }
 
     @Bean
@@ -36,7 +36,7 @@ public class NotificationViewedEventHandler {
                 Instant viewedDate = pnDeliveryNewNotificationEvent.getHeader().getCreatedAt();
                 log.info("pnDeliveryNotificationViewedEventConsumer - iun {} id={} viewedDate={}", iun, recipientIndex, viewedDate );
 
-                notificationViewedHandler.handleViewNotification(iun, recipientIndex, viewedDate);
+                notificationViewedRequestHandler.handleViewNotification(iun, recipientIndex, viewedDate);
             } catch (Exception ex) {
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;

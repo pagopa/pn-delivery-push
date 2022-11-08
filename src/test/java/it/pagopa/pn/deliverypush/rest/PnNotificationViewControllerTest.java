@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.rest;
 
-import it.pagopa.pn.deliverypush.action.NotificationViewedHandler;
+import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -30,7 +30,7 @@ class PnNotificationViewControllerTest {
     private NotificationUtils notificationUtils;
 
     @MockBean
-    private NotificationViewedHandler notificationViewedHandler;
+    private NotificationViewedRequestHandler notificationViewedRequestHandler;
 
     @Autowired
     private WebTestClient webTestClient;

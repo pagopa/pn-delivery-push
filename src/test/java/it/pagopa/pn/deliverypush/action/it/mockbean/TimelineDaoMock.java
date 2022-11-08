@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.action.NotificationViewedHandler;
+import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -26,14 +26,14 @@ public class TimelineDaoMock implements TimelineDao {
     public static final String WAIT_SEPARATOR = "@@";
 
     private Collection<TimelineElementInternal> timelineList;
-    private final NotificationViewedHandler notificationViewedHandler;
+    private final NotificationViewedRequestHandler notificationViewedRequestHandler;
     private final NotificationService notificationService;
     private final NotificationUtils notificationUtils;
 
-    public TimelineDaoMock(@Lazy NotificationViewedHandler notificationViewedHandler, @Lazy NotificationService notificationService,
+    public TimelineDaoMock(@Lazy NotificationViewedRequestHandler notificationViewedRequestHandler, @Lazy NotificationService notificationService,
                            @Lazy NotificationUtils notificationUtils) {
         timelineList = Collections.synchronizedList(new ArrayList<>());
-        this.notificationViewedHandler = notificationViewedHandler;
+        this.notificationViewedRequestHandler = notificationViewedRequestHandler;
         this.notificationService = notificationService;
         this.notificationUtils = notificationUtils;
     }
@@ -51,7 +51,7 @@ public class TimelineDaoMock implements TimelineDao {
 
             if(notificationRecipientInt.getTaxId().startsWith(simulateViewNotificationString)){
                 //Viene simulata la visualizzazione della notifica prima di uno specifico inserimento in timeline
-                notificationViewedHandler.handleViewNotification( dto.getIun(), ((RecipientRelatedTimelineElementDetails) dto.getDetails()).getRecIndex(), Instant.now());
+                notificationViewedRequestHandler.handleViewNotification( dto.getIun(), ((RecipientRelatedTimelineElementDetails) dto.getDetails()).getRecIndex(), Instant.now());
             }else if(notificationRecipientInt.getTaxId().startsWith(simulateRecipientWaitString)){
                 //Viene simulata l'attesa in un determinato stato (elemento di timeline) per uno specifico recipient. 
                 // L'attesa dura fino all'inserimento in timeline di un determinato elemento per un altro recipient

@@ -1,6 +1,5 @@
-package it.pagopa.pn.deliverypush.action;
+package it.pagopa.pn.deliverypush.action.notificationview;
 
-import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -8,7 +7,8 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
-import it.pagopa.pn.deliverypush.service.*;
+import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,37 +20,29 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.Instant;
 import java.util.Collections;
 
-import static org.mockito.ArgumentMatchers.eq;
-
-class NotificationViewedHandlerTest {
+class NotificationViewedRequestHandlerTest {
     @Mock
     private NotificationService notificationService;
     @Mock
     private TimelineUtils timelineUtils;
     @Mock
-    private PaperNotificationFailedService paperNotificationFailedService;
-    @Mock
-    private SaveLegalFactsService legalFactStore;
-    @Mock
-    private InstantNowSupplier instantNowSupplier;
-    @Mock
     private TimelineService timelineService;
     @Mock
     private StatusUtils statusUtils;
     @Mock
-    private NotificationCostService notificationCostService;
-    
-    private NotificationViewedHandler handler;
+    private ViewNotification viewNotification;
+
+    private NotificationViewedRequestHandler handler;
 
     @BeforeEach
     public void setup() {
         NotificationUtils notificationUtils = new NotificationUtils();
         
-        handler = new NotificationViewedHandler(timelineService, legalFactStore,
-                paperNotificationFailedService, notificationService,
-                timelineUtils, instantNowSupplier, notificationUtils, statusUtils, notificationCostService);
+        handler = new NotificationViewedRequestHandler(timelineService, notificationService,
+                timelineUtils, statusUtils, notificationUtils, viewNotification);
     }
-    
+
+
     @ExtendWith(MockitoExtension.class)
     @Test
     void handleViewNotification() {
@@ -61,19 +53,17 @@ class NotificationViewedHandlerTest {
 
         Mockito.when(timelineUtils.checkNotificationIsAlreadyViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
-        Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
         Mockito.when(statusUtils.getCurrentStatusFromNotification(Mockito.any(NotificationInt.class), Mockito.any()))
                 .thenReturn(NotificationStatusInt.DELIVERING);
 
+        Instant viewDate = Instant.now();
+        int recIndex = 0;
+
         //WHEN
-        handler.handleViewNotification(notification.getIun(),0, Instant.now());
+        handler.handleViewNotification(notification.getIun(), recIndex, viewDate);
         
         //THEN
-        Mockito.verify(timelineService).addTimelineElement(Mockito.any(), Mockito.any( NotificationInt.class ));
-     
-        Mockito.verify(legalFactStore).saveNotificationViewedLegalFact(eq(notification),Mockito.any(NotificationRecipientInt.class), Mockito.any(Instant.class));
-
-        Mockito.verify(paperNotificationFailedService).deleteNotificationFailed(recipientInt.getInternalId(), iun);
+        Mockito.verify(viewNotification).startVewNotificationProcess(notification, recipientInt, recIndex, null, null , viewDate);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -85,16 +75,15 @@ class NotificationViewedHandlerTest {
         NotificationRecipientInt recipientInt = notification.getRecipients().get(0);
 
         Mockito.when(timelineUtils.checkNotificationIsAlreadyViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
+        
+        Instant viewDate = Instant.now();
+        int recIndex = 0;
 
         //WHEN
-        handler.handleViewNotification(notification.getIun(),0, Instant.now());
+        handler.handleViewNotification(notification.getIun(),recIndex, viewDate);
 
         //THEN
-        Mockito.verify(timelineService, Mockito.never()).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
-
-        Mockito.verify(legalFactStore, Mockito.never()).saveNotificationViewedLegalFact(eq(notification),Mockito.any(NotificationRecipientInt.class), Mockito.any(Instant.class));
-
-        Mockito.verify(paperNotificationFailedService, Mockito.never()).deleteNotificationFailed(recipientInt.getInternalId(), iun);
+        Mockito.verify(viewNotification,  Mockito.never()).startVewNotificationProcess(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any() , Mockito.any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -114,11 +103,7 @@ class NotificationViewedHandlerTest {
         handler.handleViewNotification(notification.getIun(),0, Instant.now());
 
         //THEN
-        Mockito.verify(timelineService, Mockito.never()).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
-
-        Mockito.verify(legalFactStore, Mockito.never()).saveNotificationViewedLegalFact(eq(notification),Mockito.any(NotificationRecipientInt.class), Mockito.any(Instant.class));
-
-        Mockito.verify(paperNotificationFailedService, Mockito.never()).deleteNotificationFailed(recipientInt.getInternalId(), iun);
+        Mockito.verify(viewNotification,  Mockito.never()).startVewNotificationProcess(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any() , Mockito.any());
     }
     
     private NotificationInt getNotification(String iun) {

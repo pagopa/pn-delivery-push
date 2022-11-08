@@ -1,0 +1,91 @@
+package it.pagopa.pn.deliverypush.action.notificationview;
+
+import it.pagopa.pn.commons.log.PnAuditLogBuilder;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
+import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
+import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.utils.StatusUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+import java.time.Instant;
+
+@Slf4j
+@Component
+public class NotificationViewedRequestHandler {
+
+    private final TimelineService timelineService;
+    private final NotificationService notificationService;
+    private final TimelineUtils timelineUtils;
+    private final StatusUtils statusUtils;
+    private final NotificationUtils notificationUtils;
+    private final ViewNotification viewNotification;
+
+    public NotificationViewedRequestHandler(TimelineService timelineService,
+                                            NotificationService notificationService,
+                                            TimelineUtils timelineUtils,
+                                            StatusUtils statusUtils,
+                                            NotificationUtils notificationUtils,
+                                            ViewNotification viewNotification) {
+        this.timelineService = timelineService;
+        this.notificationService = notificationService;
+        this.timelineUtils = timelineUtils;
+        this.statusUtils = statusUtils;
+        this.notificationUtils = notificationUtils;
+        this.viewNotification = viewNotification;
+    }
+
+    public void handleViewNotification(String iun, Integer recIndex, Instant eventTimestamp) {
+        handleViewNotification(iun, recIndex, null, null, eventTimestamp);
+    }
+
+    public void handleViewNotification(String iun, Integer recIndex, String raddType, String raddTransactionId, Instant eventTimestamp) {
+        PnAuditLogEvent logEvent = generateAuditLog(iun, recIndex, raddType, raddTransactionId);
+        logEvent.log();
+        
+        boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex);
+        
+        //I processi collegati alla visualizzazione di una notifica vengono effettuati solo la prima volta che la stessa viene visualizzata
+        if( !isNotificationAlreadyViewed ){
+            log.debug("Notification is not already viewed - iun={} id={}", iun, recIndex);
+
+            NotificationInt notification = notificationService.getNotificationByIun(iun);
+            NotificationStatusInt currentStatus = statusUtils.getCurrentStatusFromNotification(notification, timelineService);
+            
+            //Una notifica annullata non può essere perfezionata per visione
+            if( !NotificationStatusInt.CANCELLED.equals(currentStatus) ){
+                log.debug("Notification is not in state CANCELLED - iun={} id={}", iun, recIndex);
+
+                try {
+                    NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
+                    viewNotification.startVewNotificationProcess(notification, recipient, recIndex, raddType, raddTransactionId, eventTimestamp);
+                    
+                    logEvent.generateSuccess().log();
+                } catch (Exception exc) {
+                    logEvent.generateFailure("Exception in View notification ex={}", exc).log();
+                    throw exc;
+                }
+                
+            }else {
+                log.debug("Notification is in status {}, can't start view Notification process - iun={} id={}", currentStatus, iun, recIndex);
+            }
+        } else {
+            log.debug("Notification is already viewed - iun={} id={}", iun, recIndex);
+        }
+    }
+
+    private PnAuditLogEvent generateAuditLog(String iun, Integer recIndex, String raddType, String raddTransactionId) {
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        return auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_VIEW_RCP, "Start HandleViewNotification - iun={} id={} raddType={} raddTransactionId", iun, recIndex, raddType, raddTransactionId)
+                .iun(iun)
+                .build();
+    }
+
+}

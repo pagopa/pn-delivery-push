@@ -13,6 +13,9 @@ import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilde
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
+import it.pagopa.pn.deliverypush.action.notificationview.NotificationCost;
+import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
+import it.pagopa.pn.deliverypush.action.notificationview.ViewNotification;
 import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
@@ -71,7 +74,7 @@ import static org.mockito.ArgumentMatchers.eq;
         ExternalChannelResponseHandler.class,
         SafeStorageServiceImpl.class,
         RefinementHandler.class,
-        NotificationViewedHandler.class,
+        NotificationViewedRequestHandler.class,
         IoServiceImpl.class,
         NotificationCostServiceImpl.class,
         DigitalWorkFlowUtils.class,
@@ -102,6 +105,8 @@ import static org.mockito.ArgumentMatchers.eq;
         PnDataVaultClientMock.class,
         PnDeliveryPushConfigs.class,
         MVPParameterConsumer.class,
+        NotificationCost.class,
+        ViewNotification.class,
         NotificationViewedTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")
@@ -152,7 +157,7 @@ class NotificationViewedTestIT {
     private PnDataVaultClientMock pnDataVaultClientMock;
    
     @Autowired
-    private NotificationViewedHandler notificationViewedHandler;
+    private NotificationViewedRequestHandler notificationViewedRequestHandler;
 
     @Autowired
     private StatusUtils statusUtils;
@@ -241,7 +246,7 @@ class NotificationViewedTestIT {
 
         //Simulazione visualizzazione della notifica
         Instant notificationViewDate = Instant.now();
-        notificationViewedHandler.handleViewNotification(iun, recIndex, notificationViewDate);
+        notificationViewedRequestHandler.handleViewNotification(iun, recIndex, notificationViewDate);
         
         //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti
         checkTimelineElementIsPresent(iun, recIndex);
@@ -249,7 +254,7 @@ class NotificationViewedTestIT {
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient.getInternalId(), iun);
 
         //Simulazione seconda visualizzazione della notifica
-        notificationViewedHandler.handleViewNotification(iun, recIndex, Instant.now());
+        notificationViewedRequestHandler.handleViewNotification(iun, recIndex, Instant.now());
 
         checkIsNotificationViewed(iun, recIndex, notificationViewDate);
 
@@ -376,7 +381,7 @@ class NotificationViewedTestIT {
 
         //Simulazione visualizzazione della notifica per il primo recipient
         Instant notificationViewDate1 = Instant.now();
-        notificationViewedHandler.handleViewNotification(iun, recIndex1, notificationViewDate1);
+        notificationViewedRequestHandler.handleViewNotification(iun, recIndex1, notificationViewDate1);
 
         checkIsNotificationViewed(iun, recIndex1, notificationViewDate1);
 
@@ -388,7 +393,7 @@ class NotificationViewedTestIT {
 
         //Simulazione visualizzazione della notifica per il primo recipient
         Instant notificationViewDate2 = Instant.now();
-        notificationViewedHandler.handleViewNotification(iun, recIndex2, notificationViewDate2);
+        notificationViewedRequestHandler.handleViewNotification(iun, recIndex2, notificationViewDate2);
 
         checkIsNotificationViewed(iun, recIndex2, notificationViewDate2);
 
@@ -461,7 +466,7 @@ class NotificationViewedTestIT {
 
         //Simulazione visualizzazione della notifica
         Instant notificationViewDate = Instant.now();
-        notificationViewedHandler.handleViewNotification(iun, recIndex, notificationViewDate);
+        notificationViewedRequestHandler.handleViewNotification(iun, recIndex, notificationViewDate);
 
         checkIsNotificationViewed(iun, recIndex, notificationViewDate);
 
