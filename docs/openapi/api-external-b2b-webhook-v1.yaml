@@ -11,7 +11,7 @@ info:
   x-api-id: api-external-b2b-webhook # ONLY EXTERNAL
   description: >- 
     I mittenti di notifica possono seguire il flusso di avanzamento delle notifiche in modo 
-    automatico. E' possibile definire fino ad un <font color="red"><strong>massimo di <span id="webhookMaxStreams">5</span> configurazioni di flussi</strong></font> per 
+    automatico. E' possibile definire fino ad un <font color="red"><strong>massimo di <span id="webhookMaxStreams">5</span> configurazioni di flussi per singola PA</strong></font> su 
     informazioni relative a: <br/>
       - cambiamento di stato della notifica;  <br/>
       - inserimento di elementi nella timeline. <br/>
@@ -175,6 +175,36 @@ info:
 
       ><details><summary><strong>Per quanto tempo gli eventi restano registrati su uno stream?</strong></summary><em>Gli eventi restano registrati su uno stream per <strong><span id="webhookTtl">7</span> 
       giorni</strong>, trascorsi i quali non potranno più essere recuperati. A questo punto sarà possibile ottenere lo stato della notifica solo attraverso il servizio puntuale [getNotificationRequestStatus](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-external-b2b-pa-v1.yaml#/SenderReadB2B/retrieveNotificationRequestStatus), mentre se si conosce lo IUN si può utilizzare il servizio [getSentNotification](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-external-b2b-pa-v1.yaml#/SenderReadB2B/retrieveSentNotification) per leggere tutti i dettagli di una notifica accettata</em></details>
+      
+      ><details>
+      <summary><strong>Come faccio a capire il canale di spedizione seguito da una notifica?</strong></summary>
+      <em>Gli eventi di workflow sono differenti a seconda che il canale di spedizione sia digitale o analogico, ad esempio <strong>SCHEDULE_ANALOG_WORKFLOW</strong> determina l'inizio del workflow per invio cartaceo mentre <strong>SCHEDULE_DIGITAL_WORKFLOW</strong> per l'invio digitale.</br> In base all'evento presente nello stream sarà quindi possibile dedurre il canale di spedizione utilizzato.</em>
+      </details>
+      
+      ><details>
+      <summary><strong>In caso di destinatario multiplo, che significato ha lo stato della notifica?</strong></summary>
+      <em>Lo stato della notifica è unico per la notifica stessa ed i destinatari multipli si intedono come co-obbigati; questo significa che:</em>
+      ><ul>
+      <li><small><em>lo stato è <strong>Depositata</strong> quando viene depositata dalla PA.</em></small></li>
+      <li><small><em>lo stato è <strong>Invio in corso</strong> quando la notifica inizia il processo di spedizione per almeno un destinatario.</em></small></li>
+      <li><small><em>lo stato è <strong>Consegnata</strong> quando il processo di spedizione è terminato per tutti ed almeno uno dei destinatari è stato raggiunto.</em></small></li>
+      <li><small><em>lo stato è <strong>Irreperibile</strong> quando non è stato possibile raggiungere nessuno dei destinatari.</em></small></li>
+      <li><small><em>lo stato è <strong>Visualizzata</strong> quando almeno un destinatario ha acceduto agli atti della notifica. </em></small></li>
+      <li><small><em>lo stato è <strong>Perfezionata per decorrenza termini</strong> quando si perfeziona per decorrenza termini (a norma di legge) per almeno un destinatario e se nessuno dei destinatari ha preso visione della notifica stessa.</em></small></li>
+      <li><small><em>lo stato è <strong>Pagata</strong> quando uno dei destinatari ha completato con successo il pagamento.</em></small></li>
+      <li><small><em>lo stato è <strong>Annullata</strong> quando la notifica viene annullata da una PA creandone una nuova.</em></small></li>
+      </ul>
+      </details>
+      
+      ><details>
+      <summary><strong>In caso di destinatario multiplo, che significato ha un evento di timeline?</strong></summary>
+      <em>Quando sono presenti destinatari multipli, ogni evento di timeline sarà specifico per ogni destinatario ed appariranno tutti nella timeline con l'indicazione del destinatario impattato dall'evento.</em>
+      </details>
+      
+      ><details>
+      <summary><strong>In caso di destinatario multiplo, ricevo un'attestazione opponibile per ogni destinatario?</strong></summary>
+      <em>NO, le attestazione opponibile ai terzi vengono generate al verificarsi di alcuni eventi rilevanti per la notificazione e di conseguenza avrò un'unca attestazione dello stesso tipo, per notifica.</em>
+      </details>
 
     </details>
 
