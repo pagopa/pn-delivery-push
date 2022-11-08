@@ -15,7 +15,9 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
+import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
@@ -36,12 +38,19 @@ public class DigitalWorkFlowUtils {
     private final AddressBookService addressBookService;
     private final TimelineUtils timelineUtils;
     private final NotificationUtils notificationUtils;
+    private final SchedulerService schedulerService;
     
-    public DigitalWorkFlowUtils(TimelineService timelineService, AddressBookService addressBookService, TimelineUtils timelineUtils, NotificationUtils notificationUtils) {
+    public DigitalWorkFlowUtils(TimelineService timelineService,
+                                AddressBookService addressBookService, 
+                                TimelineUtils timelineUtils, 
+                                NotificationUtils notificationUtils,
+                                SchedulerService schedulerService
+    ) {
         this.timelineService = timelineService;
         this.addressBookService = addressBookService;
         this.timelineUtils = timelineUtils;
         this.notificationUtils = notificationUtils;
+        this.schedulerService = schedulerService;
     }
 
     public DigitalAddressInfoSentAttempt getNextAddressInfo(String iun, Integer recIndex, DigitalAddressInfoSentAttempt lastAttemptMade) {
@@ -175,20 +184,14 @@ public class DigitalWorkFlowUtils {
         return null;
     }
 
-    public ScheduleDigitalWorkflowDetailsInt getScheduleDigitalWorkflowTimelineElement(String iun, Integer recIndex) {
-        String eventId = TimelineEventId.SCHEDULE_DIGITAL_WORKFLOW.buildEventId(
-                EventId.builder()
-                        .iun(iun)
-                        .recIndex(recIndex)
-                        .build());
-
-        Optional<ScheduleDigitalWorkflowDetailsInt> optTimeLineScheduleDigitalWorkflow = timelineService.getTimelineElementDetails(iun, eventId,
+    public ScheduleDigitalWorkflowDetailsInt getScheduleDigitalWorkflowTimelineElement(String iun, String timelineId) {
+        Optional<ScheduleDigitalWorkflowDetailsInt> optTimeLineScheduleDigitalWorkflow = timelineService.getTimelineElementDetails(iun, timelineId,
                 ScheduleDigitalWorkflowDetailsInt.class);
         if (optTimeLineScheduleDigitalWorkflow.isPresent()) {
             return optTimeLineScheduleDigitalWorkflow.get();
         } else {
-            log.error("ScheduleDigitalWorkflowTimelineElement element not exist - iun {} eventId {}", iun, eventId);
-            throw new PnInternalException("ScheduleDigitalWorkflowTimelineElement element not exist - iun " + iun + " eventId " + eventId, ERROR_CODE_DELIVERYPUSH_SCHEDULEDDIGITALTIMELINEEVENTNOTFOUND);
+            log.error("ScheduleDigitalWorkflowTimelineElement element not exist - iun {} eventId {}", iun, timelineId);
+            throw new PnInternalException("ScheduleDigitalWorkflowTimelineElement element not exist - iun " + iun + " eventId " + timelineId, ERROR_CODE_DELIVERYPUSH_SCHEDULEDDIGITALTIMELINEEVENTNOTFOUND);
         }
     }
 
@@ -214,12 +217,7 @@ public class DigitalWorkFlowUtils {
         return timelineService.getTimelineElement(iun, eventId);
     }
     
-    public void addScheduledDigitalWorkflowToTimeline(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt lastAttemptMade) {
-        addTimelineElement(
-                timelineUtils.buildScheduleDigitalWorkflowTimeline(notification, recIndex, lastAttemptMade),
-                notification
-        );
-    }
+
 
     public void addAvailabilitySourceToTimeline(Integer recIndex, NotificationInt notification, DigitalAddressSourceInt source, boolean isAvailable, int sentAttemptMade) {
         addTimelineElement(
@@ -294,6 +292,17 @@ public class DigitalWorkFlowUtils {
                 return DigitalAddressSourceInt.PLATFORM;
             default:
                 throw new PnInternalException(" BUG: add support to next for " + source.getClass() + "::" + source.name(), ERROR_CODE_DELIVERYPUSH_INVALIDADDRESSSOURCE);
+        }
+    }
+
+    public void unscheduleTimeoutAction(String iun, int recIndex, String sourceTimelineId)
+    {
+        if (sourceTimelineId != null)
+        {
+            // se trovo un precedente sourceTimelineId, vuol dire che probabilmente sto rischedulando per un ritentativo di invio breve.
+            // vado ad de-schedulare l'eventuale action precedentemente schedulata, ma se non la trovo, fa niente, non è un errore!
+            this.schedulerService.unscheduleEvent(iun, recIndex, ActionType.DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION, sourceTimelineId);
+            log.info("unscheduleTimeoutAction UN-scheduled DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION for iun={} recIdx={} timelineId={} ", iun, recIndex, sourceTimelineId);
         }
     }
     

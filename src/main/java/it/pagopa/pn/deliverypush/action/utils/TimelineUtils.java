@@ -479,13 +479,11 @@ public class TimelineUtils {
         return buildTimeline(notification, TimelineElementCategoryInt.COMPLETELY_UNREACHABLE, elementId, details);
     }
 
-    public TimelineElementInternal buildScheduleDigitalWorkflowTimeline(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt lastAttemptInfo) {
+    public TimelineElementInternal buildScheduleDigitalWorkflowTimeline(NotificationInt notification, 
+                                                                        Integer recIndex, 
+                                                                        DigitalAddressInfoSentAttempt lastAttemptInfo,
+                                                                        String elementId) {
         log.debug("buildScheduledActionTimeline - iun={} and id={}", notification.getIun(), recIndex);
-        String elementId = TimelineEventId.SCHEDULE_DIGITAL_WORKFLOW.buildEventId(
-                EventId.builder()
-                        .iun(notification.getIun())
-                        .recIndex(recIndex)
-                        .build());
         
         ScheduleDigitalWorkflowDetailsInt details = ScheduleDigitalWorkflowDetailsInt.builder()
                 .recIndex(recIndex)

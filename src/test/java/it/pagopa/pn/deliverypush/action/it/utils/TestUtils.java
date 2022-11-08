@@ -366,29 +366,32 @@ public class TestUtils {
 
     public static void checkFailureRefinement(String iun,
                                         Integer recIndex,
-                                        int refinementNumberOfInvocation,
+                                        int scheduleInvocationNumber,
                                         TimelineService timelineService,
                                         SchedulerService scheduler,
                                         PnDeliveryPushConfigs pnDeliveryPushConfigs){
         ArgumentCaptor<Instant> instantArgumentCaptor = ArgumentCaptor.forClass(Instant.class);
 
-        Mockito.verify(scheduler, Mockito.times(refinementNumberOfInvocation)).scheduleEvent(Mockito.eq(iun), Mockito.eq(recIndex), instantArgumentCaptor.capture(), Mockito.any() );
+        Mockito.verify(scheduler, Mockito.times(scheduleInvocationNumber)).scheduleEvent(Mockito.eq(iun), Mockito.eq(recIndex), instantArgumentCaptor.capture(), Mockito.any() );
         List<Instant> instantArgumentCaptorList = instantArgumentCaptor.getAllValues();
         //Viene ottenuta la data di perfezionamento (Valutare se inserire la data di scheduling come campo del timeline element details)
         Instant refinementDate = instantArgumentCaptorList.get(instantArgumentCaptorList.size() - 1);
 
-        List<TimelineElementInternal> lastSendDigitalElementList = timelineService.getTimeline(iun, false).stream()
-                .filter(element -> TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE.equals(element.getCategory()))
+        List<TimelineElementInternal> lastSendDigitalFeedbackList = timelineService.getTimeline(iun, false).stream()
+                .filter(element -> TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK.equals(element.getCategory()))
                 .sorted(Comparator.comparing(TimelineElementInternal::getTimestamp)).collect(Collectors.toList());
 
-        Instant lastSendDigitalDate = lastSendDigitalElementList.get(lastSendDigitalElementList.size() - 1).getTimestamp();
+        Instant lastSendDigitalDate = lastSendDigitalFeedbackList.get(lastSendDigitalFeedbackList.size() - 1).getTimestamp();
         //Viene ottenuta la data dell'ultimo invio verso externalChannel
         ZonedDateTime notificationDateTime = DateFormatUtils.parseInstantToZonedDateTime(lastSendDigitalDate);
-
+        ZonedDateTime refinementDateTime = DateFormatUtils.parseInstantToZonedDateTime(refinementDate);
+        
         ZonedDateTime schedulingDate = notificationDateTime.plus( pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysFailureDigitalRefinement() );
 
+        System.out.println("schedulingDate="+schedulingDate+" refinementDateTime="+refinementDateTime);
+
         //Viene verificato che la data di perfezionamento sia uguale alla data dell'ultimo invio + giorni previsti dal perfezionamento
-        Assertions.assertEquals(schedulingDate.toInstant(), refinementDate);
+        Assertions.assertEquals(schedulingDate, refinementDateTime);
     }
 
     public static void checkSendRegisteredLetter(NotificationRecipientInt recipient, String iun, Integer recIndex, ExternalChannelMock externalChannelMock, TimelineService timelineService) {

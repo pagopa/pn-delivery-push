@@ -8,6 +8,10 @@ import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHan
 import it.pagopa.pn.deliverypush.action.completionworkflow.PecDeliveryWorkflowLegalFactsGenerator;
 import it.pagopa.pn.deliverypush.action.completionworkflow.RefinementScheduler;
 import it.pagopa.pn.deliverypush.action.completionworkflow.RegisteredLetterSender;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalNotificationSender;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowExternalChannelResponseHandler;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.NextWorkflowActionSchedulerImpl;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
@@ -106,6 +110,8 @@ import static org.awaitility.Awaitility.with;
         PnDataVaultClientMock.class,
         PnDeliveryPushConfigs.class,
         MVPParameterConsumer.class,
+        DigitalNotificationSender.class,
+        NextWorkflowActionSchedulerImpl.class,
         AnalogTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")

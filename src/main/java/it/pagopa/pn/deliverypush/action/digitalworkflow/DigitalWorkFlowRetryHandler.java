@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.action;
+package it.pagopa.pn.deliverypush.action.digitalworkflow;
 
 import it.pagopa.pn.deliverypush.action.utils.DigitalWorkFlowUtils;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressFeedback;
@@ -26,13 +26,14 @@ public class DigitalWorkFlowRetryHandler {
     private final NotificationService notificationService;
 
     private final DigitalWorkFlowUtils digitalWorkFlowUtils;
-    private final DigitalWorkFlowHandler digitalWorkFlowHandler;
+    private final DigitalNotificationSender digitalNotificationSender;
     private final DigitalWorkFlowExternalChannelResponseHandler digitalWorkFlowExternalChannelResponseHandler;
 
-    public DigitalWorkFlowRetryHandler(DigitalWorkFlowHandler digitalWorkFlowHandler,
+    public DigitalWorkFlowRetryHandler(DigitalNotificationSender digitalNotificationSender,
                                        NotificationService notificationService,
-                                       DigitalWorkFlowUtils digitalWorkFlowUtils, DigitalWorkFlowExternalChannelResponseHandler digitalWorkFlowExternalChannelResponseHandler) {
-        this.digitalWorkFlowHandler = digitalWorkFlowHandler;
+                                       DigitalWorkFlowUtils digitalWorkFlowUtils,
+                                       DigitalWorkFlowExternalChannelResponseHandler digitalWorkFlowExternalChannelResponseHandler) {
+        this.digitalNotificationSender = digitalNotificationSender;
         this.notificationService = notificationService;
         this.digitalWorkFlowUtils = digitalWorkFlowUtils;
         this.digitalWorkFlowExternalChannelResponseHandler = digitalWorkFlowExternalChannelResponseHandler;
@@ -55,14 +56,22 @@ public class DigitalWorkFlowRetryHandler {
 
 
             if (checkIfEventIsStillValid(iun, recIndex, timelineElement.get())) {
-                digitalWorkFlowHandler.sendDigitalNotificationAndScheduleTimeoutAction(notification,
+                
+                DigitalAddressInfoSentAttempt sentAttempt = DigitalAddressInfoSentAttempt.builder()
+                        .digitalAddress(originalSendDigitalProgressDetailsInt.getDigitalAddress())
+                        .digitalAddressSource(originalSendDigitalProgressDetailsInt.getDigitalAddressSource())
+                        .lastAttemptDate(timelineElement.get().getTimestamp())
+                        .sentAttemptMade(originalSendDigitalProgressDetailsInt.getRetryNumber())
+                        .build();
+                
+                digitalNotificationSender.sendDigitalNotificationAndScheduleTimeoutAction(
+                        notification,
                         originalSendDigitalProgressDetailsInt.getDigitalAddress(),
-                        DigitalAddressInfoSentAttempt.builder()
-                                .digitalAddress(originalSendDigitalProgressDetailsInt.getDigitalAddress())
-                                .digitalAddressSource(originalSendDigitalProgressDetailsInt.getDigitalAddressSource())
-                                .lastAttemptDate(timelineElement.get().getTimestamp())
-                                .sentAttemptMade(originalSendDigitalProgressDetailsInt.getRetryNumber())
-                                .build(), recIndex, true, timelineId);
+                        sentAttempt,
+                        recIndex,
+                        true,
+                        timelineId
+                );
             }
             else
             {

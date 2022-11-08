@@ -9,6 +9,10 @@ import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHan
 import it.pagopa.pn.deliverypush.action.completionworkflow.PecDeliveryWorkflowLegalFactsGenerator;
 import it.pagopa.pn.deliverypush.action.completionworkflow.RefinementScheduler;
 import it.pagopa.pn.deliverypush.action.completionworkflow.RegisteredLetterSender;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalNotificationSender;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowExternalChannelResponseHandler;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.NextWorkflowActionSchedulerImpl;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
@@ -53,6 +57,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -108,6 +113,8 @@ import static org.awaitility.Awaitility.await;
         PnDataVaultClientMock.class,
         PnDeliveryPushConfigs.class,
         MVPParameterConsumer.class,
+        DigitalNotificationSender.class,
+        NextWorkflowActionSchedulerImpl.class,
         DigitalTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")
@@ -524,7 +531,7 @@ class DigitalTestIT {
         startWorkflowHandler.startWorkflow(iun);
 
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
-        await().untilAsserted(() ->
+        await().atMost(Duration.ofDays(1)).untilAsserted(() ->
                 Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
         
@@ -548,8 +555,8 @@ class DigitalTestIT {
         //Viene verificato che sia avvenuto il perfezionamento
         TestUtils.checkIsPresentRefinement(iun, recIndex, timelineService);
 
-        int refinementNumberOfInvocation = 4;
-        TestUtils.checkFailureRefinement(iun, recIndex, refinementNumberOfInvocation, timelineService, scheduler, pnDeliveryPushConfigs);
+        int scheduleInvocationNumber = 3;
+        TestUtils.checkFailureRefinement(iun, recIndex, scheduleInvocationNumber, timelineService, scheduler, pnDeliveryPushConfigs);
 
         //Viene effettuato il check dei legalFacts generati
         TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()

@@ -1,5 +1,7 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
+import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowRetryHandler;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
 import it.pagopa.pn.deliverypush.action.*;
@@ -53,9 +55,6 @@ public class SchedulerServiceMock implements SchedulerService {
             case REFINEMENT_NOTIFICATION:
                 refinementHandler.handleRefinement(iun, recIndex);
                 break;
-            case DIGITAL_WORKFLOW_NEXT_ACTION:
-                digitalWorkFlowHandler.startScheduledNextWorkflow(iun, recIndex);
-                break;
             case DIGITAL_WORKFLOW_RETRY_ACTION:
                 digitalWorkFlowRetryHandler.startScheduledRetryWorkflow(iun, recIndex, iun + "_retry_action_" + recIndex);
                 break;
@@ -67,7 +66,15 @@ public class SchedulerServiceMock implements SchedulerService {
 
     @Override
     public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType, String timelineId) {
-        // non usato come mock
+        mockSchedulingDate(dateToSchedule);
+
+        switch (actionType) {
+            case DIGITAL_WORKFLOW_NEXT_ACTION:
+                digitalWorkFlowHandler.startScheduledNextWorkflow(iun, recIndex, timelineId);
+                break;
+            default:
+                System.out.println("ERROR");
+        }
     }
 
     @Override

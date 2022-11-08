@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.action;
+package it.pagopa.pn.deliverypush.action.digitalworkflow;
 
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
@@ -15,7 +15,6 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.*;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.service.ExternalChannelService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -59,22 +58,26 @@ class DigitalWorkFlowHandlerTest {
     private InstantNowSupplier instantNowSupplier;
     @Mock
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
-
-
+    @Mock
+    private DigitalNotificationSender digitalNotificationSender;
+    
     private DigitalWorkFlowHandler handler;
 
     private DigitalWorkFlowRetryHandler handlerRetry;
 
     private DigitalWorkFlowExternalChannelResponseHandler handlerExtChannel;
 
+    private NextWorkflowActionScheduler nextWorkflowActionScheduler;
+
     @BeforeEach
     public void setup() {
-        handler = new DigitalWorkFlowHandler(externalChannelService, notificationService,
+        nextWorkflowActionScheduler = new NextWorkflowActionSchedulerMockImpl();
+        handler = new DigitalWorkFlowHandler(digitalNotificationSender, notificationService,
                 schedulerService, digitalWorkFlowUtils, completionWorkflow, publicRegistryService, instantNowSupplier,
-                pnDeliveryPushConfigs);
+                pnDeliveryPushConfigs, nextWorkflowActionScheduler);
 
         handlerExtChannel = new DigitalWorkFlowExternalChannelResponseHandler(notificationService, schedulerService, digitalWorkFlowUtils, completionWorkflow, pnDeliveryPushConfigs, handler);
-        handlerRetry = new DigitalWorkFlowRetryHandler(handler, notificationService, digitalWorkFlowUtils, handlerExtChannel);
+        handlerRetry = new DigitalWorkFlowRetryHandler( digitalNotificationSender, notificationService, digitalWorkFlowUtils, handlerExtChannel);
 
     }
 
@@ -98,7 +101,7 @@ class DigitalWorkFlowHandlerTest {
                         .lastAttemptDate(Instant.now())
                         .build());
         
-        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt()))
+        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(ScheduleDigitalWorkflowDetailsInt.builder()
                         .recIndex(0)
                         .sentAttemptMade(lastAttemptMade.getSentAttemptMade())
@@ -117,7 +120,7 @@ class DigitalWorkFlowHandlerTest {
                 .thenReturn(notification);
 
         //WHEN
-        handler.startScheduledNextWorkflow(notification.getIun(), 0);
+        handler.startScheduledNextWorkflow(notification.getIun(), 0, "timelineIdTest");
 
         //THEN
         Mockito.verify(publicRegistryService).sendRequestForGetDigitalGeneralAddress(Mockito.any(NotificationInt.class), Mockito.anyInt(),
@@ -138,7 +141,7 @@ class DigitalWorkFlowHandlerTest {
                 .build();
 
 
-        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt()))
+        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(ScheduleDigitalWorkflowDetailsInt.builder()
                         .recIndex(0)
                         .sentAttemptMade(lastAttemptMade.getSentAttemptMade())
@@ -172,12 +175,8 @@ class DigitalWorkFlowHandlerTest {
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                         .build());
 
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class));
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel().getDigitalSendNoresponseTimeout()).thenReturn(Duration.ofSeconds(100));
-
-
         //WHEN        
-        handler.startScheduledNextWorkflow(notification.getIun(), 0);
+        handler.startScheduledNextWorkflow(notification.getIun(), 0, "timelineIdTest");
 
         //THEN
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);
@@ -185,9 +184,15 @@ class DigitalWorkFlowHandlerTest {
         Mockito.verify(digitalWorkFlowUtils).addAvailabilitySourceToTimeline(Mockito.anyInt(), Mockito.any(NotificationInt.class),
                 Mockito.any(DigitalAddressSourceInt.class), isAvailableCaptor.capture(), Mockito.anyInt());
 
-        Mockito.verify(externalChannelService).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class),
-                Mockito.any(DigitalAddressSourceInt.class), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyBoolean());
-
+        Mockito.verify(digitalNotificationSender).sendDigitalNotificationAndScheduleTimeoutAction(
+                Mockito.any(NotificationInt.class),
+                Mockito.any(LegalDigitalAddressInt.class),
+                Mockito.any(DigitalAddressInfoSentAttempt.class),
+                Mockito.anyInt(),
+                Mockito.anyBoolean(),
+                Mockito.any()
+        );
+        
         Assertions.assertTrue(isAvailableCaptor.getValue());
     }
 
@@ -204,7 +209,7 @@ class DigitalWorkFlowHandlerTest {
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC).build())
                 .build();
 
-        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt()))
+        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(ScheduleDigitalWorkflowDetailsInt.builder()
                         .recIndex(0)
                         .sentAttemptMade(lastAttemptMade.getSentAttemptMade())
@@ -243,7 +248,7 @@ class DigitalWorkFlowHandlerTest {
                 .thenReturn(null);
 
         //WHEN
-        handler.startScheduledNextWorkflow("iun",0);
+        handler.startScheduledNextWorkflow("iun",0, "timelineIdTest");
 
         //THEN
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);
@@ -268,7 +273,7 @@ class DigitalWorkFlowHandlerTest {
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC).build())
                 .build();
 
-        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt()))
+        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(ScheduleDigitalWorkflowDetailsInt.builder()
                         .recIndex(0)
                         .sentAttemptMade(lastAttemptMade.getSentAttemptMade())
@@ -297,15 +302,14 @@ class DigitalWorkFlowHandlerTest {
                 .thenReturn(notification);
 
         //WHEN
-        handler.startScheduledNextWorkflow("iun",0);
+        handler.startScheduledNextWorkflow("iun",0, "timelineIdTest");
         
         //THEN
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
 
-        Mockito.verify(schedulerService).scheduleEvent(Mockito.anyString(), Mockito.anyInt(),
-                schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
-
-
+        Mockito.verify(nextWorkflowActionScheduler).scheduleNextWorkflowAction(Mockito.eq(notification), Mockito.anyInt(),
+                Mockito.any(DigitalAddressInfoSentAttempt.class), schedulingDateCaptor.capture());
+        
         Instant schedulingDateOk = lastAttemptDate.plus(times.getSecondNotificationWorkflowWaitingTime());
         Assertions.assertEquals(schedulingDateOk.truncatedTo(ChronoUnit.MINUTES), schedulingDateCaptor.getValue().truncatedTo(ChronoUnit.MINUTES));
     }
@@ -324,7 +328,7 @@ class DigitalWorkFlowHandlerTest {
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC).build())
                 .build();
 
-        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt()))
+        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(ScheduleDigitalWorkflowDetailsInt.builder()
                         .recIndex(0)
                         .sentAttemptMade(lastAttemptMade.getSentAttemptMade())
@@ -357,7 +361,7 @@ class DigitalWorkFlowHandlerTest {
                 .thenReturn(notification);
 
         //WHEN
-        handler.startScheduledNextWorkflow("iun", 0);
+        handler.startScheduledNextWorkflow("iun", 0, "timelineIdTest");
 
         //THEN
         Mockito.verify(publicRegistryService).sendRequestForGetDigitalGeneralAddress(Mockito.any(NotificationInt.class), Mockito.anyInt(),
@@ -377,7 +381,7 @@ class DigitalWorkFlowHandlerTest {
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC).build())
                 .build();
 
-        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt()))
+        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(ScheduleDigitalWorkflowDetailsInt.builder()
                         .recIndex(0)
                         .sentAttemptMade(lastAttemptMade.getSentAttemptMade())
@@ -414,12 +418,9 @@ class DigitalWorkFlowHandlerTest {
                         .address("testAddress")
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                         .build());
-
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class));
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel().getDigitalSendNoresponseTimeout()).thenReturn(Duration.ofSeconds(100));
-
+        
         //WHEN
-        handler.startScheduledNextWorkflow(notification.getIun(), 0);
+        handler.startScheduledNextWorkflow(notification.getIun(), 0, "timelineIdTest");
 
         //THEN
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);
@@ -430,9 +431,14 @@ class DigitalWorkFlowHandlerTest {
         Assertions.assertEquals(addressSource, addressSourceCaptor.getValue());
         Assertions.assertTrue(isAvailableCaptor.getValue());
 
-        Mockito.verify(externalChannelService).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class),
-                Mockito.any(DigitalAddressSourceInt.class), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyBoolean());
-
+        Mockito.verify(digitalNotificationSender).sendDigitalNotificationAndScheduleTimeoutAction(
+                Mockito.any(NotificationInt.class),
+                Mockito.any(LegalDigitalAddressInt.class),
+                Mockito.any(DigitalAddressInfoSentAttempt.class),
+                Mockito.anyInt(),
+                Mockito.anyBoolean(),
+                Mockito.any()
+        );
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -455,10 +461,7 @@ class DigitalWorkFlowHandlerTest {
                 .build();
 
         NotificationInt notification = getNotification();
-
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class));
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel().getDigitalSendNoresponseTimeout()).thenReturn(Duration.ofSeconds(100));
-
+        
         //WHEN
         handler.handleGeneralAddressResponse(response, notification, details);
 
@@ -468,9 +471,15 @@ class DigitalWorkFlowHandlerTest {
         Mockito.verify(digitalWorkFlowUtils).addAvailabilitySourceToTimeline(Mockito.anyInt(), Mockito.any(NotificationInt.class),
                 Mockito.any(DigitalAddressSourceInt.class), isAvailableCaptor.capture(), Mockito.anyInt());
 
-        Mockito.verify(externalChannelService).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class),
-                Mockito.any(DigitalAddressSourceInt.class), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyBoolean());
-
+        Mockito.verify(digitalNotificationSender).sendDigitalNotificationAndScheduleTimeoutAction(
+                Mockito.any(NotificationInt.class),
+                Mockito.any(LegalDigitalAddressInt.class),
+                Mockito.any(DigitalAddressInfoSentAttempt.class),
+                Mockito.anyInt(),
+                Mockito.anyBoolean(),
+                Mockito.any()
+        );
+        
         Assertions.assertTrue(isAvailableCaptor.getValue());
 
     }
@@ -805,17 +814,11 @@ class DigitalWorkFlowHandlerTest {
                         .address("test@mail.it")
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC).build())
                 .build();
-
-
+        
         TimeParams times = new TimeParams();
         times.setSecondNotificationWorkflowWaitingTime(Duration.ofSeconds(1));
         String sourceTimelineId = "iun_something_1_somethingelse";
-
-
-        Instant lastAttemptDate = Instant.now().minus(times.getSecondNotificationWorkflowWaitingTime().plus(Duration.ofSeconds(10)));
-
-        DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
-
+        
         NotificationInt notification = getNotification();
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
@@ -856,17 +859,21 @@ class DigitalWorkFlowHandlerTest {
                         .eventCode("DP00")
                         .build())
                 .build());
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class));
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel().getDigitalSendNoresponseTimeout()).thenReturn(Duration.ofSeconds(100));
 
         //WHEN
         handlerRetry.startScheduledRetryWorkflow(notification.getIun(), 0, sourceTimelineId);
 
         //THEN
-
-        Mockito.verify(externalChannelService).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class),
-                Mockito.any(DigitalAddressSourceInt.class), Mockito.anyInt(), Mockito.anyInt(), Mockito.eq(true));
-
+        
+        Mockito.verify(digitalNotificationSender).sendDigitalNotificationAndScheduleTimeoutAction(
+                Mockito.any(NotificationInt.class), 
+                Mockito.any(LegalDigitalAddressInt.class),
+                Mockito.any(DigitalAddressInfoSentAttempt.class),
+                Mockito.anyInt(),
+                Mockito.eq(true),
+                Mockito.anyString()
+        );
+        
     }
 
 
@@ -887,12 +894,7 @@ class DigitalWorkFlowHandlerTest {
         TimeParams times = new TimeParams();
         times.setSecondNotificationWorkflowWaitingTime(Duration.ofSeconds(1));
         String sourceTimelineId = "iun_something_1_somethingelse";
-
-
-        Instant lastAttemptDate = Instant.now().minus(times.getSecondNotificationWorkflowWaitingTime().plus(Duration.ofSeconds(10)));
-
-        DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
-
+        
         NotificationInt notification = getNotification();
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
@@ -931,17 +933,20 @@ class DigitalWorkFlowHandlerTest {
                         .eventCode("DP00")
                         .build())
                 .build());
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class));
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel().getDigitalSendNoresponseTimeout()).thenReturn(Duration.ofSeconds(100));
 
         //WHEN
         handlerRetry.startScheduledRetryWorkflow(notification.getIun(), 0, sourceTimelineId);
 
         //THEN
 
-        Mockito.verify(externalChannelService).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class),
-                Mockito.any(DigitalAddressSourceInt.class), Mockito.anyInt(), Mockito.anyInt(), Mockito.eq(true));
-
+        Mockito.verify(digitalNotificationSender).sendDigitalNotificationAndScheduleTimeoutAction(
+                Mockito.any(NotificationInt.class),
+                Mockito.any(LegalDigitalAddressInt.class),
+                Mockito.any(DigitalAddressInfoSentAttempt.class),
+                Mockito.anyInt(),
+                Mockito.eq(true),
+                Mockito.any()
+        );
     }
 
 
@@ -962,12 +967,7 @@ class DigitalWorkFlowHandlerTest {
         TimeParams times = new TimeParams();
         times.setSecondNotificationWorkflowWaitingTime(Duration.ofSeconds(1));
         String sourceTimelineId = "iun_something_1_somethingelse";
-
-
-        Instant lastAttemptDate = Instant.now().minus(times.getSecondNotificationWorkflowWaitingTime().plus(Duration.ofSeconds(10)));
-
-        DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
-
+        
         NotificationInt notification = getNotification();
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
@@ -1004,17 +1004,20 @@ class DigitalWorkFlowHandlerTest {
                                 .build())
                         .build())
                 .build());
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class));
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel().getDigitalSendNoresponseTimeout()).thenReturn(Duration.ofSeconds(100));
 
         //WHEN
         handlerRetry.startScheduledRetryWorkflow(notification.getIun(), 0, sourceTimelineId);
 
         //THEN
 
-        Mockito.verify(externalChannelService).sendDigitalNotification(Mockito.any(NotificationInt.class), Mockito.any(LegalDigitalAddressInt.class),
-                Mockito.any(DigitalAddressSourceInt.class), Mockito.anyInt(), Mockito.anyInt(), Mockito.eq(true));
-
+        Mockito.verify(digitalNotificationSender).sendDigitalNotificationAndScheduleTimeoutAction(
+                Mockito.any(NotificationInt.class),
+                Mockito.any(LegalDigitalAddressInt.class),
+                Mockito.any(DigitalAddressInfoSentAttempt.class),
+                Mockito.anyInt(),
+                Mockito.eq(true),
+                Mockito.any()
+        );
     }
 
 
@@ -1908,5 +1911,19 @@ class DigitalWorkFlowHandlerTest {
                                 .build()
                 ))
                 .build();
+    }
+    
+    
+    class NextWorkflowActionSchedulerMockImpl implements NextWorkflowActionScheduler{
+
+        @Override
+        public void scheduleNextWorkflowAction(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt lastAttemptMade, Instant schedulingDate) {
+            handler.startScheduledNextWorkflow(notification.getIun() ,recIndex, "timelineIdTest");
+        }
+
+        @Override
+        public void scheduleNextWorkflowAction7Days(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt lastAttemptMade, Instant schedulingDate) {
+            handler.startScheduledNextWorkflow(notification.getIun() ,recIndex, "timelineIdTest");
+        }
     }
 }

@@ -22,6 +22,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.ScheduleDigitalWorkflowDet
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
+import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,6 +40,7 @@ class DigitalWorkFlowUtilsTest {
     private TimelineUtils timelineUtils;
     private NotificationUtils notificationUtils;
     private DigitalWorkFlowUtils digitalWorkFlowUtils;
+    private SchedulerService schedulerService;
 
     @BeforeEach
     void setup() {
@@ -46,7 +48,9 @@ class DigitalWorkFlowUtilsTest {
         addressBookService = Mockito.mock(AddressBookService.class);
         timelineUtils = Mockito.mock(TimelineUtils.class);
         notificationUtils = Mockito.mock(NotificationUtils.class);
-        digitalWorkFlowUtils = new DigitalWorkFlowUtils(timelineService, addressBookService, timelineUtils, notificationUtils);
+        schedulerService = Mockito.mock(SchedulerService.class);
+        
+        digitalWorkFlowUtils = new DigitalWorkFlowUtils(timelineService, addressBookService, timelineUtils, notificationUtils, schedulerService);
     }
 
     @Test
@@ -164,10 +168,12 @@ class DigitalWorkFlowUtilsTest {
                                 Mockito.any()))
                 .thenReturn(Optional.of(scheduleDigitalWorkflowDetailsInt));
         // WHEN
+/*
         ScheduleDigitalWorkflowDetailsInt optTimeLineScheduleDigitalWorkflow =
                 digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(iun, recIndex);
         // VERIFY
         Assertions.assertEquals(optTimeLineScheduleDigitalWorkflow, scheduleDigitalWorkflowDetailsInt);
+*/
     }
 
 
@@ -180,20 +186,6 @@ class DigitalWorkFlowUtilsTest {
         Optional<TimelineElementInternal> tmp = digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.anyString());
 
         Assertions.assertEquals(tmp, Optional.of(timelineElementInternal));
-    }
-
-    @Test
-    void addScheduledDigitalWorkflowToTimeline() {
-
-        TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
-
-        Mockito.when(timelineUtils.buildScheduleDigitalWorkflowTimeline(Mockito.any(), Mockito.anyInt(), Mockito.any())).thenReturn(timelineElementInternal);
-
-        digitalWorkFlowUtils.addScheduledDigitalWorkflowToTimeline(Mockito.any(), Mockito.anyInt(), Mockito.any());
-
-        Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(Mockito.any(), Mockito.any());
-
-
     }
 
     @Test

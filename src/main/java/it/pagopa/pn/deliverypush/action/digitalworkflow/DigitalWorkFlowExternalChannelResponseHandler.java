@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.action;
+package it.pagopa.pn.deliverypush.action.digitalworkflow;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
@@ -45,7 +45,8 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
                                                          SchedulerService schedulerService,
                                                          DigitalWorkFlowUtils digitalWorkFlowUtils,
                                                          CompletionWorkFlowHandler completionWorkflow,
-                                                         PnDeliveryPushConfigs pnDeliveryPushConfigs, DigitalWorkFlowHandler digitalWorkFlowHandler) {
+                                                         PnDeliveryPushConfigs pnDeliveryPushConfigs,
+                                                         DigitalWorkFlowHandler digitalWorkFlowHandler) {
         this.notificationService = notificationService;
         this.schedulerService = schedulerService;
         this.digitalWorkFlowUtils = digitalWorkFlowUtils;
@@ -138,7 +139,7 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
         log.debug("Response is for 'DELIVERY FAILURE' generatedMessage={} - iun={} id={}", digitalResultInfos.getResponse().getGeneratedMessage(), iun, digitalResultInfos.getRecIndex());
 
         // unschedulo eventuale timer programmato di invio
-        digitalWorkFlowHandler.unscheduleTimeoutAction(iun, digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
+        digitalWorkFlowUtils.unscheduleTimeoutAction(iun, digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
 
         DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
                 .retryNumber(digitalResultInfos.getRetryNumber())
@@ -171,7 +172,7 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
         logEvent.generateSuccess().log();
 
         // unschedulo eventuale timer programmato di invio
-        digitalWorkFlowHandler.unscheduleTimeoutAction(iun, digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
+        digitalWorkFlowUtils.unscheduleTimeoutAction(iun, digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
 
         DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
                 .retryNumber(digitalResultInfos.getRetryNumber())
@@ -236,7 +237,7 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
             handleStatusProgress(digitalResultInfos, true);
 
             // unschedulo eventuale timer programmato di invio
-            digitalWorkFlowHandler.unscheduleTimeoutAction(digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
+            digitalWorkFlowUtils.unscheduleTimeoutAction(digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
 
             // è richiesto di ritentare, schedulo un nuovo evento in coda e aggiunto un evento di progress nella timeline
             restartWorkflowAfterRetryTime(digitalResultInfos.getNotification(), digitalResultInfos.getRecIndex(), DigitalAddressInfoSentAttempt.builder()

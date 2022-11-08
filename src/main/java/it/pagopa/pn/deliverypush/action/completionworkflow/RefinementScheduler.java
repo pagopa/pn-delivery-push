@@ -91,6 +91,8 @@ public class RefinementScheduler {
 
         Instant schedulingDate = getSchedulingDate(notificationDate, schedulingDays, notification.getIun());
 
+        log.info("TEST SCHEDULING notificationDate={} schedulingDate={}", notificationDate, schedulingDate);
+
         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
 
         //Se la notifica è già stata visualizzata, non viene schedulato il perfezionamento per decorrenza termini dal momento che la notifica è già stata perfezionata per visione
