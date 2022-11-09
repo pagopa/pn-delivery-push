@@ -95,19 +95,13 @@ public class TimelineUtils {
                 EventId.builder()
                         .iun(notification.getIun())
                         .build());
+
         NotificationRequestAcceptedDetailsInt details = NotificationRequestAcceptedDetailsInt.builder().build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds( singleLegalFactId( legalFactId, LegalFactCategoryInt.SENDER_ACK ) );
 
-        return timelineBuilder
-                .iun(notification.getIun())
-                .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
-                .timestamp(notification.getSentAt())
-                .elementId(elementId)
-                .details(details)
-                .paId(notification.getSender().getPaId())
-                .build();
+        return buildTimeline(notification, TimelineElementCategoryInt.REQUEST_ACCEPTED, elementId, details, timelineBuilder);
     }
 
     public TimelineElementInternal buildAvailabilitySourceTimelineElement(Integer recIndex, NotificationInt notification, DigitalAddressSourceInt source, boolean isAvailable,

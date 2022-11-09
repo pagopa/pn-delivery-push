@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.context.annotation.Lazy;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -68,7 +69,7 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
         new Thread(() -> {
             Assertions.assertDoesNotThrow(() -> {
                 // Viene atteso fino a che l'elemento di timeline relativo all'invio verso extChannel sia stato inserito
-                await().untilAsserted(() ->
+                await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
                         Assertions.assertTrue(timelineService.getTimelineElement(notification.getIun(), timelineEventId).isPresent())
                 );
 
@@ -101,7 +102,7 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
         );
         
         //Viene atteso finchè l'elemento di timeline relativo al progress non sia stato inserito
-        await().untilAsserted(() ->
+        await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
                 Assertions.assertTrue(timelineService.getTimelineElement(notification.getIun(), elementId).isPresent())
         );
     }
@@ -113,13 +114,14 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
         
         new Thread(() -> {
             Assertions.assertDoesNotThrow(() -> {
-            // Viene atteso fino a che l'elemento di timeline realtivo all'invio verso extChannel sia stato inserito
-            await().untilAsserted(() ->
-                    Assertions.assertTrue(timelineService.getTimelineElement(notificationInt.getIun(), timelineEventId).isPresent())
-            );
 
-            if (analogType != PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER)
-                simulateExternalChannelAnalogResponse(notificationInt, physicalAddress, timelineEventId);
+                // Viene atteso fino a che l'elemento di timeline realtivo all'invio verso extChannel sia stato inserito
+                await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
+                        Assertions.assertTrue(timelineService.getTimelineElement(notificationInt.getIun(), timelineEventId).isPresent())
+                );
+    
+                if (analogType != PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER)
+                    simulateExternalChannelAnalogResponse(notificationInt, physicalAddress, timelineEventId);
             });
         }).start();
 

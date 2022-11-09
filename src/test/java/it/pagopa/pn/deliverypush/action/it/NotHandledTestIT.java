@@ -26,7 +26,6 @@ import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForR
 import it.pagopa.pn.deliverypush.action.startworkflow.StartWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
@@ -363,18 +362,15 @@ class NotHandledTestIT {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-        // Viene atteso fino a che l'ultimo feedback sia arrivato
-        String elementId = TimelineEventId.SEND_DIGITAL_FEEDBACK.buildEventId(
+        // Viene atteso fino a che il workflow non sia fallito
+        String elementId = TimelineEventId.DIGITAL_FAILURE_WORKFLOW.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())
                         .recIndex(0)
-                        .sentAttemptMade(1)
-                        .source(DigitalAddressSourceInt.GENERAL)
                         .build()
         );
         
-        //Prima di verificare la condizione vengono attesi due secondi dal momento che l'ultimo elemento di timeline viene inserito prima del verificarsi delle condizioni attese
-        with().pollDelay(2, SECONDS).await().untilAsserted(() ->
+        await().untilAsserted(() ->
                 Assertions.assertTrue(timelineService.getTimelineElement(notification.getIun(), elementId).isPresent())
         );
 
