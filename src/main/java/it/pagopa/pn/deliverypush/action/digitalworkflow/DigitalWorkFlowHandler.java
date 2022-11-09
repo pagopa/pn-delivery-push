@@ -65,7 +65,7 @@ public class DigitalWorkFlowHandler {
                 .sentAttemptMade(ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER)
                 .lastAttemptDate(Instant.now())
                 .build(), recIndex, false, null);
-    }
+    }DigitalAddressInfoSentAttempt
 
     /**
      * Callback nel caso di schedulazione del secondo ciclo di tentativi

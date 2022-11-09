@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_NOTIFICATIONFAILED;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED;
 
 @Service
 @Slf4j
@@ -33,11 +33,11 @@ public class NotificationServiceImpl implements NotificationService {
                 return NotificationMapper.externalToInternal(sentNotification);
             } else {
                 log.error("Get notification is not valid for - iun {}", iun);
-                throw new PnInternalException("Get notification is not valid for - iun " + iun, ERROR_CODE_NOTIFICATIONFAILED);
+                throw new PnInternalException("Get notification is not valid for - iun " + iun, ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED);
             }
         } else {
             log.error("Get notification Failed for - iun {}", iun);
-            throw new PnInternalException("Get notification Failed for - iun " + iun, ERROR_CODE_NOTIFICATIONFAILED);
+            throw new PnInternalException("Get notification Failed for - iun " + iun, ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED);
         }
     }
 }

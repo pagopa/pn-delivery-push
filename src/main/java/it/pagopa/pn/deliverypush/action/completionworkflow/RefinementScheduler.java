@@ -141,7 +141,7 @@ public class RefinementScheduler {
     private void handleError(NotificationInt notification, Integer recIndex, EndWorkflowStatus endWorkflowStatus) {
         String msg = String.format("The endWorkflowStatus %s is not handled - iun=%s id=%s", endWorkflowStatus, notification.getIun(), recIndex);
         log.error(msg);
-        throw new PnInternalException(msg, PnDeliveryPushExceptionCodes.ERROR_END_WORKFLOW_STATUS_NOT_HANDLED);
+        throw new PnInternalException(msg, PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_END_WORKFLOW_STATUS_NOT_HANDLED);
     }
 
 }
