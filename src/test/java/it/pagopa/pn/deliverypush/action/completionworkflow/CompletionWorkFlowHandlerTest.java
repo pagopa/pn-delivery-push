@@ -3,7 +3,6 @@ package it.pagopa.pn.deliverypush.action.completionworkflow;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
-import it.pagopa.pn.deliverypush.action.utils.CompletelyUnreachableUtils;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;

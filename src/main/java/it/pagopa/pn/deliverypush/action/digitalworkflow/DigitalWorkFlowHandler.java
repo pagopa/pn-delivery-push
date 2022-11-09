@@ -1,10 +1,9 @@
-package it.pagopa.pn.deliverypush.action;
+package it.pagopa.pn.deliverypush.action.digitalworkflow;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
-import it.pagopa.pn.deliverypush.action.utils.ChooseDeliveryModeUtils;
-import it.pagopa.pn.deliverypush.action.utils.DigitalWorkFlowUtils;
+import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;

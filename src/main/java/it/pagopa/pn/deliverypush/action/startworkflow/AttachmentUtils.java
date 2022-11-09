@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.action.utils;
+package it.pagopa.pn.deliverypush.action.startworkflow;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;

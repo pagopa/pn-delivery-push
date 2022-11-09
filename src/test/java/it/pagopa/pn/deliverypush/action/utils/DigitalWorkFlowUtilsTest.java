@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowUtils;
 import it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;

@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
 import it.pagopa.pn.api.dto.events.PnExtRegistryNotificationPaidEvent;
-import it.pagopa.pn.deliverypush.action.NotificationPaidHandler;
+import it.pagopa.pn.deliverypush.action.notificationpaid.NotificationPaidHandler;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;

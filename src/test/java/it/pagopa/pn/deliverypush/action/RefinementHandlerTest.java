@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action;
 
+import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -16,8 +17,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class RefinementHandlerTest {
 

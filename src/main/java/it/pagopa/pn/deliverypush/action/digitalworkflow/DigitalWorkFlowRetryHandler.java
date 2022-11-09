@@ -1,6 +1,5 @@
-package it.pagopa.pn.deliverypush.action;
+package it.pagopa.pn.deliverypush.action.digitalworkflow;
 
-import it.pagopa.pn.deliverypush.action.utils.DigitalWorkFlowUtils;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressFeedback;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
