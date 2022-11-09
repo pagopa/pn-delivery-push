@@ -327,6 +327,7 @@ public class LegalFactGenerator {
           : pnDeliveryPushConfigs.getWebapp().getQuickAccessUrlAarDetailPgTemplate();
     
       String url = String.format(templateUrl, recipient.getQuickAccessLinkToken());
+      // Definire altezza e larghezza del qrcode
       return "data:image/png;base64, ".concat(Base64Utils.encodeToString(QrCodeUtils.generateQRCodeImage(url, 0, 0)));
     }
 

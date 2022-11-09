@@ -89,10 +89,10 @@ class StartWorkflowForRecipientHandlerTest {
         Mockito.when(logEvent.generateFailure(Mockito.any(), Mockito.any())).thenReturn(logEvent);
 
         doThrow(new PnNotFoundException("Not found","","")).when(aarUtils).generateAARAndSaveInSafeStorageAndAddTimelineevent(Mockito.any(NotificationInt.class), Mockito.anyInt());
-        
+        RecipientsWorkflowDetails details = new RecipientsWorkflowDetails("test");
         //WHEN
         assertThrows(PnNotFoundException.class, () -> {
-            handler.startNotificationWorkflowForRecipient(iun, 0, new RecipientsWorkflowDetails("test"));
+            handler.startNotificationWorkflowForRecipient(iun, 0, details);
         });
 
         //THEN

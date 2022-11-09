@@ -32,7 +32,7 @@ class QrCodeUtilsTest {
 
     Result result = new MultiFormatReader().decode(binaryBitmap);
 
-    assertEquals(result.getText(), "test");
+    assertEquals("test", result.getText());
 
 
   }
