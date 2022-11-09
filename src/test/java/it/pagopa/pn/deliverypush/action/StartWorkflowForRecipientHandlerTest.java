@@ -66,7 +66,7 @@ class StartWorkflowForRecipientHandlerTest {
         Mockito.when(logEvent.generateSuccess()).thenReturn(logEvent);
 
         //WHEN
-        handler.startNotificationWorkflowForRecipient(notification.getIun(), 0);
+        handler.startNotificationWorkflowForRecipient(notification.getIun(), 0, "quickAccessLinkTokenTest");
         
         //THEN
         Mockito.verify(logEvent).generateSuccess();
@@ -91,7 +91,7 @@ class StartWorkflowForRecipientHandlerTest {
         
         //WHEN
         assertThrows(PnNotFoundException.class, () -> {
-            handler.startNotificationWorkflowForRecipient(iun, 0);
+            handler.startNotificationWorkflowForRecipient(iun, 0, "quickAccessLinkTokenTest");
         });
 
         //THEN

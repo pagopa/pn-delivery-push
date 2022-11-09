@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.action.it.utils;
 
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 
@@ -45,6 +46,7 @@ public class NotificationRecipientTestBuilder {
     
     public NotificationRecipientInt build() {
         return NotificationRecipientInt.builder()
+                .recipientType(RecipientTypeInt.PF)
                 .taxId(taxId)
                 .internalId(internalId)
                 .denomination("Name_and_surname_of_" + taxId)

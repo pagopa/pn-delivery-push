@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -90,7 +91,9 @@ public class StartWorkflowHandler {
     private void scheduleStartRecipientWorkflow(String iun, Integer recIndex, String quickAccessLinkToken) {
         Instant schedulingDate = Instant.now();
         log.info("Scheduling start workflow for recipient schedulingDate={} - iun={} id={}", schedulingDate, iun, recIndex);
-        schedulerService.scheduleEvent(iun, recIndex, schedulingDate, ActionType.START_RECIPIENT_WORKFLOW, Map.of("quickAccessLinkToken", quickAccessLinkToken));
+        Map<String, String> details = new HashMap<>();
+        details.put("quickAccessLinkToken", quickAccessLinkToken);
+        schedulerService.scheduleEvent(iun, recIndex, schedulingDate, ActionType.START_RECIPIENT_WORKFLOW, details);
     }
     
     private void handleValidationError(NotificationInt notification, PnValidationException ex) {

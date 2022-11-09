@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Lazy;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 
 @Slf4j
 public class SchedulerServiceMock implements SchedulerService {
@@ -40,7 +41,7 @@ public class SchedulerServiceMock implements SchedulerService {
     }
 
     @Override
-    public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType) {
+    public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType, Map<String, String> notificationDetails) {
         log.info("Start scheduling - iun={} id={} actionType={} ", iun, recIndex, actionType);
         
         new Thread( () ->{
@@ -49,7 +50,7 @@ public class SchedulerServiceMock implements SchedulerService {
 
                 switch (actionType) {
                     case START_RECIPIENT_WORKFLOW:
-                        startWorkflowForRecipientHandler.startNotificationWorkflowForRecipient(iun, recIndex);
+                        startWorkflowForRecipientHandler.startNotificationWorkflowForRecipient(iun, recIndex, "quickAccessLinkTokenTest");
                         break;
                     case CHOOSE_DELIVERY_MODE:
                         chooseDeliveryModeHandler.chooseDeliveryTypeAndStartWorkflow(iun, recIndex);
@@ -97,6 +98,20 @@ public class SchedulerServiceMock implements SchedulerService {
     private void mockSchedulingDate(Instant dateToSchedule) {
         Instant schedulingDate = dateToSchedule.plus(1, ChronoUnit.HOURS);
         Mockito.when(instantNowSupplier.get()).thenReturn(schedulingDate);
+    }
+
+    @Override
+    public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule,
+        ActionType actionType, String timelineId, Map<String, String> notificationDetails) {
+      // TODO Auto-generated method stub
+      
+    }
+
+    @Override
+    public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule,
+        ActionType actionType) {
+      // TODO Auto-generated method stub
+      
     }
 
 }

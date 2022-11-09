@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.entity;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
@@ -29,7 +30,8 @@ public class FutureActionEntity {
     private ActionType type;
     private Integer recipientIndex;
     private String timelineId;
-    private Map<String, ?> details;
+    @Default
+    private Map<String, String> details = Map.of();
 
     @DynamoDbPartitionKey
     @DynamoDbAttribute(value = FIELD_TIME_SLOT )

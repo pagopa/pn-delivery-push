@@ -6,11 +6,14 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionsp
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
 
 public interface SchedulerService {
+  
+  void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType, String timelineId);
+  
   void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType,
-      Map<String, ?> notificationDetails);
+      Map<String, String> notificationDetails);
 
   void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType,
-      String timelineId, Map<String, ?> notificationDetails);
+      String timelineId, Map<String, String> notificationDetails);
 
   void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType);
 

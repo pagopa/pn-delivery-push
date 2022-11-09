@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.*;
+import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationRecipient.RecipientTypeEnum;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
@@ -30,7 +31,8 @@ class NotificationMapperTest {
         SentNotification sent = NotificationMapper.internalToExternal( expected );
         NotificationInt actual = NotificationMapper.externalToInternal( sent );
         
-        Assertions.assertEquals( expected, actual );
+        Assertions.assertEquals(expected, actual );
+        
     }
 
     @Test
@@ -55,6 +57,7 @@ class NotificationMapperTest {
                 .recipients( Collections.singletonList(
                        new NotificationRecipient()
                                 .taxId("Codice Fiscale 01")
+                                .recipientType(RecipientTypeEnum.PF)
                                 .denomination("Nome Cognome/Ragione Sociale")
                                .digitalDomicile(
                                        new NotificationDigitalAddress()

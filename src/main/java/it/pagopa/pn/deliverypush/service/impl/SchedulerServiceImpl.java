@@ -28,18 +28,18 @@ public class SchedulerServiceImpl implements SchedulerService {
     }
 
     @Override
-    public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType, Map<String, ?> notificationDetails) {
+    public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType, Map<String, String> notificationDetails) {
         this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, null, notificationDetails);
     }
     
     @Override
     public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType) {
-        this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, null, null);
+        this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, null, Map.of());
     }
 
 
     @Override
-    public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType, String timelineEventId, Map<String, ?> notificationDetails) {
+    public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType, String timelineEventId, Map<String, String> notificationDetails) {
         Action action = Action.builder()
                 .iun(iun)
                 .recipientIndex(recIndex)
@@ -96,6 +96,12 @@ public class SchedulerServiceImpl implements SchedulerService {
                 .build();
 
         this.webhooksPool.scheduleFutureAction(action);
+    }
+
+    @Override
+    public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule,
+        ActionType actionType, String timelineId) {
+      this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, timelineId, null);
     }
 
 }

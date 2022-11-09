@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.entity;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
@@ -27,7 +28,8 @@ public class ActionEntity {
     private Integer recipientIndex;
     private String timeslot;
     private String timelineId;
-    private Map<String, ?> details;
+    @Default
+    private Map<String, String> details = Map.of();
     
     @DynamoDbPartitionKey
     @DynamoDbAttribute(value = FIELD_ACTION_ID )
@@ -85,10 +87,10 @@ public class ActionEntity {
     public void setTimelineId(String timelineId) {
         this.timelineId = timelineId;
     }
-    public Map<String, ?> getDetails() {
+    public Map<String, String> getDetails() {
       return details;
     }
-    public void setDetails(Map<String, ?> details) {
+    public void setDetails(Map<String, String> details) {
       this.details = details;
     }
 }
