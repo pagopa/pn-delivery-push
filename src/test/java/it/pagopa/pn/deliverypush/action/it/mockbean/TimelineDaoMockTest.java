@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
-import it.pagopa.pn.deliverypush.action.NotificationViewedHandler;
+import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TimelineDaoMockTest {
-    private NotificationViewedHandler notificationViewedHandler;
+    private NotificationViewedRequestHandler notificationViewedHandler;
     private NotificationService notificationService;
     private NotificationUtils notificationUtils;
 

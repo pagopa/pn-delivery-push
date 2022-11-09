@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.action;
+package it.pagopa.pn.deliverypush.action.notificationpaid;
 
 import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;

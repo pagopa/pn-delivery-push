@@ -1,7 +1,10 @@
-package it.pagopa.pn.deliverypush.action.utils;
+package it.pagopa.pn.deliverypush.action.digitalworkflow;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfo;
+import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
+import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressFeedback;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -43,20 +46,20 @@ public class DigitalWorkFlowUtils {
         this.notificationUtils = notificationUtils;
     }
 
-    public DigitalAddressInfo getNextAddressInfo(String iun, Integer recIndex, DigitalAddressInfo lastAttemptMade) {
+    public DigitalAddressInfoSentAttempt getNextAddressInfo(String iun, Integer recIndex, DigitalAddressInfoSentAttempt lastAttemptMade) {
         log.debug("Start getNextAddressInfo - iun {} id {}", iun, recIndex);
 
         //Ottiene la source del prossimo indirizzo da utilizzare
         DigitalAddressSourceInt nextAddressSource = nextSource(lastAttemptMade.getDigitalAddressSource()) ;
         log.debug("nextAddressSource {}", nextAddressSource);
 
-        DigitalAddressInfo nextAddressInfo = getNextAddressInfo(iun, recIndex, nextAddressSource);
+        DigitalAddressInfoSentAttempt nextAddressInfo = getNextAddressInfo(iun, recIndex, nextAddressSource);
 
         log.debug("GetNextAddressInfo completed - iun {} id {}", iun, recIndex);
         return nextAddressInfo;
     }
 
-    private DigitalAddressInfo getNextAddressInfo(String iun, Integer recIndex, DigitalAddressSourceInt nextAddressSource) {
+    private DigitalAddressInfoSentAttempt getNextAddressInfo(String iun, Integer recIndex, DigitalAddressSourceInt nextAddressSource) {
         Set<TimelineElementInternal> timeline = timelineService.getTimeline(iun, true);
 
         //Ottiene il numero di tentativi effettuati per tale indirizzo
@@ -71,7 +74,7 @@ public class DigitalWorkFlowUtils {
             log.debug("lastAttemptMadeForSource for source {} is {}", nextAddressSource, lastAttemptMadeForSource);
         }
 
-        return DigitalAddressInfo.builder()
+        return DigitalAddressInfoSentAttempt.builder()
                 .digitalAddressSource(nextAddressSource)
                 .sentAttemptMade(nextSourceAttemptsMade)
                 .lastAttemptDate(lastAttemptMadeForSource)
@@ -213,7 +216,7 @@ public class DigitalWorkFlowUtils {
         return timelineService.getTimelineElement(iun, eventId);
     }
     
-    public void addScheduledDigitalWorkflowToTimeline(NotificationInt notification, Integer recIndex, DigitalAddressInfo lastAttemptMade) {
+    public void addScheduledDigitalWorkflowToTimeline(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt lastAttemptMade) {
         addTimelineElement(
                 timelineUtils.buildScheduleDigitalWorkflowTimeline(notification, recIndex, lastAttemptMade),
                 notification
@@ -227,41 +230,40 @@ public class DigitalWorkFlowUtils {
         );
     }
 
-    public void addDigitalFeedbackTimelineElement(NotificationInt notification, ResponseStatusInt status, List<String> errors,
-                                                  int recIndex, int retryNumber,
-                                                  LegalDigitalAddressInt digitalAddressInt,
-                                                  DigitalAddressSourceInt digitalAddressSourceInt, DigitalMessageReferenceInt digitalMessageReference,
-                                                  Instant eventTimestamp) {
+    public void addDigitalFeedbackTimelineElement(NotificationInt notification, 
+                                                  ResponseStatusInt status, 
+                                                  List<String> errors,
+                                                  int recIndex,
+                                                  DigitalMessageReferenceInt digitalMessageReference,
+                                                  DigitalAddressFeedback digitalAddressInfo
+                                                  ) {
         addTimelineElement(
-                timelineUtils.buildDigitalFeedbackTimelineElement(notification, status, errors, recIndex, retryNumber, digitalAddressInt, digitalAddressSourceInt, digitalMessageReference, eventTimestamp),
+                timelineUtils.buildDigitalFeedbackTimelineElement(notification, status, errors, recIndex, digitalMessageReference, digitalAddressInfo),
                 notification
         );
     }
 
     public void addDigitalDeliveringProgressTimelineElement(NotificationInt notification,
                                                             EventCodeInt eventCode,
-                                                            int recIndex, int sentAttemptMade,
-                                                            LegalDigitalAddressInt digitalAddressInt,
-                                                            DigitalAddressSourceInt digitalAddressSourceInt,
+                                                            int recIndex, 
                                                             boolean shouldRetry,
                                                             DigitalMessageReferenceInt digitalMessageReference,
-                                                            Instant eventTimestamp) {
-
-        int progressIndex = getPreviousTimelineProgress(notification, recIndex, sentAttemptMade, digitalAddressSourceInt).size() + 1;
+                                                            DigitalAddressFeedback digitalAddressFeedback) {
+        
+        int progressIndex = getPreviousTimelineProgress(notification, recIndex, digitalAddressFeedback.getRetryNumber(), digitalAddressFeedback.getDigitalAddressSource()).size() + 1;
 
         addTimelineElement(
-                timelineUtils.buildDigitalProgressFeedbackTimelineElement(notification,
-                                                                            recIndex,
-                                                                            sentAttemptMade,
-                                                                            eventCode,
-                                                                            shouldRetry,
-                                                                            digitalAddressInt,
-                                                                            digitalAddressSourceInt,
-                                                                            digitalMessageReference,
-                                                                            progressIndex,
-                                                                            eventTimestamp),
-                        notification
-                );
+                timelineUtils.buildDigitalProgressFeedbackTimelineElement(
+                        notification,
+                        recIndex,
+                        eventCode,
+                        shouldRetry,
+                        digitalMessageReference,
+                        progressIndex,
+                        digitalAddressFeedback
+                ),
+                notification
+        );
     }
 
 

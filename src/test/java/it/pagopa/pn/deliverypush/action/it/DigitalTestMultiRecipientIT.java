@@ -3,11 +3,26 @@ package it.pagopa.pn.deliverypush.action.it;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.action.*;
+import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
+import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
+import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
+import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
+import it.pagopa.pn.deliverypush.action.completionworkflow.*;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowExternalChannelResponseHandler;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowUtils;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
+import it.pagopa.pn.deliverypush.action.notificationview.NotificationCost;
+import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
+import it.pagopa.pn.deliverypush.action.notificationview.ViewNotification;
+import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
+import it.pagopa.pn.deliverypush.action.utils.AarUtils;
+import it.pagopa.pn.deliverypush.action.startworkflow.AttachmentUtils;
+import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
+import it.pagopa.pn.deliverypush.action.startworkflow.StartWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -65,7 +80,7 @@ import static org.awaitility.Awaitility.await;
         SafeStorageServiceImpl.class,
         ExternalChannelResponseHandler.class,
         RefinementHandler.class,
-        NotificationViewedHandler.class,
+        NotificationViewedRequestHandler.class,
         DigitalWorkFlowUtils.class,
         CourtesyMessageUtils.class,
         AarUtils.class,
@@ -84,7 +99,9 @@ import static org.awaitility.Awaitility.await;
         ConfidentialInformationServiceImpl.class,
         AttachmentUtils.class,
         NotificationUtils.class,
-        CompletionWorkflowUtils.class,
+        PecDeliveryWorkflowLegalFactsGenerator.class,
+        RefinementScheduler.class,
+        RegisteredLetterSender.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
         ExternalChannelMock.class,
@@ -92,6 +109,8 @@ import static org.awaitility.Awaitility.await;
         PnDataVaultClientMock.class,
         PnDeliveryPushConfigs.class,
         MVPParameterConsumer.class,
+        NotificationCost.class,
+        ViewNotification.class,
         DigitalTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")
@@ -154,7 +173,7 @@ class DigitalTestMultiRecipientIT {
     private PnDataVaultClientMock pnDataVaultClientMock;
 
     @Autowired
-    private NotificationViewedHandler notificationViewedHandler;
+    private NotificationViewedRequestHandler notificationViewedRequestHandler;
 
     @Autowired
     private ChooseDeliveryModeHandler chooseDeliveryType;
@@ -266,13 +285,7 @@ class DigitalTestMultiRecipientIT {
         startWorkflowHandler.startWorkflow(iun);
 
         // Viene atteso fino a che non sia presente il REFINEMENT per entrambi i recipient
-        await().untilAsserted(() ->
-                Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex1, timelineService))
-        );
-
-        await().untilAsserted(() ->
-                Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex2, timelineService))
-        );
+        waitEndWorkflow(iun, recIndex1, recIndex2);
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
@@ -280,16 +293,7 @@ class DigitalTestMultiRecipientIT {
         Mockito.verify(externalChannelMock, Mockito.times(10)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
 
         //CHECK PRIMO RECIPIENT
-
-        //Viene verificata la disponibilità degli indirizzi per il primo recipient relativi al primo tentativo 
-        TestUtils.checkGetAddress(iun, recIndex1, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex1, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex1, false, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-
-        //Viene verificata la disponibilità degli indirizzi per il primo recipient relativi al secondo tentativo
-        TestUtils.checkGetAddress(iun, recIndex1, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex1, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex1, false, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        checkAddressAvailabilityFirstRecipient(iun, recIndex1);
 
         int sendAttemptMade = 0;
         //Viene verificato per il primo recipient che il primo tentativo sia avvenuto con il platform address e fallito
@@ -312,14 +316,7 @@ class DigitalTestMultiRecipientIT {
         //CHECK SECONDO RECIPIENT
 
         //Viene verificata la disponibilità degli indirizzi per il secondo recipient relativi al primo tentativo
-        TestUtils.checkGetAddress(iun, recIndex2, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex2, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex2, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-
-        //Viene verificata la disponibilità degli indirizzi per il secondo recipient relativi al secondo tentativo
-        TestUtils.checkGetAddress(iun, recIndex2, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex2, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex2, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        checkAddressAvailabilitySecondRecipient(iun, recIndex2);
 
         sendAttemptMade = 0;
         //Viene verificato per il secondo recipient che il primo tentativo sia avvenuto con il platform address e fallito
@@ -356,6 +353,28 @@ class DigitalTestMultiRecipientIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+    }
+
+    private void checkAddressAvailabilityFirstRecipient(String iun, int recIndex1) {
+        //Viene verificata la disponibilità degli indirizzi per il primo recipient relativi al primo tentativo 
+        TestUtils.checkGetAddress(iun, recIndex1, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex1, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex1, false, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+
+        //Viene verificata la disponibilità degli indirizzi per il primo recipient relativi al secondo tentativo
+        TestUtils.checkGetAddress(iun, recIndex1, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex1, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex1, false, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+    }
+
+    private void waitEndWorkflow(String iun, int recIndex1, int recIndex2) {
+        await().untilAsserted(() ->
+                Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex1, timelineService))
+        );
+
+        await().untilAsserted(() ->
+                Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex2, timelineService))
+        );
     }
 
     private void checkGeneratedLegalFacts(NotificationRecipientInt recipient1, NotificationInt notification, int recIndex1, boolean isNotificationReceivedLegalFactsGenerated, boolean isNotificationAARGenerated, boolean isNotificationViewedLegalFactGenerated, boolean isPecDeliveryWorkflowLegalFactsGenerated, EndWorkflowStatus endWorkflowStatus, int i) {
@@ -492,14 +511,7 @@ class DigitalTestMultiRecipientIT {
         //CHECK PRIMO RECIPIENT
 
         //Viene verificata la disponibilità degli indirizzi per il primo recipient relativi al primo tentativo 
-        TestUtils.checkGetAddress(iun, recIndex1, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex1, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex1, false, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-
-        //Viene verificata la disponibilità degli indirizzi per il primo recipient relativi al secondo tentativo
-        TestUtils.checkGetAddress(iun, recIndex1, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex1, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex1, false, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        checkAddressAvailabilityFirstRecipient(iun, recIndex1);
 
         int sendAttemptMade = 0;
         //Viene verificato per il primo recipient che il primo tentativo sia avvenuto con il platform address e fallito
@@ -522,14 +534,7 @@ class DigitalTestMultiRecipientIT {
         //CHECK SECONDO RECIPIENT
 
         //Viene verificata la disponibilità degli indirizzi per il secondo recipient relativi al primo tentativo
-        TestUtils.checkGetAddress(iun, recIndex2, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex2, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex2, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-
-        //Viene verificata la disponibilità degli indirizzi per il secondo recipient relativi al secondo tentativo
-        TestUtils.checkGetAddress(iun, recIndex2, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex2, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex2, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        checkAddressAvailabilitySecondRecipient(iun, recIndex2);
 
         sendAttemptMade = 0;
         //Viene verificato per il secondo recipient che il primo tentativo sia avvenuto con il platform address e fallito
@@ -566,6 +571,17 @@ class DigitalTestMultiRecipientIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+    }
+
+    private void checkAddressAvailabilitySecondRecipient(String iun, int recIndex2) {
+        TestUtils.checkGetAddress(iun, recIndex2, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex2, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex2, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+
+        //Viene verificata la disponibilità degli indirizzi per il secondo recipient relativi al secondo tentativo
+        TestUtils.checkGetAddress(iun, recIndex2, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex2, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex2, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
     }
 
     // il primo destinatario è raggiungibile, il secondo è UNREACHBLE
@@ -648,13 +664,7 @@ class DigitalTestMultiRecipientIT {
         startWorkflowHandler.startWorkflow(iun);
 
         // Viene atteso fino a che non sia presente il REFINEMENT per entrambi i recipient
-        await().untilAsserted(() ->
-                Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex1, timelineService))
-        );
-
-        await().untilAsserted(() ->
-                Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex2, timelineService))
-        );
+        waitEndWorkflow(iun, recIndex1, recIndex2);
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
@@ -792,13 +802,7 @@ class DigitalTestMultiRecipientIT {
         startWorkflowHandler.startWorkflow(iun);
 
         // Viene atteso fino a che non sia presente il REFINEMENT per entrambi i recipient
-        await().untilAsserted(() ->
-                Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex1, timelineService))
-        );
-
-        await().untilAsserted(() ->
-                Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex2, timelineService))
-        );
+        waitEndWorkflow(iun, recIndex1, recIndex2);
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
@@ -1389,13 +1393,7 @@ class DigitalTestMultiRecipientIT {
         Mockito.verify(externalChannelMock, Mockito.times(2)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString());
 
         // Viene atteso fino a che non sia presente il REFINEMENT per entrambi i recipient
-        await().untilAsserted(() ->
-                Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex1, timelineService))
-        );
-
-        await().untilAsserted(() ->
-                Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex2, timelineService))
-        );
+        waitEndWorkflow(iun, recIndex1, recIndex2);
 
         //CHECK PRIMO RECIPIENT
 

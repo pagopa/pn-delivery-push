@@ -37,7 +37,6 @@ class TestDao<T>  {
         }
 
         public T get(String pk, String sk) throws ExecutionException, InterruptedException {
-            Thread.sleep(500);
             GetItemEnhancedRequest req = GetItemEnhancedRequest.builder()
                     .key(getKeyBuild(pk, sk))
                     .build();

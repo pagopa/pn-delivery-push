@@ -63,6 +63,14 @@ public class NotificationTestBuilder {
     }
     
     public NotificationInt build() {
+        if(iun == null){
+            iun = "generatedIun";
+        }
+        
+        if(paId == null){
+            paId = "generatedPaId";
+        }
+        
         if( notificationDocument.isEmpty() ){
             String fileDoc = "sha256_doc00";
 

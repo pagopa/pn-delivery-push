@@ -1,11 +1,13 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowUtils;
 import it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfo;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressFeedback;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -52,7 +54,7 @@ class DigitalWorkFlowUtilsTest {
     void getNextAddressInfo() {
         // GIVEN
         DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.GENERAL;
-        DigitalAddressInfo addressInfo = DigitalAddressInfo.builder()
+        DigitalAddressInfoSentAttempt addressInfo = DigitalAddressInfoSentAttempt.builder()
                 .lastAttemptDate(Instant.now())
                 .sentAttemptMade(0)
                 .digitalAddressSource(DigitalAddressSourceInt.SPECIAL)
@@ -68,7 +70,7 @@ class DigitalWorkFlowUtilsTest {
 
         Mockito.when(timelineService.getTimeline("1", true)).thenReturn(timeline);
 
-        DigitalAddressInfo tmp = digitalWorkFlowUtils.getNextAddressInfo("1", 1, addressInfo);
+        DigitalAddressInfoSentAttempt tmp = digitalWorkFlowUtils.getNextAddressInfo("1", 1, addressInfo);
 
         Assertions.assertNotNull(tmp);
     }
@@ -136,7 +138,7 @@ class DigitalWorkFlowUtilsTest {
         String iun = "test_1234";
         Integer recIndex = 1;
 
-        DigitalAddressInfo lastAttemptMade = DigitalAddressInfo.builder()
+        DigitalAddressInfoSentAttempt lastAttemptMade = DigitalAddressInfoSentAttempt.builder()
                 .lastAttemptDate(Instant.now())
                 .sentAttemptMade(0)
                 .digitalAddressSource(DigitalAddressSourceInt.SPECIAL)
@@ -256,27 +258,29 @@ class DigitalWorkFlowUtilsTest {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
+        DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
+                .retryNumber(1)
+                .eventTimestamp(eventTimestamp)
+                .digitalAddressSource(DigitalAddressSourceInt.PLATFORM)
+                .digitalAddress(legalDigitalAddressInt)
+                .build();
+        
         Mockito.when(timelineUtils.buildDigitalFeedbackTimelineElement(
                 notification,
                 status,
-                Collections.EMPTY_LIST,
+                Collections.emptyList(),
                 1,
-                1,
-                legalDigitalAddressInt,
-                DigitalAddressSourceInt.PLATFORM,
-                digitalMessageReference,
-                eventTimestamp)).thenReturn(timelineElementInternal);
+                digitalMessageReference, 
+                        digitalAddressFeedback))
+                .thenReturn(timelineElementInternal);
 
         digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(
                 notification,
                 status,
-                Collections.EMPTY_LIST,
+                Collections.emptyList(),
                 1,
-                1,
-                legalDigitalAddressInt,
-                DigitalAddressSourceInt.PLATFORM,
                 digitalMessageReference,
-                eventTimestamp);
+                digitalAddressFeedback);
 
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);
     }
@@ -298,13 +302,31 @@ class DigitalWorkFlowUtilsTest {
         timelineElementInternalSet.add(timelineElementInternal);
 
         Mockito.when(timelineService.getTimelineByIunTimelineId("IUN_01", "IUN_01_digital_delivering_progress_1_source_SPECIAL_attempt_1_progidx_", Boolean.FALSE)).thenReturn(timelineElementInternalSet);
-        Mockito.when(timelineUtils.buildDigitalProgressFeedbackTimelineElement(notification,
-                recIndex, sentAttemptMade, eventCode, shouldRetry, digitalAddressInt, digitalAddressSourceInt, digitalMessageReference, 2, eventTimestamp)).thenReturn(timelineElementInternal);
+
+        DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
+                .retryNumber(sentAttemptMade)
+                .eventTimestamp(eventTimestamp)
+                .digitalAddressSource(digitalAddressSourceInt)
+                .digitalAddress(digitalAddressInt)
+                .build();
+        
+        Mockito.when(timelineUtils.buildDigitalProgressFeedbackTimelineElement(
+                notification,
+                recIndex, 
+                eventCode, 
+                shouldRetry, 
+                digitalMessageReference, 
+                2,
+                digitalAddressFeedback
+        )).thenReturn(timelineElementInternal);
 
         digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(
-                notification, eventCode, recIndex, sentAttemptMade,
-                digitalAddressInt, digitalAddressSourceInt, shouldRetry,
-                digitalMessageReference, eventTimestamp
+                notification, 
+                eventCode, 
+                recIndex, 
+                shouldRetry,
+                digitalMessageReference,
+                digitalAddressFeedback
         );
 
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);
