@@ -13,6 +13,7 @@ public class NotificationRecipientTestBuilder {
     private String internalId;
     private LegalDigitalAddressInt digitalDomicile;
     private NotificationPaymentInfoInt payment;
+    private RecipientTypeInt recipientType;
     
     public static NotificationRecipientTestBuilder builder() {
         return new NotificationRecipientTestBuilder();
@@ -43,6 +44,11 @@ public class NotificationRecipientTestBuilder {
         this.payment = payment;
         return this;
     }
+    
+    public NotificationRecipientTestBuilder withRecipientType(RecipientTypeInt recipientType) {
+      this.recipientType = recipientType;
+      return this;
+  }
     
     public NotificationRecipientInt build() {
         return NotificationRecipientInt.builder()

@@ -1,7 +1,10 @@
 package it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.mapper;
 
+import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.entity.ActionDetailsEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.entity.FutureActionEntity;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionDetails;
+import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 
 public class DtoToEntityFutureActionMapper {
     private DtoToEntityFutureActionMapper() {
@@ -16,8 +19,10 @@ public class DtoToEntityFutureActionMapper {
                 .type(dto.getType())
                 .timelineId(dto.getTimelineId())
                 .iun(dto.getIun())
-                .details(dto.getDetails());
+                .details(dtoToDetailsEntity(dto.getDetails()));
         return builder.build();
     }
-
+    private static ActionDetailsEntity dtoToDetailsEntity(ActionDetails details) {
+      return SmartMapper.mapToClass(details, ActionDetailsEntity.class );
+    }
 }

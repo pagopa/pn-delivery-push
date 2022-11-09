@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.action;
 
 
 import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
 import it.pagopa.pn.deliverypush.action.utils.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
@@ -60,7 +61,7 @@ public class StartWorkflowHandler {
     public void startWorkflow(String iun) {
         log.info("Start notification process - iun={}", iun);
         NotificationInt notification = notificationService.getNotificationByIun(iun);
-        Map<String, String> quickAccessLinkTokens = Map.of();
+        Map<String, String> quickAccessLinkTokens = notificationService.getRecipientsQuickAccessLinkToken(iun);
         try {
             //Validazione degli allegati della notifica
             attachmentUtils.validateAttachment(notification);
@@ -70,7 +71,7 @@ public class StartWorkflowHandler {
             for (NotificationRecipientInt recipient : notification.getRecipients()) {
                 Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
                 String quickAccessLinkToken = quickAccessLinkTokens.get(recipient.getInternalId()); 
-                scheduleStartRecipientWorkflow(iun, recIndex, quickAccessLinkToken);
+                scheduleStartRecipientWorkflow(iun, recIndex, new RecipientsWorkflowDetails(quickAccessLinkToken));
             }
         } catch (PnValidationException ex) {
             handleValidationError(notification, ex);
@@ -88,11 +89,9 @@ public class StartWorkflowHandler {
         addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification, legalFactId), notification);
     }
     
-    private void scheduleStartRecipientWorkflow(String iun, Integer recIndex, String quickAccessLinkToken) {
+    private void scheduleStartRecipientWorkflow(String iun, Integer recIndex, RecipientsWorkflowDetails details) {
         Instant schedulingDate = Instant.now();
         log.info("Scheduling start workflow for recipient schedulingDate={} - iun={} id={}", schedulingDate, iun, recIndex);
-        Map<String, String> details = new HashMap<>();
-        details.put("quickAccessLinkToken", quickAccessLinkToken);
         schedulerService.scheduleEvent(iun, recIndex, schedulingDate, ActionType.START_RECIPIENT_WORKFLOW, details);
     }
     

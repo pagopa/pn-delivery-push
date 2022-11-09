@@ -4,6 +4,7 @@ import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
+import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
@@ -66,7 +67,7 @@ class StartWorkflowForRecipientHandlerTest {
         Mockito.when(logEvent.generateSuccess()).thenReturn(logEvent);
 
         //WHEN
-        handler.startNotificationWorkflowForRecipient(notification.getIun(), 0, "quickAccessLinkTokenTest");
+        handler.startNotificationWorkflowForRecipient(notification.getIun(), 0, new RecipientsWorkflowDetails("test"));
         
         //THEN
         Mockito.verify(logEvent).generateSuccess();
@@ -91,7 +92,7 @@ class StartWorkflowForRecipientHandlerTest {
         
         //WHEN
         assertThrows(PnNotFoundException.class, () -> {
-            handler.startNotificationWorkflowForRecipient(iun, 0, "quickAccessLinkTokenTest");
+            handler.startNotificationWorkflowForRecipient(iun, 0, new RecipientsWorkflowDetails("test"));
         });
 
         //THEN

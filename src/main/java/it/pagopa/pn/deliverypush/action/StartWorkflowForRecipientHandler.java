@@ -4,6 +4,7 @@ import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
+import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
 import it.pagopa.pn.deliverypush.action.utils.AarUtils;
 import it.pagopa.pn.deliverypush.action.utils.CourtesyMessageUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -35,11 +36,11 @@ public class StartWorkflowForRecipientHandler {
         this.auditLogBuilder = pnAuditLogBuilder;
     }
 
-    public void startNotificationWorkflowForRecipient(String iun, int recIndex, String quickAccessLinkToken) {
+    public void startNotificationWorkflowForRecipient(String iun, int recIndex, RecipientsWorkflowDetails details) {
         log.info("Start notification workflow for recipient - iun {} id {}", iun, recIndex);
         
         NotificationInt notification = notificationService.getNotificationByIun(iun);
-        notification.getRecipients().get(recIndex).toBuilder().quickAccessLinkToken(quickAccessLinkToken);
+        notification.getRecipients().get(recIndex).toBuilder().quickAccessLinkToken(details.getQuickAccessLinkToken());
         generateAAR(notification, recIndex);
 
         //... Invio messaggio di cortesia ... 

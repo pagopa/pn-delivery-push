@@ -14,6 +14,7 @@ import org.mockito.Mockito;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Collections;
+import java.util.Map;
 
 class NotificationServiceImplTest {
 
@@ -55,6 +56,31 @@ class NotificationServiceImplTest {
         });
 
         Assertions.assertEquals(expectErrorMsg, pnInternalException.getProblem().getErrors().get(0).getCode());
+    }
+    
+    @Test
+    void getRecipientsQuickAccessLinkToken() {
+        Map<String, String> expected = Map.of("internalId","token");
+
+        Mockito.when(pnDeliveryClient.getQuickAccessLinkTokensPrivate("001")).thenReturn(ResponseEntity.ok(expected));
+
+        Map<String, String> actual = service.getRecipientsQuickAccessLinkToken("001");
+
+        Assertions.assertEquals(expected, actual);
+    }
+    
+    
+    @Test
+    void getRecipientsQuickAccessLinkTokenFailure() {
+       
+        Mockito.when(pnDeliveryClient.getQuickAccessLinkTokensPrivate("001"))
+        .thenReturn(ResponseEntity.internalServerError().body(Map.of()));
+
+
+        PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
+          service.getRecipientsQuickAccessLinkToken("001");
+      });
+        
     }
     
     private SentNotification buildSentNotification() {
