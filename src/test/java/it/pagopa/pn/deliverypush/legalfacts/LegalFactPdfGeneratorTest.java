@@ -12,6 +12,7 @@ import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -149,7 +150,18 @@ class LegalFactPdfGeneratorTest {
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
 
+	@Test 
+    void generateNotificationAARPGTest() throws IOException { 
+        Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
+        NotificationInt notificationInt = buildNotification();
+        NotificationRecipientInt  recipient = notificationInt.getRecipients().get(0).toBuilder().quickAccessLinkToken("test")
+            .recipientType(RecipientTypeInt.PG).build();
+        Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationAAR(notificationInt, recipient)));
+        System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+    }
 
+	
+	
 	@Test
 	void generateNotificationAAREmailTest() throws IOException {
 		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_EMAIL.html");

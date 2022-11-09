@@ -89,7 +89,4 @@ public class ActionEntity {
     return details;
   }
 
-  public void setDetails(ActionDetailsEntity details) {
-    this.details = details;
-  }
 }
