@@ -51,6 +51,14 @@ public class NotificationRecipientTestBuilder {
   }
     
     public NotificationRecipientInt build() {
+        if(taxId == null){
+            taxId = "generatedTestTaxId";
+        }
+        
+        if(internalId == null){
+            internalId = "ANON_"+taxId;
+        }
+        
         return NotificationRecipientInt.builder()
                 .recipientType(RecipientTypeInt.PF)
                 .taxId(taxId)

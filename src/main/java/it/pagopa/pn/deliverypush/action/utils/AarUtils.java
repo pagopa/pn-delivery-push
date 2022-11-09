@@ -43,7 +43,7 @@ public class AarUtils {
                             .build());
 
             Optional<TimelineElementInternal> timeline = timelineService.getTimelineElement(notification.getIun(), elementId);
-            if (!timeline.isPresent()) {
+            if (timeline.isEmpty()) {
                 PdfInfo pdfInfo = saveLegalFactsService.saveAAR(notification, notificationUtils.getRecipientFromIndex(notification, recIndex));
 
                 timelineService.addTimelineElement(

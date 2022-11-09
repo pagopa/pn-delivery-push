@@ -10,10 +10,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_NOTIFICATIONFAILED;
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_NOTIFICATION_RECIPIENTS_TOKEN_FAILED;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_RECIPIENTS_TOKEN_FAILED;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED;
 
 import java.util.Map;
+
 
 @Service
 @Slf4j
@@ -36,11 +37,11 @@ public class NotificationServiceImpl implements NotificationService {
                 return NotificationMapper.externalToInternal(sentNotification);
             } else {
                 log.error("Get notification is not valid for - iun {}", iun);
-                throw new PnInternalException("Get notification is not valid for - iun " + iun, ERROR_CODE_NOTIFICATIONFAILED);
+                throw new PnInternalException("Get notification is not valid for - iun " + iun, ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED);
             }
         } else {
             log.error("Get notification Failed for - iun {}", iun);
-            throw new PnInternalException("Get notification Failed for - iun " + iun, ERROR_CODE_NOTIFICATIONFAILED);
+            throw new PnInternalException("Get notification Failed for - iun " + iun, ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED);
         }
     }
     
@@ -54,7 +55,7 @@ public class NotificationServiceImpl implements NotificationService {
             return resp.getBody();        
         } else {
             log.error("Get QuickAccessLinkToken Failed for - iun {}", iun);
-            throw new PnInternalException("Get QuickAccessLinkToken Failed for - iun " + iun, ERROR_CODE_NOTIFICATION_RECIPIENTS_TOKEN_FAILED);
+            throw new PnInternalException("Get QuickAccessLinkToken Failed for - iun " + iun, ERROR_CODE_DELIVERYPUSH_RECIPIENTS_TOKEN_FAILED);
         }
     }
 }

@@ -73,7 +73,7 @@ public class PaperNotificationFailedEntityDaoDynamo extends AbstractDynamoKeyVal
             keyValues.put("recipient", value.getRecipientId());
 
             throw new PnIdConflictException(
-                    PnDeliveryPushExceptionCodes.ERROR_CODE_DUPLICATED_ITEMD,
+                    PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_DUPLICATED_ITEMD,
                     keyValues,
                     ex
             );

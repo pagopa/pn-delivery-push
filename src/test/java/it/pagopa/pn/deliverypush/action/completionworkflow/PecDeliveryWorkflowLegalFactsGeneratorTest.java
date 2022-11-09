@@ -1,10 +1,10 @@
-package it.pagopa.pn.deliverypush.action.utils;
+package it.pagopa.pn.deliverypush.action.completionworkflow;
 
-import it.pagopa.pn.commons.utils.DateFormatUtils;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
+import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
+import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -12,29 +12,25 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneOffset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 
 import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK;
 
-class CompletionWorkflowUtilsTest {
-    private CompletionWorkflowUtils completionWorkflowUtils;
-
-    @Mock
-    private PnDeliveryPushConfigs pnDeliveryPushConfigs;
+class PecDeliveryWorkflowLegalFactsGeneratorTest {
     @Mock
     private TimelineService timelineService;
     @Mock
@@ -42,16 +38,22 @@ class CompletionWorkflowUtilsTest {
     @Mock
     private NotificationUtils notificationUtils;
 
+    private PecDeliveryWorkflowLegalFactsGenerator pecDeliveryWorkflowLegalFactsGenerator;
+    
     @BeforeEach
     public void setup() {
-        completionWorkflowUtils = new CompletionWorkflowUtils(pnDeliveryPushConfigs, timelineService, saveLegalFactsService, notificationUtils);
+        pecDeliveryWorkflowLegalFactsGenerator = new PecDeliveryWorkflowLegalFactsGenerator(
+                timelineService,
+                saveLegalFactsService,
+                notificationUtils
+        );
     }
-
-    @ExtendWith(MockitoExtension.class)
+    
     @Test
-    void generatePecDeliveryWorkflowLegalFactWithFeedback() {
+    @ExtendWith(SpringExtension.class)
+    void generatePecDeliveryWorkflowLegalFact() {
         //GIVEN
-        
+
         int recIndex = 0;
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId("taxId")
@@ -68,20 +70,21 @@ class CompletionWorkflowUtilsTest {
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
-        
+
         List<TimelineElementInternal> timeline = getTimeline(notification.getIun(), recIndex);
-        
+
         Mockito.when(timelineService.getTimeline(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(new HashSet<>(timeline));
         Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
         
-        //WHEN
         EndWorkflowStatus status = EndWorkflowStatus.SUCCESS;
         Instant completionWorkflowDate = Instant.now();
-        completionWorkflowUtils.generatePecDeliveryWorkflowLegalFact(notification, recIndex, status, completionWorkflowDate);
+
+        //WHEN
+        pecDeliveryWorkflowLegalFactsGenerator.generatePecDeliveryWorkflowLegalFact(notification, recIndex, status, completionWorkflowDate);
 
         TimelineElementInternal timelineElementInternal = timeline.get(0);
         SendDigitalFeedbackDetailsInt details = (SendDigitalFeedbackDetailsInt) timelineElementInternal.getDetails();
-        
+
         //THEN
         Mockito.verify(saveLegalFactsService).savePecDeliveryWorkflowLegalFact(
                 Collections.singletonList(details),
@@ -90,6 +93,7 @@ class CompletionWorkflowUtilsTest {
                 status,
                 completionWorkflowDate
         );
+
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -122,7 +126,7 @@ class CompletionWorkflowUtilsTest {
         //WHEN
         EndWorkflowStatus status = EndWorkflowStatus.SUCCESS;
         Instant completionWorkflowDate = Instant.now();
-        completionWorkflowUtils.generatePecDeliveryWorkflowLegalFact(notification, recIndex, status, completionWorkflowDate);
+        pecDeliveryWorkflowLegalFactsGenerator.generatePecDeliveryWorkflowLegalFact(notification, recIndex, status, completionWorkflowDate);
 
         TimelineElementInternal timelineElementInternal = timeline.get(0);
         SendDigitalFeedbackDetailsInt sendDigitalFeedbackDetailsInt = (SendDigitalFeedbackDetailsInt) timelineElementInternal.getDetails();
@@ -140,90 +144,6 @@ class CompletionWorkflowUtilsTest {
         );
     }
     
-    @ExtendWith(MockitoExtension.class)
-    @Test
-    void getSchedulingDateBeforeNotificationVisibilityTime() {
-        //GIVEN
-        Instant notificationDate = Instant.now();
-
-        notificationDate = notificationDate.atZone(ZoneOffset.UTC)
-                .withHour(13)
-                .withMinute(0)
-                .withSecond(0)
-                .withNano(0)
-                .toInstant();
-
-        Duration scheduleTime = Duration.ofDays(10);
-
-        TimeParams times = new TimeParams();
-        times.setNotificationNonVisibilityTime("21:00");
-        Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
-        
-        //WHEN
-        Instant schedulingDate = completionWorkflowUtils.getSchedulingDate(notificationDate, scheduleTime, "iun");
-
-        //THEN
-        Assertions.assertEquals(notificationDate.plus(scheduleTime) , schedulingDate);
-    }
-
-    @ExtendWith(MockitoExtension.class)
-    @Test
-    void getSchedulingDateAfterNotificationVisibilityTime() {
-        //GIVEN
-        Instant notificationDate = Instant.now();
-
-        notificationDate = notificationDate.atZone(DateFormatUtils.italianZoneId)
-                .withHour(21)
-                .withMinute(1)
-                .withSecond(0)
-                .withNano(0)
-                .toInstant();
-
-        Duration scheduleTime = Duration.ofDays(10);
-
-        TimeParams times = new TimeParams();
-        times.setNotificationNonVisibilityTime("21:00");
-        times.setTimeToAddInNonVisibilityTimeCase(Duration.ofDays(1));
-        Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
-
-        //WHEN
-        Instant schedulingDate = completionWorkflowUtils.getSchedulingDate(notificationDate, scheduleTime, "iun");
-        
-        //THEN
-        Duration scheduledTimeExpected = scheduleTime.plus(Duration.ofDays(1));
-        Assertions.assertEquals(notificationDate.plus(scheduledTimeExpected) , schedulingDate);
-    }
-
-    @ExtendWith(MockitoExtension.class)
-    @Test
-    void addTimelineElement() {
-        //GIVEN
-        TimelineElementInternal timelineElementInternal = getSendDigitalFeedbackDetailsTimelineElement("iun", 0);
-
-        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
-                .withTaxId("taxId")
-                .withInternalId("ANON_"+"taxId")
-                .withPhysicalAddress(
-                        PhysicalAddressBuilder.builder()
-                                .withAddress("_Via Nuova")
-                                .build()
-                )
-                .build();
-
-        NotificationInt notification = NotificationTestBuilder.builder()
-                .withIun("iun")
-                .withPaId("paId01")
-                .withNotificationRecipient(recipient)
-                .build();
-        
-        //WHEN
-        completionWorkflowUtils.addTimelineElement(timelineElementInternal, notification);
-        
-        //THEN
-        Mockito.verify(timelineService).addTimelineElement(timelineElementInternal, notification);
-    }
-
-
     private List<TimelineElementInternal> getTimeline(String iun, int recIndex){
         List<TimelineElementInternal> timelineElementList = new ArrayList<>();
         TimelineElementInternal timelineElementInternal = getSendDigitalFeedbackDetailsTimelineElement(iun, recIndex);
@@ -250,7 +170,7 @@ class CompletionWorkflowUtilsTest {
         timelineElementList.add(getRegisteredLetterDetailsTimelineElement(iun, recIndex));
         return timelineElementList;
     }
-    
+
     private TimelineElementInternal getRegisteredLetterDetailsTimelineElement(String iun, int recIndex) {
         SimpleRegisteredLetterDetailsInt details =  SimpleRegisteredLetterDetailsInt.builder()
                 .recIndex(recIndex)
@@ -265,7 +185,7 @@ class CompletionWorkflowUtilsTest {
                                 .foreignState("008").build()
                 )
                 .build();
-        
+
         return TimelineElementInternal.builder()
                 .elementId("elementId2")
                 .timestamp(Instant.now())
