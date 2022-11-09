@@ -2,8 +2,8 @@ package it.pagopa.pn.deliverypush.action.digitalworkflow;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
+import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
@@ -22,6 +22,7 @@ import it.pagopa.pn.deliverypush.service.ExternalChannelService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.PublicRegistryService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -32,8 +33,10 @@ import java.time.Instant;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_INVALIDATTEMPT;
 
 @Component
+@AllArgsConstructor
 @Slf4j
 public class DigitalWorkFlowHandler {
+    //FIXME Va ridotta la complessità di questa classe PN-2607
     public static final int MAX_ATTEMPT_NUMBER = 2;
 
     private final ExternalChannelService externalChannelService;
@@ -44,26 +47,7 @@ public class DigitalWorkFlowHandler {
     private final PublicRegistryService publicRegistryService;
     private final InstantNowSupplier instantNowSupplier;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
-
-    public DigitalWorkFlowHandler(ExternalChannelService externalChannelService,
-                                  NotificationService notificationService,
-                                  SchedulerService schedulerService,
-                                  DigitalWorkFlowUtils digitalWorkFlowUtils,
-                                  CompletionWorkFlowHandler completionWorkflow,
-                                  PublicRegistryService publicRegistryService,
-                                  InstantNowSupplier instantNowSupplier,
-                                  PnDeliveryPushConfigs pnDeliveryPushConfigs) {
-        this.externalChannelService = externalChannelService;
-        this.notificationService = notificationService;
-        this.schedulerService = schedulerService;
-        this.digitalWorkFlowUtils = digitalWorkFlowUtils;
-        this.completionWorkflow = completionWorkflow;
-        this.publicRegistryService = publicRegistryService;
-        this.instantNowSupplier = instantNowSupplier;
-        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
-    }
-
-
+    
     /**
      * Starting digital workflow sending notification information to external channel
      *
@@ -223,7 +207,6 @@ public class DigitalWorkFlowHandler {
                     addressInfo.getDigitalAddressSource(), iun, recIndex);
             
             digitalWorkFlowUtils.addAvailabilitySourceToTimeline(recIndex, notification, addressInfo.getDigitalAddressSource(), false, addressInfo.getSentAttemptMade());
-
             nextWorkFlowAction(notification, recIndex, addressInfo);
         }
     }
