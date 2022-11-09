@@ -50,10 +50,10 @@ public class HtmlSanitizer {
         try {
 
             if (model instanceof Map) {
-                return doSanitize((Map) model);
+                return doSanitize((Map<Object, Object>) model);
             }
             if (model instanceof Collection) {
-                return doSanitize((Collection) model);
+                return doSanitize((Collection<Object>) model);
             }
 
             return doSanitize(model);
@@ -74,7 +74,7 @@ public class HtmlSanitizer {
         return objectMapper.readValue(htmlSanitizerJsonParserDelegate, model.getClass());
     }
 
-    public Map doSanitize(Map modelMap) {
+    public Map<Object, Object> doSanitize(Map<Object, Object> modelMap) {
         if (CollectionUtils.isEmpty(modelMap)) {
             return modelMap;
         }
@@ -90,25 +90,25 @@ public class HtmlSanitizer {
 
     }
 
-    private Map copyMap(Map map) {
+    private Map<Object, Object> copyMap(Map<Object, Object> map) {
         if (map instanceof SortedMap) {
-            return new TreeMap((SortedMap) map);
+            return new TreeMap<>((SortedMap<Object, Object>) map);
         }
         if (map instanceof ConcurrentMap) {
-            return new ConcurrentHashMap(map);
+            return new ConcurrentHashMap<>(map);
         }
         if (map instanceof LinkedHashMap) {
-            return new LinkedHashMap(map);
+            return new LinkedHashMap<>(map);
         }
-        return new HashMap(map);
+        return new HashMap<>(map);
     }
 
-    public Collection doSanitize(Collection collection) {
+    public Collection<Object> doSanitize(Collection<Object> collection) {
         if (CollectionUtils.isEmpty(collection)) {
             return collection;
         }
 
-        Collection sanitizedCollection = createCollectionInstance(collection);
+        Collection<Object> sanitizedCollection = createCollectionInstance(collection);
 
         for (Object o : collection) {
             Object sanitized = sanitize(o);
@@ -117,29 +117,29 @@ public class HtmlSanitizer {
         return sanitizedCollection;
     }
 
-    private Collection createCollectionInstance(Collection collection) {
+    private Collection<Object> createCollectionInstance(Collection<Object> collection) {
         if (collection instanceof Set) {
-            return createSetInstance((Set) collection);
+            return createSetInstance((Set<Object>) collection);
         }
 
-        return createListInstance((List) collection);
+        return createListInstance((List<Object>) collection);
     }
 
-    private Set createSetInstance(Set set) {
+    private Set<Object> createSetInstance(Set<Object> set) {
         if (set instanceof SortedSet) {
-            return new TreeSet();
+            return new TreeSet<>();
         }
         if (set instanceof LinkedHashSet) {
-            return new LinkedHashSet();
+            return new LinkedHashSet<>();
         }
-        return new HashSet();
+        return new HashSet<>();
     }
 
-    private List createListInstance(List list) {
+    private List<Object> createListInstance(List<Object> list) {
         if (list instanceof AbstractSequentialList) {
-            return new LinkedList();
+            return new LinkedList<>();
         }
-        return new ArrayList();
+        return new ArrayList<>();
     }
 
     public enum SanitizeMode {
