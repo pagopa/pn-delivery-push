@@ -36,7 +36,7 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 @AllArgsConstructor
 @Slf4j
 public class DigitalWorkFlowHandler {
-    //FIXME Va ridotta la complessità di questa classe PN-2607
+    //Va ridotta la complessità di questa classe PN-2607
     public static final int MAX_ATTEMPT_NUMBER = 2;
 
     private final ExternalChannelService externalChannelService;
