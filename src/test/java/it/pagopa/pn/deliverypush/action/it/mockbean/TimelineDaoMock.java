@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.action.NotificationViewedHandler;
+import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -13,8 +13,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.context.annotation.Lazy;
 
+import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 import static org.awaitility.Awaitility.await;
@@ -25,46 +28,59 @@ public class TimelineDaoMock implements TimelineDao {
     public static final String SIMULATE_RECIPIENT_WAIT = "simulate-recipient-wait";
     public static final String WAIT_SEPARATOR = "@@";
 
-    private Collection<TimelineElementInternal> timelineList;
-    private final NotificationViewedHandler notificationViewedHandler;
+    private final NotificationViewedRequestHandler notificationViewedRequestHandler;
+    private CopyOnWriteArrayList<TimelineElementInternal> timelineList;
     private final NotificationService notificationService;
     private final NotificationUtils notificationUtils;
 
-    public TimelineDaoMock(@Lazy NotificationViewedHandler notificationViewedHandler, @Lazy NotificationService notificationService,
+    public TimelineDaoMock(@Lazy NotificationViewedRequestHandler notificationViewedRequestHandler, @Lazy NotificationService notificationService,
                            @Lazy NotificationUtils notificationUtils) {
-        timelineList = Collections.synchronizedList(new ArrayList<>());
-        this.notificationViewedHandler = notificationViewedHandler;
+        this.notificationViewedRequestHandler = notificationViewedRequestHandler;
+        timelineList = new CopyOnWriteArrayList<>();
         this.notificationService = notificationService;
         this.notificationUtils = notificationUtils;
     }
 
     public void clear() {
-        this.timelineList = new ArrayList<>();
+        this.timelineList = new CopyOnWriteArrayList<>();
     }
 
     private void checkAndAddTimelineElement(TimelineElementInternal dto) {
+        log.info("Start checkAndAddTimelineElement {}", dto);
+
         if( dto.getDetails() != null && dto.getDetails() instanceof RecipientRelatedTimelineElementDetails){
-            
+
+            log.info("Ok details is present {}", dto);
+
             NotificationRecipientInt notificationRecipientInt = getRecipientInt(dto);
             String simulateViewNotificationString = SIMULATE_VIEW_NOTIFICATION + dto.getElementId();
             String simulateRecipientWaitString = SIMULATE_RECIPIENT_WAIT + dto.getElementId();
 
             if(notificationRecipientInt.getTaxId().startsWith(simulateViewNotificationString)){
+                log.info("Simulate view notification {}", dto);
                 //Viene simulata la visualizzazione della notifica prima di uno specifico inserimento in timeline
-                notificationViewedHandler.handleViewNotification( dto.getIun(), ((RecipientRelatedTimelineElementDetails) dto.getDetails()).getRecIndex(), Instant.now());
+                notificationViewedRequestHandler.handleViewNotification( dto.getIun(), ((RecipientRelatedTimelineElementDetails) dto.getDetails()).getRecIndex(), Instant.now());
             }else if(notificationRecipientInt.getTaxId().startsWith(simulateRecipientWaitString)){
                 //Viene simulata l'attesa in un determinato stato (elemento di timeline) per uno specifico recipient. 
                 // L'attesa dura fino all'inserimento in timeline di un determinato elemento per un altro recipient
                 String waitForElementId = notificationRecipientInt.getTaxId().replaceFirst(".*" + WAIT_SEPARATOR, "");
-                await().untilAsserted(() ->
+                log.info("Wait for elementId {}", waitForElementId);
+
+                await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
                         Assertions.assertTrue(getTimelineElement(dto.getIun(), waitForElementId).isPresent())
                 );
             }
         }
 
+        log.info("Add timeline element {}", dto);
+
         timelineList.add(dto);
     }
-
+    
+    public void addTimelineElement(TimelineElementInternal dto){
+        timelineList.add(dto);
+    }
+    
     @Override
     public void addTimelineElementIfAbsent(TimelineElementInternal dto) {
         checkAndAddTimelineElement(dto);

@@ -5,15 +5,16 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault.Pn
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class PnDataVaultClientMock implements PnDataVaultClient {
-    Map<String, ConfidentialTimelineElementDto> confidentialMap;
+    ConcurrentMap<String, ConfidentialTimelineElementDto> confidentialMap;
     
     public void clear() {
-        this.confidentialMap = new HashMap<>();
+        this.confidentialMap = new ConcurrentHashMap<>();
     }
 
     @Override

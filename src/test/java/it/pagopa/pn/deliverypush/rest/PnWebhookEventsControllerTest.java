@@ -100,7 +100,7 @@ class PnWebhookEventsControllerTest {
                 );
     }
 
-    @Test @Disabled("enable after PN-2330")
+    @Test
     void consumeEventStreamKoBadRequest() {
 
         Mockito.when(service.consumeEventStream(Mockito.anyString(), Mockito.any(), Mockito.any()))

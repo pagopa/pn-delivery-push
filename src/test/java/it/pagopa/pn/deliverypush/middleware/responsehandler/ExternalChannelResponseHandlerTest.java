@@ -5,8 +5,8 @@ import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.Leg
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.PaperProgressStatusEvent;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.ProgressEventCategory;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.SingleStatusUpdate;
-import it.pagopa.pn.deliverypush.action.AnalogWorkflowHandler;
-import it.pagopa.pn.deliverypush.action.DigitalWorkFlowExternalChannelResponseHandler;
+import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelAnalogSentResponseInt;

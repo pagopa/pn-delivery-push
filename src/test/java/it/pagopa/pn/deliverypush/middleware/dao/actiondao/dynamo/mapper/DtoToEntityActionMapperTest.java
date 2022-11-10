@@ -12,11 +12,10 @@ class DtoToEntityActionMapperTest {
 
     @Test
     void dtoToEntity() {
-        DtoToEntityActionMapper mapper = new DtoToEntityActionMapper();
         Action action = buildAction();
         ActionEntity expected = buildActionEntity();
 
-        ActionEntity actual = mapper.dtoToEntity(action);
+        ActionEntity actual = DtoToEntityActionMapper.dtoToEntity(action);
 
         Assertions.assertEquals(expected, actual);
     }

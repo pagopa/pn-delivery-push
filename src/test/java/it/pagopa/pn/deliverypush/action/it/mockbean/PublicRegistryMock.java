@@ -7,15 +7,14 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.publicregistry.Public
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
 import org.junit.jupiter.api.Assertions;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class PublicRegistryMock implements PublicRegistry {
 
-    public static final int WAITING_TIME = 100;
     private final PublicRegistryResponseHandler publicRegistryResponseHandler;
-    private Map<String, LegalDigitalAddressInt> digitalAddressResponse;
-    private Map<String, PhysicalAddressInt> physicalAddressResponse;
+    private ConcurrentMap<String, LegalDigitalAddressInt> digitalAddressResponse;
+    private ConcurrentMap<String, PhysicalAddressInt> physicalAddressResponse;
 
 
     public PublicRegistryMock(
@@ -25,8 +24,8 @@ public class PublicRegistryMock implements PublicRegistry {
     }
 
     public void clear() {
-        this.digitalAddressResponse = new HashMap<>();
-        this.physicalAddressResponse = new HashMap<>();
+        this.digitalAddressResponse = new ConcurrentHashMap<>();
+        this.physicalAddressResponse = new ConcurrentHashMap<>();
     }
 
     public void addDigital(String key, LegalDigitalAddressInt value) {
@@ -41,13 +40,7 @@ public class PublicRegistryMock implements PublicRegistry {
     public void sendRequestForGetDigitalAddress(String taxId, String correlationId) {
         new Thread(() -> {
             Assertions.assertDoesNotThrow(() -> {
-                try {
-                    Thread.sleep(WAITING_TIME);
-                } catch (InterruptedException exc) {
-                    throw new RuntimeException( exc );
-                }
                 simulateDigitalAddressResponse(taxId, correlationId);
-
             });
         }).start();
     }
@@ -66,13 +59,7 @@ public class PublicRegistryMock implements PublicRegistry {
     public void sendRequestForGetPhysicalAddress(String taxId, String correlationId) {
         new Thread(() -> {
             Assertions.assertDoesNotThrow(() -> {
-                try {
-                    Thread.sleep(WAITING_TIME);
-                } catch (InterruptedException exc) {
-                    throw new RuntimeException( exc );
-                }
                 simulatePhysicalAddressResponse(taxId, correlationId);
-
             });
         }).start();
     }

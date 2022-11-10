@@ -106,7 +106,22 @@ class TimelineUtilsTest {
                 .address("Via nuova")
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
-        TimelineElementInternal actual = timelineUtils.buildDigitalFeedbackTimelineElement(notification, ResponseStatusInt.OK, Collections.EMPTY_LIST, 1, 1, legalDigitalAddressInt, DigitalAddressSourceInt.GENERAL, DigitalMessageReferenceInt.builder().build(), eventTimestamp);
+
+        DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
+                .retryNumber(1)
+                .eventTimestamp(eventTimestamp)
+                .digitalAddressSource(DigitalAddressSourceInt.GENERAL)
+                .digitalAddress(legalDigitalAddressInt)
+                .build();
+        
+        TimelineElementInternal actual = 
+                timelineUtils.buildDigitalFeedbackTimelineElement(
+                        notification, 
+                        ResponseStatusInt.OK,
+                        Collections.emptyList(),
+                        1,
+                        DigitalMessageReferenceInt.builder().build(),
+                        digitalAddressFeedback );
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
@@ -130,8 +145,24 @@ class TimelineUtilsTest {
         DigitalMessageReferenceInt digitalMessageReference = DigitalMessageReferenceInt.builder().build();
         int progressIndex = 1;
         Instant eventTimestamp = Instant.parse("2021-09-16T15:24:00.00Z");
-        TimelineElementInternal actual = timelineUtils.buildDigitalProgressFeedbackTimelineElement(notification,
-                recIndex, sentAttemptMade, eventCode, shouldRetry, digitalAddressInt, digitalAddressSourceInt, digitalMessageReference, progressIndex, eventTimestamp);
+        
+        DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
+                .retryNumber(sentAttemptMade)
+                .eventTimestamp(eventTimestamp)
+                .digitalAddressSource(digitalAddressSourceInt)
+                .digitalAddress(digitalAddressInt)
+                .build();
+        
+        TimelineElementInternal actual = timelineUtils.buildDigitalProgressFeedbackTimelineElement(
+                notification,
+                recIndex,
+                eventCode, 
+                shouldRetry, 
+                digitalMessageReference, 
+                progressIndex,
+                digitalAddressFeedback
+        );
+        
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
                 () -> Assertions.assertEquals("Example_IUN_1234_Test_digital_delivering_progress_1_source_GENERAL_attempt_1_progidx_1", actual.getElementId()),
@@ -405,7 +436,7 @@ class TimelineUtilsTest {
     void buildScheduleDigitalWorkflowTimeline() {
         NotificationInt notification = buildNotification();
         Integer recIndex = 1;
-        DigitalAddressInfo lastAttemptInfo = DigitalAddressInfo.builder()
+        DigitalAddressInfoSentAttempt lastAttemptInfo = DigitalAddressInfoSentAttempt.builder()
                 .sentAttemptMade(1)
                 .lastAttemptDate(Instant.now())
                 .digitalAddressSource(DigitalAddressSourceInt.GENERAL)

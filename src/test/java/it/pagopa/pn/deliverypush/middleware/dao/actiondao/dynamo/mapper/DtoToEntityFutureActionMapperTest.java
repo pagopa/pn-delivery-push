@@ -12,10 +12,9 @@ class DtoToEntityFutureActionMapperTest {
 
     @Test
     void dtoToEntity() {
-        DtoToEntityFutureActionMapper mapper = new DtoToEntityFutureActionMapper();
         Action action = buildAction();
         FutureActionEntity expected = buildFutureActionEntity();
-        FutureActionEntity actual = mapper.dtoToEntity(action, "2021-09-16T15:24:00.00Z");
+        FutureActionEntity actual = DtoToEntityFutureActionMapper.dtoToEntity(action, "2021-09-16T15:24:00.00Z");
         Assertions.assertEquals(expected, actual);
     }
 

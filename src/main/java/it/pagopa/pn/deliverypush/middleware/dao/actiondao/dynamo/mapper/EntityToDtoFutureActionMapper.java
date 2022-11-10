@@ -2,13 +2,11 @@ package it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.mapper;
 
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.entity.FutureActionEntity;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
-import org.springframework.stereotype.Component;
 
-@Component
 public class EntityToDtoFutureActionMapper {
-
-
-    public Action entityToDto(FutureActionEntity entity) {
+    private EntityToDtoFutureActionMapper(){}
+    
+    public static Action entityToDto(FutureActionEntity entity) {
         Action.ActionBuilder builder = Action.builder()
                 .actionId(entity.getActionId())
                 .notBefore(entity.getNotBefore())

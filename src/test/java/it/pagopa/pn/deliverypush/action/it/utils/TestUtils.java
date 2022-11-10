@@ -2,7 +2,7 @@ package it.pagopa.pn.deliverypush.action.it.utils;
 
 import it.pagopa.pn.commons.utils.DateFormatUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.action.CompletionWorkFlowHandler;
+import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock;
 import it.pagopa.pn.deliverypush.action.it.mockbean.SafeStorageClientMock;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
@@ -311,7 +311,7 @@ public class TestUtils {
         Assertions.assertEquals(status, details.getResponseStatus());
     }
     
-    public static NotificationStatusInt getNotificationStatus(NotificationInt notification, TimelineService timelineService, StatusUtils statusUtils){
+    public synchronized static NotificationStatusInt getNotificationStatus(NotificationInt notification, TimelineService timelineService, StatusUtils statusUtils){
         int numberOfRecipient = notification.getRecipients().size();
         Instant notificationCreatedAt = notification.getSentAt();
 

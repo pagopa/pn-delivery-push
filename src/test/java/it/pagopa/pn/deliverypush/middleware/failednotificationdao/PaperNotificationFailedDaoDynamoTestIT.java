@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.failednotificationdao;
 
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
+import it.pagopa.pn.deliverypush.LocalStackTestConfig;
 import it.pagopa.pn.deliverypush.dto.papernotificationfailed.PaperNotificationFailed;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedEntityDao;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -21,13 +23,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = {
         TimelineDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
-        PaperNotificationFailedDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
-        "aws.region-code=us-east-1",
-        "aws.profile-name=${PN_AWS_PROFILE_NAME:default}",
-        "aws.endpoint-url=http://localhost:4566",
-        "aws.region-code=us-east-1"
+        PaperNotificationFailedDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO
 })
 @SpringBootTest
+@Import(LocalStackTestConfig.class)
 class PaperNotificationFailedDaoDynamoTestIT {
 
     @Autowired

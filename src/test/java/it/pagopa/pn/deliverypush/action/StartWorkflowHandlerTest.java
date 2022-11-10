@@ -1,7 +1,8 @@
 package it.pagopa.pn.deliverypush.action;
 
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.deliverypush.action.utils.AttachmentUtils;
+import it.pagopa.pn.deliverypush.action.startworkflow.StartWorkflowHandler;
+import it.pagopa.pn.deliverypush.action.startworkflow.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;

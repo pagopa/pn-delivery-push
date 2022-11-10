@@ -43,7 +43,7 @@ public class AarUtils {
                             .build());
 
             Optional<TimelineElementInternal> timeline = timelineService.getTimelineElement(notification.getIun(), elementId);
-            if (!timeline.isPresent()) {
+            if (timeline.isEmpty()) {
                 PdfInfo pdfInfo = saveLegalFactsService.saveAAR(notification, notificationUtils.getRecipientFromIndex(notification, recIndex));
 
                 timelineService.addTimelineElement(
@@ -72,7 +72,7 @@ public class AarUtils {
                 timelineService.getTimelineElementDetails(notification.getIun(), aarGenerationEventId, AarGenerationDetailsInt.class);
 
         if (detailOpt.isEmpty() || !StringUtils.hasText(detailOpt.get().getGeneratedAarUrl()) || detailOpt.get().getNumberOfPages() == null) {
-            log.error("cannot retreieve AAR pdf safestoragekey iun={}", notification.getIun());
+            log.error("Cannot retreieve AAR pdf safestoragekey iun={} detail={}", notification.getIun(), detailOpt);
             throw new PnInternalException("cannot retreieve AAR pdf safestoragekey", ERROR_CODE_DELIVERYPUSH_GENERATEPDFFAILED);
         }
         return detailOpt.get();

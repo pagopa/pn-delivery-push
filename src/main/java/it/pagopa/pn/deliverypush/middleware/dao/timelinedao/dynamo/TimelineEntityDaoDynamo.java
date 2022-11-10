@@ -94,7 +94,7 @@ public class TimelineEntityDaoDynamo  extends AbstractDynamoKeyValueStore<Timeli
         } catch (ConditionalCheckFailedException ex){
             log.warn("Conditional check exception on TimelineEntityDaoDynamo putIfAbsent timelineId=" + value.getTimelineElementId() + " exmessage=" + ex.getMessage());
             throw new PnIdConflictException(
-                    PnDeliveryPushExceptionCodes.ERROR_CODE_DUPLICATED_ITEMD,
+                    PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_DUPLICATED_ITEMD,
                     Collections.singletonMap("timelineElementId", value.getTimelineElementId()),
                     ex
             );

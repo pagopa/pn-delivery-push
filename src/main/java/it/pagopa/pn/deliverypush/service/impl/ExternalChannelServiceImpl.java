@@ -1,11 +1,10 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowUtils;
+import it.pagopa.pn.deliverypush.action.utils.AarUtils;
 import it.pagopa.pn.deliverypush.action.utils.*;
-import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
-import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
@@ -15,14 +14,12 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
 import it.pagopa.pn.deliverypush.service.ExternalChannelService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 
 @Slf4j
 @Service
-@ConditionalOnProperty( name = "pn.delivery-push.featureflags.externalchannel", havingValue = "new")
 public class ExternalChannelServiceImpl implements ExternalChannelService {
     private final ExternalChannelUtils externalChannelUtils;
     private final ExternalChannelSendClient externalChannel;
@@ -102,16 +99,21 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
             );
 
             externalChannel.sendLegalNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), digitalAddress, eventId);
+
+            DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
+                    .retryNumber(sentAttemptMade)
+                    .eventTimestamp(Instant.now())
+                    .digitalAddressSource(addressSource)
+                    .digitalAddress(digitalAddress)
+                    .build();
+            
             digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(
                     notification, 
                     EventCodeInt.DP00,
                     recIndex,
-                    sentAttemptMade, 
-                    digitalAddress,
-                    addressSource, 
                     false, 
-                    null, 
-                    Instant.now());
+                    null,
+                    digitalAddressFeedback);
 
         }
 
