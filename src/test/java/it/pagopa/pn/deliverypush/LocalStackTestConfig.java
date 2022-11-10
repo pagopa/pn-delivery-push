@@ -44,6 +44,8 @@ public class LocalStackTestConfig {
     }
 
     private static String getImageName() {
-        return System.getProperty("localstack_image_name", "public.ecr.aws/localstack/localstack:1.0.4");
+        String image = System.getProperty("localstack_image_name", "public.ecr.aws/localstack/localstack:1.0.4");
+        System.out.println("Docker image: " + image);
+        return image;
     }
 }
