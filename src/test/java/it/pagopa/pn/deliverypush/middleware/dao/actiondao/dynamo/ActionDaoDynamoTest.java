@@ -19,6 +19,7 @@ import org.mockito.Mockito;
 import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.WrappedTableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.TransactPutItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.TransactWriteItemsEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.ScalarAttributeType;
@@ -102,8 +103,8 @@ class ActionDaoDynamoTest {
         ActionEntity actionEntity = buildActionEntity(action);
         FutureActionEntity futureActionEntity = buildFutureActionEntity(action, timeslot);
 
-        PutItemEnhancedRequest<ActionEntity> putItemEnhancedRequest = PutItemEnhancedRequest.<ActionEntity>builder(null).build();
-        PutItemEnhancedRequest<FutureActionEntity> putItemEnhancedRequest1 = PutItemEnhancedRequest.<FutureActionEntity>builder(null).build();
+        TransactPutItemEnhancedRequest<ActionEntity> putItemEnhancedRequest = TransactPutItemEnhancedRequest.<ActionEntity>builder(null).build();
+        TransactPutItemEnhancedRequest<FutureActionEntity> putItemEnhancedRequest1 = TransactPutItemEnhancedRequest.<FutureActionEntity>builder(null).build();
 
         Mockito.when(dtoToEntityActionMapper.dtoToEntity(action)).thenReturn(actionEntity);
         Mockito.when(actionEntityDao.preparePutIfAbsent(actionEntity)).thenReturn(putItemEnhancedRequest);

@@ -16,6 +16,8 @@ import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 
+import java.util.concurrent.ExecutionException;
+
 import static software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional.keyEqualTo;
 
 @Component
@@ -57,5 +59,11 @@ public class StreamEntityDaoDynamo implements StreamEntityDao {
     public Mono<StreamEntity> save(StreamEntity entity) {
         log.info("save entity={}", entity);
         return Mono.fromFuture(table.putItem(entity).thenApply(r -> entity));
+    }
+
+    @Override
+    public Mono<StreamEntity> updateAndGetAtomicCounter(StreamEntity streamEntity) {
+        log.info("updateAndGetAtomicCounter paId={} streamId={}", streamEntity.getPaId(), streamEntity.getStreamId());
+        return Mono.fromFuture( table.updateItem(streamEntity));
     }
 }

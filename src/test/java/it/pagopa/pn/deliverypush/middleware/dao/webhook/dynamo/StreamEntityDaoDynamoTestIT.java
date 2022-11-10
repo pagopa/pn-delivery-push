@@ -96,7 +96,9 @@ class StreamEntityDaoDynamoTestIT {
             Assertions.assertEquals(N, results.size());
             for(int i = 0;i<N;i++)
             {
-                Assertions.assertTrue(results.contains(addressesEntities.get(i)));
+
+                int finalI = i;
+                Assertions.assertTrue(results.stream().filter(x -> x.getStreamId().equals(addressesEntities.get(finalI).getStreamId())).count() == 1);
             }
         } catch (Exception e) {
             throw new RuntimeException();
@@ -201,7 +203,15 @@ class StreamEntityDaoDynamoTestIT {
         try {
             StreamEntity elementFromDb = testDao.get(ae.getPaId(), ae.getStreamId());
 
-            Assertions.assertEquals( elementFromDb, res);
+            Assertions.assertEquals( elementFromDb.getPaId(), res.getPaId());
+            Assertions.assertEquals( elementFromDb.getStreamId(), res.getStreamId());
+            Assertions.assertEquals( elementFromDb.getFilterValues(), res.getFilterValues());
+            Assertions.assertEquals( elementFromDb.getEventType(), res.getEventType());
+            Assertions.assertEquals( elementFromDb.getTitle(), res.getTitle());
+            Assertions.assertEquals( elementFromDb.getActivationDate(), res.getActivationDate());
+            Assertions.assertEquals( 0, elementFromDb.getEventAtomicCounter());
+
+
         } catch (Exception e) {
             fail(e);
         } finally {
