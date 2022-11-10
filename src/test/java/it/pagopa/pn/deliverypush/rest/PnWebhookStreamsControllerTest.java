@@ -7,7 +7,6 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamL
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponse;
 import it.pagopa.pn.deliverypush.service.WebhookService;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,7 +105,7 @@ class PnWebhookStreamsControllerTest {
         Mockito.verify(service).deleteEventStream(Mockito.anyString(), Mockito.any(UUID.class));
     }
     
-    @Test @Disabled("enable after PN-2330")
+    @Test
     void deleteEventStreamKoRuntime() {
         String streamId = UUID.randomUUID().toString();
         Mockito.when(service.deleteEventStream(Mockito.anyString(), Mockito.any(UUID.class)))
