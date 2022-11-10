@@ -145,7 +145,6 @@ public class PnDeliveryPushConfigs {
         private String tableName;
     }
 
-
     @Data
     public static class WebhookDao {
         private String streamsTableName;
