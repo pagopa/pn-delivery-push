@@ -26,5 +26,5 @@ public class EntityToDtoActionMapper {
 
     private static ActionDetails parseDetailsFromEntity(ActionDetailsEntity entity, ActionType type) {
       return SmartMapper.mapToClass(entity, type.getDetailsJavaClass());
-  }
+    }
 }
