@@ -42,9 +42,12 @@ public class PnEventInboundService {
 
     @Bean
     public MessageRoutingCallback customRouter() {
-        return message -> {
-            setTraceId(message);
-            return handleMessage(message);
+        return new MessageRoutingCallback() {
+            @Override
+            public FunctionRoutingResult routingResult(Message<?> message) {
+                setTraceId(message);
+                return new FunctionRoutingResult(handleMessage(message));
+            }
         };
     }
 
