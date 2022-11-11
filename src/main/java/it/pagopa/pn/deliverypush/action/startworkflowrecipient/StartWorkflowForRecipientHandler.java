@@ -54,7 +54,6 @@ public class StartWorkflowForRecipientHandler {
     private void unrichNotificationWithQuickAccessLinkToken(NotificationInt notification, int recIndex, RecipientsWorkflowDetails details ) {
       NotificationRecipientInt recipient = notification.getRecipients().get(recIndex);
       recipient.toBuilder().quickAccessLinkToken(details.getQuickAccessLinkToken());
-      
     }
     private void generateAAR(NotificationInt notification, Integer recIndex) {
         // ... genero il pdf dell'AAR, salvo su Safestorage e genero elemento in timeline AAR_GENERATION, potrebbe servirmi dopo ...
