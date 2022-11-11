@@ -148,6 +148,7 @@ class StartWorkflowHandlerTest {
                 .recipients(Collections.singletonList(
                         NotificationRecipientInt.builder()
                                 .taxId("testIdRecipient")
+                                .internalId("test")
                                 .denomination("Nome Cognome/Ragione Sociale")
                                 .digitalDomicile(LegalDigitalAddressInt.builder()
                                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)

@@ -123,6 +123,8 @@ public class PnDeliveryPushConfigs {
    public static class Webapp {
         private String directAccessUrlTemplate;
         private String faqUrlTemplate;
+        private String quickAccessUrlAarDetailPfTemplate;
+        private String quickAccessUrlAarDetailPgTemplate;
    }
 
     @Data

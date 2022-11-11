@@ -597,6 +597,7 @@ class AnalogTestIT {
                 .build();
 
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
+                .withInternalId("internalIdTest")
                 .withTaxId("TAXID01")
                 .build();
 

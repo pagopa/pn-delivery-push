@@ -561,7 +561,7 @@ class DigitalTestIT {
         //Viene verificato che sia avvenuto il perfezionamento
         TestUtils.checkIsPresentRefinement(iun, recIndex, timelineService);
 
-        int refinementNumberOfInvocation = 4;
+        int refinementNumberOfInvocation = 3;
         TestUtils.checkFailureRefinement(iun, recIndex, refinementNumberOfInvocation, timelineService, scheduler, pnDeliveryPushConfigs);
 
         //Viene effettuato il check dei legalFacts generati

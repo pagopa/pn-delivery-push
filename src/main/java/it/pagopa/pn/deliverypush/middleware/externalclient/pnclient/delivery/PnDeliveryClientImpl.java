@@ -7,6 +7,7 @@ import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.RequestUpd
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.SentNotification;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import lombok.extern.slf4j.Slf4j;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -54,4 +55,14 @@ public class PnDeliveryClientImpl implements PnDeliveryClient{
         return res;
     }
     
+    @Override
+    public ResponseEntity<Map<String, String>>  getQuickAccessLinkTokensPrivate(String iun) {
+        log.debug("Start getQuickAccessLinkTokensPrivate for paTaxId={} noticeCode={}", iun);
+
+        ResponseEntity<Map<String, String>> res = pnDeliveryApi.getQuickAccessLinkTokensPrivateWithHttpInfo(iun);
+
+        log.debug("Response getQuickAccessLinkTokensPrivate res={} for iun={} noticeCode={}", res, iun);
+
+        return res;
+    }
 }

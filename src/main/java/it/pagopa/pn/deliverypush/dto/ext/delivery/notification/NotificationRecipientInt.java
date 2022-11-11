@@ -1,8 +1,10 @@
 package it.pagopa.pn.deliverypush.dto.ext.delivery.notification;
 
 
+
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import lombok.*;
 
 @NoArgsConstructor
@@ -18,4 +20,6 @@ public class NotificationRecipientInt {
     private LegalDigitalAddressInt digitalDomicile;
     private PhysicalAddressInt physicalAddress;
     private NotificationPaymentInfoInt payment;
+    private RecipientTypeInt recipientType;
+    private String quickAccessLinkToken;
 }
