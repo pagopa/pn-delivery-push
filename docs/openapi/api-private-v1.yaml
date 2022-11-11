@@ -25,7 +25,10 @@ tags:
       Invocazioni per aggiornare lo stato della notifica
   - name: LegalFactsPrivate
     description: >-
-      Recupero degli atti oponibili a terzi generati per una notifica (api private)
+      Recupero degli atti opponibili a terzi generati per una notifica (api private)
+  - name: Documents
+    description: >-
+      Recupero dei documenti correlati ad una notificazione
 
 paths:
   '/status':
@@ -225,6 +228,51 @@ paths:
             application/problem+json:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+
+  '/delivery-push-private/{iun}/document/{documentType}/{documentId}':
+    get:
+      summary: Restituisce il singolo documento identificato dalla documentKey
+      description: >-
+        Permette di scaricare un documento correlato alla notificazione
+      tags:
+        - Documents
+      operationId: getDocuments
+      parameters:
+        - $ref: '#/components/parameters/recipientInternalId'
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathDocumentType'
+        - $ref: '#/components/parameters/pathDocumentId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentDownloadMetadataResponse"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
         '500':
           description: Internal Server Error
           content:
@@ -323,6 +371,26 @@ components:
       schema:
         type: string
 
+    ############################################################################################
+    ###          PARAMETRI RICERCA DOCUMENTI CORRELATI ALLA NOTIFICATIONE                    ###
+    ############################################################################################
+    pathDocumentType:
+      description: >-
+        Categoria documento
+      name: documentType
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/DocumentCategory'
+
+    pathDocumentId:
+      description: >-
+        Identificativo del documento
+      name: documentId
+      in: path
+      required: true
+      schema:
+        type: string
 
   schemas:
 
@@ -408,6 +476,45 @@ components:
           $ref: "./remote-refs.yaml#/components/schemas/IUN"
 
 
+    ############################################################################################
+    ###                     DOCUMENTI CORRELATI ALLA NOTIFICA                                ###
+    ############################################################################################
 
+    DocumentDownloadMetadataResponse:
+      title: Url e metadati per il download di un documento correlato alla notifica
+      description: >-
+        I due campi più importanti sono __url__ e __retryAfter__. <br/>
+          - __url__ è presente se il file è pronto per essere scaricato ed indica l'url a cui fare GET.
+          - __retryAfter__ indica che il file non è stato archiviato e bisognerà aspettare un numero di
+            secondi non inferiore a quanto indicato dal campo _retryAfter_. <br/>
+      type: object
+      required:
+        - filename
+        - contentLength
+      properties:
+        filename:
+          type: string
+        contentLength:
+          type: number
+          format: decimal32
+          example: 54092
+          description: dmensione, in byte, del contenuto.
+        url:
+          type: string
+          description: >-
+            URL preautorizzato a cui effettuare una richiesta GET per ottenere il 
+            contenuto del documento. Presente solo se il documento è pronto per il download.
+        retryAfter:
+          type: number
+          format: decimal32
+          description: >-
+            Stima del numero di secondi da aspettare prima che il contenuto del 
+            documento sia scaricabile.
 
-
+    DocumentCategory:
+      title: Tipi di documenti
+      description: >-
+        Tipologie di documenti
+      type: string
+      enum:
+        - AAR
