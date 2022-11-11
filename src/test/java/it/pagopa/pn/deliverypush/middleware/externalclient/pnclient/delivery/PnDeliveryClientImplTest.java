@@ -16,7 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-
+import java.util.Map;
 import java.util.Optional;
 
 import static org.mockito.Mockito.mock;
@@ -92,5 +92,22 @@ class PnDeliveryClientImplTest {
         ResponseEntity<NotificationCostResponse> res = client.getNotificationCostPrivate("0", "0");
 
         Assertions.assertEquals("0", res.getBody().getIun());
+    }
+    
+    
+    @Test
+    void getQuickAccessLinkTokensPrivate() {
+       Map<String, String> expected = Map.of("internalId","token");
+
+
+        Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
+                .thenReturn(ResponseEntity.ok(""));
+        
+        Mockito.when(pnDeliveryApi.getQuickAccessLinkTokensPrivateWithHttpInfo("001")).thenReturn(ResponseEntity.ok(expected));
+
+        ResponseEntity<Map<String, String>> res = client.getQuickAccessLinkTokensPrivate("001");
+
+        Assertions.assertEquals(expected, res.getBody());
+
     }
 }

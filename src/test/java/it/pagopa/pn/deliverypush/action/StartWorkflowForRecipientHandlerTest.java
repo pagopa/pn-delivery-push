@@ -5,6 +5,7 @@ import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
+import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
@@ -67,7 +68,7 @@ class StartWorkflowForRecipientHandlerTest {
         Mockito.when(logEvent.generateSuccess()).thenReturn(logEvent);
 
         //WHEN
-        handler.startNotificationWorkflowForRecipient(notification.getIun(), 0);
+        handler.startNotificationWorkflowForRecipient(notification.getIun(), 0, new RecipientsWorkflowDetails("test"));
         
         //THEN
         Mockito.verify(logEvent).generateSuccess();
@@ -89,10 +90,10 @@ class StartWorkflowForRecipientHandlerTest {
         Mockito.when(logEvent.generateFailure(Mockito.any(), Mockito.any())).thenReturn(logEvent);
 
         doThrow(new PnNotFoundException("Not found","","")).when(aarUtils).generateAARAndSaveInSafeStorageAndAddTimelineevent(Mockito.any(NotificationInt.class), Mockito.anyInt());
-        
+        RecipientsWorkflowDetails details = new RecipientsWorkflowDetails("test");
         //WHEN
         assertThrows(PnNotFoundException.class, () -> {
-            handler.startNotificationWorkflowForRecipient(iun, 0);
+            handler.startNotificationWorkflowForRecipient(iun, 0, details);
         });
 
         //THEN

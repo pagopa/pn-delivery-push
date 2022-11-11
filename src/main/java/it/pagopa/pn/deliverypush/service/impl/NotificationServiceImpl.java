@@ -10,7 +10,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_RECIPIENTS_TOKEN_FAILED;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED;
+
+import java.util.Map;
+
 
 @Service
 @Slf4j
@@ -38,6 +42,20 @@ public class NotificationServiceImpl implements NotificationService {
         } else {
             log.error("Get notification Failed for - iun {}", iun);
             throw new PnInternalException("Get notification Failed for - iun " + iun, ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED);
+        }
+    }
+    
+    
+    @Override
+    public Map<String, String> getRecipientsQuickAccessLinkToken(String iun) {
+        ResponseEntity<Map<String, String>> resp = pnDeliveryClient.getQuickAccessLinkTokensPrivate(iun);
+
+        if (resp.getStatusCode().is2xxSuccessful()) {
+            log.debug("Get QuickAccessLinkToken OK for - iun {}", iun);
+            return resp.getBody();        
+        } else {
+            log.error("Get QuickAccessLinkToken Failed for - iun {}", iun);
+            throw new PnInternalException("Get QuickAccessLinkToken Failed for - iun " + iun, ERROR_CODE_DELIVERYPUSH_RECIPIENTS_TOKEN_FAILED);
         }
     }
 }

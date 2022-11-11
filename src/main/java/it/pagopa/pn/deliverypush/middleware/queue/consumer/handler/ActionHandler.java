@@ -9,12 +9,14 @@ import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForR
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookAction;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.impl.WebhookActionsEventHandler;
+import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
+
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
-
+import java.util.Map;
 import java.util.function.Consumer;
 
 @Configuration
@@ -49,7 +51,7 @@ public class ActionHandler {
             try {
                 log.debug("pnDeliveryPushStartRecipientWorkflow, message {}", message);
                 Action action = message.getPayload();
-                startWorkflowForRecipientHandler.startNotificationWorkflowForRecipient(action.getIun(), action.getRecipientIndex());
+                startWorkflowForRecipientHandler.startNotificationWorkflowForRecipient(action.getIun(), action.getRecipientIndex(), (RecipientsWorkflowDetails) action.getDetails());
             } catch (Exception ex) {
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
