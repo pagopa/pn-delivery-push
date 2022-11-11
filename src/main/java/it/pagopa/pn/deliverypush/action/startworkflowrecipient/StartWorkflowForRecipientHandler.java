@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.Objects;
 
 @Component
 @Slf4j
@@ -53,7 +54,9 @@ public class StartWorkflowForRecipientHandler {
 
     private void unrichNotificationWithQuickAccessLinkToken(NotificationInt notification, int recIndex, RecipientsWorkflowDetails details ) {
       NotificationRecipientInt recipient = notification.getRecipients().get(recIndex);
-      recipient.toBuilder().quickAccessLinkToken(details.getQuickAccessLinkToken());
+      if(Objects.nonNull(details)) {
+        recipient.toBuilder().quickAccessLinkToken(details.getQuickAccessLinkToken());
+      }
       
     }
     private void generateAAR(NotificationInt notification, Integer recIndex) {
