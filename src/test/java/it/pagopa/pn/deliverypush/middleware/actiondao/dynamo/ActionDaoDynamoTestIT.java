@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.middleware.actiondao.dynamo;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
+import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.ActionDao;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
@@ -76,6 +77,39 @@ class ActionDaoDynamoTestIT {
         actionDao.unSchedule(action2, timeSlot);
     }
 
+    
+    
+    @Test
+    void addAndCheckStartRecipientWorkFlowAction() {
+        //GIVEN
+        
+        String timeSlot = "2022-04-12T09:26";
+
+        Action.ActionBuilder actionBuilder = Action.builder()
+                .iun("Test_addAndCheckStartRecipientWorkFlowAction_iun01")
+                .recipientIndex(1)
+                .type(ActionType.START_RECIPIENT_WORKFLOW);
+        String actionId = ActionType.START_RECIPIENT_WORKFLOW.buildActionId(
+                actionBuilder.build());
+        
+        Action action = actionBuilder.actionId(actionId).details(new RecipientsWorkflowDetails("token")).build();
+           
+        //WHEN
+        actionDao.addAction(action, timeSlot);
+        
+        //THEN
+        Optional<Action> actionOpt =  actionDao.getActionById(actionId);
+        Assertions.assertTrue(actionOpt.isPresent());
+        Assertions.assertEquals(actionOpt.get(),action);
+     
+
+        actionDao.unSchedule(action, timeSlot);
+    }
+
+    
+    
+    
+    
     @Test
     void addAndCheckFutureActionSameTimeSlot() {
         //GIVEN
