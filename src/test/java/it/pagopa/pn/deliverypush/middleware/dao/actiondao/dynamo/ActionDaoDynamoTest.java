@@ -41,9 +41,6 @@ class ActionDaoDynamoTest {
 
     @Mock
     private DynamoDbEnhancedClient dynamoDbEnhancedClient;
-    
-    @Mock
-    private EnhancedRequestBuilder enhancedRequestBuilder;
 
     @Mock
     private ActionDaoDynamo dynamo;
@@ -59,7 +56,7 @@ class ActionDaoDynamoTest {
         Mockito.when(pnDeliveryPushConfigs.getFutureActionDao()).thenReturn(factionDao);
 
         dynamo = new ActionDaoDynamo(actionEntityDao, futureActionEntityDao,
-                dynamoDbEnhancedClient, pnDeliveryPushConfigs, enhancedRequestBuilder);
+                dynamoDbEnhancedClient, pnDeliveryPushConfigs);
     }
 
     @Test
@@ -77,31 +74,6 @@ class ActionDaoDynamoTest {
     }
 
 
-    @Test
-    @ExtendWith(SpringExtension.class)
-    void addActionIfAbsent() {
-        String timeslot = "2022-08-30T16:04:13.913859900Z";
-        Action action = buildAction(ActionType.ANALOG_WORKFLOW);
-        ActionEntity actionEntity = buildActionEntity(action);
-        FutureActionEntity futureActionEntity = buildFutureActionEntity(action, timeslot);
-
-        TransactPutItemEnhancedRequest<ActionEntity> putItemEnhancedRequest = TransactPutItemEnhancedRequest.<ActionEntity>builder(null).build();
-        TransactPutItemEnhancedRequest<FutureActionEntity> putItemEnhancedRequest1 = TransactPutItemEnhancedRequest.<FutureActionEntity>builder(null).build();
-
-        Mockito.when(actionEntityDao.preparePutIfAbsent(actionEntity)).thenReturn(putItemEnhancedRequest);
-        Mockito.when(futureActionEntityDao.preparePut(futureActionEntity)).thenReturn(putItemEnhancedRequest1);
-        
-        Mockito.when(dynamoDbEnhancedClient.table(Mockito.anyString(), Mockito.eq(TableSchema.fromClass(ActionEntity.class)))).thenReturn(Mockito.mock(DynamoDbTable.class));
-        Mockito.when(dynamoDbEnhancedClient.table(Mockito.anyString(), Mockito.eq(TableSchema.fromClass(FutureActionEntity.class)))).thenReturn(Mockito.mock(DynamoDbTable.class));
-        Mockito.when(enhancedRequestBuilder.getEnhancedRequest(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(TransactWriteItemsEnhancedRequest.builder().build());
-
-        Mockito.doNothing().when(dynamoDbEnhancedClient).transactWriteItems(Mockito.any(TransactWriteItemsEnhancedRequest.class));
-
-        // non si riesce a mockare TransactWriteItemsEnhancedRequest
-        Assertions.assertDoesNotThrow(() ->
-                dynamo.addActionIfAbsent(action, timeslot)
-        );
-    }
 
     @Test
     @ExtendWith(SpringExtension.class)

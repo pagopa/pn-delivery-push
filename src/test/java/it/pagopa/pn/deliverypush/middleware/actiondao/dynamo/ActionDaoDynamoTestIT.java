@@ -174,5 +174,20 @@ class ActionDaoDynamoTestIT {
         actionDao.unSchedule(action, timeSlot1);
         actionDao.unSchedule(action2, timeSlot2);
     }
-    
+
+    @Test
+    @ExtendWith(SpringExtension.class)
+    void addActionIfAbsent() {
+        String timeslot = "2022-08-30T16:04:13.913859900Z";
+        Action action =  Action.builder()
+                .iun("Test_addAndCheckFutureActionDifferentTimeSlot_iun02")
+                .recipientIndex(0)
+                .type(ActionType.ANALOG_WORKFLOW)
+                .notBefore(Instant.now()).build();
+
+        // non si riesce a mockare TransactWriteItemsEnhancedRequest
+        Assertions.assertDoesNotThrow(() ->
+                actionDao.addActionIfAbsent(action, timeslot)
+        );
+    }
 }
