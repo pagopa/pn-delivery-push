@@ -250,9 +250,9 @@ public class WebhookServiceImpl implements WebhookService {
     private Mono<Void> saveEventWithAtomicIncrement(StreamEntity streamEntity, String iun, String newStatus, String timelineEventCategory, String timelineId, Instant timestamp){
         // recupero un contatore aggiornato
         return streamEntityDao.updateAndGetAtomicCounter(streamEntity)
-            .flatMap(streamWithAtomicCounterUpdated -> {
+            .flatMap(atomicCounterUpdated -> {
                 // creo l'evento e lo salvo
-                EventEntity eventEntity = new EventEntity(streamWithAtomicCounterUpdated.getEventAtomicCounter(), streamWithAtomicCounterUpdated.getStreamId());
+                EventEntity eventEntity = new EventEntity(atomicCounterUpdated, streamEntity.getStreamId());
                 if (!ttl.isZero())
                     eventEntity.setTtl(LocalDateTime.now().plus(ttl).atZone(ZoneId.systemDefault()).toEpochSecond());
 

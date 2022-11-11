@@ -24,7 +24,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(SpringExtension.class)
@@ -53,7 +56,7 @@ class StreamEntityDaoDynamoTestIT {
 
     @BeforeEach
     void setup( @Value("${pn.delivery-push.webhook-dao.streams-table-name}") String table) {
-        testDao = new TestDao<StreamEntity>( dynamoDbEnhancedAsyncClient, table, StreamEntity.class);
+        testDao = new TestDao<>(dynamoDbEnhancedAsyncClient, table, StreamEntity.class);
 
     }
 
@@ -98,7 +101,7 @@ class StreamEntityDaoDynamoTestIT {
             {
 
                 int finalI = i;
-                Assertions.assertTrue(results.stream().filter(x -> x.getStreamId().equals(addressesEntities.get(finalI).getStreamId())).count() == 1);
+                assertEquals(1, results.stream().filter(x -> x.getStreamId().equals(addressesEntities.get(finalI).getStreamId())).count());
             }
         } catch (Exception e) {
             throw new RuntimeException();
@@ -223,11 +226,46 @@ class StreamEntityDaoDynamoTestIT {
         }
     }
 
+    @Test
+    void updateAndGetAtomicCounter() {
+        //GIVEN
+        StreamEntity streamEntity = newStream(UUID.randomUUID().toString());
+        long previousvalue = streamEntity.getEventAtomicCounter();
+
+        Long res = daoDynamo.updateAndGetAtomicCounter(streamEntity).block(d);
+
+        assert res != null;
+        assertEquals(previousvalue+1, res.longValue());
+    }
+
+    @Test
+    void updateAndGetAtomicCounterThousands() {
+        //GIVEN
+        StreamEntity streamEntity = newStream(UUID.randomUUID().toString());
+        long previousvalue = streamEntity.getEventAtomicCounter();
+        int elements = 100;
+
+        List<Integer> range = IntStream.rangeClosed(0, elements)
+                .boxed().collect(Collectors.toList());
+
+        int[] results = new int[elements+2];
+        results[0] = 0; // il primo lo salto
+
+        range.stream().parallel().map((v) -> {
+            Long res = daoDynamo.updateAndGetAtomicCounter(streamEntity).block(Duration.ofMillis(20000));
+            results[res.intValue()] = res.intValue();
+            return res;
+        }).collect(Collectors.toSet());
+
+        for(int i = 1;i< elements+2;i++)
+        {
+            assertEquals(i, results[i]);
+        }
+    }
+
     private StreamEntity newStream(String uuid){
-        StreamEntity entity = new StreamEntity();
-        entity.setStreamId(uuid);
+        StreamEntity entity = new StreamEntity("paid", uuid);
         entity.setTitle("title");
-        entity.setPaId("paid");
         entity.setEventType("STATUS");
         entity.setFilterValues(null);
         return entity;

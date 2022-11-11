@@ -4,8 +4,6 @@ import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEnti
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Optional;
-
 public interface StreamEntityDao {
 
     String IMPLEMENTATION_TYPE_PROPERTY_NAME = "pn.middleware.impl.webhook-stream-dao";
@@ -18,5 +16,5 @@ public interface StreamEntityDao {
 
     Mono<StreamEntity> save(StreamEntity entity);
 
-    Mono<StreamEntity> updateAndGetAtomicCounter(StreamEntity streamEntity);
+    Mono<Long> updateAndGetAtomicCounter(StreamEntity streamEntity);
 }
