@@ -22,6 +22,7 @@ public class DtoToEntityFutureActionMapper {
                 .details(dtoToDetailsEntity(dto.getDetails()));
         return builder.build();
     }
+    
     private static ActionDetailsEntity dtoToDetailsEntity(ActionDetails details) {
       return SmartMapper.mapToClass(details, ActionDetailsEntity.class );
     }
