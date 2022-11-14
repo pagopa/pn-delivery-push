@@ -21,7 +21,7 @@
 	<properties>
 		<jacoco.min.line.cover.ratio>0.70</jacoco.min.line.cover.ratio>
 		<awspring.version>2.3.2</awspring.version>
-		<testcontainers.version>1.16.2</testcontainers.version>
+		<testcontainers.version>1.17.5</testcontainers.version>
 	</properties>
 
 
