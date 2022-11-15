@@ -25,7 +25,7 @@ tags:
       Invocazioni per aggiornare lo stato della notifica
   - name: LegalFactsPrivate
     description: >-
-      Recupero degli atti oponibili a terzi generati per una notifica (api private)
+      Recupero degli atti opponibili a terzi generati per una notifica (api private)
 
 paths:
   '/status':
@@ -189,6 +189,12 @@ paths:
             application/problem+json:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
         '500':
           description: Internal Server Error
           content:
@@ -221,6 +227,12 @@ paths:
                 $ref: "./schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactDownloadMetadataResponse"
         '400':
           description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Not found
           content:
             application/problem+json:
               schema:
