@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>it.pagopa.pn</groupId>
 		<artifactId>pn-parent</artifactId>
 		<version>1.0.0</version>
-		<relativePath/>
+		<relativePath />
 	</parent>
 	<groupId>it.pagopa.pn.delivery</groupId>
 	<artifactId>pn-delivery-push</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<name>pn-delivery-push</name>
 	<description>Orchestrate Notification Workflow</description>
 	<scm>
 		<connection>${git.conn}</connection>
 		<developerConnection>${git.devConn}</developerConnection>
 		<url>${git.url}</url>
-	</scm>
+	  <tag>HEAD</tag>
+  </scm>
 	<properties>
 		<jacoco.min.line.cover.ratio>0.70</jacoco.min.line.cover.ratio>
 		<awspring.version>2.3.2</awspring.version>
@@ -230,7 +230,7 @@
 							<inputSpec>${project.basedir}/docs/openapi/api-private-v1.yaml</inputSpec>
 							<generatorName>spring</generatorName>
 							<library>spring-boot</library>
-							<modelNameSuffix></modelNameSuffix>
+							<modelNameSuffix />
 							<generateApiTests>false</generateApiTests>
 							<generateModelTests>false</generateModelTests>
 							<configOptions>
@@ -262,7 +262,7 @@
 							<inputSpec>${project.basedir}/docs/openapi/api-internal-pn-delivery-push-v1.yaml</inputSpec>
 							<generatorName>spring</generatorName>
 							<library>spring-boot</library>
-							<modelNameSuffix></modelNameSuffix>
+							<modelNameSuffix />
 							<generateApiTests>false</generateApiTests>
 							<generateModelTests>false</generateModelTests>
 							<typeMappings>
@@ -304,7 +304,7 @@
 							<inputSpec>${project.basedir}/docs/openapi/api-internal-b2b-webhook-v1.yaml</inputSpec>
 							<generatorName>spring</generatorName>
 							<library>spring-boot</library>
-							<modelNameSuffix></modelNameSuffix>
+							<modelNameSuffix />
 							<generateApiTests>false</generateApiTests>
 							<generateModelTests>false</generateModelTests>
 							<configOptions>
