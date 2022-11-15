@@ -9,8 +9,8 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
-import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
+import software.amazon.awssdk.enhanced.dynamodb.model.TransactPutItemEnhancedRequest;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -46,9 +46,9 @@ public class FutureActionEntityDaoDynamo  extends AbstractDynamoKeyValueStore<Fu
     }
 
     @Override
-    public PutItemEnhancedRequest<FutureActionEntity> preparePut(FutureActionEntity value) {
+    public TransactPutItemEnhancedRequest<FutureActionEntity> preparePut(FutureActionEntity value) {
 
-        return PutItemEnhancedRequest.builder( FutureActionEntity.class )
+        return TransactPutItemEnhancedRequest.builder( FutureActionEntity.class )
                 .item( value )
                 .build();
     }
