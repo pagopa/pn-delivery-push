@@ -78,12 +78,10 @@ public class StreamEntityDaoDynamo implements StreamEntityDao {
         UpdateItemRequest updateRequest = UpdateItemRequest.builder()
                 .tableName(table.tableName())
                 .key(key)
-                .attributeUpdates(Map.of(StreamEntity.COL_EVENT_CURRENT_COUNTER,  AttributeValueUpdate.builder()
-                        .value(a -> a.n("1"))
-                        .action(AttributeAction.ADD)
-                        .build()))
                 .returnValues(ReturnValue.UPDATED_NEW)
-                .conditionExpression("attribute_not_exists(" + StreamEntity.COL_PK + ")")
+                .updateExpression("ADD " +StreamEntity.COL_EVENT_CURRENT_COUNTER + " :v")
+                .expressionAttributeValues(Map.of(":v", AttributeValue.builder().n("1").build()))
+                .conditionExpression("attribute_exists(" + StreamEntity.COL_PK + ")")
                 .build();
 
 
