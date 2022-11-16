@@ -49,6 +49,7 @@ public class PnEventInboundService {
                 return new FunctionRoutingResult(handleMessage(message));
             }
         };
+
     }
 
     private void setTraceId(Message<?> message) {
