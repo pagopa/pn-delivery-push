@@ -5,6 +5,7 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.deliverypush.action.startworkflow.AttachmentUtils;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -40,22 +41,28 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 @Service
 @Slf4j
 public class TimeLineServiceImpl implements TimelineService {
+    private static final int RETENTION_FILE_REFINEMENT_DAYS = 120;
+
     private final TimelineDao timelineDao;
     private final StatusUtils statusUtils;
     private final ConfidentialInformationService confidentialInformationService;
     private final StatusService statusService;
     private final SchedulerService schedulerService;
 
+    private final AttachmentUtils attachmentUtils;
+
     public TimeLineServiceImpl(TimelineDao timelineDao,
                                StatusUtils statusUtils,
                                StatusService statusService,
                                ConfidentialInformationService confidentialInformationService,
-                               SchedulerService schedulerService) {
+                               SchedulerService schedulerService,
+                               AttachmentUtils attachmentUtils) {
         this.timelineDao = timelineDao;
         this.statusUtils = statusUtils;
         this.confidentialInformationService = confidentialInformationService;
         this.statusService = statusService;
         this.schedulerService = schedulerService;
+        this.attachmentUtils = attachmentUtils;
     }
 
     @Override
@@ -79,6 +86,12 @@ public class TimeLineServiceImpl implements TimelineService {
                 TimelineElementInternal dtoWithStatusInfo = enrichWithStatusInfo(dto, currentTimeline, notificationStatuses);
 
                 timelineInsertSkipped = persistTimelineElement(dtoWithStatusInfo);
+
+                if(dto.getCategory() == TimelineElementCategoryInt.NOTIFICATION_VIEWED ||
+                        dto.getCategory() == TimelineElementCategoryInt.REFINEMENT) {
+
+                    attachmentUtils.changeAttachmentsRetention(notification, RETENTION_FILE_REFINEMENT_DAYS);
+                }
 
 
                 // genero un messaggio per l'aggiunta in sqs in modo da salvarlo in maniera asincrona
