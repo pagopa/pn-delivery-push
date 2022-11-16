@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.action.startworkflow.AttachmentUtils;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -50,8 +49,8 @@ class TimeLineServiceImplTest {
         statusService = Mockito.mock( StatusService.class );
         confidentialInformationService = Mockito.mock( ConfidentialInformationService.class );
         schedulerService = Mockito.mock(SchedulerService.class);
-        AttachmentUtils attachmentUtils = Mockito.mock(AttachmentUtils.class);
-        timeLineService = new TimeLineServiceImpl(timelineDao , statusUtils, statusService, confidentialInformationService, schedulerService, attachmentUtils);
+
+        timeLineService = new TimeLineServiceImpl(timelineDao , statusUtils, statusService, confidentialInformationService, schedulerService);
     }
 
     @Test
