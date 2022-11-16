@@ -3,13 +3,24 @@ package it.pagopa.pn.deliverypush.rest;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.DocumentsApi;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DocumentCategory;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DocumentDownloadMetadataResponse;
+import it.pagopa.pn.deliverypush.service.GetDocumentService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import static it.pagopa.pn.deliverypush.rest.PnWebhookEventsController.HEADER_RETRY_AFTER;
+
 @RestController
+@Slf4j
 public class PnDocumentsController implements DocumentsApi {
+    private final GetDocumentService getDocumentService;
+
+    public PnDocumentsController(GetDocumentService getDocumentService) {
+        this.getDocumentService = getDocumentService;
+    }
 
     @Override
     public Mono<ResponseEntity<DocumentDownloadMetadataResponse>> getDocuments(
@@ -19,9 +30,17 @@ public class PnDocumentsController implements DocumentsApi {
             String documentId,
             final ServerWebExchange exchange
     ) {
-        Mono<Void> result = Mono.empty();
+        log.info("[enter] getDocuments iun={} recipientInternalId={} documentType={} documentId={}", iun, recipientInternalId, documentType, documentId);
+        return getDocumentService.getDocumentMetadata(iun, documentType, documentId, recipientInternalId)
+                .map(response -> {
+                    HttpHeaders responseHeaders = new HttpHeaders();
+                    responseHeaders.set(HEADER_RETRY_AFTER,
+                            "" + response.getRetryAfter());
 
-        return result.then(Mono.empty());
-
+                    return ResponseEntity
+                            .ok()
+                            .headers(responseHeaders)
+                            .body(response);
+                });
     }
 }

@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DocumentCategory;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DocumentDownloadMetadataResponse;
@@ -12,6 +11,7 @@ import it.pagopa.pn.deliverypush.utils.AuthUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
@@ -29,26 +29,23 @@ public class GetDocumentServiceImpl implements GetDocumentService {
     }
     
     @Override
-    public DocumentDownloadMetadataResponse getDocumentMetadata(String iun, 
-                                                                DocumentCategory documentType,
-                                                                String documentId,
-                                                                String recipientId
+    public Mono<DocumentDownloadMetadataResponse> getDocumentMetadata(String iun,
+                                                                     DocumentCategory documentType,
+                                                                     String documentId,
+                                                                     String recipientId
     ) {
         log.info("Start getDocumentMetadata iun={} recId={} documentId={}", iun, recipientId, documentId );
-        NotificationInt notification = notificationService.getNotificationByIun(iun);
-        authUtils.checkUserAuthorization(notification, recipientId);
-        
-        try {
-            FileDownloadResponseInt fileDownloadResponse = safeStorageService.getFile(documentId, false);
-
-            DocumentDownloadMetadataResponse response = generateResponse(iun, documentType, documentId, fileDownloadResponse);
-
-            log.info( "getDocumentMetadata Success iun={} documentId={}", iun, documentId );
-            return response;
-        } catch (Exception exc) {
-            log.error( "getDocumentMetadata Error iun={} documentId={} ex=", iun, documentId, exc );
-            throw exc;
-        }
+        return notificationService.getNotificationByIunReactive(iun)
+                .flatMap( notification -> {
+                    authUtils.checkUserAuthorization(notification, recipientId);
+                    return safeStorageService.getFileReactive(documentId, false);
+                }).map(
+                        fileDownloadResponse -> {
+                            DocumentDownloadMetadataResponse response =  generateResponse(iun, documentType, documentId, fileDownloadResponse);
+                            log.info( "getDocumentMetadata Success iun={} documentId={}", iun, documentId );
+                            return response;
+                        }
+                );
     }
 
     @NotNull
