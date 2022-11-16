@@ -83,13 +83,18 @@ public class StreamEntityDaoDynamo implements StreamEntityDao {
                         .action(AttributeAction.ADD)
                         .build()))
                 .returnValues(ReturnValue.UPDATED_NEW)
+                .conditionExpression("attribute_not_exists(" + StreamEntity.COL_PK + ")")
                 .build();
 
 
-        return Mono.fromFuture( dynamoDbAsyncClient.updateItem(updateRequest)).map(resp -> {
-            Long newcounter = Long.parseLong(resp.attributes().get(StreamEntity.COL_EVENT_CURRENT_COUNTER).n());
-            log.info("updateAndGetAtomicCounter done paId={} streamId={} newcounter={}", streamEntity.getPaId(), streamEntity.getStreamId(), newcounter);
-            return newcounter;
-        });
+        return Mono.fromFuture( dynamoDbAsyncClient.updateItem(updateRequest))
+                .map(resp -> {
+                    Long newcounter = Long.parseLong(resp.attributes().get(StreamEntity.COL_EVENT_CURRENT_COUNTER).n());
+                    log.info("updateAndGetAtomicCounter done paId={} streamId={} newcounter={}", streamEntity.getPaId(), streamEntity.getStreamId(), newcounter);
+                    return newcounter;
+                }).onErrorResume(ConditionalCheckFailedException.class, e -> {
+                    log.warn("updateAndGetAtomicCounter conditional failed, not updating counter and retourning -1");
+                    return Mono.just(-1L);
+                });
     }
 }
