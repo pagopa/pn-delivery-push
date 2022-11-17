@@ -16,5 +16,11 @@ public interface StreamEntityDao {
 
     Mono<StreamEntity> save(StreamEntity entity);
 
+    /**
+     * Ritorna il nuovo valore del contatore.
+     * Nel caso in cui la entity non sia presente, torna -1
+     * @param streamEntity lo stream da aggiornare
+     * @return nuovo id contatore
+     */
     Mono<Long> updateAndGetAtomicCounter(StreamEntity streamEntity);
 }
