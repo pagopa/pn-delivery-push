@@ -27,7 +27,7 @@ import static org.mockserver.model.HttpResponse.response;
 @TestPropertySource(properties = {
         "pn.delivery-push.delivery-base-url=http://localhost:9998",
 })
-class PnDeliveryClientReactiveImplTest {
+class PnDeliveryClientReactiveImplTestIT {
     @Autowired
     private PnDeliveryClientReactive client;
     
