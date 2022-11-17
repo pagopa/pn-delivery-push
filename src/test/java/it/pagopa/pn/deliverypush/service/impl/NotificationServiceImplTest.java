@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.SentNotification;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -11,7 +12,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.http.ResponseEntity;
 
 import java.util.Collections;
 import java.util.Map;
@@ -37,7 +37,7 @@ class NotificationServiceImplTest {
         NotificationInt expected = buildNotificationInt();
 
         SentNotification sentNotification = buildSentNotification();
-        Mockito.when(pnDeliveryClient.getSentNotification("001")).thenReturn(ResponseEntity.ok(sentNotification));
+        Mockito.when(pnDeliveryClient.getSentNotification("001")).thenReturn(sentNotification);
 
         NotificationInt actual = service.getNotificationByIun("001");
 
@@ -47,22 +47,19 @@ class NotificationServiceImplTest {
     @Test
     void getNotificationByIunNotFound() {
 
-        String expectErrorMsg = "PN_DELIVERYPUSH_NOTIFICATIONFAILED";
+        Mockito.when(pnDeliveryClient.getSentNotification("001")).thenThrow(PnHttpResponseException.class);
 
-        Mockito.when(pnDeliveryClient.getSentNotification("001")).thenReturn(ResponseEntity.ok(null));
-
-        PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
+        Assertions.assertThrows(PnHttpResponseException.class, () -> {
             service.getNotificationByIun("001");
         });
 
-        Assertions.assertEquals(expectErrorMsg, pnInternalException.getProblem().getErrors().get(0).getCode());
     }
     
     @Test
     void getRecipientsQuickAccessLinkToken() {
         Map<String, String> expected = Map.of("internalId","token");
 
-        Mockito.when(pnDeliveryClient.getQuickAccessLinkTokensPrivate("001")).thenReturn(ResponseEntity.ok(expected));
+        Mockito.when(pnDeliveryClient.getQuickAccessLinkTokensPrivate("001")).thenReturn(expected);
 
         Map<String, String> actual = service.getRecipientsQuickAccessLinkToken("001");
 
@@ -74,10 +71,10 @@ class NotificationServiceImplTest {
     void getRecipientsQuickAccessLinkTokenFailure() {
        
         Mockito.when(pnDeliveryClient.getQuickAccessLinkTokensPrivate("001"))
-        .thenReturn(ResponseEntity.internalServerError().body(Map.of()));
+        .thenThrow(PnHttpResponseException.class);
 
 
-        PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
+        PnInternalException pnInternalException = Assertions.assertThrows(PnHttpResponseException.class, () -> {
           service.getRecipientsQuickAccessLinkToken("001");
       });
         

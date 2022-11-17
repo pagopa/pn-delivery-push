@@ -25,44 +25,43 @@ public class PnDeliveryClientImpl implements PnDeliveryClient{
     }
     
     @Override
-    public ResponseEntity<Void> updateStatus(RequestUpdateStatusDto dto) {
+    public void updateStatus(RequestUpdateStatusDto dto) {
         log.debug("Start updateState for iun={}", dto.getIun());
 
-        ResponseEntity<Void> resp = pnDeliveryApi.updateStatusWithHttpInfo(dto);
-        log.debug("Response update state for iun {} is {}", dto.getIun(), resp);
-        
-        return resp;
+        pnDeliveryApi.updateStatusWithHttpInfo(dto);
+        log.debug("Response update state OK for iun {}", dto.getIun());
+
     }
 
     @Override
-    public ResponseEntity<SentNotification> getSentNotification(String iun) {
+    public SentNotification getSentNotification(String iun) {
         log.debug("Start getNotificationInfo for iun={}", iun);
         
         ResponseEntity<SentNotification> res = pnDeliveryApi.getSentNotificationPrivateWithHttpInfo(iun);
         log.debug("Response getNotificationInfo OK for iun {}", iun);
         
-        return res;
+        return res.getBody();
     }
 
     @Override
-    public ResponseEntity<NotificationCostResponse> getNotificationCostPrivate(String paTaxId, String noticeCode) {
+    public NotificationCostResponse getNotificationCostPrivate(String paTaxId, String noticeCode) {
         log.debug("Start getNotificationCostPrivate for paTaxId={} noticeCode={}", paTaxId, noticeCode);
 
         ResponseEntity<NotificationCostResponse> res = pnDeliveryApi.getNotificationCostPrivateWithHttpInfo(paTaxId, noticeCode);
 
         log.debug("Response getNotificationCostPrivate res={} for paTaxId={} noticeCode={}", res, paTaxId, noticeCode);
 
-        return res;
+        return res.getBody();
     }
     
     @Override
-    public ResponseEntity<Map<String, String>>  getQuickAccessLinkTokensPrivate(String iun) {
+    public Map<String, String>  getQuickAccessLinkTokensPrivate(String iun) {
         log.debug("Start getQuickAccessLinkTokensPrivate for paTaxId={} noticeCode={}", iun);
 
         ResponseEntity<Map<String, String>> res = pnDeliveryApi.getQuickAccessLinkTokensPrivateWithHttpInfo(iun);
 
         log.debug("Response getQuickAccessLinkTokensPrivate res={} for iun={} noticeCode={}", res, iun);
 
-        return res;
+        return res.getBody();
     }
 }

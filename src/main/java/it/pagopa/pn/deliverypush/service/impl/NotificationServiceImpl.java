@@ -7,10 +7,8 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnD
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.mapper.NotificationMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_RECIPIENTS_TOKEN_FAILED;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED;
 
 import java.util.Map;
@@ -27,35 +25,22 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public NotificationInt getNotificationByIun(String iun) {
-        ResponseEntity<SentNotification> resp = pnDeliveryClient.getSentNotification(iun);
+        SentNotification sentNotification = pnDeliveryClient.getSentNotification(iun);
+        log.debug("Get notification OK for - iun {}", iun);
 
-        if (resp.getStatusCode().is2xxSuccessful()) {
-            log.debug("Get notification OK for - iun {}", iun);
-            SentNotification sentNotification = resp.getBody();
-
-            if (sentNotification != null) {
-                return NotificationMapper.externalToInternal(sentNotification);
-            } else {
-                log.error("Get notification is not valid for - iun {}", iun);
-                throw new PnInternalException("Get notification is not valid for - iun " + iun, ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED);
-            }
+        if (sentNotification != null) {
+            return NotificationMapper.externalToInternal(sentNotification);
         } else {
-            log.error("Get notification Failed for - iun {}", iun);
-            throw new PnInternalException("Get notification Failed for - iun " + iun, ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED);
-        }
+            log.error("Get notification is not valid for - iun {}", iun);
+            throw new PnInternalException("Get notification is not valid for - iun " + iun, ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED);
+        }        
     }
     
     
     @Override
     public Map<String, String> getRecipientsQuickAccessLinkToken(String iun) {
-        ResponseEntity<Map<String, String>> resp = pnDeliveryClient.getQuickAccessLinkTokensPrivate(iun);
-
-        if (resp.getStatusCode().is2xxSuccessful()) {
-            log.debug("Get QuickAccessLinkToken OK for - iun {}", iun);
-            return resp.getBody();        
-        } else {
-            log.error("Get QuickAccessLinkToken Failed for - iun {}", iun);
-            throw new PnInternalException("Get QuickAccessLinkToken Failed for - iun " + iun, ERROR_CODE_DELIVERYPUSH_RECIPIENTS_TOKEN_FAILED);
-        }
+        Map<String, String> resp = pnDeliveryClient.getQuickAccessLinkTokensPrivate(iun);
+       log.debug("Get QuickAccessLinkToken OK for - iun {}", iun);
+       return resp;         
     }
 }

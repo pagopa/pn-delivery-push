@@ -28,18 +28,18 @@ public class UserAttributesClientImpl implements UserAttributesClient {
     }
     
     @Override
-    public ResponseEntity<List<LegalDigitalAddress>> getLegalAddressBySender(String recipientId, String senderId) {
+    public List<LegalDigitalAddress> getLegalAddressBySender(String recipientId, String senderId) {
         log.debug("Start getPlatformDigitalAddress for senderId {}", senderId);
         
         ResponseEntity<List<LegalDigitalAddress>> resp = legalApi.getLegalAddressBySenderWithHttpInfo(recipientId, senderId);
         
         log.debug("Response to getPlatformDigitalAddress for senderId={} recipientId={}, have status code {}", senderId, recipientId, resp.getStatusCode());
         
-        return resp;
+        return resp.getBody();
     }
 
     @Override
-    public ResponseEntity<List<CourtesyDigitalAddress>> getCourtesyAddressBySender(String recipientId, String senderId) {
+    public List<CourtesyDigitalAddress> getCourtesyAddressBySender(String recipientId, String senderId) {
 
         log.debug("Start getCourtesyAddress for senderId {}", senderId);
 
@@ -47,6 +47,6 @@ public class UserAttributesClientImpl implements UserAttributesClient {
 
         log.debug("Response to getCourtesyAddress for senderId={} recipientId={}, have status code {}", senderId, recipientId, resp.getStatusCode());
 
-        return resp;
+        return resp.getBody();
     }
 }

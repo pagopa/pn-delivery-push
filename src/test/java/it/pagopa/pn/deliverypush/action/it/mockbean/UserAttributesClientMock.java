@@ -7,7 +7,6 @@ import it.pagopa.pn.deliverypush.service.mapper.CourtesyCourtesyDigitalAddressMa
 import it.pagopa.pn.deliverypush.service.mapper.LegalLegalDigitalAddressMapper;
 import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.CourtesyDigitalAddress;
 import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.LegalDigitalAddress;
-import org.springframework.http.ResponseEntity;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -42,7 +41,7 @@ public class UserAttributesClientMock implements UserAttributesClient {
     }
     
     @Override
-    public ResponseEntity<List<LegalDigitalAddress>> getLegalAddressBySender(String taxId, String senderId) {
+    public List<LegalDigitalAddress> getLegalAddressBySender(String taxId, String senderId) {
         String id = getId(taxId, senderId);
 
         List<LegalDigitalAddress> listLegalDigitalAddress = new ArrayList<>();
@@ -53,11 +52,11 @@ public class UserAttributesClientMock implements UserAttributesClient {
             listLegalDigitalAddress = new ArrayList<>(collectionLegalDigitalAddresses);
         }
 
-        return ResponseEntity.ok(listLegalDigitalAddress);
+        return listLegalDigitalAddress;
     }
 
     @Override
-    public ResponseEntity<List<CourtesyDigitalAddress>> getCourtesyAddressBySender(String taxId, String senderId) {
+    public List<CourtesyDigitalAddress> getCourtesyAddressBySender(String taxId, String senderId) {
         String id = getId(taxId, senderId);
         List<CourtesyDigitalAddress> listCourtesyDigitalAddress = new ArrayList<>();
         
@@ -67,7 +66,7 @@ public class UserAttributesClientMock implements UserAttributesClient {
             listCourtesyDigitalAddress = new ArrayList<>(collectionCourtesyDigitalAddresses);
         }
         
-        return ResponseEntity.ok(listCourtesyDigitalAddress);
+        return listCourtesyDigitalAddress;
     }
 
     private String getId(String taxId, String senderId) {
