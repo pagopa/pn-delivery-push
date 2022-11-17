@@ -2,7 +2,7 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage_reactive.model.FileDownloadResponse;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;

@@ -7,16 +7,15 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnD
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClientReactive;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.mapper.NotificationMapper;
-import it.pagopa.pn.deliverypush.service.mapper.NotificationMapperReactive;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_RECIPIENTS_TOKEN_FAILED;
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED;
-
 import java.util.Map;
+
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_RECIPIENTS_TOKEN_FAILED;
 
 
 @Service
@@ -42,8 +41,9 @@ public class NotificationServiceImpl implements NotificationService {
             if (sentNotification != null) {
                 return NotificationMapper.externalToInternal(sentNotification);
             } else {
-                log.error("Get notification is not valid for - iun {}", iun);
-                throw new PnInternalException("Get notification is not valid for - iun " + iun, ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED);
+                String error = String.format("Get notification is not valid for - iun %s", iun);
+                log.error(error);
+                throw new PnInternalException(error, ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED);
             }
         } else {
             log.error("Get notification Failed for - iun {}", iun);
@@ -68,13 +68,13 @@ public class NotificationServiceImpl implements NotificationService {
     public Mono<NotificationInt> getNotificationByIunReactive(String iun) {
         return pnDeliveryClientReactive.getSentNotification(iun)
                 .onErrorResume( error -> {
-                    log.error("Get notification is not valid for - iun {}", iun);
-                    throw new PnInternalException("Get notification is not valid for - iun " + iun, ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED);
+                    log.error("Get notification error ={} - iun {}", error,  iun);
+                    throw new PnInternalException("Get notification error - iun " + iun, ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED, error);
                 })
                 .switchIfEmpty(
                     Mono.error(new PnInternalException("Get notification is not valid for - iun " + iun,
                             ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED))
                 )
-                .map(NotificationMapperReactive::externalToInternal);
+                .map(NotificationMapper::externalToInternal);
     }
 }

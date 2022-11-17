@@ -1,8 +1,8 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery;
 
+import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.SentNotification;
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery_reactive.ApiClient;
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery_reactive.api.InternalOnlyApi;
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery_reactive.model.SentNotification;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.common.BaseClient;
 import lombok.extern.slf4j.Slf4j;

@@ -380,7 +380,7 @@
 							</typeMappings>
 							<configOptions>
 								<apiPackage>it.pagopa.pn.delivery.generated.openapi.clients.delivery-reactive.api</apiPackage>
-								<modelPackage>it.pagopa.pn.delivery.generated.openapi.clients.delivery-reactive.model</modelPackage>
+								<modelPackage>it.pagopa.pn.delivery.generated.openapi.clients.delivery.model</modelPackage>
 								<dateLibrary>java8</dateLibrary>
 								<delegatePattern>true</delegatePattern>
 								<interfaceOnly>true</interfaceOnly>
@@ -497,7 +497,7 @@
 							<importMappings><importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping></importMappings>
 							<configOptions>
 								<apiPackage>it.pagopa.pn.delivery.generated.openapi.clients.safestorage-reactive.api</apiPackage>
-								<modelPackage>it.pagopa.pn.delivery.generated.openapi.clients.safestorage-reactive.model</modelPackage>
+								<modelPackage>it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model</modelPackage>
 								<dateLibrary>java8</dateLibrary>
 								<delegatePattern>true</delegatePattern>
 								<interfaceOnly>true</interfaceOnly>

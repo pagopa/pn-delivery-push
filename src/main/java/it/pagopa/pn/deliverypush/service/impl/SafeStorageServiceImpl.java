@@ -71,25 +71,6 @@ public class SafeStorageServiceImpl implements SafeStorageService {
                 .map(this::getFileDownloadResponseInt);
     }
 
-    private FileDownloadResponseInt getFileDownloadResponseInt(it.pagopa.pn.delivery.generated.openapi.clients.safestorage_reactive.model.FileDownloadResponse fileDownloadResponse) {
-        FileDownloadResponseInt.FileDownloadResponseIntBuilder responseIntBuilder = FileDownloadResponseInt.builder()
-                .contentLength(fileDownloadResponse.getContentLength())
-                .checksum(fileDownloadResponse.getChecksum())
-                .contentType(fileDownloadResponse.getContentType())
-                .key(fileDownloadResponse.getKey());
-
-        if(fileDownloadResponse.getDownload() != null){
-            responseIntBuilder.download(
-                    FileDownloadInfoInt.builder()
-                            .retryAfter(fileDownloadResponse.getDownload().getRetryAfter())
-                            .url(fileDownloadResponse.getDownload().getUrl())
-                            .build()
-            );
-        }
-
-        return responseIntBuilder.build();
-    }
-
     @Override
     public FileCreationResponseInt createAndUploadContent(FileCreationWithContentRequest fileCreationRequest) {
         try {

@@ -67,7 +67,7 @@ class NotificationServiceImplTest {
     @ExtendWith(SpringExtension.class)
     void getNotificationByIunReactive() {
         NotificationInt expected = buildNotificationInt();
-        it.pagopa.pn.delivery.generated.openapi.clients.delivery_reactive.model.SentNotification sentNotification = buildSentNotificationReactive();
+        SentNotification sentNotification = buildSentNotificationReactive();
         Mockito.when(pnDeliveryClientReactive.getSentNotification("001")).thenReturn(Mono.just(sentNotification));
 
         Mono<NotificationInt> actual = service.getNotificationByIunReactive("001");
@@ -125,10 +125,10 @@ class NotificationServiceImplTest {
         return sentNotification;
     }
 
-    private it.pagopa.pn.delivery.generated.openapi.clients.delivery_reactive.model.SentNotification buildSentNotificationReactive() {
-        it.pagopa.pn.delivery.generated.openapi.clients.delivery_reactive.model.SentNotification sentNotification = new it.pagopa.pn.delivery.generated.openapi.clients.delivery_reactive.model.SentNotification();
+    private SentNotification buildSentNotificationReactive() {
+        SentNotification sentNotification = new SentNotification();
         sentNotification.setIun("001");
-        sentNotification.setPhysicalCommunicationType(it.pagopa.pn.delivery.generated.openapi.clients.delivery_reactive.model.SentNotification.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
+        sentNotification.setPhysicalCommunicationType(SentNotification.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
         return sentNotification;
     }
     
