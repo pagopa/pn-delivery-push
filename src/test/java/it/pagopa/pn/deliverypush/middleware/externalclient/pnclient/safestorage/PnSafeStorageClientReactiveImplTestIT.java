@@ -25,7 +25,7 @@ import static org.mockserver.model.HttpResponse.response;
 @TestPropertySource(properties = {
         "pn.delivery-push.safe-storage-base-url=http://localhost:9998",
 })
-class PnSafeStorageClientReactiveImplTest {
+class PnSafeStorageClientReactiveImplTestIT {
     @Autowired
     private PnSafeStorageClientReactive client;
 
