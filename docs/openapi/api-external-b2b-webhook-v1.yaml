@@ -206,7 +206,17 @@ info:
       <em>NO, le attestazione opponibile ai terzi vengono generate al verificarsi di alcuni eventi rilevanti per la notificazione e di conseguenza avrò un'unca attestazione dello stesso tipo, per notifica.</em>
       </details>
 
-    </details>
+    </details></br>
+    
+    <details>
+      <summary><strong><big><big><big><big>AMBIENTI</big></big></big></big></strong></summary>
+    <ul>  
+    <li><strong>https://api.pn.pagopa.it:</strong></br>Ambiente di produzione</li>
+    <li><strong>https://api.coll.pagopa.it:</strong></br>Ambiente di collaudo</li>
+    <li><strong>https://api.svil.pn.pagopa.it:</strong></br>Ambiente di test. Potrebbe subire modifiche/integrazioni in futuro, rimanendo comunque non-bloccante e rispettando il principio di retro-attività</li>
+    <li><strong>https://api.dev.pn.pagopa.it:</strong></br>Ambiente di sviluppo</li>
+    </ul>  
+    </details></br>
 
     
 
@@ -218,6 +228,8 @@ info:
 servers:
 - url: https://api.pn.pagopa.it
   description: Ambiente di produzione
+- url: https://api.coll.pn.pagopa.it
+  description: Ambiente di collaudo
 - url: https://api.uat.pn.pagopa.it
   description: Ambiente di test
 - url: https://api.dev.pn.pagopa.it
