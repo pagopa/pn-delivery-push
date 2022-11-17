@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionDetails;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookAction;
@@ -27,19 +28,25 @@ public class SchedulerServiceImpl implements SchedulerService {
     }
 
     @Override
+    public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType, ActionDetails actionDetails) {
+        this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, null, actionDetails);
+    }
+    
+    @Override
     public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType) {
-        this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, null);
+        this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, null, null);
     }
 
 
     @Override
-    public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType, String timelineEventId) {
+    public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType, String timelineEventId, ActionDetails actionDetails) {
         Action action = Action.builder()
                 .iun(iun)
                 .recipientIndex(recIndex)
                 .notBefore(dateToSchedule)
                 .type(actionType)
                 .timelineId(timelineEventId)
+                .details(actionDetails)
                 .build();
 
         this.actionsPool.scheduleFutureAction(action.toBuilder()
@@ -89,6 +96,12 @@ public class SchedulerServiceImpl implements SchedulerService {
                 .build();
 
         this.webhooksPool.scheduleFutureAction(action);
+    }
+
+    @Override
+    public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule,
+        ActionType actionType, String timelineId) {
+      this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, timelineId, null);
     }
 
 }

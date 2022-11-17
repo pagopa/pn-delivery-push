@@ -43,7 +43,7 @@ class WebhookServiceImplTest {
     private StatusService statusService;
     private NotificationService notificationService;
 
-    private int MAX_STREAMS = 5;
+    private final int MAX_STREAMS = 5;
 
     @BeforeEach
     void setup() {
@@ -143,9 +143,7 @@ class WebhookServiceImplTest {
 
         //WHEN
         Mono<StreamMetadataResponse> mono = webhookService.createEventStream(xpagopacxid, Mono.just(req));
-        assertThrows(PnWebhookMaxStreamsCountReachedException.class, () -> {
-           mono.block(d);
-        });
+        assertThrows(PnWebhookMaxStreamsCountReachedException.class, () -> mono.block(d));
 
         //THEN
         Mockito.verify(streamEntityDao, Mockito.never()).save(Mockito.any());
@@ -203,7 +201,7 @@ class WebhookServiceImplTest {
         Mockito.when(streamEntityDao.save(Mockito.any())).thenReturn(Mono.just(entity));
 
 
-        Mono mono = webhookService.updateEventStream(xpagopacxid, uuidd, Mono.just(req));
+        Mono<StreamMetadataResponse> mono = webhookService.updateEventStream(xpagopacxid, uuidd, Mono.just(req));
         assertThrows(PnWebhookForbiddenException.class, () -> mono.block(d));
 
         //THEN
@@ -379,7 +377,7 @@ class WebhookServiceImplTest {
     void consumeEventStreamNearEvents() {
         //GIVEN
         String xpagopacxid = "PA-xpagopacxid";
-        String lasteventid = null;
+        String lasteventid;
 
 
         UUID uuidd = UUID.randomUUID();
@@ -434,7 +432,7 @@ class WebhookServiceImplTest {
 
         //THEN
         assertNotNull(res);
-        assertEquals(list.size()-1, res.getProgressResponseElementList().size());
+        assertEquals(list.size(), res.getProgressResponseElementList().size());
         Mockito.verify(streamEntityDao).get(xpagopacxid, uuid);
         Mockito.verify(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any());
     }
@@ -455,7 +453,7 @@ class WebhookServiceImplTest {
 
 
         //WHEN
-        Mono mono = webhookService.consumeEventStream(xpagopacxid, uuidd, lasteventid);
+        Mono<ProgressResponseElementDto> mono = webhookService.consumeEventStream(xpagopacxid, uuidd, lasteventid);
         assertThrows(PnWebhookForbiddenException.class, () -> mono.block(d));
 
         //THEN
@@ -481,6 +479,7 @@ class WebhookServiceImplTest {
         entity.setEventType(StreamMetadataResponse.EventTypeEnum.STATUS.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
+        entity.setEventAtomicCounter(1L);
         list.add(entity);
 
         entity = new StreamEntity();
@@ -490,6 +489,7 @@ class WebhookServiceImplTest {
         entity.setEventType(StreamMetadataResponse.EventTypeEnum.TIMELINE.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
+        entity.setEventAtomicCounter(2L);
 
         list.add(entity);
 
@@ -513,6 +513,8 @@ class WebhookServiceImplTest {
 
 
         Mockito.when(streamEntityDao.findByPa(xpagopacxid)).thenReturn(Flux.fromIterable(list));
+        Mockito.when(streamEntityDao.updateAndGetAtomicCounter(list.get(0))).thenReturn(Mono.just(2L));
+        Mockito.when(streamEntityDao.updateAndGetAtomicCounter(list.get(1))).thenReturn(Mono.just(3L));
         Mockito.when(eventEntityDao.save(Mockito.any(EventEntity.class))).thenReturn(Mono.empty());
         Mockito.when(timelineService.getTimeline(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(settimeline);
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notificationInt);
@@ -574,6 +576,7 @@ class WebhookServiceImplTest {
         entity.setFilterValues(new HashSet<>());
         entity.getFilterValues().add(NotificationStatusInt.ACCEPTED.getValue());
         entity.setActivationDate(Instant.now());
+        entity.setEventAtomicCounter(1L);
         list.add(entity);
 
         entity = new StreamEntity();
@@ -583,6 +586,7 @@ class WebhookServiceImplTest {
         entity.setEventType(StreamMetadataResponse.EventTypeEnum.STATUS.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
+        entity.setEventAtomicCounter(2L);
 
         list.add(entity);
 
@@ -613,6 +617,8 @@ class WebhookServiceImplTest {
                 StatusService.NotificationStatusUpdate(NotificationStatusInt.ACCEPTED, NotificationStatusInt.DELIVERING);
 
         Mockito.when(streamEntityDao.findByPa(xpagopacxid)).thenReturn(Flux.fromIterable(list));
+        Mockito.when(streamEntityDao.updateAndGetAtomicCounter(list.get(0))).thenReturn(Mono.just(2L));
+        Mockito.when(streamEntityDao.updateAndGetAtomicCounter(list.get(1))).thenReturn(Mono.just(3L));
         Mockito.when(eventEntityDao.save(Mockito.any(EventEntity.class))).thenReturn(Mono.empty());
         Mockito.when(timelineService.getTimeline(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(settimeline);
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notificationInt);
@@ -650,6 +656,7 @@ class WebhookServiceImplTest {
         entity.setFilterValues(new HashSet<>());
         entity.getFilterValues().add(TimelineElementCategoryInt.AAR_GENERATION.getValue());
         entity.setActivationDate(Instant.now());
+        entity.setEventAtomicCounter(1L);
         list.add(entity);
 
         entity = new StreamEntity();
@@ -659,7 +666,7 @@ class WebhookServiceImplTest {
         entity.setEventType(StreamMetadataResponse.EventTypeEnum.TIMELINE.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
-
+        entity.setEventAtomicCounter(2L);
         list.add(entity);
 
 
@@ -691,6 +698,8 @@ class WebhookServiceImplTest {
 
 
         Mockito.when(streamEntityDao.findByPa(xpagopacxid)).thenReturn(Flux.fromIterable(list));
+        Mockito.when(streamEntityDao.updateAndGetAtomicCounter(list.get(0))).thenReturn(Mono.just(2L));
+        Mockito.when(streamEntityDao.updateAndGetAtomicCounter(list.get(1))).thenReturn(Mono.just(3L));
         Mockito.when(eventEntityDao.save(Mockito.any(EventEntity.class))).thenReturn(Mono.empty());
         Mockito.when(timelineService.getTimeline(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(settimeline);
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notificationInt);

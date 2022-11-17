@@ -15,4 +15,6 @@ public interface StreamEntityDao {
     Mono<Void> delete(String paId, String streamId);
 
     Mono<StreamEntity> save(StreamEntity entity);
+
+    Mono<Long> updateAndGetAtomicCounter(StreamEntity streamEntity);
 }

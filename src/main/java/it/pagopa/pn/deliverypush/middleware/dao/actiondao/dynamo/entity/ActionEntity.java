@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.entity;
 
+import java.time.Instant;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,9 +8,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbIgnoreNulls;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
-
-import java.time.Instant;
 
 @Builder
 @NoArgsConstructor
@@ -17,70 +17,83 @@ import java.time.Instant;
 @EqualsAndHashCode
 @DynamoDbBean
 public class ActionEntity {
-    public static final String FIELD_ACTION_ID = "actionId";
+  public static final String FIELD_ACTION_ID = "actionId";
 
-    private String actionId;
-    private String iun;
-    private Instant notBefore;
-    private ActionType type;
-    private Integer recipientIndex;
-    private String timeslot;
-    private String timelineId;
-    
-    @DynamoDbPartitionKey
-    @DynamoDbAttribute(value = FIELD_ACTION_ID )
-    public String getActionId() {
-        return actionId;
-    }
-    public void setActionId(String actionId) {
-        this.actionId = actionId;
-    }
+  private String actionId;
+  private String iun;
+  private Instant notBefore;
+  private ActionType type;
+  private Integer recipientIndex;
+  private String timeslot;
+  private String timelineId;
+  private ActionDetailsEntity details;
 
-    public String getIun() {
-        return iun;
-    }
+  @DynamoDbPartitionKey
+  @DynamoDbAttribute(value = FIELD_ACTION_ID)
+  public String getActionId() {
+    return actionId;
+  }
 
-    public void setIun(String iun) {
-        this.iun = iun;
-    }
+  public void setActionId(String actionId) {
+    this.actionId = actionId;
+  }
 
-    public Instant getNotBefore() {
-        return notBefore;
-    }
+  public String getIun() {
+    return iun;
+  }
 
-    public void setNotBefore(Instant notBefore) {
-        this.notBefore = notBefore;
-    }
+  public void setIun(String iun) {
+    this.iun = iun;
+  }
 
-    public ActionType getType() {
-        return type;
-    }
+  public Instant getNotBefore() {
+    return notBefore;
+  }
 
-    public void setType(ActionType type) {
-        this.type = type;
-    }
+  public void setNotBefore(Instant notBefore) {
+    this.notBefore = notBefore;
+  }
 
-    public Integer getRecipientIndex() {
-        return recipientIndex;
-    }
+  public ActionType getType() {
+    return type;
+  }
 
-    public void setRecipientIndex(Integer recipientIndex) {
-        this.recipientIndex = recipientIndex;
-    }
+  public void setType(ActionType type) {
+    this.type = type;
+  }
 
-    public String getTimeslot() {
-        return timeslot;
-    }
+  public Integer getRecipientIndex() {
+    return recipientIndex;
+  }
 
-    public void setTimeslot(String timeslot) {
-        this.timeslot = timeslot;
-    }
+  public void setRecipientIndex(Integer recipientIndex) {
+    this.recipientIndex = recipientIndex;
+  }
 
-    public String getTimelineId() {
-        return timelineId;
-    }
+  public String getTimeslot() {
+    return timeslot;
+  }
 
-    public void setTimelineId(String timelineId) {
-        this.timelineId = timelineId;
-    }
+  public void setTimeslot(String timeslot) {
+    this.timeslot = timeslot;
+  }
+
+  public String getTimelineId() {
+    return timelineId;
+  }
+
+  public void setTimelineId(String timelineId) {
+    this.timelineId = timelineId;
+  }
+
+  @DynamoDbAttribute(value = "details")
+  @DynamoDbIgnoreNulls
+  public ActionDetailsEntity getDetails() {
+    return details;
+  }
+
+  public void setDetails(ActionDetailsEntity details) {
+    this.details = details;
+  }
+
 }

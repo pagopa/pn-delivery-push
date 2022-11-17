@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbIgnoreNulls;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
 
@@ -28,6 +29,7 @@ public class FutureActionEntity {
     private ActionType type;
     private Integer recipientIndex;
     private String timelineId;
+    private ActionDetailsEntity details;
 
     @DynamoDbPartitionKey
     @DynamoDbAttribute(value = FIELD_TIME_SLOT )
@@ -85,5 +87,15 @@ public class FutureActionEntity {
 
     public void setTimelineId(String timelineId) {
         this.timelineId = timelineId;
+    }
+    
+    @DynamoDbAttribute(value = "details")
+    @DynamoDbIgnoreNulls
+    public ActionDetailsEntity getDetails() {
+      return details;
+    }
+    
+    public void setDetails(ActionDetailsEntity details) {
+      this.details = details;
     }
 }

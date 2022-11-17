@@ -3,10 +3,12 @@ package it.pagopa.pn.deliverypush.action.startworkflowrecipient;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
-import it.pagopa.pn.deliverypush.action.utils.AarUtils;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
+import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
+import it.pagopa.pn.deliverypush.action.utils.AarUtils;
 import it.pagopa.pn.deliverypush.action.utils.CourtesyMessageUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import lombok.extern.slf4j.Slf4j;
@@ -35,11 +37,11 @@ public class StartWorkflowForRecipientHandler {
         this.auditLogBuilder = pnAuditLogBuilder;
     }
 
-    public void startNotificationWorkflowForRecipient(String iun, int recIndex) {
+    public void startNotificationWorkflowForRecipient(String iun, int recIndex, RecipientsWorkflowDetails details) {
         log.info("Start notification workflow for recipient - iun {} id {}", iun, recIndex);
         
         NotificationInt notification = notificationService.getNotificationByIun(iun);
-
+        unrichNotificationWithQuickAccessLinkToken(notification, recIndex, details);
         generateAAR(notification, recIndex);
 
         //... Invio messaggio di cortesia ... 
@@ -49,6 +51,10 @@ public class StartWorkflowForRecipientHandler {
         scheduleChooseDeliveryMode(iun, recIndex);
     }
 
+    private void unrichNotificationWithQuickAccessLinkToken(NotificationInt notification, int recIndex, RecipientsWorkflowDetails details ) {
+      NotificationRecipientInt recipient = notification.getRecipients().get(recIndex);
+      recipient.toBuilder().quickAccessLinkToken(details.getQuickAccessLinkToken());
+    }
     private void generateAAR(NotificationInt notification, Integer recIndex) {
         // ... genero il pdf dell'AAR, salvo su Safestorage e genero elemento in timeline AAR_GENERATION, potrebbe servirmi dopo ...
         PnAuditLogEvent logEvent = auditLogBuilder

@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool;
 
 import lombok.*;
-
 import java.time.Instant;
 
 @NoArgsConstructor
@@ -26,4 +25,6 @@ public class Action {
     private String timelineId;
 
     private String timeslot;
+
+    private ActionDetails details;
 }

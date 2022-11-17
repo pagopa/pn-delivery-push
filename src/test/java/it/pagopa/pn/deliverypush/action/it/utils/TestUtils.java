@@ -24,6 +24,8 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionDetails;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
@@ -372,7 +374,7 @@ public class TestUtils {
                                         PnDeliveryPushConfigs pnDeliveryPushConfigs){
         ArgumentCaptor<Instant> instantArgumentCaptor = ArgumentCaptor.forClass(Instant.class);
 
-        Mockito.verify(scheduler, Mockito.times(refinementNumberOfInvocation)).scheduleEvent(Mockito.eq(iun), Mockito.eq(recIndex), instantArgumentCaptor.capture(), Mockito.any() );
+        Mockito.verify(scheduler, Mockito.times(refinementNumberOfInvocation)).scheduleEvent(Mockito.eq(iun), Mockito.eq(recIndex), instantArgumentCaptor.capture(), Mockito.any(ActionType.class));
         List<Instant> instantArgumentCaptorList = instantArgumentCaptor.getAllValues();
         //Viene ottenuta la data di perfezionamento (Valutare se inserire la data di scheduling come campo del timeline element details)
         Instant refinementDate = instantArgumentCaptorList.get(instantArgumentCaptorList.size() - 1);
