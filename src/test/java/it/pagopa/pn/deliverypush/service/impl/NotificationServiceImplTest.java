@@ -92,6 +92,7 @@ class NotificationServiceImplTest {
     }
     
     @Test
+    @ExtendWith(SpringExtension.class)
     void getRecipientsQuickAccessLinkToken() {
         Map<String, String> expected = Map.of("internalId","token");
 
@@ -104,13 +105,14 @@ class NotificationServiceImplTest {
     
     
     @Test
+    @ExtendWith(SpringExtension.class)
     void getRecipientsQuickAccessLinkTokenFailure() {
        
         Mockito.when(pnDeliveryClient.getQuickAccessLinkTokensPrivate("001"))
         .thenReturn(ResponseEntity.internalServerError().body(Map.of()));
 
 
-        PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
+        Assertions.assertThrows(PnInternalException.class, () -> {
           service.getRecipientsQuickAccessLinkToken("001");
       });
         
