@@ -2,11 +2,9 @@ package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.UpdateFileMetadataRequest;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
-import it.pagopa.pn.deliverypush.dto.ext.safestorage.UpdateFileMetadataResponseInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClientReactive;
 import org.junit.jupiter.api.Assertions;
@@ -100,28 +98,5 @@ class SafeStorageServiceImplTest {
         //THEN
         Assertions.assertNotNull(response);
         Assertions.assertEquals(response.getKey(), expectedResponse.getKey());
-    }
-
-    @Test
-    @ExtendWith(SpringExtension.class)
-    void updateFileMetadata() {
-        //GIVEN
-        String fileKey = "test";
-        UpdateFileMetadataRequest updateFileMetadataRequest = new UpdateFileMetadataRequest();
-        updateFileMetadataRequest.setStatus("status");
-
-        FileCreationResponse expectedResponse = new FileCreationResponse();
-        expectedResponse.setKey("key");
-        expectedResponse.setSecret("secret");
-        
-        Mockito.when(safeStorageClient.updateFileMetadata(Mockito.anyString(), Mockito.any(UpdateFileMetadataRequest.class)))
-                .thenReturn(expectedResponse);
-
-        //WHEN
-        UpdateFileMetadataResponseInt response = safeStorageService.updateFileMetadata(fileKey, updateFileMetadataRequest);
-
-        //THEN
-        Assertions.assertNotNull(response);
-        Assertions.assertEquals(response.getResultCode(), expectedResponse.getKey());
     }
 }
