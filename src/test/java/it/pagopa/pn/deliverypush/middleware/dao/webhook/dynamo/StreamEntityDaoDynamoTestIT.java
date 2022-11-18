@@ -226,12 +226,27 @@ class StreamEntityDaoDynamoTestIT {
         }
     }
 
+
+    @Test
+    void updateAndGetAtomicCounterIfNotExists() {
+        //GIVEN
+        StreamEntity streamEntity = newStream(UUID.randomUUID().toString());
+        long previousvalue = streamEntity.getEventAtomicCounter();
+
+        Long res = daoDynamo.updateAndGetAtomicCounter(streamEntity).block(d);
+
+        assert res != null;
+        assertEquals(-1L, res.longValue());
+    }
+
     @Test
     void updateAndGetAtomicCounter() {
         //GIVEN
         StreamEntity streamEntity = newStream(UUID.randomUUID().toString());
         long previousvalue = streamEntity.getEventAtomicCounter();
+        daoDynamo.save(streamEntity).block(d);
 
+        //WHEN
         Long res = daoDynamo.updateAndGetAtomicCounter(streamEntity).block(d);
 
         assert res != null;
@@ -250,7 +265,9 @@ class StreamEntityDaoDynamoTestIT {
 
         int[] results = new int[elements+2];
         results[0] = 0; // il primo lo salto
+        daoDynamo.save(streamEntity).block(d);
 
+        //WHEN
         range.stream().parallel().map((v) -> {
             Long res = daoDynamo.updateAndGetAtomicCounter(streamEntity).block(Duration.ofMillis(20000));
             results[res.intValue()] = res.intValue();

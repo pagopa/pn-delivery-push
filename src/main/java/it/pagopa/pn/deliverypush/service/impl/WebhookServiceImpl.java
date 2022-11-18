@@ -33,10 +33,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -133,8 +130,9 @@ public class WebhookServiceImpl implements WebhookService {
                         progressResponseElement.setNotificationRequestId(ev.getNotificationRequestId());
                         progressResponseElement.setTimelineEventCategory(TimelineElementCategory.fromValue(ev.getTimelineEventCategory()));
                         return progressResponseElement;
-                    }).collect(Collectors.toList());
+                    }).sorted(Comparator.comparing(ProgressResponseElement::getEventId)).collect(Collectors.toList());
 
+                    log.info("consumeEventStream requestEventId={} streamId={} size={} returnedlastEventId={}", lastEventId, streamId, eventList.size(), (!eventList.isEmpty()?eventList.get(eventList.size()-1).getEventId():"ND"));
                     // schedulo la pulizia per gli eventi precedenti a quello richiesto
                     schedulerService.scheduleWebhookEvent(res.getStreamId(), lastEventId, purgeDeletionWaittime, WebhookEventType.PURGE_STREAM_OLDER_THAN);
                     // ritorno gli eventi successivi all'evento di buffer, FILTRANDO quello con lastEventId visto che l'ho sicuramente già ritornato
@@ -177,6 +175,12 @@ public class WebhookServiceImpl implements WebhookService {
     private Mono<Void> processEvent(StreamEntity stream, Instant timestamp, String oldStatus, String newStatus, String timelineEventCategory, String timelineId, String iun) {
         // per ogni stream configurato, devo andare a controllare se lo stato devo salvarlo o meno
         // c'è il caso in cui lo stato non cambia (e se lo stream vuolo solo i cambi di stato, lo ignoro)
+        if (!StringUtils.hasText(stream.getEventType()))
+        {
+            log.warn("skipping saving because webhook stream configuration is not correct stream={}", stream);
+            return Mono.empty();
+        }
+
         StreamCreationRequest.EventTypeEnum eventType = StreamCreationRequest.EventTypeEnum.fromValue(stream.getEventType());
         if (eventType == StreamCreationRequest.EventTypeEnum.STATUS
                 && newStatus.equals(oldStatus))
@@ -251,6 +255,12 @@ public class WebhookServiceImpl implements WebhookService {
         // recupero un contatore aggiornato
         return streamEntityDao.updateAndGetAtomicCounter(streamEntity)
             .flatMap(atomicCounterUpdated -> {
+                if (atomicCounterUpdated < 0)
+                {
+                    log.warn("updateAndGetAtomicCounter counter is -1, skipping saving stream");
+                    return Mono.empty();
+                }
+
                 // creo l'evento e lo salvo
                 EventEntity eventEntity = new EventEntity(atomicCounterUpdated, streamEntity.getStreamId());
                 if (!ttl.isZero())
