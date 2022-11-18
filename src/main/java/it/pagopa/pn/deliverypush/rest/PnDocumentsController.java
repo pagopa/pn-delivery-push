@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import static it.pagopa.pn.deliverypush.rest.PnWebhookEventsController.HEADER_RETRY_AFTER;
-
 @RestController
 @Slf4j
 public class PnDocumentsController implements DocumentsApi {
+    public static final String HEADER_RETRY_AFTER = "retry-after";
+
     private final GetDocumentService getDocumentService;
 
     public PnDocumentsController(GetDocumentService getDocumentService) {

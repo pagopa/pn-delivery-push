@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.service.impl;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.SentNotification;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClientReactive;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -72,7 +73,7 @@ public class NotificationServiceImpl implements NotificationService {
                     throw new PnInternalException("Get notification error - iun " + iun, ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED, error);
                 })
                 .switchIfEmpty(
-                    Mono.error(new PnInternalException("Get notification is not valid for - iun " + iun,
+                    Mono.error(new PnNotFoundException("Not found", "Get notification is not valid for - iun " + iun,
                             ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED))
                 )
                 .map(NotificationMapper::externalToInternal);
