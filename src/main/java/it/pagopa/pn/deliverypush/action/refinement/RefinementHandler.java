@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.refinement;
 
+import it.pagopa.pn.deliverypush.action.startworkflow.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -12,19 +13,24 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class RefinementHandler {
+    private static final int RETENTION_FILE_REFINEMENT_DAYS = 120;
+
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
     private final NotificationService notificationService;
     private final NotificationCostService notificationCostService;
+    private final AttachmentUtils attachmentUtils;
     
     public RefinementHandler(TimelineService timelineService,
                              TimelineUtils timelineUtils,
                              NotificationService notificationService, 
-                             NotificationCostService notificationCostService) {
+                             NotificationCostService notificationCostService,
+                             AttachmentUtils attachmentUtils) {
         this.timelineService = timelineService;
         this.timelineUtils = timelineUtils;
         this.notificationService = notificationService;
         this.notificationCostService = notificationCostService;
+        this.attachmentUtils = attachmentUtils;
     }
 
     public void handleRefinement(String iun, Integer recIndex) {
@@ -38,6 +44,7 @@ public class RefinementHandler {
             Integer notificationCost = notificationCostService.getNotificationCost(notification, recIndex);
             log.debug("Notification cost is {} - iun {} id {}",notificationCost, iun, recIndex);
 
+            attachmentUtils.changeAttachmentsRetention(notification, RETENTION_FILE_REFINEMENT_DAYS);
             addTimelineElement(
                     timelineUtils.buildRefinementTimelineElement(notification, recIndex, notificationCost),
                     notification
