@@ -22,12 +22,22 @@ public class AuthUtils {
         this.mandateService = mandateService;
     }
 
+    //Viene verificata l'autorizzazione di accesso a una determinata risorsa da parte del recipient
+    public void checkUserAuthorization(NotificationInt notification, String recipientId) {
+        String iun = notification.getIun();
+        log.info("Start checkUserAuthorization - iun={} recipientId={} ", iun, recipientId);
+
+        checkAuthForRecipients(notification, recipientId);
+
+        log.info("End checkUserAuthorization - iun={} recipientId={} ", iun, recipientId);
+    }
+    
     //Viene verificata l'autorizzazione di accesso ad una determinata risorsa da parte del sender/recipient o se presente del delegato
-    public void checkUserAndMandateAuthorization(NotificationInt notification, String senderRecipientId, String mandateId) {
+    public void checkUserPaAndMandateAuthorization(NotificationInt notification, String senderRecipientId, String mandateId) {
         String paId = notification.getSender().getPaId();
         String iun = notification.getIun();
 
-        log.info("Start Check authorization - iun={} senderRecipientId={} paId={} mandateId={}", iun, senderRecipientId, paId, mandateId);
+        log.info("Start CheckUserPaAndMandateAuthorization - iun={} senderRecipientId={} paId={} mandateId={}", iun, senderRecipientId, paId, mandateId);
 
         if( StringUtils.hasText( mandateId ) ){
             checkAuthForMandate(notification, senderRecipientId, mandateId, paId, iun);
@@ -98,7 +108,7 @@ public class AuthUtils {
     }
 
     private void checkAuthForRecipients(NotificationInt notification, String recipientId) {
-        //La richiesta non proviene dalla PA va quindi verificato se proviene da uno dei destinatari della notifica
+        //Viene verificato se la richiesta proviene da uno dei destinatari della notifica
          
         boolean isRequestFromRecipient = notification.getRecipients().stream().anyMatch(
                 recipient -> recipient.getInternalId().equals(recipientId)
@@ -108,7 +118,7 @@ public class AuthUtils {
             String message = String.format("User haven't authorization to get required legal facts - iun=%s user=%s", notification.getIun(), recipientId);
             handleError(message);
         }else {
-            log.info("Request is from recipient, authorization is valid");
+            log.info("Request is from recipient, authorization is valid - iun={} id={}", notification.getIun(), recipientId);
         }
     }
 

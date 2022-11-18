@@ -44,7 +44,7 @@ class AuthUtilsTest {
         NotificationInt notification = getNotification(iun, taxId, taxIdAnon, paId01, sentAt);
 
         //WHEN
-        assertDoesNotThrow(() -> authUtils.checkUserAndMandateAuthorization(notification, taxIdAnon, null));
+        assertDoesNotThrow(() -> authUtils.checkUserPaAndMandateAuthorization(notification, taxIdAnon, null));
     }
 
     @Test
@@ -61,7 +61,7 @@ class AuthUtilsTest {
 
         //WHEN
         Assertions.assertThrows(PnNotFoundException.class, () ->
-                authUtils.checkUserAndMandateAuthorization(notification, senderTaxId, null)
+                authUtils.checkUserPaAndMandateAuthorization(notification, senderTaxId, null)
         );
     }
 
@@ -77,7 +77,7 @@ class AuthUtilsTest {
         NotificationInt notification = getNotification(iun, taxId, taxIdAnon, paId01, sentAt);
 
         //WHEN
-        assertDoesNotThrow(() -> authUtils.checkUserAndMandateAuthorization(notification, paId01, null));
+        assertDoesNotThrow(() -> authUtils.checkUserPaAndMandateAuthorization(notification, paId01, null));
     }
 
     @Test
@@ -94,7 +94,7 @@ class AuthUtilsTest {
 
         //WHEN
         Assertions.assertThrows(PnNotFoundException.class, () ->
-                authUtils.checkUserAndMandateAuthorization(notification, senderPaId01, null)
+                authUtils.checkUserPaAndMandateAuthorization(notification, senderPaId01, null)
         );
     }
 
@@ -125,7 +125,7 @@ class AuthUtilsTest {
         Mockito.when(mandateService.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString())).thenReturn(List.of(mandate));
 
         //WHEN
-        assertDoesNotThrow(() -> authUtils.checkUserAndMandateAuthorization(notification, taxIdAnon, mandateId));
+        assertDoesNotThrow(() -> authUtils.checkUserPaAndMandateAuthorization(notification, taxIdAnon, mandateId));
     }
 
     @Test
@@ -156,7 +156,7 @@ class AuthUtilsTest {
 
         //WHEN
         Assertions.assertThrows(PnNotFoundException.class, () ->
-                authUtils.checkUserAndMandateAuthorization(notification, taxIdAnon, mandateId)
+                authUtils.checkUserPaAndMandateAuthorization(notification, taxIdAnon, mandateId)
         );
     }
 
@@ -177,7 +177,7 @@ class AuthUtilsTest {
 
         //WHEN
         Assertions.assertThrows(PnNotFoundException.class, () ->
-                authUtils.checkUserAndMandateAuthorization(notification, taxIdAnon, mandateId)
+                authUtils.checkUserPaAndMandateAuthorization(notification, taxIdAnon, mandateId)
         );
     }
 
@@ -211,7 +211,7 @@ class AuthUtilsTest {
 
         //WHEN
         Assertions.assertThrows(PnNotFoundException.class, () ->
-                authUtils.checkUserAndMandateAuthorization(notification, taxIdAnon, mandateId)
+                authUtils.checkUserPaAndMandateAuthorization(notification, taxIdAnon, mandateId)
         );
     }
 
