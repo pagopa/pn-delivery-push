@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import freemarker.template.Configuration;
 import freemarker.template.Version;
+import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
@@ -23,6 +24,10 @@ import it.pagopa.pn.deliverypush.utils.HtmlSanitizer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.Base64Utils;
 
 import java.io.File;
@@ -43,30 +48,28 @@ class LegalFactPdfGeneratorTest {
 	private static final String TEST_DIR_NAME = "target" + File.separator + "generated-test-PDF";
 	private static final Path TEST_DIR_PATH = Paths.get(TEST_DIR_NAME);
 
-	private DocumentComposition documentComposition;
-	private CustomInstantWriter instantWriter;
-	private PhysicalAddressWriter physicalAddressWriter;
-	private PnDeliveryPushConfigs pnDeliveryPushConfigs;
-	private LegalFactGenerator pdfUtils;
-	private InstantNowSupplier instantNowSupplier;
+	@Mock
+	private MVPParameterConsumer mvpParameterConsumer;
 
+	private LegalFactGenerator pdfUtils;
+	
 	@BeforeEach
 	public void setup() throws IOException {
 		Configuration freemarker = new Configuration(new Version(2,3,0)); //Version is a final class
 		HtmlSanitizer htmlSanitizer = new HtmlSanitizer(buildObjectMapper(), HtmlSanitizer.SanitizeMode.ESCAPING);
-		documentComposition = new DocumentComposition(freemarker, htmlSanitizer);
-		
-		instantWriter = new CustomInstantWriter();
-		physicalAddressWriter = new PhysicalAddressWriter();
-		pnDeliveryPushConfigs = new PnDeliveryPushConfigs();
-		instantNowSupplier = new InstantNowSupplier();
+		DocumentComposition documentComposition = new DocumentComposition(freemarker, htmlSanitizer);
+
+		CustomInstantWriter instantWriter = new CustomInstantWriter();
+		PhysicalAddressWriter physicalAddressWriter = new PhysicalAddressWriter();
+		PnDeliveryPushConfigs pnDeliveryPushConfigs = new PnDeliveryPushConfigs();
+		InstantNowSupplier instantNowSupplier = new InstantNowSupplier();
 		pnDeliveryPushConfigs.setWebapp(new PnDeliveryPushConfigs.Webapp());
 		pnDeliveryPushConfigs.getWebapp().setFaqUrlTemplate("https://notifichedigitali.it/faq");
 		pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplate("https://notifichedigitali.it/iun=%s");
 		pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailPfTemplate("http://localhost:8090/notifica?aar=%s");
 		pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailPgTemplate("http://localhost:8090/notifica?aar=%s");
 
-		pdfUtils = new LegalFactGenerator(documentComposition, instantWriter, physicalAddressWriter, pnDeliveryPushConfigs, instantNowSupplier);
+		pdfUtils = new LegalFactGenerator(documentComposition, instantWriter, physicalAddressWriter, pnDeliveryPushConfigs, instantNowSupplier, mvpParameterConsumer);
 
 		//create target test folder, if not exists
 		if (Files.notExists(TEST_DIR_PATH)) { 
@@ -140,10 +143,25 @@ class LegalFactPdfGeneratorTest {
 		Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateFileCompliance("PDF file name whitout extension", "test signature", Instant.now())));
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
-	
-	@Test 
-	void generateNotificationAARTest() throws IOException {	
+
+	@Test
+	@ExtendWith(SpringExtension.class)
+	void generateNotificationAARTest() throws IOException {
+		Mockito.when(mvpParameterConsumer.isMvp(Mockito.anyString())).thenReturn(false);
+
 		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
+		NotificationInt notificationInt = buildNotification();
+		NotificationRecipientInt  recipient = notificationInt.getRecipients().get(0).toBuilder().quickAccessLinkToken("test").build();
+		Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationAAR(notificationInt, recipient)));
+		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+	}
+	
+	@Test
+	@ExtendWith(SpringExtension.class)
+	void generateNotificationAARMVPTest() throws IOException {
+		Mockito.when(mvpParameterConsumer.isMvp(Mockito.anyString())).thenReturn(true);
+		
+		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAARMVP.pdf");
 		NotificationInt notificationInt = buildNotification();
 		NotificationRecipientInt  recipient = notificationInt.getRecipients().get(0).toBuilder().quickAccessLinkToken("test").build();
 		Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationAAR(notificationInt, recipient)));

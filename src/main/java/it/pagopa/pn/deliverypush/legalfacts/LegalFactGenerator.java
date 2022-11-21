@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
+import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.utils.FileUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
@@ -55,18 +56,21 @@ public class LegalFactGenerator {
     private final PhysicalAddressWriter physicalAddressWriter;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private final InstantNowSupplier instantNowSupplier;
-    
+    private final MVPParameterConsumer mvpParameterConsumer;
+
     public LegalFactGenerator(
             DocumentComposition documentComposition,
             CustomInstantWriter instantWriter,
             PhysicalAddressWriter physicalAddressWriter,
             PnDeliveryPushConfigs pnDeliveryPushConfigs,
-            InstantNowSupplier instantNowSupplier) {
+            InstantNowSupplier instantNowSupplier,
+            MVPParameterConsumer mvpParameterConsumer) {
         this.documentComposition = documentComposition;
         this.instantWriter = instantWriter;
         this.physicalAddressWriter = physicalAddressWriter;
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
         this.instantNowSupplier = instantNowSupplier;
+        this.mvpParameterConsumer = mvpParameterConsumer;
     }
 
 
@@ -232,10 +236,19 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_RECIPIENT, recipient);
         templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
         templateModel.put(FIELD_QRCODE_QUICK_ACCESS_LINK, this.getQrCodeQuickAccessUrlAarDetail(recipient) );
-        return documentComposition.executePdfTemplate(
-                DocumentComposition.TemplateType.AAR_NOTIFICATION,
-                templateModel
-        );
+
+        if( Boolean.FALSE.equals( mvpParameterConsumer.isMvp( notification.getSender().getPaTaxId() ) ) ){
+            return documentComposition.executePdfTemplate(
+                    DocumentComposition.TemplateType.AAR_NOTIFICATION,
+                    templateModel
+            );
+        }else {
+            //In mvp viene generato un AAR senza QrCode
+            return documentComposition.executePdfTemplate(
+                    DocumentComposition.TemplateType.AAR_NOTIFICATION_MVP,
+                    templateModel
+            );
+        }
 
     }
 
