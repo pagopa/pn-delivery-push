@@ -56,8 +56,8 @@ class TimeLineServiceImplTest {
     @Test
     void addTimelineElement(){
         //GIVEN
-        String iun = "iun";
-        String elementId = "elementId";
+        String iun = "iun_12345";
+        String elementId = "elementId_12345";
 
         NotificationInt notification = getNotification(iun);
         StatusService.NotificationStatusUpdate notificationStatuses = new StatusService.NotificationStatusUpdate(NotificationStatusInt.ACCEPTED, NotificationStatusInt.ACCEPTED);
