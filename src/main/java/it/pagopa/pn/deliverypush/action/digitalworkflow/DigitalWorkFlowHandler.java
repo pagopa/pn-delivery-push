@@ -234,8 +234,8 @@ public class DigitalWorkFlowHandler {
 
         unscheduleTimeoutAction(notification.getIun(), recIndex, sourceTimelineId);
 
-        Duration secondNotificationWorkflowWaitingTime = pnDeliveryPushConfigs.getExternalChannel().getDigitalSendNoresponseTimeout();
-        Instant schedulingDate = Instant.now().plus(secondNotificationWorkflowWaitingTime);
+        Duration digitalNoResponseTimeout = pnDeliveryPushConfigs.getExternalChannel().getDigitalSendNoresponseTimeout();
+        Instant schedulingDate = Instant.now().plus(digitalNoResponseTimeout);
 
         this.schedulerService.scheduleEvent(notification.getIun(), recIndex, schedulingDate, ActionType.DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION, timelineId);
         log.info("sendDigitalNotificationAndScheduleTimeoutAction scheduled DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION for iun={} recIdx={} timelineId={} schedulingDate={}", notification.getIun(), recIndex, timelineId, schedulingDate);

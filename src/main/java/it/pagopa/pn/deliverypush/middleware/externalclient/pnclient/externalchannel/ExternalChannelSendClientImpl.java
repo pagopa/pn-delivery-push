@@ -27,7 +27,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.PostConstruct;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
+import java.util.List;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.*;
 
@@ -47,7 +47,9 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
     private PaperMessagesApi paperMessagesApi;
     private final LegalFactGenerator legalFactGenerator;
 
-    public ExternalChannelSendClientImpl(@Qualifier("withOffsetDateTimeFormatter") RestTemplate restTemplate, PnDeliveryPushConfigs cfg, LegalFactGenerator legalFactGenerator) {
+    public ExternalChannelSendClientImpl(@Qualifier("withOffsetDateTimeFormatter") RestTemplate restTemplate,
+                                         PnDeliveryPushConfigs cfg, 
+                                         LegalFactGenerator legalFactGenerator) {
         this.legalFactGenerator = legalFactGenerator;
         this.cfg = cfg;
         this.restTemplate = restTemplate;
@@ -101,10 +103,14 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
     }
 
     @Override
-    public void sendLegalNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, LegalDigitalAddressInt digitalAddress, String timelineEventId)
+    public void sendLegalNotification(NotificationInt notificationInt, 
+                                      NotificationRecipientInt recipientInt,
+                                      LegalDigitalAddressInt digitalAddress,
+                                      String timelineEventId,
+                                      String aarKey)
     {
         if (digitalAddress.getType() == LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC) {
-            sendNotificationPEC(timelineEventId, notificationInt, recipientInt, digitalAddress);
+            sendNotificationPEC(timelineEventId, notificationInt, recipientInt, digitalAddress,aarKey);
         } else {
             log.error("channel type not supported for iun={}", notificationInt.getIun());
             throw new PnInternalException("channel type not supported", ERROR_CODE_DELIVERYPUSH_CHANNELTYPENOTSUPPORTED);
@@ -112,10 +118,14 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
     }
 
     @Override
-    public void sendCourtesyNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, CourtesyDigitalAddressInt digitalAddress, String timelineEventId)
+    public void sendCourtesyNotification(NotificationInt notificationInt,
+                                         NotificationRecipientInt recipientInt,
+                                         CourtesyDigitalAddressInt digitalAddress,
+                                         String timelineEventId,
+                                         String aarKey)
     {
         if (digitalAddress.getType() == CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL) {
-            sendNotificationEMAIL(timelineEventId, notificationInt, recipientInt, digitalAddress);
+            sendNotificationEMAIL(timelineEventId, notificationInt, recipientInt, digitalAddress, aarKey);
         } else if (digitalAddress.getType() == CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.SMS) {
             sendNotificationSMS(timelineEventId, notificationInt, recipientInt, digitalAddress);
         } else {
@@ -125,13 +135,17 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
     }
 
 
-    private void sendNotificationPEC(String requestId, NotificationInt notificationInt,  NotificationRecipientInt recipientInt, DigitalAddressInt digitalAddress)
+    private void sendNotificationPEC(String requestId, 
+                                     NotificationInt notificationInt, 
+                                     NotificationRecipientInt recipientInt,
+                                     DigitalAddressInt digitalAddress,
+                                     String aarKey)
     {
         try {
             log.info("[enter] sendNotificationPEC address={} requestId={} recipient={}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
 
-            String mailbody = legalFactGenerator.generateNotificationAARPECBody(notificationInt, recipientInt);
-            String mailsubj = legalFactGenerator.generateNotificationAARSubject(notificationInt);
+            String mailBody = legalFactGenerator.generateNotificationAARPECBody(notificationInt, recipientInt);
+            String mailSubj = legalFactGenerator.generateNotificationAARSubject(notificationInt);
 
             DigitalNotificationRequest digitalNotificationRequestDto = new DigitalNotificationRequest();
             digitalNotificationRequestDto.setChannel(DigitalNotificationRequest.ChannelEnum.PEC);
@@ -142,9 +156,9 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
             digitalNotificationRequestDto.setQos(DigitalNotificationRequest.QosEnum.BATCH);
             digitalNotificationRequestDto.setReceiverDigitalAddress(digitalAddress.getAddress());
             digitalNotificationRequestDto.setClientRequestTimeStamp(OffsetDateTime.now(ZoneOffset.UTC));
-            digitalNotificationRequestDto.setMessageText(mailbody);
-            digitalNotificationRequestDto.setSubjectText(mailsubj);
-            digitalNotificationRequestDto.setAttachmentUrls(new ArrayList<>());
+            digitalNotificationRequestDto.setMessageText(mailBody);
+            digitalNotificationRequestDto.setSubjectText(mailSubj);
+            digitalNotificationRequestDto.setAttachmentUrls(List.of(aarKey));
             if (StringUtils.hasText(cfg.getExternalchannelSenderPec()))
                 digitalNotificationRequestDto.setSenderDigitalAddress(cfg.getExternalchannelSenderPec());
 
@@ -157,7 +171,11 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
         }
     }
 
-    private void sendNotificationEMAIL(String requestId, NotificationInt notificationInt, NotificationRecipientInt recipientInt, DigitalAddressInt digitalAddress)
+    private void sendNotificationEMAIL(String requestId,
+                                       NotificationInt notificationInt,
+                                       NotificationRecipientInt recipientInt,
+                                       DigitalAddressInt digitalAddress,
+                                       String aarKey)
     {
         try {
             log.info("[enter] sendNotificationEMAIL address={} requestId={} recipient={}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
@@ -176,7 +194,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
             digitalNotificationRequestDto.setMessageContentType(DigitalCourtesyMailRequest.MessageContentTypeEnum.HTML);
             digitalNotificationRequestDto.setMessageText(mailbody);
             digitalNotificationRequestDto.setSubjectText(mailsubj);
-            digitalNotificationRequestDto.setAttachmentUrls(new ArrayList<>());
+            digitalNotificationRequestDto.setAttachmentUrls(List.of(aarKey));
             if (StringUtils.hasText(cfg.getExternalchannelSenderEmail()))
                 digitalNotificationRequestDto.setSenderDigitalAddress(cfg.getExternalchannelSenderEmail());
 
