@@ -1,19 +1,22 @@
 package it.pagopa.pn.deliverypush.rest;
 
+import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DocumentCategory;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DocumentDownloadMetadataResponse;
 import it.pagopa.pn.deliverypush.service.GetDocumentService;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
+
+import java.math.BigDecimal;
+
+import static it.pagopa.pn.deliverypush.rest.PnDocumentsController.HEADER_RETRY_AFTER;
 
 @WebFluxTest(PnDocumentsController.class)
 class PnDocumentsControllerTest {
@@ -25,7 +28,6 @@ class PnDocumentsControllerTest {
     private GetDocumentService getDocumentService;
 
     @Test
-    @ExtendWith(SpringExtension.class)
     void getDocuments() {
         DocumentDownloadMetadataResponse downloadMetadataResponse = new DocumentDownloadMetadataResponse();
         
@@ -54,4 +56,71 @@ class PnDocumentsControllerTest {
 
         Mockito.verify( getDocumentService ).getDocumentMetadata( iun, documentType, documentId, recipientInternalId );
     }
+
+    @Test
+    void getDocumentsWebSuccessTest() {
+        DocumentDownloadMetadataResponse downloadMetadataResponse = new DocumentDownloadMetadataResponse();
+        downloadMetadataResponse.setRetryAfter(BigDecimal.ZERO);
+
+        Mono<DocumentDownloadMetadataResponse> monoDownloadMetadataResponse = Mono.just(downloadMetadataResponse);
+
+        Mockito.when( getDocumentService.getDocumentWebMetadata( Mockito.anyString(), Mockito.any(DocumentCategory.class)
+                        , Mockito.anyString(), Mockito.anyString(), Mockito.isNull() ))
+                .thenReturn( monoDownloadMetadataResponse );
+
+        String iun = "fake_iun";
+        DocumentCategory documentType = DocumentCategory.AAR;
+        String documentId = "legal_fact_id";
+        String senderReceiverId = "senderReceiverId";
+
+        webTestClient.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-push/" + iun + "/document/"+documentType.getValue()+"/"+documentId )
+                                .build())
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .header("x-pagopa-pn-uid", "1234")
+                .header("x-pagopa-pn-cx-type", "PF")
+                .header("x-pagopa-pn-cx-id", senderReceiverId)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectHeader()
+                .valueEquals(HEADER_RETRY_AFTER, BigDecimal.ZERO.toString());
+
+        Mockito.verify( getDocumentService ).getDocumentWebMetadata( iun, documentType, documentId, senderReceiverId, null );
+    }
+
+    @Test
+    void getDocumentsWebNotFoundTest() {
+        DocumentDownloadMetadataResponse downloadMetadataResponse = new DocumentDownloadMetadataResponse();
+        downloadMetadataResponse.setRetryAfter(BigDecimal.ZERO);
+
+        Mockito.when( getDocumentService.getDocumentWebMetadata( Mockito.anyString(), Mockito.any(DocumentCategory.class)
+                        , Mockito.anyString(), Mockito.anyString(), Mockito.isNull() ))
+                .thenThrow( new PnNotFoundException("", "", ""));
+
+        String iun = "fake_iun";
+        DocumentCategory documentType = DocumentCategory.AAR;
+        String documentId = "legal_fact_id";
+        String senderReceiverId = "senderReceiverId";
+
+        webTestClient.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-push/" + iun + "/document/"+documentType.getValue()+"/"+documentId )
+                                .build())
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .header("x-pagopa-pn-uid", "1234")
+                .header("x-pagopa-pn-cx-type", "PF")
+                .header("x-pagopa-pn-cx-id", senderReceiverId)
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+
+        Mockito.verify( getDocumentService ).getDocumentWebMetadata( iun, documentType, documentId, senderReceiverId, null );
+    }
+
 }

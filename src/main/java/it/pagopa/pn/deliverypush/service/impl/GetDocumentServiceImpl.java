@@ -48,6 +48,16 @@ public class GetDocumentServiceImpl implements GetDocumentService {
                 );
     }
 
+    @Override
+    public Mono<DocumentDownloadMetadataResponse> getDocumentWebMetadata(String iun, DocumentCategory documentType, String documentId, String senderReceiverId, String mandateId) {
+        log.info("Start getDocumentWebMetadata iun={} senderReceiverId={} mandateId={} documentId={}", iun, senderReceiverId, mandateId, documentId );
+        return notificationService.getNotificationByIunReactive(iun)
+                .doOnNext(notificationInt -> authUtils.checkUserPaAndMandateAuthorization(notificationInt, senderReceiverId, mandateId))
+                .flatMap(notificationInt -> safeStorageService.getFileReactive(documentId, false))
+                .map(fileDownloadResponse -> generateResponse(iun, documentType, documentId,fileDownloadResponse))
+                .doOnSuccess(documentDownloadMetadataResponse -> log.info( "getDocumentWebMetadata Success iun={} documentId={}", iun, documentId ));
+    }
+
     @NotNull
     private DocumentDownloadMetadataResponse generateResponse(String iun,
                                                               DocumentCategory documentType, 

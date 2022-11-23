@@ -1,6 +1,8 @@
 package it.pagopa.pn.deliverypush.rest;
 
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.DocumentsApi;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.DocumentsWebApi;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DocumentCategory;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DocumentDownloadMetadataResponse;
 import it.pagopa.pn.deliverypush.service.GetDocumentService;
@@ -11,9 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @RestController
 @Slf4j
-public class PnDocumentsController implements DocumentsApi {
+public class PnDocumentsController implements DocumentsApi, DocumentsWebApi {
     public static final String HEADER_RETRY_AFTER = "retry-after";
 
     private final GetDocumentService getDocumentService;
@@ -43,4 +47,20 @@ public class PnDocumentsController implements DocumentsApi {
                             .body(response);
                 });
     }
+
+    @Override
+    public Mono<ResponseEntity<DocumentDownloadMetadataResponse>> getDocumentsWeb(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType,
+                                                                               String xPagopaPnCxId, String iun,
+                                                                               DocumentCategory documentType, String documentId,
+                                                                               List<String> xPagopaPnCxGroups, String mandateId,
+                                                                                  final ServerWebExchange exchange) {
+
+        log.info("[enter] getDocuments iun={} xPagopaPnCxId={} documentType={} documentId={} mandateId={}", iun, xPagopaPnCxId, documentType, documentId, mandateId);
+
+        return getDocumentService.getDocumentWebMetadata(iun, documentType, documentId, xPagopaPnCxId, mandateId)
+                .map(response -> ResponseEntity.ok()
+                        .header(HEADER_RETRY_AFTER, "" + response.getRetryAfter())
+                        .body(response));
+    }
+
 }
