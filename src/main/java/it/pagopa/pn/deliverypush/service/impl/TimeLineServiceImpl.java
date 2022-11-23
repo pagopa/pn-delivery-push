@@ -1,5 +1,4 @@
 package it.pagopa.pn.deliverypush.service.impl;
-
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
@@ -80,7 +79,6 @@ public class TimeLineServiceImpl implements TimelineService {
 
                 timelineInsertSkipped = persistTimelineElement(dtoWithStatusInfo);
 
-
                 // genero un messaggio per l'aggiunta in sqs in modo da salvarlo in maniera asincrona
                 schedulerService.scheduleWebhookEvent(
                         notification.getSender().getPaId(),
@@ -88,7 +86,8 @@ public class TimeLineServiceImpl implements TimelineService {
                         dtoWithStatusInfo.getElementId()
                 );
 
-                logEvent.generateSuccess(timelineInsertSkipped?"Timeline event was already inserted before":null).log();
+                String successMsg = "Timeline event inserted with iun=" + dto.getIun() + " elementId = " + dto.getElementId();
+                logEvent.generateSuccess(timelineInsertSkipped?"Timeline event was already inserted before": successMsg).log();
             } catch (Exception ex) {
                 logEvent.generateFailure("Exception in addTimelineElement, ex={}", ex).log();
                 throw new PnInternalException("Exception in addTimelineElement - iun=" + notification.getIun() + " elementId=" + dto.getElementId(), ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED, ex);
@@ -120,7 +119,6 @@ public class TimeLineServiceImpl implements TimelineService {
                 dto.getElementId(),
                 dto.getTimestamp()
         );
-
         return auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_TIMELINE, auditLog)
                 .iun(dto.getIun())

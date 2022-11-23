@@ -31,7 +31,6 @@ tags:
     description: >-
       Recupero degli atti opponibili a terzi generati per una notifica
 
-
 paths:
   '/status':
     get:

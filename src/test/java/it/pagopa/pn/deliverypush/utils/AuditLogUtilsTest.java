@@ -8,11 +8,33 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Flux;
+
+import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class AuditLogUtilsTest {
+    @Test
+    void test() {
+        System.out.println("Start flusso");
+
+        Flux.just(10,20,30,40)
+                .map( e -> e * 2)
+                .subscribe(testMethod());
+        
+        System.out.println("Prima della subscribe");
+        
+        System.out.println("Dopo la subscribe");
+        
+    }
     
+    public Consumer<Integer> testMethod(){
+        return message -> {
+            System.out.println("questo è un consumer "+ message);
+        };
+    }
+
     @Test
     void getAuditLogEventTypeMandate() {
         String iun_01 = "IUN_01";

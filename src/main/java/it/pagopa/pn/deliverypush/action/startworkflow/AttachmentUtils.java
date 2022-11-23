@@ -18,6 +18,8 @@ import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.function.Consumer;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.*;
@@ -56,6 +58,13 @@ public class AttachmentUtils {
         log.info( "changeAttachmentsStatusToAttached iun={}", notification.getIun());
 
         forEachAttachment(notification, this::changeAttachmentStatusToAttached);
+    }
+
+    public void changeAttachmentsRetention(NotificationInt notification, int retentionUntilDays) {
+        log.info( "changeAttachmentsRetention iun={}", notification.getIun());
+
+        forEachAttachment(notification,
+                notificationDocumentInt -> this.changeAttachmentRetention(notificationDocumentInt, retentionUntilDays));
     }
 
 
@@ -104,21 +113,37 @@ public class AttachmentUtils {
 
     private void changeAttachmentStatusToAttached(NotificationDocumentInt attachment) {
         NotificationDocumentInt.Ref ref = attachment.getRef();
+        final String ATTACHED_STATUS = "ATTACHED";
         log.debug( "changeAttachmentStatusToAttached begin changing status for attachment with key={}", ref.getKey());
 
-        UpdateFileMetadataRequest request = new UpdateFileMetadataRequest();
-        request.setStatus("ATTACHED");
+        updateFileMetadata(ref.getKey(), ATTACHED_STATUS, null);
 
-        UpdateFileMetadataResponseInt fd = safeStorageService.updateFileMetadata(ref.getKey(), request);
+        log.info( "changeAttachmentStatusToAttached changed status for attachment with key={}", ref.getKey());
+
+    }
+
+    private void changeAttachmentRetention(NotificationDocumentInt attachment, int retentionUntilDays) {
+        NotificationDocumentInt.Ref ref = attachment.getRef();
+        Instant retentionUntil = Instant.now().plus(retentionUntilDays, ChronoUnit.DAYS);
+        log.debug( "changeAttachmentRetention begin changing retentionUntil for attachment with key={}", ref.getKey());
+
+        updateFileMetadata(ref.getKey(), "SAVED", retentionUntil);
+
+        log.info( "changeAttachmentRetention changed retentionUntil for attachment with key={}", ref.getKey());
+    }
+
+    private void updateFileMetadata(String fileKey, String statusRequest, Instant retentionUntilRequest) {
+        UpdateFileMetadataRequest request = new UpdateFileMetadataRequest();
+        request.setStatus(statusRequest);
+        request.setRetentionUntil(retentionUntilRequest);
+
+        UpdateFileMetadataResponseInt fd = safeStorageService.updateFileMetadata(fileKey, request);
 
         if (!fd.getResultCode().startsWith("2"))
         {
             // è un FAIL
-            log.error("Cannot change attachment status attachment key={} result={}", ref.getKey(), fd);
-            throw new PnInternalException("FAiled to mark an attachment as ATTACHED", ERROR_CODE_DELIVERYPUSH_ATTACHMENTCHANGESTATUSFAILED);
+            log.error("Cannot change metadata for attachment key={} result={}", fileKey, fd);
+            throw new PnInternalException("Failed update metadata attachment", ERROR_CODE_DELIVERYPUSH_ATTACHMENTCHANGESTATUSFAILED);
         }
-
-        log.info( "changeAttachmentStatusToAttached changed status for attachment with key={}", ref.getKey());
-
     }
 }

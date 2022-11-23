@@ -1,28 +1,20 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.commons.exceptions.ExceptionHelper;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.commons.exceptions.PnValidationExceptionBuilder;
-import it.pagopa.pn.commons.exceptions.dto.ProblemError;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.UpdateFileMetadataRequest;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.*;
-import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClientReactive;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
+import reactor.core.publisher.Mono;
 
 import java.security.MessageDigest;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Optional;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.*;
 
@@ -30,9 +22,12 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 @Service
 public class SafeStorageServiceImpl implements SafeStorageService {
     private final PnSafeStorageClient safeStorageClient;
+    private final PnSafeStorageClientReactive safeStorageClientReactive;
 
-    public SafeStorageServiceImpl(PnSafeStorageClient safeStorageClient) {
+    public SafeStorageServiceImpl(PnSafeStorageClient safeStorageClient, 
+                                  PnSafeStorageClientReactive safeStorageClientReactive) {
         this.safeStorageClient = safeStorageClient;
+        this.safeStorageClientReactive = safeStorageClientReactive;
     }
 
     @Override
@@ -61,8 +56,19 @@ public class SafeStorageServiceImpl implements SafeStorageService {
                             .build()
             );
         }
-        
+
         return responseIntBuilder.build();
+    }
+    
+    @Override
+    public Mono<FileDownloadResponseInt> getFileReactive(String fileKey, Boolean metadataOnly){
+        return safeStorageClientReactive.getFile(fileKey, metadataOnly)
+                .onErrorResume( ex -> {
+                            String message = String.format("Get file failed for - fileKey=%s isMetadataOnly=%b", fileKey, metadataOnly);
+                            throw new PnNotFoundException("Not found", message, ERROR_CODE_DELIVERYPUSH_NOTFOUND, ex);
+                        }
+                )
+                .map(this::getFileDownloadResponseInt);
     }
 
     @Override
