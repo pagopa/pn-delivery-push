@@ -168,17 +168,18 @@ class LegalFactPdfGeneratorTest {
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
 
-	@Test 
-    void generateNotificationAARPGTest() throws IOException { 
-        Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
+	@Test
+	@ExtendWith(SpringExtension.class)
+    void generateNotificationAARPGTest() throws IOException {
+		Mockito.when(mvpParameterConsumer.isMvp(Mockito.anyString())).thenReturn(false);
+
+		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
         NotificationInt notificationInt = buildNotification();
         NotificationRecipientInt  recipient = notificationInt.getRecipients().get(0).toBuilder().quickAccessLinkToken("test")
             .recipientType(RecipientTypeInt.PG).build();
         Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationAAR(notificationInt, recipient)));
         System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
     }
-
-	
 	
 	@Test
 	void generateNotificationAAREmailTest() throws IOException {
