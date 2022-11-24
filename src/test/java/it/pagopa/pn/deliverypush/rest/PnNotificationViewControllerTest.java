@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.rest;
 
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
+import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -45,7 +46,7 @@ class PnNotificationViewControllerTest {
                 .recipientType(RecipientType.PF)
                 .build();
         // WHEN
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(null);
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenThrow(new PnHttpResponseException(FakeIUN, 404));
 
         webTestClient.post()
                 .uri("/delivery-push-private/" + FakeIUN + "/viewed")
@@ -54,7 +55,7 @@ class PnNotificationViewControllerTest {
                 .body(Mono.just(request), RequestNotificationViewedDto.class)
                 .exchange()
                 .expectStatus()
-                .isBadRequest();
+                .isNotFound();
         // THEN
         Mockito.verify(notificationService).getNotificationByIun(Mockito.anyString());
     }

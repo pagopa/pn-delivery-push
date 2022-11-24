@@ -70,9 +70,9 @@ class PnDataVaultClientImplTest {
                 .thenReturn(ResponseEntity.ok(""));
         Mockito.when(pnDataVaultNotificationApi.getNotificationTimelineByIunAndTimelineElementIdWithHttpInfo("001", "001")).thenReturn(ResponseEntity.ok(dto));
 
-        ResponseEntity<ConfidentialTimelineElementDto> resp = client.getNotificationTimelineByIunAndTimelineElementId("001", "001");
+        ConfidentialTimelineElementDto resp = client.getNotificationTimelineByIunAndTimelineElementId("001", "001");
 
-        Assertions.assertEquals(resp, ResponseEntity.ok(dto));
+        Assertions.assertEquals(resp, dto);
     }
 
     @Test
@@ -85,9 +85,9 @@ class PnDataVaultClientImplTest {
                 .thenReturn(ResponseEntity.ok(""));
         Mockito.when(pnDataVaultNotificationApi.getNotificationTimelineByIunWithHttpInfo("001")).thenReturn(ResponseEntity.ok(dtoList));
 
-        ResponseEntity<List<ConfidentialTimelineElementDto>> resp = client.getNotificationTimelineByIunWithHttpInfo("001");
+        List<ConfidentialTimelineElementDto> resp = client.getNotificationTimelineByIunWithHttpInfo("001");
 
-        Assertions.assertEquals(resp, ResponseEntity.ok(dtoList));
+        Assertions.assertEquals(resp, dtoList);
     }
 
     private ConfidentialTimelineElementDto buildConfidentialTimelineElementDto() {

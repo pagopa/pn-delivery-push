@@ -59,7 +59,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -68,7 +67,6 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS;
 import static org.awaitility.Awaitility.await;
@@ -411,7 +409,7 @@ class DigitalTestIT {
         addressBookMock.addCourtesyDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), listCourtesyAddress);
 
         Mockito.when( pnExternalRegistryClient.sendIOMessage(Mockito.any(SendMessageRequest.class))).thenReturn(
-                ResponseEntity.of(Optional.of(new SendMessageResponse().id("1871").result(SendMessageResponse.ResultEnum.SENT_COURTESY)))
+                new SendMessageResponse().id("1871").result(SendMessageResponse.ResultEnum.SENT_COURTESY)
         );
         
         pnDeliveryClientMock.addNotification(notification);

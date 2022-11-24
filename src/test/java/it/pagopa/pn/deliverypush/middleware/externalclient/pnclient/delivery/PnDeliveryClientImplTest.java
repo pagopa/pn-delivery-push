@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
@@ -55,9 +54,7 @@ class PnDeliveryClientImplTest {
         Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(ResponseEntity.ok(""));
 
-        ResponseEntity<Void> resp = client.updateStatus(statusDto);
-
-        Assertions.assertEquals(HttpStatus.OK, resp.getStatusCode());
+        Assertions.assertDoesNotThrow(()->client.updateStatus(statusDto));
 
     }
 
@@ -71,9 +68,9 @@ class PnDeliveryClientImplTest {
         
         Mockito.when(pnDeliveryApi.getSentNotificationPrivateWithHttpInfo("001")).thenReturn(ResponseEntity.ok(notification));
 
-        ResponseEntity<SentNotification> res = client.getSentNotification("001");
+        SentNotification res = client.getSentNotification("001");
 
-        Assertions.assertEquals("001", res.getBody().getIun());
+        Assertions.assertEquals("001", res.getIun());
 
     }
 
@@ -89,9 +86,9 @@ class PnDeliveryClientImplTest {
 
         Mockito.when(pnDeliveryApi.getNotificationCostPrivateWithHttpInfo("0", "0")).thenReturn(ResponseEntity.of(Optional.of(response)));
 
-        ResponseEntity<NotificationCostResponse> res = client.getNotificationCostPrivate("0", "0");
+        NotificationCostResponse res = client.getNotificationCostPrivate("0", "0");
 
-        Assertions.assertEquals("0", res.getBody().getIun());
+        Assertions.assertEquals("0", res.getIun());
     }
     
     
@@ -105,9 +102,9 @@ class PnDeliveryClientImplTest {
         
         Mockito.when(pnDeliveryApi.getQuickAccessLinkTokensPrivateWithHttpInfo("001")).thenReturn(ResponseEntity.ok(expected));
 
-        ResponseEntity<Map<String, String>> res = client.getQuickAccessLinkTokensPrivate("001");
+        Map<String, String> res = client.getQuickAccessLinkTokensPrivate("001");
 
-        Assertions.assertEquals(expected, res.getBody());
+        Assertions.assertEquals(expected, res);
 
     }
 }
