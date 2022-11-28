@@ -127,7 +127,7 @@ public class AttachmentUtils {
         Instant retentionUntil = Instant.now().plus(retentionUntilDays, ChronoUnit.DAYS);
         log.debug( "changeAttachmentRetention begin changing retentionUntil for attachment with key={}", ref.getKey());
 
-        updateFileMetadata(ref.getKey(), "SAVED", retentionUntil);
+        updateFileMetadata(ref.getKey(), null, retentionUntil);
 
         log.info( "changeAttachmentRetention changed retentionUntil for attachment with key={}", ref.getKey());
     }
