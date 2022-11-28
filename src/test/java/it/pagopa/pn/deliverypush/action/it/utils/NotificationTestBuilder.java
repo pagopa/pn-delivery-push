@@ -96,7 +96,7 @@ public class NotificationTestBuilder {
                 .sentAt(Instant.now())
                 .amount(18)
                 .paymentExpirationDate(DateFormatUtils.parseDate("2002-08-12").toInstant())
-                .physicalCommunicationType(ServiceLevelTypeInt.SIMPLE_REGISTERED_LETTER)
+                .physicalCommunicationType(ServiceLevelTypeInt.AR_REGISTERED_LETTER)
                 .sender(NotificationSenderInt.builder()
                         .paId(paId)
                         .paDenomination("Denominazione pa con id " + paId)
