@@ -8,7 +8,7 @@ class ServiceLevelIntTest {
     @ParameterizedTest
     @EnumSource(ServiceLevelInt.class)
     void test(ServiceLevelInt data) {
-        EnumSet<ServiceLevelInt> datas = EnumSet.of(ServiceLevelInt.SIMPLE_REGISTERED_LETTER, ServiceLevelInt.REGISTERED_LETTER_890);
+        EnumSet<ServiceLevelInt> datas = EnumSet.of(ServiceLevelInt.AR_REGISTERED_LETTER, ServiceLevelInt.REGISTERED_LETTER_890);
         Assertions.assertTrue(datas.contains(data));
     }
 }

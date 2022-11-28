@@ -184,7 +184,7 @@ class AnalogWorkflowHandlerTest {
                         .address("test address 2")
                         .build())
                 .sentAttemptMade(0)
-                .serviceLevel(ServiceLevelInt.SIMPLE_REGISTERED_LETTER)
+                .serviceLevel(ServiceLevelInt.AR_REGISTERED_LETTER)
                 .newAddress(PhysicalAddressInt.builder()
                         .address("test address 3")
                         .build())
@@ -220,7 +220,7 @@ class AnalogWorkflowHandlerTest {
                         .address("test address 2")
                         .build())
                 .sentAttemptMade(0)
-                .serviceLevel(ServiceLevelInt.SIMPLE_REGISTERED_LETTER)
+                .serviceLevel(ServiceLevelInt.AR_REGISTERED_LETTER)
                 .newAddress(null)
                 .errors(null)
                 .build();
@@ -254,7 +254,7 @@ class AnalogWorkflowHandlerTest {
                         .address("test address 2")
                         .build())
                 .sentAttemptMade(0)
-                .serviceLevel(ServiceLevelInt.SIMPLE_REGISTERED_LETTER)
+                .serviceLevel(ServiceLevelInt.AR_REGISTERED_LETTER)
                 .newAddress(null)
                 .errors(null)
                 .build();
@@ -413,7 +413,7 @@ class AnalogWorkflowHandlerTest {
                 .physicalAddress(PhysicalAddressInt.builder()
                         .address("test address")
                         .build())
-                .serviceLevel(ServiceLevelInt.SIMPLE_REGISTERED_LETTER)
+                .serviceLevel(ServiceLevelInt.AR_REGISTERED_LETTER)
                 .build();
     }
 
