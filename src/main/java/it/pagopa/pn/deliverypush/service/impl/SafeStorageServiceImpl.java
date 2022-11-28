@@ -68,6 +68,7 @@ public class SafeStorageServiceImpl implements SafeStorageService {
                             throw new PnNotFoundException("Not found", message, ERROR_CODE_DELIVERYPUSH_NOTFOUND, ex);
                         }
                 )
+                .doOnNext(fileDownloadResponse -> log.info("Response from SafeStorage: {}", fileDownloadResponse))
                 .map(this::getFileDownloadResponseInt);
     }
 

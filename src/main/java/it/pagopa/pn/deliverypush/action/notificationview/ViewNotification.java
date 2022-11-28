@@ -57,8 +57,7 @@ public class ViewNotification {
         Integer cost = notificationCost.getNotificationCost(notification, recIndex);
         log.debug("Notification cost is {} - iun {} id {}",cost, notification.getIun(), recIndex);
 
-        //TODO in attesa di capire come passare i parametri di questa chiamata
-//        attachmentUtils.changeAttachmentsRetention(notification, RETENTION_FILE_REFINEMENT_DAYS);
+        attachmentUtils.changeAttachmentsRetention(notification, RETENTION_FILE_REFINEMENT_DAYS);
         addTimelineElement(
                 timelineUtils.buildNotificationViewedTimelineElement(notification, recIndex, legalFactId, cost, raddType, raddTransactionId, eventTimestamp),
                 notification
