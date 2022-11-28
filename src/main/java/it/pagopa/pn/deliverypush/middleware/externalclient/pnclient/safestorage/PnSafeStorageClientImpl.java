@@ -42,7 +42,7 @@ public class PnSafeStorageClientImpl implements PnSafeStorageClient {
     private final PnDeliveryPushConfigs cfg;
     private final RestTemplate restTemplate;
 
-    public PnSafeStorageClientImpl(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryPushConfigs cfg) {
+    public PnSafeStorageClientImpl(@Qualifier("withOffsetDateTimeFormatter") RestTemplate restTemplate, PnDeliveryPushConfigs cfg) {
         it.pagopa.pn.delivery.generated.openapi.clients.safestorage.ApiClient newApiClient = new it.pagopa.pn.delivery.generated.openapi.clients.safestorage.ApiClient( restTemplate );
         newApiClient.setBasePath( cfg.getSafeStorageBaseUrl() );
 
