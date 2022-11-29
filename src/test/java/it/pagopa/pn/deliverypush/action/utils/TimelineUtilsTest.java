@@ -427,7 +427,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("Example_IUN_1234_Test_schedule_digital_workflow_1_source_GENERAL_retry_1", actual.getElementId()),
+                () -> Assertions.assertEquals("Example_IUN_1234_Test_completely_unreachable_1", actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
