@@ -177,20 +177,15 @@ public class DigitalWorkFlowUtils {
         return null;
     }
 
-    public ScheduleDigitalWorkflowDetailsInt getScheduleDigitalWorkflowTimelineElement(String iun, Integer recIndex) {
-        String eventId = TimelineEventId.SCHEDULE_DIGITAL_WORKFLOW.buildEventId(
-                EventId.builder()
-                        .iun(iun)
-                        .recIndex(recIndex)
-                        .build());
+    public ScheduleDigitalWorkflowDetailsInt getScheduleDigitalWorkflowTimelineElement(String iun, String timelineId) {
 
-        Optional<ScheduleDigitalWorkflowDetailsInt> optTimeLineScheduleDigitalWorkflow = timelineService.getTimelineElementDetails(iun, eventId,
+        Optional<ScheduleDigitalWorkflowDetailsInt> optTimeLineScheduleDigitalWorkflow = timelineService.getTimelineElementDetails(iun, timelineId,
                 ScheduleDigitalWorkflowDetailsInt.class);
         if (optTimeLineScheduleDigitalWorkflow.isPresent()) {
             return optTimeLineScheduleDigitalWorkflow.get();
         } else {
-            log.error("ScheduleDigitalWorkflowTimelineElement element not exist - iun {} eventId {}", iun, eventId);
-            throw new PnInternalException("ScheduleDigitalWorkflowTimelineElement element not exist - iun " + iun + " eventId " + eventId, ERROR_CODE_DELIVERYPUSH_SCHEDULEDDIGITALTIMELINEEVENTNOTFOUND);
+            log.error("ScheduleDigitalWorkflowTimelineElement element not exist - iun {} eventId {}", iun, timelineId);
+            throw new PnInternalException("ScheduleDigitalWorkflowTimelineElement element not exist - iun " + iun + " eventId " + timelineId, ERROR_CODE_DELIVERYPUSH_SCHEDULEDDIGITALTIMELINEEVENTNOTFOUND);
         }
     }
 
@@ -216,8 +211,8 @@ public class DigitalWorkFlowUtils {
         return timelineService.getTimelineElement(iun, eventId);
     }
     
-    public void addScheduledDigitalWorkflowToTimeline(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt lastAttemptMade) {
-        addTimelineElement(
+    public String addScheduledDigitalWorkflowToTimeline(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt lastAttemptMade) {
+        return addTimelineElement(
                 timelineUtils.buildScheduleDigitalWorkflowTimeline(notification, recIndex, lastAttemptMade),
                 notification
         );
@@ -282,8 +277,10 @@ public class DigitalWorkFlowUtils {
         return this.timelineService.getTimelineByIunTimelineId(notification.getIun(), elementIdForSearch, false);
     }
 
-    private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
+    private String addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
+        String timelineId = element.getElementId();
         timelineService.addTimelineElement(element, notification);
+        return timelineId;
     }
 
     public static DigitalAddressSourceInt nextSource(DigitalAddressSourceInt source) {
