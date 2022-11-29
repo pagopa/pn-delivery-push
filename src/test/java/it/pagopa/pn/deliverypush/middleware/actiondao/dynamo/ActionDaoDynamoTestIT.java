@@ -1,7 +1,11 @@
 package it.pagopa.pn.deliverypush.middleware.actiondao.dynamo;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.deliverypush.LocalStackTestConfig;
+import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.ActionDaoDynamo;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
@@ -11,6 +15,8 @@ import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -20,6 +26,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+
+import static org.junit.Assert.assertEquals;
 
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = {
@@ -208,5 +216,69 @@ class ActionDaoDynamoTestIT {
         actionDao.unSchedule(action, timeSlot1);
         actionDao.unSchedule(action2, timeSlot2);
     }
-    
+
+    @Test
+    @ExtendWith(SpringExtension.class)
+    void addActionIfAbsent() {
+        String timeslot = "2022-08-30T16:04:13.913859900Z";
+
+        Action.ActionBuilder actionBuilder = Action.builder()
+                .iun("Test_addActionIfAbsent_iun01")
+                .recipientIndex(1)
+                .type(ActionType.DIGITAL_WORKFLOW_NEXT_ACTION);
+        String actionId = ActionType.DIGITAL_WORKFLOW_NEXT_ACTION.buildActionId(
+                actionBuilder.build());
+
+        Action action = actionBuilder.actionId(actionId).build();
+
+
+        // non si riesce a mockare TransactWriteItemsEnhancedRequest
+        Assertions.assertDoesNotThrow(() ->
+                actionDao.addActionIfAbsent(action, timeslot)
+        );
+    }
+
+    @Test
+    @ExtendWith(SpringExtension.class)
+    void addActionIfAbsentFailSilent() {
+        String timeslot = "2022-08-30T16:04:13.913859900Z";
+
+        Action.ActionBuilder actionBuilder = Action.builder()
+                .iun("Test_addIfAbsentFailSilent_iun01")
+                .recipientIndex(1)
+                .type(ActionType.DIGITAL_WORKFLOW_RETRY_ACTION);
+        String actionId = ActionType.DIGITAL_WORKFLOW_NEXT_ACTION.buildActionId(
+                actionBuilder.build());
+
+        Action action = actionBuilder.actionId(actionId).build();
+
+
+        // get Logback Logger
+        Logger fooLogger = (Logger) LoggerFactory.getLogger(ActionDaoDynamo.class);
+
+        // create and start a ListAppender
+        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+        listAppender.start();
+
+        // add the appender to the logger
+        // addAppender is outdated now
+        ((ch.qos.logback.classic.Logger)fooLogger).addAppender(listAppender);
+
+
+        // non si riesce a mockare TransactWriteItemsEnhancedRequest
+        Assertions.assertDoesNotThrow(() ->
+                actionDao.addActionIfAbsent(action, timeslot)
+        );
+
+        Assertions.assertDoesNotThrow(() ->
+                actionDao.addActionIfAbsent(action, timeslot)
+        );
+
+        // JUnit assertions
+        List<ILoggingEvent> logsList = listAppender.list;
+        assertEquals("Exception code ConditionalCheckFailed is expected for retry, letting flow continue actionId=Test_addIfAbsentFailSilent_iun01_digital_workflow_e_1", logsList.get(0)
+                .getFormattedMessage());
+        assertEquals(Level.WARN, logsList.get(0)
+                .getLevel());
+    }
 }

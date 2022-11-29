@@ -16,9 +16,8 @@ import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.TransactWriteItemsEnhancedRequest;
 
-import java.time.Instant;
-
-import static software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional.*;
+import static software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional.sortGreaterThan;
+import static software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional.sortLessThanOrEqualTo;
 
 @Component
 @ConditionalOnProperty(name = EventEntityDao.IMPLEMENTATION_TYPE_PROPERTY_NAME, havingValue = MiddlewareTypes.DYNAMO)
@@ -39,14 +38,14 @@ public class EventEntityDaoDynamo implements EventEntityDao {
     public Mono<EventEntityBatch> findByStreamId(String streamId, String eventId) {
         log.info("findByStreamId streamId={} eventId={}", streamId, eventId);
         if (eventId == null)
-            eventId = Instant.EPOCH.toString();
+            eventId = new EventEntity(0L, "").getEventId();
         return this.findByStreamId(streamId, eventId, false, limitCount);
     }
 
     @Override
     public Mono<Boolean> delete(String streamId, String eventId, boolean olderThan) {
         if (eventId == null)
-            eventId = Instant.EPOCH.toString();
+            eventId = new EventEntity(0L, "").getEventId();
 
         log.info("delete streamId={} eventId={} olderThan={}", streamId, eventId, olderThan);
         return findByStreamId(streamId, eventId, olderThan, 25)  // il batch di cancellazione ne supporta fino a 25
