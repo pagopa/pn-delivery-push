@@ -166,7 +166,7 @@ class DigitalWorkFlowUtilsTest {
                 .thenReturn(Optional.of(scheduleDigitalWorkflowDetailsInt));
         // WHEN
         ScheduleDigitalWorkflowDetailsInt optTimeLineScheduleDigitalWorkflow =
-                digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(iun, recIndex);
+                digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(iun, "timeline_id_0");
         // VERIFY
         Assertions.assertEquals(optTimeLineScheduleDigitalWorkflow, scheduleDigitalWorkflowDetailsInt);
     }
