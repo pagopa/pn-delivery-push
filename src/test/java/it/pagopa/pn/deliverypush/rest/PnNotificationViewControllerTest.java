@@ -46,6 +46,7 @@ class PnNotificationViewControllerTest {
                 .recipientType(RecipientType.PF)
                 .build();
         // WHEN
+        Mockito.clearInvocations(notificationService);
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenThrow(new PnHttpResponseException(FakeIUN, 404));
 
         webTestClient.post()
@@ -74,6 +75,7 @@ class PnNotificationViewControllerTest {
                 .build();
 
         // WHEN
+        Mockito.clearInvocations(notificationService);
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notification);
 
         webTestClient.post()
