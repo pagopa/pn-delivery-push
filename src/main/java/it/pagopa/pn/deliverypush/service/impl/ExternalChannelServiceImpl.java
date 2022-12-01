@@ -46,7 +46,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
      * @param recIndex indice destinatario
      * @param sentAttemptMade tentativo
      * @param sendAlreadyInProgress indica se l'invio è già stato eseguito e si sta eseguendo un ritentativo
-     * @return
+     * @return eventId relativo al SEND_DIGITAL_DOMICILE
      */
     @Override
     public String sendDigitalNotification(NotificationInt notification,

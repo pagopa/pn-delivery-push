@@ -5,7 +5,11 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 
 public interface PaperChannelService {
 
-    void sendNotificationForRegisteredLetter(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex);
+    void prepareAnalogNotificationForSimpleRegisteredLetter(NotificationInt notification,  Integer recIndex);
 
-    void sendAnalogNotification(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex, boolean investigation, int sentAttemptMade);
+    void prepareAnalogNotification(NotificationInt notification, Integer recIndex, int sentAttemptMade);
+
+    void sendSimpleRegisteredLetter(NotificationInt notification, Integer recIndex, String requestId, PhysicalAddressInt receiverAddress);
+
+    void sendAnalogNotification(NotificationInt notification, Integer recIndex, int sentAttemptMade, String requestId, PhysicalAddressInt receiverAddress );
 }

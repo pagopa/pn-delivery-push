@@ -6,15 +6,21 @@ import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
+import it.pagopa.pn.deliverypush.action.completionworkflow.RefinementScheduler;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
+import it.pagopa.pn.deliverypush.action.utils.PaperChannelUtils;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.PrepareEventInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendEventInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.details.RecipientRelatedTimelineElementDetails;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.PaperChannelService;
 import lombok.extern.slf4j.Slf4j;
@@ -24,8 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_INVALIDRECEIVEDPAPERSTATUS;
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.*;
 
 @Component
 @Slf4j
@@ -38,6 +43,9 @@ public class AnalogWorkflowPaperChannelResponseHandler {
     private final InstantNowSupplier instantNowSupplier;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private final AnalogWorkflowHandler analogWorkflowHandler;
+    private final PaperChannelUtils paperChannelUtils;
+    private final RefinementScheduler refinementScheduler;
+
 
     public AnalogWorkflowPaperChannelResponseHandler(NotificationService notificationService,
                                                      PaperChannelService paperChannelService,
@@ -45,7 +53,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
                                                      AnalogWorkflowUtils analogWorkflowUtils,
                                                      InstantNowSupplier instantNowSupplier,
                                                      PnDeliveryPushConfigs pnDeliveryPushConfigs,
-                                                     AnalogWorkflowHandler analogWorkflowHandler) {
+                                                     AnalogWorkflowHandler analogWorkflowHandler, PaperChannelUtils paperChannelUtils, RefinementScheduler refinementScheduler) {
         this.notificationService = notificationService;
         this.paperChannelService = paperChannelService;
         this.completionWorkFlow = completionWorkFlow;
@@ -53,10 +61,47 @@ public class AnalogWorkflowPaperChannelResponseHandler {
         this.instantNowSupplier = instantNowSupplier;
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
         this.analogWorkflowHandler = analogWorkflowHandler;
+        this.paperChannelUtils = paperChannelUtils;
+        this.refinementScheduler = refinementScheduler;
     }
 
     public void paperChannelPrepareResponseHandler(PrepareEventInt response) {
 
+        log.info("paperChannelPrepareResponseHandler response iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
+
+        if (response.getStatusCode().equals("OK"))
+        {
+            String requestId = response.getRequestId();
+            PhysicalAddressInt receiverAddress = response.getReceiverAddress();
+            NotificationInt notification = notificationService.getNotificationByIun(response.getIun());
+            TimelineElementInternal timelineElementInternal = paperChannelUtils.getPaperChannelNotificationTimelineElement(response.getIun(), response.getRequestId());
+
+            int recIndex = ((RecipientRelatedTimelineElementDetails)timelineElementInternal.getDetails()).getRecIndex();
+
+            // se era una prepare di un analog, procedo con la sendanalog, altrimenti con la send della simpleregistered
+            if (timelineElementInternal.getDetails() instanceof SendAnalogDetailsInt){
+                int sentAttemptMade = ((SendAnalogDetailsInt)timelineElementInternal.getDetails()).getSentAttemptMade();
+                this.paperChannelService.sendAnalogNotification(notification, recIndex, sentAttemptMade, requestId, receiverAddress);
+            }
+            else if (timelineElementInternal.getDetails() instanceof SimpleRegisteredLetterDetailsInt){
+                log.info("paperChannelPrepareResponseHandler prepare response is for simple registered letter, sending it and scheduling refinement iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
+
+                this.paperChannelService.sendSimpleRegisteredLetter(notification, recIndex, requestId, receiverAddress);
+                // se l'invio non da errore, vuol dire che la notifica si intende perfezionata
+                // La notifica è stata accettata correttamente da paper channel il workflow digitale può considerarsi concluso con successo
+                refinementScheduler.scheduleDigitalRefinement(notification, recIndex, instantNowSupplier.get(), EndWorkflowStatus.FAILURE);
+            }
+            else
+                throw new PnInternalException("Unexpected detail of timelineElement timeline=" + requestId, ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED);
+        }
+        else if (response.getStatusCode().equals("KOUNREACHABLE")) {
+
+            NotificationInt notification = notificationService.getNotificationByIun(response.getIun());
+            TimelineElementInternal timelineElementInternal = paperChannelUtils.getPaperChannelNotificationTimelineElement(response.getIun(), response.getRequestId());
+            int recIndex = ((RecipientRelatedTimelineElementDetails)timelineElementInternal.getDetails()).getRecIndex();
+
+            this.analogWorkflowHandler.nextWorkflowStep(notification, recIndex, AnalogWorkflowHandler.ATTEMPT_MADE_UNREACHABLE);
+        }
     }
 
     public void paperChannelSendResponseHandler(SendEventInt response) {

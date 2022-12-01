@@ -49,7 +49,7 @@ class RegisteredLetterSenderTest {
         int recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
         
         //WHEN
-        registeredLetterSender.sendSimpleRegisteredLetter( notification, recIndex );
+        registeredLetterSender.prepareSimpleRegisteredLetter( notification, recIndex );
 
         //THEN
         Mockito.verify(externalChannelService).sendNotificationForRegisteredLetter(
@@ -70,7 +70,7 @@ class RegisteredLetterSenderTest {
         int recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //WHEN
-        registeredLetterSender.sendSimpleRegisteredLetter( notification, recIndex );
+        registeredLetterSender.prepareSimpleRegisteredLetter( notification, recIndex );
 
         //THEN
         Mockito.verify(externalChannelService, Mockito.never()).sendNotificationForRegisteredLetter(

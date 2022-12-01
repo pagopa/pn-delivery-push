@@ -34,17 +34,6 @@ public class ExternalChannelUtils {
         );
     }
 
-    public void addPaperNotificationNotHandledToTimeline(NotificationInt notification, Integer recIndex) {
-        addTimelineElement(
-                timelineUtils.buildNotHandledTimelineElement(
-                        notification,
-                        recIndex,
-                        NotHandledDetailsInt.PAPER_MESSAGE_NOT_HANDLED_CODE,
-                        NotHandledDetailsInt.PAPER_MESSAGE_NOT_HANDLED_REASON
-                ),
-                notification
-        );
-    }
 
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
         timelineService.addTimelineElement(element, notification);
