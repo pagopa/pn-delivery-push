@@ -1,8 +1,8 @@
 package it.pagopa.pn.deliverypush.rest;
 
-import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
+import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.RecipientType;
@@ -10,8 +10,6 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.RequestNotifica
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseNotificationViewedDto;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
@@ -39,9 +37,9 @@ class PnNotificationViewControllerTest {
     private WebTestClient webTestClient;
 
     @Test
-    @Execution(ExecutionMode.SAME_THREAD)
     void notifyNotificationViewedNoNotification() {
         // GIVEN
+        String fakeiun = FakeIUN + "1";
         RequestNotificationViewedDto request = RequestNotificationViewedDto.builder()
                 .recipientInternalId("recipientInternalId")
                 .raddType("raddType")
@@ -50,10 +48,10 @@ class PnNotificationViewControllerTest {
                 .build();
         // WHEN
         Mockito.clearInvocations(notificationService);
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenThrow(new PnHttpResponseException(FakeIUN, 404));
+        Mockito.when(notificationService.getNotificationByIun(fakeiun)).thenThrow(new PnHttpResponseException(FakeIUN, 404));
 
         webTestClient.post()
-                .uri("/delivery-push-private/" + FakeIUN + "/viewed")
+                .uri("/delivery-push-private/" + fakeiun + "/viewed")
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .body(Mono.just(request), RequestNotificationViewedDto.class)
@@ -65,11 +63,11 @@ class PnNotificationViewControllerTest {
     }
 
     @Test
-    @Execution(ExecutionMode.SAME_THREAD)
     void notifyNotificationViewedOk() {
         // GIVEN
+        String fakeiun = FakeIUN + "2";
         NotificationInt notification = NotificationTestBuilder.builder()
-                .withIun(FakeIUN)
+                .withIun(fakeiun)
                 .build();
         RequestNotificationViewedDto request = RequestNotificationViewedDto.builder()
                 .recipientInternalId("recipientInternalId")
@@ -80,10 +78,10 @@ class PnNotificationViewControllerTest {
 
         // WHEN
         Mockito.clearInvocations(notificationService);
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notification);
+        Mockito.when(notificationService.getNotificationByIun(fakeiun)).thenReturn(notification);
 
         webTestClient.post()
-                .uri("/delivery-push-private/" + FakeIUN + "/viewed")
+                .uri("/delivery-push-private/" + fakeiun + "/viewed")
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .body(Mono.just(request), RequestNotificationViewedDto.class)
@@ -91,7 +89,7 @@ class PnNotificationViewControllerTest {
                 .expectStatus()
                 .isOk()
                 .expectBody(ResponseNotificationViewedDto.class)
-                .isEqualTo(ResponseNotificationViewedDto.builder().iun(FakeIUN).build());
+                .isEqualTo(ResponseNotificationViewedDto.builder().iun(fakeiun).build());
 
         // THEN
         Mockito.verify(notificationService).getNotificationByIun(Mockito.anyString());
