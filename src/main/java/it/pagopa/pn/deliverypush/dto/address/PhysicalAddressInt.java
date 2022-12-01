@@ -11,6 +11,7 @@ import lombok.*;
 @Getter
 @ToString
 public class PhysicalAddressInt {
+    private String fullname;
     private String at;
     private String address;
     private String addressDetails;

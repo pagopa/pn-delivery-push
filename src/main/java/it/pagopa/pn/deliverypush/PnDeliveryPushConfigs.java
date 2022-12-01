@@ -22,6 +22,8 @@ public class PnDeliveryPushConfigs {
 
     private String deliveryBaseUrl;
 
+    private String paperChannelBaseUrl;
+
     private String externalChannelBaseUrl;
 
     private String externalchannelCxId;

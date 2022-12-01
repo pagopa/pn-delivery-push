@@ -110,7 +110,7 @@ public class PnEventInboundService {
         String eventType;
         String queueName = (String) message.getHeaders().get("aws_receivedQueue");
         if (Objects.equals(queueName, externalChannelEventQueueName)) {
-            eventType = "SEND_PAPER_RESPONSE";
+            eventType = "SEND_PEC_RESPONSE";
         } else {
             log.error("eventType not present, cannot start scheduled action headers={} payload={}", message.getHeaders(), message.getPayload());
             throw new PnInternalException("eventType not present, cannot start scheduled action", ERROR_CODE_DELIVERYPUSH_EVENTTYPENOTSUPPORTED);

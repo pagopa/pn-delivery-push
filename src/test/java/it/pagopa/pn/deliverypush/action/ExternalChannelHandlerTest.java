@@ -4,7 +4,7 @@ import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.*;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelAnalogSentResponseInt;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.ExtChannelAnalogSentResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
 import org.junit.jupiter.api.Assertions;

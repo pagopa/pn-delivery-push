@@ -1,12 +1,9 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
-import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotHandledDetailsInt;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,31 +14,29 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 
 @Service
 @Slf4j
-public class ExternalChannelUtils {
+public class PaperChannelUtils {
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
 
-    public ExternalChannelUtils(TimelineService timelineService,
-                                TimelineUtils timelineUtils) {
+    public PaperChannelUtils(TimelineService timelineService,
+                             TimelineUtils timelineUtils) {
         this.timelineService = timelineService;
         this.timelineUtils = timelineUtils;
     }
 
-    public void addSendDigitalNotificationToTimeline(NotificationInt notification, LegalDigitalAddressInt digitalAddress, DigitalAddressSourceInt addressSource, Integer recIndex, int sentAttemptMade, String eventId) {
+
+    public void addSendSimpleRegisteredLetterToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex,
+                                                        String eventId, Integer numberOfPages) {
         addTimelineElement(
-                timelineUtils.buildSendDigitalNotificationTimelineElement(digitalAddress, addressSource, recIndex, notification, sentAttemptMade, eventId),
+                timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification, physicalAddress, eventId, numberOfPages),
                 notification
         );
     }
 
-    public void addPaperNotificationNotHandledToTimeline(NotificationInt notification, Integer recIndex) {
+    public void addSendAnalogNotificationToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex, boolean investigation,
+                                                    int sentAttemptMade, String eventId, Integer numberOfPages) {
         addTimelineElement(
-                timelineUtils.buildNotHandledTimelineElement(
-                        notification,
-                        recIndex,
-                        NotHandledDetailsInt.PAPER_MESSAGE_NOT_HANDLED_CODE,
-                        NotHandledDetailsInt.PAPER_MESSAGE_NOT_HANDLED_REASON
-                ),
+                timelineUtils.buildSendAnalogNotificationTimelineElement(physicalAddress, recIndex, notification, investigation, sentAttemptMade, eventId, numberOfPages),
                 notification
         );
     }
