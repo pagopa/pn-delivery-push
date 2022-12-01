@@ -10,6 +10,8 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.RequestNotifica
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseNotificationViewedDto;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
@@ -37,6 +39,7 @@ class PnNotificationViewControllerTest {
     private WebTestClient webTestClient;
 
     @Test
+    @Execution(ExecutionMode.SAME_THREAD)
     void notifyNotificationViewedNoNotification() {
         // GIVEN
         RequestNotificationViewedDto request = RequestNotificationViewedDto.builder()
@@ -62,6 +65,7 @@ class PnNotificationViewControllerTest {
     }
 
     @Test
+    @Execution(ExecutionMode.SAME_THREAD)
     void notifyNotificationViewedOk() {
         // GIVEN
         NotificationInt notification = NotificationTestBuilder.builder()
