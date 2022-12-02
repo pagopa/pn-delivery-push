@@ -72,7 +72,7 @@ public class AnalogWorkflowUtils {
     }
 
     private boolean filterLastAttemptDateInTimeline(TimelineElementInternal el, Integer recIndex) {
-        boolean availableAddressCategory = TimelineElementCategoryInt.SEND_PAPER_FEEDBACK.equals(el.getCategory());
+        boolean availableAddressCategory = TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK.equals(el.getCategory());
         if (availableAddressCategory) {
             SendAnalogFeedbackDetailsInt details = (SendAnalogFeedbackDetailsInt) el.getDetails();
             return recIndex.equals(details.getRecIndex());
