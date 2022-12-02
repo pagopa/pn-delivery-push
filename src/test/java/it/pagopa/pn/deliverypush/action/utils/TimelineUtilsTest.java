@@ -233,13 +233,13 @@ class TimelineUtilsTest {
         PhysicalAddressInt address = buildPhysicalAddressInt();
         Integer recIndex = 1;
         NotificationInt notification = buildNotification();
-        boolean investigation = Boolean.FALSE;
+        String relatedRequestId = null;
         int sentAttemptMade = 1;
         String eventId = "001";
         Integer numberOfPages = 10;
 
         TimelineElementInternal actual = timelineUtils.buildSendAnalogNotificationTimelineElement(
-                address, recIndex, notification, investigation, sentAttemptMade, eventId, numberOfPages
+                address, recIndex, notification, relatedRequestId, sentAttemptMade, eventId, numberOfPages
         );
 
         Assertions.assertAll(
@@ -392,7 +392,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("Example_IUN_1234_Test_send_paper_feedback_0_attempt_1", actual.getElementId()),
+                () -> Assertions.assertEquals("Example_IUN_1234_Test_send_analog_feedback_0_attempt_1", actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -544,6 +544,7 @@ class TimelineUtilsTest {
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                         .build())
                 .physicalAddress(new PhysicalAddressInt(
+                        "Galileo Bruno",
                         "Palazzo dell'Inquisizione",
                         "corso Italia 666",
                         "Piano Terra (piatta)",

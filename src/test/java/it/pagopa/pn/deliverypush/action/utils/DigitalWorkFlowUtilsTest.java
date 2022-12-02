@@ -382,7 +382,7 @@ class DigitalWorkFlowUtilsTest {
                 .elementId("1")
                 .timestamp(Instant.now())
                 .paId("1")
-                .category(TimelineElementCategoryInt.SEND_PAPER_FEEDBACK)
+                .category(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK)
                 .legalFactsIds(legalFactsIds)
                 .build();
     }

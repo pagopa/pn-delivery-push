@@ -212,7 +212,7 @@ class AnalogTestIT {
         String iun = "IUN01";
 
         //Simulazione visualizzazione notifica a valle del send del messaggio di cortesi
-        String taxId = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.SEND_PAPER_FEEDBACK.buildEventId(EventId.builder()
+        String taxId = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.SEND_ANALOG_FEEDBACK.buildEventId(EventId.builder()
                 .iun(iun)
                 .recIndex(0)
                 .sentAttemptMade(1)
@@ -526,7 +526,6 @@ class AnalogTestIT {
         SendAnalogDetailsInt sendPaperDetails = sendPaperDetailsOpt.get();
         Assertions.assertEquals( paPhysicalAddress.getAddress() , sendPaperDetails.getPhysicalAddress().getAddress() );
         Assertions.assertEquals( paPhysicalAddress.getForeignState() , sendPaperDetails.getPhysicalAddress().getForeignState());
-        Assertions.assertEquals(1, sendPaperDetails.getNumberOfPages());
 
         //Viene verificato che il workflow sia fallito
         Assertions.assertTrue(timelineService.getTimelineElement(
@@ -1256,7 +1255,7 @@ class AnalogTestIT {
         String iun = "IUN01";
 
         //Simulazione attesa del primo recipient in 
-        String elementIdInWait = TimelineEventId.SEND_PAPER_FEEDBACK.buildEventId(
+        String elementIdInWait = TimelineEventId.SEND_ANALOG_FEEDBACK.buildEventId(
                 EventId.builder()
                         .iun(iun)
                         .recIndex(0)

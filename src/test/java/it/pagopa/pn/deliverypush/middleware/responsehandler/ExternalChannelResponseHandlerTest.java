@@ -2,14 +2,11 @@ package it.pagopa.pn.deliverypush.middleware.responsehandler;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.LegalMessageSentDetails;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.PaperProgressStatusEvent;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.ProgressEventCategory;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.SingleStatusUpdate;
-import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
-import it.pagopa.pn.deliverypush.dto.ext.paperchannel.ExtChannelAnalogSentResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelProgressEventCat;
 import org.junit.jupiter.api.Assertions;
@@ -18,15 +15,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 
 class ExternalChannelResponseHandlerTest {
 
     private DigitalWorkFlowExternalChannelResponseHandler digitalWorkFlowHandler;
-
-    private AnalogWorkflowHandler analogWorkflowHandler;
 
     private TimelineUtils timelineUtils;
 
@@ -36,9 +29,8 @@ class ExternalChannelResponseHandlerTest {
     @BeforeEach
     void setup() {
         digitalWorkFlowHandler = Mockito.mock(DigitalWorkFlowExternalChannelResponseHandler.class);
-        analogWorkflowHandler = Mockito.mock(AnalogWorkflowHandler.class);
         timelineUtils = Mockito.mock(TimelineUtils.class);
-        handler = new ExternalChannelResponseHandler(digitalWorkFlowHandler, analogWorkflowHandler, timelineUtils);
+        handler = new ExternalChannelResponseHandler(digitalWorkFlowHandler, timelineUtils);
     }
 
     @Test
@@ -69,34 +61,6 @@ class ExternalChannelResponseHandlerTest {
         Mockito.verify(digitalWorkFlowHandler, Mockito.times(1)).handleExternalChannelResponse(tmp);
     }
 
-    @Test
-    void paperUpdateTest() {
-
-        Instant instant = Instant.now();
-
-        String now = instant.toString();
-
-        OffsetDateTime off = OffsetDateTime.parse(now, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-
-        PaperProgressStatusEvent extChannelResponse = new PaperProgressStatusEvent();
-        extChannelResponse.setStatusCode("__004__");
-        extChannelResponse.setRequestId("iun_event_idx_0");
-        extChannelResponse.setIun("iun");
-        extChannelResponse.setStatusDateTime(off);
-        SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();
-        singleStatusUpdate.setAnalogMail(extChannelResponse);
-
-        handler.extChannelResponseReceiver(singleStatusUpdate);
-
-        ExtChannelAnalogSentResponseInt tmp = ExtChannelAnalogSentResponseInt.builder()
-                .requestId("iun_event_idx_0")
-                .iun("iun")
-                .statusCode("__004__")
-                .statusDateTime(instant)
-                .build();
-
-        Mockito.verify(analogWorkflowHandler, Mockito.times(1)).extChannelResponseHandler(tmp);
-    }
 
     @Test
     void legalUpdatePnInternalExceptionTest() {
@@ -108,22 +72,6 @@ class ExternalChannelResponseHandlerTest {
         singleStatusUpdate.setDigitalLegal(extChannelResponse);
 
         Mockito.when(timelineUtils.getIunFromTimelineId(Mockito.any())).thenThrow(new PnInternalException("Exception legalUpdate", "PN_GENERIC_ERROR"));
-
-        PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
-            handler.extChannelResponseReceiver(singleStatusUpdate);
-        });
-
-        Assertions.assertEquals(expectErrorMsg, pnInternalException.getProblem().getErrors().get(0).getCode());
-    }
-
-    @Test
-    void paperUpdatePnInternalExceptionTest() {
-
-        String expectErrorMsg = "PN_DELIVERYPUSH_UPDATEFAILED";
-
-        PaperProgressStatusEvent extChannelResponse = new PaperProgressStatusEvent();
-        SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();
-        singleStatusUpdate.setAnalogMail(extChannelResponse);
 
         PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
             handler.extChannelResponseReceiver(singleStatusUpdate);

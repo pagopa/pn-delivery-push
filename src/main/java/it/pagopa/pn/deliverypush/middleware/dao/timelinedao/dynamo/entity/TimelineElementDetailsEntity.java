@@ -35,6 +35,7 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("notificationDate")})) private Instant notificationDate;
     @Getter(onMethod=@__({@DynamoDbAttribute("serviceLevel")})) private ServiceLevelEntity serviceLevel;
     @Getter(onMethod=@__({@DynamoDbAttribute("investigation")})) private Boolean investigation;
+    @Getter(onMethod=@__({@DynamoDbAttribute("relatedRequestId")})) private String relatedRequestId;
     @Getter(onMethod=@__({@DynamoDbAttribute("newAddress")})) private PhysicalAddressEntity newAddress;
     @Getter(onMethod=@__({@DynamoDbAttribute("generatedAarUrl")})) private String generatedAarUrl;
     @Getter(onMethod=@__({@DynamoDbAttribute("numberOfPages")})) private Integer numberOfPages;

@@ -100,10 +100,12 @@ info:
           <li><strong>DIGITAL_FAILURE_WORKFLOW </strong><em>Completato con fallimento il workflow di invio digitale. <strong>NOTA</strong>: in caso di DIGITAL_FAILURE_WORKFLOW piattaforma notifiche invia la AAR (Avviso di Avvenuta Ricezione) tramite raccomandata semplice e la notifica si considera consegnata.</em></li>
           <li><strong>ANALOG_SUCCESS_WORKFLOW </strong><em>Completato con successo il workflow di invio cartaceo.</em></li>
           <li><strong>ANALOG_FAILURE_WORKFLOW </strong><em>Completato con fallimento il workflow di invio cartaceo. <strong>NOTA</strong>: se per tutti i destinatari si conclude il workflow con fallimento verrà scatenato l’evento COMPLETELY_UNREACHABLE</em></li>
+          <li><strong>PREPARE_SIMPLE_REGISTERED_LETTER </strong><em>Operazioni preliminari atte all'invio di raccomandata semplice</em></li>
           <li><strong>SEND_SIMPLE_REGISTERED_LETTER </strong><em>Invio di raccomandata semplice</em></li>
           <li><strong>NOTIFICATION_VIEWED </strong><em>Perfezionamento per presa visione</em></li>
+          <li><strong>PREPARE_ANALOG_DOMICILE </strong><em>Operazioni preliminari atte all'invio cartaceo dell’avviso di notifica</em></li>
           <li><strong>SEND_ANALOG_DOMICILE </strong><em>Invio cartaceo dell’avviso di notifica</em></li>
-          <li><strong>SEND_PAPER_FEEDBACK </strong><em>Ricezione esito dell'invio cartaceo</em></li>
+          <li><strong>SEND_ANALOG_FEEDBACK </strong><em>Ricezione esito dell'invio cartaceo</em></li>
           <li><strong>COMPLETELY_UNREACHABLE </strong><em>Tutti i destinatari risultano irraggiungibili</em></li>
           <li><strong>AAR_GENERATION </strong><em>Generazione dell’AAR (Avviso di Avvenuta Ricezione)</em></li>
           <li><strong>PAYMENT </strong><em>Ricezione pagamento della notifica</em></li>

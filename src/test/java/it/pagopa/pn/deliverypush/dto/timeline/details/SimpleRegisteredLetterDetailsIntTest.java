@@ -14,7 +14,7 @@ class SimpleRegisteredLetterDetailsIntTest {
         detailsInt = SimpleRegisteredLetterDetailsInt.builder()
                 .recIndex(0)
                 .foreignState("001")
-                .numberOfPages(1)
+                .analogCost(100)
                 .physicalAddress(PhysicalAddressInt.builder().addressDetails("000").build())
                 .build();
     }
@@ -44,9 +44,9 @@ class SimpleRegisteredLetterDetailsIntTest {
     }
 
     @Test
-    void getNumberOfPages() {
-        int pages = detailsInt.getNumberOfPages();
-        Assertions.assertEquals(1, pages);
+    void getAnalogCost() {
+        Integer cost = detailsInt.getAnalogCost();
+        Assertions.assertEquals(100, cost);
     }
 
     @Test

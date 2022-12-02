@@ -4,7 +4,6 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.CourtesyMessageProgressEvent;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.LegalMessageSentDetails;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.SingleStatusUpdate;
-import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
@@ -22,14 +21,11 @@ public class ExternalChannelResponseHandler {
     public static final String EXCEPTION_LEGAL_UPDATE = "Exception legalUpdate";
     public static final String COURTESY_UPDATE_FAILED = "Courtesy update failed";
     private final DigitalWorkFlowExternalChannelResponseHandler digitalWorkFlowExternalChannelResponseHandler;
-    private final AnalogWorkflowHandler analogWorkflowHandler;
     private final TimelineUtils timelineUtils;
 
     public ExternalChannelResponseHandler(DigitalWorkFlowExternalChannelResponseHandler digitalWorkFlowExternalChannelResponseHandler,
-                                          AnalogWorkflowHandler analogWorkflowHandler,
                                           TimelineUtils timelineUtils) {
         this.digitalWorkFlowExternalChannelResponseHandler = digitalWorkFlowExternalChannelResponseHandler;
-        this.analogWorkflowHandler = analogWorkflowHandler;
         this.timelineUtils = timelineUtils;
     }
 
