@@ -770,7 +770,13 @@ class AnalogTestIT {
 
         //Viene verificato l'effettivo invio del messaggio di cortesia verso external channel
         Mockito.verify(externalChannelMock, Mockito.times(listCourtesyAddressRecipient1.size() + listCourtesyAddressRecipient2.size()))
-                .sendCourtesyNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(CourtesyDigitalAddressInt.class), Mockito.anyString());
+                .sendCourtesyNotification(
+                        Mockito.any(NotificationInt.class), 
+                        Mockito.any(NotificationRecipientInt.class),
+                        Mockito.any(CourtesyDigitalAddressInt.class),
+                        Mockito.anyString(),
+                        Mockito.anyString()
+                );
 
         //Viene verificata la presenza degli indirizzi per il primo recipient
         TestUtils.checkGetAddress(iun, recIndex1, false, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);

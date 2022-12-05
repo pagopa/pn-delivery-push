@@ -24,7 +24,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionDetails;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -60,7 +59,8 @@ public class TestUtils {
                     Mockito.any(NotificationInt.class),
                     Mockito.any(NotificationRecipientInt.class),
                     Mockito.any(CourtesyDigitalAddressInt.class),
-                    Mockito.any(String.class)
+                    Mockito.any(String.class),
+                    Mockito.anyString()
                 );
     }
 
