@@ -107,7 +107,7 @@ public class ActionHandler {
             try {
                 log.debug("pnDeliveryPushDigitalNextActionConsumer, message {}", message);
                 Action action = message.getPayload();
-                digitalWorkFlowHandler.startScheduledNextWorkflow(action.getIun(), action.getRecipientIndex());
+                digitalWorkFlowHandler.startScheduledNextWorkflow(action.getIun(), action.getRecipientIndex(), action.getTimelineId());
             } catch (Exception ex) {
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
