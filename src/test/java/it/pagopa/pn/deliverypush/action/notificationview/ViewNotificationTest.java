@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.action.notificationview;
 
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
+import it.pagopa.pn.deliverypush.action.startworkflow.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
@@ -33,6 +34,9 @@ class ViewNotificationTest {
     @Mock
     private TimelineService timelineService;
 
+    @Mock
+    private AttachmentUtils attachmentUtils;
+
     private ViewNotification viewNotification;
     
     private NotificationUtils notificationUtils;
@@ -41,7 +45,7 @@ class ViewNotificationTest {
     public void setup() {
         notificationUtils = new NotificationUtils();
         viewNotification = new ViewNotification(instantNowSupplier, legalFactStore,
-                paperNotificationFailedService, notificationCost, timelineUtils, timelineService);
+                paperNotificationFailedService, notificationCost, timelineUtils, timelineService, attachmentUtils);
     }
     
     @Test

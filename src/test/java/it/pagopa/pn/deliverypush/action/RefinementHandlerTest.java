@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action;
 
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
+import it.pagopa.pn.deliverypush.action.startworkflow.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -31,13 +32,16 @@ class RefinementHandlerTest {
     
     @Mock
     private NotificationCostService notificationCostService;
-    
+
+    @Mock
+    private AttachmentUtils attachmentUtils;
+
     private RefinementHandler refinementHandler;
 
     @BeforeEach
     public void setup() {
         refinementHandler = new RefinementHandler(timelineService,
-                timelineUtils, notificationService, notificationCostService);
+                timelineUtils, notificationService, notificationCostService, attachmentUtils);
     }
     @ExtendWith(MockitoExtension.class)
     @Test
