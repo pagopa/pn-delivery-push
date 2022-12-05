@@ -15,6 +15,11 @@ import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
+import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
+import software.amazon.awssdk.services.dynamodb.model.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional.keyEqualTo;
 
@@ -25,10 +30,12 @@ public class StreamEntityDaoDynamo implements StreamEntityDao {
 
 
     private final DynamoDbAsyncTable<StreamEntity> table;
+    private final DynamoDbAsyncClient dynamoDbAsyncClient;
 
 
-    public StreamEntityDaoDynamo(DynamoDbEnhancedAsyncClient dynamoDbEnhancedClient, PnDeliveryPushConfigs cfg) {
+    public StreamEntityDaoDynamo(DynamoDbEnhancedAsyncClient dynamoDbEnhancedClient, DynamoDbAsyncClient dynamoDbAsyncClient, PnDeliveryPushConfigs cfg) {
        this.table = dynamoDbEnhancedClient.table(cfg.getWebhookDao().getStreamsTableName(), TableSchema.fromBean(StreamEntity.class));
+       this.dynamoDbAsyncClient = dynamoDbAsyncClient;
     }
 
     @Override
@@ -57,5 +64,35 @@ public class StreamEntityDaoDynamo implements StreamEntityDao {
     public Mono<StreamEntity> save(StreamEntity entity) {
         log.info("save entity={}", entity);
         return Mono.fromFuture(table.putItem(entity).thenApply(r -> entity));
+    }
+
+    @Override
+    public Mono<Long> updateAndGetAtomicCounter(StreamEntity streamEntity) {
+        log.info("updateAndGetAtomicCounter paId={} streamId={} counter={}", streamEntity.getPaId(), streamEntity.getStreamId(), streamEntity.getEventAtomicCounter());
+        // il metodo utilizza le primitive base di dynamodbclient per poter eseguire l'update
+        // atomico tramite l'action "ADD" e facendosi ritornare il nuovo valore
+        Map<String, AttributeValue> key = new HashMap<>();
+        key.put(StreamEntity.COL_PK, AttributeValue.builder().s(streamEntity.getPaId()).build());
+        key.put(StreamEntity.COL_SK, AttributeValue.builder().s(streamEntity.getStreamId()).build());
+
+        UpdateItemRequest updateRequest = UpdateItemRequest.builder()
+                .tableName(table.tableName())
+                .key(key)
+                .returnValues(ReturnValue.UPDATED_NEW)
+                .updateExpression("ADD " +StreamEntity.COL_EVENT_CURRENT_COUNTER + " :v")
+                .expressionAttributeValues(Map.of(":v", AttributeValue.builder().n("1").build()))
+                .conditionExpression("attribute_exists(" + StreamEntity.COL_PK + ")")
+                .build();
+
+
+        return Mono.fromFuture( dynamoDbAsyncClient.updateItem(updateRequest))
+                .map(resp -> {
+                    Long newcounter = Long.parseLong(resp.attributes().get(StreamEntity.COL_EVENT_CURRENT_COUNTER).n());
+                    log.info("updateAndGetAtomicCounter done paId={} streamId={} newcounter={}", streamEntity.getPaId(), streamEntity.getStreamId(), newcounter);
+                    return newcounter;
+                }).onErrorResume(ConditionalCheckFailedException.class, e -> {
+                    log.warn("updateAndGetAtomicCounter conditional failed, not updating counter and retourning -1");
+                    return Mono.just(-1L);
+                });
     }
 }
