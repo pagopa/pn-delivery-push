@@ -134,7 +134,7 @@ paths:
               schema: 
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
-  '/delivery-push/{iun}/document/{documentType}/{documentId}':
+  '/delivery-push/{iun}/document/{documentType}':
     get:
       summary: Restituisce il singolo documento identificato dalla documentKey
       description: >-

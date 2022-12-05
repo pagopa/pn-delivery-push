@@ -45,7 +45,8 @@ class PnDocumentsControllerTest {
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
-                                .path("/delivery-push-private/" + iun + "/document/"+documentType.getValue()+"/"+documentId )
+                                .path("/delivery-push-private/" + iun + "/document/"+documentType.getValue())
+                                .queryParam("documentId", documentId)
                                 .queryParam("recipientInternalId", recipientInternalId )
                                 .build())
                 .accept(MediaType.ALL)
@@ -76,7 +77,8 @@ class PnDocumentsControllerTest {
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
-                                .path("/delivery-push/" + iun + "/document/"+documentType.getValue()+"/"+documentId )
+                                .path("/delivery-push/" + iun + "/document/"+documentType.getValue())
+                                .queryParam("documentId", documentId)
                                 .build())
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
@@ -109,7 +111,8 @@ class PnDocumentsControllerTest {
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
-                                .path("/delivery-push/" + iun + "/document/"+documentType.getValue()+"/"+documentId )
+                                .path("/delivery-push/" + iun + "/document/"+documentType.getValue())
+                                .queryParam("documentId", documentId)
                                 .build())
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")

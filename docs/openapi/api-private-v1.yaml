@@ -247,7 +247,7 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
-  '/delivery-push-private/{iun}/document/{documentType}/{documentId}':
+  '/delivery-push-private/{iun}/document/{documentType}':
     get:
       summary: Restituisce il singolo documento identificato dalla documentKey
       description: >-
@@ -393,7 +393,7 @@ components:
       description: >-
         Identificativo del documento
       name: documentId
-      in: path
+      in: query
       required: true
       schema:
         type: string
