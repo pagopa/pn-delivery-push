@@ -33,7 +33,7 @@ public enum ActionType {
   DIGITAL_WORKFLOW_NEXT_ACTION(NotHandledDetails.class) {
     @Override
     public String buildActionId(Action action) {
-      return String.format("%s_digital_workflow_e_%d", action.getIun(), action.getRecipientIndex());
+      return String.format("%s_digital_workflow_e_%d_timelineid_%s", action.getIun(), action.getRecipientIndex(), action.getTimelineId() == null ? "" : action.getTimelineId());
     }
   },
 

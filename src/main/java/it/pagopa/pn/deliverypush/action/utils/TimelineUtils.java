@@ -479,6 +479,8 @@ public class TimelineUtils {
                 EventId.builder()
                         .iun(notification.getIun())
                         .recIndex(recIndex)
+                        .source(lastAttemptInfo.getDigitalAddressSource())
+                        .sentAttemptMade(lastAttemptInfo.getSentAttemptMade())
                         .build());
         
         ScheduleDigitalWorkflowDetailsInt details = ScheduleDigitalWorkflowDetailsInt.builder()
