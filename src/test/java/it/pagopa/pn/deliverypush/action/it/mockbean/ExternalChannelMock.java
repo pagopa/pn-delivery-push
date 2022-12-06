@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.*;
+import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -16,9 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.context.annotation.Lazy;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -44,11 +43,14 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
 
     private final ExternalChannelResponseHandler externalChannelHandler;
     private final TimelineService timelineService;
-    
+    private final InstantNowSupplier instantNowSupplier;
+
     public ExternalChannelMock(@Lazy ExternalChannelResponseHandler externalChannelHandler,
-                               @Lazy TimelineService timelineService) {
+                               @Lazy TimelineService timelineService,
+                               @Lazy InstantNowSupplier instantNowSupplier) {
         this.externalChannelHandler = externalChannelHandler;
         this.timelineService = timelineService;
+        this.instantNowSupplier = instantNowSupplier;
     }
 
     @Override
@@ -176,7 +178,7 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
 
         LegalMessageSentDetails extChannelResponse = new LegalMessageSentDetails();
         extChannelResponse.setStatus(status);
-        extChannelResponse.setEventTimestamp(Instant.now().atOffset(ZoneOffset.UTC));
+        extChannelResponse.setEventTimestamp(ZonedDateTime.ofInstant(instantNowSupplier.get(), ZoneId.systemDefault()).toOffsetDateTime());
         extChannelResponse.setRequestId(timelineEventId);
         extChannelResponse.setEventCode(eventCode); //AVVENUTA CONSEGNA
         extChannelResponse.setGeneratedMessage(

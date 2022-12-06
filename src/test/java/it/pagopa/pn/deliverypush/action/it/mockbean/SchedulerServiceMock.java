@@ -70,7 +70,7 @@ public class SchedulerServiceMock implements SchedulerService {
             refinementHandler.handleRefinement(iun, recIndex);
             break;
           case DIGITAL_WORKFLOW_NEXT_ACTION:
-            digitalWorkFlowHandler.startScheduledNextWorkflow(iun, recIndex);
+            digitalWorkFlowHandler.startScheduledNextWorkflow(iun, recIndex, null);
             break;
           case DIGITAL_WORKFLOW_RETRY_ACTION:
             digitalWorkFlowRetryHandler.startScheduledRetryWorkflow(iun, recIndex,
@@ -87,7 +87,26 @@ public class SchedulerServiceMock implements SchedulerService {
 
   @Override
   public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule,
-      ActionType actionType, String timelineId) {}
+      ActionType actionType, String timelineId) {
+    log.info("Start scheduling with timelineid - iun={} id={} actionType={} timelineid={} ", iun, recIndex, actionType, timelineId);
+
+    new Thread(() -> {
+      Assertions.assertDoesNotThrow(() -> {
+        mockSchedulingDate(dateToSchedule);
+
+        switch (actionType) {
+
+          case DIGITAL_WORKFLOW_NEXT_ACTION:
+            digitalWorkFlowHandler.startScheduledNextWorkflow(iun, recIndex, timelineId);
+            break;
+        /*case DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION:
+          digitalWorkFlowRetryHandler.elapsedExtChannelTimeout(iun, recIndex,
+                  timelineId);
+          break;*/
+        }
+      });
+    }).start();
+  }
 
   @Override
   public void unscheduleEvent(String iun, Integer recIndex, ActionType actionType,
@@ -114,7 +133,10 @@ public class SchedulerServiceMock implements SchedulerService {
   @Override
   public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule,
       ActionType actionType, String timelineId, ActionDetails actionDetails) {
-    this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, actionDetails);
+    if (timelineId == null)
+      this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, actionDetails);
+    else
+      this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, timelineId);
 
   }
 
