@@ -16,14 +16,10 @@
 
         @page {
             size: A4;
-            margin: 25mm 0mm 10mm 0mm;
+            margin: 25mm 0mm 5mm 0mm;
 
             @top-left {
                 content: element(header);
-            }
-
-            @bottom-center {
-                content: element(footer);
             }
         }
 
@@ -71,28 +67,18 @@
             /* 85x25 */
         }
 
-        #footer {
-            position: running(footer);
-            font-size: 8px;
-            color: #475A6D;
-            border-top: 1px solid #E3E7EB;
-            padding-top: 3mm;
-            margin-bottom: 10mm;
-        }
-
-        #footer p {
-            margin: 0;
-            padding: 0;
-            line-height: 1em;
-        }
-
-        #footer img {
-            width: 45px;
-            height: 45px;
+        .faqs {
+            position: absolute;
+            top: 245mm;
         }
 
         .container {
             margin: 0;
+        }
+
+        .content {
+          position: absolute;
+          top: 30mm;
         }
 
         .row {
@@ -122,18 +108,19 @@
         .col-8-10 { width: 80%; }
         .col-9-10 { width: 90%; }
 
+        .col-1-20 { width: 5% }
         .col-9-20 { width: 45%; }
         .col-11-20 { width: 55%; }
-        .col-10-20 { width: 49%; }
+        .page-col-width { width: 49%; }
 
+        .margin-top-xs { margin-top: 1mm; }
         .margin-top-small { margin-top: 5mm; }
         .margin-top-medium { margin-top: 10mm; }
         .margin-top-large { margin-top: 15mm; }
-        .margin-top-xl { margin-top: 20mm; }
 
         .margin-y-small { margin: 5mm 0; }
         .margin-y-medium { margin: 10mm 0; }
-
+        .margin-x-medium { margin: 0 10mm; }
 
         .right {
             text-align: right;
@@ -141,12 +128,11 @@
 
         #subject {
             font-size: 21px;
-            margin: 7mm 0;
-            margin-top: 4mm;
+            margin-bottom: 3mm;
         }
 
         .paragraph {
-            margin: 7mm 0;
+            margin: 3mm 0;
             /* text-align: justify;
             text-justify: inter-word; */
         }
@@ -154,7 +140,7 @@
         .rounded-box {
             border: 1px solid #0073E6;
             border-radius: 4px;
-            padding: 7mm 5mm;
+            padding: 2mm 2mm;
         }
 
         .rounded-box__header {
@@ -162,45 +148,53 @@
         }
 
         .box-img {
-            margin-top: 5px;
             text-align: center;
         }
 
-        .box-img img {
-            height: 45px;
+        .qr-code-img {
+          margin-left: 2mm;
+          height: 64px;
+          width: 64px;
         }
 
-        #piggy {
-            height: 60px;
+        .info-icon {
+            height: 20px;
+        }
+
+        .io-icon {
+          height: 18px;
+          margin-right: auto;
         }
 
         #recipient-name {
             font-size: 18px;
             font-weight: 700;
         }
+
         #recipient-address {
             font-weight: 400;
         }
+
         .u-recipient-data {
-            margin: 12mm 0 12mm 5mm;
-        }
-
-        .disclaimer-img {
-            width: 3%;
-        }
-
-        .disclaimer-img img {
-            height: 15px;
+            margin: 3mm 0;
         }
 
         .disclaimer-content {
-            width: 97%;
+            width: 100%;
             font-size: 10.5px;
-            padding-top: 4px;
         }
 
-        .text-small {
+        .form-line {
+            border-bottom: solid 1px #000;
+        }
+
+        .small-text {
             font-size: 10.5px;
+            line-height: 2em;
+        }
+
+        .info-text {
+            margin: 3px 0;
         }
 
         .heading {
@@ -213,17 +207,16 @@
         }
 
         .instructions-list-row {
-            margin-bottom: 8mm;
+            margin-bottom: 2mm;
             display: table;
             width: 100%;
         }
 
         .instructions-list-counter {
-            width: 10%;
+            width: 5%;
             display: table-cell;
-            vertical-align: middle;
             text-align: right;
-            padding-right: 5mm;
+            padding-right: 1mm;
         }
 
         .instructions-list-counter h4 {
@@ -254,188 +247,201 @@
     </style>
   </head>
   <body>
-  <div class="container">
-
-    <div id="header" class="row">
-      <div class="left-col">
-        <h2>Piattaforma Notifiche</h2>
+    <div class="container">
+      <div id="header" class="row">
+        <div class="left-col">
+          <h2>Piattaforma Notifiche</h2>
+        </div>
+        <div class="right-col">
+          <img src="images/pn-logo-header.png" />
+        </div>
       </div>
-      <div class="right-col">
-        <img src="images/pn-logo-header.png" />
-      </div>
-    </div>
 
-    <div class="row">
-      <div class="right-col col-5-10">
-        <div class="u-recipient-data">
-          <p id="recipient-address">
-            <#if addressWriter.nullSafePhysicalAddressToString( recipient.physicalAddress, recipient.denomination, '<br/>')??>
-            ${addressWriter.nullSafePhysicalAddressToString( recipient.physicalAddress, "<strong>"+recipient.denomination+"</strong>", '<br/>')}
-            <#else>
-            <#if recipient.denomination??>
-            ${recipient.denomination}
-            <#else>
-            indirizzo non presente
+      <div class="row">
+        <div class="right-col col-5-10">
+          <div class="u-recipient-data">
+            <p id="recipient-address">
+              <#if addressWriter.nullSafePhysicalAddressToString( recipient.physicalAddress, recipient.denomination, '<br/>')??>
+              ${addressWriter.nullSafePhysicalAddressToString( recipient.physicalAddress, "<strong>"+recipient.denomination+"</strong>", '<br/>')}
+              <#else>
+              <#if recipient.denomination??>
+              ${recipient.denomination}
+              <#else>
+              indirizzo non presente
+            </#if>
           </#if>
-        </#if>
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <h3 id="subject">Avviso di notifica del ${sendDateNoTime}</h3>
-
-  <div class="paragraph">
-    Gentile ${recipient.denomination},<br />
-    hai ricevuto una notifica su Piattaforma
-    Notifiche da parte di <strong>[Comune di Milano]</strong> con oggetto <strong>${notification.subject}</strong> e
-    Codice IUN <strong>${notification.iun}</strong>. Puoi accedere agli atti della
-    notifica online o in un qualsiasi Ufficio Postale.
-  </div>
-
-  <div class="paragraph">
-    Hai fino a 120 giorni a partire dalla data di perfezionamento per ottenere i documenti relativi alla notifica.
-    Per farlo, vai gratis su <a href="https://notifichedigitali.it">notifichedigitali.it</a> o ritirali a
-    pagamento in qualsiasi Ufficio Postale. Per sapere quando una notifica si perfeziona, vai su
-    <a href="https://notifichedigitali.pagopa.it/faq">notifichedigitali.pagopa.it/faq</a> o chiedi informazioni all’Ufficio Postale.
-  </div>
-
-  <div class="row margin-y-small">
-    <div class="left-col disclaimer-content">
-      <span>Ricevi questo avviso in qualità di [persona fisica] con Codice Fiscale [ZZLLMR89R59L319S].</span><br />
-    </div>
-  </div>
-
-  <div class="heading left-col col-10-20">
-    Online
-  </div>
-
-  <div class="heading right-col col-10-20">
-    Ufficio Postale
-  </div>
-
-  <div class="container margin-y-small">
-    <div class="row margin-top-xl">
-      <div class="row left-col col-9-20">
-        <div class="instructions-list-row">
-          <div class="instructions-list-elem">
-            <p>1. Vai all’indirizzo <a href="https://cittadini.notifichedigitali.it">cittadini.notifichedigitali.it</a>;</p>
-          </div>
-        </div>
-
-        <div class="instructions-list-row">
-          <div class="instructions-list-elem">
-            <p>2. Entra con identità digitale SPID o Carta di Identità Elettronica (CIE) 3.0;</p>
-          </div>
-        </div>
-
-        <div class="instructions-list-row">
-          <div class="instructions-list-elem">
-            <p>3. Seleziona “Notifiche” dal menu laterale.</p>
-          </div>
-        </div>
-
-        <div class="row left-col rounded-box margin-top-small">
-          <div class="left-col col-2-10 box-img">
-            <img src="images/io-it.png" id="io-it" />
-          </div>
-          <div class="left-col col-8-10">
-            <p>
-              Vuoi ricevere le notifiche solo in digitale e risparmiare sulle spese di notificazione?
-              <strong>Scarica l’app IO</strong> e attiva il servizio “Notifiche digitali” di Piattaforma Notifiche.
-            </p>
-          </div>
+          </p>
         </div>
       </div>
+    </div>
+    <div class="content">
+      <div class="margin-x-medium">
+        <h3 id="subject">Avviso di notifica del ${sendDateNoTime}</h3>
 
-      <div class="row right-col col-10-20">
-        <div class="instructions-list-row">
-          <div class="instructions-list-elem">
-            <p>1. Vai in qualsiasi Ufficio Postale</a>;</p>
-          </div>
+        <div class="paragraph">
+          Gentile ${recipient.denomination},<br />
+          hai ricevuto una notifica su Piattaforma Notifiche da parte di <strong>${notification.sender.paDenomination}</strong>
+          con oggetto <strong>${notification.subject}</strong> e Codice IUN <strong>${notification.iun}</strong>. Puoi
+          accedere agli atti della notifica online o in un qualsiasi Ufficio Postale.
         </div>
 
-        <div class="instructions-list-row">
-          <div class="instructions-list-elem">
-            <p>2. Mostra un documento di riconoscimento e questo <strong>codice QR</strong>;</p>
-          </div>
+        <div class="paragraph">
+          Hai fino a 120 giorni a partire dalla data di perfezionamento per <strong>ottenere i documenti</strong>
+          relativi alla notifica. Per farlo, vai gratis su <a href="https://notifichedigitali.it">notifichedigitali.it</a>
+          o ritirali a pagamento in qualsiasi Ufficio Postale. Per sapere quando una notifica si perfeziona, vai su
+          <a href="https://notifichedigitali.pagopa.it/faq">notifichedigitali.pagopa.it/faq</a> o chiedi informazioni
+          all’Ufficio Postale.
         </div>
 
-        <div class="instructions-list-row">
-          <div class="instructions-list-elem">
-            <p>3. Paga il corrispettivo del servizio e ritira i documenti.</p>
-          </div>
-        </div>
-
-        <div class="qr-code-img">
-          <img src="[qr-code-src]" />
-        </div>
         <div class="row margin-y-small">
           <div class="left-col disclaimer-content">
-              <span>Trovi i termini e condizioni del servizio su
-                <a href="https://posteitaliane.it/piattaformanotifiche">posteitaliane.it/piattaformanotifiche</a>
-              </span>
+            <span>Ricevi questo avviso in qualità di [persona fisica] con Codice Fiscale [fiscalCode].</span><br />
+          </div>
+        </div>
+      </div>
+    <div class="heading left-col page-col-width">
+      Online
+    </div>
+
+    <div class="heading right-col page-col-width">
+      Ufficio Postale
+    </div>
+    <div class="container">
+      <div class="margin-x-medium">
+        <div class="row margin-top-large">
+          <div class="row left-col col-9-20">
+            <div class="instructions-list-row">
+              <div class="instructions-list-counter"><p>1.</p></div>
+              <div class="instructions-list-elem">
+                <p>Vai all’indirizzo <a href="https://cittadini.notifichedigitali.it">cittadini.notifichedigitali.it</a>;</p>
+              </div>
+            </div>
+
+            <div class="instructions-list-row">
+              <div class="instructions-list-counter"><p>2.</p></div>
+              <div class="instructions-list-elem">
+                <p>Entra con identità digitale SPID o Carta di Identità Elettronica (CIE) 3.0;</p>
+              </div>
+            </div>
+
+            <div class="instructions-list-row">
+              <div class="instructions-list-counter"><p>3.</p></div>
+              <div class="instructions-list-elem">
+                <p>Seleziona “Notifiche” dal menu laterale.</p>
+              </div>
+            </div>
+
+            <div class="row left-col rounded-box margin-top-small">
+              <div class="left-col col-1-10 box-img">
+                <img class="io-icon" src="images/io-icon.png" id="io-it" />
+              </div>
+              <div class="left-col col-9-10">
+                <p class="small-text">
+                  Vuoi ricevere le notifiche solo in digitale e risparmiare sulle spese di notificazione?
+                  <strong>Scarica l’app IO</strong> e attiva il servizio “Notifiche digitali” di Piattaforma Notifiche.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="row right-col page-col-width">
+            <div class="instructions-list-row">
+              <div class="instructions-list-counter"><p>1.</p></div>
+              <div class="instructions-list-elem">
+                <p>Vai in qualsiasi Ufficio Postale</a>;</p>
+              </div>
+            </div>
+
+            <div class="instructions-list-row">
+              <div class="instructions-list-counter"><p>2.</p></div>
+              <div class="instructions-list-elem">
+                <p>Mostra un documento di riconoscimento e questo <strong>codice QR</strong>;</p>
+              </div>
+            </div>
+
+            <div class="instructions-list-row">
+              <div class="instructions-list-counter"><p>3.</p></div>
+              <div class="instructions-list-elem">
+                <p>Paga il corrispettivo del servizio e ritira i documenti.</p>
+              </div>
+            </div>
+
+            <div class="qr-code-img">
+              <img src="[qr-code-src]" />
+            </div>
+            <div class="row margin-y-small">
+              <div class="left-col disclaimer-content">
+                  <span>Trovi i termini e condizioni del servizio su
+                    <a href="https://posteitaliane.it/piattaformanotifiche">posteitaliane.it/piattaformanotifiche</a>
+                  </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-
-  <div class="heading">
-    Modulo per la delega in Ufficio Postale
-  </div>
-  <div class="container margin-y-small">
-    <div class="left-col col-9-20">
-      <p class="row left-col text-small">
-        Io, [Nome Cognome] [Codice Fiscale], delego
-      </p>
-      <p class="row left-col text-small">
-        Nome
-      </p>
-      <p class="row left-col text-small">
-        Cognome
-      </p>
-      <p class="row left-col text-small">
-        Codice Fiscale
-      </p>
-      <p class="row left-col text-small">
-        a ritirare in Ufficio Postale i documenti relativi alla notifica con Codice IUN [YYYYMM-1-ABCD-EFGH-X].
-      </p>
-      <p class="row right-col text-small col-8-10">
-        Firma
-      </p>
+    <div class="heading">
+      Modulo per la delega in Ufficio Postale
     </div>
+    <div class="margin-x-medium">
+      <div class="container margin-y-small">
+        <div class="left-col col-9-20">
+          <p class="row left-col small-text">
+            Io, ${recipient.denomination} [fiscalCode], delego
+          </p>
+          <p class="row left-col small-text margin-top-xs">
+            Nome
+          </p>
+          <div class="row form-line left-col"></div>
+          <p class="row left-col small-text">
+            Cognome
+          </p>
+          <div class="row form-line left-col"></div>
+          <p class="row left-col small-text">
+            Codice Fiscale
+          </p>
+          <div class="row form-line left-col"></div>
+          <p class="row left-col small-text">
+            a ritirare in Ufficio Postale i documenti relativi alla notifica con Codice IUN ${notification.iun}.
+          </p>
+          <p class="row right-col small-text col-8-10 margin-top-xs">
+            Firma
+          </p>
+          <div class="form-line right-col col-8-10"></div>
+        </div>
 
-    <div class="right-col col-10-20">
-      <p class="row left-col text-small">La persona delegata dovrà portare con sé:</p>
-      <ul class="row left-col text-small">
-        <li>il modulo per la delega compilato e firmato;</li>
-        <li>il proprio documento di riconoscimento e Codice Fiscale;</li>
-        <li>il documento di riconoscimento e Codice Fiscale del destinatario.</li>
-      </ul>
-      <p class="row left-col text-small">
-        Se la notifica è stata inviata a una <strong>persona giuridica</strong>, la persona delegata dovrà portare con sé anche un
-        documento o autocertificazione che attesti il ruolo di legale rappresentante del destinatario.
-      </p>
+        <div class="right-col page-col-width">
+          <p class="row left-col small-text"><strong>La persona delegata dovrà portare con sé:</strong></p>
+          <ul class="row left-col small-text">
+            <li>il modulo per la delega compilato e firmato;</li>
+            <li>il proprio documento di riconoscimento e Codice Fiscale;</li>
+            <li>il documento di riconoscimento e Codice Fiscale del destinatario.</li>
+          </ul>
+          <p class="row left-col disclaimer-content margin-top-small">
+            Se la notifica è stata inviata a una <strong>persona giuridica</strong>, la persona delegata dovrà portare con sé anche un
+            documento o autocertificazione che attesti il ruolo di legale rappresentante del destinatario.
+          </p>
+        </div>
+      </div>
     </div>
-    <div class="row left-col text-small margin-top-medium" >
+    </div>
+    <div class="row left-col small-text margin-x-medium faqs">
       <div class="row">
-        <img src="images/info.png" />
-        <p>
+        <div class="left-col"><img class="info-icon" src="images/info.png" /></div>
+        <p class="col-9-10 left-col info-text">
           <strong>Cos’è una notifica?</strong> La notifica è una comunicazione a valore legale composta da un avviso
           di avvenuta ricezione e da uno o più documenti. Quando l’avviso di avvenuta ricezione è consegnato, la
           notifica è valida anche se la persona a cui è indirizzata non visualizza o non ritira i documenti.
         </p>
       </div>
       <div class="row">
-        <img src="images/info.png">
-        <p>
+        <div class="left-col"><img class="info-icon" src="images/info.png"></div>
+        <p class="col-9-10 left-col info-text">
           <strong>Cos’è Piattaforma Notifiche?</strong> Piattaforma Notifiche è uno strumento che rende l’invio di notifiche da parte
           della Pubblica Amministrazione più sicuro, efficiente ed economico. Scopri di più su
           <a href="https://notifichedigitali.pagopa.it">notifichedigitali.pagopa.it</a>.
         </p>
       </div>
     </div>
-  </div>
   </body>
 </html>
