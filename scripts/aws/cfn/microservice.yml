@@ -9,7 +9,11 @@ Parameters:
 
   PhysicalPersonPortalUrl:
     Type: String
-    Description: 'Url del portale della Persona Fisica/Giuridica?? da inserire degli AAR'
+    Description: 'Url del portale della Persona Fisica da inserire degli AAR'
+
+  LegalPersonPortalUrl:
+    Type: String
+    Description: 'Url del portale della Persona Giuridica da inserire degli AAR'
 
   AddressBookUrl:
     Type: String
@@ -316,6 +320,8 @@ Resources:
         ContainerEnvEntry38: !Sub 'PN_DELIVERYPUSH_WEBAPP_FAQURLTEMPLATE=${PhysicalPersonPortalUrl}/faq.html'
         ContainerEnvEntry39: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_NOTIFICATIONNONVISIBILITYTIME=${NotificationNonVisibilityTime}'
         ContainerEnvEntry40: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_TIMETOADDINNONVISIBILITYTIME=${TimeToAddInNonVisibilityTimeCase}'
+        ContainerEnvEntry41: !Sub 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILPFTEMPLATE=${PhysicalPersonPortalUrl}notifica?aar=%s'
+        ContainerEnvEntry42: !Sub 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILPGTEMPLATE=${LegalPersonPortalUrl}notifica?aar=%s'
 
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*,/delivery-progresses/*'
