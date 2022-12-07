@@ -274,156 +274,162 @@
         </div>
       </div>
     </div>
-    <div class="content">
+      <div class="content">
+        <div class="margin-x-medium">
+          <h3 id="subject">Avviso di notifica del ${sendDateNoTime}</h3>
+
+          <div class="paragraph">
+            Gentile ${recipient.denomination},<br />
+            hai ricevuto una notifica su Piattaforma Notifiche da parte di <strong>${notification.sender.paDenomination}</strong>
+            con oggetto <strong>${notification.subject}</strong> e Codice IUN <strong>${notification.iun}</strong>. Puoi
+            accedere agli atti della notifica online o in un qualsiasi Ufficio Postale.
+          </div>
+
+          <div class="paragraph">
+            Hai fino a 120 giorni a partire dalla data di perfezionamento per <strong>ottenere i documenti</strong>
+            relativi alla notifica. Per farlo, vai gratis su <a href="https://notifichedigitali.it">notifichedigitali.it</a>
+            o ritirali a pagamento in qualsiasi Ufficio Postale. Per sapere quando una notifica si perfeziona, vai su
+            <a href="https://notifichedigitali.pagopa.it/faq">notifichedigitali.pagopa.it/faq</a> o chiedi informazioni
+            all’Ufficio Postale.
+          </div>
+
+          <div class="row margin-y-small">
+            <div class="left-col disclaimer-content">
+              <span>Ricevi questo avviso in qualità di </span>
+              <#if recipient.recipientType == "PF">
+              <span>persona fisica</span>
+              <#else>
+              <span>persona giuridica</span>
+              </#if>
+              <span>con Codice Fiscale ${recipient.taxId}.</span>
+            </div>
+          </div>
+        </div>
+      <div class="heading left-col page-col-width">
+        Online
+      </div>
+
+      <div class="heading right-col page-col-width">
+        Ufficio Postale
+      </div>
+      <div class="container">
+        <div class="margin-x-medium">
+          <div class="row margin-top-large">
+            <div class="row left-col col-9-20">
+              <div class="instructions-list-row">
+                <div class="instructions-list-counter"><p>1.</p></div>
+                <div class="instructions-list-elem">
+                  <p>Vai all’indirizzo <a href="https://cittadini.notifichedigitali.it">cittadini.notifichedigitali.it</a>;</p>
+                </div>
+              </div>
+
+              <div class="instructions-list-row">
+                <div class="instructions-list-counter"><p>2.</p></div>
+                <div class="instructions-list-elem">
+                  <p>Entra con identità digitale SPID o Carta di Identità Elettronica (CIE) 3.0;</p>
+                </div>
+              </div>
+
+              <div class="instructions-list-row">
+                <div class="instructions-list-counter"><p>3.</p></div>
+                <div class="instructions-list-elem">
+                  <p>Seleziona “Notifiche” dal menu laterale.</p>
+                </div>
+              </div>
+
+              <div class="row left-col rounded-box margin-top-small">
+                <div class="left-col col-1-10 box-img">
+                  <img class="io-icon" src="images/io-icon.png" id="io-it" />
+                </div>
+                <div class="left-col col-9-10">
+                  <p class="small-text">
+                    Vuoi ricevere le notifiche solo in digitale e risparmiare sulle spese di notificazione?
+                    <strong>Scarica l’app IO</strong> e attiva il servizio “Notifiche digitali” di Piattaforma Notifiche.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="row right-col page-col-width">
+              <div class="instructions-list-row">
+                <div class="instructions-list-counter"><p>1.</p></div>
+                <div class="instructions-list-elem">
+                  <p>Vai in qualsiasi Ufficio Postale</a>;</p>
+                </div>
+              </div>
+
+              <div class="instructions-list-row">
+                <div class="instructions-list-counter"><p>2.</p></div>
+                <div class="instructions-list-elem">
+                  <p>Mostra un documento di riconoscimento e questo <strong>codice QR</strong>;</p>
+                </div>
+              </div>
+
+              <div class="instructions-list-row">
+                <div class="instructions-list-counter"><p>3.</p></div>
+                <div class="instructions-list-elem">
+                  <p>Paga il corrispettivo del servizio e ritira i documenti.</p>
+                </div>
+              </div>
+
+              <div class="qr-code-img">
+                <img src="${qrCodeQuickAccessLink}" />
+              </div>
+              <div class="row margin-y-small">
+                <div class="left-col disclaimer-content">
+                    <span>Trovi i termini e condizioni del servizio su
+                      <a href="https://posteitaliane.it/piattaformanotifiche">posteitaliane.it/piattaformanotifiche</a>
+                    </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="heading">
+        Modulo per la delega in Ufficio Postale
+      </div>
       <div class="margin-x-medium">
-        <h3 id="subject">Avviso di notifica del ${sendDateNoTime}</h3>
+        <div class="container margin-y-small">
+          <div class="left-col col-9-20">
+            <p class="row left-col small-text">
+              Io, ${recipient.denomination} ${recipient.taxId}, delego
+            </p>
+            <p class="row left-col small-text margin-top-xs">
+              Nome
+            </p>
+            <div class="row form-line left-col"></div>
+            <p class="row left-col small-text">
+              Cognome
+            </p>
+            <div class="row form-line left-col"></div>
+            <p class="row left-col small-text">
+              Codice Fiscale
+            </p>
+            <div class="row form-line left-col"></div>
+            <p class="row left-col small-text">
+              a ritirare in Ufficio Postale i documenti relativi alla notifica con Codice IUN ${notification.iun}.
+            </p>
+            <p class="row right-col small-text col-8-10 margin-top-xs">
+              Firma
+            </p>
+            <div class="form-line right-col col-8-10"></div>
+          </div>
 
-        <div class="paragraph">
-          Gentile ${recipient.denomination},<br />
-          hai ricevuto una notifica su Piattaforma Notifiche da parte di <strong>${notification.sender.paDenomination}</strong>
-          con oggetto <strong>${notification.subject}</strong> e Codice IUN <strong>${notification.iun}</strong>. Puoi
-          accedere agli atti della notifica online o in un qualsiasi Ufficio Postale.
-        </div>
-
-        <div class="paragraph">
-          Hai fino a 120 giorni a partire dalla data di perfezionamento per <strong>ottenere i documenti</strong>
-          relativi alla notifica. Per farlo, vai gratis su <a href="https://notifichedigitali.it">notifichedigitali.it</a>
-          o ritirali a pagamento in qualsiasi Ufficio Postale. Per sapere quando una notifica si perfeziona, vai su
-          <a href="https://notifichedigitali.pagopa.it/faq">notifichedigitali.pagopa.it/faq</a> o chiedi informazioni
-          all’Ufficio Postale.
-        </div>
-
-        <div class="row margin-y-small">
-          <div class="left-col disclaimer-content">
-            <span>Ricevi questo avviso in qualità di [persona fisica] con Codice Fiscale [fiscalCode].</span><br />
+          <div class="right-col page-col-width">
+            <p class="row left-col small-text"><strong>La persona delegata dovrà portare con sé:</strong></p>
+            <ul class="row left-col small-text">
+              <li>il modulo per la delega compilato e firmato;</li>
+              <li>il proprio documento di riconoscimento e Codice Fiscale;</li>
+              <li>il documento di riconoscimento e Codice Fiscale del destinatario.</li>
+            </ul>
+            <p class="row left-col disclaimer-content margin-top-small">
+              Se la notifica è stata inviata a una <strong>persona giuridica</strong>, la persona delegata dovrà portare con sé anche un
+              documento o autocertificazione che attesti il ruolo di legale rappresentante del destinatario.
+            </p>
           </div>
         </div>
       </div>
-    <div class="heading left-col page-col-width">
-      Online
-    </div>
-
-    <div class="heading right-col page-col-width">
-      Ufficio Postale
-    </div>
-    <div class="container">
-      <div class="margin-x-medium">
-        <div class="row margin-top-large">
-          <div class="row left-col col-9-20">
-            <div class="instructions-list-row">
-              <div class="instructions-list-counter"><p>1.</p></div>
-              <div class="instructions-list-elem">
-                <p>Vai all’indirizzo <a href="https://cittadini.notifichedigitali.it">cittadini.notifichedigitali.it</a>;</p>
-              </div>
-            </div>
-
-            <div class="instructions-list-row">
-              <div class="instructions-list-counter"><p>2.</p></div>
-              <div class="instructions-list-elem">
-                <p>Entra con identità digitale SPID o Carta di Identità Elettronica (CIE) 3.0;</p>
-              </div>
-            </div>
-
-            <div class="instructions-list-row">
-              <div class="instructions-list-counter"><p>3.</p></div>
-              <div class="instructions-list-elem">
-                <p>Seleziona “Notifiche” dal menu laterale.</p>
-              </div>
-            </div>
-
-            <div class="row left-col rounded-box margin-top-small">
-              <div class="left-col col-1-10 box-img">
-                <img class="io-icon" src="images/io-icon.png" id="io-it" />
-              </div>
-              <div class="left-col col-9-10">
-                <p class="small-text">
-                  Vuoi ricevere le notifiche solo in digitale e risparmiare sulle spese di notificazione?
-                  <strong>Scarica l’app IO</strong> e attiva il servizio “Notifiche digitali” di Piattaforma Notifiche.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div class="row right-col page-col-width">
-            <div class="instructions-list-row">
-              <div class="instructions-list-counter"><p>1.</p></div>
-              <div class="instructions-list-elem">
-                <p>Vai in qualsiasi Ufficio Postale</a>;</p>
-              </div>
-            </div>
-
-            <div class="instructions-list-row">
-              <div class="instructions-list-counter"><p>2.</p></div>
-              <div class="instructions-list-elem">
-                <p>Mostra un documento di riconoscimento e questo <strong>codice QR</strong>;</p>
-              </div>
-            </div>
-
-            <div class="instructions-list-row">
-              <div class="instructions-list-counter"><p>3.</p></div>
-              <div class="instructions-list-elem">
-                <p>Paga il corrispettivo del servizio e ritira i documenti.</p>
-              </div>
-            </div>
-
-            <div class="qr-code-img">
-              <img src="[qr-code-src]" />
-            </div>
-            <div class="row margin-y-small">
-              <div class="left-col disclaimer-content">
-                  <span>Trovi i termini e condizioni del servizio su
-                    <a href="https://posteitaliane.it/piattaformanotifiche">posteitaliane.it/piattaformanotifiche</a>
-                  </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="heading">
-      Modulo per la delega in Ufficio Postale
-    </div>
-    <div class="margin-x-medium">
-      <div class="container margin-y-small">
-        <div class="left-col col-9-20">
-          <p class="row left-col small-text">
-            Io, ${recipient.denomination} [fiscalCode], delego
-          </p>
-          <p class="row left-col small-text margin-top-xs">
-            Nome
-          </p>
-          <div class="row form-line left-col"></div>
-          <p class="row left-col small-text">
-            Cognome
-          </p>
-          <div class="row form-line left-col"></div>
-          <p class="row left-col small-text">
-            Codice Fiscale
-          </p>
-          <div class="row form-line left-col"></div>
-          <p class="row left-col small-text">
-            a ritirare in Ufficio Postale i documenti relativi alla notifica con Codice IUN ${notification.iun}.
-          </p>
-          <p class="row right-col small-text col-8-10 margin-top-xs">
-            Firma
-          </p>
-          <div class="form-line right-col col-8-10"></div>
-        </div>
-
-        <div class="right-col page-col-width">
-          <p class="row left-col small-text"><strong>La persona delegata dovrà portare con sé:</strong></p>
-          <ul class="row left-col small-text">
-            <li>il modulo per la delega compilato e firmato;</li>
-            <li>il proprio documento di riconoscimento e Codice Fiscale;</li>
-            <li>il documento di riconoscimento e Codice Fiscale del destinatario.</li>
-          </ul>
-          <p class="row left-col disclaimer-content margin-top-small">
-            Se la notifica è stata inviata a una <strong>persona giuridica</strong>, la persona delegata dovrà portare con sé anche un
-            documento o autocertificazione che attesti il ruolo di legale rappresentante del destinatario.
-          </p>
-        </div>
-      </div>
-    </div>
     </div>
     <div class="row left-col small-text margin-x-medium faqs">
       <div class="row">
