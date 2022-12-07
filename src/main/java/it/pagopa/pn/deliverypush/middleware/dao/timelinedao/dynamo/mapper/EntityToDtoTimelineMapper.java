@@ -31,6 +31,8 @@ public class EntityToDtoTimelineMapper {
                 .details( parseDetailsFromEntity( entity.getDetails(), category) )
                 .legalFactsIds( convertLegalFactsFromEntity( entity.getLegalFactIds() ) )
                 .statusInfo(entityToStatusInfoInternal(entity.getStatusInfo()))
+                .notificationSentAt(entity.getNotificationSentAt())
+                .paId(entity.getPaId())
                 .build();
     }
 

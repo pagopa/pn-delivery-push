@@ -16,13 +16,15 @@ public class PublicRegistryResponseDetailsInt implements RecipientRelatedTimelin
     private int recIndex;
     private LegalDigitalAddressInt digitalAddress;
     private PhysicalAddressInt physicalAddress;
+    private String requestTimelineId;
 
     public String toLog() {
         return String.format(
-                "recIndex=%d digitalAddress=%s physicalAddress=%s",
+                "recIndex=%d digitalAddress=%s physicalAddress=%s requestTimelineId=%s",
                 recIndex,
                 AuditLogUtils.SENSITIVE,
-                AuditLogUtils.SENSITIVE
+                AuditLogUtils.SENSITIVE,
+                requestTimelineId
         );
     }
 }

@@ -384,6 +384,7 @@ class DigitalWorkFlowUtilsTest {
                 .paId("1")
                 .category(TimelineElementCategoryInt.SEND_PAPER_FEEDBACK)
                 .legalFactsIds(legalFactsIds)
+                .notificationSentAt(Instant.now())
                 .build();
     }
 

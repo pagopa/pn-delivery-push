@@ -24,4 +24,5 @@ public class TimelineElementInternal {
     private final TimelineElementCategoryInt category;
     private final TimelineElementDetailsInt details;
     private StatusInfoInternal statusInfo;
+    private Instant notificationSentAt;
 }
