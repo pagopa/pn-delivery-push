@@ -93,7 +93,8 @@ Resources:
         StreamArn: !Ref CdcKinesisSourceStreamArn
       StreamSpecification: 
         StreamViewType: NEW_IMAGE
-
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
 
   # Failed Paper Notification
   PaperNotificationFailedTable:
@@ -111,7 +112,8 @@ Resources:
         - AttributeName: "iun"
           KeyType: "RANGE"
       BillingMode: "PAY_PER_REQUEST"
-
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
   # Action Table
   ActionTable:
     Type: AWS::DynamoDB::Table
@@ -124,6 +126,8 @@ Resources:
         - AttributeName: "actionId"
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
 
   # Future Action Table
   FutureActionTable:
@@ -141,6 +145,8 @@ Resources:
         - AttributeName: "actionId"
           KeyType: "RANGE"
       BillingMode: "PAY_PER_REQUEST"
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
 
   # Last scheduled poll time
   LastPollForFutureActionTable:
@@ -154,6 +160,8 @@ Resources:
         - AttributeName: "lastPoolKey"
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
 
   # Shared lock handling table
   PnDeliveryPushShedLockTable:
@@ -167,6 +175,8 @@ Resources:
         - AttributeName: "_id"
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
 
   # WebhookStreams table
   PnDeliveryPushWebhookStreamsTable:
@@ -184,6 +194,8 @@ Resources:
         - AttributeName: "sortKey"
           KeyType: "RANGE"
       BillingMode: "PAY_PER_REQUEST"
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
 
   # WebhookEvents table
   PnDeliveryPushWebhookEventsTable:
@@ -204,6 +216,8 @@ Resources:
       TimeToLiveSpecification:
         AttributeName: "ttl"
         Enabled: true
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
 
   
       
