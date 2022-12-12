@@ -159,6 +159,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
             digitalNotificationRequestDto.setMessageText(mailBody);
             digitalNotificationRequestDto.setSubjectText(mailSubj);
             digitalNotificationRequestDto.setAttachmentUrls(List.of(aarKey));
+            
             if (StringUtils.hasText(cfg.getExternalchannelSenderPec()))
                 digitalNotificationRequestDto.setSenderDigitalAddress(cfg.getExternalchannelSenderPec());
 
