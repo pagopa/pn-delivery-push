@@ -9,6 +9,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Version;
 import freemarker.template._TemplateAPI;
 import it.pagopa.pn.commons.abstractions.ParameterConsumer;
+import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
@@ -77,14 +78,14 @@ public class AbstractWorkflowTestConfiguration {
     }
     
     @Bean
-    public LegalFactGenerator legalFactPdfGeneratorTest( DocumentComposition dc ) {
+    public LegalFactGenerator legalFactPdfGeneratorTest(DocumentComposition dc , @Lazy MVPParameterConsumer mvpParameterConsumer) {
         CustomInstantWriter instantWriter = new CustomInstantWriter();
         PhysicalAddressWriter physicalAddressWriter = new PhysicalAddressWriter();
         PnDeliveryPushConfigs pnDeliveryPushConfigs =  Mockito.mock(PnDeliveryPushConfigs.class);
         Mockito.when(pnDeliveryPushConfigs.getWebapp()).thenReturn(new PnDeliveryPushConfigs.Webapp());
         pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailPfTemplate("http://localhost:8090/notifica?aar=%s");
         pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailPgTemplate("http://localhost:8090/notifica?aar=%s");
-        return new LegalFactGenerator( dc, instantWriter, physicalAddressWriter,  pnDeliveryPushConfigs, new InstantNowSupplier());
+        return new LegalFactGenerator( dc, instantWriter, physicalAddressWriter,  pnDeliveryPushConfigs, new InstantNowSupplier(), mvpParameterConsumer);
     }
     
     @Bean

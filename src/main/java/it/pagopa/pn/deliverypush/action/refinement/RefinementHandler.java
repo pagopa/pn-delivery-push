@@ -44,8 +44,7 @@ public class RefinementHandler {
             Integer notificationCost = notificationCostService.getNotificationCost(notification, recIndex);
             log.debug("Notification cost is {} - iun {} id {}",notificationCost, iun, recIndex);
 
-            //TODO in attesa di capire come passare i parametri di questa chiamata
-//            attachmentUtils.changeAttachmentsRetention(notification, RETENTION_FILE_REFINEMENT_DAYS);
+            attachmentUtils.changeAttachmentsRetention(notification, RETENTION_FILE_REFINEMENT_DAYS);
             addTimelineElement(
                     timelineUtils.buildRefinementTimelineElement(notification, recIndex, notificationCost),
                     notification

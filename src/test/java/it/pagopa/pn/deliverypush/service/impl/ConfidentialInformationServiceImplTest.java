@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.AddressDto;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.AnalogDomicile;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.ConfidentialTimelineElementDto;
@@ -15,7 +15,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,8 +45,8 @@ class ConfidentialInformationServiceImplTest {
         //GIVEN
         TimelineElementInternal element = getSendPaperDetailsTimelineElement(iun, elementId);
         
-        Mockito.when(pnDataVaultClient.updateNotificationTimelineByIunAndTimelineElementId(Mockito.anyString(), Mockito.any(ConfidentialTimelineElementDto.class)))
-                .thenReturn(ResponseEntity.ok(null));
+        //Mockito.when(pnDataVaultClient.updateNotificationTimelineByIunAndTimelineElementId(Mockito.anyString(), Mockito.any(ConfidentialTimelineElementDto.class)))
+       // .doNothing();
 
         //WHEN
         confidentialInformationService.saveTimelineConfidentialInformation(element);
@@ -70,11 +69,11 @@ class ConfidentialInformationServiceImplTest {
         //GIVEN
         TimelineElementInternal element = getSendPaperDetailsTimelineElement(iun, elementId);
         
-        Mockito.when(pnDataVaultClient.updateNotificationTimelineByIunAndTimelineElementId(Mockito.anyString(), Mockito.any(ConfidentialTimelineElementDto.class)))
-                .thenReturn( ResponseEntity.status(500).body(null) );
+        Mockito.doThrow(PnHttpResponseException.class).when(pnDataVaultClient).updateNotificationTimelineByIunAndTimelineElementId(Mockito.anyString(), Mockito.any(ConfidentialTimelineElementDto.class));
+        
 
         //WHEN
-        assertThrows(PnInternalException.class, () -> {
+        assertThrows(PnHttpResponseException.class, () -> {
             confidentialInformationService.saveTimelineConfidentialInformation(element);
         });
     }
@@ -93,7 +92,7 @@ class ConfidentialInformationServiceImplTest {
                                 .build()
                 )
                 .build();
-        ResponseEntity<ConfidentialTimelineElementDto> resp = ResponseEntity.ok(elementDto);
+        ConfidentialTimelineElementDto resp = elementDto;
 
         Mockito.when(pnDataVaultClient.getNotificationTimelineByIunAndTimelineElementId(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(resp);
@@ -113,10 +112,10 @@ class ConfidentialInformationServiceImplTest {
         String elementId = "testElementId";
 
         Mockito.when(pnDataVaultClient.getNotificationTimelineByIunAndTimelineElementId(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(ResponseEntity.status(400).body(null));
+                .thenThrow(PnHttpResponseException.class);
         
         //WHEN
-        assertThrows(PnInternalException.class, () -> {
+        assertThrows(PnHttpResponseException.class, () -> {
             confidentialInformationService.getTimelineElementConfidentialInformation(iun, elementId);
         });
     }
@@ -151,10 +150,9 @@ class ConfidentialInformationServiceImplTest {
         list.add(elementDto1);
         list.add(elementDto2);
         
-        ResponseEntity<List<ConfidentialTimelineElementDto>> resp = ResponseEntity.ok(list);
 
         Mockito.when(pnDataVaultClient.getNotificationTimelineByIunWithHttpInfo(Mockito.anyString()))
-                .thenReturn(resp);
+                .thenReturn(list);
 
         //WHEN
         Optional<Map<String, ConfidentialTimelineElementDtoInt>> mapOtp = confidentialInformationService.getTimelineConfidentialInformation(iun);
@@ -175,10 +173,10 @@ class ConfidentialInformationServiceImplTest {
         String iun = "testIun";
 
         Mockito.when(pnDataVaultClient.getNotificationTimelineByIunWithHttpInfo(Mockito.anyString()))
-                .thenReturn(ResponseEntity.status(500).body(null));
+                .thenThrow(PnHttpResponseException.class);
 
         //WHEN
-        assertThrows(PnInternalException.class, () -> {
+        assertThrows(PnHttpResponseException.class, () -> {
             confidentialInformationService.getTimelineConfidentialInformation(iun);
         });
     }

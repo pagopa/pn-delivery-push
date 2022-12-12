@@ -30,6 +30,7 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -41,6 +42,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class TestUtils {
 
     public static final String EXTERNAL_CHANNEL_ANALOG_FAILURE_ATTEMPT = "EXTERNAL_CHANNEL_ANALOG_FAILURE_ATTEMPT";
@@ -471,6 +473,7 @@ public class TestUtils {
                         LegalFactsIdInt legalFactsId = elem.getLegalFactsIds().get(0);
                         if( !LegalFactCategoryInt.PEC_RECEIPT.equals(legalFactsId.getCategory()) && !LegalFactCategoryInt.ANALOG_DELIVERY.equals(legalFactsId.getCategory())){
                             String key = legalFactsId.getKey().replace("safestorage://", "");
+                            log.info("writing safestoragemock key={} testName={} cat={}", key, testName, legalFactsId.getCategory());
                             safeStorageClientMock.writeFile(key, legalFactsId.getCategory(), testName);
                         }
                     }

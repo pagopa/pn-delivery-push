@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
@@ -13,9 +14,7 @@ import it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.http.ResponseEntity;
 
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -61,11 +60,9 @@ class IoServiceImplTest {
         );
         
         Mockito.when( pnExternalRegistryClient.sendIOMessage(Mockito.any(SendMessageRequest.class))).thenReturn(
-                ResponseEntity.of(Optional.of(
                         new SendMessageResponse()
                                 .id("1871")
                                 .result(SendMessageResponse.ResultEnum.SENT_COURTESY)
-                ))
         );
 
         //WHEN
@@ -101,11 +98,9 @@ class IoServiceImplTest {
         );
 
         Mockito.when( pnExternalRegistryClient.sendIOMessage(Mockito.any(SendMessageRequest.class))).thenReturn(
-                ResponseEntity.of(Optional.of(
                         new SendMessageResponse()
                                 .id("1871")
                                 .result(SendMessageResponse.ResultEnum.NOT_SENT_APPIO_UNAVAILABLE)
-                ))
         );
 
         //WHEN
@@ -141,11 +136,9 @@ class IoServiceImplTest {
         );
 
         Mockito.when( pnExternalRegistryClient.sendIOMessage(Mockito.any(SendMessageRequest.class))).thenReturn(
-                ResponseEntity.of(Optional.of(
                         new SendMessageResponse()
                                 .id("1871")
                                 .result(SendMessageResponse.ResultEnum.SENT_OPTIN)
-                ))
         );
 
         //WHEN
@@ -180,11 +173,9 @@ class IoServiceImplTest {
         );
 
         Mockito.when( pnExternalRegistryClient.sendIOMessage(Mockito.any(SendMessageRequest.class))).thenReturn(
-                ResponseEntity.of(Optional.of(
                         new SendMessageResponse()
                                 .id("1871")
                                 .result(SendMessageResponse.ResultEnum.ERROR_USER_STATUS)
-                ))
         );
 
         //WHEN
@@ -245,9 +236,8 @@ class IoServiceImplTest {
                 notificationInt.getRecipients().get(0)
         );
 
-        Mockito.when( pnExternalRegistryClient.sendIOMessage(Mockito.any(SendMessageRequest.class))).thenReturn(
-                ResponseEntity.of(Optional.empty())
-        );
+        Mockito.when( pnExternalRegistryClient.sendIOMessage(Mockito.any(SendMessageRequest.class)))
+        .thenThrow(PnHttpResponseException.class);
         //WHEN
         assertThrows(PnInternalException.class, () ->
                 ioService.sendIOMessage(notificationInt, 0)

@@ -15,14 +15,14 @@ class ServiceLevelTest {
 
     @Test
     void testToString() {
-        String value = ServiceLevel.SIMPLE_REGISTERED_LETTER.getValue();
-        Assertions.assertEquals("SIMPLE_REGISTERED_LETTER", value);
+        String value = ServiceLevel.AR_REGISTERED_LETTER.getValue();
+        Assertions.assertEquals("AR_REGISTERED_LETTER", value);
     }
 
     @Test
     void fromValue() {
-        ServiceLevel value = ServiceLevel.fromValue("SIMPLE_REGISTERED_LETTER");
-        Assertions.assertEquals(ServiceLevel.SIMPLE_REGISTERED_LETTER, value);
+        ServiceLevel value = ServiceLevel.fromValue("AR_REGISTERED_LETTER");
+        Assertions.assertEquals(ServiceLevel.AR_REGISTERED_LETTER, value);
     }
 
     @Test

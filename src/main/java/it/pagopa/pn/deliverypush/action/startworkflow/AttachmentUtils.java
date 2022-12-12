@@ -18,7 +18,7 @@ import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.function.Consumer;
 
@@ -124,15 +124,15 @@ public class AttachmentUtils {
 
     private void changeAttachmentRetention(NotificationDocumentInt attachment, int retentionUntilDays) {
         NotificationDocumentInt.Ref ref = attachment.getRef();
-        Instant retentionUntil = Instant.now().plus(retentionUntilDays, ChronoUnit.DAYS);
+        OffsetDateTime retentionUntil = OffsetDateTime.now().plus(retentionUntilDays, ChronoUnit.DAYS);
         log.debug( "changeAttachmentRetention begin changing retentionUntil for attachment with key={}", ref.getKey());
 
-        updateFileMetadata(ref.getKey(), "SAVED", retentionUntil);
+        updateFileMetadata(ref.getKey(), null, retentionUntil);
 
         log.info( "changeAttachmentRetention changed retentionUntil for attachment with key={}", ref.getKey());
     }
 
-    private void updateFileMetadata(String fileKey, String statusRequest, Instant retentionUntilRequest) {
+    private void updateFileMetadata(String fileKey, String statusRequest, OffsetDateTime retentionUntilRequest) {
         UpdateFileMetadataRequest request = new UpdateFileMetadataRequest();
         request.setStatus(statusRequest);
         request.setRetentionUntil(retentionUntilRequest);

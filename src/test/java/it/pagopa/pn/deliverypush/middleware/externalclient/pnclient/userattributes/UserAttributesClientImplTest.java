@@ -69,9 +69,9 @@ class UserAttributesClientImplTest {
 
         Mockito.when(legalApi.getLegalAddressBySenderWithHttpInfo("001", "001")).thenReturn(ResponseEntity.ok(listLegalDigitalAddresses));
 
-        ResponseEntity<List<LegalDigitalAddress>> response = client.getLegalAddressBySender("001", "001");
+        List<LegalDigitalAddress> response = client.getLegalAddressBySender("001", "001");
 
-        Assertions.assertEquals(response, ResponseEntity.ok(listLegalDigitalAddresses));
+        Assertions.assertEquals(response, listLegalDigitalAddresses);
     }
 
     @Test
@@ -90,8 +90,8 @@ class UserAttributesClientImplTest {
 
         Mockito.when(courtesyApi.getCourtesyAddressBySenderWithHttpInfo("001", "001")).thenReturn(ResponseEntity.ok(courtesyDigitalAddressList));
 
-        ResponseEntity<List<CourtesyDigitalAddress>> response = client.getCourtesyAddressBySender("001", "001");
+        List<CourtesyDigitalAddress> response = client.getCourtesyAddressBySender("001", "001");
 
-        Assertions.assertEquals(response, ResponseEntity.ok(courtesyDigitalAddressList));
+        Assertions.assertEquals(response, courtesyDigitalAddressList);
     }
 }

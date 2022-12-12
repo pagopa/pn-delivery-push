@@ -10,4 +10,11 @@ public interface GetDocumentService {
                                                                String documentId,
                                                                String recipientId
     );
+
+    Mono<DocumentDownloadMetadataResponse> getDocumentWebMetadata(String iun,
+                                                               DocumentCategory documentType,
+                                                               String documentId,
+                                                               String senderReceiverId,
+                                                               String mandateId
+    );
 }
