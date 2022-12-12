@@ -88,10 +88,14 @@ Parameters:
     Type: String
     Description: 'Queue to pull for inputs event'
 
-  ExternalChannelsInputsQueueName:
+  DeliveryPushInputsQueueAlarmARN:
     Type: String
-    Description: 'Send external-channel messages to this Queue'
-    
+    Description: 'pn-delivery-push input queue alarm ARN'
+
+  DeliveryPushInputsQueueAgeAlarmARN:
+    Type: String
+    Description: pn-delivery-push input queue age alarm ARN
+
   ExternalChannelsInputsQueueARN:
     Type: String
     Description: 'Send external-channel messages to this Queue'
@@ -518,6 +522,8 @@ Resources:
           - ','
           - - !GetAtt DeliveryPushMicroservice.Outputs.AutoScalingAlarmArn
             - !GetAtt DeliveryPushMicroservice.Outputs.FatalLogsMetricAlarmArn
+            - !Ref DeliveryPushInputsQueueAlarmARN
+            - !Ref DeliveryPushInputsQueueAgeAlarmARN            
         QueueArns: !Join
           - ','
           - - !Ref DeliveryPushInputsQueueARN
