@@ -334,14 +334,15 @@ Resources:
         LoadBalancerListenerArn: !Ref ApplicationLoadBalancerListenerArn
         LoadbalancerRulePriority: !Ref MicroserviceNumber
         CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
+        TaskRoleManagedPolicyArn: !Ref DeliveryPushMicroserviceTaskManagedPolicy
 
   # Grant operational rights to PN-Delivery-push microservice microservice
-  DeliveryPushMicroserviceTaskPolicy:
-    Type: AWS::IAM::Policy
+  DeliveryPushMicroserviceTaskManagedPolicy:
+    Type: AWS::IAM::ManagedPolicy
     Properties:
-      PolicyName: !Sub '${ProjectName}-delivery-push-CustomTaskPolicy'
-      Roles:
-        - !GetAtt DeliveryPushMicroservice.Outputs.TaskRoleName
+      #PolicyName: !Sub '${ProjectName}-delivery-push-CustomTaskPolicy'
+      #Roles:
+      #  - !GetAtt DeliveryPushMicroservice.Outputs.TaskRoleName
       PolicyDocument:
         Version: 2012-10-17
         Statement:
