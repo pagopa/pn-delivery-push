@@ -263,6 +263,18 @@ Parameters:
     Description: 'default value to return if paTaxId not present in parameter store'
     AllowedValues: [ true, false ]
     
+  SafeStorageToDeliveryPushQueueARN:
+    Type: String
+    Description: 'SafeStorage-to-delivery-push queue ARN'
+
+  SafeStorageToDeliveryPushQueueAlarmARN:
+    Type: String
+    Description: SafeStorage-to-delivery-push queue alarm ARN
+
+  SafeStorageToDeliveryPushQueueAgeAlarmARN:
+    Type: String
+    Description: SafeStorage-to-delivery-push queue age alarm ARN
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   
@@ -523,7 +535,9 @@ Resources:
           - - !GetAtt DeliveryPushMicroservice.Outputs.AutoScalingAlarmArn
             - !GetAtt DeliveryPushMicroservice.Outputs.FatalLogsMetricAlarmArn
             - !Ref DeliveryPushInputsQueueAlarmARN
-            - !Ref DeliveryPushInputsQueueAgeAlarmARN            
+            - !Ref DeliveryPushInputsQueueAgeAlarmARN
+            - !Ref SafeStorageToDeliveryPushQueueAlarmARN
+            - !Ref SafeStorageToDeliveryPushQueueAgeAlarmARN         
         QueueArns: !Join
           - ','
           - - !Ref DeliveryPushInputsQueueARN
@@ -531,3 +545,4 @@ Resources:
             - !Ref ExternalChannelsOutputsQueueARN
             - !Ref ScheduledActionsQueueARN
             - !Ref DoneActionsQueueARN
+            - !Ref SafeStorageToDeliveryPushQueueARN
