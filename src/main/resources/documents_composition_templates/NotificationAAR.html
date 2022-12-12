@@ -113,9 +113,9 @@
         .col-1-20 { width: 5% }
         .col-9-20 { width: 45%; }
         .col-11-20 { width: 55%; }
-        .page-col-width { width: 49%; }
+        .col-19-20 { width: 95%; }
+        .page-col-width { width: 49% !important; }
 
-        .margin-top-xs { margin-top: 2mm; }
         .margin-top-xs { margin-top: 2mm; }
         .margin-top-small { margin-top: 5mm; }
         .margin-top-medium { margin-top: 10mm; }
@@ -125,8 +125,12 @@
         .margin-y-small { margin: 5mm 0; }
         .margin-y-medium { margin: 10mm 0; }
 
+        .margin-left-small {
+          margin-left: 5mm;
+        }
+
         .margin-left-info {
-          margin-left: 20px;
+          margin-left: 24px;
         }
 
         .right {
@@ -158,13 +162,13 @@
         }
 
         .qr-code-img {
-          margin-left: 2mm;
-          height: 108px;
-          width: 108px;
+          height: 130px;
+          width: 130px;
         }
 
         .info-icon {
             height: 20px;
+            margin-right: 4px;
         }
 
         .instruction-icon {
@@ -213,7 +217,7 @@
             font-size: 13px;
             font-weight: bold;
             padding: 5px;
-            padding-left: 10mm;
+            padding-left: 5mm;
         }
 
         .title {
@@ -300,8 +304,8 @@
             Una notifica è una comunicazione a valore legale composta da un avviso di avvenuta ricezione e da uno o
             più documenti.<br/>
             Hai fino a 120 giorni dalla data di perfezionamento della notifica per <strong>ottenere i documenti</strong>.
-            Per conoscere la data di perfezionamento, vai su <strong>notifichedigitali.it</strong> o chiedi informazioni
-            all’Ufficio Postale.
+            Per conoscere la data di perfezionamento, vai su <strong>notifichedigitali.pagopa.it/faq</strong> o chiedi
+            informazioni all’Ufficio Postale.
           </div>
 
           <div class="row margin-y-small">
@@ -317,15 +321,14 @@
         Online, gratis
       </div>
       <div class="container">
-        <div>
-          <div class="row margin-top-small">
-            <div class="row left-col col-9-20">
+        <div class="row margin-top-small">
+            <div class="row left-col col-9-20  margin-left-small">
               <div class="instructions-list-row">
                 <div class="instructions-list-counter">
                   <p>1.</p>
                 </div>
                 <div class="instructions-list-elem">
-                  <p>Inquadra il QR code o vai su <strong>cittadini.notifichedigitali.it</strong>;</p>
+                  <p>Inquadra il QR code o vai su <br/><strong>cittadini.notifichedigitali.it</strong>;</p>
                 </div>
               </div>
 
@@ -356,7 +359,7 @@
             </div>
 
             <div class="row right-col page-col-width">
-              <div class="row left-col io-box">
+              <div class="col-19-20 left-col io-box margin-left-small ">
                 <div class="left-col col-1-10 box-img">
                   <img class="io-icon" src="images/io-icon-bw.png" />
                 </div>
@@ -369,7 +372,6 @@
               </div>
             </div>
           </div>
-        </div>
       </div>
       <div class="heading left-col page-col-width">
         IN UFFICIO POSTALE
@@ -380,7 +382,7 @@
       </div>
       <div>
         <div class="container margin-y-medium">
-          <div class="left-col col-9-20">
+          <div class="left-col col-9-20 margin-left-small">
             <div class="instructions-list-row">
               <div class="instructions-list-counter">
                 <p>1.</p>
@@ -407,7 +409,7 @@
                 <p>Paga il corrispettivo del servizio e ritira i documenti.</p>
               </div>
             </div>
-            <div class="row margin-y-small">
+            <div class="row margin-y-xs">
               <div class="left-col">
                 <p class="disclaimer-content">
                   Trovi i termini e condizioni del servizio su <strong>posteitaliane.it/piattaformanotifiche</strong>
@@ -420,8 +422,8 @@
             </div>
           </div>
 
-          <div class="right-col page-col-width">
-            <div class="row">
+          <div class="right-col page-col-width margin-left-small">
+            <div class="row col-19-20 margin-left-small">
               <p class="row left-col">
                 Io, ${recipient.denomination} ${recipient.taxId}, delego
               </p>
@@ -445,7 +447,7 @@
               </p>
               <div class="form-line right-col col-8-10"></div>
             </div>
-            <div class="row margin-top-small">
+            <div class="row margin-top-small margin-left-small">
               <div class="left-col"><img class="instruction-icon" src="images/stock-icon.png"></div>
               <div class="left-col col-9-10">
                 <p class="row left-col small-text"><strong>Cosa dovrà mostrare il delegato allo sportello?</strong></p>
@@ -456,7 +458,7 @@
                 </ul>
               </div>
             </div>
-            <div class="row margin-top-small">
+            <div class="row margin-top-small margin-left-small">
               <div class="left-col"><img class="instruction-icon" src="images/institution-icon.png"></div>
               <div class="left-col col-9-10">
                 <p class="row left-col small-text">
@@ -482,8 +484,8 @@
         </div>
       </div>
       <div class="row">
-        <div class="left-col"><img class="info-icon" src="images/info.png"></div>
-        <p class="col-9-10 left-col info-text">
+        <div class="left-col margin-left"><img class="info-icon" src="images/info.png"></div>
+        <p class="col-8-10 left-col info-text">
           <strong>Cos’è Piattaforma Notifiche?</strong> Piattaforma Notifiche è uno strumento che rende l’invio di
           notifiche da parte della Pubblica Amministrazione più sicuro, efficiente ed economico. Scopri di più su
           <strong>cittadini.notifichedigitali.it</strong>.
