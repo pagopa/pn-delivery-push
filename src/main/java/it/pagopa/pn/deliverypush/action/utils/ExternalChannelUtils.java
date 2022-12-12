@@ -5,7 +5,10 @@ import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotHandledDetailsInt;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND;
+import static it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient.SAFE_STORAGE_URL_PREFIX;
 
 @Service
 @Slf4j
@@ -75,6 +79,30 @@ public class ExternalChannelUtils {
         } else {
             log.error("There isn't timelineElement - iun {} eventId {}", iun, eventId);
             throw new PnInternalException("There isn't timelineElement - iun " + iun + " eventId " + eventId, ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND);
+        }
+    }
+
+    public String getAarKey(String iun, int recIndex) {
+        
+        String eventId = TimelineEventId.AAR_GENERATION.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .build()
+        );
+        
+        Optional<AarGenerationDetailsInt> aarDetailsOpt = timelineService.getTimelineElementDetails(iun, eventId, AarGenerationDetailsInt.class);
+
+        if (aarDetailsOpt.isPresent()) {
+            String fileKey = aarDetailsOpt.get().getGeneratedAarUrl();
+            if(fileKey != null){
+                // elimino eventuale prefisso di safestorage
+                fileKey = fileKey.replace(SAFE_STORAGE_URL_PREFIX, "");
+            }
+            return fileKey;
+        } else {
+            log.error("There isn't AAR timeline element - iun {} eventId {}", iun, eventId);
+            throw new PnInternalException("There isn't AAR timeline element - iun " + iun + " eventId " + eventId, ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND);
         }
     }
 }

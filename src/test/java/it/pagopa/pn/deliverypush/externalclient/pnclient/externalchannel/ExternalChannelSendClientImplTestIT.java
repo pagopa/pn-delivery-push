@@ -82,7 +82,8 @@ class ExternalChannelSendClientImplTestIT {
         NotificationInt notificationInt = mock(NotificationInt.class);
         NotificationRecipientInt recipientInt = mock(NotificationRecipientInt.class);
         LegalDigitalAddressInt addressInt = mock(LegalDigitalAddressInt.class);
-        String eventid = "rtyuiokjhgvcbnjmk4567890";
+        String eventId = "rtyuiokjhgvcbnjmk4567890";
+        String aarKey = "testKey";
 
         Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(ResponseEntity.ok(""));
@@ -92,7 +93,7 @@ class ExternalChannelSendClientImplTestIT {
 
         //When
 
-        assertDoesNotThrow(() -> externalChannelSendClient.sendLegalNotification(notificationInt, recipientInt, addressInt, eventid));
+        assertDoesNotThrow(() -> externalChannelSendClient.sendLegalNotification(notificationInt, recipientInt, addressInt, eventId, aarKey));
 
     }
 
@@ -103,7 +104,8 @@ class ExternalChannelSendClientImplTestIT {
         NotificationRecipientInt recipientInt = mock(NotificationRecipientInt.class);
         CourtesyDigitalAddressInt addressInt = mock(CourtesyDigitalAddressInt.class);
         String eventid = "rtyuiokjhgvcbnjmk4567890";
-
+        String aarKey = "testKey";
+        
         Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(ResponseEntity.ok(""));
         when(notificationInt.getSender()).thenReturn(new NotificationSenderInt());
@@ -112,7 +114,7 @@ class ExternalChannelSendClientImplTestIT {
 
         //When
 
-        assertDoesNotThrow(() -> externalChannelSendClient.sendCourtesyNotification(notificationInt, recipientInt, addressInt, eventid));
+        assertDoesNotThrow(() -> externalChannelSendClient.sendCourtesyNotification(notificationInt, recipientInt, addressInt, eventid, aarKey));
 
     }
 
@@ -123,7 +125,8 @@ class ExternalChannelSendClientImplTestIT {
         NotificationRecipientInt recipientInt = mock(NotificationRecipientInt.class);
         CourtesyDigitalAddressInt addressInt = mock(CourtesyDigitalAddressInt.class);
         String eventid = "rtyuiokjhgvcbnjmk4567890";
-
+        String aarKey = "testKey";
+        
         Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(ResponseEntity.ok(""));
         when(notificationInt.getSender()).thenReturn(new NotificationSenderInt());
@@ -131,7 +134,7 @@ class ExternalChannelSendClientImplTestIT {
 
         //When
 
-        assertDoesNotThrow(() -> externalChannelSendClient.sendCourtesyNotification(notificationInt, recipientInt, addressInt, eventid));
+        assertDoesNotThrow(() -> externalChannelSendClient.sendCourtesyNotification(notificationInt, recipientInt, addressInt, eventid, aarKey));
 
     }
 }
