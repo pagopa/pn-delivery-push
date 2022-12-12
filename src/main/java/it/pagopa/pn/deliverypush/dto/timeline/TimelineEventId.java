@@ -204,9 +204,11 @@ public enum TimelineEventId {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
-                    "%s_schedule_digital_workflow_%d",
+                    "%s_schedule_digital_workflow_%d_source_%s_retry_%d",
                     eventId.getIun(),
-                    eventId.getRecIndex()
+                    eventId.getRecIndex(),
+                    eventId.getSource().getValue(),
+                    eventId.getSentAttemptMade()
             );
         }
     },
@@ -215,9 +217,10 @@ public enum TimelineEventId {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
-                    "%s_schedule_analog_workflow_%d",
+                    "%s_schedule_analog_workflow_%d_retry_%d",
                     eventId.getIun(),
-                    eventId.getRecIndex()
+                    eventId.getRecIndex(),
+                    eventId.getSentAttemptMade()
             );
         }
     },
