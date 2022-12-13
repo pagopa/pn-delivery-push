@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action;
 
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
@@ -19,6 +20,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 
+import static org.mockito.Mockito.when;
+
 class RefinementHandlerTest {
 
     @Mock
@@ -35,13 +38,17 @@ class RefinementHandlerTest {
 
     @Mock
     private AttachmentUtils attachmentUtils;
+
+    @Mock
+    private PnDeliveryPushConfigs pnDeliveryPushConfigs;
     
     private RefinementHandler refinementHandler;
 
     @BeforeEach
     public void setup() {
+        when(pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement()).thenReturn(120);
         refinementHandler = new RefinementHandler(timelineService,
-                timelineUtils, notificationService, notificationCostService, attachmentUtils);
+                timelineUtils, notificationService, notificationCostService, attachmentUtils, pnDeliveryPushConfigs);
     }
     @ExtendWith(MockitoExtension.class)
     @Test
@@ -50,9 +57,9 @@ class RefinementHandlerTest {
         Integer recIndex = 1;
         NotificationInt notification = getNotificationWithPhysicalAddress();
         
-        Mockito.when(timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex)).thenReturn(Boolean.FALSE);
-        Mockito.when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
-        Mockito.when(notificationCostService.getNotificationCost(notification, recIndex)).thenReturn(100);
+        when(timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex)).thenReturn(Boolean.FALSE);
+        when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
+        when(notificationCostService.getNotificationCost(notification, recIndex)).thenReturn(100);
 
         refinementHandler.handleRefinement(iun, recIndex);
         

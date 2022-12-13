@@ -18,6 +18,7 @@
     "ExternalChannelDigitalSendNoResponseTimeout": "26h",
     "NotificationNonVisibilityTime": "21:00",
     "TimeToAddInNonVisibilityTimeCase": "1d",
-    "IsMvpDefaultValue": "true"
+    "IsMvpDefaultValue": "true",
+    "RetentionAttachmentDaysAfterRefinement": "120"
   }
 }

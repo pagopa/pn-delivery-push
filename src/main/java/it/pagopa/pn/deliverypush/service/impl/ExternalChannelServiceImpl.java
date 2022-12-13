@@ -65,6 +65,9 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                                           int sentAttemptMade,
                                           boolean sendAlreadyInProgress
     ) {
+
+        String aarKey = externalChannelUtils.getAarKey(notification.getIun(), recIndex);
+        
         String eventId;
         if (!sendAlreadyInProgress)
         {
@@ -79,7 +82,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                             .build()
             );
 
-            externalChannel.sendLegalNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), digitalAddress, eventId);
+            externalChannel.sendLegalNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), digitalAddress, eventId, aarKey);
             externalChannelUtils.addSendDigitalNotificationToTimeline(notification, digitalAddress, addressSource, recIndex, sentAttemptMade, eventId);
         }
         else
@@ -98,7 +101,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                             .build()
             );
 
-            externalChannel.sendLegalNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), digitalAddress, eventId);
+            externalChannel.sendLegalNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), digitalAddress, eventId, aarKey);
 
             DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
                     .retryNumber(sentAttemptMade)
@@ -128,7 +131,8 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     @Override
     public void sendCourtesyNotification(NotificationInt notification, CourtesyDigitalAddressInt courtesyAddress, Integer recIndex, String eventId) {
         log.debug("Start sendCourtesyNotification - iun {} id {}", notification.getIun(), recIndex);
-        externalChannel.sendCourtesyNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), courtesyAddress, eventId);
+        String aarKey = externalChannelUtils.getAarKey(notification.getIun(), recIndex);
+        externalChannel.sendCourtesyNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), courtesyAddress, eventId, aarKey);
     }
 
     /**
