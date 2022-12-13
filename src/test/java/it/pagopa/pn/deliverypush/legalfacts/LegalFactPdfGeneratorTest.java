@@ -151,7 +151,8 @@ class LegalFactPdfGeneratorTest {
 
 		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
 		NotificationInt notificationInt = buildNotification();
-		NotificationRecipientInt  recipient = notificationInt.getRecipients().get(0).toBuilder().quickAccessLinkToken("test").build();
+		NotificationRecipientInt  recipient = notificationInt.getRecipients().get(0).toBuilder().quickAccessLinkToken("test")
+				.recipientType(RecipientTypeInt.PF).build();
 		Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationAAR(notificationInt, recipient)));
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}

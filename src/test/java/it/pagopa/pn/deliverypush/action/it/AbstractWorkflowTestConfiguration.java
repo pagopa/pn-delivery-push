@@ -85,6 +85,7 @@ public class AbstractWorkflowTestConfiguration {
         Mockito.when(pnDeliveryPushConfigs.getWebapp()).thenReturn(new PnDeliveryPushConfigs.Webapp());
         pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailPfTemplate("http://localhost:8090/notifica?aar=%s");
         pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailPgTemplate("http://localhost:8090/notifica?aar=%s");
+        pnDeliveryPushConfigs.getWebapp().setFaqUrlTemplate("http://localhost:8090/dist/faq.html");
         return new LegalFactGenerator( dc, instantWriter, physicalAddressWriter,  pnDeliveryPushConfigs, new InstantNowSupplier(), mvpParameterConsumer);
     }
     
