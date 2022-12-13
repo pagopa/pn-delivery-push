@@ -68,7 +68,7 @@ class TimelineUtilsTest {
         Instant eventTimestamp = Instant.parse("2021-09-16T15:24:00.00Z");
         TimelineElementDetailsInt details = buildTimelineElementDetailsInt();
 
-        TimelineElementInternal expected = buildTimelineElementInternal();
+        TimelineElementInternal expected = buildTimelineElementInternal(notification);
         TimelineElementInternal actual = timelineUtils.buildTimeline(notification, category, elementId, eventTimestamp, details);
 
         Assertions.assertEquals(expected, actual);
@@ -570,7 +570,7 @@ class TimelineUtilsTest {
                 .build();
     }
 
-    private TimelineElementInternal buildTimelineElementInternal() {
+    private TimelineElementInternal buildTimelineElementInternal(NotificationInt notification) {
         Instant eventTimestamp = Instant.parse("2021-09-16T15:24:00.00Z");
         NotificationViewedDetailsInt notificationViewedDetailsInt = buildNotificationViewedDetailsInt();
         return TimelineElementInternal.builder()
@@ -581,6 +581,7 @@ class TimelineUtilsTest {
                 .legalFactsIds(Collections.EMPTY_LIST)
                 .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
                 .details(notificationViewedDetailsInt)
+                .notificationSentAt(notification.getSentAt())
                 .build();
     }
 

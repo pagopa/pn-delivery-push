@@ -85,6 +85,7 @@ public class TimelineUtils {
                 .elementId(elementId)
                 .details(details)
                 .paId(notification.getSender().getPaId())
+                .notificationSentAt(notification.getSentAt())
                 .build();
     }
     
@@ -160,6 +161,7 @@ public class TimelineUtils {
                                         .build())
                                 :null
                 )
+                .requestTimelineId(elementId)
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
@@ -379,6 +381,7 @@ public class TimelineUtils {
                 .recIndex(recIndex)
                 .digitalAddress(response.getDigitalAddress())
                 .physicalAddress(response.getPhysicalAddress())
+                .requestTimelineId(eventId)
                 .build();
 
         return buildTimeline(notification, TimelineElementCategoryInt.PUBLIC_REGISTRY_RESPONSE, eventId, details);
@@ -420,6 +423,7 @@ public class TimelineUtils {
                 .serviceLevel(sendPaperDetails.getServiceLevel())
                 .newAddress(newAddress)
                 .errors(errors)
+                .requestTimelineId(elementId)
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()

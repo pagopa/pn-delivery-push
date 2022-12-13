@@ -104,6 +104,7 @@ class DigitalWorkFlowUtilsTest {
         Assertions.assertEquals(address, returnedAddress);
     }
 
+
     @Test
     void getAddressFromSource_SPECIAl() {
         String taxId = "tax_id";
@@ -384,6 +385,7 @@ class DigitalWorkFlowUtilsTest {
                 .paId("1")
                 .category(TimelineElementCategoryInt.SEND_PAPER_FEEDBACK)
                 .legalFactsIds(legalFactsIds)
+                .notificationSentAt(Instant.now())
                 .build();
     }
 

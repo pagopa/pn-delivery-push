@@ -27,6 +27,7 @@ public class TimelineElementEntity {
     private List<LegalFactsIdEntity> legalFactIds;
     private TimelineElementDetailsEntity details;
     private StatusInfoEntity statusInfo;
+    private Instant notificationSentAt;
     
     @DynamoDbPartitionKey
     @DynamoDbAttribute(value = FIELD_IUN )
@@ -90,6 +91,15 @@ public class TimelineElementEntity {
 
     public void setStatusInfo(StatusInfoEntity statusInfo) {
         this.statusInfo = statusInfo;
+    }
+
+    @DynamoDbAttribute(value = "notificationSentAt") @DynamoDbIgnoreNulls
+    public Instant getNotificationSentAt() {
+        return notificationSentAt;
+    }
+
+    public void setNotificationSentAt(Instant notificationSentAt) {
+        this.notificationSentAt = notificationSentAt;
     }
 }
 

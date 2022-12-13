@@ -12,8 +12,6 @@ import java.time.Instant;
 
 class EntityToDtoTimelineMapperTest {
     private EntityToDtoTimelineMapper mapper;
-
-    @BeforeEach
     
     @Test
     void entityToDtoSendAnalogDomicile() {
@@ -23,6 +21,7 @@ class EntityToDtoTimelineMapperTest {
                 .paId("PaId")
                 .iun("iun")
                 .category(TimelineElementCategoryEntity.SEND_ANALOG_DOMICILE)
+                .notificationSentAt(Instant.now())
                 .details(
                         TimelineElementDetailsEntity.builder()
                                 .recIndex(0)
@@ -40,8 +39,16 @@ class EntityToDtoTimelineMapperTest {
                 )
                 .build();
 
-        TimelineElementInternal internal = mapper.entityToDto(entity);
-        SendAnalogDetailsInt details = (SendAnalogDetailsInt) internal.getDetails();
+        TimelineElementInternal actual = mapper.entityToDto(entity);
+
+        Assertions.assertEquals(entity.getIun(), actual.getIun());
+        Assertions.assertEquals(entity.getTimelineElementId(), actual.getElementId());
+        Assertions.assertEquals(entity.getNotificationSentAt(), actual.getNotificationSentAt());
+        Assertions.assertEquals(entity.getTimestamp(), actual.getTimestamp());
+        Assertions.assertEquals(entity.getPaId(), actual.getPaId());
+        Assertions.assertEquals(entity.getCategory().name(), actual.getCategory().name());
+
+        SendAnalogDetailsInt details = (SendAnalogDetailsInt) actual.getDetails();
         
         Assertions.assertEquals(entity.getDetails().getRecIndex(), details.getRecIndex());
         Assertions.assertEquals(entity.getDetails().getSentAttemptMade(), details.getSentAttemptMade());

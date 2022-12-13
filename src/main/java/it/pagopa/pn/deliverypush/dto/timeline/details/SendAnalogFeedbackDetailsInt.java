@@ -25,15 +25,17 @@ public class SendAnalogFeedbackDetailsInt implements RecipientRelatedTimelineEle
     private List<String> errors = null;
     private ResponseStatusInt status;
     private List<SendingReceipt> sendingReceipts;
+    private String requestTimelineId;
 
     public String toLog() {
         return String.format(
-                "recIndex=%d sentAttemptMade=%d responseStatus=%s errors=%s physicalAddress=%s",
+                "recIndex=%d sentAttemptMade=%d responseStatus=%s errors=%s physicalAddress=%s requestTimelineId=%s",
                 recIndex,
                 sentAttemptMade,
                 status,
                 errors,
-                AuditLogUtils.SENSITIVE
+                AuditLogUtils.SENSITIVE,
+                requestTimelineId
         );
     }
 }

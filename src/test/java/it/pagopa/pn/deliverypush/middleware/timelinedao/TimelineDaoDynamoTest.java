@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.timelinedao;
 
+import io.swagger.models.auth.In;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRequestAcceptedDetailsInt;
@@ -102,6 +103,7 @@ class TimelineDaoDynamoTest {
                 .details( NotificationRequestAcceptedDetailsInt.builder().build() )
                 .timestamp(Instant.now())
                 .statusInfo(StatusInfoInternal.builder().build())
+                .notificationSentAt(Instant.now())
                 .build();
         String id2 = id_prefix + "1";
         TimelineElementInternal row2 = TimelineElementInternal.builder()
@@ -111,6 +113,7 @@ class TimelineDaoDynamoTest {
                 .details( SendDigitalDetailsInt.builder().build() )
                 .timestamp(Instant.now())
                 .statusInfo(StatusInfoInternal.builder().build())
+                .notificationSentAt(Instant.now())
                 .build();
         String id3 = id_prefix + "2";
         TimelineElementInternal row3 = TimelineElementInternal.builder()
@@ -120,6 +123,7 @@ class TimelineDaoDynamoTest {
                 .details( SendDigitalDetailsInt.builder().build() )
                 .timestamp(Instant.now())
                 .statusInfo(StatusInfoInternal.builder().build())
+                .notificationSentAt(Instant.now())
                 .build();
 
         // WHEN
@@ -151,6 +155,7 @@ class TimelineDaoDynamoTest {
                 .details( NotificationRequestAcceptedDetailsInt.builder().build() )
                 .timestamp(Instant.now())
                 .statusInfo(statusInfo)
+                .notificationSentAt(Instant.now())
                 .build();
         String id2 = "SendDigitalDetails";
         TimelineElementInternal row2 = TimelineElementInternal.builder()
@@ -160,6 +165,7 @@ class TimelineDaoDynamoTest {
                 .details( SendDigitalDetailsInt.builder().build() )
                 .timestamp(Instant.now())
                 .statusInfo(statusInfo)
+                .notificationSentAt(Instant.now())
                 .build();
 
         // WHEN

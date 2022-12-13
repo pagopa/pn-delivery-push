@@ -12,10 +12,11 @@ class PublicRegistryResponseDetailsIntTest {
         detailsInt.setDigitalAddress(LegalDigitalAddressInt.builder().address("add").build());
         detailsInt.setPhysicalAddress(PhysicalAddressInt.builder().addressDetails("add").build());
         detailsInt.setRecIndex(1);
+        detailsInt.setRequestTimelineId("requestTimelineId");
     }
     @Test
     void toLog() {
-        String expected = "recIndex=1 digitalAddress='Sensitive information' physicalAddress='Sensitive information'";
+        String expected = "recIndex=1 digitalAddress='Sensitive information' physicalAddress='Sensitive information' requestTimelineId=requestTimelineId";
         Assertions.assertEquals(expected, detailsInt.toLog());
     }
     @Test
@@ -37,7 +38,7 @@ class PublicRegistryResponseDetailsIntTest {
     }
     @Test
     void testToString() {
-        String expected = "PublicRegistryResponseDetailsInt(recIndex=1, digitalAddress=LegalDigitalAddressInt(type=null), physicalAddress=PhysicalAddressInt(at=null, address=null, addressDetails=add, zip=null, municipality=null, municipalityDetails=null, province=null, foreignState=null))";
+        String expected = "PublicRegistryResponseDetailsInt(recIndex=1, digitalAddress=LegalDigitalAddressInt(type=null), physicalAddress=PhysicalAddressInt(at=null, address=null, addressDetails=add, zip=null, municipality=null, municipalityDetails=null, province=null, foreignState=null), requestTimelineId=requestTimelineId)";
         Assertions.assertEquals(expected, detailsInt.toString());
     }
     private PublicRegistryResponseDetailsInt buildPublicRegistryResponseDetailsInt(){
@@ -45,6 +46,7 @@ class PublicRegistryResponseDetailsIntTest {
                 .digitalAddress(LegalDigitalAddressInt.builder().address("add").build())
                 .physicalAddress(PhysicalAddressInt.builder().addressDetails("add").build())
                 .recIndex(1)
+                .requestTimelineId("requestTimelineId")
                 .build();
     }
 }
