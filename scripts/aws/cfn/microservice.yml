@@ -279,6 +279,22 @@ Parameters:
     Type: String
     Description: SafeStorage-to-delivery-push queue age alarm ARN
 
+  DoneActionsQueueAlarmARN:
+    Type: String
+    Description: delivery push actions queue dlq alarm ARN
+
+  DoneActionsQueueAgeAlarmARN:
+    Type: String
+    Description: delivery push actions queue age alarm ARN
+
+  ScheduledActionsQueueAlarmARN:
+    Type: String
+    Description: delivery push actions done queue dlq alarm ARN
+
+  ScheduledActionsQueueAgeAlarmARN:
+    Type: String
+    Description: delivery push actions done queue age alarm ARN
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   
@@ -544,11 +560,14 @@ Resources:
             - !Ref DeliveryPushInputsQueueAlarmARN
             - !Ref DeliveryPushInputsQueueAgeAlarmARN
             - !Ref SafeStorageToDeliveryPushQueueAlarmARN
-            - !Ref SafeStorageToDeliveryPushQueueAgeAlarmARN         
+            - !Ref SafeStorageToDeliveryPushQueueAgeAlarmARN
+            - !Ref DoneActionsQueueAlarmARN
+            - !Ref DoneActionsQueueAgeAlarmARN
+            - !Ref ScheduledActionsQueueAlarmARN
+            - !Ref ScheduledActionsQueueAgeAlarmARN         
         QueueArns: !Join
           - ','
           - - !Ref DeliveryPushInputsQueueARN
-            - !Ref ExternalChannelsInputsQueueARN
             - !Ref ExternalChannelsOutputsQueueARN
             - !Ref ScheduledActionsQueueARN
             - !Ref DoneActionsQueueARN
