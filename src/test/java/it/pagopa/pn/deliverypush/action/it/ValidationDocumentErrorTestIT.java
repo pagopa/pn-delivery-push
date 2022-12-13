@@ -219,7 +219,13 @@ class ValidationDocumentErrorTestIT {
                                 .recIndex(recIndex)
                                 .build())).isPresent());
         
-        Mockito.verify(externalChannelMock, Mockito.times(0)).sendLegalNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString());
+        Mockito.verify(externalChannelMock, Mockito.times(0)).sendLegalNotification(
+                Mockito.any(NotificationInt.class),
+                Mockito.any(NotificationRecipientInt.class),
+                Mockito.any(LegalDigitalAddressInt.class),
+                Mockito.anyString(),
+                Mockito.anyString()
+        );
         Mockito.verify(externalChannelMock, Mockito.times(0)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
     }
 
