@@ -226,24 +226,36 @@ Outputs:
   # Scheduled Actions
   ScheduledActionsQueueName:
     Value: !GetAtt ScheduledActionsQueue.Outputs.QueueName
-    Description: pn-delivery-push input queue name
+    Description: pn-delivery-push actions queue name
   ScheduledActionsQueueURL:
     Value: !GetAtt ScheduledActionsQueue.Outputs.QueueURL
-    Description: pn-delivery-push input queue URL
+    Description: pn-delivery-push actions queue URL
   ScheduledActionsQueueARN:
     Value: !GetAtt ScheduledActionsQueue.Outputs.QueueARN
-    Description: pn-delivery-push input queue ARN
+    Description: pn-delivery-push actions queue ARN
+  ScheduledActionsQueueAlarmARN:
+    Value: !GetAtt ScheduledActionsQueue.Outputs.SqsDLQAlarmArn
+    Description: pn-delivery-push actions queue dlq alarm queue 
+  ScheduledActionsQueueAgeAlarmARN:
+    Value: !GetAtt ScheduledActionsQueue.Outputs.SqsAgeAlarmArn
+    Description: pn-delivery-push actions queue age alarm ARN
 
   # Already Done Actions
   DoneActionsQueueName:
     Value: !GetAtt DoneActionsQueue.Outputs.QueueName
-    Description: pn-delivery-push input queue name
+    Description: pn-delivery-push actions done queue name
   DoneActionsQueueURL:
     Value: !GetAtt DoneActionsQueue.Outputs.QueueURL
-    Description: pn-delivery-push input queue URL
+    Description: pn-delivery-push actions done queue URL
   DoneActionsQueueARN:
     Value: !GetAtt DoneActionsQueue.Outputs.QueueARN
-    Description: pn-delivery-push input queue ARN
+    Description: pn-delivery-push actions done queue ARN
+  DoneActionsQueueAlarmARN:
+    Value: !GetAtt DoneActionsQueue.Outputs.SqsDLQAlarmArn
+    Description: pn-delivery-push actions done queue dlq alarm ARN
+  DoneActionsQueueAgeAlarmARN:
+    Value: !GetAtt DoneActionsQueue.Outputs.SqsAgeAlarmArn
+    Description: pn-delivery-push actions done queue age alarm ARN
 
   # Dynamo tables
   TimelinesDynamoTableName:
