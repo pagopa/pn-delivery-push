@@ -8,7 +8,7 @@ import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
-import it.pagopa.pn.deliverypush.service.NotificationCostService;
+import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,7 +34,7 @@ class RefinementHandlerTest {
     private NotificationService notificationService;
     
     @Mock
-    private NotificationCostService notificationCostService;
+    private NotificationProcessCostService notificationProcessCostService;
 
     @Mock
     private AttachmentUtils attachmentUtils;
@@ -48,7 +48,7 @@ class RefinementHandlerTest {
     public void setup() {
         when(pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement()).thenReturn(120);
         refinementHandler = new RefinementHandler(timelineService,
-                timelineUtils, notificationService, notificationCostService, attachmentUtils, pnDeliveryPushConfigs);
+                timelineUtils, notificationService, notificationProcessCostService, attachmentUtils, pnDeliveryPushConfigs);
     }
     @ExtendWith(MockitoExtension.class)
     @Test
@@ -59,7 +59,7 @@ class RefinementHandlerTest {
         
         when(timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex)).thenReturn(Boolean.FALSE);
         when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
-        when(notificationCostService.getNotificationCost(notification, recIndex)).thenReturn(100);
+        when(notificationProcessCostService.getNotificationProfit(notification, recIndex)).thenReturn(100);
 
         refinementHandler.handleRefinement(iun, recIndex);
         

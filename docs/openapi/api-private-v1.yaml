@@ -286,6 +286,43 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
+  '/delivery-push-private/{iun}/{recipientIndex}/notification-process-cost':
+    get:
+      summary: Costo notificazione per destinatario
+      description: >-
+        Restituisce il costo dell'interno processo di notificazione per un singolo destinatario
+      tags:
+        - NotificationProcessCost
+      operationId: getNotificationProcessCost
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathRecipientIndex'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationProcessCostResponse"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+
 components:
   parameters:
 
@@ -398,6 +435,19 @@ components:
       schema:
         type: string
 
+    ############################################################################################
+    ###      PARAMETRI DI RICERCA PER IL COSTO PROCESSO NOTIFICAZIONE                        ###
+    ############################################################################################
+
+    pathRecipientIndex:
+      description: >-
+        Indice destinatario all'interno della notifica
+      name: pathRecipientIndex
+      in: path
+      required: true
+      schema:
+        type: string
+        
   schemas:
 
     ############################################################################################
@@ -524,3 +574,25 @@ components:
       type: string
       enum:
         - AAR
+          
+    ############################################################################################
+    ###                     COSTO PROCESSO NOTIFICAZIONE                                     ###
+    ############################################################################################
+
+    NotificationProcessCostResponse:
+      title: costo del processo di notificazione
+      description: >-
+        Contiene il costo del processo di notificazione
+      type: object
+      required:
+        - amount
+        - refinementDate
+      properties:
+        amount:
+          description: costo notificazione in euro cents
+          example: '200'
+          type: number
+        refinementDate:
+          description: data perfezionamento notifica (decorrenza termini o presa visione)
+          type: string
+          format: date-time

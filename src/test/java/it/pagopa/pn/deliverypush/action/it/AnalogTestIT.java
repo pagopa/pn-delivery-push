@@ -87,7 +87,7 @@ import static org.awaitility.Awaitility.with;
         PublicRegistryServiceImpl.class,
         ExternalChannelServiceImpl.class,
         IoServiceImpl.class,
-        NotificationCostServiceImpl.class,
+        PaymentInformationServiceImpl.class,
         SafeStorageServiceImpl.class,
         RefinementHandler.class,
         NotificationViewedRequestHandler.class,

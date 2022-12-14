@@ -1,15 +1,15 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationCostResponse;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.NotificationCostResponseInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.PaymentInformation;
 
 public class NotificationCostResponseMapper {
 
     private NotificationCostResponseMapper() {
     }
 
-    public static NotificationCostResponseInt externalToInternal(NotificationCostResponse dtoExt) {
-        return NotificationCostResponseInt.builder()
+    public static PaymentInformation externalToInternal(NotificationCostResponse dtoExt) {
+        return PaymentInformation.builder()
                 .iun(dtoExt.getIun())
                 .recipientIdx(dtoExt.getRecipientIdx())
                 .build();

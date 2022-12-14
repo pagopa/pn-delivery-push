@@ -8,7 +8,7 @@ import lombok.*;
 @Builder(toBuilder = true)
 @EqualsAndHashCode
 @ToString
-public class NotificationCostResponseInt {
+public class PaymentInformation {
     private String iun;
     private Integer recipientIdx;
 }

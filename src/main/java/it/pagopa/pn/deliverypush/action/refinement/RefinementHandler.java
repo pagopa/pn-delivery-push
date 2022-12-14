@@ -5,7 +5,7 @@ import it.pagopa.pn.deliverypush.action.startworkflow.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.service.NotificationCostService;
+import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ public class RefinementHandler {
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
     private final NotificationService notificationService;
-    private final NotificationCostService notificationCostService;
+    private final NotificationProcessCostService notificationProcessCostService;
     private final AttachmentUtils attachmentUtils;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
@@ -33,7 +33,7 @@ public class RefinementHandler {
         if( !isNotificationAlreadyViewed ){
             log.info("Handle refinement - iun {} id {}", iun, recIndex);
             NotificationInt notification = notificationService.getNotificationByIun(iun);
-            Integer notificationCost = notificationCostService.getNotificationCost(notification, recIndex);
+            Integer notificationCost = notificationProcessCostService.getNotificationProfit(notification, recIndex);
             log.debug("Notification cost is {} - iun {} id {}",notificationCost, iun, recIndex);
 
             attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement());

@@ -2,10 +2,9 @@ package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationCostResponse;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.NotificationCostResponseInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.PaymentInformation;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
-import it.pagopa.pn.deliverypush.service.NotificationCostService;
+import it.pagopa.pn.deliverypush.service.PaymentInformationService;
 import it.pagopa.pn.deliverypush.service.mapper.NotificationCostResponseMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,20 +13,15 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 
 @Service
 @Slf4j
-public class NotificationCostServiceImpl implements NotificationCostService {
+public class PaymentInformationServiceImpl implements PaymentInformationService {
     private final PnDeliveryClient pnDeliveryClient;
 
-    public NotificationCostServiceImpl(PnDeliveryClient pnDeliveryClient) {
+    public PaymentInformationServiceImpl(PnDeliveryClient pnDeliveryClient) {
         this.pnDeliveryClient = pnDeliveryClient;
     }
 
     @Override
-    public Integer getNotificationCost(NotificationInt notificationInt, int recIndex) {
-        return 100;
-    }
-
-    @Override
-    public NotificationCostResponseInt getIunFromPaTaxIdAndNoticeCode(String paTaxId, String noticeCode) {
+    public PaymentInformation getIunFromPaTaxIdAndNoticeCode(String paTaxId, String noticeCode) {
         NotificationCostResponse notificationCostResponse = pnDeliveryClient.getNotificationCostPrivate(paTaxId, noticeCode);
 
         log.debug("Get getIunFromPaTaxIdAndNoticeCode OK - paTaxId={} noticeCode={}", paTaxId, noticeCode);
