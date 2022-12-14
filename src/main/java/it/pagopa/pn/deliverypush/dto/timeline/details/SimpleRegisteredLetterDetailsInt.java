@@ -16,13 +16,15 @@ public class SimpleRegisteredLetterDetailsInt implements RecipientRelatedTimelin
     private PhysicalAddressInt physicalAddress;
     private String foreignState;
     private Integer analogCost;
+    private String productType;
 
     public String toLog() {
         return String.format(
-                "recIndex=%d physicalAddress=%s analogCost=%d",
+                "recIndex=%d physicalAddress=%s analogCost=%d productType=%s",
                 recIndex,
                 AuditLogUtils.SENSITIVE,
-                analogCost
+                analogCost,
+                productType
         );
     }
 }

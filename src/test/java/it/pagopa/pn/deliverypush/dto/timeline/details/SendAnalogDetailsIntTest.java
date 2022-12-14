@@ -17,7 +17,7 @@ class SendAnalogDetailsIntTest {
     }
     @Test
     void toLog() {
-        String expected = "recIndex=3 sentAttemptMade=2 investigation=true physicalAddress='Sensitive information'";
+        String expected = "recIndex=3 sentAttemptMade=2 relatedRequestId=abc physicalAddress='Sensitive information' analogCost=100 productType=null";
         Assertions.assertEquals(expected, detailsInt.toLog());
     }
     @Test
@@ -51,7 +51,7 @@ class SendAnalogDetailsIntTest {
     }
     @Test
     void testToString() {
-        String expected = "SendAnalogDetailsInt(recIndex=3, physicalAddress=PhysicalAddressInt(at=null, address=address, addressDetails=null, zip=null, municipality=null, municipalityDetails=null, province=null, foreignState=null), serviceLevel=REGISTERED_LETTER_890, sentAttemptMade=2, investigation=true, numberOfPages=1)";
+        String expected = "SendAnalogDetailsInt(recIndex=3, physicalAddress=PhysicalAddressInt(fullname=null, at=null, address=address, addressDetails=null, zip=null, municipality=null, municipalityDetails=null, province=null, foreignState=null), serviceLevel=REGISTERED_LETTER_890, sentAttemptMade=2, relatedRequestId=abc, analogCost=100, productType=null)";
         Assertions.assertEquals(expected, detailsInt.toString());
     }
     private SendAnalogDetailsInt buildSendAnalogDetailsInt() {

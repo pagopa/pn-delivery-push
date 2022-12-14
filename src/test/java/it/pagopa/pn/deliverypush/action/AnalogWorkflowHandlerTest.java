@@ -61,8 +61,6 @@ class AnalogWorkflowHandlerTest {
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
-        Mockito.when(analogWorkflowUtils.getPhysicalAddress(Mockito.any(NotificationInt.class), Mockito.anyInt()))
-                .thenReturn(recipient.getPhysicalAddress());
 
         //WHEN
         handler.startAnalogWorkflow(notification.getIun(), recIndex);
@@ -82,30 +80,14 @@ class AnalogWorkflowHandlerTest {
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
-        Mockito.when(analogWorkflowUtils.getPhysicalAddress(Mockito.any(NotificationInt.class), Mockito.anyInt()))
-                .thenReturn(recipient.getPhysicalAddress());
 
         //WHEN
         handler.startAnalogWorkflow(notification.getIun(), recIndex);
 
         //THEN
-        Mockito.verify(publicRegistryService).sendRequestForGetPhysicalAddress(notification, recIndex, 0);
+        Mockito.verify(paperChannelService).prepareAnalogNotification(notification, recIndex, 0);
     }
 
-    @ExtendWith(MockitoExtension.class)
-    @Test
-    void nextWorkflowStepWithoutPaAddress_1() {
-        //GIVEN
-        NotificationInt notification = getNotificationWithPhysicalAddress();
-        NotificationRecipientInt recipient = notification.getRecipients().get(0);
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
-
-        //WHEN
-        handler.nextWorkflowStep(notification, recIndex, 1);
-
-        //THEN
-        Mockito.verify(publicRegistryService).sendRequestForGetPhysicalAddress(notification, recIndex, 1);
-    }
 
     @ExtendWith(MockitoExtension.class)
     @Test
@@ -176,14 +158,12 @@ class AnalogWorkflowHandlerTest {
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
-        Mockito.when(analogWorkflowUtils.getPhysicalAddress(Mockito.any(NotificationInt.class), Mockito.anyInt()))
-                .thenReturn(null);
 
         //WHEN
         handler.startAnalogWorkflow(notification.getIun(), recIndex);
 
         //THEN
-        Mockito.verify(publicRegistryService).sendRequestForGetPhysicalAddress(notification, recIndex, 0);
+        Mockito.verify(paperChannelService).prepareAnalogNotification(notification, recIndex, 0);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -193,8 +173,6 @@ class AnalogWorkflowHandlerTest {
         NotificationRecipientInt recipient = notification.getRecipients().get(0);
         Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
-        Mockito.when(analogWorkflowUtils.getPhysicalAddress(Mockito.any(NotificationInt.class), Mockito.anyInt()))
-                .thenReturn(recipient.getPhysicalAddress());
 
         //WHEN
         handler.nextWorkflowStep(notification, recIndex, 0);
@@ -213,7 +191,7 @@ class AnalogWorkflowHandlerTest {
         handler.nextWorkflowStep(notification, recIndex, 1);
 
         //THEN
-        Mockito.verify(publicRegistryService).sendRequestForGetPhysicalAddress(notification, recIndex, 1);
+        Mockito.verify(paperChannelService).prepareAnalogNotification(notification, recIndex, 1);
     }
 
     @ExtendWith(MockitoExtension.class)

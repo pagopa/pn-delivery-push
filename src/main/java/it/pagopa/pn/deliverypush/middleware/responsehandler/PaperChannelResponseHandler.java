@@ -93,7 +93,7 @@ public class PaperChannelResponseHandler {
     }
 
     private SendEventInt mapExternalToInternal(String iun, SendEvent event) {
-        SendEventInt.SendEventIntBuilder builder = SendEventInt.builder()
+        var builder = SendEventInt.builder()
                 .iun(iun)
                 .statusCode(event.getStatusCode())
                 .statusDetail(event.getStatusDetail())
@@ -137,12 +137,13 @@ public class PaperChannelResponseHandler {
     }
 
     private PrepareEventInt mapExternalToInternal(String iun, PrepareEvent event) {
-        PrepareEventInt.PrepareEventIntBuilder builder = PrepareEventInt.builder()
+        var builder = PrepareEventInt.builder()
                 .iun(iun)
-                .statusCode(event.getStatusCode())
+                .statusCode(event.getStatusCode()==null?null:event.getStatusCode().getValue())
                 .statusDetail(event.getStatusDetail())
                 .requestId(event.getRequestId())
-                .statusDateTime(event.getStatusDateTime().toInstant());
+                .statusDateTime(event.getStatusDateTime().toInstant())
+                .productType(event.getProductType());
 
         if (event.getReceiverAddress() != null) {
             AnalogAddress rawAddress = event.getReceiverAddress();

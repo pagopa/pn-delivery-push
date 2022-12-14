@@ -85,6 +85,19 @@ public enum TimelineEventId {
         }
     },
 
+    SEND_ANALOG_PROGRESS() {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return String.format(
+                    "%s_send_analog_progress_%d_attempt_%d_progidx_%s",
+                    eventId.getIun(),
+                    eventId.getRecIndex(),
+                    eventId.getSentAttemptMade(),
+                    eventId.getProgressIndex()<0?"":eventId.getProgressIndex()  // se passo un progressindex negativo, è perchè non voglio che venga inserito nell'eventid. Usato per cercare con l'inizia per
+            );
+        }
+    },
+
     SEND_DIGITAL_DOMICILE() {
         @Override
         public String buildEventId(EventId eventId) {

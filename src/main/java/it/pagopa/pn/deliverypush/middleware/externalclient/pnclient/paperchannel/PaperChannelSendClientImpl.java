@@ -52,7 +52,7 @@ public class PaperChannelSendClientImpl implements PaperChannelSendClient {
         PrepareRequest prepareRequest = new PrepareRequest();
         prepareRequest.setRequestId(paperChannelPrepareRequest.getRequestId());
         prepareRequest.setPrintType(PRINT_TYPE_BN_FRONTE_RETRO);
-        prepareRequest.setPrintType(getProductType(paperChannelPrepareRequest.getAnalogType()));
+        prepareRequest.setProposalProductType(getProductType(paperChannelPrepareRequest.getAnalogType()));
         prepareRequest.setReceiverAddress(mapInternalToExternal(paperChannelPrepareRequest.getPaAddress()));
         prepareRequest.setAttachmentUrls(paperChannelPrepareRequest.getAttachments());
         prepareRequest.setReceiverFiscalCode(paperChannelPrepareRequest.getRecipientInt().getTaxId());
@@ -74,7 +74,7 @@ public class PaperChannelSendClientImpl implements PaperChannelSendClient {
         SendRequest sendRequest = new SendRequest();
         sendRequest.setRequestId(paperChannelSendRequest.getRequestId());
         sendRequest.setPrintType(PRINT_TYPE_BN_FRONTE_RETRO);
-        sendRequest.setPrintType(getProductType(paperChannelSendRequest.getAnalogType()));
+        sendRequest.setProductType(SendRequest.ProductTypeEnum.fromValue(paperChannelSendRequest.getProductType()));
         sendRequest.setReceiverAddress(mapInternalToExternal(paperChannelSendRequest.getReceiverAddress()));
         sendRequest.setAttachmentUrls(paperChannelSendRequest.getAttachments());
         sendRequest.setReceiverFiscalCode(paperChannelSendRequest.getRecipientInt().getTaxId());
@@ -106,7 +106,7 @@ public class PaperChannelSendClientImpl implements PaperChannelSendClient {
         return analogAddress;
     }
 
-    private String getProductType(PhysicalAddressInt.ANALOG_TYPE serviceLevelType)
+    private PrepareRequest.ProposalProductTypeEnum getProductType(PhysicalAddressInt.ANALOG_TYPE serviceLevelType)
     {
         /*
           Tipo prodotto di cui viene chiesto il recapito:
@@ -118,11 +118,11 @@ public class PaperChannelSendClientImpl implements PaperChannelSendClient {
 
         switch (serviceLevelType){
             case REGISTERED_LETTER_890:
-                return "890";
+                return PrepareRequest.ProposalProductTypeEnum._890;
             case AR_REGISTERED_LETTER:
-                return "AR";
+                return PrepareRequest.ProposalProductTypeEnum.AR;
             case SIMPLE_REGISTERED_LETTER:
-                return "RS";
+                return PrepareRequest.ProposalProductTypeEnum.RS;
         }
 
         return  null;

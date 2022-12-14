@@ -49,14 +49,14 @@ public class AnalogWorkflowHandler {
             case 0:
                 log.info("Handle first send attempt - iun={} id={}", iun, recIndex);
 
-                log.info("Start send notification with Pa address - iun={} id={}", iun, recIndex);
+                log.info("Start prepare analog notification with Pa address - iun={} id={} sentAttemptMade={}", iun, recIndex, sentAttemptMade);
                 //send notification with paAddress
                 paperChannelService.prepareAnalogNotification(notification, recIndex, sentAttemptMade);
 
                 break;
             case 1:
-                log.info("Handle second attempt, send request to public registry - iun={} id={}", iun, recIndex);
-                //Send attempt was already made, get address from public registry for second send attempt
+                log.info("Handle second attempt, send prepare analog request  - iun={} id={} sentAttemptMade={}", iun, recIndex, sentAttemptMade);
+                //Send attempt was already made, send prepare analog for second send attempt
                 paperChannelService.prepareAnalogNotification(notification, recIndex, sentAttemptMade);
                 break;
             case 2:

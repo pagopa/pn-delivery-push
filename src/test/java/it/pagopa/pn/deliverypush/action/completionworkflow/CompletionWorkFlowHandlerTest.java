@@ -103,7 +103,7 @@ class CompletionWorkFlowHandlerTest {
         
         Mockito.verify(timelineUtils).buildFailureDigitalWorkflowTimelineElement(notification, recIndex, legalFactId);
         
-        Mockito.verify(refinementScheduler).scheduleDigitalRefinement(notification, recIndex, notificationDate, EndWorkflowStatus.FAILURE);
+        // il flusso termina con la prepare, la completition è asincrona
     }
 
     @ExtendWith(MockitoExtension.class)

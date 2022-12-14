@@ -48,8 +48,8 @@ class PaperChannelUtilsTest {
         PhysicalAddressInt addressInt = buildPhysicalAddressInt();
         TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
 
-        Mockito.when(timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(1, notification, addressInt, "001", 1)).thenReturn(timelineElementInternal);
-        channelUtils.addSendSimpleRegisteredLetterToTimeline(notification, addressInt, 1, "001", 1);
+        Mockito.when(timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(1, notification, addressInt,  1, "RN_AR")).thenReturn(timelineElementInternal);
+        channelUtils.addSendSimpleRegisteredLetterToTimeline(notification, addressInt, 1, 1, "RN_AR");
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);
     }
 
@@ -60,8 +60,8 @@ class PaperChannelUtilsTest {
         PhysicalAddressInt addressInt = buildPhysicalAddressInt();
         TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
 
-        Mockito.when(timelineUtils.buildSendAnalogNotificationTimelineElement(addressInt, 1, notification, null, 0, "001", 10)).thenReturn(timelineElementInternal);
-        channelUtils.addSendAnalogNotificationToTimeline(notification, addressInt, 1,  "001", 0, 10, null);
+        Mockito.when(timelineUtils.buildSendAnalogNotificationTimelineElement(addressInt, 1, notification, null, 0,  10, "NR_AR")).thenReturn(timelineElementInternal);
+        channelUtils.addSendAnalogNotificationToTimeline(notification, addressInt, 1,   0, 10, null, "NR_AR");
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);
     }
 

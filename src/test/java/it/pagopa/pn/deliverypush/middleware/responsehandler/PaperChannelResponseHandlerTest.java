@@ -44,7 +44,7 @@ class PaperChannelResponseHandlerTest {
         Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
 
         PrepareEvent prepareEvent = new PrepareEvent();
-        prepareEvent.setStatusCode("OK");
+        prepareEvent.setStatusCode(PrepareEvent.StatusCodeEnum.OK);
         prepareEvent.setStatusDateTime(instant.atOffset(ZoneOffset.UTC));
         prepareEvent.setRequestId("iun_event_idx_0");
         prepareEvent.setStatusDetail("ok");
@@ -74,7 +74,7 @@ class PaperChannelResponseHandlerTest {
         Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
 
         PrepareEvent prepareEvent = new PrepareEvent();
-        prepareEvent.setStatusCode("KOUNREACHABLE");
+        prepareEvent.setStatusCode(PrepareEvent.StatusCodeEnum.KOUNREACHABLE);
         prepareEvent.setStatusDateTime(instant.atOffset(ZoneOffset.UTC));
         prepareEvent.setRequestId("iun_event_idx_0");
         prepareEvent.setStatusDetail("ko");
@@ -103,7 +103,7 @@ class PaperChannelResponseHandlerTest {
         Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
 
         PrepareEvent prepareEvent = new PrepareEvent();
-        prepareEvent.setStatusCode("PROGRESS");
+        prepareEvent.setStatusCode(PrepareEvent.StatusCodeEnum.PROGRESS);
         prepareEvent.setStatusDateTime(instant.atOffset(ZoneOffset.UTC));
         prepareEvent.setRequestId("iun_event_idx_0");
         prepareEvent.setStatusDetail("progress");
@@ -192,7 +192,7 @@ class PaperChannelResponseHandlerTest {
         Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
 
         PrepareEvent prepareEvent = new PrepareEvent();
-        prepareEvent.setStatusCode("PROGRESS");
+        prepareEvent.setStatusCode(PrepareEvent.StatusCodeEnum.PROGRESS);
         prepareEvent.setStatusDateTime(instant.atOffset(ZoneOffset.UTC));
         prepareEvent.setRequestId("iun_event_idx_0");
         prepareEvent.setStatusDetail("progress");
@@ -213,7 +213,7 @@ class PaperChannelResponseHandlerTest {
         Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
 
         PrepareEvent prepareEvent = new PrepareEvent();
-        prepareEvent.setStatusCode("PROGRESS");
+        prepareEvent.setStatusCode(PrepareEvent.StatusCodeEnum.PROGRESS);
         prepareEvent.setStatusDateTime(instant.atOffset(ZoneOffset.UTC));
         prepareEvent.setRequestId("iun_event_idx_0");
         prepareEvent.setStatusDetail("progress");

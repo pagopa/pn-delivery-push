@@ -87,6 +87,14 @@ public class AnalogWorkflowUtils {
                 notification);
     }
 
+
+    public void addAnalogSuccessAttemptToTimeline(NotificationInt notification, int sentAttemptMade, List<LegalFactsIdInt> attachmentKeys,
+                                                  PhysicalAddressInt newAddress, List<String> errors, SendAnalogDetailsInt sendPaperDetails) {
+        addTimelineElement(
+                timelineUtils.buildAnalogSuccessAttemptTimelineElement(notification, sentAttemptMade, attachmentKeys, newAddress, errors, sendPaperDetails),
+                notification);
+    }
+
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
         timelineService.addTimelineElement(element, notification);
     }

@@ -50,6 +50,18 @@ public class PaperChannelUtils {
     }
 
 
+
+    public String buildSendAnalogDomicileEventId(NotificationInt notification, Integer recIndex, int sentAttemptMade){
+        return TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .sentAttemptMade(sentAttemptMade)
+                        .build()
+        );
+    }
+
+
     public String buildSendAnalogFeedbackEventId(NotificationInt notification, Integer recIndex, int sentAttemptMade){
         return TimelineEventId.SEND_ANALOG_FEEDBACK.buildEventId(
                 EventId.builder()
@@ -69,25 +81,25 @@ public class PaperChannelUtils {
     }
 
     public void addSendSimpleRegisteredLetterToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex,
-                                                        String eventId, Integer analogCost) {
+                                                        Integer analogCost, String productType) {
         addTimelineElement(
-                timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification, physicalAddress, eventId, analogCost),
+                timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification, physicalAddress, analogCost, productType),
                 notification
         );
     }
 
 
     public void addPrepareAnalogNotificationToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex, String relatedRequestId,
-                                                    int sentAttemptMade, String eventId) {
+                                                    int sentAttemptMade, String eventId, PhysicalAddressInt discoveredAddress) {
         addTimelineElement(
-                timelineUtils.buildPrepareAnalogNotificationTimelineElement(physicalAddress, recIndex, notification, relatedRequestId, sentAttemptMade, eventId),
+                timelineUtils.buildPrepareAnalogNotificationTimelineElement(physicalAddress, recIndex, notification, relatedRequestId, sentAttemptMade, eventId, discoveredAddress),
                 notification
         );
     }
-    public void addSendAnalogNotificationToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex, String eventId,
-                                                    int sentAttemptMade, Integer analogCost, String relatedRequestId) {
+    public void addSendAnalogNotificationToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex,
+                                                    int sentAttemptMade, Integer analogCost, String relatedRequestId, String productType) {
         addTimelineElement(
-                timelineUtils.buildSendAnalogNotificationTimelineElement(physicalAddress, recIndex, notification, relatedRequestId, sentAttemptMade, eventId, analogCost),
+                timelineUtils.buildSendAnalogNotificationTimelineElement(physicalAddress, recIndex, notification, relatedRequestId, sentAttemptMade, analogCost, productType),
                 notification
         );
     }

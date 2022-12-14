@@ -107,26 +107,6 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
         );
     }
 
-
-    @Override
-    public void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, PhysicalAddressInt physicalAddress, String timelineEventId, PhysicalAddressInt.ANALOG_TYPE analogType, String aarKey) {
-        log.info("sendAnalogNotification address:{} recipient:{} requestId:{} aarkey:{}", physicalAddress.getAddress(), recipientInt.getDenomination(), timelineEventId, aarKey);
-        
-        new Thread(() -> {
-            Assertions.assertDoesNotThrow(() -> {
-
-                // Viene atteso fino a che l'elemento di timeline realtivo all'invio verso extChannel sia stato inserito
-                await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
-                        Assertions.assertTrue(timelineService.getTimelineElement(notificationInt.getIun(), timelineEventId).isPresent())
-                );
-    
-                if (analogType != PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER)
-                    simulateExternalChannelAnalogResponse(notificationInt, physicalAddress, timelineEventId);
-            });
-        }).start();
-
-    }
-
     private void simulateExternalChannelDigitalProgressResponse(String timelineEventId) {
         SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();
         LegalMessageSentDetails extChannelResponse = new LegalMessageSentDetails();

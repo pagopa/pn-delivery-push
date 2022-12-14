@@ -17,6 +17,7 @@ components:
           * `SCHEDULE_ANALOG_WORKFLOW` - Inizio del workflow per invio cartaceo
           * `SCHEDULE_DIGITAL_WORKFLOW` - Inizio del workflow per invio digitale (PEC)
           * `SEND_DIGITAL_DOMICILE` - Invio digitale dell’avviso di notifica
+          * `SEND_DIGITAL_PROGRESS` - Ottenuto evento non finale da un invio digitale
           * `SEND_DIGITAL_FEEDBACK` - Ottenuto esito ad un invio digitale
           * `SCHEDULE_REFINEMENT` - Pianificato il perfezionamento per decorrenza termini
           * `REFINEMENT` - Perfezionamento per decorrenza termini
@@ -29,6 +30,7 @@ components:
           * `NOTIFICATION_VIEWED` - Perfezionamento per presa visione
           * `PREPARE_ANALOG_DOMICILE` - Preparazione all'invio cartaceo dell’avviso di notifica
           * `SEND_ANALOG_DOMICILE` - Invio cartaceo dell’avviso di notifica
+          * `SEND_ANALOG_PROGRESS` - Ricezione evento non finale dell'invio cartaceo
           * `SEND_ANALOG_FEEDBACK` - Ricezione esito dell'invio cartaceo
           * `COMPLETELY_UNREACHABLE` - Tutti i destinatari risultano irraggiungibili
           * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
@@ -56,6 +58,7 @@ components:
         - NOTIFICATION_VIEWED
         - PREPARE_ANALOG_DOMICILE
         - SEND_ANALOG_DOMICILE
+        - SEND_ANALOG_PROGRESS
         - SEND_ANALOG_FEEDBACK
         - PAYMENT
         - COMPLETELY_UNREACHABLE
@@ -442,8 +445,6 @@ components:
         - physicalAddress
         - serviceLevel
         - sentAttemptMade
-        - relatedRequestId
-        - numberOfPages
       properties:
         recIndex:
           type: integer
@@ -460,9 +461,12 @@ components:
         relatedRequestId:
           type: string
           description: Id relativo alla eventuale precedente richiesta di invio cartaceo
-        numberOfPages:
+        productType:
+          type: string
+          description: Tipo di invio cartaceo effettivamente inviato
+        analogCost:
           type: integer
-          description: numero pagine pdf inviato
+          description: costo in eurocent dell'invio
           format: int32
 
     SendAnalogFeedbackDetails:
@@ -503,7 +507,6 @@ components:
       required:
         - recIndex
         - physicalAddress
-        - numberOfPages
       properties:
         recIndex:
           type: integer
@@ -511,9 +514,12 @@ components:
           format: int32
         physicalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
-        numberOfPages:
+        productType:
+          type: string
+          description: Tipo di invio cartaceo effettivamente inviato
+        analogCost:
           type: integer
-          description: numero pagine pdf inviato
+          description: costo in eurocent dell'invio
           format: int32
 
     AarGenerationDetails:

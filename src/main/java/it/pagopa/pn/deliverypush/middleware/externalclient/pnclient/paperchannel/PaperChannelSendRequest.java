@@ -17,7 +17,7 @@ public class PaperChannelSendRequest {
     private final NotificationRecipientInt recipientInt;
     private final PhysicalAddressInt receiverAddress;
     private final String requestId;
-    private final PhysicalAddressInt.ANALOG_TYPE analogType;
+    private final String productType;
     private final List<String> attachments;
     private final PhysicalAddressInt arAddress;
     private final PhysicalAddressInt senderAddress;
