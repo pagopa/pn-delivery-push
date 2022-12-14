@@ -1,4 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage;
+
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.ApiClient;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.api.FileDownloadApi;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.api.FileMetadataUpdateApi;
@@ -13,6 +15,7 @@ import org.mockito.Mockito;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 class PnSafeStorageClientImplTest {
@@ -62,6 +65,22 @@ class PnSafeStorageClientImplTest {
         Assertions.assertEquals(fileDownloadResponse, actual);
     }
 
+    @Test
+    void getFileError() {
+        FileDownloadResponse fileDownloadResponse = buildFileDownloadResponse();
+
+        ResponseEntity<FileDownloadResponse> response = ResponseEntity.ok(fileDownloadResponse);
+
+        Mockito.when(cfg.getSafeStorageCxId()).thenReturn("pn-delivery-002");
+
+        Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
+                .thenThrow( new RestClientException("error") );
+        
+        Assertions.assertThrows( PnInternalException.class, () ->{
+            client.getFile("fileKey", Boolean.TRUE);
+        });
+    }
+    
     @Test
     void createFile() {
         FileCreationResponse fileCreationResponse = new FileCreationResponse();
