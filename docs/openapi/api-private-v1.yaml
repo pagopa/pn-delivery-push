@@ -259,7 +259,7 @@ paths:
         - $ref: '#/components/parameters/recipientInternalId'
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathDocumentType'
-        - $ref: '#/components/parameters/pathDocumentId'
+        - $ref: '#/components/parameters/queryDocumentId'
       responses:
         '200':
           description: OK
@@ -389,7 +389,7 @@ components:
       schema:
         $ref: '#/components/schemas/DocumentCategory'
 
-    pathDocumentId:
+    queryDocumentId:
       description: >-
         Identificativo del documento
       name: documentId
