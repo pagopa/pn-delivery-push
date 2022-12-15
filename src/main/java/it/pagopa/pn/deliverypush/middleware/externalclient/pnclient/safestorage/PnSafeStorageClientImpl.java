@@ -61,6 +61,7 @@ public class PnSafeStorageClientImpl implements PnSafeStorageClient {
         try {
             return fileDownloadApi.getFile( fileKey, this.cfg.getSafeStorageCxId(), metadataOnly );
         } catch (RestClientException ex) {
+            log.error("Safe Storage client get file error, file key {} ex={}", fileKey, ex);
             throw new PnInternalException("Safe Storage client get file error", ERROR_CODE_DELIVERYPUSH_GETFILEERROR, ex);
         }
     }

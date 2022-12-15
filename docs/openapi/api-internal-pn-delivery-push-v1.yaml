@@ -150,7 +150,7 @@ paths:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/legalFactsSearchMandateId'
         - $ref: 'api-private-v1.yaml#/components/parameters/pathDocumentType'
-        - $ref: 'api-private-v1.yaml#/components/parameters/pathDocumentId'
+        - $ref: 'api-private-v1.yaml#/components/parameters/queryDocumentId'
       responses:
         '200':
           description: OK

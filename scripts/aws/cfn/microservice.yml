@@ -88,10 +88,14 @@ Parameters:
     Type: String
     Description: 'Queue to pull for inputs event'
 
-  ExternalChannelsInputsQueueName:
+  DeliveryPushInputsQueueAlarmARN:
     Type: String
-    Description: 'Send external-channel messages to this Queue'
-    
+    Description: 'pn-delivery-push input queue alarm ARN'
+
+  DeliveryPushInputsQueueAgeAlarmARN:
+    Type: String
+    Description: pn-delivery-push input queue age alarm ARN
+
   ExternalChannelsInputsQueueARN:
     Type: String
     Description: 'Send external-channel messages to this Queue'
@@ -263,6 +267,34 @@ Parameters:
     Type: String
     Description: 'Number of days after which an attachment can be deleted from the effective date (viewing or expiration of time)'
     
+  SafeStorageToDeliveryPushQueueARN:
+    Type: String
+    Description: 'SafeStorage-to-delivery-push queue ARN'
+
+  SafeStorageToDeliveryPushQueueAlarmARN:
+    Type: String
+    Description: SafeStorage-to-delivery-push queue alarm ARN
+
+  SafeStorageToDeliveryPushQueueAgeAlarmARN:
+    Type: String
+    Description: SafeStorage-to-delivery-push queue age alarm ARN
+
+  DoneActionsQueueAlarmARN:
+    Type: String
+    Description: delivery push actions queue dlq alarm ARN
+
+  DoneActionsQueueAgeAlarmARN:
+    Type: String
+    Description: delivery push actions queue age alarm ARN
+
+  ScheduledActionsQueueAlarmARN:
+    Type: String
+    Description: delivery push actions done queue dlq alarm ARN
+
+  ScheduledActionsQueueAgeAlarmARN:
+    Type: String
+    Description: delivery push actions done queue age alarm ARN
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   
@@ -525,10 +557,18 @@ Resources:
           - ','
           - - !GetAtt DeliveryPushMicroservice.Outputs.AutoScalingAlarmArn
             - !GetAtt DeliveryPushMicroservice.Outputs.FatalLogsMetricAlarmArn
+            - !Ref DeliveryPushInputsQueueAlarmARN
+            - !Ref DeliveryPushInputsQueueAgeAlarmARN
+            - !Ref SafeStorageToDeliveryPushQueueAlarmARN
+            - !Ref SafeStorageToDeliveryPushQueueAgeAlarmARN
+            - !Ref DoneActionsQueueAlarmARN
+            - !Ref DoneActionsQueueAgeAlarmARN
+            - !Ref ScheduledActionsQueueAlarmARN
+            - !Ref ScheduledActionsQueueAgeAlarmARN         
         QueueArns: !Join
           - ','
           - - !Ref DeliveryPushInputsQueueARN
-            - !Ref ExternalChannelsInputsQueueARN
             - !Ref ExternalChannelsOutputsQueueARN
             - !Ref ScheduledActionsQueueARN
             - !Ref DoneActionsQueueARN
+            - !Ref SafeStorageToDeliveryPushQueueARN

@@ -1,10 +1,12 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
+import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClientReactive;
 import org.junit.jupiter.api.Assertions;
@@ -51,6 +53,19 @@ class SafeStorageServiceImplTest {
         Assertions.assertEquals(fileDownloadResponse.getKey(), response.getKey());
         Assertions.assertEquals(fileDownloadResponse.getChecksum(), response.getChecksum());
         Assertions.assertEquals(fileDownloadResponse.getContentType(), response.getContentType());
+    }
+
+    @Test
+    @ExtendWith(SpringExtension.class)
+    void getFileError() {
+        //GIVEN
+        Mockito.when(safeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
+                .thenThrow( new PnInternalException("test", "test") );
+
+        //WHEN
+        Assertions.assertThrows( PnNotFoundException.class, () ->{
+            safeStorageService.getFile("test", true);
+        });
     }
 
     @Test
