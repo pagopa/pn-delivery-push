@@ -452,6 +452,33 @@ public class TimelineUtils {
         return buildTimeline(notification, TimelineElementCategoryInt.PUBLIC_REGISTRY_CALL, eventId, details);
     }
 
+
+    public TimelineElementInternal buildAnalogProgressTimelineElement(NotificationInt notification, int sentAttemptMade, List<LegalFactsIdInt> legalFactsListEntryIds,
+                                                                           int progressIndex, String eventCode, SendAnalogDetailsInt sendPaperDetails) {
+        log.debug("buildAnalogProgressTimelineElement - iun={} and id={} progressIndex={}", notification.getIun(), sendPaperDetails.getRecIndex(), progressIndex);
+
+        String elementId = TimelineEventId.SEND_ANALOG_PROGRESS.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(sendPaperDetails.getRecIndex())
+                        .sentAttemptMade(sentAttemptMade)
+                        .progressIndex(progressIndex)
+                        .build()
+        );
+
+        SendAnalogProgressDetailsInt details = SendAnalogProgressDetailsInt.builder()
+                .recIndex(sendPaperDetails.getRecIndex())
+                .eventCode(eventCode)
+                .notificationDate(instantNowSupplier.get())
+                .build();
+
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
+                .legalFactsIds( legalFactsListEntryIds );
+
+        return buildTimeline( notification, TimelineElementCategoryInt.SEND_ANALOG_PROGRESS, elementId,
+                details, timelineBuilder );
+    }
+
     public TimelineElementInternal buildAnalogSuccessAttemptTimelineElement(NotificationInt notification, int sentAttemptMade, List<LegalFactsIdInt> legalFactsListEntryIds,
                                                                             PhysicalAddressInt newAddress, List<String> errors, SendAnalogDetailsInt sendPaperDetails) {
         log.debug("buildAnalogSuccessAttemptTimelineElement - iun={} and id={}", notification.getIun(), sendPaperDetails.getRecIndex());

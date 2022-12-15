@@ -32,7 +32,7 @@ public class PaperChannelUtils {
     }
 
     public PhysicalAddressInt getSenderAddress(){
-        PnDeliveryPushConfigs.ExternalChannel.SenderAddress senderAddress = pnDeliveryPushConfigs.getExternalChannel().getSenderAddress();
+        PnDeliveryPushConfigs.SenderAddress senderAddress = pnDeliveryPushConfigs.getPaperChannel().getSenderAddress();
         return PhysicalAddressInt.builder()
                 .fullname(senderAddress.getFullname())
                 .address(senderAddress.getAddress())

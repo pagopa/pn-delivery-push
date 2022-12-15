@@ -70,6 +70,8 @@ public class PnDeliveryPushConfigs {
     private LastPollForFutureActionDao lastPollForFutureActionDao;
 
     private ExternalChannel externalChannel;
+
+    private PaperChannel paperChannel;
     
     private LegalFacts legalfacts;
 
@@ -104,10 +106,6 @@ public class PnDeliveryPushConfigs {
 
     @Data
     public static class ExternalChannel {
-        private List<String> analogCodesProgress;
-        private List<String> analogCodesSuccess;
-        private List<String> analogCodesFail;
-
 
         private List<String> digitalCodesProgress;
         private List<String> digitalCodesSuccess;
@@ -120,17 +118,26 @@ public class PnDeliveryPushConfigs {
         private Duration digitalRetryDelay;
         private Duration digitalSendNoresponseTimeout;
 
+    }
+
+    @Data
+    public static class PaperChannel {
+        private List<String> analogCodesProgress;
+        private List<String> analogCodesSuccess;
+        private List<String> analogCodesFail;
+
         private SenderAddress senderAddress;
 
-        @Data
-        public static class SenderAddress {
-            private String fullname;
-            private String address;
-            private String zipcode;
-            private String city;
-            private String pr;
-            private String country;
-        }
+    }
+
+    @Data
+    public static class SenderAddress {
+        private String fullname;
+        private String address;
+        private String zipcode;
+        private String city;
+        private String pr;
+        private String country;
     }
 
    @Data

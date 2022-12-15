@@ -51,14 +51,14 @@ class PaperChannelUtilsTest {
     void getSenderAddress() {
         // GIVEN
 
-        PnDeliveryPushConfigs.ExternalChannel externalChannel = new PnDeliveryPushConfigs.ExternalChannel();
-        PnDeliveryPushConfigs.ExternalChannel.SenderAddress senderAddress = new PnDeliveryPushConfigs.ExternalChannel.SenderAddress();
+        PnDeliveryPushConfigs.PaperChannel externalChannel = new PnDeliveryPushConfigs.PaperChannel();
+        PnDeliveryPushConfigs.SenderAddress senderAddress = new PnDeliveryPushConfigs.SenderAddress();
         senderAddress.setAddress("via casa");
         senderAddress.setFullname("pagoa");
         senderAddress.setCity("citta");
         externalChannel.setSenderAddress(senderAddress);
 
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(externalChannel);
+        Mockito.when(pnDeliveryPushConfigs.getPaperChannel()).thenReturn(externalChannel);
 
         // WHEN
         PhysicalAddressInt physicalAddressInt = channelUtils.getSenderAddress();

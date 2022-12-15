@@ -110,12 +110,12 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
 
         SendAnalogDetailsInt sendPaperDetails = SendAnalogDetailsInt.builder().sentAttemptMade(0).build();
 
-        PnDeliveryPushConfigs.ExternalChannel externalChannel = new PnDeliveryPushConfigs.ExternalChannel();
+        PnDeliveryPushConfigs.PaperChannel externalChannel = new PnDeliveryPushConfigs.PaperChannel();
         externalChannel.setAnalogCodesSuccess(List.of("004"));
         externalChannel.setAnalogCodesFail(List.of("005"));
         externalChannel.setAnalogCodesProgress(List.of("001"));
 
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(externalChannel);
+        Mockito.when(pnDeliveryPushConfigs.getPaperChannel()).thenReturn(externalChannel);
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notificationInt);
         Mockito.when(analogWorkflowUtils.getSendAnalogNotificationDetails(Mockito.anyString(), Mockito.anyString())).thenReturn(sendPaperDetails);
 
@@ -145,12 +145,12 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
 
         SendAnalogDetailsInt sendPaperDetails = SendAnalogDetailsInt.builder().sentAttemptMade(0).build();
 
-        PnDeliveryPushConfigs.ExternalChannel externalChannel = new PnDeliveryPushConfigs.ExternalChannel();
+        PnDeliveryPushConfigs.PaperChannel externalChannel = new PnDeliveryPushConfigs.PaperChannel();
         externalChannel.setAnalogCodesSuccess(List.of("004"));
         externalChannel.setAnalogCodesFail(List.of("005"));
         externalChannel.setAnalogCodesProgress(List.of("001"));
 
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(externalChannel);
+        Mockito.when(pnDeliveryPushConfigs.getPaperChannel()).thenReturn(externalChannel);
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notificationInt);
         Mockito.when(analogWorkflowUtils.getSendAnalogNotificationDetails(Mockito.anyString(), Mockito.anyString())).thenReturn(sendPaperDetails);
 

@@ -8,7 +8,9 @@ import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
+import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
@@ -88,6 +90,15 @@ public class AnalogWorkflowUtils {
     }
 
 
+    public void addAnalogProgressAttemptToTimeline(NotificationInt notification, int recIndex, int sentAttemptMade, List<LegalFactsIdInt> attachmentKeys,
+                                                  String eventCode, SendAnalogDetailsInt sendPaperDetails) {
+        int progressIndex = getPreviousTimelineProgress(notification, recIndex, sentAttemptMade).size() + 1;
+
+        addTimelineElement(
+                timelineUtils.buildAnalogProgressTimelineElement(notification, sentAttemptMade, attachmentKeys, progressIndex, eventCode, sendPaperDetails),
+                notification);
+    }
+
     public void addAnalogSuccessAttemptToTimeline(NotificationInt notification, int sentAttemptMade, List<LegalFactsIdInt> attachmentKeys,
                                                   PhysicalAddressInt newAddress, List<String> errors, SendAnalogDetailsInt sendPaperDetails) {
         addTimelineElement(
@@ -102,5 +113,20 @@ public class AnalogWorkflowUtils {
     public PhysicalAddressInt getPhysicalAddress(NotificationInt notification, Integer recIndex){
         NotificationRecipientInt notificationRecipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         return notificationRecipient.getPhysicalAddress();
+    }
+
+
+    public Set<TimelineElementInternal> getPreviousTimelineProgress(NotificationInt notification,
+                                                                    int recIndex, int attemptMade){
+        // per calcolare il prossimo progressIndex, devo necessariamente recuperare dal DB tutte le timeline relative a iun/recindex/source/tentativo
+        String elementIdForSearch = TimelineEventId.SEND_ANALOG_PROGRESS.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .sentAttemptMade(attemptMade)
+                        .progressIndex(-1)  // passando -1 non verrà inserito nell'id timeline, permettendo la ricerca iniziaper
+                        .build()
+        );
+        return this.timelineService.getTimelineByIunTimelineId(notification.getIun(), elementIdForSearch, false);
     }
 }

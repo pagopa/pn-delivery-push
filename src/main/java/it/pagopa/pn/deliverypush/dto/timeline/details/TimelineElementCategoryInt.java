@@ -26,6 +26,7 @@ public enum TimelineElementCategoryInt {
     NOTIFICATION_VIEWED(NotificationViewedDetailsInt.class, TimelineElementCategory.NOTIFICATION_VIEWED.getValue()),
     PREPARE_ANALOG_DOMICILE(SendAnalogDetailsInt.class, TimelineElementCategory.PREPARE_ANALOG_DOMICILE.getValue()),
     SEND_ANALOG_DOMICILE(SendAnalogDetailsInt.class, TimelineElementCategory.SEND_ANALOG_DOMICILE.getValue()),
+    SEND_ANALOG_PROGRESS(SendAnalogDetailsInt.class, TimelineElementCategory.SEND_ANALOG_PROGRESS.getValue()),
     SEND_ANALOG_FEEDBACK(SendAnalogFeedbackDetailsInt.class, TimelineElementCategory.SEND_ANALOG_FEEDBACK.getValue()),
     PAYMENT(NotificationPaidDetails.class, TimelineElementCategory.PAYMENT.getValue()),
     COMPLETELY_UNREACHABLE(CompletelyUnreachableDetailsInt.class, TimelineElementCategory.COMPLETELY_UNREACHABLE.getValue()),

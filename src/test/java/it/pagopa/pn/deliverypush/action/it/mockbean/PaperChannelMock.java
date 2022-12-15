@@ -144,14 +144,14 @@ public class PaperChannelMock implements PaperChannelSendClient {
         String status = null;
         Matcher matcher = NEW_ADDRESS_INPUT_PATTERN.matcher(address);
         if (matcher.find()) {
-            status = "__005__";
+            status = "005";
             newAddress = matcher.group(1).trim();
         } else if (address.startsWith(EXTCHANNEL_SEND_FAIL)) {
-            status = "__005__";
+            status = "005";
             sendEvent.setStatusDetail("errore fail mock!");
             newAddress = null;
         } else if (address.startsWith(EXTCHANNEL_SEND_SUCCESS)) {
-            status = "__004__";
+            status = "004";
             newAddress = null;
         } else {
             throw new IllegalArgumentException("Address " + address + " do not match test rule for mocks");
