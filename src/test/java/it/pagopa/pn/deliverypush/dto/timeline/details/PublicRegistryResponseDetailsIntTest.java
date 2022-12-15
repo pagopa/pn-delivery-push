@@ -38,7 +38,7 @@ class PublicRegistryResponseDetailsIntTest {
     }
     @Test
     void testToString() {
-        String expected = "PublicRegistryResponseDetailsInt(recIndex=1, digitalAddress=LegalDigitalAddressInt(type=null), physicalAddress=PhysicalAddressInt(fullname=null, at=null, address=null, addressDetails=add, zip=null, municipality=null, municipalityDetails=null, province=null, foreignState=null))";
+        String expected = "PublicRegistryResponseDetailsInt(recIndex=1, digitalAddress=LegalDigitalAddressInt(type=null), physicalAddress=PhysicalAddressInt(fullname=null, at=null, address=null, addressDetails=add, zip=null, municipality=null, municipalityDetails=null, province=null, foreignState=null), requestTimelineId=requestTimelineId)";
         Assertions.assertEquals(expected, detailsInt.toString());
     }
     private PublicRegistryResponseDetailsInt buildPublicRegistryResponseDetailsInt(){
