@@ -7,7 +7,6 @@ import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.completionworkflow.RefinementScheduler;
-import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action.utils.PaperChannelUtils;
@@ -75,13 +74,15 @@ public class AnalogWorkflowPaperChannelResponseHandler {
 
         int recIndex = ((RecipientRelatedTimelineElementDetails)timelineElementInternal.getDetails()).getRecIndex();
         String requestId = response.getRequestId();
-
+        
+        //TODO Definirei lo statusCode come enum
         if (response.getStatusCode().equals("OK"))
         {
             PhysicalAddressInt receiverAddress = response.getReceiverAddress();
             String productType = response.getProductType();
 
             // se era una prepare di un analog, procedo con la sendanalog, altrimenti con la send della simpleregistered
+            //TODO Preferirei distinguere con la category invece che l'instanceof
             if (timelineElementInternal.getDetails() instanceof SendAnalogDetailsInt){
                 log.info("paperChannelPrepareResponseHandler prepare response is for analog, sending it iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
                 int sentAttemptMade = ((SendAnalogDetailsInt)timelineElementInternal.getDetails()).getSentAttemptMade();
@@ -92,7 +93,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
 
                 this.paperChannelService.sendSimpleRegisteredLetter(notification, recIndex, requestId, receiverAddress, productType);
                 // se l'invio non da errore, vuol dire che la notifica si intende perfezionata
-                // La notifica è stata accettata correttamente da paper channel il workflow digitale può considerarsi concluso con successo
+                // La notifica è stata accettata correttamente da paper channel il workflow digitale può considerarsi concluso con successo (anche se formalmente fallito)
                 refinementScheduler.scheduleDigitalRefinement(notification, recIndex, instantNowSupplier.get(), EndWorkflowStatus.FAILURE);
             }
             else
@@ -100,6 +101,8 @@ public class AnalogWorkflowPaperChannelResponseHandler {
         }
         else if (response.getStatusCode().equals("KOUNREACHABLE")) {
 
+            //TODO Allo stesso modo Preferirei distinguere con la category invece che l'instanceof
+            
             // se era una prepare di un analog, procedo con la sendanalog, altrimenti con la send della simpleregistered
             if (timelineElementInternal.getDetails() instanceof SendAnalogDetailsInt){
                 log.info("paperChannelPrepareResponseHandler prepare response is for analog, setting as unreachable iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
@@ -156,7 +159,6 @@ public class AnalogWorkflowPaperChannelResponseHandler {
     }
 
     private void handleStatusProgress(SendEventInt response, SendAnalogDetailsInt sendPaperDetails, NotificationInt notification, Integer recIndex, List<LegalFactsIdInt> legalFactsListEntryIds) {
-        // La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
         analogWorkflowUtils.addAnalogProgressAttemptToTimeline(notification, recIndex, sendPaperDetails.getSentAttemptMade(), legalFactsListEntryIds,  response.getStatusCode(), sendPaperDetails);
     }
 

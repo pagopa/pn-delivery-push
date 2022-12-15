@@ -61,7 +61,8 @@ public class AnalogWorkflowHandler {
                 break;
             case 2:
                 // All sent attempts have been made. The user is not reachable
-                log.info("User with iun={} and id={} is unreachable, all attempt was failed", iun, recIndex);
+                log.info("User with iun={} and id={} is unreachable, all attempt was failed or no adress is available", iun, recIndex);
+                //TODO Non dovrebbe esserci l'instantNowSupplier.get() ma la data dell'ulitmo feedback ricevuto da externalChannel. se non c'è mettiamo instantNow
                 completionWorkFlow.completionAnalogWorkflow(notification, recIndex, null, instantNowSupplier.get(), null, EndWorkflowStatus.FAILURE);
                 break;
             default:

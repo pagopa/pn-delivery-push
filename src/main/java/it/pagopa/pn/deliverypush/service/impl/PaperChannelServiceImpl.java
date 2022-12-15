@@ -125,6 +125,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         if (sentAttemptMade > 0)
         {
             // ricostruisco il related corrispondente, tanto ha la forma che gli avevo dato io all'iterazione precedente
+            // il relatedEventId del primo tentativo serve a paperChannel distinguere e correlare la seconda invocazione dalla prima
             relatedEventId = paperChannelUtils.buildPrepareAnalogDomicileEventId(notification, recIndex, sentAttemptMade - 1);
 
             // ricostruisco il feedback corrispondente, tanto ha la forma che gli avevo dato io all'iterazione precedente.
@@ -137,19 +138,16 @@ public class PaperChannelServiceImpl implements PaperChannelService {
             // se la relatedrequestid non è nulla, il receiver address è quello usato nella prima send
             String eventIdPreviousSend = paperChannelUtils.buildSendAnalogDomicileEventId(notification, recIndex, sentAttemptMade-1);
             TimelineElementInternal previousSendEvent = paperChannelUtils.getPaperChannelNotificationTimelineElement(notification.getIun(), eventIdPreviousSend);
-
+            
+            //PaperChannel ha bisogno per il secondo tentativo dell'indirizzo del primo tentativo
             receiverAddress = ((PhysicalAddressRelatedTimelineElement)previousSendEvent.getDetails()).getPhysicalAddress();
         }
         else
         {
-            // se la relaterrequestid è nulla, il receiver addres è quello fornito dalla PA
+            // se sentAttemptMade è 0, il receiver addres è quello fornito dalla PA
             receiverAddress = analogWorkflowUtils.getPhysicalAddress(notification, recIndex);
         }
-
-
-
-        // c'è una discrepanza nella nomenclatura tra l'enum serviceleveltype.SIMPLE_REGISTERED_LETTER che si traduce in AR e non SR.
-        // Cmq se non è 890, si intende AR.
+        
         PhysicalAddressInt paProvidedAddress = retrievePrepareInfoAndInvoke(notification, recIndex, receiverAddress, eventId,
                 getAnalogType(notification),
                 relatedEventId, discoveredAddress
@@ -176,10 +174,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     private PhysicalAddressInt retrievePrepareInfoAndInvoke(NotificationInt notification, Integer recIndex, PhysicalAddressInt receiverAddress,
                                                             String eventId, PhysicalAddressInt.ANALOG_TYPE analogType, String relatedRequestId, PhysicalAddressInt discoveredAddress) {
         AarGenerationDetailsInt aarGenerationDetails = aarUtils.getAarGenerationDetails(notification, recIndex);
-
-
-
-        // recupero tutti gli allegati da inviare, ai quali aggiungo l'AAR
+        
         List<String> attachments = attachmentUtils.getNotificationAttachments(notification, recIndex);
         attachments.add(0, aarGenerationDetails.getGeneratedAarUrl());
 
@@ -189,7 +184,8 @@ public class PaperChannelServiceImpl implements PaperChannelService {
                 notificationUtils.getRecipientFromIndex(notification, recIndex),
                 receiverAddress, eventId, analogType,
                 attachments, relatedRequestId, discoveredAddress));
-
+        
+        //TODO Perchè restituire il receiverAddress ricevuto in ingresso?? eliminarlo
         return receiverAddress;
     }
 
@@ -245,7 +241,8 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     private Integer retrieveSendInfoAndInvoke(NotificationInt notification, Integer recIndex,
                                                          String prepareRequestId, String productType,
                                                          PhysicalAddressInt receiverAddress) {
-
+        //TODO if simpleRegisteredLetter
+        //TODO unirei i 2 punti in cui si ottengono tutti gli allegati della notifica
         AarGenerationDetailsInt aarGenerationDetails = aarUtils.getAarGenerationDetails(notification, recIndex);
 
         // recupero tutti gli allegati da inviare, ai quali aggiungo l'AAR
