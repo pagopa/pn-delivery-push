@@ -27,6 +27,7 @@ public class PaperChannelMock implements PaperChannelSendClient {
     //ANALOG
     public static final String EXTCHANNEL_SEND_SUCCESS = "OK"; //Invio notifica ok
     public static final String EXTCHANNEL_SEND_FAIL = "FAIL"; //Invio notifica fallita
+    public static final String EXTCHANNEL_SEND_FAIL_KOUNREACHABLE = "KOUNREACHABLE"; //Invio notifica fallita
     public static final String EXT_CHANNEL_SEND_NEW_ADDR = "NEW_ADDR:"; //Invio notifica fallita con nuovo indirizzo da investigazione
     //Esempio: La combinazione di EXT_CHANNEL_SEND_NEW_ADDR + EXTCHANNEL_SEND_OK ad esempio significa -> Invio notifica fallito ma con nuovo indirizzo trovato e l'invio a tale indirzzo avrà successo
 
@@ -104,9 +105,11 @@ public class PaperChannelMock implements PaperChannelSendClient {
             Matcher matcher = NEW_ADDRESS_INPUT_PATTERN.matcher(address);
             if (matcher.find()) {
                 status = "OK";
-            } else if (address.startsWith(EXTCHANNEL_SEND_FAIL)) {
+            } else if (address.startsWith(EXTCHANNEL_SEND_FAIL_KOUNREACHABLE)) {
                 status = "KOUNREACHABLE";
             } else if (address.startsWith(EXTCHANNEL_SEND_SUCCESS)) {
+                status = "OK";
+            }  else if (address.startsWith(EXTCHANNEL_SEND_FAIL)) {
                 status = "OK";
             } else {
                 throw new IllegalArgumentException("Address " + address + " do not match test rule for mocks");

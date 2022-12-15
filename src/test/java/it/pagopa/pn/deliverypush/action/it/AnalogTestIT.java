@@ -533,7 +533,7 @@ class AnalogTestIT {
         
         //Viene verificato l'effettivo invio delle due notifiche verso paperChannel
         Mockito.verify(paperChannelMock, Mockito.times(2)).prepare(Mockito.any(PaperChannelPrepareRequest.class));
-        Mockito.verify(paperChannelMock, Mockito.times(1)).send(Mockito.any(PaperChannelSendRequest.class));
+        Mockito.verify(paperChannelMock, Mockito.times(2)).send(Mockito.any(PaperChannelSendRequest.class));
 
         String eventIdFirstSend = TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(
                 EventId.builder()
@@ -1174,7 +1174,7 @@ class AnalogTestIT {
         );
 
 
-        Mockito.verify(paperChannelMock, Mockito.times(1)).send(
+        Mockito.verify(paperChannelMock, Mockito.times(2)).send(
                 Mockito.any(PaperChannelSendRequest.class)
             );
 
@@ -1370,7 +1370,7 @@ class AnalogTestIT {
         );
 
 
-        Mockito.verify(paperChannelMock, Mockito.times(1)).send(
+        Mockito.verify(paperChannelMock, Mockito.times(2)).send(
                 Mockito.any(PaperChannelSendRequest.class)
         );
 
