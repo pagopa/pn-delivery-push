@@ -252,10 +252,11 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         List<String> attachments = attachmentUtils.getNotificationAttachments(notification, recIndex);
         attachments.add(0, aarGenerationDetails.getGeneratedAarUrl());
 
-        // FIXME: recupeare araddress e senderaddress da configurazione
+
+        // IL sender/ar address son impostati a pagopa
         return paperChannelSendClient.send(
                 new PaperChannelSendRequest(notification, notificationUtils.getRecipientFromIndex(notification, recIndex),
-                        receiverAddress, prepareRequestId, productType, attachments, null, null));
+                        receiverAddress, prepareRequestId, productType, attachments, paperChannelUtils.getSenderAddress(), paperChannelUtils.getSenderAddress()));
 
     }
 

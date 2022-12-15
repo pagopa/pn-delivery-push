@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
@@ -32,15 +33,42 @@ class PaperChannelUtilsTest {
     @Mock
     private TimelineUtils timelineUtils;
 
+    @Mock
+    private PnDeliveryPushConfigs pnDeliveryPushConfigs;
+
     private PaperChannelUtils channelUtils;
 
     @BeforeEach
     void setUp() {
         timelineService = Mockito.mock(TimelineService.class);
         timelineUtils = Mockito.mock(TimelineUtils.class);
-        channelUtils = new PaperChannelUtils(timelineService, timelineUtils);
+        pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
+        channelUtils = new PaperChannelUtils(timelineService, timelineUtils, pnDeliveryPushConfigs);
     }
 
+
+    @Test
+    void getSenderAddress() {
+        // GIVEN
+
+        PnDeliveryPushConfigs.ExternalChannel externalChannel = new PnDeliveryPushConfigs.ExternalChannel();
+        PnDeliveryPushConfigs.ExternalChannel.SenderAddress senderAddress = new PnDeliveryPushConfigs.ExternalChannel.SenderAddress();
+        senderAddress.setAddress("via casa");
+        senderAddress.setFullname("pagoa");
+        senderAddress.setCity("citta");
+        externalChannel.setSenderAddress(senderAddress);
+
+        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(externalChannel);
+
+        // WHEN
+        PhysicalAddressInt physicalAddressInt = channelUtils.getSenderAddress();
+
+        // THEN
+        Assertions.assertNotNull(physicalAddressInt);
+        Assertions.assertNotNull(physicalAddressInt.getAddress());
+        Assertions.assertNotNull(physicalAddressInt.getFullname());
+        Assertions.assertNotNull(physicalAddressInt.getMunicipality());
+    }
 
     @Test
     void addSendSimpleRegisteredLetterToTimeline() {
@@ -180,4 +208,5 @@ class PaperChannelUtilsTest {
                 .recipients(buildRecipients())
                 .build();
     }
+
 }

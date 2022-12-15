@@ -119,6 +119,18 @@ public class PnDeliveryPushConfigs {
         private int digitalRetryCount;
         private Duration digitalRetryDelay;
         private Duration digitalSendNoresponseTimeout;
+
+        private SenderAddress senderAddress;
+
+        @Data
+        public static class SenderAddress {
+            private String fullname;
+            private String address;
+            private String zipcode;
+            private String city;
+            private String pr;
+            private String country;
+        }
     }
 
    @Data

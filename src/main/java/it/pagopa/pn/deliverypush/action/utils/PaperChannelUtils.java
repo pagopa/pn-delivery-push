@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
@@ -20,13 +21,27 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 public class PaperChannelUtils {
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
+    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     public PaperChannelUtils(TimelineService timelineService,
-                             TimelineUtils timelineUtils) {
+                             TimelineUtils timelineUtils,
+                             PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         this.timelineService = timelineService;
         this.timelineUtils = timelineUtils;
+        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
     }
 
+    public PhysicalAddressInt getSenderAddress(){
+        PnDeliveryPushConfigs.ExternalChannel.SenderAddress senderAddress = pnDeliveryPushConfigs.getExternalChannel().getSenderAddress();
+        return PhysicalAddressInt.builder()
+                .fullname(senderAddress.getFullname())
+                .address(senderAddress.getAddress())
+                .zip(senderAddress.getZipcode())
+                .province(senderAddress.getPr())
+                .municipality(senderAddress.getCity())
+                .foreignState(senderAddress.getCountry())
+                .build();
+    }
 
     public String buildPrepareSimpleRegisteredLetterEventId(NotificationInt notification, Integer recIndex){
         return TimelineEventId.PREPARE_SIMPLE_REGISTERED_LETTER.buildEventId(
