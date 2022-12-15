@@ -50,7 +50,7 @@ class NotificationCostTest {
         //WHEN
         Integer cost = notificationCost.getNotificationCost(notification, recIndex);
         //THEN
-        Mockito.verify(notificationProcessCostService, Mockito.never()).getNotificationProfit(notification, recIndex);
+        Mockito.verify(notificationProcessCostService, Mockito.never()).getNotificationProcessCost(notification, recIndex);
         Assertions.assertNull(cost);
     }
 
@@ -66,12 +66,12 @@ class NotificationCostTest {
 
         Mockito.when(timelineService.getTimelineElement(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.empty());
         int expectedCost = 10;
-        Mockito.when(notificationProcessCostService.getNotificationProfit(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(expectedCost);
+        Mockito.when(notificationProcessCostService.getNotificationProcessCost(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(expectedCost);
 
         //WHEN
         Integer cost = notificationCost.getNotificationCost(notification, recIndex);
         //THEN
-        Mockito.verify(notificationProcessCostService).getNotificationProfit(notification, recIndex);
+        Mockito.verify(notificationProcessCostService).getNotificationProcessCost(notification, recIndex);
         Assertions.assertEquals(expectedCost, cost);
     }
 }

@@ -295,6 +295,10 @@ Parameters:
     Type: String
     Description: delivery push actions done queue age alarm ARN
 
+  NotificationBaseCostForPn:
+    Type: String
+    Description: Notification base cost required from PN (in euro/cent)
+      
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   
@@ -355,7 +359,7 @@ Resources:
         ContainerEnvEntry39: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_NOTIFICATIONNONVISIBILITYTIME=${NotificationNonVisibilityTime}'
         ContainerEnvEntry40: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_TIMETOADDINNONVISIBILITYTIME=${TimeToAddInNonVisibilityTimeCase}'
         ContainerEnvEntry41: !Sub 'PN_DELIVERYPUSH_RETENTION_ATTACHMENT_DAYS_AFTER_REFINEMENT=${RetentionAttachmentDaysAfterRefinement}'
-
+        ContainerEnvEntry42: !Sub 'PN_DELIVERYPUSH_NOTIFICATION_BASE_COST_FOR_PN=${NotificationBaseCostForPn}'
 
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*,/delivery-progresses/*'

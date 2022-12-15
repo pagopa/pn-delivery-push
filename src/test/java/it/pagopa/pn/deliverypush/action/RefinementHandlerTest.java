@@ -59,7 +59,7 @@ class RefinementHandlerTest {
         
         when(timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex)).thenReturn(Boolean.FALSE);
         when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
-        when(notificationProcessCostService.getNotificationProfit(notification, recIndex)).thenReturn(100);
+        when(notificationProcessCostService.getNotificationProcessCost(notification, recIndex)).thenReturn(100);
 
         refinementHandler.handleRefinement(iun, recIndex);
         

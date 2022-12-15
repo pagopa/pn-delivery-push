@@ -19,6 +19,7 @@
     "NotificationNonVisibilityTime": "21:00",
     "TimeToAddInNonVisibilityTimeCase": "10m",
     "IsMvpDefaultValue": "true",
-    "RetentionAttachmentDaysAfterRefinement": "120"
+    "RetentionAttachmentDaysAfterRefinement": "120",
+    "NotificationBaseCostForPn": "100"
   }
 }
