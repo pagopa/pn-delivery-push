@@ -11,6 +11,8 @@ import it.pagopa.pn.deliverypush.service.PaperChannelService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+
 @Component
 @Slf4j
 public class AnalogWorkflowHandler {
@@ -33,13 +35,13 @@ public class AnalogWorkflowHandler {
 
     public void startAnalogWorkflow(String iun, Integer recIndex) {
         NotificationInt notification = notificationService.getNotificationByIun(iun);
-        nextWorkflowStep(notification, recIndex, 0);
+        nextWorkflowStep(notification, recIndex, 0, null);
     }
 
     /**
      * Handle analog notification Workflow based on already made attempt
      */
-    public void nextWorkflowStep(NotificationInt notification, Integer recIndex, int sentAttemptMade) {
+    public void nextWorkflowStep(NotificationInt notification, Integer recIndex, int sentAttemptMade, Instant lastAttemptTimestamp) {
         log.info("Start Analog next workflow action - iun={} id={}", notification.getIun(), recIndex);
 
         String iun = notification.getIun();
@@ -62,8 +64,7 @@ public class AnalogWorkflowHandler {
             case 2:
                 // All sent attempts have been made. The user is not reachable
                 log.info("User with iun={} and id={} is unreachable, all attempt was failed or no adress is available", iun, recIndex);
-                //TODO Non dovrebbe esserci l'instantNowSupplier.get() ma la data dell'ulitmo feedback ricevuto da externalChannel. se non c'è mettiamo instantNow
-                completionWorkFlow.completionAnalogWorkflow(notification, recIndex, null, instantNowSupplier.get(), null, EndWorkflowStatus.FAILURE);
+                completionWorkFlow.completionAnalogWorkflow(notification, recIndex, null, lastAttemptTimestamp!=null?lastAttemptTimestamp:instantNowSupplier.get(), null, EndWorkflowStatus.FAILURE);
                 break;
             default:
                 handleAttemptError(iun, recIndex, sentAttemptMade);

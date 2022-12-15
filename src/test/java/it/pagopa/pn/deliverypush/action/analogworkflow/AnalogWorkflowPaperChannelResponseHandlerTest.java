@@ -13,6 +13,7 @@ import it.pagopa.pn.deliverypush.dto.ext.paperchannel.PrepareEventInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendEventInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.PaperChannelService;
 import it.pagopa.pn.deliverypush.service.PublicRegistryService;
@@ -80,6 +81,7 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
 
         NotificationInt notificationInt = NotificationInt.builder().iun("IUN-01").build();
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE)
                 .details(SendAnalogDetailsInt.builder().sentAttemptMade(0).build())
                 .build();
 

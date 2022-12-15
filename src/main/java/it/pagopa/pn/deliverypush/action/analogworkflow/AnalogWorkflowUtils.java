@@ -116,7 +116,7 @@ public class AnalogWorkflowUtils {
     }
 
 
-    public Set<TimelineElementInternal> getPreviousTimelineProgress(NotificationInt notification,
+    private Set<TimelineElementInternal> getPreviousTimelineProgress(NotificationInt notification,
                                                                     int recIndex, int attemptMade){
         // per calcolare il prossimo progressIndex, devo necessariamente recuperare dal DB tutte le timeline relative a iun/recindex/source/tentativo
         String elementIdForSearch = TimelineEventId.SEND_ANALOG_PROGRESS.buildEventId(

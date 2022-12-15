@@ -20,7 +20,7 @@ import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.RecipientRelatedTimelineElementDetails;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.PaperChannelService;
 import lombok.extern.slf4j.Slf4j;
@@ -74,21 +74,21 @@ public class AnalogWorkflowPaperChannelResponseHandler {
 
         int recIndex = ((RecipientRelatedTimelineElementDetails)timelineElementInternal.getDetails()).getRecIndex();
         String requestId = response.getRequestId();
-        
-        //TODO Definirei lo statusCode come enum
-        if (response.getStatusCode().equals("OK"))
+
+        PrepareEventInt.STATUS_CODE statusCode = PrepareEventInt.STATUS_CODE.valueOf(response.getStatusCode());
+
+        if (statusCode == PrepareEventInt.STATUS_CODE.OK)
         {
             PhysicalAddressInt receiverAddress = response.getReceiverAddress();
             String productType = response.getProductType();
 
             // se era una prepare di un analog, procedo con la sendanalog, altrimenti con la send della simpleregistered
-            //TODO Preferirei distinguere con la category invece che l'instanceof
-            if (timelineElementInternal.getDetails() instanceof SendAnalogDetailsInt){
+            if (timelineElementInternal.getCategory() == TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE){
                 log.info("paperChannelPrepareResponseHandler prepare response is for analog, sending it iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
                 int sentAttemptMade = ((SendAnalogDetailsInt)timelineElementInternal.getDetails()).getSentAttemptMade();
                 this.paperChannelService.sendAnalogNotification(notification, recIndex, sentAttemptMade, requestId, receiverAddress, productType);
             }
-            else if (timelineElementInternal.getDetails() instanceof SimpleRegisteredLetterDetailsInt){
+            else if (timelineElementInternal.getCategory() == TimelineElementCategoryInt.PREPARE_SIMPLE_REGISTERED_LETTER){
                 log.info("paperChannelPrepareResponseHandler prepare response is for simple registered letter, sending it and scheduling refinement iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
 
                 this.paperChannelService.sendSimpleRegisteredLetter(notification, recIndex, requestId, receiverAddress, productType);
@@ -99,16 +99,14 @@ public class AnalogWorkflowPaperChannelResponseHandler {
             else
                 throw new PnInternalException("Unexpected detail of timelineElement timeline=" + requestId, ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED);
         }
-        else if (response.getStatusCode().equals("KOUNREACHABLE")) {
+        else if (statusCode == PrepareEventInt.STATUS_CODE.KOUNREACHABLE) {
 
-            //TODO Allo stesso modo Preferirei distinguere con la category invece che l'instanceof
-            
             // se era una prepare di un analog, procedo con la sendanalog, altrimenti con la send della simpleregistered
-            if (timelineElementInternal.getDetails() instanceof SendAnalogDetailsInt){
+            if (timelineElementInternal.getCategory() == TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE){
                 log.info("paperChannelPrepareResponseHandler prepare response is for analog, setting as unreachable iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
-                this.analogWorkflowHandler.nextWorkflowStep(notification, recIndex, AnalogWorkflowHandler.ATTEMPT_MADE_UNREACHABLE);
+                this.analogWorkflowHandler.nextWorkflowStep(notification, recIndex, AnalogWorkflowHandler.ATTEMPT_MADE_UNREACHABLE, null);
             }
-            else if (timelineElementInternal.getDetails() instanceof SimpleRegisteredLetterDetailsInt){
+            else if (timelineElementInternal.getCategory() == TimelineElementCategoryInt.PREPARE_SIMPLE_REGISTERED_LETTER){
                 log.error("paperChannelPrepareResponseHandler prepare response is for simple registered letter  event is KOUNREACHABLE and is not expected iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
 
                 throw new PnInternalException("Unexpected KOUNREACHABLE for simple registered letter requestId=" + requestId, ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED);
@@ -178,7 +176,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
         // External channel non è riuscito a effettuare la notificazione, si passa al prossimo step del workflow
         analogWorkflowUtils.addAnalogFailureAttemptToTimeline(notification, sendPaperDetails.getSentAttemptMade(), legalFactsListEntryIds, response.getDiscoveredAddress(), response.getDeliveryFailureCause() == null ? null : List.of(response.getDeliveryFailureCause()), sendPaperDetails);
         int sentAttemptMade = sendPaperDetails.getSentAttemptMade() + 1;
-        analogWorkflowHandler.nextWorkflowStep(notification, recIndex, sentAttemptMade);
+        analogWorkflowHandler.nextWorkflowStep(notification, recIndex, sentAttemptMade, response.getStatusDateTime());
     }
 
     private void handleStatusIgnored(SendEventInt event, String iun, Integer recIndex) {

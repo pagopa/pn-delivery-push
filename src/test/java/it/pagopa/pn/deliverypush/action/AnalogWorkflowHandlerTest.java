@@ -100,7 +100,7 @@ class AnalogWorkflowHandlerTest {
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
         //WHEN
-        handler.nextWorkflowStep(notification, recIndex, 2);
+        handler.nextWorkflowStep(notification, recIndex, 2, null);
 
         //THEN
         Mockito.verify(completionWorkFlow).completionAnalogWorkflow(eq(notification), eq(recIndex), Mockito.any(), Mockito.any(Instant.class), eq(null), eq(EndWorkflowStatus.FAILURE));
@@ -175,7 +175,7 @@ class AnalogWorkflowHandlerTest {
 
 
         //WHEN
-        handler.nextWorkflowStep(notification, recIndex, 0);
+        handler.nextWorkflowStep(notification, recIndex, 0, null);
 
         //THEN
         Mockito.verify(paperChannelService).prepareAnalogNotification(notification,  recIndex, 0);
@@ -188,7 +188,7 @@ class AnalogWorkflowHandlerTest {
         NotificationRecipientInt recipient = notification.getRecipients().get(0);
         Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
-        handler.nextWorkflowStep(notification, recIndex, 1);
+        handler.nextWorkflowStep(notification, recIndex, 1, null);
 
         //THEN
         Mockito.verify(paperChannelService).prepareAnalogNotification(notification, recIndex, 1);
@@ -201,7 +201,7 @@ class AnalogWorkflowHandlerTest {
         NotificationRecipientInt recipient = notification.getRecipients().get(0);
         Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
-        handler.nextWorkflowStep(notification, recIndex, 2);
+        handler.nextWorkflowStep(notification, recIndex, 2, null);
 
         //THEN
         Mockito.verify(completionWorkFlow).completionAnalogWorkflow(notification, recIndex, null, instantNowSupplier.get(), null, EndWorkflowStatus.FAILURE);

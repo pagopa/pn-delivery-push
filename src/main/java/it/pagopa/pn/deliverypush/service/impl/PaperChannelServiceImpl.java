@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -108,11 +109,11 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         // nel caso della simple registgered, l'indirizzo è sempre quello fornito dalla pa
         PhysicalAddressInt receiverAddress = analogWorkflowUtils.getPhysicalAddress(notification, recIndex);
 
-        PhysicalAddressInt paProvidedAddress = retrievePrepareInfoAndInvoke(notification, recIndex, receiverAddress, eventId,
+        retrievePrepareInfoAndInvoke(notification, recIndex, receiverAddress, eventId,
                 PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER, null, null);
 
 
-        paperChannelUtils.addPrepareSimpleRegisteredLetterToTimeline(notification, paProvidedAddress, recIndex, eventId, 1);
+        paperChannelUtils.addPrepareSimpleRegisteredLetterToTimeline(notification, receiverAddress, recIndex, eventId, 1);
     }
 
     private void prepareAnalogDomicile(NotificationInt notification, Integer recIndex, int sentAttemptMade) {
@@ -148,13 +149,13 @@ public class PaperChannelServiceImpl implements PaperChannelService {
             receiverAddress = analogWorkflowUtils.getPhysicalAddress(notification, recIndex);
         }
         
-        PhysicalAddressInt paProvidedAddress = retrievePrepareInfoAndInvoke(notification, recIndex, receiverAddress, eventId,
+        retrievePrepareInfoAndInvoke(notification, recIndex, receiverAddress, eventId,
                 getAnalogType(notification),
                 relatedEventId, discoveredAddress
                 );
 
 
-        paperChannelUtils.addPrepareAnalogNotificationToTimeline(notification, paProvidedAddress, recIndex, relatedEventId, sentAttemptMade, eventId, discoveredAddress);
+        paperChannelUtils.addPrepareAnalogNotificationToTimeline(notification, receiverAddress, recIndex, relatedEventId, sentAttemptMade, eventId, discoveredAddress);
     }
 
 
@@ -169,24 +170,39 @@ public class PaperChannelServiceImpl implements PaperChannelService {
      * @param analogType tipo invio
      * @param relatedRequestId eventuale requestId originario
      * @param discoveredAddress eventuale indirizzo indagine
-     * @return indirizzo della PA recuperato dalla notifica
      */
-    private PhysicalAddressInt retrievePrepareInfoAndInvoke(NotificationInt notification, Integer recIndex, PhysicalAddressInt receiverAddress,
+    private void retrievePrepareInfoAndInvoke(NotificationInt notification, Integer recIndex, PhysicalAddressInt receiverAddress,
                                                             String eventId, PhysicalAddressInt.ANALOG_TYPE analogType, String relatedRequestId, PhysicalAddressInt discoveredAddress) {
-        AarGenerationDetailsInt aarGenerationDetails = aarUtils.getAarGenerationDetails(notification, recIndex);
-        
-        List<String> attachments = attachmentUtils.getNotificationAttachments(notification, recIndex);
-        attachments.add(0, aarGenerationDetails.getGeneratedAarUrl());
-
-
+        // recupero gli allegati
+        List<String> attachments = retrieveAttachments(notification, recIndex, analogType== PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER);
 
         paperChannelSendClient.prepare(new PaperChannelPrepareRequest(notification,
                 notificationUtils.getRecipientFromIndex(notification, recIndex),
                 receiverAddress, eventId, analogType,
                 attachments, relatedRequestId, discoveredAddress));
-        
-        //TODO Perchè restituire il receiverAddress ricevuto in ingresso?? eliminarlo
-        return receiverAddress;
+    }
+
+
+    /**
+     * Recupera gli allegati della notifica, in base al tipo di invio
+     *
+     * @param notification notifica
+     * @param recIndex indice destinatario
+     * @param isSimpleRegisteredLetter tipo invio
+     * @return lista id allegati
+     */
+    @NotNull
+    private List<String> retrieveAttachments(NotificationInt notification, Integer recIndex, boolean isSimpleRegisteredLetter) {
+        AarGenerationDetailsInt aarGenerationDetails = aarUtils.getAarGenerationDetails(notification, recIndex);
+
+        List<String> attachments = new ArrayList<>();
+        attachments.add(0, aarGenerationDetails.getGeneratedAarUrl());
+        // nel caso in cui NON sia simple registered letter, devo allegare anche gli atti
+        if (!isSimpleRegisteredLetter)
+        {
+            attachments.addAll(attachmentUtils.getNotificationAttachments(notification, recIndex));
+        }
+        return attachments;
     }
 
     @Override
@@ -196,7 +212,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         if(! isNotificationAlreadyViewed) {
             log.info("Registered Letter sending to paperChannel - iun={} id={}", notification.getIun(), recIndex);
 
-            Integer sendCost = retrieveSendInfoAndInvoke(notification, recIndex, requestId, productType, receiverAddress);
+            Integer sendCost = retrieveSendInfoAndInvoke(notification, recIndex, true, requestId, productType, receiverAddress);
 
             paperChannelUtils.addSendSimpleRegisteredLetterToTimeline(notification, receiverAddress, recIndex, sendCost, productType);
             log.info("Registered Letter sent to paperChannel - iun={} id={}", notification.getIun(), recIndex);
@@ -219,7 +235,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
                 relatedEventId = paperChannelUtils.buildPrepareAnalogDomicileEventId(notification, recIndex, sentAttemptMade - 1);
             }
 
-            Integer sendCost = retrieveSendInfoAndInvoke(notification, recIndex, prepareRequestId, productType, receiverAddress);
+            Integer sendCost = retrieveSendInfoAndInvoke(notification, recIndex, false, prepareRequestId, productType, receiverAddress);
 
             paperChannelUtils.addSendAnalogNotificationToTimeline(notification, receiverAddress, recIndex, sentAttemptMade, sendCost, relatedEventId, productType);
 
@@ -238,16 +254,12 @@ public class PaperChannelServiceImpl implements PaperChannelService {
      * @param receiverAddress indirizzo a cui spedire
      *
      */
-    private Integer retrieveSendInfoAndInvoke(NotificationInt notification, Integer recIndex,
+    private Integer retrieveSendInfoAndInvoke(NotificationInt notification, Integer recIndex, boolean isSimpleRegisteredLetter,
                                                          String prepareRequestId, String productType,
                                                          PhysicalAddressInt receiverAddress) {
-        //TODO if simpleRegisteredLetter
-        //TODO unirei i 2 punti in cui si ottengono tutti gli allegati della notifica
-        AarGenerationDetailsInt aarGenerationDetails = aarUtils.getAarGenerationDetails(notification, recIndex);
 
-        // recupero tutti gli allegati da inviare, ai quali aggiungo l'AAR
-        List<String> attachments = attachmentUtils.getNotificationAttachments(notification, recIndex);
-        attachments.add(0, aarGenerationDetails.getGeneratedAarUrl());
+        // recupero gli allegati
+        List<String> attachments = retrieveAttachments(notification, recIndex, isSimpleRegisteredLetter);
 
 
         // IL sender/ar address son impostati a pagopa

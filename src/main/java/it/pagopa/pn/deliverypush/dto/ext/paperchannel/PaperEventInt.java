@@ -17,4 +17,6 @@ public class PaperEventInt {
     private String statusCode;
     private Instant statusDateTime;
     private String statusDetail;
+
+
 }

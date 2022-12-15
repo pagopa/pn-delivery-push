@@ -13,4 +13,10 @@ import lombok.experimental.SuperBuilder;
 public class PrepareEventInt extends PaperEventInt {
     private PhysicalAddressInt receiverAddress;
     private String productType;
+
+    public enum STATUS_CODE{
+        OK,
+        PROGRESS,
+        KOUNREACHABLE
+    }
 }
