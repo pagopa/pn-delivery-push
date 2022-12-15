@@ -4,6 +4,7 @@ import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
@@ -20,15 +21,34 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 class DtoToEntityTimelineMapperTest {
 
     @Test
     void dtoToEntity() {
         DtoToEntityTimelineMapper dto = new DtoToEntityTimelineMapper();
+        TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
+        TimelineElementEntity actual = dto.dtoToEntity(timelineElementInternal);
 
-        TimelineElementEntity actual = dto.dtoToEntity(buildTimelineElementInternal());
+        assertThat(actual).isNotNull();
+        assertThat(actual.getIun()).isEqualTo(timelineElementInternal.getIun());
+        assertThat(actual.getTimelineElementId()).isEqualTo(timelineElementInternal.getElementId());
+        assertThat(actual.getPaId()).isEqualTo(timelineElementInternal.getPaId());
+        assertThat(actual.getNotificationSentAt()).isEqualTo(timelineElementInternal.getNotificationSentAt());
+        assertThat(actual.getCategory().name()).isEqualTo(timelineElementInternal.getCategory().name());
+        assertThat(actual.getTimestamp()).isEqualTo(timelineElementInternal.getTimestamp());
 
-        Assertions.assertEquals("001", actual.getIun());
+        // verifica details
+        NotificationViewedDetailsInt details = (NotificationViewedDetailsInt) timelineElementInternal.getDetails();
+        assertThat(actual.getDetails()).isNotNull();
+        assertThat(actual.getDetails().getRecIndex()).isEqualTo(details.getRecIndex());
+        assertThat(actual.getDetails().getNotificationCost()).isEqualTo(details.getNotificationCost());
+
+        // verifica legalFacts
+        assertThat(actual.getLegalFactIds()).isNotNull().hasSize(timelineElementInternal.getLegalFactsIds().size());
+        assertThat(actual.getLegalFactIds().get(0).getKey()).isEqualTo(timelineElementInternal.getLegalFactsIds().get(0).getKey());
+        assertThat(actual.getLegalFactIds().get(0).getCategory().name()).isEqualTo(timelineElementInternal.getLegalFactsIds().get(0).getCategory().name());
     }
 
     private TimelineElementInternal buildTimelineElementInternal() {
@@ -51,6 +71,7 @@ class DtoToEntityTimelineMapperTest {
                 .timestamp(instant)
                 .details(elementDetailsInt)
                 .legalFactsIds(legalFactsIdInts)
+                .notificationSentAt(Instant.now())
                 .build();
     }
 

@@ -72,10 +72,10 @@ public class DigitalWorkFlowHandler {
      * @param iun IUN della notifica
      * @param recIndex id recipient
      */
-    public void startScheduledNextWorkflow(String iun, Integer recIndex) {
+    public void startScheduledNextWorkflow(String iun, Integer recIndex, String timelineId) {
         log.debug("startScheduledNextWorkflow - iun={} recIndex={}", iun, recIndex);
 
-        ScheduleDigitalWorkflowDetailsInt scheduleDigitalWorkflow = digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(iun, recIndex);
+        ScheduleDigitalWorkflowDetailsInt scheduleDigitalWorkflow = digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(iun, timelineId);
         NotificationInt notification = notificationService.getNotificationByIun(iun);
         DigitalAddressInfoSentAttempt digitalAddressInfoSentAttempt = getDigitalAddressInfo(scheduleDigitalWorkflow);
         nextWorkFlowAction(notification, recIndex, digitalAddressInfoSentAttempt);
@@ -161,8 +161,8 @@ public class DigitalWorkFlowHandler {
         } else {
             log.info("Next workflow scheduling date={} is not passed. Need to schedule next workflow - iun={} id={}", schedulingDate, iun, recIndex);
             //Se la data è minore alla data odierna, bisogna attendere il completamento dei 7 giorni prima partire con un nuovo workflow per questa source
-            digitalWorkFlowUtils.addScheduledDigitalWorkflowToTimeline(notification, recIndex, lastAttemptMade);
-            schedulerService.scheduleEvent(iun, recIndex, schedulingDate, ActionType.DIGITAL_WORKFLOW_NEXT_ACTION);
+            String timelineId = digitalWorkFlowUtils.addScheduledDigitalWorkflowToTimeline(notification, recIndex, lastAttemptMade);
+            schedulerService.scheduleEvent(iun, recIndex, schedulingDate, ActionType.DIGITAL_WORKFLOW_NEXT_ACTION, timelineId, null);
         }
     }
 
@@ -234,8 +234,8 @@ public class DigitalWorkFlowHandler {
 
         unscheduleTimeoutAction(notification.getIun(), recIndex, sourceTimelineId);
 
-        Duration secondNotificationWorkflowWaitingTime = pnDeliveryPushConfigs.getExternalChannel().getDigitalSendNoresponseTimeout();
-        Instant schedulingDate = Instant.now().plus(secondNotificationWorkflowWaitingTime);
+        Duration digitalNoResponseTimeout = pnDeliveryPushConfigs.getExternalChannel().getDigitalSendNoresponseTimeout();
+        Instant schedulingDate = Instant.now().plus(digitalNoResponseTimeout);
 
         this.schedulerService.scheduleEvent(notification.getIun(), recIndex, schedulingDate, ActionType.DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION, timelineId);
         log.info("sendDigitalNotificationAndScheduleTimeoutAction scheduled DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION for iun={} recIdx={} timelineId={} schedulingDate={}", notification.getIun(), recIndex, timelineId, schedulingDate);

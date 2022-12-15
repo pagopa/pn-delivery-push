@@ -1,6 +1,6 @@
 # di seguito le variabili che possono subire variazioni in caso di modifiche all'applicazione, da ricercare in base all'ID
 # <span id="webhookMaxLength">10</span> pn.delivery-push.webhook.max-length = lunghezza massima della response degli eventi
-# <span id="webhookMaxStreams">5</span> pn.delivery-push.webhook.max-streams = numero massimo di stram confgurabili per PA
+# <span id="webhookMaxStreams">5</span> pn.delivery-push.webhook.max-streams = numero massimo di stream confgurabili per PA
 # <span id="webhookTtl">7</span> pn.delivery-push.webhook.ttl = retention per gli eventi webhook PN-2264
 openapi: 3.0.3
 info:
@@ -113,6 +113,135 @@ info:
         </ul>
       </details>
     </br>
+    Di seguito un esempio di creazione e successiva interrogazione dello stream: 
+
+      <details>
+        <summary>Esempio dello stream</summary>
+      
+      <table>
+      
+      <tr>
+      
+      <td>
+      
+      </br>
+      
+      ### 1) Creazione dello stream ed inserimento notifica
+      In questo esempio creo 2 stream con il servizio di [creazione stream](#/Streams/createEventStream): uno per gli status</br> e l'altro per gli eventi di timeline.</br> Vedesi le request <big><strong>a)</strong></big> di esempio con le relative response <big><strong>b)</strong></big>, Da notare che sono presenti</br> dei filtri per ottenere solo specifici status o eventi; se si vogliono ottenere tutte </br>le variazioni non bisogna inserire nessun filtro: 
+      <code>"filterValues": []</code></br>      
+      Una volta creati gli stream, bisogna utilizzare il servizio di [inserimento nuova notifica](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-external-b2b-pa-v1.yaml#/NewNotification/sendNewNotification)</br> sulla Piattaforma. A questo punto bisognerà attendere che vengano completati i controlli</br> di validazione e se questi avranno esito positivo e la notifica verrà accettata, comincerà</br> il workflow di consegna della stessa. Con l'avanzare del tempo verranno generati degli</br> eventi e dei cambiamenti di stato che verranno puntualmente registrati negli stream</br> configurati precedentemente a partire già dal primo evento che certifica l'accettazione</br> o il rifiuto della notifica appena inserita con il relativo passaggio allo stato ACCEPTED.
+      
+      </br>
+      </br>
+      </br>
+      </br>
+      </br>
+      </br>
+      </br>
+      </br>
+      
+      ### 2) Prima interrogazione degli stream appena creati
+      
+      Col passare del tempo, potremo interrogare gli stream appena creati per leggere</br> gli eventi registrati, a partire già dall'evento di accettazione della notifica.</br> Si possono interrogare gli eventi registrati all'interno di uno stream con il servizio</br> di [lettura degli eventi](#/Events/consumeEventStream) passando il valore desiderato nello <code>{streamId}</code> ed otterremo</br> la response <big><strong>c)</strong></big> che contiene un array con un numero massimo di <span id="webhookMaxLength">10</span> eventi corrispondenti</br> a quelli che impattano tutte le notifiche inserite dalla creazione dello stream in poi</br> e che potranno essere salvati sul database del client chiamante.</br> Da notare che ogni evento contiene l'<code>eventId</code> ad esso associato.</br>
+      
+      A questo punto bisogna controllare il parametro <code>retry-after</code> contenuto nell'header</br> della response per capire quanto tempo attendere prima di richiamare lo stream</br> ed ottenere nuovi risultati: 
+      <ul>
+      <li>Se <code>retry-after = 0</code> significa che lo stream contiene ulteriori eventi rispetto</br> a quelli che ho appena ottenuto nella response e quindi posso richiamare subito</br> il servizio e consumare gli eventi successivi</li></br>
+      <li>se <code>retry-after ≠ 0</code> significa che lo stream NON contiene altri eventi rispetto</br> a quelli che ottenuti in questa chiamata e quindi dovrò attendere la quantità</br> di secondi indicati nel <code>retry-after</code> prima di effettuare un'altra chiamata</br> per consumare ulteriori eventi</li>
+      </ul>
+      
+      </br>
+      </br>
+      </br>
+
+      ### 3) Successive interrogazioni degli stream appena creati
+
+      Se l'header della prima interrogazione degli stream restituisce nell'header: <code>retry-after = 0</code></br> significa che lo stream contiene altri eventi che possono essere consumati subito con</br> un'ulteriore chiamata al servizio di [lettura degli eventi](#/Events/consumeEventStream), ma questa volta per consumare</br> gli eventi successivi ai primi ricevuti, bisogna valorizzare nei query params della request</br> il parametro <code>lastEventId</code> con l'eventId ottenuto nella precedente chiamata.</br> Così facendo il servizio eliminerà dallo stream tutti gli eventi precedenti a quello inserito</br> nel <code>lastEventId</code> e restituirà nella response <big><strong>d)</big></strong> solamente quelli successivi .</br>
+
+      A questo punto si potrà capire, sempre dal valore del <code>retry-after</code> contenuto nell'header</br> se chiamare subito il servizio ed inserire il <code>lastEventId</code> di questa ulteriore chiamata</br> o attendere i secondi indicati nell'header</br>
+
+      <strong>NOTA:</strong> gli eventi eliminati dallo stream in seguito alla chiamata del servizio di [lettura degli eventi](#/Events/consumeEventStream)</br> con il query param <code>lastEventId</code> valorizzato, <strong><font color="red">non potranno più essere recuperati dallo stream</font></strong></br> in nessun modo. E' quindi fondamentale salvare di volta in volta gli eventi che si ottengono</br> all'interno database del chiamante, rispettando la logica del producer/consumer di eventi</br> proposta dagli stream.</br> In caso di eliminazione degli eventi avvenuta per errore, sarà possibile come ultima istanza</br> chiamare il servizio di [lettura dettaglio notifica](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-external-b2b-pa-v1.yaml#/SenderReadB2B/retrieveSentNotification) che però esporrà tutti gli eventi di timeline e lo stato</br> attuale della singola notifica ed è quindi meno performante delle stream.
+
+      </td>
+      <td>
+      
+      #### a) Request di POST /delivery-progresses/streams
+      
+        {                                           {
+          "title": "stream-status-prova",             "title": "stream-timeline-prova",
+          "eventType": "STATUS",                      "eventType": "TIMELINE",
+          "filterValues": [                           "filterValues": [
+              "ACCEPTED"                                  "REQUEST_ACCEPTED"
+          ]                                           ]
+        }                                           }
+        
+      #### b) Response di POST /delivery-progresses/streams
+        
+        {                                           {
+            "title": "stream-status-prova",           "title": "stream-timeline-prova",
+            "eventType": "STATUS",                    "eventType": "TIMELINE",
+            "filterValues": [                         "filterValues": [
+                "ACCEPTED"                                "REQUEST_ACCEPTED"
+            ],                                        ],
+            "streamId":                               "streamId": 
+            "4e6d5e59-85fc-4ef7-bad8",                "6d87ree59-31ff-2rr7-lok1",
+            "activationDate":                         "activationDate": 
+            "2022-12-12T14:52:23.362454Z"             "2022-12-12T14:53:23.362454Z"
+        }                                           }  
+      
+      </br>
+      </br>
+
+      #### c) Response di GET /delivery-progresses/streams/<code>{streamId}</code>/events
+      
+        Headers: { "retry-after": "60000" }
+
+        [
+            {
+                "eventId": "0000000000000000000001",
+                "timestamp": "2022-12-06T08:14:26.140041Z",
+                "notificationRequestId": "QUJDRC1BQkNELUFCQ0QtMjAyMjEyLVYtMQ==",
+                "iun": "ABCD-ABCD-ABCD-202212-V-1",
+                "newStatus": "ACCEPTED",
+                "timelineEventCategory": "REQUEST_ACCEPTED"
+            }, 
+            ... // altri eventi nell'array
+        ]
+
+      </br>
+      </br>
+      </br>
+      </br>
+      </br>
+      </br>
+      </br>
+
+      #### d) Response di GET /delivery-progresses/streams/<code>{streamId}</code>/events</br> chiamato valorizzando nei query params il parametro <code>lastEventId</code> con l'eventId</br> dell'ultimo evento nella precedente chiamata.</br>
+      
+        Headers: { "retry-after": "60000" }
+
+        [
+            {
+                "eventId": "0000000000000000000011",
+                "timestamp": "2022-12-07T10:13:22.158041Z",
+                "notificationRequestId": "QUJDRC1BQkNELUFCQ0QtMjAyMjEyLVYtMQ==",
+                "iun": "ABCD-ABCD-ABCD-202212-V-1",
+                "newStatus": "DELIVERED",
+                "timelineEventCategory": "DIGITAL_SUCCESS_WORKFLOW"
+            }, 
+            ... // altri eventi nell'array
+        ]
+      
+      </td>
+      
+      </tr>
+      
+      </table>
+
+      </br>
+      </br>
+      
+      </details>  
 
     Le operazioni con il tag __Streams__ gestiscono la configurazione: <br/>
       - [Creazione](#/Streams/createEventStream) <br/>

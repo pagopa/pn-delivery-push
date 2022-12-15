@@ -284,7 +284,7 @@ class NotHandledTestIT {
         //Viene verificato il numero di send PEC verso external channel
         int sentPecAttemptNumber = 6;
         Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(
-                Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString());
+                Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString(), Mockito.anyString());
 
         //Viene verificato che la registered letter non sia stata inviata
         Mockito.verify(paperChannelMock, Mockito.times(0)).send(Mockito.any(PaperChannelSendRequest.class));
@@ -401,7 +401,7 @@ class NotHandledTestIT {
         //Viene verificato il numero di send PEC verso external channel
         int sentPecAttemptNumber = 6;
         Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(
-                Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString());
+                Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString(), Mockito.anyString());
 
         //Viene verificato che la registered letter non sia stata inviata
         Mockito.verify(paperChannelMock, Mockito.times(0)).send(Mockito.any(PaperChannelSendRequest.class));
@@ -506,7 +506,7 @@ class NotHandledTestIT {
         //Viene verificato il numero di send PEC verso external channel
         int sentPecAttemptNumber = 0;
         Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(
-                Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString());
+                Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString(), Mockito.anyString());
 
         //Viene verificato che sia stato inviato un messaggio ad ogni indirizzo presente nei courtesyaddress
         TestUtils.checkSendCourtesyAddresses(iun, recIndex, listCourtesyAddress, timelineService, externalChannelMock);
@@ -618,7 +618,7 @@ class NotHandledTestIT {
         //Viene verificato il numero di send PEC verso external channel
         int sentPecAttemptNumber = 0;
         Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(
-                Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString());
+                Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString(), Mockito.anyString());
 
         //Viene verificato che non ci sia stato nessun invio verso externalChannel
         Mockito.verify(paperChannelMock, Mockito.times(0)).send(Mockito.any(PaperChannelSendRequest.class));

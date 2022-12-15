@@ -24,14 +24,16 @@ public class SendDigitalFeedbackDetailsInt implements DigitalAddressRelatedTimel
     private Instant notificationDate; //Cambiare il nome del campo in extChannelsFeedbackDate
     private List<String> errors;
     private List<SendingReceipt> sendingReceipts;
+    private String requestTimelineId;
 
     public String toLog() {
         return String.format(
-                "recIndex=%d responseStatus=%s errors=%s digitalAddress=%s",
+                "recIndex=%d responseStatus=%s errors=%s digitalAddress=%s requestTimelineId=%s",
                 recIndex,
                 responseStatus,
                 errors,
-                AuditLogUtils.SENSITIVE
+                AuditLogUtils.SENSITIVE,
+                requestTimelineId
         );
     }
 }

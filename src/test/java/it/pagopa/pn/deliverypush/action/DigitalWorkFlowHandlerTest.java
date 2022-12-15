@@ -101,7 +101,7 @@ class DigitalWorkFlowHandlerTest {
                         .lastAttemptDate(Instant.now())
                         .build());
         
-        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt()))
+        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(ScheduleDigitalWorkflowDetailsInt.builder()
                         .recIndex(0)
                         .sentAttemptMade(lastAttemptMade.getSentAttemptMade())
@@ -120,7 +120,7 @@ class DigitalWorkFlowHandlerTest {
                 .thenReturn(notification);
 
         //WHEN
-        handler.startScheduledNextWorkflow(notification.getIun(), 0);
+        handler.startScheduledNextWorkflow(notification.getIun(), 0, "timeline_id_0");
 
         //THEN
         Mockito.verify(publicRegistryService).sendRequestForGetDigitalGeneralAddress(Mockito.any(NotificationInt.class), Mockito.anyInt(),
@@ -141,7 +141,7 @@ class DigitalWorkFlowHandlerTest {
                 .build();
 
 
-        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt()))
+        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(ScheduleDigitalWorkflowDetailsInt.builder()
                         .recIndex(0)
                         .sentAttemptMade(lastAttemptMade.getSentAttemptMade())
@@ -180,7 +180,7 @@ class DigitalWorkFlowHandlerTest {
 
 
         //WHEN        
-        handler.startScheduledNextWorkflow(notification.getIun(), 0);
+        handler.startScheduledNextWorkflow(notification.getIun(), 0, "timeline_id_0");
 
         //THEN
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);
@@ -207,7 +207,7 @@ class DigitalWorkFlowHandlerTest {
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC).build())
                 .build();
 
-        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt()))
+        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(ScheduleDigitalWorkflowDetailsInt.builder()
                         .recIndex(0)
                         .sentAttemptMade(lastAttemptMade.getSentAttemptMade())
@@ -246,7 +246,7 @@ class DigitalWorkFlowHandlerTest {
                 .thenReturn(null);
 
         //WHEN
-        handler.startScheduledNextWorkflow("iun",0);
+        handler.startScheduledNextWorkflow("iun",0, "timeline_id_0");
 
         //THEN
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);
@@ -271,7 +271,7 @@ class DigitalWorkFlowHandlerTest {
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC).build())
                 .build();
 
-        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt()))
+        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(ScheduleDigitalWorkflowDetailsInt.builder()
                         .recIndex(0)
                         .sentAttemptMade(lastAttemptMade.getSentAttemptMade())
@@ -290,6 +290,9 @@ class DigitalWorkFlowHandlerTest {
 
         Instant lastAttemptDate = Instant.now();
 
+        Mockito.when(digitalWorkFlowUtils.addScheduledDigitalWorkflowToTimeline(Mockito.any(), Mockito.anyInt(), Mockito.any()))
+                        .thenReturn("timeline_id_0");
+
         Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfoSentAttempt.class)))
                 .thenReturn(DigitalAddressInfoSentAttempt.builder()
                         .digitalAddressSource(DigitalAddressSourceInt.GENERAL)
@@ -300,13 +303,13 @@ class DigitalWorkFlowHandlerTest {
                 .thenReturn(notification);
 
         //WHEN
-        handler.startScheduledNextWorkflow("iun",0);
+        handler.startScheduledNextWorkflow("iun",0, "timeline_id_0");
         
         //THEN
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
 
         Mockito.verify(schedulerService).scheduleEvent(Mockito.anyString(), Mockito.anyInt(),
-                schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
+                schedulingDateCaptor.capture(), Mockito.any(ActionType.class), Mockito.anyString(), Mockito.any());
 
 
         Instant schedulingDateOk = lastAttemptDate.plus(times.getSecondNotificationWorkflowWaitingTime());
@@ -327,7 +330,7 @@ class DigitalWorkFlowHandlerTest {
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC).build())
                 .build();
 
-        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt()))
+        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(ScheduleDigitalWorkflowDetailsInt.builder()
                         .recIndex(0)
                         .sentAttemptMade(lastAttemptMade.getSentAttemptMade())
@@ -360,7 +363,7 @@ class DigitalWorkFlowHandlerTest {
                 .thenReturn(notification);
 
         //WHEN
-        handler.startScheduledNextWorkflow("iun", 0);
+        handler.startScheduledNextWorkflow("iun", 0, "timeline_id_0");
 
         //THEN
         Mockito.verify(publicRegistryService).sendRequestForGetDigitalGeneralAddress(Mockito.any(NotificationInt.class), Mockito.anyInt(),
@@ -380,7 +383,7 @@ class DigitalWorkFlowHandlerTest {
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC).build())
                 .build();
 
-        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyInt()))
+        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(ScheduleDigitalWorkflowDetailsInt.builder()
                         .recIndex(0)
                         .sentAttemptMade(lastAttemptMade.getSentAttemptMade())
@@ -422,7 +425,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(pnDeliveryPushConfigs.getExternalChannel().getDigitalSendNoresponseTimeout()).thenReturn(Duration.ofSeconds(100));
 
         //WHEN
-        handler.startScheduledNextWorkflow(notification.getIun(), 0);
+        handler.startScheduledNextWorkflow(notification.getIun(), 0, "timeline_id_0");
 
         //THEN
         ArgumentCaptor<Boolean> isAvailableCaptor = ArgumentCaptor.forClass(Boolean.class);

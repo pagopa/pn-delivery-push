@@ -104,6 +104,7 @@ class DigitalWorkFlowUtilsTest {
         Assertions.assertEquals(address, returnedAddress);
     }
 
+
     @Test
     void getAddressFromSource_SPECIAl() {
         String taxId = "tax_id";
@@ -166,7 +167,7 @@ class DigitalWorkFlowUtilsTest {
                 .thenReturn(Optional.of(scheduleDigitalWorkflowDetailsInt));
         // WHEN
         ScheduleDigitalWorkflowDetailsInt optTimeLineScheduleDigitalWorkflow =
-                digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(iun, recIndex);
+                digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(iun, "timeline_id_0");
         // VERIFY
         Assertions.assertEquals(optTimeLineScheduleDigitalWorkflow, scheduleDigitalWorkflowDetailsInt);
     }
@@ -384,6 +385,7 @@ class DigitalWorkFlowUtilsTest {
                 .paId("1")
                 .category(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK)
                 .legalFactsIds(legalFactsIds)
+                .notificationSentAt(Instant.now())
                 .build();
     }
 

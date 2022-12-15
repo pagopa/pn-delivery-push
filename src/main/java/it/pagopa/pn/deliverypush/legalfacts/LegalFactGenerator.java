@@ -236,6 +236,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_RECIPIENT, recipient);
         templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
         templateModel.put(FIELD_QRCODE_QUICK_ACCESS_LINK, this.getQrCodeQuickAccessUrlAarDetail(recipient) );
+        templateModel.put(FIELD_PN_FAQ_URL, this.pnDeliveryPushConfigs.getWebapp().getFaqUrlTemplate() );
 
         if( Boolean.FALSE.equals( mvpParameterConsumer.isMvp( notification.getSender().getPaTaxId() ) ) ){
             return documentComposition.executePdfTemplate(
@@ -341,7 +342,7 @@ public class LegalFactGenerator {
     
       String url = String.format(templateUrl, recipient.getQuickAccessLinkToken());
       // Definire altezza e larghezza del qrcode
-      return "data:image/png;base64, ".concat(Base64Utils.encodeToString(QrCodeUtils.generateQRCodeImage(url, 0, 0)));
+      return "data:image/png;base64, ".concat(Base64Utils.encodeToString(QrCodeUtils.generateQRCodeImage(url, 130, 130)));
     }
 
     

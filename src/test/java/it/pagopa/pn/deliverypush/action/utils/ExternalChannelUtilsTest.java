@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotHandledDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalProgressDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
@@ -25,6 +26,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import static it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient.SAFE_STORAGE_URL_PREFIX;
 
 class ExternalChannelUtilsTest {
 
@@ -70,6 +73,39 @@ class ExternalChannelUtilsTest {
         Assertions.assertEquals(timelineElementInternal, actual);
     }
 
+
+    @Test
+    void getAarKeyOk() {
+        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
+                .generatedAarUrl(SAFE_STORAGE_URL_PREFIX + "testKey")
+                .numberOfPages(1)
+                .build();
+        
+        Mockito.when(timelineService.getTimelineElementDetails(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(Optional.of( aarGenerationDetails ));
+
+        String testIun = "testIun";
+        int recIndex = 0;
+        String aarKey = channelUtils.getAarKey(testIun, recIndex);
+
+        Assertions.assertEquals(aarGenerationDetails.getGeneratedAarUrl().replace(SAFE_STORAGE_URL_PREFIX, ""), aarKey);
+    }
+
+    @Test
+    void getAarKeyNull() {
+        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
+                .generatedAarUrl(null)
+                .numberOfPages(0)
+                .build();
+
+        Mockito.when(timelineService.getTimelineElementDetails(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(Optional.of( aarGenerationDetails ));
+
+        String testIun = "testIun";
+        int recIndex = 0;
+        String aarKey = channelUtils.getAarKey(testIun, recIndex);
+
+        Assertions.assertNull(aarKey);
+    }
+    
     private List<NotificationRecipientInt> buildRecipients() {
         NotificationRecipientInt rec1 = NotificationRecipientInt.builder()
                 .internalId("internalId")

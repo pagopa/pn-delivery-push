@@ -68,7 +68,7 @@ class TimelineUtilsTest {
         Instant eventTimestamp = Instant.parse("2021-09-16T15:24:00.00Z");
         TimelineElementDetailsInt details = buildTimelineElementDetailsInt();
 
-        TimelineElementInternal expected = buildTimelineElementInternal();
+        TimelineElementInternal expected = buildTimelineElementInternal(notification);
         TimelineElementInternal actual = timelineUtils.buildTimeline(notification, category, elementId, eventTimestamp, details);
 
         Assertions.assertEquals(expected, actual);
@@ -453,7 +453,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("Example_IUN_1234_Test_schedule_digital_workflow_1", actual.getElementId()),
+                () -> Assertions.assertEquals("Example_IUN_1234_Test_schedule_digital_workflow_1_source_GENERAL_retry_1", actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -467,7 +467,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("Example_IUN_1234_Test_schedule_analog_workflow_1", actual.getElementId()),
+                () -> Assertions.assertEquals("Example_IUN_1234_Test_schedule_analog_workflow_1_retry_0", actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -572,7 +572,7 @@ class TimelineUtilsTest {
                 .build();
     }
 
-    private TimelineElementInternal buildTimelineElementInternal() {
+    private TimelineElementInternal buildTimelineElementInternal(NotificationInt notification) {
         Instant eventTimestamp = Instant.parse("2021-09-16T15:24:00.00Z");
         NotificationViewedDetailsInt notificationViewedDetailsInt = buildNotificationViewedDetailsInt();
         return TimelineElementInternal.builder()
@@ -583,6 +583,7 @@ class TimelineUtilsTest {
                 .legalFactsIds(Collections.EMPTY_LIST)
                 .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
                 .details(notificationViewedDetailsInt)
+                .notificationSentAt(notification.getSentAt())
                 .build();
     }
 

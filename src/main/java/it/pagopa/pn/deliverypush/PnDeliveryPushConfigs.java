@@ -75,6 +75,8 @@ public class PnDeliveryPushConfigs {
     
     private LegalFacts legalfacts;
 
+    private Integer retentionAttachmentDaysAfterRefinement;
+
     @Data
     public static class Topics {
 

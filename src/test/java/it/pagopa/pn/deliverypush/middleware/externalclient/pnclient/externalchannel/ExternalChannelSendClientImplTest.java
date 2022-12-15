@@ -81,11 +81,12 @@ class ExternalChannelSendClientImplTest {
         NotificationRecipientInt notificationRecipientInt = buildNotificationRecipientInt();
         LegalDigitalAddressInt legalDigitalAddressInt = buildLegalDigitalAddressInt();
         String timelineEventId = "001";
+        String aarKey = "testKey";
 
         Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(ResponseEntity.ok(""));
 
-        assertDoesNotThrow(() -> client.sendLegalNotification(notificationInt, notificationRecipientInt, legalDigitalAddressInt, timelineEventId));
+        assertDoesNotThrow(() -> client.sendLegalNotification(notificationInt, notificationRecipientInt, legalDigitalAddressInt, timelineEventId, aarKey));
     }
 
     @Test
@@ -98,11 +99,12 @@ class ExternalChannelSendClientImplTest {
                 .build();
 
         String timelineEventId = "001";
+        String aarKey = "testKey";
 
         Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(ResponseEntity.ok(""));
 
-        assertDoesNotThrow(() -> client.sendCourtesyNotification(notificationInt, notificationRecipientInt, courtesyDigitalAddressInt, timelineEventId));
+        assertDoesNotThrow(() -> client.sendCourtesyNotification(notificationInt, notificationRecipientInt, courtesyDigitalAddressInt, timelineEventId, aarKey));
     }
 
     @Test
@@ -115,11 +117,12 @@ class ExternalChannelSendClientImplTest {
                 .build();
 
         String timelineEventId = "001";
+        String aarKey = "testKey";
 
         Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(ResponseEntity.ok(""));
 
-        assertDoesNotThrow(() -> client.sendCourtesyNotification(notificationInt, notificationRecipientInt, courtesyDigitalAddressInt, timelineEventId));
+        assertDoesNotThrow(() -> client.sendCourtesyNotification(notificationInt, notificationRecipientInt, courtesyDigitalAddressInt, timelineEventId, aarKey));
     }
 
     private NotificationRecipientInt buildNotificationRecipientInt() {

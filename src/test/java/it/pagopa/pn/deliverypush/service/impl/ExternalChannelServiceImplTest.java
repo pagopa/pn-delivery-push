@@ -79,6 +79,9 @@ class ExternalChannelServiceImplTest {
                 .build();
         
         Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
+
+        String aarKey = "testKey";
+        Mockito.when( externalChannelUtils.getAarKey(Mockito.anyString(), Mockito.anyInt()) ).thenReturn(aarKey);
         
         DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
         int recIndex = 0;
@@ -97,7 +100,7 @@ class ExternalChannelServiceImplTest {
                         .build()
         );
         
-        Mockito.verify(externalChannel).sendLegalNotification(notification, recipient,  digitalDomicile, eventIdExpected);
+        Mockito.verify(externalChannel).sendLegalNotification(notification, recipient,  digitalDomicile, eventIdExpected, aarKey);
         Mockito.verify(externalChannelUtils).addSendDigitalNotificationToTimeline(notification, digitalDomicile, addressSource, recIndex, sentAttemptMade, eventIdExpected);
     }
 
@@ -142,6 +145,9 @@ class ExternalChannelServiceImplTest {
         int recIndex = 0;
         int sentAttemptMade = 0;
 
+        String aarKey = "testKey";
+        Mockito.when( externalChannelUtils.getAarKey(Mockito.anyString(), Mockito.anyInt()) ).thenReturn(aarKey);
+
         //WHEN
         externalChannelService.sendDigitalNotification(notification, digitalDomicile, addressSource, recIndex, sentAttemptMade, true);
 
@@ -156,7 +162,7 @@ class ExternalChannelServiceImplTest {
                         .build()
         );
 
-        Mockito.verify(externalChannel).sendLegalNotification(notification, recipient,  digitalDomicile, eventIdExpected);
+        Mockito.verify(externalChannel).sendLegalNotification(notification, recipient,  digitalDomicile, eventIdExpected, aarKey);
         
         Mockito.verify(digitalWorkFlowUtils).addDigitalDeliveringProgressTimelineElement(
                 eq(notification),
@@ -198,6 +204,9 @@ class ExternalChannelServiceImplTest {
 
         Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
 
+        String aarKey = "testKey";
+        Mockito.when( externalChannelUtils.getAarKey(Mockito.anyString(), Mockito.anyInt()) ).thenReturn(aarKey);
+
         int recIndex = 0;
         String eventId = "eventId";
         
@@ -205,7 +214,7 @@ class ExternalChannelServiceImplTest {
         externalChannelService.sendCourtesyNotification(notification, courtesyDigitalAddress, recIndex, eventId);
 
         //THEN
-        Mockito.verify(externalChannel).sendCourtesyNotification(notification, recipient,  courtesyDigitalAddress, eventId);
+        Mockito.verify(externalChannel).sendCourtesyNotification(notification, recipient,  courtesyDigitalAddress, eventId, aarKey);
     }
 
 }

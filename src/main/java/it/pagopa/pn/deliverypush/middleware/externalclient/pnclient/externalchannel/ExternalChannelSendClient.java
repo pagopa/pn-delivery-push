@@ -8,8 +8,16 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 
 public interface ExternalChannelSendClient {
 
-    void sendLegalNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, LegalDigitalAddressInt digitalAddress, String timelineEventId);
+    void sendLegalNotification(NotificationInt notificationInt,
+                               NotificationRecipientInt recipientInt,
+                               LegalDigitalAddressInt digitalAddress,
+                               String timelineEventId,
+                               String aarKey);
 
-    void sendCourtesyNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, CourtesyDigitalAddressInt digitalAddress, String timelineEventId);
+    void sendCourtesyNotification(NotificationInt notificationInt,
+                                  NotificationRecipientInt recipientInt,
+                                  CourtesyDigitalAddressInt digitalAddress,
+                                  String timelineEventId,
+                                  String aarKey);
 
 }
