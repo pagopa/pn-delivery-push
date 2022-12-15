@@ -60,39 +60,7 @@ class ExternalChannelUtilsTest {
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(t1, notification);
     }
 
-    @Test
-    void addSendSimpleRegisteredLetterToTimeline() {
-        NotificationInt notification = buildNotification();
-        PhysicalAddressInt addressInt = buildPhysicalAddressInt();
-        TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
 
-        Mockito.when(timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(1, notification, addressInt, "001", 1)).thenReturn(timelineElementInternal);
-        channelUtils.addSendSimpleRegisteredLetterToTimeline(notification, addressInt, 1, "001", 1);
-        Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);
-    }
-
-
-    @Test
-    void addSendAnalogNotificationToTimeline() {
-        NotificationInt notification = buildNotification();
-        PhysicalAddressInt addressInt = buildPhysicalAddressInt();
-        TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
-
-        Mockito.when(timelineUtils.buildSendAnalogNotificationTimelineElement(addressInt, 1, notification, Boolean.FALSE, 1, "001", 1)).thenReturn(timelineElementInternal);
-        channelUtils.addSendAnalogNotificationToTimeline(notification, addressInt, 1, Boolean.FALSE, 1, "001", 1);
-        Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);
-    }
-
-    @Test
-    void addPaperNotificationNotHandledToTimeline() {
-        NotificationInt notification = buildNotification();
-        PhysicalAddressInt addressInt = buildPhysicalAddressInt();
-        TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
-
-        Mockito.when(timelineUtils.buildNotHandledTimelineElement(notification, 1, NotHandledDetailsInt.PAPER_MESSAGE_NOT_HANDLED_CODE, NotHandledDetailsInt.PAPER_MESSAGE_NOT_HANDLED_REASON)).thenReturn(timelineElementInternal);
-        channelUtils.addPaperNotificationNotHandledToTimeline(notification, 1);
-        Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);
-    }
 
     @Test
     void getExternalChannelNotificationTimelineElement() {
@@ -148,6 +116,7 @@ class ExternalChannelUtilsTest {
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                         .build())
                 .physicalAddress(new PhysicalAddressInt(
+                        "Galileo Bruno",
                         "Palazzo dell'Inquisizione",
                         "corso Italia 666",
                         "Piano Terra (piatta)",
@@ -170,7 +139,6 @@ class ExternalChannelUtilsTest {
                 .recIndex(1)
                 .physicalAddress(addressInt)
                 .foreignState(addressInt.getForeignState())
-                .numberOfPages(1)
                 .build();
 
         return TimelineElementInternal.builder()

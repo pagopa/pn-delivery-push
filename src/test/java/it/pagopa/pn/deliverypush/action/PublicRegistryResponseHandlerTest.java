@@ -29,8 +29,6 @@ class PublicRegistryResponseHandlerTest {
     @Mock
     private DigitalWorkFlowHandler digitalWorkFlowHandler;
     @Mock
-    private AnalogWorkflowHandler analogWorkflowHandler;
-    @Mock
     private PublicRegistryUtils publicRegistryUtils;
     @Mock
     private NotificationService notificationService;
@@ -40,7 +38,7 @@ class PublicRegistryResponseHandlerTest {
     @BeforeEach
     public void setup() {
         handler = new PublicRegistryResponseHandler(chooseDeliveryHandler,
-                digitalWorkFlowHandler, analogWorkflowHandler,
+                digitalWorkFlowHandler,
                 publicRegistryUtils, notificationService);
     }
 
@@ -135,49 +133,4 @@ class PublicRegistryResponseHandlerTest {
 
     }
 
-    @ExtendWith(MockitoExtension.class)
-    @Test
-    void handleResponse_Sent_Analog() {
-        //GIVEN
-        String iun = "iun01";
-        String taxId = "taxId01";
-        Integer recIndex = 0;
-        
-        PublicRegistryResponse response =
-                PublicRegistryResponse.builder()
-                        .correlationId(iun + "_" + taxId + "1121")
-                        .physicalAddress(
-                                PhysicalAddressInt.builder()
-                                        .address("testaddress")
-                                        .build()
-                        ).build();
-
-
-        PublicRegistryCallDetailsInt publicRegistryCallDetails = PublicRegistryCallDetailsInt.builder()
-                .contactPhase(ContactPhaseInt.SEND_ATTEMPT)
-                .deliveryMode(DeliveryModeInt.ANALOG)
-                .sentAttemptMade(1)
-                .recIndex(recIndex)
-                .build();
-
-        Mockito.when(publicRegistryUtils.getPublicRegistryCallDetail(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(publicRegistryCallDetails);
-
-        NotificationInt notification = NotificationTestBuilder.builder()
-                .withIun(iun)
-                .build();
-        Mockito.when( notificationService.getNotificationByIun(Mockito.anyString()) ).thenReturn(notification);
-        //WHEN
-        handler.handleResponse(response);
-        
-        //THEN
-        Mockito.verify(publicRegistryUtils).addPublicRegistryResponseToTimeline(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.any(PublicRegistryResponse.class));
-
-        ArgumentCaptor<NotificationInt> notificationIntArgumentCaptor = ArgumentCaptor.forClass(NotificationInt.class);
-
-        Mockito.verify(analogWorkflowHandler).handlePublicRegistryResponse(notificationIntArgumentCaptor.capture(), Mockito.anyInt(), Mockito.any(PublicRegistryResponse.class), Mockito.anyInt());
-
-        Assertions.assertEquals(iun, notificationIntArgumentCaptor.getValue().getIun());
-
-    }
 }

@@ -199,11 +199,12 @@ class TimelineUtilsTest {
         PhysicalAddressInt address = buildPhysicalAddressInt();
         String eventId = "001";
         Integer numberOfPages = 1;
+        String productType ="RN_AR";
 
-        TimelineElementInternal actual = timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification, address, eventId, numberOfPages);
+        TimelineElementInternal actual = timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification, address, numberOfPages, productType);
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("001", actual.getElementId()),
+                () -> Assertions.assertEquals("Example_IUN_1234_Test_send_simple_registered_letter_1", actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -233,18 +234,18 @@ class TimelineUtilsTest {
         PhysicalAddressInt address = buildPhysicalAddressInt();
         Integer recIndex = 1;
         NotificationInt notification = buildNotification();
-        boolean investigation = Boolean.FALSE;
+        String relatedRequestId = null;
         int sentAttemptMade = 1;
-        String eventId = "001";
-        Integer numberOfPages = 10;
+        Integer analogCost = 10;
+        String productType ="RN_AR";
 
         TimelineElementInternal actual = timelineUtils.buildSendAnalogNotificationTimelineElement(
-                address, recIndex, notification, investigation, sentAttemptMade, eventId, numberOfPages
+                address, recIndex, notification, relatedRequestId, sentAttemptMade, analogCost, productType
         );
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("001", actual.getElementId()),
+                () -> Assertions.assertEquals("Example_IUN_1234_Test_send_analog_domicile_1_attempt_1", actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -392,7 +393,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("Example_IUN_1234_Test_send_paper_feedback_0_attempt_1", actual.getElementId()),
+                () -> Assertions.assertEquals("Example_IUN_1234_Test_send_analog_feedback_0_attempt_1", actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -544,6 +545,7 @@ class TimelineUtilsTest {
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                         .build())
                 .physicalAddress(new PhysicalAddressInt(
+                        "Galileo Bruno",
                         "Palazzo dell'Inquisizione",
                         "corso Italia 666",
                         "Piano Terra (piatta)",

@@ -1,17 +1,17 @@
 package it.pagopa.pn.deliverypush.middleware.responsehandler;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.exceptions.PnRuntimeException;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.*;
-import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.CourtesyMessageProgressEvent;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.LegalMessageSentDetails;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.SingleStatusUpdate;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
-import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.*;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelProgressEventCat;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-
-import java.util.stream.Collectors;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_UPDATEFAILED;
 
@@ -21,14 +21,11 @@ public class ExternalChannelResponseHandler {
     public static final String EXCEPTION_LEGAL_UPDATE = "Exception legalUpdate";
     public static final String COURTESY_UPDATE_FAILED = "Courtesy update failed";
     private final DigitalWorkFlowExternalChannelResponseHandler digitalWorkFlowExternalChannelResponseHandler;
-    private final AnalogWorkflowHandler analogWorkflowHandler;
     private final TimelineUtils timelineUtils;
 
     public ExternalChannelResponseHandler(DigitalWorkFlowExternalChannelResponseHandler digitalWorkFlowExternalChannelResponseHandler,
-                                          AnalogWorkflowHandler analogWorkflowHandler,
                                           TimelineUtils timelineUtils) {
         this.digitalWorkFlowExternalChannelResponseHandler = digitalWorkFlowExternalChannelResponseHandler;
-        this.analogWorkflowHandler = analogWorkflowHandler;
         this.timelineUtils = timelineUtils;
     }
 
@@ -43,71 +40,10 @@ public class ExternalChannelResponseHandler {
             courtesyUpdate(response.getDigitalCourtesy());
         else if (response.getDigitalLegal() != null)
             legalUpdate(response.getDigitalLegal());
-        else if (response.getAnalogMail() != null)
-            paperUpdate(response.getAnalogMail());
         else
             handleError(response);
     }
 
-    private void paperUpdate(PaperProgressStatusEvent event) {
-        try {
-            ExtChannelAnalogSentResponseInt analogSentResponseInt = mapExternalToInternal(event);
-
-            log.info("Received ExternalChannel paper message event for requestId={} - status={} details={} deliveryfailcause={}",
-                    analogSentResponseInt.getRequestId(), analogSentResponseInt.getStatusCode(), analogSentResponseInt.getStatusDescription(), analogSentResponseInt.getDeliveryFailureCause());
-
-            analogWorkflowHandler.extChannelResponseHandler(analogSentResponseInt);
-        } catch (PnRuntimeException e) {
-            log.error(EXCEPTION_LEGAL_UPDATE, e);
-            throw e;
-        } catch (Exception e) {
-            log.error(EXCEPTION_LEGAL_UPDATE, e);
-            throw new PnInternalException("Paper update failed", ERROR_CODE_DELIVERYPUSH_UPDATEFAILED, e);
-        }
-
-    }
-
-    private ExtChannelAnalogSentResponseInt mapExternalToInternal(PaperProgressStatusEvent event) {
-        ExtChannelAnalogSentResponseInt.ExtChannelAnalogSentResponseIntBuilder builder = ExtChannelAnalogSentResponseInt.builder()
-                .statusCode(event.getStatusCode())
-                .deliveryFailureCause(event.getDeliveryFailureCause())
-                .iun(event.getIun())
-                .requestId(event.getRequestId())
-                .statusDateTime(event.getStatusDateTime().toInstant())
-                .statusDescription(event.getStatusDescription());
-
-        if (event.getDiscoveredAddress() != null) {
-            DiscoveredAddress rawAddress = event.getDiscoveredAddress();
-
-            builder.discoveredAddress(
-                    PhysicalAddressInt.builder()
-                            .address(rawAddress.getAddress())
-                            .addressDetails(rawAddress.getAddressRow2())
-                            .municipality(rawAddress.getCity())
-                            .municipalityDetails(rawAddress.getCity2())
-                            .province(rawAddress.getPr())
-                            .zip(rawAddress.getCap())
-                            .foreignState(rawAddress.getCountry())
-                            .at(rawAddress.getNameRow2())
-                            .build()
-            );
-        }
-
-        if (event.getAttachments() != null) {
-            builder.attachments(
-                    event.getAttachments().stream().map(
-                            att -> AttachmentDetailsInt.builder()
-                                    .date(att.getDate().toInstant())
-                                    .id(att.getId())
-                                    .documentType(att.getDocumentType())
-                                    .url(att.getUrl())
-                                    .build()
-                    ).collect(Collectors.toList())
-            );
-        }
-
-        return builder.build();
-    }
 
     private void legalUpdate(LegalMessageSentDetails event) {
         try {

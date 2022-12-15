@@ -54,26 +54,6 @@ class ExternalChannelSendClientImplTestIT {
         this.externalChannelSendClient.init();
     }
 
-    @Test
-    void sendAnalogNotification() {
-
-        //Given
-        NotificationInt notificationInt = mock(NotificationInt.class);
-        NotificationRecipientInt recipientInt = mock(NotificationRecipientInt.class);
-        PhysicalAddressInt physicalAddress = mock(PhysicalAddressInt.class);
-        String eventid = "rtyuiokjhgvcbnjmk4567890";
-
-        Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
-                .thenReturn(ResponseEntity.ok(""));
-        when(notificationInt.getSender()).thenReturn(new NotificationSenderInt());
-
-        //When
-
-        assertDoesNotThrow(() -> externalChannelSendClient.sendAnalogNotification(notificationInt, recipientInt, physicalAddress, eventid, PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER, "frtghyuiugfdfghj"));
-
-        //Then
-
-    }
 
     @Test
     void sendLegalNotificationPEC() {

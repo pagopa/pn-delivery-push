@@ -8,6 +8,7 @@ import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.UpdateFileMetadataRequest;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.UpdateFileMetadataResponseInt;
@@ -20,7 +21,9 @@ import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.*;
 
@@ -34,6 +37,24 @@ public class AttachmentUtils {
                            PnAuditLogBuilder auditLogBuilder) {
         this.safeStorageService = safeStorageService;
         this.auditLogBuilder = auditLogBuilder;
+    }
+
+    public List<String> getNotificationAttachments(NotificationInt notification, int recIndex) {
+        log.info( "getNotificationAttachments iun={} recIndex={}", notification.getIun(), recIndex);
+
+        // FIXME: devo tornare ANCHE i moduli di pagamento, corretto?
+        List<String> attachments = notification.getDocuments().stream().map(x -> x.getRef().getKey()).collect(Collectors.toList());
+        NotificationPaymentInfoInt notificationPaymentInfoInt = notification.getRecipients().get(recIndex).getPayment();
+        if (notificationPaymentInfoInt != null)
+        {
+            if (notificationPaymentInfoInt.getF24flatRate() != null)
+                attachments.add(notificationPaymentInfoInt.getF24flatRate().getRef().getKey());
+            if (notificationPaymentInfoInt.getF24standard() != null)
+                attachments.add(notificationPaymentInfoInt.getF24standard().getRef().getKey());
+            if (notificationPaymentInfoInt.getPagoPaForm() != null)
+                attachments.add(notificationPaymentInfoInt.getPagoPaForm().getRef().getKey());
+        }
+        return attachments;
     }
     
     public void validateAttachment(NotificationInt notification ) throws PnValidationException {

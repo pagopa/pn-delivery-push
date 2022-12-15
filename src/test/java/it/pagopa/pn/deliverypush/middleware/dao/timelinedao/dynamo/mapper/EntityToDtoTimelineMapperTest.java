@@ -34,7 +34,9 @@ class EntityToDtoTimelineMapperTest {
                                 )
                                 .serviceLevel(ServiceLevelEntity.REGISTERED_LETTER_890)
                                 .sentAttemptMade(0)
-                                .investigation(true)
+                                .relatedRequestId("abc")
+                                .productType("NR_AR")
+                                .analogCost(100)
                                 .build()  
                 )
                 .build();
@@ -52,8 +54,11 @@ class EntityToDtoTimelineMapperTest {
         
         Assertions.assertEquals(entity.getDetails().getRecIndex(), details.getRecIndex());
         Assertions.assertEquals(entity.getDetails().getSentAttemptMade(), details.getSentAttemptMade());
-        Assertions.assertEquals(entity.getDetails().getInvestigation(), details.getInvestigation());
+        Assertions.assertEquals(entity.getDetails().getRelatedRequestId(), details.getRelatedRequestId());
         Assertions.assertEquals(entity.getDetails().getServiceLevel().getValue(), details.getServiceLevel().getValue());
+        Assertions.assertEquals(entity.getDetails().getAnalogCost(), details.getAnalogCost());
+        Assertions.assertEquals(entity.getDetails().getProductType(), details.getProductType());
+        Assertions.assertEquals(entity.getDetails().getAnalogCost(), details.getAnalogCost());
         Assertions.assertEquals(entity.getDetails().getPhysicalAddress().getAddress(), details.getPhysicalAddress().getAddress());
         Assertions.assertEquals(entity.getDetails().getPhysicalAddress().getForeignState(), details.getPhysicalAddress().getForeignState());
     }

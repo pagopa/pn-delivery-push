@@ -227,21 +227,45 @@ public class TimelineUtils {
     }
 
 
-    public TimelineElementInternal buildSendSimpleRegisteredLetterTimelineElement(Integer recIndex, NotificationInt notification, PhysicalAddressInt address,
-                                                                                  String eventId, Integer numberOfPages) {
-        log.debug("buildSendSimpleRegisteredLetterTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
+    public TimelineElementInternal buildPrepareSimpleRegisteredLetterTimelineElement(Integer recIndex, NotificationInt notification, PhysicalAddressInt address,
+                                                                                  String eventId, Integer analogCost) {
+        log.debug("buildPrepareSimpleRegisteredLetterTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
 
         SimpleRegisteredLetterDetailsInt details = SimpleRegisteredLetterDetailsInt.builder()
                 .recIndex(recIndex)
                 .physicalAddress(address)
                 .foreignState(address.getForeignState())
-                .numberOfPages(numberOfPages)
+                .analogCost( analogCost )
+                .build();
+
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
+                .legalFactsIds( Collections.emptyList() );
+
+        return buildTimeline(notification, TimelineElementCategoryInt.PREPARE_SIMPLE_REGISTERED_LETTER, eventId, details , timelineBuilder);
+    }
+
+    public TimelineElementInternal buildSendSimpleRegisteredLetterTimelineElement(Integer recIndex, NotificationInt notification, PhysicalAddressInt address,
+                                                                                  Integer analogCost, String productType) {
+        log.debug("buildSendSimpleRegisteredLetterTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
+
+        String elementId = TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build());
+
+        SimpleRegisteredLetterDetailsInt details = SimpleRegisteredLetterDetailsInt.builder()
+                .recIndex(recIndex)
+                .physicalAddress(address)
+                .foreignState(address.getForeignState())
+                .analogCost( analogCost )
+                .productType(productType)
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds( Collections.emptyList() );
         
-        return buildTimeline(notification, TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER, eventId, details , timelineBuilder);
+        return buildTimeline(notification, TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER, elementId, details , timelineBuilder);
     }
 
 
@@ -260,24 +284,52 @@ public class TimelineUtils {
     }
 
 
-    public TimelineElementInternal buildSendAnalogNotificationTimelineElement(PhysicalAddressInt address, Integer recIndex, NotificationInt notification,
-                                                                              boolean investigation, int sentAttemptMade, String eventId, Integer numberOfPages) {
-        log.debug("buildSendAnalogNotificationTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
+    public TimelineElementInternal buildPrepareAnalogNotificationTimelineElement(PhysicalAddressInt paAddress, Integer recIndex, NotificationInt notification,
+                                                                                 String relatedRequestId, int sentAttemptMade, String eventId, PhysicalAddressInt addressDiscovered) {
+        log.debug("buildPrepareAnalogNotificationTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
         ServiceLevelInt serviceLevel = notification.getPhysicalCommunicationType() != null ? ServiceLevelInt.valueOf(notification.getPhysicalCommunicationType().name()) : null;
-        
+
         SendAnalogDetailsInt details = SendAnalogDetailsInt.builder()
                 .recIndex(recIndex)
-                .physicalAddress(address)
+                .physicalAddress(relatedRequestId==null?paAddress:addressDiscovered)
                 .serviceLevel(serviceLevel)
                 .sentAttemptMade(sentAttemptMade)
-                .investigation(investigation)
-                .numberOfPages( numberOfPages )
+                .relatedRequestId(relatedRequestId)
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds( Collections.emptyList() );
 
-        return buildTimeline(notification, TimelineElementCategoryInt.SEND_ANALOG_DOMICILE, eventId, details, timelineBuilder);
+        return buildTimeline(notification, TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE, eventId, details, timelineBuilder);
+    }
+
+
+    public TimelineElementInternal buildSendAnalogNotificationTimelineElement(PhysicalAddressInt address, Integer recIndex, NotificationInt notification,
+                                                                              String relatedRequestId, int sentAttemptMade, Integer analogCost, String productType) {
+        log.debug("buildSendAnalogNotificationTimelineElement - IUN={} and id={} analogCost={} relatedRequestId={}", notification.getIun(), recIndex, analogCost, relatedRequestId);
+        ServiceLevelInt serviceLevel = notification.getPhysicalCommunicationType() != null ? ServiceLevelInt.valueOf(notification.getPhysicalCommunicationType().name()) : null;
+
+        String elementId = TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .sentAttemptMade(sentAttemptMade)
+                        .build());
+
+        SendAnalogDetailsInt details = SendAnalogDetailsInt.builder()
+                .recIndex(recIndex)
+                .physicalAddress(address)
+                .serviceLevel(serviceLevel)
+                .sentAttemptMade(sentAttemptMade)
+                .relatedRequestId(relatedRequestId)
+                .analogCost(analogCost)
+                .productType(productType)
+                .build();
+
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
+                .legalFactsIds( Collections.emptyList() );
+
+        return buildTimeline(notification, TimelineElementCategoryInt.SEND_ANALOG_DOMICILE, elementId, details, timelineBuilder);
     }
     
     public TimelineElementInternal buildSuccessDigitalWorkflowTimelineElement(NotificationInt notification, Integer recIndex, LegalDigitalAddressInt address,
@@ -405,11 +457,65 @@ public class TimelineUtils {
     }
 
 
+    public TimelineElementInternal buildAnalogProgressTimelineElement(NotificationInt notification, int sentAttemptMade, List<LegalFactsIdInt> legalFactsListEntryIds,
+                                                                           int progressIndex, String eventCode, SendAnalogDetailsInt sendPaperDetails) {
+        log.debug("buildAnalogProgressTimelineElement - iun={} and id={} progressIndex={}", notification.getIun(), sendPaperDetails.getRecIndex(), progressIndex);
+
+        String elementId = TimelineEventId.SEND_ANALOG_PROGRESS.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(sendPaperDetails.getRecIndex())
+                        .sentAttemptMade(sentAttemptMade)
+                        .progressIndex(progressIndex)
+                        .build()
+        );
+
+        SendAnalogProgressDetailsInt details = SendAnalogProgressDetailsInt.builder()
+                .recIndex(sendPaperDetails.getRecIndex())
+                .eventCode(eventCode)
+                .notificationDate(instantNowSupplier.get())
+                .build();
+
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
+                .legalFactsIds( legalFactsListEntryIds );
+
+        return buildTimeline( notification, TimelineElementCategoryInt.SEND_ANALOG_PROGRESS, elementId,
+                details, timelineBuilder );
+    }
+
+    public TimelineElementInternal buildAnalogSuccessAttemptTimelineElement(NotificationInt notification, int sentAttemptMade, List<LegalFactsIdInt> legalFactsListEntryIds,
+                                                                            PhysicalAddressInt newAddress, List<String> errors, SendAnalogDetailsInt sendPaperDetails) {
+        log.debug("buildAnalogSuccessAttemptTimelineElement - iun={} and id={}", notification.getIun(), sendPaperDetails.getRecIndex());
+
+        String elementId = TimelineEventId.SEND_ANALOG_FEEDBACK.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(sendPaperDetails.getRecIndex())
+                        .sentAttemptMade(sentAttemptMade)
+                        .build()
+        );
+
+        SendAnalogFeedbackDetailsInt details = SendAnalogFeedbackDetailsInt.builder()
+                .recIndex(sendPaperDetails.getRecIndex())
+                .physicalAddress(sendPaperDetails.getPhysicalAddress())
+                .sentAttemptMade(sentAttemptMade)
+                .serviceLevel(sendPaperDetails.getServiceLevel())
+                .newAddress(newAddress)
+                .errors(errors)
+                .build();
+
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
+                .legalFactsIds( legalFactsListEntryIds );
+
+        return buildTimeline( notification, TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK, elementId,
+                details, timelineBuilder );
+    }
+
     public TimelineElementInternal buildAnalogFailureAttemptTimelineElement(NotificationInt notification, int sentAttemptMade, List<LegalFactsIdInt> legalFactsListEntryIds,
                                                                             PhysicalAddressInt newAddress, List<String> errors, SendAnalogDetailsInt sendPaperDetails) {
         log.debug("buildAnalogFailureAttemptTimelineElement - iun={} and id={}", notification.getIun(), sendPaperDetails.getRecIndex());
 
-        String elementId = TimelineEventId.SEND_PAPER_FEEDBACK.buildEventId(
+        String elementId = TimelineEventId.SEND_ANALOG_FEEDBACK.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())
                         .recIndex(sendPaperDetails.getRecIndex())
@@ -430,7 +536,7 @@ public class TimelineUtils {
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds( legalFactsListEntryIds );
 
-        return buildTimeline( notification, TimelineElementCategoryInt.SEND_PAPER_FEEDBACK, elementId,
+        return buildTimeline( notification, TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK, elementId,
                 details, timelineBuilder );
     }
 

@@ -16,16 +16,19 @@ public class SendAnalogDetailsInt implements RecipientRelatedTimelineElementDeta
     private PhysicalAddressInt physicalAddress;
     private ServiceLevelInt serviceLevel;
     private Integer sentAttemptMade;
-    private Boolean investigation;
-    private Integer numberOfPages;
+    private String relatedRequestId;
+    private Integer analogCost;
+    private String productType;
 
     public String toLog() {
         return String.format(
-                "recIndex=%d sentAttemptMade=%d investigation=%s physicalAddress=%s",
+                "recIndex=%d sentAttemptMade=%d relatedRequestId=%s physicalAddress=%s analogCost=%d productType=%s",
                 recIndex,
                 sentAttemptMade,
-                investigation,
-                AuditLogUtils.SENSITIVE
+                relatedRequestId,
+                AuditLogUtils.SENSITIVE,
+                analogCost,
+                productType
         );
     }
 }

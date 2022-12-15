@@ -478,7 +478,8 @@ class TimeLineServiceImplTest {
                                 .at("at")
                                 .build()
                 )
-                .investigation(true)
+                .relatedRequestId("abc")
+                 .analogCost(100)
                 .recIndex(0)
                 .sentAttemptMade(0)
                 .build();
