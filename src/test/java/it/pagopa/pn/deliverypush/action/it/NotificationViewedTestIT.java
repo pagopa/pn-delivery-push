@@ -4,6 +4,7 @@ import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
+import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowPaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
@@ -37,7 +38,9 @@ import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClientReactiveImpl;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClientReactiveImpl;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
+import it.pagopa.pn.deliverypush.middleware.responsehandler.PaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
+import it.pagopa.pn.deliverypush.service.PaperChannelService;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -75,6 +78,10 @@ import static org.mockito.ArgumentMatchers.eq;
         ChooseDeliveryModeHandler.class,
         DigitalWorkFlowHandler.class,
         DigitalWorkFlowExternalChannelResponseHandler.class,
+        PaperChannelServiceImpl.class,
+        PaperChannelUtils.class,
+        PaperChannelResponseHandler.class,
+        AnalogWorkflowPaperChannelResponseHandler.class,
         CompletionWorkFlowHandler.class,
         PublicRegistryResponseHandler.class,
         PublicRegistryServiceImpl.class,
@@ -135,6 +142,9 @@ class NotificationViewedTestIT {
     @SpyBean
     private ExternalChannelMock externalChannelMock;
 
+    @SpyBean
+    private PaperChannelMock paperChannelMock;
+
     @Autowired
     private StartWorkflowHandler startWorkflowHandler;
     
@@ -180,6 +190,18 @@ class NotificationViewedTestIT {
     @SpyBean
     private TimelineService timelineService;
 
+    @Autowired
+    private PaperChannelResponseHandler paperChannelResponseHandler;
+
+    @Autowired
+    private AnalogWorkflowPaperChannelResponseHandler analogWorkflowPaperChannelResponseHandler;
+
+    @Autowired
+    private PaperChannelService paperChannelService;
+
+    @Autowired
+    private PaperChannelUtils paperChannelUtils;
+
     @BeforeEach
     public void setup() {
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
@@ -219,7 +241,7 @@ class NotificationViewedTestIT {
                 .withDigitalDomicile(digitalDomicile)
                 .withPhysicalAddress(
                         PhysicalAddressBuilder.builder()
-                                .withAddress("_Via Nuova")
+                                .withAddress(ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS + "_Via Nuova")
                                 .build()
                 )
                 .build();

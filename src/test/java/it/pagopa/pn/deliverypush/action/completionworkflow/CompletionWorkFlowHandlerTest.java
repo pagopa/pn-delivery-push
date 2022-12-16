@@ -99,11 +99,11 @@ class CompletionWorkFlowHandlerTest {
         handler.completionDigitalWorkflow(notification, recIndex, notificationDate, recipient.getDigitalDomicile(), EndWorkflowStatus.FAILURE);
 
         //THEN
-        Mockito.verify(registeredLetterSender).sendSimpleRegisteredLetter(notification, recIndex);
+        Mockito.verify(registeredLetterSender).prepareSimpleRegisteredLetter(notification, recIndex);
         
         Mockito.verify(timelineUtils).buildFailureDigitalWorkflowTimelineElement(notification, recIndex, legalFactId);
         
-        Mockito.verify(refinementScheduler).scheduleDigitalRefinement(notification, recIndex, notificationDate, EndWorkflowStatus.FAILURE);
+        // il flusso termina con la prepare, la completition è asincrona
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -131,7 +131,7 @@ class CompletionWorkFlowHandlerTest {
         //THEN
         
         //Viene verificato che non sia stato inviato nessun evento ad external channel
-        Mockito.verify(registeredLetterSender, Mockito.times(0)).sendSimpleRegisteredLetter(Mockito.any(NotificationInt.class), Mockito.anyInt());
+        Mockito.verify(registeredLetterSender, Mockito.times(0)).prepareSimpleRegisteredLetter(Mockito.any(NotificationInt.class), Mockito.anyInt());
         
         //Viene verificato che non sia stato schedulato il perfezionamento
         Mockito.verify(refinementScheduler, Mockito.times(0)).scheduleDigitalRefinement(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.any(Instant.class), Mockito.any(EndWorkflowStatus.class));
@@ -170,7 +170,7 @@ class CompletionWorkFlowHandlerTest {
         //THEN
 
         //Viene verificato che non sia stato inviato nessun evento ad external channel
-        Mockito.verify(registeredLetterSender, Mockito.times(0)).sendSimpleRegisteredLetter(Mockito.any(NotificationInt.class), Mockito.anyInt());
+        Mockito.verify(registeredLetterSender, Mockito.times(0)).prepareSimpleRegisteredLetter(Mockito.any(NotificationInt.class), Mockito.anyInt());
 
         //Viene verificato che non sia stato schedulato il perfezionamento
         Mockito.verify(refinementScheduler, Mockito.times(0)).scheduleDigitalRefinement(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.any(Instant.class), Mockito.any(EndWorkflowStatus.class));

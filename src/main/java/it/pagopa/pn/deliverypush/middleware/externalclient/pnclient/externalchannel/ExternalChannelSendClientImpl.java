@@ -5,16 +5,13 @@ import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.ApiClient;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.api.DigitalCourtesyMessagesApi;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.api.DigitalLegalMessagesApi;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.api.PaperMessagesApi;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.DigitalCourtesyMailRequest;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.DigitalCourtesySmsRequest;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.DigitalNotificationRequest;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.PaperEngageRequest;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
@@ -44,11 +41,10 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
     private final RestTemplate restTemplate;
     private DigitalLegalMessagesApi digitalLegalMessagesApi;
     private DigitalCourtesyMessagesApi digitalCourtesyMessagesApi;
-    private PaperMessagesApi paperMessagesApi;
     private final LegalFactGenerator legalFactGenerator;
 
     public ExternalChannelSendClientImpl(@Qualifier("withOffsetDateTimeFormatter") RestTemplate restTemplate,
-                                         PnDeliveryPushConfigs cfg, 
+                                         PnDeliveryPushConfigs cfg,
                                          LegalFactGenerator legalFactGenerator) {
         this.legalFactGenerator = legalFactGenerator;
         this.cfg = cfg;
@@ -59,7 +55,6 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
     public void init(){
         this.digitalLegalMessagesApi = new DigitalLegalMessagesApi(newApiClient());
         this.digitalCourtesyMessagesApi = new DigitalCourtesyMessagesApi(newApiClient());
-        this.paperMessagesApi = new PaperMessagesApi(newApiClient());
     }
 
     private ApiClient newApiClient()
@@ -72,38 +67,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
 
 
     @Override
-    public void sendAnalogNotification(NotificationInt notificationInt, NotificationRecipientInt recipientInt, PhysicalAddressInt physicalAddress, String timelineEventId, PhysicalAddressInt.ANALOG_TYPE analogType, String aarKey) {
-        log.info("[enter] sendAnalogNotification address={} recipient={} requestId={} aarkey={}", LogUtils.maskGeneric(physicalAddress.getAddress()), LogUtils.maskGeneric(recipientInt.getDenomination()), timelineEventId, aarKey);
-
-        PaperEngageRequest paperEngageRequest = new PaperEngageRequest();
-        paperEngageRequest.setRequestId(timelineEventId);
-        paperEngageRequest.setIun(notificationInt.getIun());
-        paperEngageRequest.setProductType(getProductType(analogType, physicalAddress.getForeignState()));
-        paperEngageRequest.setRequestPaId(notificationInt.getSender().getPaId());
-        paperEngageRequest.setClientRequestTimeStamp(OffsetDateTime.now(ZoneOffset.UTC));
-        paperEngageRequest.setPrintType(PRINT_TYPE_BN_FRONTE_RETRO);
-
-        // nome e indirizzo destinatario
-        paperEngageRequest.setReceiverName(recipientInt.getDenomination());
-
-        paperEngageRequest.setReceiverAddress(physicalAddress.getAddress());
-        paperEngageRequest.setReceiverAddressRow2(physicalAddress.getAddressDetails());
-        paperEngageRequest.setReceiverCap(physicalAddress.getZip());
-        paperEngageRequest.setReceiverCity(physicalAddress.getMunicipality());
-        paperEngageRequest.setReceiverCity2(physicalAddress.getMunicipalityDetails());
-        paperEngageRequest.setReceiverCountry(physicalAddress.getForeignState());
-        paperEngageRequest.setReceiverPr(physicalAddress.getProvince());
-
-        // uso la key recuperata dalla timeline la key riferita all'avviso AAR da spedire tramite raccomandata
-        paperEngageRequest.setAttachmentUri(aarKey);
-
-        paperMessagesApi.sendPaperEngageRequest(timelineEventId, cfg.getExternalchannelCxId(), paperEngageRequest);
-
-        log.info("[exit] sendAnalogNotification address={} recipient={} requestId={} aarkey={}", LogUtils.maskGeneric(physicalAddress.getAddress()), LogUtils.maskGeneric(recipientInt.getDenomination()), timelineEventId, aarKey);
-    }
-
-    @Override
-    public void sendLegalNotification(NotificationInt notificationInt, 
+    public void sendLegalNotification(NotificationInt notificationInt,
                                       NotificationRecipientInt recipientInt,
                                       LegalDigitalAddressInt digitalAddress,
                                       String timelineEventId,
@@ -135,8 +99,8 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
     }
 
 
-    private void sendNotificationPEC(String requestId, 
-                                     NotificationInt notificationInt, 
+    private void sendNotificationPEC(String requestId,
+                                     NotificationInt notificationInt,
                                      NotificationRecipientInt recipientInt,
                                      DigitalAddressInt digitalAddress,
                                      String aarKey)
@@ -159,7 +123,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
             digitalNotificationRequestDto.setMessageText(mailBody);
             digitalNotificationRequestDto.setSubjectText(mailSubj);
             digitalNotificationRequestDto.setAttachmentUrls(List.of(aarKey));
-            
+
             if (StringUtils.hasText(cfg.getExternalchannelSenderPec()))
                 digitalNotificationRequestDto.setSenderDigitalAddress(cfg.getExternalchannelSenderPec());
 
@@ -232,35 +196,6 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
         } catch (Exception e) {
             throw new PnInternalException("error sending SMS notification", ERROR_CODE_DELIVERYPUSH_SENDSMSNOTIFICATIONFAILED, e);
         }
-    }
-
-
-    private String getProductType(PhysicalAddressInt.ANALOG_TYPE serviceLevelType, String country)
-    {
-        /*
-          Tipo prodotto di cui viene chiesto il recapito:
-          - AR: Raccomandata Andata e Ritorno,
-          - 890: Recapito a norma della legge 890/1982,
-          - RI: Raccomandata Internazionale,
-          - RS: Raccomandata Semplice (per Avviso di mancato Recapito).
-         */
-
-        // la RI se il country è non vuoto e diverso da it
-        if (StringUtils.hasText(country) && !country.trim().equalsIgnoreCase("it"))
-        {
-            return "RI";
-        }
-
-        switch (serviceLevelType){
-            case REGISTERED_LETTER_890:
-                return "890";
-            case AR_REGISTERED_LETTER:
-                return "AR";
-            case SIMPLE_REGISTERED_LETTER:
-                return "RS";
-        }
-
-        return  null;
     }
 
 }

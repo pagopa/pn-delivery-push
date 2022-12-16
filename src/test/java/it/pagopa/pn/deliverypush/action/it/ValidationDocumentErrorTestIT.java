@@ -5,6 +5,7 @@ import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
+import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowPaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
@@ -28,9 +29,12 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClientReactiveImpl;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClientReactiveImpl;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
+import it.pagopa.pn.deliverypush.middleware.responsehandler.PaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
+import it.pagopa.pn.deliverypush.service.PaperChannelService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
@@ -60,6 +64,10 @@ import java.util.Collections;
         ChooseDeliveryModeHandler.class,
         DigitalWorkFlowHandler.class,
         DigitalWorkFlowExternalChannelResponseHandler.class,
+        PaperChannelServiceImpl.class,
+        PaperChannelUtils.class,
+        PaperChannelResponseHandler.class,
+        AnalogWorkflowPaperChannelResponseHandler.class,
         CompletionWorkFlowHandler.class,
         PublicRegistryResponseHandler.class,
         PublicRegistryServiceImpl.class,
@@ -123,6 +131,9 @@ class ValidationDocumentErrorTestIT {
     @SpyBean
     private ExternalChannelMock externalChannelMock;
 
+    @SpyBean
+    private PaperChannelMock paperChannelMock;
+
     @Autowired
     private SafeStorageClientMock safeStorageClientMock;
 
@@ -147,6 +158,18 @@ class ValidationDocumentErrorTestIT {
 
     @Autowired
     private PnDataVaultClientMock pnDataVaultClientMock;
+
+    @Autowired
+    private PaperChannelResponseHandler paperChannelResponseHandler;
+
+    @Autowired
+    private AnalogWorkflowPaperChannelResponseHandler analogWorkflowPaperChannelResponseHandler;
+
+    @Autowired
+    private PaperChannelService paperChannelService;
+
+    @Autowired
+    private PaperChannelUtils paperChannelUtils;
 
     @BeforeEach
     public void setup() {
@@ -218,7 +241,7 @@ class ValidationDocumentErrorTestIT {
                                 .iun(iun)
                                 .recIndex(recIndex)
                                 .build())).isPresent());
-        
+
         Mockito.verify(externalChannelMock, Mockito.times(0)).sendLegalNotification(
                 Mockito.any(NotificationInt.class),
                 Mockito.any(NotificationRecipientInt.class),
@@ -226,7 +249,7 @@ class ValidationDocumentErrorTestIT {
                 Mockito.anyString(),
                 Mockito.anyString()
         );
-        Mockito.verify(externalChannelMock, Mockito.times(0)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+        Mockito.verify(paperChannelMock, Mockito.times(0)).send(Mockito.any(PaperChannelSendRequest.class));
     }
 
 

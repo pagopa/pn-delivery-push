@@ -67,8 +67,8 @@ public class CompletionWorkFlowHandler {
                     if( Boolean.FALSE.equals( mvpParameterConsumer.isMvp( senderTaxId ) ) ){
                         String legalFactIdFailure = pecDeliveryWorkflowLegalFactsGenerator.generatePecDeliveryWorkflowLegalFact(notification, recIndex, status, completionWorkflowDate);
                         timelineService.addTimelineElement(timelineUtils.buildFailureDigitalWorkflowTimelineElement(notification, recIndex, legalFactIdFailure), notification);
-                        registeredLetterSender.sendSimpleRegisteredLetter(notification, recIndex);
-                        refinementScheduler.scheduleDigitalRefinement(notification, recIndex, completionWorkflowDate, status);
+                        registeredLetterSender.prepareSimpleRegisteredLetter(notification, recIndex);
+
                     } else {
                         String legalFactIdFailure = pecDeliveryWorkflowLegalFactsGenerator.generatePecDeliveryWorkflowLegalFact(notification, recIndex, status, completionWorkflowDate);
                         timelineService.addTimelineElement(timelineUtils.buildFailureDigitalWorkflowTimelineElement(notification, recIndex, legalFactIdFailure), notification);

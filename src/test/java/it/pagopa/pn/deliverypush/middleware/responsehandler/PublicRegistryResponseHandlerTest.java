@@ -25,8 +25,6 @@ class PublicRegistryResponseHandlerTest {
 
     private DigitalWorkFlowHandler digitalWorkFlowHandler;
 
-    private AnalogWorkflowHandler analogWorkflowHandler;
-
     private PublicRegistryUtils publicRegistryUtils;
 
     private NotificationService notificationService;
@@ -37,11 +35,10 @@ class PublicRegistryResponseHandlerTest {
     void setup() {
         chooseDeliveryHandler = Mockito.mock(ChooseDeliveryModeHandler.class);
         digitalWorkFlowHandler = Mockito.mock(DigitalWorkFlowHandler.class);
-        analogWorkflowHandler = Mockito.mock(AnalogWorkflowHandler.class);
         publicRegistryUtils = Mockito.mock(PublicRegistryUtils.class);
         notificationService = Mockito.mock(NotificationService.class);
 
-        handler = new PublicRegistryResponseHandler(chooseDeliveryHandler, digitalWorkFlowHandler, analogWorkflowHandler, publicRegistryUtils, notificationService);
+        handler = new PublicRegistryResponseHandler(chooseDeliveryHandler, digitalWorkFlowHandler, publicRegistryUtils, notificationService);
     }
 
     @Test
@@ -81,23 +78,6 @@ class PublicRegistryResponseHandlerTest {
         Mockito.verify(digitalWorkFlowHandler, Mockito.times(1)).handleGeneralAddressResponse(response, notificationInt, publicRegistryCallDetails);
     }
 
-    @Test
-    void handleResponseSendAttemptAnalog() {
-        String iun = "iun01";
-        String taxId = "taxId01";
-        String correlationId = "iun01_taxId011121";
-        int recIndex = 1;
-        NotificationInt notificationInt = buildNotificationInt(iun);
-        PublicRegistryResponse response = buildPublicRegistryResponse(iun, taxId);
-        PublicRegistryCallDetailsInt publicRegistryCallDetails = buildPublicRegistryCallDetailsInt(ContactPhaseInt.SEND_ATTEMPT, recIndex, DeliveryModeInt.ANALOG);
-
-        Mockito.when(notificationService.getNotificationByIun(iun)).thenReturn(notificationInt);
-        Mockito.when(publicRegistryUtils.getPublicRegistryCallDetail(iun, correlationId)).thenReturn(publicRegistryCallDetails);
-
-        handler.handleResponse(response);
-
-        Mockito.verify(analogWorkflowHandler, Mockito.times(1)).handlePublicRegistryResponse(notificationInt, recIndex, response, publicRegistryCallDetails.getSentAttemptMade());
-    }
 
     private NotificationInt buildNotificationInt(String iun) {
         return NotificationInt.builder()

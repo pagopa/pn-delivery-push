@@ -6,7 +6,7 @@ import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.service.ExternalChannelService;
+import it.pagopa.pn.deliverypush.service.PaperChannelService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,7 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class RegisteredLetterSenderTest {
     private NotificationUtils notificationUtils;
     @Mock  
-    private ExternalChannelService externalChannelService;
+    private PaperChannelService paperChannelService;
     
     private RegisteredLetterSender registeredLetterSender;
 
@@ -26,7 +26,7 @@ class RegisteredLetterSenderTest {
         notificationUtils = new NotificationUtils();
         registeredLetterSender = new RegisteredLetterSender(
                 notificationUtils,
-                externalChannelService
+                paperChannelService
                 );
     }
     
@@ -49,11 +49,11 @@ class RegisteredLetterSenderTest {
         int recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
         
         //WHEN
-        registeredLetterSender.sendSimpleRegisteredLetter( notification, recIndex );
+        registeredLetterSender.prepareSimpleRegisteredLetter( notification, recIndex );
 
         //THEN
-        Mockito.verify(externalChannelService).sendNotificationForRegisteredLetter(
-                Mockito.any(NotificationInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyInt());
+        Mockito.verify(paperChannelService).prepareAnalogNotificationForSimpleRegisteredLetter(
+                Mockito.any(NotificationInt.class), Mockito.anyInt());
     }
 
     @Test
@@ -70,10 +70,10 @@ class RegisteredLetterSenderTest {
         int recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //WHEN
-        registeredLetterSender.sendSimpleRegisteredLetter( notification, recIndex );
+        registeredLetterSender.prepareSimpleRegisteredLetter( notification, recIndex );
 
         //THEN
-        Mockito.verify(externalChannelService, Mockito.never()).sendNotificationForRegisteredLetter(
-                Mockito.any(NotificationInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyInt());
+        Mockito.verify(paperChannelService, Mockito.never()).prepareAnalogNotificationForSimpleRegisteredLetter(
+                Mockito.any(NotificationInt.class), Mockito.anyInt());
     }
 }

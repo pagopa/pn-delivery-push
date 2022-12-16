@@ -4,6 +4,7 @@ import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
+import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowPaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
@@ -14,6 +15,7 @@ import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowUtils;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
+import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationCost;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
@@ -25,6 +27,7 @@ import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForR
 import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -36,7 +39,9 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnD
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClientReactiveImpl;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
+import it.pagopa.pn.deliverypush.middleware.responsehandler.PaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
+import it.pagopa.pn.deliverypush.service.PaperChannelService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.*;
@@ -72,6 +77,10 @@ import static org.awaitility.Awaitility.await;
         ChooseDeliveryModeHandler.class,
         DigitalWorkFlowHandler.class,
         DigitalWorkFlowExternalChannelResponseHandler.class,
+        PaperChannelServiceImpl.class,
+        PaperChannelUtils.class,
+        PaperChannelResponseHandler.class,
+        AnalogWorkflowPaperChannelResponseHandler.class,
         CompletionWorkFlowHandler.class,
         PublicRegistryResponseHandler.class,
         PublicRegistryServiceImpl.class,
@@ -130,6 +139,9 @@ class DigitalTestMultiRecipientIT {
     private ExternalChannelMock externalChannelMock;
 
     @SpyBean
+    private PaperChannelMock paperChannelMock;
+
+    @SpyBean
     private CompletionWorkFlowHandler completionWorkflow;
 
     @SpyBean
@@ -186,6 +198,18 @@ class DigitalTestMultiRecipientIT {
     @Autowired
     private PnExternalRegistryClient pnExternalRegistryClient;
 
+    @Autowired
+    private PaperChannelResponseHandler paperChannelResponseHandler;
+
+    @Autowired
+    private AnalogWorkflowPaperChannelResponseHandler analogWorkflowPaperChannelResponseHandler;
+
+    @Autowired
+    private PaperChannelService paperChannelService;
+
+    @Autowired
+    private PaperChannelUtils paperChannelUtils;
+
     @BeforeEach
     public void setup() {
 
@@ -216,6 +240,10 @@ class DigitalTestMultiRecipientIT {
     */
 
         //Primo Recipient
+        PhysicalAddressInt paPhysicalAddress1 = PhysicalAddressBuilder.builder()
+                .withAddress(ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
+                .build();
+
         LegalDigitalAddressInt platformAddress1 = LegalDigitalAddressInt.builder()
                 .address("test1@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -231,9 +259,14 @@ class DigitalTestMultiRecipientIT {
                 .withTaxId(taxId01)
                 .withInternalId("ANON_"+taxId01)
                 .withDigitalDomicile(digitalDomicile1)
+                .withPhysicalAddress(paPhysicalAddress1)
                 .build();
 
         //Secondo recipient
+        PhysicalAddressInt paPhysicalAddress2 = PhysicalAddressBuilder.builder()
+                .withAddress(ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova2")
+                .build();
+
         LegalDigitalAddressInt platformAddress2 = LegalDigitalAddressInt.builder()
                 .address("test2@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -254,6 +287,7 @@ class DigitalTestMultiRecipientIT {
                 .withTaxId(taxId02)
                 .withInternalId("ANON_"+taxId02)
                 .withDigitalDomicile(digitalDomicile2)
+                .withPhysicalAddress(paPhysicalAddress2)
                 .build();
 
         List<NotificationRecipientInt> recipients = new ArrayList<>();
@@ -601,6 +635,10 @@ class DigitalTestMultiRecipientIT {
     */
 
         //Primo Recipient
+        PhysicalAddressInt paPhysicalAddress1 = PhysicalAddressBuilder.builder()
+                .withAddress(ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
+                .build();
+
         LegalDigitalAddressInt platformAddress1 = LegalDigitalAddressInt.builder()
                 .address("test1@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -616,9 +654,14 @@ class DigitalTestMultiRecipientIT {
                 .withTaxId(taxId01)
                 .withInternalId("ANON_"+taxId01)
                 .withDigitalDomicile(digitalDomicile1)
+                .withPhysicalAddress(paPhysicalAddress1)
                 .build();
 
         //Secondo recipient
+        PhysicalAddressInt paPhysicalAddress2 = PhysicalAddressBuilder.builder()
+                .withAddress(ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova2")
+                .build();
+
         LegalDigitalAddressInt platformAddress2 = LegalDigitalAddressInt.builder()
                 .address("test2@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -634,6 +677,7 @@ class DigitalTestMultiRecipientIT {
                 .withTaxId(taxId02)
                 .withInternalId("ANON_"+taxId02)
                 .withDigitalDomicile(digitalDomicile2)
+                .withPhysicalAddress(paPhysicalAddress2)
                 .build();
 
         List<NotificationRecipientInt> recipients = new ArrayList<>();
@@ -739,6 +783,11 @@ class DigitalTestMultiRecipientIT {
     */
 
         //Primo Recipient
+
+        PhysicalAddressInt paPhysicalAddress1 = PhysicalAddressBuilder.builder()
+                .withAddress(ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
+                .build();
+
         LegalDigitalAddressInt platformAddress1 = LegalDigitalAddressInt.builder()
                 .address("test1@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -754,9 +803,14 @@ class DigitalTestMultiRecipientIT {
                 .withTaxId(taxId01)
                 .withInternalId("ANON_"+taxId01)
                 .withDigitalDomicile(digitalDomicile1)
+                .withPhysicalAddress(paPhysicalAddress1)
                 .build();
 
         //Secondo recipient
+        PhysicalAddressInt paPhysicalAddress2 = PhysicalAddressBuilder.builder()
+                .withAddress(ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova2")
+                .build();
+
         LegalDigitalAddressInt platformAddress2 = LegalDigitalAddressInt.builder()
                 .address("test2@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -772,6 +826,7 @@ class DigitalTestMultiRecipientIT {
                 .withTaxId(taxId02)
                 .withInternalId("ANON_"+taxId02)
                 .withDigitalDomicile(digitalDomicile2)
+                .withPhysicalAddress(paPhysicalAddress2)
                 .build();
 
         List<NotificationRecipientInt> recipients = new ArrayList<>();
@@ -879,6 +934,10 @@ class DigitalTestMultiRecipientIT {
     */
 
         //Primo Recipient
+        PhysicalAddressInt paPhysicalAddress1 = PhysicalAddressBuilder.builder()
+                .withAddress(ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
+                .build();
+
         LegalDigitalAddressInt platformAddress1 = LegalDigitalAddressInt.builder()
                 .address("test1@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -903,9 +962,14 @@ class DigitalTestMultiRecipientIT {
                 .withTaxId(taxId01)
                 .withInternalId("ANON_"+taxId01)
                 .withDigitalDomicile(digitalDomicile1)
+                .withPhysicalAddress(paPhysicalAddress1)
                 .build();
 
         //Secondo recipient
+        PhysicalAddressInt paPhysicalAddress2 = PhysicalAddressBuilder.builder()
+                .withAddress(ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova2")
+                .build();
+
         LegalDigitalAddressInt platformAddress2 = LegalDigitalAddressInt.builder()
                 .address("test2@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -921,6 +985,7 @@ class DigitalTestMultiRecipientIT {
                 .withTaxId(taxId02)
                 .withInternalId("ANON_"+taxId02)
                 .withDigitalDomicile(digitalDomicile2)
+                .withPhysicalAddress(paPhysicalAddress2)
                 .build();
 
         List<NotificationRecipientInt> recipients = new ArrayList<>();
@@ -1034,6 +1099,10 @@ class DigitalTestMultiRecipientIT {
     */
 
         //Primo Recipient
+        PhysicalAddressInt paPhysicalAddress1 = PhysicalAddressBuilder.builder()
+                .withAddress(ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
+                .build();
+
         LegalDigitalAddressInt platformAddress1 = LegalDigitalAddressInt.builder()
                 .address("test1@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -1058,9 +1127,14 @@ class DigitalTestMultiRecipientIT {
                 .withTaxId(taxId01)
                 .withInternalId("ANON_"+taxId01)
                 .withDigitalDomicile(digitalDomicile1)
+                .withPhysicalAddress(paPhysicalAddress1)
                 .build();
 
         //Secondo recipient
+        PhysicalAddressInt paPhysicalAddress2 = PhysicalAddressBuilder.builder()
+                .withAddress(ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova2")
+                .build();
+
         LegalDigitalAddressInt platformAddress2 = LegalDigitalAddressInt.builder()
                 .address("test2@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -1076,6 +1150,7 @@ class DigitalTestMultiRecipientIT {
                 .withTaxId(taxId02)
                 .withInternalId("ANON_"+taxId02)
                 .withDigitalDomicile(digitalDomicile2)
+                .withPhysicalAddress(paPhysicalAddress2)
                 .build();
 
         List<NotificationRecipientInt> recipients = new ArrayList<>();

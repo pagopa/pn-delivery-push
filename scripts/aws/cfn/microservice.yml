@@ -319,6 +319,7 @@ Resources:
         ContainerEnvEntry2: !Sub 'PN_DELIVERYPUSH_TOPICS_NEWNOTIFICATIONS=${DeliveryPushInputsQueueName}'
         ContainerEnvEntry3: !Sub 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILPFTEMPLATE=${PhysicalPersonPortalUrl}notifica?aar=%s'
         ContainerEnvEntry4: !Sub 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILPGTEMPLATE=${LegalPersonPortalUrl}notifica?aar=%s'
+        ContainerEnvEntry5: !Sub 'PN_DELIVERYPUSH_PAPERCHANNELBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry6: !Sub 'PN_DELIVERYPUSH_TOPICS_FROMEXTERNALCHANNEL=${ExternalChannelsOutputsQueueName}'
         ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}'
         ContainerEnvEntry8: !Sub 'PN_DELIVERYPUSH_TOPICS_EXECUTEDACTIONS=${DoneActionsQueueName}'
