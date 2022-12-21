@@ -356,8 +356,6 @@ Resources:
         ContainerEnvEntry39: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_NOTIFICATIONNONVISIBILITYTIME=${NotificationNonVisibilityTime}'
         ContainerEnvEntry40: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_TIMETOADDINNONVISIBILITYTIME=${TimeToAddInNonVisibilityTimeCase}'
         ContainerEnvEntry41: !Sub 'PN_DELIVERYPUSH_RETENTION_ATTACHMENT_DAYS_AFTER_REFINEMENT=${RetentionAttachmentDaysAfterRefinement}'
-
-
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*,/delivery-progresses/*'
         ECSClusterName: !Ref ECSClusterName
@@ -373,9 +371,6 @@ Resources:
   DeliveryPushMicroserviceTaskManagedPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
-      #PolicyName: !Sub '${ProjectName}-delivery-push-CustomTaskPolicy'
-      #Roles:
-      #  - !GetAtt DeliveryPushMicroservice.Outputs.TaskRoleName
       PolicyDocument:
         Version: 2012-10-17
         Statement:
