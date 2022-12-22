@@ -295,6 +295,10 @@ Parameters:
     Type: String
     Description: delivery push actions done queue age alarm ARN
 
+  AlbSecurityGroup:
+    Type: String
+    Description: 'Application load balancer security group'
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   
@@ -366,6 +370,7 @@ Resources:
         LoadbalancerRulePriority: !Ref MicroserviceNumber
         CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
         TaskRoleManagedPolicyArn: !Ref DeliveryPushMicroserviceTaskManagedPolicy
+        AlbSecurityGroup: !Ref AlbSecurityGroup
 
   # Grant operational rights to PN-Delivery-push microservice microservice
   DeliveryPushMicroserviceTaskManagedPolicy:
