@@ -4,6 +4,7 @@ import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -11,6 +12,7 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
+@Builder
 @EqualsAndHashCode
 public class PaperChannelSendRequest {
     private final NotificationInt notificationInt;
