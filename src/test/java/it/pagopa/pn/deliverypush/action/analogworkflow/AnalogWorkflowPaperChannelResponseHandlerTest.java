@@ -2,9 +2,6 @@ package it.pagopa.pn.deliverypush.action.analogworkflow;
 
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
-import it.pagopa.pn.deliverypush.action.completionworkflow.RefinementScheduler;
-import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
-import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.PaperChannelUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -24,13 +21,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.Instant;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class AnalogWorkflowPaperChannelResponseHandlerTest {
 
@@ -47,25 +40,25 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
     @Mock
     private PublicRegistryService publicRegistryService;
     @Mock
-    private InstantNowSupplier instantNowSupplier;
-    @Mock
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
     @Mock
     private AnalogWorkflowHandler analogWorkflowHandler;
     @Mock
     private PaperChannelUtils paperChannelUtils;
     @Mock
-    private RefinementScheduler refinementScheduler;
-
+    private CompletionWorkFlowHandler completionWorkFlowHandler;
+    
     @BeforeEach
     public void setup() {
-        analogWorkflowPaperChannelResponseHandler = new AnalogWorkflowPaperChannelResponseHandler(notificationService,
+        analogWorkflowPaperChannelResponseHandler = new AnalogWorkflowPaperChannelResponseHandler(
+                notificationService,
                 paperChannelService,
                 completionWorkFlow,
                 analogWorkflowUtils,
-                instantNowSupplier,
                 pnDeliveryPushConfigs,
-                analogWorkflowHandler, paperChannelUtils, refinementScheduler);
+                analogWorkflowHandler,
+                paperChannelUtils,
+                completionWorkFlowHandler);
     }
 
     @ExtendWith(MockitoExtension.class)

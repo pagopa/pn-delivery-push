@@ -6,9 +6,7 @@ import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
-import it.pagopa.pn.deliverypush.action.completionworkflow.RefinementScheduler;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
-import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action.utils.PaperChannelUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -40,29 +38,27 @@ public class AnalogWorkflowPaperChannelResponseHandler {
     private final PaperChannelService paperChannelService;
     private final CompletionWorkFlowHandler completionWorkFlow;
     private final AnalogWorkflowUtils analogWorkflowUtils;
-    private final InstantNowSupplier instantNowSupplier;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private final AnalogWorkflowHandler analogWorkflowHandler;
     private final PaperChannelUtils paperChannelUtils;
-    private final RefinementScheduler refinementScheduler;
-
+    private final CompletionWorkFlowHandler completionWorkFlowHandler;
 
     public AnalogWorkflowPaperChannelResponseHandler(NotificationService notificationService,
                                                      PaperChannelService paperChannelService,
                                                      CompletionWorkFlowHandler completionWorkFlow,
                                                      AnalogWorkflowUtils analogWorkflowUtils,
-                                                     InstantNowSupplier instantNowSupplier,
                                                      PnDeliveryPushConfigs pnDeliveryPushConfigs,
-                                                     AnalogWorkflowHandler analogWorkflowHandler, PaperChannelUtils paperChannelUtils, RefinementScheduler refinementScheduler) {
+                                                     AnalogWorkflowHandler analogWorkflowHandler,
+                                                     PaperChannelUtils paperChannelUtils, 
+                                                     CompletionWorkFlowHandler completionWorkFlowHandler) {
         this.notificationService = notificationService;
         this.paperChannelService = paperChannelService;
         this.completionWorkFlow = completionWorkFlow;
         this.analogWorkflowUtils = analogWorkflowUtils;
-        this.instantNowSupplier = instantNowSupplier;
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
         this.analogWorkflowHandler = analogWorkflowHandler;
         this.paperChannelUtils = paperChannelUtils;
-        this.refinementScheduler = refinementScheduler;
+        this.completionWorkFlowHandler = completionWorkFlowHandler;
     }
 
     public void paperChannelPrepareResponseHandler(PrepareEventInt response) {
@@ -92,9 +88,10 @@ public class AnalogWorkflowPaperChannelResponseHandler {
                 log.info("paperChannelPrepareResponseHandler prepare response is for simple registered letter, sending it and scheduling refinement iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
 
                 this.paperChannelService.sendSimpleRegisteredLetter(notification, recIndex, requestId, receiverAddress, productType);
+                
                 // se l'invio non da errore, vuol dire che la notifica si intende perfezionata
                 // La notifica è stata accettata correttamente da paper channel il workflow digitale può considerarsi concluso con successo (anche se formalmente fallito)
-                refinementScheduler.scheduleDigitalRefinement(notification, recIndex, instantNowSupplier.get(), EndWorkflowStatus.FAILURE);
+                completionWorkFlowHandler.completeDigitalFailureWorkflow(notification, recIndex);
             }
             else
                 throw new PnInternalException("Unexpected detail of timelineElement timeline=" + requestId, ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED);

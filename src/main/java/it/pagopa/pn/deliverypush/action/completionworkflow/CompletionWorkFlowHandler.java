@@ -65,8 +65,6 @@ public class CompletionWorkFlowHandler {
                     String senderTaxId = notification.getSender().getPaTaxId();
 
                     if( Boolean.FALSE.equals( mvpParameterConsumer.isMvp( senderTaxId ) ) ){
-                        String legalFactIdFailure = pecDeliveryWorkflowLegalFactsGenerator.generatePecDeliveryWorkflowLegalFact(notification, recIndex, status, completionWorkflowDate);
-                        timelineService.addTimelineElement(timelineUtils.buildFailureDigitalWorkflowTimelineElement(notification, recIndex, legalFactIdFailure), notification);
                         registeredLetterSender.prepareSimpleRegisteredLetter(notification, recIndex);
 
                     } else {
@@ -131,5 +129,15 @@ public class CompletionWorkFlowHandler {
                 ),
                 notification
         );
+    }
+
+    public void completeDigitalFailureWorkflow(NotificationInt notification, int recIndex) {
+        EndWorkflowStatus status = EndWorkflowStatus.FAILURE;
+        
+        String legalFactIdFailure = pecDeliveryWorkflowLegalFactsGenerator.generatePecDeliveryWorkflowLegalFact(notification, recIndex, status, null);
+        timelineService.addTimelineElement(timelineUtils.buildFailureDigitalWorkflowTimelineElement(notification, recIndex, legalFactIdFailure), notification);
+        
+        //TODO Per essere sicuri di schedulare con la data creazione atto opponibile a terzi, bisogna restituire il booleano da add timeline e nel caso in cui la timeline sia skippata, recuperare l'elemento di timeline relativo e utilizzare quella data come data da passare al schedule refinement
+        refinementScheduler.scheduleDigitalRefinement(notification, recIndex, Instant.now(), status);
     }
 }
