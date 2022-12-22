@@ -33,7 +33,7 @@ public class RefinementHandler {
         if( !isNotificationAlreadyViewed ){
             log.info("Handle refinement - iun {} id {}", iun, recIndex);
             NotificationInt notification = notificationService.getNotificationByIun(iun);
-            Integer notificationCost = notificationProcessCostService.getNotificationProcessCost(notification, recIndex);
+            Integer notificationCost = notificationProcessCostService.getNotificationProcessCost(notification.getIun(), recIndex).block();
             log.debug("Notification cost is {} - iun {} id {}",notificationCost, iun, recIndex);
 
             attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement());

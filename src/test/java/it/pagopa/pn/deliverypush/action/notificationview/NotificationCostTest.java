@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Mono;
 
 import java.util.Optional;
 
@@ -50,7 +51,7 @@ class NotificationCostTest {
         //WHEN
         Integer cost = notificationCost.getNotificationCost(notification, recIndex);
         //THEN
-        Mockito.verify(notificationProcessCostService, Mockito.never()).getNotificationProcessCost(notification, recIndex);
+        Mockito.verify(notificationProcessCostService, Mockito.never()).getNotificationProcessCost(notification.getIun(), recIndex);
         Assertions.assertNull(cost);
     }
 
@@ -66,12 +67,12 @@ class NotificationCostTest {
 
         Mockito.when(timelineService.getTimelineElement(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.empty());
         int expectedCost = 10;
-        Mockito.when(notificationProcessCostService.getNotificationProcessCost(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(expectedCost);
+        Mockito.when(notificationProcessCostService.getNotificationProcessCost(Mockito.any(String.class), Mockito.anyInt())).thenReturn(Mono.just(expectedCost));
 
         //WHEN
         Integer cost = notificationCost.getNotificationCost(notification, recIndex);
         //THEN
-        Mockito.verify(notificationProcessCostService).getNotificationProcessCost(notification, recIndex);
+        Mockito.verify(notificationProcessCostService).getNotificationProcessCost(notification.getIun(), recIndex);
         Assertions.assertEquals(expectedCost, cost);
     }
 }

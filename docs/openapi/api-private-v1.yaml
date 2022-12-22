@@ -446,8 +446,9 @@ components:
       in: path
       required: true
       schema:
-        type: string
-        
+        type: integer
+        format: int32
+  
   schemas:
 
     ############################################################################################
@@ -591,7 +592,8 @@ components:
         amount:
           description: costo notificazione in euro cents
           example: '200'
-          type: number
+          type: integer
+          format: int32
         refinementDate:
           description: data perfezionamento notifica (decorrenza termini o presa visione)
           type: string

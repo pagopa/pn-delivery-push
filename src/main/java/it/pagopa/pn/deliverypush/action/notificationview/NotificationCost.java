@@ -37,7 +37,7 @@ public class NotificationCost {
          * in quel caso il costo della notifica sarà sull'elemento di timeline corrispondente
          */
         if( timelineService.getTimelineElement(notification.getIun(), elementId).isEmpty() ){
-            notificationCost = notificationProcessCostService.getNotificationProcessCost(notification, recIndex);
+            notificationCost = notificationProcessCostService.getNotificationProcessCost(notification.getIun(), recIndex).block();
         }
         return notificationCost;
     }
