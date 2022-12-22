@@ -55,7 +55,7 @@ class PaperChannelSendClientImplTest {
 
     @Test
     @ExtendWith(SpringExtension.class)
-    void prepare() {
+    void prepare890() {
         String requestId = "requestId";
         String path = "/paper-channel-private/v1/b2b/paper-deliveries-prepare/{requestId}"
                 .replace("{requestId}", requestId);
@@ -81,6 +81,74 @@ class PaperChannelSendClientImplTest {
                 );
         
         
+        assertDoesNotThrow( ()  ->{
+                    client.prepare(paperChannelPrepareRequest);
+                }
+        );
+    }
+
+    @Test
+    @ExtendWith(SpringExtension.class)
+    void prepareAR() {
+        String requestId = "requestId";
+        String path = "/paper-channel-private/v1/b2b/paper-deliveries-prepare/{requestId}"
+                .replace("{requestId}", requestId);
+
+        PaperChannelPrepareRequest paperChannelPrepareRequest = PaperChannelPrepareRequest.builder()
+                .analogType(PhysicalAddressInt.ANALOG_TYPE.AR_REGISTERED_LETTER)
+                .requestId(requestId)
+                .paAddress(PhysicalAddressInt.builder()
+                        .address("test")
+                        .build())
+                .recipientInt(NotificationRecipientTestBuilder.builder().build())
+                .notificationInt(NotificationTestBuilder.builder().build())
+                .attachments(List.of("Att"))
+                .build();
+
+        new MockServerClient("localhost", 9998)
+                .when(request()
+                        .withMethod("POST")
+                        .withPath(path)
+                )
+                .respond(response()
+                        .withStatusCode(200)
+                );
+
+
+        assertDoesNotThrow( ()  ->{
+                    client.prepare(paperChannelPrepareRequest);
+                }
+        );
+    }
+
+    @Test
+    @ExtendWith(SpringExtension.class)
+    void prepareSimpleRegisteredLetter() {
+        String requestId = "requestId";
+        String path = "/paper-channel-private/v1/b2b/paper-deliveries-prepare/{requestId}"
+                .replace("{requestId}", requestId);
+
+        PaperChannelPrepareRequest paperChannelPrepareRequest = PaperChannelPrepareRequest.builder()
+                .analogType(PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER)
+                .requestId(requestId)
+                .paAddress(PhysicalAddressInt.builder()
+                        .address("test")
+                        .build())
+                .recipientInt(NotificationRecipientTestBuilder.builder().build())
+                .notificationInt(NotificationTestBuilder.builder().build())
+                .attachments(List.of("Att"))
+                .build();
+
+        new MockServerClient("localhost", 9998)
+                .when(request()
+                        .withMethod("POST")
+                        .withPath(path)
+                )
+                .respond(response()
+                        .withStatusCode(200)
+                );
+
+
         assertDoesNotThrow( ()  ->{
                     client.prepare(paperChannelPrepareRequest);
                 }
@@ -114,7 +182,7 @@ class PaperChannelSendClientImplTest {
         
         PaperChannelSendRequest paperChannelSendRequest = PaperChannelSendRequest.builder()
                 .requestId(requestId)
-                .productType(ProductTypeEnum.RI_RS.getValue())
+                .productType(ProductTypeEnum.RN_890.getValue())
                 .arAddress(PhysicalAddressInt.builder()
                         .address("test")
                         .build())
