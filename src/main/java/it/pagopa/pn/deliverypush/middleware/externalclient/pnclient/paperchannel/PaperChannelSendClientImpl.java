@@ -3,10 +3,7 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchanne
 import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.ApiClient;
 import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.api.PaperMessagesApi;
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.AnalogAddress;
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.PrepareRequest;
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.SendRequest;
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.SendResponse;
+import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.*;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import lombok.extern.slf4j.Slf4j;
@@ -51,6 +48,7 @@ public class PaperChannelSendClientImpl implements PaperChannelSendClient {
 
         PrepareRequest prepareRequest = new PrepareRequest();
         prepareRequest.setRequestId(paperChannelPrepareRequest.getRequestId());
+        prepareRequest.setIun(paperChannelPrepareRequest.getNotificationInt().getIun());
         prepareRequest.setPrintType(PRINT_TYPE_BN_FRONTE_RETRO);
         prepareRequest.setProposalProductType(getProductType(paperChannelPrepareRequest.getAnalogType()));
         prepareRequest.setReceiverAddress(mapInternalToExternal(paperChannelPrepareRequest.getPaAddress()));
@@ -60,11 +58,12 @@ public class PaperChannelSendClientImpl implements PaperChannelSendClient {
 
         prepareRequest.setRelatedRequestId(paperChannelPrepareRequest.getRelatedRequestId());
         prepareRequest.setDiscoveredAddress(mapInternalToExternal(paperChannelPrepareRequest.getDiscoveredAddress()));
+        
+        log.info("iun={} the request for prepare is {}", paperChannelPrepareRequest.getNotificationInt().getIun() , prepareRequest);
         paperMessagesApi.sendPaperPrepareRequest(paperChannelPrepareRequest.getRequestId(), prepareRequest);
 
         log.info("[exit] prepare iun={}  address={} recipient={} requestId={} attachments={}", paperChannelPrepareRequest.getNotificationInt().getIun(), LogUtils.maskGeneric(paperChannelPrepareRequest.getPaAddress().getAddress()), LogUtils.maskGeneric(paperChannelPrepareRequest.getRecipientInt().getDenomination()), paperChannelPrepareRequest.getRequestId(), paperChannelPrepareRequest.getAttachments());
     }
-
 
 
     @Override
@@ -72,9 +71,10 @@ public class PaperChannelSendClientImpl implements PaperChannelSendClient {
         log.info("[enter] send iun={} address={} recipient={} requestId={} attachments={}", paperChannelSendRequest.getNotificationInt().getIun(), LogUtils.maskGeneric(paperChannelSendRequest.getReceiverAddress().getAddress()), LogUtils.maskGeneric(paperChannelSendRequest.getRecipientInt().getDenomination()), paperChannelSendRequest.getRequestId(), paperChannelSendRequest.getAttachments());
 
         SendRequest sendRequest = new SendRequest();
+        sendRequest.setIun(paperChannelSendRequest.getNotificationInt().getIun());
         sendRequest.setRequestId(paperChannelSendRequest.getRequestId());
         sendRequest.setPrintType(PRINT_TYPE_BN_FRONTE_RETRO);
-        sendRequest.setProductType(SendRequest.ProductTypeEnum.fromValue(paperChannelSendRequest.getProductType()));
+        sendRequest.setProductType(ProductTypeEnum.fromValue(paperChannelSendRequest.getProductType()));
         sendRequest.setReceiverAddress(mapInternalToExternal(paperChannelSendRequest.getReceiverAddress()));
         sendRequest.setAttachmentUrls(paperChannelSendRequest.getAttachments());
         sendRequest.setReceiverFiscalCode(paperChannelSendRequest.getRecipientInt().getTaxId());
@@ -83,8 +83,10 @@ public class PaperChannelSendClientImpl implements PaperChannelSendClient {
         sendRequest.setSenderAddress(mapInternalToExternal(paperChannelSendRequest.getSenderAddress()));
         sendRequest.setRequestPaId(paperChannelSendRequest.getNotificationInt().getSender().getPaTaxId());
 
-        SendResponse response = paperMessagesApi.sendPaperSendRequest(paperChannelSendRequest.getRequestId(), sendRequest);
+        log.info("iun={} the request for send is {}", paperChannelSendRequest.getNotificationInt().getIun() , sendRequest);
 
+        SendResponse response = paperMessagesApi.sendPaperSendRequest(paperChannelSendRequest.getRequestId(), sendRequest);
+    
         log.info("[exit] send iun={} address={} recipient={} requestId={} attachments={} amount={}", paperChannelSendRequest.getNotificationInt().getIun(), LogUtils.maskGeneric(paperChannelSendRequest.getReceiverAddress().getAddress()), LogUtils.maskGeneric(paperChannelSendRequest.getRecipientInt().getDenomination()), paperChannelSendRequest.getRequestId(), paperChannelSendRequest.getAttachments(), response.getAmount());
         return response.getAmount();
     }
@@ -106,7 +108,7 @@ public class PaperChannelSendClientImpl implements PaperChannelSendClient {
         return analogAddress;
     }
 
-    private PrepareRequest.ProposalProductTypeEnum getProductType(PhysicalAddressInt.ANALOG_TYPE serviceLevelType)
+    private ProposalTypeEnum getProductType(PhysicalAddressInt.ANALOG_TYPE serviceLevelType)
     {
         /*
           Tipo prodotto di cui viene chiesto il recapito:
@@ -118,11 +120,11 @@ public class PaperChannelSendClientImpl implements PaperChannelSendClient {
 
         switch (serviceLevelType){
             case REGISTERED_LETTER_890:
-                return PrepareRequest.ProposalProductTypeEnum._890;
+                return ProposalTypeEnum._890;
             case AR_REGISTERED_LETTER:
-                return PrepareRequest.ProposalProductTypeEnum.AR;
+                return ProposalTypeEnum.AR;
             case SIMPLE_REGISTERED_LETTER:
-                return PrepareRequest.ProposalProductTypeEnum.RS;
+                return ProposalTypeEnum.RS;
         }
 
         return  null;

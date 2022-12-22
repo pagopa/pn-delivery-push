@@ -1,10 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.responsehandler;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.AnalogAddress;
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.PaperChannelUpdate;
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.PrepareEvent;
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.SendEvent;
+import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.*;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowPaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -44,7 +41,7 @@ class PaperChannelResponseHandlerTest {
         Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
 
         PrepareEvent prepareEvent = new PrepareEvent();
-        prepareEvent.setStatusCode(PrepareEvent.StatusCodeEnum.OK);
+        prepareEvent.setStatusCode(StatusCodeEnum.OK);
         prepareEvent.setStatusDateTime(instant.atOffset(ZoneOffset.UTC));
         prepareEvent.setRequestId("iun_event_idx_0");
         prepareEvent.setStatusDetail("ok");
@@ -74,7 +71,7 @@ class PaperChannelResponseHandlerTest {
         Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
 
         PrepareEvent prepareEvent = new PrepareEvent();
-        prepareEvent.setStatusCode(PrepareEvent.StatusCodeEnum.KOUNREACHABLE);
+        prepareEvent.setStatusCode(StatusCodeEnum.KOUNREACHABLE);
         prepareEvent.setStatusDateTime(instant.atOffset(ZoneOffset.UTC));
         prepareEvent.setRequestId("iun_event_idx_0");
         prepareEvent.setStatusDetail("ko");
@@ -103,7 +100,7 @@ class PaperChannelResponseHandlerTest {
         Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
 
         PrepareEvent prepareEvent = new PrepareEvent();
-        prepareEvent.setStatusCode(PrepareEvent.StatusCodeEnum.PROGRESS);
+        prepareEvent.setStatusCode(StatusCodeEnum.PROGRESS);
         prepareEvent.setStatusDateTime(instant.atOffset(ZoneOffset.UTC));
         prepareEvent.setRequestId("iun_event_idx_0");
         prepareEvent.setStatusDetail("progress");
@@ -192,7 +189,7 @@ class PaperChannelResponseHandlerTest {
         Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
 
         PrepareEvent prepareEvent = new PrepareEvent();
-        prepareEvent.setStatusCode(PrepareEvent.StatusCodeEnum.PROGRESS);
+        prepareEvent.setStatusCode(StatusCodeEnum.PROGRESS);
         prepareEvent.setStatusDateTime(instant.atOffset(ZoneOffset.UTC));
         prepareEvent.setRequestId("iun_event_idx_0");
         prepareEvent.setStatusDetail("progress");
@@ -213,7 +210,7 @@ class PaperChannelResponseHandlerTest {
         Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
 
         PrepareEvent prepareEvent = new PrepareEvent();
-        prepareEvent.setStatusCode(PrepareEvent.StatusCodeEnum.PROGRESS);
+        prepareEvent.setStatusCode(StatusCodeEnum.PROGRESS);
         prepareEvent.setStatusDateTime(instant.atOffset(ZoneOffset.UTC));
         prepareEvent.setRequestId("iun_event_idx_0");
         prepareEvent.setStatusDetail("progress");

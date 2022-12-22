@@ -1,9 +1,6 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.AnalogAddress;
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.PaperChannelUpdate;
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.PrepareEvent;
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.SendEvent;
+import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.*;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelPrepareRequest;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
@@ -129,7 +126,7 @@ public class PaperChannelMock implements PaperChannelSendClient {
         }
 
         singleStatusUpdate.setPrepareEvent(prepareEvent);
-        prepareEvent.setStatusCode(PrepareEvent.StatusCodeEnum.valueOf(status));
+        prepareEvent.setStatusCode(StatusCodeEnum.valueOf(status));
         
         paperChannelResponseHandler.paperChannelResponseReceiver(singleStatusUpdate);
     }

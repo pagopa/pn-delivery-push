@@ -176,7 +176,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         // recupero gli allegati
         List<String> attachments = retrieveAttachments(notification, recIndex, analogType== PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER);
 
-        paperChannelSendClient.prepare(new PaperChannelPrepareRequest(notification,
+        paperChannelSendClient.prepare (new PaperChannelPrepareRequest(notification,
                 notificationUtils.getRecipientFromIndex(notification, recIndex),
                 receiverAddress, eventId, analogType,
                 attachments, relatedRequestId, discoveredAddress));
