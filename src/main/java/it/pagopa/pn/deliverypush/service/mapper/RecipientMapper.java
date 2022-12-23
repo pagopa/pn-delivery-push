@@ -39,6 +39,7 @@ public class RecipientMapper {
             notificationRecIntBuilder
                     .physicalAddress(
                             PhysicalAddressInt.builder()
+                                    .fullname(recipient.getDenomination())
                                     .at(physicalAddress.getAt())
                                     .address(physicalAddress.getAddress())
                                     .addressDetails(physicalAddress.getAddressDetails())
@@ -47,6 +48,7 @@ public class RecipientMapper {
                                     .municipalityDetails(physicalAddress.getMunicipalityDetails())
                                     .province(physicalAddress.getProvince())
                                     .zip(physicalAddress.getZip())
+                                    .fullname(recipient.getDenomination())
                                     .build()
                     );
         }

@@ -17,13 +17,15 @@ class NotificationMapperTest {
 
     @Test
     void internalToExternal() {
-
+        String denomination = "Mario rossi";
         NotificationInt expected = NotificationTestBuilder.builder()
                 .withIun("IUN01")
                 .withNotificationRecipient( NotificationRecipientTestBuilder.builder()
                         .withTaxId("TAXID01")
+                        .withDenomination(denomination)
                         .withPhysicalAddress(PhysicalAddressBuilder.builder()
-                                .withAddress(" Via Nuova")
+                                .withAddress("Via Nuova")
+                                .withFullName(denomination)
                                 .build())
                         .build())
                 .build();

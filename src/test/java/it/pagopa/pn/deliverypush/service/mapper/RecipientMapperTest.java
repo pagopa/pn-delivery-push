@@ -39,11 +39,12 @@ class RecipientMapperTest {
     }
 
     private NotificationRecipientInt buildNotificationRecipientInt() {
+        String denomination = "003";
         return NotificationRecipientInt.builder()
                 .recipientType(RecipientTypeInt.PF)
                 .taxId("001")
                 .internalId("002")
-                .denomination("003")
+                .denomination(denomination)
                 .digitalDomicile(
                         LegalDigitalAddressInt.builder()
                                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -51,6 +52,7 @@ class RecipientMapperTest {
                                 .build()
                 )
                 .physicalAddress(PhysicalAddressInt.builder()
+                        .fullname(denomination)
                         .at("003")
                         .address("001")
                         .addressDetails("002")
