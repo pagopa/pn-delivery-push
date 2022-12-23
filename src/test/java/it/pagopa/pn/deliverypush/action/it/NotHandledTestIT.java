@@ -4,6 +4,7 @@ import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
+import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowPaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
@@ -40,9 +41,12 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClientReactiveImpl;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClientReactiveImpl;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
+import it.pagopa.pn.deliverypush.middleware.responsehandler.PaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
+import it.pagopa.pn.deliverypush.service.PaperChannelService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
@@ -79,6 +83,10 @@ import static org.awaitility.Awaitility.with;
         ChooseDeliveryModeHandler.class,
         DigitalWorkFlowHandler.class,
         DigitalWorkFlowExternalChannelResponseHandler.class,
+        PaperChannelServiceImpl.class,
+        PaperChannelUtils.class,
+        PaperChannelResponseHandler.class,
+        AnalogWorkflowPaperChannelResponseHandler.class,
         CompletionWorkFlowHandler.class,
         PublicRegistryResponseHandler.class,
         PublicRegistryServiceImpl.class,
@@ -140,6 +148,9 @@ class NotHandledTestIT {
     private LegalFactGenerator legalFactGenerator;
 
     @SpyBean
+    private PaperChannelMock paperChannelMock;
+
+    @SpyBean
     private ExternalChannelMock externalChannelMock;
 
     @SpyBean
@@ -186,6 +197,18 @@ class NotHandledTestIT {
 
     @Autowired
     private StatusUtils statusUtils;
+
+    @Autowired
+    private PaperChannelResponseHandler paperChannelResponseHandler;
+
+    @Autowired
+    private AnalogWorkflowPaperChannelResponseHandler analogWorkflowPaperChannelResponseHandler;
+
+    @Autowired
+    private PaperChannelService paperChannelService;
+
+    @Autowired
+    private PaperChannelUtils paperChannelUtils;
     
     @BeforeEach
     public void setup() {
@@ -264,8 +287,7 @@ class NotHandledTestIT {
                 Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString(), Mockito.anyString());
 
         //Viene verificato che la registered letter non sia stata inviata
-        Mockito.verify(externalChannelMock, Mockito.times(0)).sendAnalogNotification(Mockito.any(NotificationInt.class), 
-                Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+        Mockito.verify(paperChannelMock, Mockito.times(0)).send(Mockito.any(PaperChannelSendRequest.class));
         
         //Viene verificato che l'elemento di timeline relativo all'invio della registered letter non sia presente
         String eventIdRegisteredLetter = TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER.buildEventId(
@@ -382,8 +404,7 @@ class NotHandledTestIT {
                 Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString(), Mockito.anyString());
 
         //Viene verificato che la registered letter non sia stata inviata
-        Mockito.verify(externalChannelMock, Mockito.times(0)).sendAnalogNotification(Mockito.any(NotificationInt.class),
-                Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+        Mockito.verify(paperChannelMock, Mockito.times(0)).send(Mockito.any(PaperChannelSendRequest.class));
 
         //Viene verificato che l'elemento di timeline relativo all'invio della registered letter non sia presente
         String eventIdRegisteredLetter = TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER.buildEventId(
@@ -491,7 +512,7 @@ class NotHandledTestIT {
         TestUtils.checkSendCourtesyAddresses(iun, recIndex, listCourtesyAddress, timelineService, externalChannelMock);
         
         //Viene verificato che non ci sia stato nessun invio verso externalChannel
-        Mockito.verify(externalChannelMock, Mockito.times(0)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+        Mockito.verify(paperChannelMock, Mockito.times(0)).send(Mockito.any(PaperChannelSendRequest.class));
 
         checkNotSendAnalogNotification(iun, recIndex);
 
@@ -600,7 +621,7 @@ class NotHandledTestIT {
                 Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString(), Mockito.anyString());
 
         //Viene verificato che non ci sia stato nessun invio verso externalChannel
-        Mockito.verify(externalChannelMock, Mockito.times(0)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+        Mockito.verify(paperChannelMock, Mockito.times(0)).send(Mockito.any(PaperChannelSendRequest.class));
 
         checkNotSendAnalogNotification(iun, recIndex);
 

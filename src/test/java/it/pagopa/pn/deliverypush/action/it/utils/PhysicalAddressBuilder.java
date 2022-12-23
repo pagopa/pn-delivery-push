@@ -4,7 +4,8 @@ package it.pagopa.pn.deliverypush.action.it.utils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 
 public class PhysicalAddressBuilder {
-    String address;
+    private String address;
+    private String fullName;
 
     public static PhysicalAddressBuilder builder() {
         return new PhysicalAddressBuilder();
@@ -15,8 +16,14 @@ public class PhysicalAddressBuilder {
         return this;
     }
 
+    public PhysicalAddressBuilder withFullName(String fullName) {
+        this.fullName = fullName;
+        return this;
+    }
+
     public PhysicalAddressInt build() {
         return PhysicalAddressInt.builder()
+                .fullname(fullName)
                 .at("Presso")
                 .address(address)
                 .zip("00100")

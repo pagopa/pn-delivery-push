@@ -73,14 +73,27 @@ public enum TimelineEventId {
         }
     },
     
-    SEND_PAPER_FEEDBACK() {
+    SEND_ANALOG_FEEDBACK() {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
-                    "%s_send_paper_feedback_%d_attempt_%d",
+                    "%s_send_analog_feedback_%d_attempt_%d",
                     eventId.getIun(),
                     eventId.getRecIndex(),
                     eventId.getSentAttemptMade()
+            );
+        }
+    },
+
+    SEND_ANALOG_PROGRESS() {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return String.format(
+                    "%s_send_analog_progress_%d_attempt_%d_progidx_%s",
+                    eventId.getIun(),
+                    eventId.getRecIndex(),
+                    eventId.getSentAttemptMade(),
+                    eventId.getProgressIndex()<0?"":eventId.getProgressIndex()  // se passo un progressindex negativo, è perchè non voglio che venga inserito nell'eventid. Usato per cercare con l'inizia per
             );
         }
     },
@@ -99,6 +112,17 @@ public enum TimelineEventId {
         }
     },
 
+    PREPARE_SIMPLE_REGISTERED_LETTER() {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return String.format(
+                    "%s_prepare_simple_registered_letter_%d",
+                    eventId.getIun(),
+                    eventId.getRecIndex()
+            );
+        }
+    },
+
     SEND_SIMPLE_REGISTERED_LETTER() {
         @Override
         public String buildEventId(EventId eventId) {
@@ -106,6 +130,19 @@ public enum TimelineEventId {
                     "%s_send_simple_registered_letter_%d",
                     eventId.getIun(),
                     eventId.getRecIndex()
+            );
+        }
+    },
+
+    PREPARE_ANALOG_DOMICILE() {
+        @Override
+        public String buildEventId(EventId eventId) {
+            int sendAttempt = eventId.getSentAttemptMade();
+            return String.format(
+                    "%s_prepare_analog_domicile_%d_attempt_%d",
+                    eventId.getIun(),
+                    eventId.getRecIndex(),
+                    sendAttempt
             );
         }
     },

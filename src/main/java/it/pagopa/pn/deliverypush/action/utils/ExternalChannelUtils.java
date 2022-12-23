@@ -38,33 +38,6 @@ public class ExternalChannelUtils {
         );
     }
 
-    public void addSendSimpleRegisteredLetterToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex,
-                                                        String eventId, Integer numberOfPages) {
-        addTimelineElement(
-                timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification, physicalAddress, eventId, numberOfPages),
-                notification
-        );
-    }
-
-    public void addSendAnalogNotificationToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex, boolean investigation,
-                                                    int sentAttemptMade, String eventId, Integer numberOfPages) {
-        addTimelineElement(
-                timelineUtils.buildSendAnalogNotificationTimelineElement(physicalAddress, recIndex, notification, investigation, sentAttemptMade, eventId, numberOfPages),
-                notification
-        );
-    }
-
-    public void addPaperNotificationNotHandledToTimeline(NotificationInt notification, Integer recIndex) {
-        addTimelineElement(
-                timelineUtils.buildNotHandledTimelineElement(
-                        notification,
-                        recIndex,
-                        NotHandledDetailsInt.PAPER_MESSAGE_NOT_HANDLED_CODE,
-                        NotHandledDetailsInt.PAPER_MESSAGE_NOT_HANDLED_REASON
-                ),
-                notification
-        );
-    }
 
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
         timelineService.addTimelineElement(element, notification);

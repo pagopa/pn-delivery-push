@@ -98,7 +98,7 @@ class AnalogWorkflowUtilsTest {
                         .elementId("1")
                         .timestamp(Instant.now())
                         .paId("1")
-                        .category(TimelineElementCategoryInt.SEND_PAPER_FEEDBACK)
+                        .category(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK)
                         .legalFactsIds(legalFactsIds)
                         .details(timelineElementDetailsInt.getDetails())
                         .build()
@@ -139,7 +139,6 @@ class AnalogWorkflowUtilsTest {
                                 .at("at")
                                 .build()
                 )
-                .investigation(true)
                 .recIndex(0)
                 .sentAttemptMade(0)
                 .build();

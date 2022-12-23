@@ -4,6 +4,7 @@ import it.pagopa.pn.commons.utils.DateFormatUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock;
+import it.pagopa.pn.deliverypush.action.it.mockbean.PaperChannelMock;
 import it.pagopa.pn.deliverypush.action.it.mockbean.SafeStorageClientMock;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
@@ -24,6 +25,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -113,8 +115,8 @@ public class TestUtils {
 
         Optional<SendAnalogDetailsInt> sendPaperDetailsOpt = timelineService.getTimelineElementDetails(iun, eventIdFirstSend,  SendAnalogDetailsInt.class);
         Assertions.assertTrue(sendPaperDetailsOpt.isPresent());
-         SendAnalogDetailsInt sendPaperDetails = sendPaperDetailsOpt.get();
-        Assertions.assertEquals(physicalAddress, sendPaperDetails.getPhysicalAddress());
+        SendAnalogDetailsInt sendPaperDetails = sendPaperDetailsOpt.get();
+        Assertions.assertEquals(physicalAddress.getAddress(), sendPaperDetails.getPhysicalAddress().getAddress());
     }
 
     public static void checkNotSendPaperToExtChannel(String iun, Integer recIndex, int sendAttempt, TimelineService timelineService) {
@@ -395,16 +397,15 @@ public class TestUtils {
         Assertions.assertEquals(schedulingDate.toInstant(), refinementDate);
     }
 
-    public static void checkSendRegisteredLetter(NotificationRecipientInt recipient, String iun, Integer recIndex, ExternalChannelMock externalChannelMock, TimelineService timelineService) {
-        ArgumentCaptor<PhysicalAddressInt> pnPhysicalAddressArgumentCaptor = ArgumentCaptor.forClass(PhysicalAddressInt.class);
-        ArgumentCaptor<NotificationInt> pnNotificationIntArgumentCaptor = ArgumentCaptor.forClass(NotificationInt.class);
 
-        Mockito.verify(externalChannelMock).sendAnalogNotification(pnNotificationIntArgumentCaptor.capture(), Mockito.any(NotificationRecipientInt.class), pnPhysicalAddressArgumentCaptor.capture(), Mockito.anyString(), Mockito.any(), Mockito.anyString());
-        PhysicalAddressInt physicalAddress = pnPhysicalAddressArgumentCaptor.getValue();
-        NotificationInt notificationInt = pnNotificationIntArgumentCaptor.getValue();
+    public static void checkSendRegisteredLetter(NotificationRecipientInt recipient, String iun, Integer recIndex, PaperChannelMock paperChannelMock, TimelineService timelineService) {
+        ArgumentCaptor<PaperChannelSendRequest> paperChannelSendRequestArgumentCaptor = ArgumentCaptor.forClass(PaperChannelSendRequest.class);
 
-        Assertions.assertEquals(iun, notificationInt.getIun());
-        Assertions.assertEquals(recipient.getPhysicalAddress().getAddress(), physicalAddress.getAddress());
+        Mockito.verify(paperChannelMock).send(paperChannelSendRequestArgumentCaptor.capture());
+        PaperChannelSendRequest paperChannelSendRequest = paperChannelSendRequestArgumentCaptor.getValue();
+
+        Assertions.assertEquals(iun, paperChannelSendRequest.getNotificationInt().getIun());
+        Assertions.assertEquals(recipient.getPhysicalAddress().getAddress(), paperChannelSendRequest.getReceiverAddress().getAddress());
 
         //Viene verificato l'invio della registered letter da timeline
         String eventId = TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER.buildEventId(
@@ -418,8 +419,7 @@ public class TestUtils {
 
         SimpleRegisteredLetterDetailsInt simpleRegisteredLetterDetails = sendSimpleRegisteredLetterOpt.get();
         Assertions.assertEquals( recipient.getPhysicalAddress().getAddress(), simpleRegisteredLetterDetails.getPhysicalAddress().getAddress() );
-        Assertions.assertEquals( recipient.getPhysicalAddress().getForeignState() , simpleRegisteredLetterDetails.getPhysicalAddress().getForeignState());
-        Assertions.assertEquals(1, simpleRegisteredLetterDetails.getNumberOfPages());
+
     }
 
     public static void firstFileUploadFromNotification(List<TestUtils.DocumentWithContent> documentWithContentList, SafeStorageClientMock safeStorageClientMock){

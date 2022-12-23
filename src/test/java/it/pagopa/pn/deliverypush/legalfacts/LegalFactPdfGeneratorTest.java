@@ -315,6 +315,7 @@ class LegalFactPdfGeneratorTest {
 						.type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
 						.build())
 				.physicalAddress(new PhysicalAddressInt(
+						"Galileo Bruno",
 						"Palazzo dell'Inquisizione",
 						"corso Italia 666",
 						"Piano Terra (piatta)",
@@ -338,6 +339,7 @@ class LegalFactPdfGeneratorTest {
 						.type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
 						.build())
 				.physicalAddress(new PhysicalAddressInt(
+						"Galileo Bruno",
 						"Palazzò dell'Inquisizionß",
 						"corso Italia 666",
 						"Pianô Terra (piatta)",
