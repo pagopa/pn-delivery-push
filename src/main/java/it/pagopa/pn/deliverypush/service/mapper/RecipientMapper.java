@@ -48,7 +48,6 @@ public class RecipientMapper {
                                     .municipalityDetails(physicalAddress.getMunicipalityDetails())
                                     .province(physicalAddress.getProvince())
                                     .zip(physicalAddress.getZip())
-                                    .fullname(recipient.getDenomination())
                                     .build()
                     );
         }
