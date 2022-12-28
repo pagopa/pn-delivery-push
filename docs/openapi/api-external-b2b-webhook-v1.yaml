@@ -66,6 +66,7 @@ info:
         <summary>Stati</summary>
         <ul>
           <li><strong>ACCEPTED </strong><em>L'ente ha depositato la notifica con successo.</em></li>
+          <li><strong>REFUSED </strong><em>Notifica rifiutata a seguito della validazione.</em></li>
           <li><strong>DELIVERING </strong><em>L'invio della notifica è in corso.</em></li>
           <li><strong>DELIVERED </strong><em>La notifica è stata consegnata a tutti i destinatari.</em></li>
           <li><strong>VIEWED </strong><em>Il destinatario ha letto la notifica entro il termine stabilito.</em></li>
