@@ -132,7 +132,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
                             .key(k.getUrl())
                             .category(LegalFactCategoryInt.ANALOG_DELIVERY)
                             .build()
-                    ).collect(Collectors.toList());
+                    ).toList();
         } else {
             legalFactsListEntryIds = Collections.emptyList();
         }

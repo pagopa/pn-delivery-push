@@ -129,7 +129,7 @@ public class PaperChannelResponseHandler {
                                     .documentType(att.getDocumentType())
                                     .url(att.getUrl())
                                     .build()
-                    ).collect(Collectors.toList())
+                    ).toList()
             );
         }
 

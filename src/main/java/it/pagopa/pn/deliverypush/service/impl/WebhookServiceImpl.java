@@ -130,7 +130,7 @@ public class WebhookServiceImpl implements WebhookService {
                         progressResponseElement.setNotificationRequestId(ev.getNotificationRequestId());
                         progressResponseElement.setTimelineEventCategory(TimelineElementCategory.fromValue(ev.getTimelineEventCategory()));
                         return progressResponseElement;
-                    }).sorted(Comparator.comparing(ProgressResponseElement::getEventId)).collect(Collectors.toList());
+                    }).sorted(Comparator.comparing(ProgressResponseElement::getEventId)).toList();
 
                     log.info("consumeEventStream requestEventId={} streamId={} size={} returnedlastEventId={}", lastEventId, streamId, eventList.size(), (!eventList.isEmpty()?eventList.get(eventList.size()-1).getEventId():"ND"));
                     // schedulo la pulizia per gli eventi precedenti a quello richiesto

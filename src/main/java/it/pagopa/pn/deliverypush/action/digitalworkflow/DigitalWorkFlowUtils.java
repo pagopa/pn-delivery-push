@@ -133,9 +133,9 @@ public class DigitalWorkFlowUtils {
         TimelineElementDetailsInt detailsInt = el.getDetails();
 
         return availableAddressCategory
-            && detailsInt instanceof DigitalAddressSourceRelatedTimelineElement
-            && recIndex.equals(((DigitalAddressSourceRelatedTimelineElement)detailsInt).getRecIndex())
-            && source.equals(((DigitalAddressSourceRelatedTimelineElement) detailsInt).getDigitalAddressSource());
+            && detailsInt instanceof DigitalAddressSourceRelatedTimelineElement digitalAddressSourceRelatedTimelineElement
+            && recIndex.equals(digitalAddressSourceRelatedTimelineElement.getRecIndex())
+            && source.equals(digitalAddressSourceRelatedTimelineElement.getDigitalAddressSource());
     }
 
     @Nullable
