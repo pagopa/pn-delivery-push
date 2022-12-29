@@ -5,8 +5,6 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetails;
 
-import java.util.stream.Collectors;
-
 public class TimelineElementMapper {
     private TimelineElementMapper(){}
     
@@ -21,7 +19,7 @@ public class TimelineElementMapper {
             builder.legalFactsIds(
                     internalDto.getLegalFactsIds().stream()
                             .map(LegalFactIdMapper::internalToExternal)
-                            .collect(Collectors.toList())
+                            .toList()
             );
         }
 

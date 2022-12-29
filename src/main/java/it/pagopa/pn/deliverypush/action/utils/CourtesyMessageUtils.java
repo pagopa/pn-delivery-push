@@ -80,20 +80,18 @@ public class CourtesyMessageUtils {
             boolean timelineShouldBeSaved = true;
 
             switch (courtesyAddress.getType()) {
-                case EMAIL:
-                case SMS:
+                case EMAIL, SMS -> {
                     log.info("Send courtesy message to externalChannel courtesyType={} - iun={} id={} ", courtesyAddress.getType(), notification.getIun(), recIndex);
                     externalChannelService.sendCourtesyNotification(notification, courtesyAddress, recIndex, eventId);
-                    break;
-                case APPIO:
+                }
+                case APPIO -> {
                     // nel caso di IO, il messaggio potrebbe NON essere inviato. Al netto del fatto di eccezioni, che vengono catchate sotto
                     // ci sono casi in cui non viene inviato perchè l'utente non ha abilitato IO. Quindi in questi casi non viene salvato l'evento di timeline
                     // NB: anche nel caso di invio di Opt-in, non salvo l'evento in timeline.
                     log.info("Send courtesy message to App IO - iun={} id={} ", notification.getIun(), recIndex);
                     timelineShouldBeSaved = iOservice.sendIOMessage(notification, recIndex);
-                    break;
-                default:
-                    handleCourtesyTypeError(notification, recIndex, courtesyAddress);
+                }
+                default -> handleCourtesyTypeError(notification, recIndex, courtesyAddress);
             }
 
             if (timelineShouldBeSaved)

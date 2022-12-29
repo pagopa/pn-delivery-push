@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -26,6 +25,6 @@ public class MandateServiceImpl implements MandateService {
         
         return listMandateDto.stream().map(
                 MandateDtoMapper::externalToInternal
-        ).collect(Collectors.toList());
+        ).toList();
     }
 }

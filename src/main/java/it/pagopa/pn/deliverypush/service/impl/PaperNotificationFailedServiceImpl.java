@@ -73,7 +73,7 @@ public class PaperNotificationFailedServiceImpl implements PaperNotificationFail
                         
                         return res;
                     }
-            ).collect(Collectors.toList());
+            ).toList();
             
         } else {
             String message = String.format("There isn't paperNotificationFailed for recipientId=%s ", recipientId);

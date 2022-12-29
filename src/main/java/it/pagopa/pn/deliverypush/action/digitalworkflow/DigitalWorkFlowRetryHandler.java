@@ -47,11 +47,8 @@ public class DigitalWorkFlowRetryHandler {
         log.debug("startScheduledRetryWorkflow - iun={} recIndex={} timelineId={}", iun, recIndex, timelineId);
 
         Optional<TimelineElementInternal> timelineElement = digitalWorkFlowUtils.getTimelineElement(iun, timelineId);
-        if (timelineElement.isPresent() && timelineElement.get().getDetails() instanceof DigitalSendTimelineElementDetails) {
+        if (timelineElement.isPresent() && timelineElement.get().getDetails() instanceof DigitalSendTimelineElementDetails originalSendDigitalProgressDetailsInt) {
             NotificationInt notification = notificationService.getNotificationByIun(iun);
-
-            DigitalSendTimelineElementDetails originalSendDigitalProgressDetailsInt = (DigitalSendTimelineElementDetails) timelineElement.get().getDetails();
-
 
             if (checkIfEventIsStillValid(iun, recIndex, timelineElement.get())) {
                 digitalWorkFlowHandler.sendDigitalNotificationAndScheduleTimeoutAction(notification,
@@ -103,10 +100,9 @@ public class DigitalWorkFlowRetryHandler {
         DigitalAddressSourceInt originalAddressSource = null;
         LegalDigitalAddressInt originalAddressInfo = null;
 
-        if (timelineElement.get().getDetails() instanceof DigitalSendTimelineElementDetails)
+        if (timelineElement.get().getDetails() instanceof DigitalSendTimelineElementDetails sendDigitalProgressDetailsInt)
         {
             // dovrebbe sempre essere instanceof di questo tipo
-            DigitalSendTimelineElementDetails sendDigitalProgressDetailsInt = (DigitalSendTimelineElementDetails) timelineElement.get().getDetails();
             originalRetryNumber = sendDigitalProgressDetailsInt.getRetryNumber();
             originalAddressSource = sendDigitalProgressDetailsInt.getDigitalAddressSource();
             originalAddressInfo = sendDigitalProgressDetailsInt.getDigitalAddress();
@@ -173,10 +169,7 @@ public class DigitalWorkFlowRetryHandler {
      */
     private boolean checkIfEventIsStillValid(String iun, int recIndex, TimelineElementInternal originalTimelineElement){
 
-        if (originalTimelineElement.getDetails() instanceof DigitalSendTimelineElementDetails) {
-            DigitalSendTimelineElementDetails originalDigitalSendTimelineDetailsInt = (DigitalSendTimelineElementDetails) originalTimelineElement.getDetails();
-
-
+        if (originalTimelineElement.getDetails() instanceof DigitalSendTimelineElementDetails originalDigitalSendTimelineDetailsInt) {
             // devo controllare che il timeout scattato sia ancora rilevante.
             // per capirlo, verifico se l'ultimo evento in ordine cronologico in timeline per recindex, appartiene a retrynumber e addresssource
             // è il senddigital o senddigitalprogress .
@@ -190,9 +183,8 @@ public class DigitalWorkFlowRetryHandler {
             // controllo gli eventi, e se sono di questi due tipi, mi interessa, sennò NO
             if ((mostRecentElementInternal.getCategory() == TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS
                     || mostRecentElementInternal.getCategory() == TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
-                    && mostRecentElementInternal.getDetails() instanceof DigitalSendTimelineElementDetails) {
+                    && mostRecentElementInternal.getDetails() instanceof DigitalSendTimelineElementDetails mostrecentDigitalSendTimelineDetailsInt) {
 
-                DigitalSendTimelineElementDetails mostrecentDigitalSendTimelineDetailsInt = (DigitalSendTimelineElementDetails) mostRecentElementInternal.getDetails();
                 lastRetryNumber = mostrecentDigitalSendTimelineDetailsInt.getRetryNumber();
                 lastAddressSource = mostrecentDigitalSendTimelineDetailsInt.getDigitalAddressSource();
 
