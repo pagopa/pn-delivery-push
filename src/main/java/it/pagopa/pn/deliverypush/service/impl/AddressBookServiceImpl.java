@@ -40,7 +40,7 @@ public class AddressBookServiceImpl implements AddressBookService {
 
           List<LegalDigitalAddressInt> digitalAddresses = legalDigitalAddresses.stream().map(
                   LegalLegalDigitalAddressMapper::externalToInternal
-          ).collect(Collectors.toList());
+          ).toList();
                   
           for(LegalDigitalAddressInt address : digitalAddresses){
               log.debug("For senderId={} address type={} is available", senderId, address.getType());
@@ -66,7 +66,7 @@ public class AddressBookServiceImpl implements AddressBookService {
                 return Optional.of(
                         courtesyDigitalAddresses.stream().map(
                                 CourtesyCourtesyDigitalAddressMapper::externalToInternal
-                        ).collect(Collectors.toList())
+                        ).toList()
                 );
             }
             log.info("getCourtesyAddress OK - senderId={}, recipientId={} courtesyListSize=Empty", senderId, recipientId);

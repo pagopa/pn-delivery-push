@@ -128,7 +128,7 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
                                     .legalFactsId( LegalFactIdMapper.internalToExternal(lfId) )
                                     .build()
                     ))
-                    .collect(Collectors.toList());
+                    .toList();
             
             log.debug("legalFacts List={}" ,legalFacts );
 
@@ -146,9 +146,9 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
 
         if (timelineElement != null) {
             TimelineElementDetailsInt details = timelineElement.getDetails();
-            if ( details instanceof RecipientRelatedTimelineElementDetails) {
+            if ( details instanceof RecipientRelatedTimelineElementDetails recipientRelatedTimelineElementDetails) {
 
-                int recIndex = ((RecipientRelatedTimelineElementDetails) details).getRecIndex();
+                int recIndex = recipientRelatedTimelineElementDetails.getRecIndex();
                 NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
                 recipientId = recipient.getTaxId();
             }

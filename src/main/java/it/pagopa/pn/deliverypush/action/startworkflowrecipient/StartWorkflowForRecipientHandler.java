@@ -66,7 +66,7 @@ public class StartWorkflowForRecipientHandler {
             aarUtils.generateAARAndSaveInSafeStorageAndAddTimelineevent(notification, recIndex);
             logEvent.generateSuccess().log();
         } catch (Exception exc) {
-            logEvent.generateFailure("Exception on generation of ARR", exc.getMessage()).log();
+            logEvent.generateFailure("Exception on generation of AAR", exc.getMessage()).log();
             throw exc;
         }
     }

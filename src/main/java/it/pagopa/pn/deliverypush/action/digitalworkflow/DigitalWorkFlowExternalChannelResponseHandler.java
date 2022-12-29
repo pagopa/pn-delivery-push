@@ -70,9 +70,8 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
             DigitalWorkFlowHandler.DigitalResultInfos digitalResultInfos = new DigitalWorkFlowHandler.DigitalResultInfos();
             digitalResultInfos.setResponse(response);
             digitalResultInfos.setTimelineElementInternal(timelineElement);
-            if (timelineElement.getDetails() instanceof DigitalSendTimelineElementDetails)
+            if (timelineElement.getDetails() instanceof DigitalSendTimelineElementDetails sendDigitalProgressDetailsInt)
             {
-                DigitalSendTimelineElementDetails sendDigitalProgressDetailsInt = (DigitalSendTimelineElementDetails) timelineElement.getDetails();
                 digitalResultInfos.setRecIndex(sendDigitalProgressDetailsInt.getRecIndex());
                 digitalResultInfos.setRetryNumber(sendDigitalProgressDetailsInt.getRetryNumber());
                 digitalResultInfos.setDigitalAddressInt(sendDigitalProgressDetailsInt.getDigitalAddress());
@@ -265,8 +264,8 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
         // la timeline è filtratra per iun, recindex, source, tentativo, quindi identifica i progress di questa istanza di tentativo
         Set<TimelineElementInternal> previousTimelineProgress = digitalWorkFlowUtils.getPreviousTimelineProgress(digitalResultInfos.getNotification(), digitalResultInfos.getRecIndex(), digitalResultInfos.getRetryNumber(), digitalResultInfos.getDigitalAddressSourceInt());
         // il conteggio viene fatto sul flag "retry" a true, visto che comparirà 1 volta per ogni tentativo fallito
-        long count = previousTimelineProgress.stream().filter(x -> x.getDetails() instanceof SendDigitalProgressDetailsInt
-                                                                && ((SendDigitalProgressDetailsInt)x.getDetails()).isShouldRetry()).count();
+        long count = previousTimelineProgress.stream().filter(x -> x.getDetails() instanceof SendDigitalProgressDetailsInt sendDigitalProgressDetailsInt
+                                                                && sendDigitalProgressDetailsInt.isShouldRetry()).count();
         return (count < configCount);
     }
 

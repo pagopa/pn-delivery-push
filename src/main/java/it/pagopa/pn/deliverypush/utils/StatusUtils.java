@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTIFICATIONSTATUSFAILED;
 
@@ -62,7 +61,7 @@ public class StatusUtils {
         //La timeline ricevuta in ingresso è relativa a tutta la notifica e non al singolo recipient
         List<TimelineElementInternal> timelineByTimestampSorted = timelineElementList.stream()
                 .sorted(Comparator.comparing(TimelineElementInternal::getTimestamp))
-                .collect(Collectors.toList());
+                .toList();
     
         List<NotificationStatusHistoryElementInt> timelineHistory = new ArrayList<>();
 

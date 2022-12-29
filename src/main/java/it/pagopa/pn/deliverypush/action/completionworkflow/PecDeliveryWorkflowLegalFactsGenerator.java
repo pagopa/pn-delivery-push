@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -38,7 +37,7 @@ public class PecDeliveryWorkflowLegalFactsGenerator {
 
         List<TimelineElementInternal> timelineByTimestampSorted = timeline.stream()
                 .sorted(Comparator.comparing(TimelineElementInternal::getTimestamp))
-                .collect(Collectors.toList());
+                .toList();
 
         List<SendDigitalFeedbackDetailsInt> listFeedbackFromExtChannel = new ArrayList<>();
 
@@ -55,11 +54,8 @@ public class PecDeliveryWorkflowLegalFactsGenerator {
     }
 
     private Optional<RecipientRelatedTimelineElementDetails> getSpecificDetailRecipient(TimelineElementInternal element, int recIndex){
-        if (element.getDetails() instanceof RecipientRelatedTimelineElementDetails) {
-            RecipientRelatedTimelineElementDetails details = (RecipientRelatedTimelineElementDetails) element.getDetails();
-            if( recIndex == details.getRecIndex()){
-                return Optional.of(details);
-            }
+        if (element.getDetails() instanceof RecipientRelatedTimelineElementDetails details && recIndex == details.getRecIndex()) {
+            return Optional.of(details);
         }
         return Optional.empty();
     }
