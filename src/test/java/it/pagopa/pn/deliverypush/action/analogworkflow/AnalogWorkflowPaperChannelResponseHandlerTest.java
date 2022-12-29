@@ -4,7 +4,6 @@ import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.completionworkflow.RefinementScheduler;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
-import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.PaperChannelUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -24,13 +23,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.Instant;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class AnalogWorkflowPaperChannelResponseHandlerTest {
 
@@ -110,7 +105,6 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
                 .details(SendAnalogDetailsInt.builder().sentAttemptMade(0).build())
                 .build();
 
-        SendAnalogDetailsInt sendPaperDetails = SendAnalogDetailsInt.builder().sentAttemptMade(0).build();
 
         PnDeliveryPushConfigs.PaperChannel externalChannel = new PnDeliveryPushConfigs.PaperChannel();
         externalChannel.setAnalogCodesSuccess(List.of("004"));
@@ -119,7 +113,7 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
 
         Mockito.when(pnDeliveryPushConfigs.getPaperChannel()).thenReturn(externalChannel);
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notificationInt);
-        Mockito.when(analogWorkflowUtils.getSendAnalogNotificationDetails(Mockito.anyString(), Mockito.anyString())).thenReturn(sendPaperDetails);
+        Mockito.when(paperChannelUtils.getPaperChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString())).thenReturn(timelineElementInternal);
 
         // WHEN
         Assertions.assertDoesNotThrow(() -> analogWorkflowPaperChannelResponseHandler.paperChannelSendResponseHandler(sendEventInt));
@@ -145,7 +139,6 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
                 .details(SendAnalogDetailsInt.builder().sentAttemptMade(0).build())
                 .build();
 
-        SendAnalogDetailsInt sendPaperDetails = SendAnalogDetailsInt.builder().sentAttemptMade(0).build();
 
         PnDeliveryPushConfigs.PaperChannel externalChannel = new PnDeliveryPushConfigs.PaperChannel();
         externalChannel.setAnalogCodesSuccess(List.of("004"));
@@ -154,7 +147,7 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
 
         Mockito.when(pnDeliveryPushConfigs.getPaperChannel()).thenReturn(externalChannel);
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notificationInt);
-        Mockito.when(analogWorkflowUtils.getSendAnalogNotificationDetails(Mockito.anyString(), Mockito.anyString())).thenReturn(sendPaperDetails);
+        Mockito.when(paperChannelUtils.getPaperChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString())).thenReturn(timelineElementInternal);
 
         // WHEN
         Assertions.assertDoesNotThrow(() -> analogWorkflowPaperChannelResponseHandler.paperChannelSendResponseHandler(sendEventInt));

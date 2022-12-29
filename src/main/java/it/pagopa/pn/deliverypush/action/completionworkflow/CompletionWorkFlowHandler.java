@@ -69,8 +69,8 @@ public class CompletionWorkFlowHandler {
                         
                         Instant legalFactGenerationDate = Instant.now();
                         timelineService.addTimelineElement(timelineUtils.buildFailureDigitalWorkflowTimelineElement(notification, recIndex, legalFactIdFailure, legalFactGenerationDate), notification);
-                        registeredLetterSender.prepareSimpleRegisteredLetter(notification, recIndex);
                         refinementScheduler.scheduleDigitalRefinement(notification, recIndex, legalFactGenerationDate , status);
+                        registeredLetterSender.prepareSimpleRegisteredLetter(notification, recIndex);
 
                     } else {
                         String legalFactIdFailure = pecDeliveryWorkflowLegalFactsGenerator.generatePecDeliveryWorkflowLegalFact(notification, recIndex, status, completionWorkflowDate);

@@ -20,6 +20,7 @@ import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.RecipientRelatedTimelineElementDetails;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.PaperChannelService;
@@ -116,40 +117,50 @@ public class AnalogWorkflowPaperChannelResponseHandler {
     public void paperChannelSendResponseHandler(SendEventInt response) {
         String iun = response.getIun();
 
-        SendAnalogDetailsInt sendPaperDetails = analogWorkflowUtils.getSendAnalogNotificationDetails(response.getIun(), response.getRequestId());
-
-        NotificationInt notification = notificationService.getNotificationByIun(iun);
-
-        Integer recIndex = sendPaperDetails.getRecIndex();
-        ResponseStatusInt status = mapPaperStatusInResponseStatus(response.getStatusCode());
-        List<LegalFactsIdInt> legalFactsListEntryIds;
-        if (response.getAttachments() != null) {
-            legalFactsListEntryIds = response.getAttachments().stream()
-                    .map(k -> LegalFactsIdInt.builder()
-                            .key(k.getUrl())
-                            .category(LegalFactCategoryInt.ANALOG_DELIVERY)
-                            .build()
-                    ).collect(Collectors.toList());
-        } else {
-            legalFactsListEntryIds = Collections.emptyList();
+        TimelineElementInternal timelineElementInternal = paperChannelUtils.getPaperChannelNotificationTimelineElement(response.getIun(), response.getRequestId());
+        
+        if(timelineElementInternal.getDetails() instanceof SimpleRegisteredLetterDetailsInt simpleRegisteredLetterDetails){
+            //Al momento l'eventuale risposta alla send della simple registered letter viene solo loggata
+            log.info("Received response for SendSimpleRegistered letter, statusCode={} iun={} recIndex={}", 
+                    response.getStatusCode(), iun, simpleRegisteredLetterDetails.getRecIndex());
         }
+        else if (timelineElementInternal.getDetails() instanceof SendAnalogDetailsInt sendPaperDetails){
 
-        if (status!= null) {
-            switch (status) {
-                case PROGRESS:
-                    handleStatusProgress(response, sendPaperDetails, notification, recIndex, legalFactsListEntryIds);
-                    break;
-                case OK:
-                    handleStatusOK(response, sendPaperDetails, notification, recIndex, legalFactsListEntryIds);
-                    break;
-                case KO:
-                    handleStatusKO(response, sendPaperDetails, notification, recIndex, legalFactsListEntryIds);
-                    break;
-                default:
-                    throw new PnInternalException("Invalid status from PaperChannel response", ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND);
+            NotificationInt notification = notificationService.getNotificationByIun(iun);
+
+            Integer recIndex = sendPaperDetails.getRecIndex();
+            ResponseStatusInt status = mapPaperStatusInResponseStatus(response.getStatusCode());
+            List<LegalFactsIdInt> legalFactsListEntryIds;
+            if (response.getAttachments() != null) {
+                legalFactsListEntryIds = response.getAttachments().stream()
+                        .map(k -> LegalFactsIdInt.builder()
+                                .key(k.getUrl())
+                                .category(LegalFactCategoryInt.ANALOG_DELIVERY)
+                                .build()
+                        ).collect(Collectors.toList());
+            } else {
+                legalFactsListEntryIds = Collections.emptyList();
+            }
+
+            if (status!= null) {
+                switch (status) {
+                    case PROGRESS:
+                        handleStatusProgress(response, sendPaperDetails, notification, recIndex, legalFactsListEntryIds);
+                        break;
+                    case OK:
+                        handleStatusOK(response, sendPaperDetails, notification, recIndex, legalFactsListEntryIds);
+                        break;
+                    case KO:
+                        handleStatusKO(response, sendPaperDetails, notification, recIndex, legalFactsListEntryIds);
+                        break;
+                    default:
+                        throw new PnInternalException("Invalid status from PaperChannel response", ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND);
+                }
+            } else {
+                handleStatusIgnored(response, iun, recIndex);
             }
         } else {
-            handleStatusIgnored(response, iun, recIndex);
+            log.error("Response is not permitted, iun={} class={}", iun, response.getClass() );  
         }
     }
 

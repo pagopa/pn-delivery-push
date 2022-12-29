@@ -253,7 +253,7 @@ class StatusUtilsTest {
         TimelineElementInternal sendSimpleRegisteredLetter = TimelineElementInternal.builder()
                 .elementId("el6")
                 .timestamp((Instant.parse("2021-09-16T15:29:00.00Z")))
-                .category(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER)
+                .category(TimelineElementCategoryInt.PREPARE_SIMPLE_REGISTERED_LETTER)
                 .build();
 
         Set<TimelineElementInternal> timelineElementList = Set.of(requestAccepted, sendDigitalDomicile,

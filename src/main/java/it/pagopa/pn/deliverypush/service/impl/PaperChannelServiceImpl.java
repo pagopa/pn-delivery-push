@@ -68,7 +68,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
 
             prepareSimpleRegisteredLetter(notification, recIndex);
 
-            log.info("Registered Letter sent to paperChannel - iun={} id={}", notification.getIun(), recIndex);
+            log.info("Prepare request for registered Letter sent to paperChannel - iun={} id={}", notification.getIun(), recIndex);
         }else {
             log.info("Notification is already viewed, registered Letter will not be sent to paperChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
         }
