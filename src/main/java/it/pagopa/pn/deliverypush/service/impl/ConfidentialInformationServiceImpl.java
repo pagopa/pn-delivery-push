@@ -48,32 +48,21 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
         ConfidentialTimelineElementDtoInt.ConfidentialTimelineElementDtoIntBuilder builder = ConfidentialTimelineElementDtoInt.builder()
                 .timelineElementId(timelineElement.getElementId());
 
-        if (details instanceof CourtesyAddressRelatedTimelineElement) {
-            CourtesyAddressRelatedTimelineElement courtesyDetails = (CourtesyAddressRelatedTimelineElement) details;
-            if (courtesyDetails.getDigitalAddress() != null) {
-                builder.digitalAddress(courtesyDetails.getDigitalAddress().getAddress());
-            }
+        if (details instanceof CourtesyAddressRelatedTimelineElement courtesyDetails && courtesyDetails.getDigitalAddress() != null) {
+            builder.digitalAddress(courtesyDetails.getDigitalAddress().getAddress());
         }
 
-        if (details instanceof DigitalAddressRelatedTimelineElement) {
-            DigitalAddressRelatedTimelineElement digitalDetails = (DigitalAddressRelatedTimelineElement) details;
-            if (digitalDetails.getDigitalAddress() != null) {
-                builder.digitalAddress(digitalDetails.getDigitalAddress().getAddress());
-            }
+        if (details instanceof DigitalAddressRelatedTimelineElement digitalDetails && digitalDetails.getDigitalAddress() != null) {
+            builder.digitalAddress(digitalDetails.getDigitalAddress().getAddress());
         }
 
-        if (details instanceof PhysicalAddressRelatedTimelineElement) {
-            PhysicalAddressRelatedTimelineElement physicalDetails = (PhysicalAddressRelatedTimelineElement) details;
-            if (physicalDetails.getPhysicalAddress() != null) {
-                builder.physicalAddress(physicalDetails.getPhysicalAddress());
-            }
+        if (details instanceof PhysicalAddressRelatedTimelineElement physicalDetails && physicalDetails.getPhysicalAddress() != null) {
+            builder.physicalAddress(physicalDetails.getPhysicalAddress());
         }
 
-        if (details instanceof NewAddressRelatedTimelineElement) {
-            NewAddressRelatedTimelineElement newAddressDetails = (NewAddressRelatedTimelineElement) details;
-            if (newAddressDetails.getNewAddress() != null) {
-                builder.newPhysicalAddress(newAddressDetails.getNewAddress());
-            }
+        if (details instanceof NewAddressRelatedTimelineElement newAddressDetails && newAddressDetails.getNewAddress() != null) {
+            builder.newPhysicalAddress(newAddressDetails.getNewAddress());
+
         }
 
         return builder.build();

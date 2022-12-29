@@ -102,7 +102,7 @@ public class ActionDaoDynamo implements ActionDao {
 
         return entities.stream()
                 .map(EntityToDtoFutureActionMapper::entityToDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
