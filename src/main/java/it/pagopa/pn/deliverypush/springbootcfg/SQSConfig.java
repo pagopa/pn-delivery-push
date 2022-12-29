@@ -62,4 +62,5 @@ public class SQSConfig {
             log.error("Exception for: " + request.getOriginalRequestObject(), e);
         }
     }
+
 }
