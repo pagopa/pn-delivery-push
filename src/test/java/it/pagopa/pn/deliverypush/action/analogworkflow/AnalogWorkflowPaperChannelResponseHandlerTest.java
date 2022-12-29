@@ -2,8 +2,6 @@ package it.pagopa.pn.deliverypush.action.analogworkflow;
 
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
-import it.pagopa.pn.deliverypush.action.completionworkflow.RefinementScheduler;
-import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action.utils.PaperChannelUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -42,15 +40,11 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
     @Mock
     private PublicRegistryService publicRegistryService;
     @Mock
-    private InstantNowSupplier instantNowSupplier;
-    @Mock
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
     @Mock
     private AnalogWorkflowHandler analogWorkflowHandler;
     @Mock
     private PaperChannelUtils paperChannelUtils;
-    @Mock
-    private RefinementScheduler refinementScheduler;
 
     @BeforeEach
     public void setup() {
@@ -58,9 +52,9 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
                 paperChannelService,
                 completionWorkFlow,
                 analogWorkflowUtils,
-                instantNowSupplier,
                 pnDeliveryPushConfigs,
-                analogWorkflowHandler, paperChannelUtils, refinementScheduler);
+                analogWorkflowHandler,
+                paperChannelUtils);
     }
 
     @ExtendWith(MockitoExtension.class)
