@@ -218,7 +218,6 @@ public class TimeLineServiceImpl implements TimelineService {
     @Override
     public NotificationHistoryResponse getTimelineAndStatusHistory(String iun, int numberOfRecipients, Instant createdAt) {
         log.debug("getTimelineAndStatusHistory Start - iun={} ", iun);
-        //Possiamo aggiungerlo come parametro, MA pn delivery lo deve mandare
         
         Set<TimelineElementInternal> timelineElements = getTimeline(iun, true);
         
