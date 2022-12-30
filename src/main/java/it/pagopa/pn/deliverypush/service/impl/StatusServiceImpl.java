@@ -83,7 +83,7 @@ public class StatusServiceImpl implements StatusService {
     private NotificationStatusHistoryElementInt computeLastStatusHistoryElement(NotificationInt notification, Set<TimelineElementInternal> currentTimeline) {
         int numberOfRecipient = notification.getRecipients().size();
         Instant notificationCreatedAt = notification.getSentAt();
-
+        //Riuscisamo a sapere se siamo in mvp
         List<NotificationStatusHistoryElementInt> historyElementList = statusUtils.getStatusHistory(
                 currentTimeline,
                 numberOfRecipient,

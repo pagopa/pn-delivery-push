@@ -76,10 +76,11 @@ public class CompletionWorkFlowHandler {
                         String legalFactIdFailure = pecDeliveryWorkflowLegalFactsGenerator.generatePecDeliveryWorkflowLegalFact(notification, recIndex, status, completionWorkflowDate);
                         Instant legalFactGenerationDate = Instant.now();
                         timelineService.addTimelineElement(timelineUtils.buildFailureDigitalWorkflowTimelineElement(notification, recIndex, legalFactIdFailure, legalFactGenerationDate), notification);
-
+    
                         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
                         if( ! isNotificationAlreadyViewed ){
                             log.info("Paper message is not handled, registered Letter will not be sent to externalChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
+                            //Qui la notifica è appena passata in DELIVERED e passerà subito in CANCELLED
                             addPaperNotificationNotHandledToTimeline(notification, recIndex);
                         } else {
                             log.info("Notification is already viewed, it will not go into the cancelled state - iun={} recipientIndex={}", notification.getIun(), recIndex);

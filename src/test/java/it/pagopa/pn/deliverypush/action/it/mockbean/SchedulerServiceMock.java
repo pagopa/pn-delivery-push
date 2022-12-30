@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Lazy;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class SchedulerServiceMock implements SchedulerService {
@@ -54,36 +55,45 @@ public class SchedulerServiceMock implements SchedulerService {
     new Thread(() -> {
       
       Assertions.assertDoesNotThrow(() -> {
-        mockSchedulingDate(dateToSchedule);
-        
+        waitSchedulingTime(dateToSchedule);
+
         switch (actionType) {
-          case START_RECIPIENT_WORKFLOW:
-            startWorkflowForRecipientHandler.startNotificationWorkflowForRecipient(iun, recIndex,
-                (RecipientsWorkflowDetails) actionDetails);
-            break;
-          case CHOOSE_DELIVERY_MODE:
-            chooseDeliveryModeHandler.chooseDeliveryTypeAndStartWorkflow(iun, recIndex);
-            break;
-          case ANALOG_WORKFLOW:
-            analogWorkflowHandler.startAnalogWorkflow(iun, recIndex);
-            break;
-          case REFINEMENT_NOTIFICATION:
-            refinementHandler.handleRefinement(iun, recIndex);
-            break;
-          case DIGITAL_WORKFLOW_NEXT_ACTION:
-            digitalWorkFlowHandler.startScheduledNextWorkflow(iun, recIndex, null);
-            break;
-          case DIGITAL_WORKFLOW_RETRY_ACTION:
-            digitalWorkFlowRetryHandler.startScheduledRetryWorkflow(iun, recIndex,
-                iun + "_retry_action_" + recIndex);
-            break;
-          case DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION:
-            digitalWorkFlowRetryHandler.elapsedExtChannelTimeout(iun, recIndex,
-                iun + "_retry_action_" + recIndex);
-            break;
+          case START_RECIPIENT_WORKFLOW -> 
+                  startWorkflowForRecipientHandler.startNotificationWorkflowForRecipient(iun, recIndex,
+                  (RecipientsWorkflowDetails) actionDetails);
+          case CHOOSE_DELIVERY_MODE ->
+                  chooseDeliveryModeHandler.chooseDeliveryTypeAndStartWorkflow(iun, recIndex);
+          case ANALOG_WORKFLOW ->
+                  analogWorkflowHandler.startAnalogWorkflow(iun, recIndex);
+          case REFINEMENT_NOTIFICATION ->
+                  refinementHandler.handleRefinement(iun, recIndex);
+          case DIGITAL_WORKFLOW_NEXT_ACTION -> 
+                  digitalWorkFlowHandler.startScheduledNextWorkflow(iun, recIndex, null);
+          case DIGITAL_WORKFLOW_RETRY_ACTION ->
+                  digitalWorkFlowRetryHandler.startScheduledRetryWorkflow(iun, recIndex,
+                  iun + "_retry_action_" + recIndex);
+          case DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION ->
+                  digitalWorkFlowRetryHandler.elapsedExtChannelTimeout(iun, recIndex,
+                  iun + "_retry_action_" + recIndex);
         }
       });
     }).start();
+  }
+
+  private void waitSchedulingTime(Instant dateToSchedule) throws InterruptedException {
+    long timeToWait = 0L;
+
+    Instant now = Instant.now();
+
+    log.info("DateToSchedule {} instantNow = {}", dateToSchedule, now);
+
+    long second = dateToSchedule.getEpochSecond() - now.getEpochSecond();
+    if(second > 0){
+      timeToWait = TimeUnit.SECONDS.toMillis(second);
+    }
+
+    log.info("Second to wait is {} - timeToWait is {}",second, timeToWait);
+    Thread.sleep(timeToWait);
   }
 
   @Override
