@@ -58,7 +58,7 @@ public class StartWorkflowForRecipientHandler {
     private void generateAAR(NotificationInt notification, Integer recIndex) {
         // ... genero il pdf dell'AAR, salvo su Safestorage e genero elemento in timeline AAR_GENERATION, potrebbe servirmi dopo ...
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_ARR, "Notification AAR generation for iun={} and recIndex={}", notification.getIun(), recIndex)
+                .before(PnAuditLogEventType.AUD_NT_AAR, "Notification AAR generation for iun={} and recIndex={}", notification.getIun(), recIndex)
                 .iun(notification.getIun())
                 .build();
         logEvent.log();
@@ -66,7 +66,7 @@ public class StartWorkflowForRecipientHandler {
             aarUtils.generateAARAndSaveInSafeStorageAndAddTimelineevent(notification, recIndex);
             logEvent.generateSuccess().log();
         } catch (Exception exc) {
-            logEvent.generateFailure("Exception on generation of ARR", exc.getMessage()).log();
+            logEvent.generateFailure("Exception on generation of AAR", exc.getMessage()).log();
             throw exc;
         }
     }
