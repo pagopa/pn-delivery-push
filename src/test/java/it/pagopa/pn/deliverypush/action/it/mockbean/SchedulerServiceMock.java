@@ -22,6 +22,8 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 
+import static org.awaitility.Awaitility.await;
+
 @Slf4j
 public class SchedulerServiceMock implements SchedulerService {
   private final DigitalWorkFlowHandler digitalWorkFlowHandler;
@@ -81,19 +83,11 @@ public class SchedulerServiceMock implements SchedulerService {
   }
 
   private void waitSchedulingTime(Instant dateToSchedule) throws InterruptedException {
-    long timeToWait = 0L;
+    log.info("DateToSchedule {} instantNow = {}", dateToSchedule, Instant.now());
 
-    Instant now = Instant.now();
-
-    log.info("DateToSchedule {} instantNow = {}", dateToSchedule, now);
-
-    long second = dateToSchedule.getEpochSecond() - now.getEpochSecond();
-    if(second > 0){
-      timeToWait = TimeUnit.SECONDS.toMillis(second);
-    }
-
-    log.info("Second to wait is {} - timeToWait is {}",second, timeToWait);
-    Thread.sleep(timeToWait);
+    await()
+            .atMost(100, TimeUnit.SECONDS)
+            .untilAsserted(() -> Assertions.assertTrue(Instant.now().isAfter(dateToSchedule)));
   }
 
   @Override
