@@ -7,9 +7,9 @@ import ch.qos.logback.core.ConsoleAppender;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ConsoleAppenderTest extends ConsoleAppender<ILoggingEvent> {
+public class ConsoleAppenderCustom extends ConsoleAppender<ILoggingEvent> {
 
-    private static List<LogEventTest> eventList
+    private static List<LogEvent> eventList
             = new ArrayList<>();
 
     @Override
@@ -18,17 +18,17 @@ public class ConsoleAppenderTest extends ConsoleAppender<ILoggingEvent> {
         if(Level.WARN.equals(event.getLevel()) ||
                 Level.ERROR.equals(event.getLevel())){
             
-            eventList.add(LogEventTest.builder()
+            eventList.add(LogEvent.builder()
                     .classPath(event.getLoggerName())
                     .message(event.getMessage())
-                    .logLevelTest(LogLevelTest.valueOf(event.getLevel().levelStr))
+                    .logLevel(LogLevel.valueOf(event.getLevel().levelStr))
                     .build());
         }
     }
     
     public static void checkLogs(){
         if( eventList != null && ! eventList.isEmpty() ){
-            NotExpectedLogExceptionTest expectedLogExceptionTest = new NotExpectedLogExceptionTest("There are problem ", eventList);
+            NotExpectedLogException expectedLogExceptionTest = new NotExpectedLogException("There are problem ", eventList);
             initializeLog();
             throw expectedLogExceptionTest;
         }

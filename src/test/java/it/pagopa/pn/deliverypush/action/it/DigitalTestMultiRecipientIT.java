@@ -35,7 +35,7 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
-import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderTest;
+import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClientReactiveImpl;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClientReactiveImpl;
@@ -229,7 +229,7 @@ class DigitalTestMultiRecipientIT {
 
     @AfterEach
     public void afterEach(){
-        ConsoleAppenderTest.checkLogs();
+        ConsoleAppenderCustom.checkLogs();
     }
     
     // Il primo destinatario è UNREACHBLE, il secondo è raggiungibile

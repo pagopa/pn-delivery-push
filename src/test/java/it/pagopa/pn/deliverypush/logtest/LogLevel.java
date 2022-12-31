@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.logtest;
 
-public enum LogLevelTest {
+public enum LogLevel {
     ERROR,
     WARN,
     INFO,

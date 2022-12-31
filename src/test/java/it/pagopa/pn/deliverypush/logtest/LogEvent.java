@@ -7,8 +7,8 @@ import lombok.ToString;
 @Builder
 @Getter
 @ToString
-public class LogEventTest {
-    private LogLevelTest logLevelTest;
+public class LogEvent {
+    private LogLevel logLevel;
     private String message;
     private String classPath;
 }
