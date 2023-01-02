@@ -6,6 +6,7 @@ import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
@@ -33,8 +34,7 @@ public class ViewNotification {
     public void startVewNotificationProcess(NotificationInt notification,
                                             NotificationRecipientInt recipient,
                                             Integer recIndex,
-                                            String raddType,
-                                            String raddTransactionId,
+                                            RaddInfo raddInfo,
                                             Instant eventTimestamp
     ) {
         log.info("Start view notification process - iun={} id={}", notification.getIun(), recIndex);
@@ -46,7 +46,7 @@ public class ViewNotification {
 
         attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement());
         addTimelineElement(
-                timelineUtils.buildNotificationViewedTimelineElement(notification, recIndex, legalFactId, cost, raddType, raddTransactionId, eventTimestamp),
+                timelineUtils.buildNotificationViewedTimelineElement(notification, recIndex, legalFactId, cost, raddInfo, eventTimestamp),
                 notification
         ) ;
 

@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.rest;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.EventComunicationApi;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.RequestNotificationViewedDto;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseNotificationViewedDto;
@@ -39,7 +40,13 @@ public class PnNotificationViewController implements EventComunicationApi {
             // get recipient index from internal id
             int recIndex = notificationUtils.getRecipientIndexFromInternalId(notification, request.getRecipientInternalId());
             // handle view event
-            notificationViewedRequestHandler.handleViewNotification(iun, recIndex, request.getRaddType(), request.getRaddBusinessTransactionId(), request.getRaddBusinessTransactionDate());
+            
+            RaddInfo raddInfo = RaddInfo.builder()
+                    .type(request.getRaddType())
+                    .transactionId(request.getRaddBusinessTransactionId())
+                    .build();
+            notificationViewedRequestHandler.handleViewNotification(iun, recIndex, raddInfo, request.getRaddBusinessTransactionDate());
+            
             // return iun
             log.info("End notifyNotificationViewed - iun={} internalId={} raddTransactionId={} raddType={}", iun, request.getRecipientInternalId(), request.getRaddBusinessTransactionId(), request.getRaddType());
             ResponseNotificationViewedDto response = ResponseNotificationViewedDto.builder().iun(iun).build();

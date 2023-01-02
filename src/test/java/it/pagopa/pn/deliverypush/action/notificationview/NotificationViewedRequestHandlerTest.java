@@ -7,6 +7,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
+import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
@@ -63,7 +64,8 @@ class NotificationViewedRequestHandlerTest {
         handler.handleViewNotification(notification.getIun(), recIndex, viewDate);
         
         //THEN
-        Mockito.verify(viewNotification).startVewNotificationProcess(notification, recipientInt, recIndex, null, null , viewDate);
+        
+        Mockito.verify(viewNotification).startVewNotificationProcess(Mockito.eq(notification), Mockito.eq(recipientInt), Mockito.eq(recIndex), Mockito.any(RaddInfo.class) , Mockito.eq(viewDate) );
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -83,7 +85,7 @@ class NotificationViewedRequestHandlerTest {
         handler.handleViewNotification(notification.getIun(),recIndex, viewDate);
 
         //THEN
-        Mockito.verify(viewNotification,  Mockito.never()).startVewNotificationProcess(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any() , Mockito.any());
+        Mockito.verify(viewNotification,  Mockito.never()).startVewNotificationProcess(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -103,7 +105,7 @@ class NotificationViewedRequestHandlerTest {
         handler.handleViewNotification(notification.getIun(),0, Instant.now());
 
         //THEN
-        Mockito.verify(viewNotification,  Mockito.never()).startVewNotificationProcess(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any() , Mockito.any());
+        Mockito.verify(viewNotification,  Mockito.never()).startVewNotificationProcess(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
     }
     
     private NotificationInt getNotification(String iun) {

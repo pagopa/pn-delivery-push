@@ -11,6 +11,7 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
+import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementDetailsEntity;
@@ -404,12 +405,14 @@ class TimelineUtilsTest {
         Integer recIndex = 1;
         String legalFactId = "001";
         Integer notificationCost = 100;
-        String raddType = "test";
-        String raddTransactionId = "002";
+        RaddInfo raddInfo = RaddInfo.builder()
+                .type("test")
+                .transactionId("002")
+                .build();
         Instant eventTimestamp = Instant.now();
 
         TimelineElementInternal actual = timelineUtils.buildNotificationViewedTimelineElement(
-                notification, recIndex, legalFactId, notificationCost, raddType, raddTransactionId, eventTimestamp
+                notification, recIndex, legalFactId, notificationCost, raddInfo, eventTimestamp
         );
 
         Assertions.assertAll(

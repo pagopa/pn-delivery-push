@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
+import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
@@ -42,11 +43,11 @@ public class NotificationViewedRequestHandler {
     }
 
     public void handleViewNotification(String iun, Integer recIndex, Instant eventTimestamp) {
-        handleViewNotification(iun, recIndex, null, null, eventTimestamp);
+        handleViewNotification(iun, recIndex, RaddInfo.builder().build(), eventTimestamp);
     }
 
-    public void handleViewNotification(String iun, Integer recIndex, String raddType, String raddTransactionId, Instant eventTimestamp) {
-        PnAuditLogEvent logEvent = generateAuditLog(iun, recIndex, raddType, raddTransactionId);
+    public void handleViewNotification(String iun, Integer recIndex, RaddInfo raddInfo, Instant eventTimestamp) {
+        PnAuditLogEvent logEvent = generateAuditLog(iun, recIndex, raddInfo.getType(), raddInfo.getTransactionId());
         logEvent.log();
         
         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex);
@@ -64,7 +65,7 @@ public class NotificationViewedRequestHandler {
 
                 try {
                     NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
-                    viewNotification.startVewNotificationProcess(notification, recipient, recIndex, raddType, raddTransactionId, eventTimestamp);
+                    viewNotification.startVewNotificationProcess(notification, recipient, recIndex, raddInfo, eventTimestamp);
                     
                     logEvent.generateSuccess().log();
                 } catch (Exception exc) {

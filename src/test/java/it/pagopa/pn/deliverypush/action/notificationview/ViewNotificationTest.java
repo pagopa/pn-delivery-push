@@ -9,6 +9,7 @@ import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -73,10 +74,10 @@ class ViewNotificationTest {
         Instant viewDate = Instant.now();
 
         //WHEN
-        viewNotification.startVewNotificationProcess(notification, recipient, recIndex, null, null , viewDate);
+        viewNotification.startVewNotificationProcess(notification, recipient, recIndex, RaddInfo.builder().build() , viewDate);
 
         //THEN
-        Mockito.verify(timelineUtils).buildNotificationViewedTimelineElement(notification, recIndex, legalFactsId, notificationCost, null, null, viewDate);
+        Mockito.verify(timelineUtils).buildNotificationViewedTimelineElement(Mockito.eq(notification), Mockito.eq(recIndex),  Mockito.eq(legalFactsId),  Mockito.eq(notificationCost), Mockito.any(RaddInfo.class),  Mockito.eq(viewDate));
 
         Mockito.verify(timelineService).addTimelineElement(Mockito.any(), Mockito.any( NotificationInt.class ));
         
