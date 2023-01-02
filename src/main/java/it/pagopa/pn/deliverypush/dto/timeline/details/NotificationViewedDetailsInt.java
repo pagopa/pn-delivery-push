@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.dto.timeline.details;
 
+import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import lombok.*;
 
 @NoArgsConstructor
@@ -14,7 +15,8 @@ public class NotificationViewedDetailsInt implements RecipientRelatedTimelineEle
     private Integer notificationCost;
     private String raddType;
     private String raddTransactionId;
-
+    private DelegateInfoInt delegateInfo;
+    
     public String toLog() {
         return String.format(
                 "recIndex=%d",

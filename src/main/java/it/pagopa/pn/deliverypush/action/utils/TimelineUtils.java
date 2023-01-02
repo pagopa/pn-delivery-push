@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
+import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -547,6 +548,7 @@ public class TimelineUtils {
             String legalFactId,
             Integer notificationCost,
             RaddInfo raddInfo,
+            DelegateInfoInt delegateInfo,
             Instant eventTimestamp) {
         log.debug("buildNotificationViewedTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
 
@@ -559,8 +561,9 @@ public class TimelineUtils {
         NotificationViewedDetailsInt details = NotificationViewedDetailsInt.builder()
                 .recIndex(recIndex)
                 .notificationCost(notificationCost)
-                .raddType(raddInfo.getType())
-                .raddTransactionId(raddInfo.getTransactionId())
+                .raddType(raddInfo != null ? raddInfo.getType() : null)
+                .raddTransactionId(raddInfo != null ? raddInfo.getTransactionId() : null)
+                .delegateInfo(delegateInfo)
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()

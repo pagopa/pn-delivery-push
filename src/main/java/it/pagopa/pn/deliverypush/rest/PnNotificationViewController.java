@@ -45,7 +45,7 @@ public class PnNotificationViewController implements EventComunicationApi {
                     .type(request.getRaddType())
                     .transactionId(request.getRaddBusinessTransactionId())
                     .build();
-            notificationViewedRequestHandler.handleViewNotification(iun, recIndex, raddInfo, request.getRaddBusinessTransactionDate());
+            notificationViewedRequestHandler.handleViewNotificationRadd(iun, recIndex, raddInfo, request.getRaddBusinessTransactionDate());
             
             // return iun
             log.info("End notifyNotificationViewed - iun={} internalId={} raddTransactionId={} raddType={}", iun, request.getRecipientInternalId(), request.getRaddBusinessTransactionId(), request.getRaddType());

@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
+import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -41,13 +42,19 @@ public class NotificationViewedRequestHandler {
         this.notificationUtils = notificationUtils;
         this.viewNotification = viewNotification;
     }
-
-    public void handleViewNotification(String iun, Integer recIndex, Instant eventTimestamp) {
-        handleViewNotification(iun, recIndex, RaddInfo.builder().build(), eventTimestamp);
+    
+    //La richiesta proviene da delivery (La visualizzazione potrebbe essere da parte del delegato o da parte del destinatario)
+    public void handleViewNotificationDelivery(String iun, Integer recIndex, DelegateInfoInt delegateInfo, Instant eventTimestamp) {
+        handleViewNotification(iun, recIndex, null, delegateInfo, eventTimestamp);
     }
 
-    public void handleViewNotification(String iun, Integer recIndex, RaddInfo raddInfo, Instant eventTimestamp) {
-        PnAuditLogEvent logEvent = generateAuditLog(iun, recIndex, raddInfo.getType(), raddInfo.getTransactionId());
+    //La richiesta proviene da RADD, visualizzazione da parte del destinatario 
+    public void handleViewNotificationRadd(String iun, Integer recIndex, RaddInfo raddInfo, Instant eventTimestamp) {
+        handleViewNotification(iun, recIndex, raddInfo, null, eventTimestamp);
+    }
+    
+    private void handleViewNotification(String iun, Integer recIndex, RaddInfo raddInfo, DelegateInfoInt delegateInfo, Instant eventTimestamp) {
+        PnAuditLogEvent logEvent = generateAuditLog(iun, recIndex, raddInfo, delegateInfo);
         logEvent.log();
         
         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex);
@@ -65,7 +72,7 @@ public class NotificationViewedRequestHandler {
 
                 try {
                     NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
-                    viewNotification.startVewNotificationProcess(notification, recipient, recIndex, raddInfo, eventTimestamp);
+                    viewNotification.startVewNotificationProcess(notification, recipient, recIndex, raddInfo, delegateInfo, eventTimestamp);
                     
                     logEvent.generateSuccess().log();
                 } catch (Exception exc) {
@@ -81,12 +88,23 @@ public class NotificationViewedRequestHandler {
         }
     }
 
-    private PnAuditLogEvent generateAuditLog(String iun, Integer recIndex, String raddType, String raddTransactionId) {
+    private PnAuditLogEvent generateAuditLog(String iun, Integer recIndex, RaddInfo raddInfo, DelegateInfoInt delegateInfo ) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+
         return auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_VIEW_RCP, "Start HandleViewNotification - iun={} id={} raddType={} raddTransactionId={}", iun, recIndex, raddType, raddTransactionId)
+                .before(PnAuditLogEventType.AUD_NT_VIEW_RCP, "Start HandleViewNotification - iun={} id={} " +
+                        "raddType={} raddTransactionId={} internalDelegateId={} mandateId={}", 
+                        iun, 
+                        recIndex,
+                        raddInfo != null ? raddInfo.getType() : null,
+                        raddInfo != null ? raddInfo.getTransactionId() : null,
+                        delegateInfo != null ? delegateInfo.getDelegateType() : null,
+                        delegateInfo != null ? delegateInfo.getMandateId() : null
+                )
                 .iun(iun)
                 .build();
     }
+
+
 
 }

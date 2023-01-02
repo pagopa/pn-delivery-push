@@ -59,7 +59,7 @@ public class TimelineDaoMock implements TimelineDao {
             if(notificationRecipientInt.getTaxId().startsWith(simulateViewNotificationString)){
                 log.info("Simulate view notification {}", dto);
                 //Viene simulata la visualizzazione della notifica prima di uno specifico inserimento in timeline
-                notificationViewedRequestHandler.handleViewNotification( dto.getIun(), ((RecipientRelatedTimelineElementDetails) dto.getDetails()).getRecIndex(), Instant.now());
+                notificationViewedRequestHandler.handleViewNotificationDelivery( dto.getIun(), ((RecipientRelatedTimelineElementDetails) dto.getDetails()).getRecIndex(), null, Instant.now());
             }else if(notificationRecipientInt.getTaxId().startsWith(simulateRecipientWaitString)){
                 //Viene simulata l'attesa in un determinato stato (elemento di timeline) per uno specifico recipient. 
                 // L'attesa dura fino all'inserimento in timeline di un determinato elemento per un altro recipient

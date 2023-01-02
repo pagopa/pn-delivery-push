@@ -277,7 +277,7 @@ class NotificationViewedTestIT {
 
         //Simulazione visualizzazione della notifica
         Instant notificationViewDate = Instant.now();
-        notificationViewedRequestHandler.handleViewNotification(iun, recIndex, notificationViewDate);
+        notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex, null, notificationViewDate);
         
         //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti
         checkTimelineElementIsPresent(iun, recIndex);
@@ -285,7 +285,7 @@ class NotificationViewedTestIT {
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient.getInternalId(), iun);
 
         //Simulazione seconda visualizzazione della notifica
-        notificationViewedRequestHandler.handleViewNotification(iun, recIndex, Instant.now());
+        notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex, null, Instant.now());
 
         checkIsNotificationViewed(iun, recIndex, notificationViewDate);
 
@@ -412,7 +412,7 @@ class NotificationViewedTestIT {
 
         //Simulazione visualizzazione della notifica per il primo recipient
         Instant notificationViewDate1 = Instant.now();
-        notificationViewedRequestHandler.handleViewNotification(iun, recIndex1, notificationViewDate1);
+        notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex1, null, notificationViewDate1);
 
         checkIsNotificationViewed(iun, recIndex1, notificationViewDate1);
 
@@ -424,7 +424,7 @@ class NotificationViewedTestIT {
 
         //Simulazione visualizzazione della notifica per il primo recipient
         Instant notificationViewDate2 = Instant.now();
-        notificationViewedRequestHandler.handleViewNotification(iun, recIndex2, notificationViewDate2);
+        notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex2, null, notificationViewDate2);
 
         checkIsNotificationViewed(iun, recIndex2, notificationViewDate2);
 
