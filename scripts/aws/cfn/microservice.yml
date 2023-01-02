@@ -556,8 +556,7 @@ Resources:
             - !GetAtt DeliveryPushMicroservicePublicIoAPI.Outputs.RestApiName
         AlarmArns: !Join
           - ','
-          - - !GetAtt DeliveryPushMicroservice.Outputs.AutoScalingAlarmArn
-            - !GetAtt DeliveryPushMicroservice.Outputs.FatalLogsMetricAlarmArn
+          - - !GetAtt DeliveryPushMicroservice.Outputs.FatalLogsMetricAlarmArn
             - !Ref DeliveryPushInputsQueueAlarmARN
             - !Ref DeliveryPushInputsQueueAgeAlarmARN
             - !Ref SafeStorageToDeliveryPushQueueAlarmARN
