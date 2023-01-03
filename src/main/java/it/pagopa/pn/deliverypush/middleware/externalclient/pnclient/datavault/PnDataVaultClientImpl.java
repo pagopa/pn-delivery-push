@@ -2,6 +2,8 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault;
 
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.ApiClient;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.api.NotificationsApi;
+import it.pagopa.pn.datavault.generated.openapi.clients.datavault.api.RecipientsApi;
+import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.ConfidentialTimelineElementDto;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import lombok.extern.slf4j.Slf4j;
@@ -16,11 +18,13 @@ import java.util.List;
 @Component
 public class PnDataVaultClientImpl implements PnDataVaultClient{
     private final NotificationsApi pnDataVaultNotificationApi;
-
+    private final RecipientsApi recipientsApi;
+    
     public PnDataVaultClientImpl(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryPushConfigs cfg) {
         ApiClient newApiClient = new ApiClient(restTemplate);
         newApiClient.setBasePath(cfg.getDataVaultBaseUrl());
         this.pnDataVaultNotificationApi = new NotificationsApi( newApiClient );
+        this.recipientsApi = new RecipientsApi( newApiClient );
     }
     
     public void updateNotificationTimelineByIunAndTimelineElementId(String iun, ConfidentialTimelineElementDto dto){
@@ -52,5 +56,17 @@ public class PnDataVaultClientImpl implements PnDataVaultClient{
 
         return resp.getBody();
     }
+    
+    @Override
+    public List<BaseRecipientDto> getRecipientDenominationByInternalId(List<String> listInternalId){
+        log.debug("Start call getRecipientDenominationByInternalId for internalId={}", listInternalId);
+
+        List<BaseRecipientDto> resp = recipientsApi.getRecipientDenominationByInternalId(listInternalId);
+
+        log.debug("Response getRecipientDenominationByInternalId for internalId={}", listInternalId);
+        
+        return resp;
+    }
+    
 
 }

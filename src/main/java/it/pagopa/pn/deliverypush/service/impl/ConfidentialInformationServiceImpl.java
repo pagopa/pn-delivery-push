@@ -1,7 +1,10 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.ConfidentialTimelineElementDto;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.BaseRecipientDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDtoInt;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault.PnDataVaultClient;
@@ -111,6 +114,26 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
                 details instanceof PhysicalAddressRelatedTimelineElement ||
                 details instanceof NewAddressRelatedTimelineElement;
     }
+    
+    public BaseRecipientDtoInt getRecipientDenominationByInternalId(String internalId) {
+        List<BaseRecipientDto> baseRecipientDtoList = pnDataVaultClient.getRecipientDenominationByInternalId(List.of(internalId));
 
-
+        List<BaseRecipientDtoInt> baseRecipientDtoIntList = baseRecipientDtoList
+                .stream()
+                .filter( el -> internalId.equals(el.getInternalId()))
+                .map( el -> BaseRecipientDtoInt.builder()
+                        .taxId(el.getTaxId())
+                        .denomination(el.getDenomination())
+                        .internalId(el.getInternalId())
+                        .recipientType(el.getRecipientType() != null ? RecipientTypeInt.valueOf(el.getRecipientType().getValue()) : null)
+                        .internalId(el.getInternalId())
+                        .build()
+                ).toList();
+        
+        if(baseRecipientDtoIntList != null){
+            return baseRecipientDtoIntList.get(0);
+        }
+        
+        return null;
+    }
 }

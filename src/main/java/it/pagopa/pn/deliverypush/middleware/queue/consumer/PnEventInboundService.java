@@ -94,7 +94,8 @@ public class PnEventInboundService {
             eventType = handleExternalChannelEvent(message);
         }
 
-        /*... arrivati qui, l'eventType o era valorizzato ma non è ne il caso di ACTION o WEBHOOK_ACTION, rientrano i casi di NEW_NOTIFICATION, NOTIFICATION_VIEWED, NOTIFICATION_PAID ecc. 
+        /*... arrivati qui, l'eventType o già valorizzato MA non era: ACTION_GENERIC, WEBHOOK_ACTION_GENERIC, EXTERNAL_CHANNELS_EVENT
+            dunque rientrano i casi di NEW_NOTIFICATION, NOTIFICATION_VIEWED, NOTIFICATION_PAID ecc. 
             oppure l'eventType non era valorizzato ed è stato valorizzato in handleExternalChannelEvent.
          */
 
