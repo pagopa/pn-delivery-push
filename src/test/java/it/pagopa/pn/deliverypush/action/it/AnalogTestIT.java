@@ -39,6 +39,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
+import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClientReactiveImpl;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelPrepareRequest;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
@@ -51,6 +52,7 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -211,6 +213,11 @@ class AnalogTestIT {
         timelineDaoMock.clear();
         paperNotificationFailedDaoMock.clear();
         pnDataVaultClientMock.clear();
+    }
+
+    @AfterEach
+    public void afterEach(){
+        ConsoleAppenderCustom.checkLogs();
     }
     
     @Test
