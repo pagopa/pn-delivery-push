@@ -1,5 +1,5 @@
 echo "### CREATE QUEUES ###"
-queues="local-delivery-push-safestorage-inputs local-delivery-push-actions local-ext-channels-inputs local-ext-channels-outputs local-delivery-push-actions-done local-ext-channels-elab-res"
+queues="local-delivery-push-inputs.fifo local-delivery-push-safestorage-inputs local-delivery-push-actions local-ext-channels-inputs local-ext-channels-outputs local-delivery-push-actions-done local-ext-channels-elab-res"
 for qn in  $( echo $queues | tr " " "\n" ) ; do
     echo creating queue $qn ...
 
