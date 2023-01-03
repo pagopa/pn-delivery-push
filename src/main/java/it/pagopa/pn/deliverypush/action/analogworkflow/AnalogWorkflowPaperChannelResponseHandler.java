@@ -169,7 +169,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
 
     private void handleStatusKO(SendEventInt response, SendAnalogDetailsInt sendPaperDetails, NotificationInt notification, Integer recIndex, List<LegalFactsIdInt> legalFactsListEntryIds) {
         PnAuditLogEvent logEvent = buildAuditLog(notification.getIun(), recIndex, response, sendPaperDetails);
-        logEvent.generateFailure("Paper channel analogFailureAttempt with failure cause {} ", response.getDeliveryFailureCause()).log();
+        logEvent.generateSuccess("WARNING Analog notification failed with failure cause {} ", response.getDeliveryFailureCause()).log();
 
         // External channel non è riuscito a effettuare la notificazione, si passa al prossimo step del workflow
         analogWorkflowUtils.addAnalogFailureAttemptToTimeline(notification, sendPaperDetails.getSentAttemptMade(), legalFactsListEntryIds, response.getDiscoveredAddress(), response.getDeliveryFailureCause() == null ? null : List.of(response.getDeliveryFailureCause()), sendPaperDetails);

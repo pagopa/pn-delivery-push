@@ -60,6 +60,8 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.SCHEDULE_ANALOG_WORKFLOW, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET) //Con i MultiDestinatari potrebbe essere schedulato l'analog workflow anche in delivering
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_COURTESY_MESSAGE, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET) //Con i MultiDestinatari potrebbe essere inviato il messaggio di cortesia in delivering
                 .withTimelineGoToState(TimelineElementCategoryInt.AAR_GENERATION, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET) //Multi Destinatari
+                .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_SIMPLE_REGISTERED_LETTER, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET) //Multi Destinatari
+                .withTimelineGoToState(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET) //Multi Destinatari
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
 
                 //STATE CHANGE

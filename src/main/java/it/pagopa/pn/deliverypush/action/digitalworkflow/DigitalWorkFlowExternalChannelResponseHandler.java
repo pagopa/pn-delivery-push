@@ -130,7 +130,7 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
 
         PnAuditLogEvent logEvent =buildAuditLog( digitalResultInfos );
 
-        logEvent.generateFailure("Notification failed with eventCode={} eventDetails={}",
+        logEvent.generateSuccess("WARNING Digital notification failed with eventCode={} eventDetails={}",
                 digitalResultInfos.getResponse().getEventCode(), digitalResultInfos.getResponse().getEventDetails()).log();
 
         log.debug("Response is for 'DELIVERY FAILURE' generatedMessage={} - iun={} id={}", digitalResultInfos.getResponse().getGeneratedMessage(), iun, digitalResultInfos.getRecIndex());
