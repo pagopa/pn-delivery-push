@@ -66,13 +66,17 @@ public class CompletionWorkFlowHandler {
 
                     if( Boolean.FALSE.equals( mvpParameterConsumer.isMvp( senderTaxId ) ) ){
                         String legalFactIdFailure = pecDeliveryWorkflowLegalFactsGenerator.generatePecDeliveryWorkflowLegalFact(notification, recIndex, status, completionWorkflowDate);
-                        timelineService.addTimelineElement(timelineUtils.buildFailureDigitalWorkflowTimelineElement(notification, recIndex, legalFactIdFailure), notification);
+                        
+                        Instant legalFactGenerationDate = Instant.now();
+                        timelineService.addTimelineElement(timelineUtils.buildFailureDigitalWorkflowTimelineElement(notification, recIndex, legalFactIdFailure, legalFactGenerationDate), notification);
+                        refinementScheduler.scheduleDigitalRefinement(notification, recIndex, legalFactGenerationDate , status);
                         registeredLetterSender.prepareSimpleRegisteredLetter(notification, recIndex);
 
                     } else {
                         String legalFactIdFailure = pecDeliveryWorkflowLegalFactsGenerator.generatePecDeliveryWorkflowLegalFact(notification, recIndex, status, completionWorkflowDate);
-                        timelineService.addTimelineElement(timelineUtils.buildFailureDigitalWorkflowTimelineElement(notification, recIndex, legalFactIdFailure), notification);
-
+                        Instant legalFactGenerationDate = Instant.now();
+                        timelineService.addTimelineElement(timelineUtils.buildFailureDigitalWorkflowTimelineElement(notification, recIndex, legalFactIdFailure, legalFactGenerationDate), notification);
+    
                         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
                         if( ! isNotificationAlreadyViewed ){
                             log.info("Paper message is not handled, registered Letter will not be sent to externalChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);

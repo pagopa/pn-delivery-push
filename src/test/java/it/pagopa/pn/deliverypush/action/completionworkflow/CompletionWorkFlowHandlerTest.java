@@ -101,7 +101,7 @@ class CompletionWorkFlowHandlerTest {
         //THEN
         Mockito.verify(registeredLetterSender).prepareSimpleRegisteredLetter(notification, recIndex);
         
-        Mockito.verify(timelineUtils).buildFailureDigitalWorkflowTimelineElement(notification, recIndex, legalFactId);
+        Mockito.verify(timelineUtils).buildFailureDigitalWorkflowTimelineElement( Mockito.eq(notification), Mockito.eq(recIndex), Mockito.eq(legalFactId), Mockito.any(Instant.class));
         
         // il flusso termina con la prepare, la completition è asincrona
     }
@@ -138,7 +138,7 @@ class CompletionWorkFlowHandlerTest {
         
         //Viene verificato che non sia stato aggiunto l'elemento di timeline di failure
         Mockito.verify(timelineUtils, Mockito.times(1)).buildFailureDigitalWorkflowTimelineElement(Mockito.any(NotificationInt.class),
-                Mockito.anyInt(), Mockito.anyString());
+                Mockito.anyInt(), Mockito.anyString(), Mockito.any(Instant.class));
         
         //Viene verificato che non sia stato aggiunto l'elemento di timeline di not handled
         Mockito.verify(timelineUtils, Mockito.times(0)).buildNotHandledTimelineElement(Mockito.any(NotificationInt.class),
@@ -177,7 +177,7 @@ class CompletionWorkFlowHandlerTest {
 
         //Viene verificato che non sia stato aggiunto l'elemento di timeline di failure
         Mockito.verify(timelineUtils, Mockito.times(1)).buildFailureDigitalWorkflowTimelineElement(Mockito.any(NotificationInt.class),
-                Mockito.anyInt(), Mockito.anyString());
+                Mockito.anyInt(), Mockito.anyString(), Mockito.any(Instant.class));
 
         //Viene verificato che non sia aggiunto l'elemento di timeline di not handled
         Mockito.verify(timelineUtils).buildNotHandledTimelineElement(Mockito.any(NotificationInt.class),

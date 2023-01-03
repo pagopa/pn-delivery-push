@@ -2,7 +2,6 @@ package it.pagopa.pn.deliverypush.action.choosedeliverymode;
 
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
-import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -27,7 +26,6 @@ public class ChooseDeliveryModeHandler {
     private final SchedulerService schedulerService;
     private final PublicRegistryService publicRegistryService;
     private final ChooseDeliveryModeUtils chooseDeliveryUtils;
-    private final InstantNowSupplier instantNowSupplier;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private final NotificationService notificationService;
 
@@ -35,14 +33,12 @@ public class ChooseDeliveryModeHandler {
                                      DigitalWorkFlowHandler digitalWorkFlowHandler,
                                      SchedulerService schedulerService,
                                      PublicRegistryService publicRegistryService,
-                                     InstantNowSupplier instantNowSupplier,
                                      PnDeliveryPushConfigs pnDeliveryPushConfigs,
                                      NotificationService notificationService) {
         this.chooseDeliveryUtils = chooseDeliveryUtils;
         this.digitalWorkFlowHandler = digitalWorkFlowHandler;
         this.schedulerService = schedulerService;
         this.publicRegistryService = publicRegistryService;
-        this.instantNowSupplier = instantNowSupplier;
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
         this.notificationService = notificationService;
     }
@@ -133,9 +129,9 @@ public class ChooseDeliveryModeHandler {
             Instant sendDate = sendCourtesyMessageDetails.getSendDate();
             
             schedulingDate = sendDate.plus(pnDeliveryPushConfigs.getTimeParams().getWaitingForReadCourtesyMessage());//5 Days
-            log.info("Courtesy message is present, need to schedule analog workflow at={}  - iun={} id={} ", schedulingDate, iun, recIndex);
+            log.info("Courtesy message is present, need to schedule analog workflow at={} courtesySendDate is {}- iun={} id={} ", schedulingDate, sendDate, iun, recIndex);
         } else {
-            schedulingDate = instantNowSupplier.get();
+            schedulingDate = Instant.now();
             log.info("Courtesy message is not present, analog workflow can be started now  - iun={} id={} ", iun, recIndex);
         }
         chooseDeliveryUtils.addScheduleAnalogWorkflowToTimeline(recIndex, notification);

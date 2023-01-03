@@ -278,7 +278,7 @@ class TimelineUtilsTest {
         String legalFactId = "001";
 
         TimelineElementInternal actual = timelineUtils.buildFailureDigitalWorkflowTimelineElement(
-                notification, recIndex, legalFactId
+                notification, recIndex, legalFactId, Instant.now()
         );
 
         Assertions.assertAll(
