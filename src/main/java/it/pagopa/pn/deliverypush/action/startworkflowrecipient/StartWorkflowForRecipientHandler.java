@@ -23,18 +23,15 @@ public class StartWorkflowForRecipientHandler {
     private final SchedulerService schedulerService;
     private final AarUtils aarUtils;
     private final NotificationService notificationService;
-    private final PnAuditLogBuilder auditLogBuilder;
     
     public StartWorkflowForRecipientHandler(CourtesyMessageUtils courtesyMessageUtils,
                                             SchedulerService schedulerService,
                                             AarUtils aarUtils,
-                                            NotificationService notificationService,
-                                            PnAuditLogBuilder pnAuditLogBuilder) {
+                                            NotificationService notificationService) {
         this.courtesyMessageUtils = courtesyMessageUtils;
         this.schedulerService = schedulerService;
         this.aarUtils = aarUtils;
         this.notificationService = notificationService;
-        this.auditLogBuilder = pnAuditLogBuilder;
     }
 
     public void startNotificationWorkflowForRecipient(String iun, int recIndex, RecipientsWorkflowDetails details) {
@@ -57,6 +54,7 @@ public class StartWorkflowForRecipientHandler {
     }
     private void generateAAR(NotificationInt notification, Integer recIndex) {
         // ... genero il pdf dell'AAR, salvo su Safestorage e genero elemento in timeline AAR_GENERATION, potrebbe servirmi dopo ...
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_AAR, "Notification AAR generation for iun={} and recIndex={}", notification.getIun(), recIndex)
                 .iun(notification.getIun())

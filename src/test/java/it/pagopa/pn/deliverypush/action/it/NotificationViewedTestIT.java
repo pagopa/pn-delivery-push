@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.action.it;
 
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
-import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowPaperChannelResponseHandler;
@@ -75,7 +74,6 @@ import static org.mockito.ArgumentMatchers.eq;
 @ContextConfiguration(classes = {
         StartWorkflowHandler.class,
         StartWorkflowForRecipientHandler.class,
-        PnAuditLogBuilder.class,
         AnalogWorkflowHandler.class,
         ChooseDeliveryModeHandler.class,
         DigitalWorkFlowHandler.class,
