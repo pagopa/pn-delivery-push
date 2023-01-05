@@ -141,6 +141,7 @@ class DigitalTestIT {
         }
     }
 
+
     @SpyBean
     private ExternalChannelMock externalChannelMock;
 
