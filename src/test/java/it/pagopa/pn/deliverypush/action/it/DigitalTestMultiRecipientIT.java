@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.action.it;
 
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
-import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowPaperChannelResponseHandler;
@@ -35,6 +34,7 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
+import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClientReactiveImpl;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClientReactiveImpl;
@@ -47,6 +47,7 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -72,7 +73,6 @@ import static org.awaitility.Awaitility.await;
 @ContextConfiguration(classes = {
         StartWorkflowHandler.class,
         StartWorkflowForRecipientHandler.class,
-        PnAuditLogBuilder.class,
         AnalogWorkflowHandler.class,
         ChooseDeliveryModeHandler.class,
         DigitalWorkFlowHandler.class,
@@ -225,6 +225,11 @@ class DigitalTestMultiRecipientIT {
         safeStorageClientMock.clear();
     }
 
+    @AfterEach
+    public void afterEach(){
+        ConsoleAppenderCustom.checkLogs();
+    }
+    
     // Il primo destinatario è UNREACHBLE, il secondo è raggiungibile
     @Test
     void rec1FailRec2GeneralOk() {
@@ -475,11 +480,16 @@ class DigitalTestMultiRecipientIT {
                         .sentAttemptMade(0)
                         .build()
         );
+
+        PhysicalAddressInt paPhysicalAddress = PhysicalAddressBuilder.builder()
+                .withAddress( ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
+                .build();
         
         NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId01)
                 .withInternalId("ANON_"+taxId01)
                 .withDigitalDomicile(digitalDomicile1)
+                .withPhysicalAddress(paPhysicalAddress)
                 .build();
 
         //Secondo recipient

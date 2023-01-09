@@ -2,8 +2,6 @@ package it.pagopa.pn.deliverypush.action.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.commons.log.PnAuditLogBuilder;
-import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
@@ -30,13 +28,11 @@ class AttachmentUtilsTest {
     private AttachmentUtils attachmentUtils;
 
     private SafeStorageService safeStorageService;
-    private PnAuditLogBuilder auditLogBuilder;
 
     @BeforeEach
     public void setup() {
-        auditLogBuilder = Mockito.mock(PnAuditLogBuilder.class);
         safeStorageService = Mockito.mock(SafeStorageService.class);
-        attachmentUtils = new AttachmentUtils(safeStorageService, auditLogBuilder);
+        attachmentUtils = new AttachmentUtils(safeStorageService);
     }
 
     @Test
@@ -44,14 +40,6 @@ class AttachmentUtilsTest {
         //GIVEN
         NotificationRecipientInt recipient = getNotificationRecipientInt();
         NotificationInt notification = getNotificationInt(recipient);
-
-        PnAuditLogEvent logEvent = Mockito.mock(PnAuditLogEvent.class);
-
-        Mockito.when(auditLogBuilder.build()).thenReturn(logEvent);
-        Mockito.when(auditLogBuilder.iun(Mockito.anyString())).thenReturn(auditLogBuilder);
-        Mockito.when(auditLogBuilder.before(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(auditLogBuilder);
-        Mockito.when(logEvent.generateSuccess()).thenReturn(logEvent);
-        Mockito.when(logEvent.generateFailure(Mockito.any(), Mockito.any())).thenReturn(logEvent);
 
         FileDownloadResponseInt resp1 = new FileDownloadResponseInt();
         resp1.setKey("abcd");
@@ -75,8 +63,6 @@ class AttachmentUtilsTest {
 
         //THEN
         Mockito.verify(safeStorageService, Mockito.times(2)).getFile(Mockito.any(), Mockito.anyBoolean());
-        Mockito.verify(logEvent, Mockito.times(1)).generateSuccess();
-        Mockito.verify(logEvent, Mockito.times(0)).generateFailure(Mockito.any(), Mockito.any());
     }
 
     @Test
@@ -85,25 +71,14 @@ class AttachmentUtilsTest {
         NotificationRecipientInt recipient = getNotificationRecipientInt();
         NotificationInt notification = getNotificationInt(recipient);
 
-        PnAuditLogEvent logEvent = Mockito.mock(PnAuditLogEvent.class);
-
-        Mockito.when(auditLogBuilder.build()).thenReturn(logEvent);
-        Mockito.when(auditLogBuilder.iun(Mockito.anyString())).thenReturn(auditLogBuilder);
-        Mockito.when(auditLogBuilder.before(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(auditLogBuilder);
-        Mockito.when(logEvent.generateSuccess()).thenReturn(logEvent);
-        Mockito.when(logEvent.generateFailure(Mockito.any(), Mockito.any())).thenReturn(logEvent);
-
         FileDownloadResponseInt resp = new FileDownloadResponseInt();
         resp.setKey("abcd");
 
+        //WHEN
         Mockito.when(safeStorageService.getFile(Mockito.any(), Mockito.anyBoolean())).thenReturn(resp);
 
-        //WHEN
-        assertThrows(PnValidationException.class, () -> attachmentUtils.validateAttachment(notification));
-
         //THEN
-        Mockito.verify(logEvent, Mockito.times(0)).generateSuccess();
-        Mockito.verify(logEvent, Mockito.times(1)).generateFailure(Mockito.any(), Mockito.any());
+        assertThrows(PnValidationException.class, () -> attachmentUtils.validateAttachment(notification));
     }
 
     @Test
