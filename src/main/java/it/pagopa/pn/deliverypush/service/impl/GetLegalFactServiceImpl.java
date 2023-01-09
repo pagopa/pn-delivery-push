@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.service.impl;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -77,8 +78,12 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
             // la key è la legalfactid
             FileDownloadResponseInt fileDownloadResponse = safeStorageService.getFile(legalfactId, false).block();
             LegalFactDownloadMetadataResponse response = generateResponse(iun, legalFactType, legalfactId, fileDownloadResponse);
-            logEvent.generateSuccess().log();
-
+            String fileName = response.getFilename();
+            String url = response.getUrl();
+            String retryAfter = String.valueOf( response.getRetryAfter() );
+            String message = LogUtils.createAuditLogMessageForDownloadDocument( fileName, url, retryAfter );
+            logEvent.generateSuccess("getLegalFactMetadata iun={} legalFactId={} senderReceiverId={} {}",
+                    iun, legalfactId, senderReceiverId, message).log();
             return response;
         } catch (Exception exc) {
             logEvent.generateFailure("Exception in getLegalFactMetadata exc={}", exc).log();

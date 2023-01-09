@@ -31,12 +31,9 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 @Slf4j
 public class AttachmentUtils {
     private final SafeStorageService safeStorageService;
-    private final PnAuditLogBuilder auditLogBuilder;
 
-    public AttachmentUtils(SafeStorageService safeStorageService,
-                           PnAuditLogBuilder auditLogBuilder) {
+    public AttachmentUtils(SafeStorageService safeStorageService) {
         this.safeStorageService = safeStorageService;
-        this.auditLogBuilder = auditLogBuilder;
     }
 
     public List<String> getNotificationAttachments(NotificationInt notification, int recIndex) {
@@ -58,6 +55,7 @@ public class AttachmentUtils {
     }
     
     public void validateAttachment(NotificationInt notification ) throws PnValidationException {
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_VALID, "Start check attachment for iun={}", notification.getIun() )
                 .iun(notification.getIun())

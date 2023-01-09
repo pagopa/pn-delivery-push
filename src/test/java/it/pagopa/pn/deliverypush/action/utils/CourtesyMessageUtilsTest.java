@@ -55,12 +55,11 @@ class CourtesyMessageUtilsTest {
         externalChannelService = Mockito.mock(ExternalChannelService.class);
         timelineService = Mockito.mock(TimelineService.class);
         timelineUtils = Mockito.mock(TimelineUtils.class);
-        instantNowSupplier = Mockito.mock(InstantNowSupplier.class);
         notificationUtils = Mockito.mock(NotificationUtils.class);
         iOservice = Mockito.mock(IoService.class);
 
         courtesyMessageUtils = new CourtesyMessageUtils(addressBookService, externalChannelService,
-                timelineService, timelineUtils, instantNowSupplier, notificationUtils, iOservice);
+                timelineService, timelineUtils, notificationUtils, iOservice);
     }
 
 

@@ -15,6 +15,7 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.Optional;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ERRORCOURTESY;
 
@@ -27,7 +28,6 @@ public class CourtesyMessageUtils {
     private final ExternalChannelService externalChannelService;
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
-    private final InstantNowSupplier instantNowSupplier;
     private final NotificationUtils notificationUtils;
     private final IoService iOservice;
 
@@ -35,14 +35,12 @@ public class CourtesyMessageUtils {
                                 ExternalChannelService externalChannelService,
                                 TimelineService timelineService,
                                 TimelineUtils timelineUtils,
-                                InstantNowSupplier instantNowSupplier,
                                 NotificationUtils notificationUtils,
                                 IoService iOservice) {
         this.addressBookService = addressBookService;
         this.externalChannelService = externalChannelService;
         this.timelineService = timelineService;
         this.timelineUtils = timelineUtils;
-        this.instantNowSupplier = instantNowSupplier;
         this.notificationUtils = notificationUtils;
         this.iOservice = iOservice;
     }
@@ -121,7 +119,7 @@ public class CourtesyMessageUtils {
 
     private void addSendCourtesyMessageToTimeline(NotificationInt notification, Integer recIndex, CourtesyDigitalAddressInt courtesyAddress, String eventId) {
         addTimelineElement(
-                timelineUtils.buildSendCourtesyMessageTimelineElement(recIndex, notification, courtesyAddress, instantNowSupplier.get(), eventId),
+                timelineUtils.buildSendCourtesyMessageTimelineElement(recIndex, notification, courtesyAddress, Instant.now(), eventId),
                 notification
         );
     }

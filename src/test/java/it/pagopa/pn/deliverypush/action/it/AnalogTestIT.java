@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.action.it;
 
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
-import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowPaperChannelResponseHandler;
@@ -40,6 +39,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsI
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault.PnDataVaultClientReactiveImpl;
+import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClientReactiveImpl;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelPrepareRequest;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
@@ -52,6 +52,7 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -79,7 +80,6 @@ import static org.awaitility.Awaitility.with;
 @ContextConfiguration(classes = {
         StartWorkflowHandler.class,
         StartWorkflowForRecipientHandler.class,
-        PnAuditLogBuilder.class,
         AnalogWorkflowHandler.class,
         ChooseDeliveryModeHandler.class,
         DigitalWorkFlowHandler.class,
@@ -213,6 +213,11 @@ class AnalogTestIT {
         timelineDaoMock.clear();
         paperNotificationFailedDaoMock.clear();
         pnDataVaultClientMock.clear();
+    }
+
+    @AfterEach
+    public void afterEach(){
+        ConsoleAppenderCustom.checkLogs();
     }
     
     @Test
@@ -776,10 +781,27 @@ class AnalogTestIT {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
+        // Viene atteso fino a che per i due recipient non si vada in refinement
         await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+                Assertions.assertTrue(timelineService.getTimelineElement(
+                        iun,
+                        TimelineEventId.REFINEMENT.buildEventId(
+                                EventId.builder()
+                                        .iun(iun)
+                                        .recIndex(recIndex1)
+                                        .build())).isPresent())
         );
+
+        await().untilAsserted(() ->
+                Assertions.assertTrue(timelineService.getTimelineElement(
+                        iun,
+                        TimelineEventId.REFINEMENT.buildEventId(
+                                EventId.builder()
+                                        .iun(iun)
+                                        .recIndex(recIndex2)
+                                        .build())).isPresent())
+        );
+
         
         //Viene verificato che sia stato inviato un messaggio ad ogni indirizzo presente nei courtesyaddress per il recipient1
         TestUtils.checkSendCourtesyAddressFromTimeline(iun, recIndex1, listCourtesyAddressRecipient1, timelineService, externalChannelMock);
@@ -962,11 +984,27 @@ class AnalogTestIT {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
+        // Viene atteso fino a che per entrambi i recipient non sia stato raggiunto il refinement
         await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+                Assertions.assertTrue(timelineService.getTimelineElement(
+                        iun,
+                        TimelineEventId.REFINEMENT.buildEventId(
+                                EventId.builder()
+                                        .iun(iun)
+                                        .recIndex(recIndex1)
+                                        .build())).isPresent())
         );
-        
+
+        await().untilAsserted(() ->
+                Assertions.assertTrue(timelineService.getTimelineElement(
+                        iun,
+                        TimelineEventId.REFINEMENT.buildEventId(
+                                EventId.builder()
+                                        .iun(iun)
+                                        .recIndex(recIndex2)
+                                        .build())).isPresent())
+        );
+
         //Viene verificato che sia stato inviato un messaggio ad ogni indirizzo presente nei courtesyaddress
         TestUtils.checkSendCourtesyAddressFromTimeline(iun, recIndex1, listCourtesyAddressRecipient1, timelineService, externalChannelMock);
 
@@ -1157,9 +1195,27 @@ class AnalogTestIT {
 
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+                Assertions.assertTrue(timelineService.getTimelineElement(
+                        iun,
+                        TimelineEventId.REFINEMENT.buildEventId(
+                                EventId.builder()
+                                        .iun(iun)
+                                        .recIndex(rec1Index)
+                                        .build())).isPresent())
+
         );
-        
+
+        await().untilAsserted(() ->
+                Assertions.assertTrue(timelineService.getTimelineElement(
+                        iun,
+                        TimelineEventId.REFINEMENT.buildEventId(
+                                EventId.builder()
+                                        .iun(iun)
+                                        .recIndex(rec2Index)
+                                        .build())).isPresent())
+
+        );
+
         //Viene verificato che sia stato inviato un messaggio ad ogni indirizzo presente nei courtesyaddress
         TestUtils.checkSendCourtesyAddressFromTimeline(iun, rec1Index, listCourtesyAddressRecipient1, timelineService, externalChannelMock);
 
@@ -1201,15 +1257,7 @@ class AnalogTestIT {
                                 .recIndex(rec1Index)
                                 .build())).isPresent());
 
-        //Viene verificato che sia avvenuto il perfezionamento
-        Assertions.assertTrue(timelineService.getTimelineElement(
-                iun,
-                TimelineEventId.REFINEMENT.buildEventId(
-                        EventId.builder()
-                                .iun(iun)
-                                .recIndex(rec1Index)
-                                .build())).isPresent());
-
+        
         //Viene effettuato il check dei legalFacts generati per il primo recipient
         TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
                 .notificationReceivedLegalFactGenerated(true)
@@ -1352,7 +1400,7 @@ class AnalogTestIT {
         startWorkflowHandler.startWorkflow(iun);
 
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
-        await().atMost(Duration.ofSeconds(100)).untilAsserted(() ->
+        await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
                 Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
 
