@@ -17,6 +17,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
 import it.pagopa.pn.deliverypush.service.ExternalChannelService;
+import it.pagopa.pn.deliverypush.service.NotificationService;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,6 +39,9 @@ class ExternalChannelServiceImplTest {
     @Mock
     private DigitalWorkFlowUtils digitalWorkFlowUtils;
 
+    @Mock
+    private NotificationService notificationService;
+
     private ExternalChannelService externalChannelService;
 
     @BeforeEach
@@ -46,7 +50,8 @@ class ExternalChannelServiceImplTest {
                 externalChannelUtils,
                 externalChannel,
                 notificationUtils,
-                digitalWorkFlowUtils);
+                digitalWorkFlowUtils,
+                notificationService);
     }
 
     @ExtendWith(MockitoExtension.class)

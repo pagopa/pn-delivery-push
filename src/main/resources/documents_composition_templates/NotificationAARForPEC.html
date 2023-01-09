@@ -291,7 +291,7 @@
                                           line-height: 40px;
                                         "
                                                         >
-                                                            [${evento}]
+                                                            ${notification.subject}
                                                         </h1>
                                                     </div>
                                                 </td>
@@ -343,7 +343,7 @@
                                                         <p>
                                                             Hai ricevuto su Piattaforma Notifiche
                                                             una notifica da parte di
-                                                            <strong>[${mittente}]</strong>. Una
+                                                            <strong>${notification.sender.paDenomination}</strong>. Una
                                                             notifica è una
                                                             <strong
                                                             >una comunicazione a valore
@@ -360,7 +360,7 @@
                                                             >visualizzare i documenti</strong
                                                             >.
                                                         </p>
-                                                        <button>Leggi la notifica</button>
+                                                        <a href="${qrCodeQuickAccessLink}"><button>Leggi la notifica</button></a>
                                                         <!-- Perfezionamento Notifica -->
                                                         <p>
                                                             <strong
@@ -368,7 +368,7 @@
                                                                 Postale?</strong
                                                             >
                                                             Segui le indicazioni che trovi
-                                                            nell'allegato<!-- <a href="${PNFaqURL}" class="link" style="color: #0073E6">Quando si perfeziona una notifica?</a> -->
+                                                            nell'allegato
                                                         </p>
 
 
@@ -378,8 +378,8 @@
                                         font-size: 14px;
                                       ">
                                                             Ricevi questo avviso di avvenuta
-                                                            ricezione in qualità di [persona fisica]
-                                                            con Codice Fiscale [${codiceFiscale}].
+                                                            ricezione in qualità di persona ${recipientType}
+                                                            con Codice Fiscale ${recipient.taxId}.
                                                             Piattaforma Notifiche è uno strumento
                                                             che rende l’invio di notifiche da parte
                                                             della Pubblica Amministrazione più
@@ -387,7 +387,7 @@
 
                                                         </p>
                                                         <a class="link"
-                                                           style="color: #0073e6">Scopri di più</a>
+                                                           style="color: #0073e6" href="${PNFaqURL}">Scopri di più</a>
                                                     </div>
                                                 </td>
                                             </tr>
