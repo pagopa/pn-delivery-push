@@ -114,7 +114,7 @@ public class AttachmentUtils {
         NotificationDocumentInt.Ref ref = attachment.getRef();
         FileDownloadResponseInt fd = null;
         try {
-            fd = safeStorageService.getFile(ref.getKey(),true);
+            fd = safeStorageService.getFile(ref.getKey(),true).block();
         } catch ( PnNotFoundException ex ) {
             throw new PnValidationFileNotFoundException(
                     ERROR_CODE_DELIVERYPUSH_NOTFOUND,
@@ -158,9 +158,9 @@ public class AttachmentUtils {
         request.setStatus(statusRequest);
         request.setRetentionUntil(retentionUntilRequest);
 
-        UpdateFileMetadataResponseInt fd = safeStorageService.updateFileMetadata(fileKey, request);
+        UpdateFileMetadataResponseInt fd = safeStorageService.updateFileMetadata(fileKey, request).block();
 
-        if (!fd.getResultCode().startsWith("2"))
+        if (fd != null && !fd.getResultCode().startsWith("2"))
         {
             // è un FAIL
             log.error("Cannot change metadata for attachment key={} result={}", fileKey, fd);

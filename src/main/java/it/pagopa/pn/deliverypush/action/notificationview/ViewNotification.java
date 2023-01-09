@@ -4,17 +4,20 @@ import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.startworkflow.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.BaseRecipientDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 
@@ -31,8 +34,9 @@ public class ViewNotification {
     private final TimelineService timelineService;
     private final AttachmentUtils attachmentUtils;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
-
-    public void startVewNotificationProcess(NotificationInt notification,
+    private final ConfidentialInformationService confidentialInformationService;
+    
+    public Mono<Void> startVewNotificationProcess(NotificationInt notification,
                                             NotificationRecipientInt recipient,
                                             Integer recIndex,
                                             RaddInfo raddInfo,
@@ -40,20 +44,42 @@ public class ViewNotification {
                                             Instant eventTimestamp
     ) {
         log.info("Start view notification process - iun={} id={}", notification.getIun(), recIndex);
+        return Mono.fromRunnable( () ->{
+                    attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement());
+                    Mono<BaseRecipientDtoInt> monoRecipientDenomination = Mono.empty();
+                    if(delegateInfo != null){
+                        monoRecipientDenomination = confidentialInformationService.getRecipientDenominationByInternalId(delegateInfo.getInternalId());
+                    }
+                    Mono<String> monoLegalFactId = legalFactStore.saveNotificationViewedLegalFact(notification, recipient, instantNowSupplier.get());
+                    Mono<Integer> monoNotificationCost = notificationCost.getNotificationCost(notification, recIndex);
 
-        String legalFactId = legalFactStore.saveNotificationViewedLegalFact(notification, recipient, instantNowSupplier.get());
+                    Mono.zip(monoLegalFactId, monoNotificationCost, monoRecipientDenomination)
+                            .doOnSuccess( res -> {
+                                log.info("Get information for view notification process - iun={} id={}", notification.getIun(), recIndex);
+                            })
+                            .doOnNext(
+                                    response -> {
+                                        
+                                        if(response.getT3() != null){
+                                            String denomination = response.getT3().getDenomination();
+                                            delegateInfo.toBuilder()
+                                                    .denomination(denomination).build();
 
-        Integer cost = notificationCost.getNotificationCost(notification, recIndex);
-        log.debug("Notification cost is {} - iun {} id {}",cost, notification.getIun(), recIndex);
-
-        attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement());
-        
-        addTimelineElement(
-                timelineUtils.buildNotificationViewedTimelineElement(notification, recIndex, legalFactId, cost, raddInfo, delegateInfo, eventTimestamp),
-                notification
-        ) ;
-
-        paperNotificationFailedService.deleteNotificationFailed(recipient.getInternalId(), notification.getIun()); //Viene eliminata l'eventuale istanza di notifica fallita dal momento che la stessa è stata letta
+                                        }
+                                        Integer cost = response.getT2();
+                                        String legalFactId = response.getT1();
+                                        
+                                        addTimelineElement(
+                                                timelineUtils.buildNotificationViewedTimelineElement(notification, recIndex, legalFactId, cost, raddInfo,
+                                                        delegateInfo, eventTimestamp),
+                                                notification
+                                        );
+                                    }
+                            ).doOnNext( res ->
+                                    paperNotificationFailedService.deleteNotificationFailed(recipient.getInternalId(), notification.getIun()) //Viene eliminata l'eventuale istanza di notifica fallita dal momento che la stessa è stata letta
+                            );
+                }
+        );
     }
     
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {

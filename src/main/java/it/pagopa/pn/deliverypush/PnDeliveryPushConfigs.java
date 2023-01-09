@@ -39,6 +39,7 @@ public class PnDeliveryPushConfigs {
     private String safeStorageBaseUrl;
 
     private String safeStorageCxId;
+    
     private String safeStorageCxIdUpdatemetadata;
 
     private String userAttributesBaseUrl;

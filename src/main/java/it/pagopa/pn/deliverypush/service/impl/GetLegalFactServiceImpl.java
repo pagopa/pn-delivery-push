@@ -28,7 +28,6 @@ import org.springframework.stereotype.Service;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -76,7 +75,7 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
             
         try {
             // la key è la legalfactid
-            FileDownloadResponseInt fileDownloadResponse = safeStorageService.getFile(legalfactId, false);
+            FileDownloadResponseInt fileDownloadResponse = safeStorageService.getFile(legalfactId, false).block();
             LegalFactDownloadMetadataResponse response = generateResponse(iun, legalFactType, legalfactId, fileDownloadResponse);
             logEvent.generateSuccess().log();
 

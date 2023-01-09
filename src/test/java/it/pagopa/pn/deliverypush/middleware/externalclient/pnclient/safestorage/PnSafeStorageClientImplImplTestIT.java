@@ -28,9 +28,9 @@ import static org.mockserver.model.HttpResponse.response;
         "pn.delivery-push.safe-storage-base-url=http://localhost:9998",
 })
 @Import(LocalStackTestConfig.class)
-class PnSafeStorageClientReactiveImplTestIT {
+class PnSafeStorageClientImplImplTestIT {
     @Autowired
-    private PnSafeStorageClientReactive client;
+    private PnSafeStorageClient client;
 
     private static ClientAndServer mockServer;
 

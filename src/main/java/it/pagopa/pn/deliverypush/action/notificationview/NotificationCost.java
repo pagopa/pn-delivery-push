@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @Component
@@ -22,8 +23,9 @@ public class NotificationCost {
     }
 
     @Nullable
-    public Integer getNotificationCost(NotificationInt notification, Integer recIndex) {
-        Integer notificationCost = null;
+    public Mono<Integer> getNotificationCost(NotificationInt notification, Integer recIndex) {
+        //Trasformato in MONO anche per sviluppi futuri, in modo da adeguare correttamente i client
+        Mono<Integer> notificationCost = Mono.empty();
 
         String elementId = TimelineEventId.REFINEMENT.buildEventId(
                 EventId.builder()

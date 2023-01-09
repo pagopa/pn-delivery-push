@@ -17,6 +17,7 @@ import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import reactor.core.publisher.Mono;
 
 class PnSafeStorageClientImplTest {
 
@@ -46,7 +47,7 @@ class PnSafeStorageClientImplTest {
         fileUploadApi = new FileUploadApi(apiClient);
         fileMetadataUpdateApi = new FileMetadataUpdateApi(apiClient);
 
-        client = new PnSafeStorageClientImpl(restTemplate, cfg);
+        client = new PnSafeStorageClientImpl(cfg, restTemplate);
     }
 
     @Test
@@ -60,8 +61,9 @@ class PnSafeStorageClientImplTest {
         Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(response);
 
-        FileDownloadResponse actual = client.getFile("fileKey", Boolean.TRUE);
-
+        Mono<FileDownloadResponse> monoActual = client.getFile("fileKey", Boolean.TRUE);
+        FileDownloadResponse actual = monoActual.block();
+        
         Assertions.assertEquals(fileDownloadResponse, actual);
     }
 
@@ -103,8 +105,9 @@ class PnSafeStorageClientImplTest {
         Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(response);
 
-        FileCreationResponse actual = client.createFile(fileCreationRequest, "sha256");
+        Mono<FileCreationResponse> monoActual = client.createFile(fileCreationRequest, "sha256");
 
+        FileCreationResponse actual = monoActual.block();
         Assertions.assertEquals(fileCreationResponse, actual);
     }
 
@@ -127,8 +130,9 @@ class PnSafeStorageClientImplTest {
 
         Mockito.when(cfg.getSafeStorageCxIdUpdatemetadata()).thenReturn("pn-delivery-002");
 
-        OperationResultCodeResponse actual = client.updateFileMetadata("fileKey", updateFileMetadataRequest);
+        Mono<OperationResultCodeResponse> monoActual = client.updateFileMetadata("fileKey", updateFileMetadataRequest);
 
+        OperationResultCodeResponse actual = monoActual.block();
         Assertions.assertEquals(operationResultCodeResponse, actual);
     }
 

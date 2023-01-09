@@ -8,7 +8,6 @@ import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequ
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClientReactive;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +21,7 @@ class SafeStorageServiceImplTest {
     @Mock
     private PnSafeStorageClient safeStorageClient;
     @Mock
-    private PnSafeStorageClientReactive safeStorageClientReactive;
+    private PnSafeStorageClient safeStorageClientReactive;
     
     private SafeStorageServiceImpl safeStorageService;
     
@@ -43,12 +42,14 @@ class SafeStorageServiceImplTest {
         fileDownloadResponse.setDocumentType("type");
         
         Mockito.when(safeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
-                .thenReturn(fileDownloadResponse);
+                .thenReturn(Mono.just(fileDownloadResponse));
         
         //WHEN
-        FileDownloadResponseInt response = safeStorageService.getFile("test", true);
+        Mono<FileDownloadResponseInt> responseMono = safeStorageService.getFile("test", true);
         
         //THEN
+        Assertions.assertNotNull(responseMono);
+        FileDownloadResponseInt response = responseMono.block();
         Assertions.assertNotNull(response);
         Assertions.assertEquals(fileDownloadResponse.getKey(), response.getKey());
         Assertions.assertEquals(fileDownloadResponse.getChecksum(), response.getChecksum());
@@ -105,12 +106,13 @@ class SafeStorageServiceImplTest {
         expectedResponse.setSecret("secret");
         
         Mockito.when(safeStorageClient.createFile(Mockito.any(FileCreationWithContentRequest.class), Mockito.anyString()))
-                .thenReturn(expectedResponse);
+                .thenReturn(Mono.just(expectedResponse));
 
         //WHEN
-        FileCreationResponseInt response = safeStorageService.createAndUploadContent(fileCreationWithContentRequest);
+        Mono<FileCreationResponseInt> responseMono = safeStorageService.createAndUploadContent(fileCreationWithContentRequest);
 
         //THEN
+        FileCreationResponseInt response = responseMono.block();
         Assertions.assertNotNull(response);
         Assertions.assertEquals(response.getKey(), expectedResponse.getKey());
     }

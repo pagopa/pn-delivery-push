@@ -37,7 +37,7 @@ public class NotificationViewedEventHandler {
                 String iun = pnDeliveryNewNotificationEvent.getHeader().getIun();
                 int recipientIndex = pnDeliveryNewNotificationEvent.getPayload().getRecipientIndex();
                 Instant viewedDate = pnDeliveryNewNotificationEvent.getHeader().getCreatedAt();
-                NotificationViewDelegateInfo delegateBasicInfo = pnDeliveryNewNotificationEvent.getPayload().getDelegateBasicInfo();
+                NotificationViewDelegateInfo delegateBasicInfo = pnDeliveryNewNotificationEvent.getPayload().getDelegateInfo();
                 log.info("pnDeliveryNotificationViewedEventConsumer - iun {} id={} delegateBasicInfo={} viewedDate={}", iun, recipientIndex, viewedDate, delegateBasicInfo);
 
                 DelegateInfoInt delegateInfo = mapExternalToInternal(delegateBasicInfo);

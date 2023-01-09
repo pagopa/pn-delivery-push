@@ -17,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 
@@ -59,7 +60,7 @@ class RefinementHandlerTest {
         
         when(timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex)).thenReturn(Boolean.FALSE);
         when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
-        when(notificationCostService.getNotificationCost(notification, recIndex)).thenReturn(100);
+        when(notificationCostService.getNotificationCost(notification, recIndex)).thenReturn(Mono.just(100));
 
         refinementHandler.handleRefinement(iun, recIndex);
         

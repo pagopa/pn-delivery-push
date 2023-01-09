@@ -9,6 +9,7 @@ import it.pagopa.pn.deliverypush.service.NotificationCostService;
 import it.pagopa.pn.deliverypush.service.mapper.NotificationCostResponseMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TAXIDNOTICECODEFAILED;
 
@@ -22,8 +23,8 @@ public class NotificationCostServiceImpl implements NotificationCostService {
     }
 
     @Override
-    public Integer getNotificationCost(NotificationInt notificationInt, int recIndex) {
-        return 100;
+    public Mono<Integer> getNotificationCost(NotificationInt notificationInt, int recIndex) {
+        return Mono.just(100);
     }
 
     @Override

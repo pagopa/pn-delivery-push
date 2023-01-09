@@ -9,6 +9,7 @@ import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDt
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault.PnDataVaultClient;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault.PnDataVaultClientReactive;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,14 +27,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class ConfidentialInformationServiceImplTest {
     private ConfidentialInformationService confidentialInformationService;
     private PnDataVaultClient pnDataVaultClient;
+    private PnDataVaultClientReactive pnDataVaultClientReactive;
     
     @BeforeEach
     void setup() {
         pnDataVaultClient = Mockito.mock( PnDataVaultClient.class );
 
         confidentialInformationService = new ConfidentialInformationServiceImpl(
-                pnDataVaultClient
-        );
+                pnDataVaultClient,
+                pnDataVaultClientReactive);
 
     }
     

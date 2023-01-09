@@ -1,10 +1,10 @@
 package it.pagopa.pn.deliverypush.dto.mandate;
 
+import lombok.Builder;
 import lombok.Getter;
-import lombok.experimental.SuperBuilder;
 
 @Getter
-@SuperBuilder
+@Builder(toBuilder = true)
 public class DelegateInfoInt {
     private String internalId;
     private String operatorUuid;

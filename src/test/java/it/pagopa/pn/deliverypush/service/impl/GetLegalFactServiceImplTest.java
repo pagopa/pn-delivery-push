@@ -25,6 +25,7 @@ import it.pagopa.pn.deliverypush.utils.AuthUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import reactor.core.publisher.Mono;
 
 import java.io.File;
 import java.io.IOException;
@@ -146,7 +147,7 @@ class GetLegalFactServiceImplTest {
 
         //When
         Mockito.when( safeStorageService.getFile( Mockito.anyString(), Mockito.eq(false) ) )
-                .thenReturn( fileDownloadResponse );
+                .thenReturn(Mono.just(fileDownloadResponse) );
         
         NotificationInt notificationInt = newNotification();
         NotificationRecipientInt recipientInt = notificationInt.getRecipients().get(0);
@@ -183,7 +184,7 @@ class GetLegalFactServiceImplTest {
 
         //When
         Mockito.when( safeStorageService.getFile( Mockito.anyString(), Mockito.eq(false) ) )
-                .thenReturn( fileDownloadResponse );
+                .thenReturn( Mono.just(fileDownloadResponse) );
 
         NotificationInt notificationInt = newNotification();
         NotificationRecipientInt recipientInt = notificationInt.getRecipients().get(0);

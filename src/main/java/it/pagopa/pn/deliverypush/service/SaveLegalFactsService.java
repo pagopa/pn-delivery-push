@@ -5,6 +5,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.PdfInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
+import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.List;
@@ -22,7 +23,7 @@ public interface SaveLegalFactsService {
             Instant completionWorkflowDate
     );
     
-    String saveNotificationViewedLegalFact(
+    Mono<String> saveNotificationViewedLegalFact(
             NotificationInt notification,
             NotificationRecipientInt recipient,
             Instant timeStamp

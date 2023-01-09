@@ -17,8 +17,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+import reactor.core.publisher.Mono;
 
 import java.net.URI;
+import java.util.Objects;
 
 import static org.mockito.Mockito.mock;
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
@@ -52,7 +54,7 @@ class PnSafeStorageClientImplTestIT {
     void setup() {
         this.cfg = mock(PnDeliveryPushConfigs.class);
         Mockito.when(cfg.getSafeStorageBaseUrl()).thenReturn("http://localhost:8080");
-        this.safeStorageClient = new PnSafeStorageClientImpl(restTemplate, cfg);
+        this.safeStorageClient = new PnSafeStorageClientImpl(cfg, restTemplate);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -76,7 +78,7 @@ class PnSafeStorageClientImplTestIT {
 
         Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(response);
-        FileDownloadResponse result = safeStorageClient.getFile(fileKey, false);
+        Mono<FileDownloadResponse> result = safeStorageClient.getFile(fileKey, false);
 
         //Then
         Assertions.assertNotNull(result);
@@ -118,7 +120,7 @@ class PnSafeStorageClientImplTestIT {
                 .respond(response()
                         .withStatusCode(200));
 
-        FileCreationResponse result = safeStorageClient.createFile(fileCreationRequest, "sha");
+        Mono<FileCreationResponse> result = safeStorageClient.createFile(fileCreationRequest, "sha");
 
         //Then
         Assertions.assertNotNull(result);
@@ -190,8 +192,8 @@ class PnSafeStorageClientImplTestIT {
                 .respond(response()
                         .withStatusCode(200));
 
-        OperationResultCodeResponse result =  safeStorageClient.updateFileMetadata (fileKey, updateFileMetadataRequest);
-        Assertions.assertEquals(operationResultCodeResponse.getResultCode(), result.getResultCode());
+        Mono<OperationResultCodeResponse> result =  safeStorageClient.updateFileMetadata (fileKey, updateFileMetadataRequest);
+        Assertions.assertEquals(operationResultCodeResponse.getResultCode(), Objects.requireNonNull(result.block()).getResultCode());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -222,8 +224,8 @@ class PnSafeStorageClientImplTestIT {
                 .respond(response()
                         .withStatusCode(200));
 
-        OperationResultCodeResponse result = safeStorageClient.updateFileMetadata (fileKey, updateFileMetadataRequest);
+        Mono<OperationResultCodeResponse> result = safeStorageClient.updateFileMetadata (fileKey, updateFileMetadataRequest);
 
-        Assertions.assertEquals(operationResultCodeResponse.getResultCode(), result.getResultCode());
+        Assertions.assertEquals(operationResultCodeResponse.getResultCode(), Objects.requireNonNull(result.block()).getResultCode());
     }
 }

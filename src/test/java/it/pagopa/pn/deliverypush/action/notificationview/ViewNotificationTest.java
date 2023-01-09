@@ -9,6 +9,7 @@ import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 
@@ -42,17 +44,21 @@ class ViewNotificationTest {
 
     @Mock
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
+    
+    @Mock
+    private ConfidentialInformationService confidentialInformationService;
 
     private ViewNotification viewNotification;
     
     private NotificationUtils notificationUtils;
     
+
     @BeforeEach
     public void setup() {
         when(pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement()).thenReturn(120);
         notificationUtils = new NotificationUtils();
         viewNotification = new ViewNotification(instantNowSupplier, legalFactStore,
-                paperNotificationFailedService, notificationCost, timelineUtils, timelineService, attachmentUtils, pnDeliveryPushConfigs);
+                paperNotificationFailedService, notificationCost, timelineUtils, timelineService, attachmentUtils, pnDeliveryPushConfigs, confidentialInformationService);
     }
     
     @Test
@@ -66,9 +72,10 @@ class ViewNotificationTest {
         Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         String legalFactsId = "legalFactsId";
-        when(legalFactStore.saveNotificationViewedLegalFact(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(Instant.class))).thenReturn(legalFactsId);
+        when(legalFactStore.saveNotificationViewedLegalFact(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(Instant.class)))
+                .thenReturn(Mono.just(legalFactsId));
         int notificationCost = 10;
-        when(this.notificationCost.getNotificationCost(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(notificationCost);
+        when(this.notificationCost.getNotificationCost(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(Mono.just(notificationCost));
         when(instantNowSupplier.get()).thenReturn(Instant.now());
         Instant viewDate = Instant.now();
 
