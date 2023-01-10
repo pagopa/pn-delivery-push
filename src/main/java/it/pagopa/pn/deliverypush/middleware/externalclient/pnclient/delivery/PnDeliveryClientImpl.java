@@ -56,11 +56,10 @@ public class PnDeliveryClientImpl implements PnDeliveryClient{
     
     @Override
     public Map<String, String>  getQuickAccessLinkTokensPrivate(String iun) {
-        log.debug("Start getQuickAccessLinkTokensPrivate for paTaxId={} noticeCode={}", iun);
+        log.debug("Start getQuickAccessLinkTokensPrivate for iun={}", iun);
 
         ResponseEntity<Map<String, String>> res = pnDeliveryApi.getQuickAccessLinkTokensPrivateWithHttpInfo(iun);
-
-        log.debug("Response getQuickAccessLinkTokensPrivate res={} for iun={} noticeCode={}", res, iun);
+        log.debug("Response getQuickAccessLinkTokensPrivate res={} for iun={}", res, iun);
 
         return res.getBody();
     }
