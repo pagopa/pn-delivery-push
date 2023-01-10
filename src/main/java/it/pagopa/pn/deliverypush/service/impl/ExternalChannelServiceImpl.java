@@ -66,7 +66,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         String aarKey = externalChannelUtils.getAarKey(notification.getIun(), recIndex);
         NotificationRecipientInt recipientFromIndex = notificationUtils.getRecipientFromIndex(notification, recIndex);
         Map<String, String> recipientsQuickAccessLinkTokens = notificationService.getRecipientsQuickAccessLinkToken(notification.getIun());
-        recipientFromIndex.toBuilder().quickAccessLinkToken(recipientsQuickAccessLinkTokens.get(recipientFromIndex.getInternalId()));
+        recipientFromIndex.setQuickAccessLinkToken(recipientsQuickAccessLinkTokens.get(recipientFromIndex.getInternalId()));
 
         String eventId;
         if (!sendAlreadyInProgress)

@@ -22,4 +22,8 @@ public class NotificationRecipientInt {
     private NotificationPaymentInfoInt payment;
     private RecipientTypeInt recipientType;
     private String quickAccessLinkToken;
+
+    public void setQuickAccessLinkToken(String quickAccessLinkToken) {
+        this.quickAccessLinkToken = quickAccessLinkToken;
+    }
 }
