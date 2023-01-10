@@ -37,9 +37,7 @@ public class StartWorkflowForRecipientHandler {
     public void startNotificationWorkflowForRecipient(String iun, int recIndex, RecipientsWorkflowDetails details) {
         log.info("Start notification workflow for recipient - iun {} id {} token {}", iun, recIndex, details.getQuickAccessLinkToken());
         NotificationInt notification = notificationService.getNotificationByIun(iun);
-        enrichNotificationWithQuickAccessLinkToken(notification, recIndex, details);
-        log.debug( "Unrich success iun {} id {} token {}", iun, recIndex, notification.getRecipients().get(0).getQuickAccessLinkToken() );
-        generateAAR(notification, recIndex);
+        generateAAR(notification, recIndex, details.getQuickAccessLinkToken());
 
         //... Invio messaggio di cortesia ... 
         courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, recIndex);
@@ -47,12 +45,7 @@ public class StartWorkflowForRecipientHandler {
         //... e viene schedulato il processo di scelta della tipologia di notificazione
         scheduleChooseDeliveryMode(iun, recIndex);
     }
-
-    private void enrichNotificationWithQuickAccessLinkToken(NotificationInt notification, int recIndex, RecipientsWorkflowDetails details ) {
-      NotificationRecipientInt recipient = notification.getRecipients().get(recIndex);
-      recipient.setQuickAccessLinkToken(details.getQuickAccessLinkToken());
-    }
-    private void generateAAR(NotificationInt notification, Integer recIndex) {
+    private void generateAAR(NotificationInt notification, Integer recIndex, String quickAccessToken) {
         // ... genero il pdf dell'AAR, salvo su Safestorage e genero elemento in timeline AAR_GENERATION, potrebbe servirmi dopo ...
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
@@ -61,7 +54,7 @@ public class StartWorkflowForRecipientHandler {
                 .build();
         logEvent.log();
         try {
-            aarUtils.generateAARAndSaveInSafeStorageAndAddTimelineevent(notification, recIndex);
+            aarUtils.generateAARAndSaveInSafeStorageAndAddTimelineevent(notification, recIndex, quickAccessToken);
             logEvent.generateSuccess().log();
         } catch (Exception exc) {
             logEvent.generateFailure("Exception on generation of AAR", exc.getMessage()).log();

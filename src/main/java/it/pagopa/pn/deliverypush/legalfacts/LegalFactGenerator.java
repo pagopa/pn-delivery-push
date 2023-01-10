@@ -229,7 +229,7 @@ public class LegalFactGenerator {
         );
     }
 
-    public byte[] generateNotificationAAR(NotificationInt notification, NotificationRecipientInt recipient) throws IOException {
+    public byte[] generateNotificationAAR(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) throws IOException {
 
         Map<String, Object> templateModel = new HashMap<>();
         templateModel.put(FIELD_SEND_DATE, instantWriter.instantToDate( notification.getSentAt() ) );
@@ -237,7 +237,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_NOTIFICATION, notification);
         templateModel.put(FIELD_RECIPIENT, recipient);
         templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
-        String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient);
+        String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient, quickAccessToken);
         log.debug( "generateNotificationAAR iun {} quickAccessUrl {}", notification.getIun(), qrCodeQuickAccessUrlAarDetail );
         templateModel.put(FIELD_QRCODE_QUICK_ACCESS_LINK, qrCodeQuickAccessUrlAarDetail);
         templateModel.put(FIELD_PN_FAQ_URL, this.pnDeliveryPushConfigs.getWebapp().getFaqUrlTemplate());
@@ -277,7 +277,7 @@ public class LegalFactGenerator {
 
     }
 
-    public String generateNotificationAARPECBody(NotificationInt notification, NotificationRecipientInt recipient) {
+    public String generateNotificationAARPECBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccesstoken) {
 
         Map<String, Object> templateModel = new HashMap<>();
         templateModel.put(FIELD_SEND_DATE, instantWriter.instantToDate( notification.getSentAt() ) );
@@ -288,7 +288,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_PIATTAFORMA_NOTIFICHE_URL, this.getAccessUrl(notification.getIun()) );
         templateModel.put(FIELD_PIATTAFORMA_NOTIFICHE_URL_LABEL, this.getAccessUrlLabel() );
         templateModel.put(FIELD_PN_FAQ_URL, this.pnDeliveryPushConfigs.getWebapp().getFaqUrlTemplate() );
-        templateModel.put(FIELD_QUICK_ACCESS_LINK, this.getQuickAccessLink(recipient) );
+        templateModel.put(FIELD_QUICK_ACCESS_LINK, this.getQuickAccessLink(recipient, quickAccesstoken) );
         templateModel.put(FIELD_RECIPIENT_TYPE, this.getRecipientTypeForHTMLTemplate(recipient));
 
         return documentComposition.executeTextTemplate(
@@ -341,19 +341,19 @@ public class LegalFactGenerator {
         }
     }
 
-    private String getQrCodeQuickAccessUrlAarDetail(NotificationRecipientInt recipient) {
-      String url = getQuickAccessLink(recipient);
+    private String getQrCodeQuickAccessUrlAarDetail(NotificationRecipientInt recipient, String quickAccessToken) {
+      String url = getQuickAccessLink(recipient, quickAccessToken);
       // Definire altezza e larghezza del qrcode
       return "data:image/png;base64, ".concat(Base64Utils.encodeToString(QrCodeUtils.generateQRCodeImage(url, 180, 180)));
     }
 
-    private String getQuickAccessLink(NotificationRecipientInt recipient) {
+    private String getQuickAccessLink(NotificationRecipientInt recipient, String quickAccessToken) {
         String templateUrl = RecipientTypeInt.PF == recipient.getRecipientType()
                 ? pnDeliveryPushConfigs.getWebapp().getQuickAccessUrlAarDetailPfTemplate()
                 : pnDeliveryPushConfigs.getWebapp().getQuickAccessUrlAarDetailPgTemplate();
 
-        log.debug( "getQrCodeQuickAccessUrlAarDetail templateUrl {} quickAccessLink {}", templateUrl, recipient.getQuickAccessLinkToken() );
-        return String.format(templateUrl, recipient.getQuickAccessLinkToken());
+        log.debug( "getQrCodeQuickAccessUrlAarDetail templateUrl {} quickAccessLink {}", templateUrl, quickAccessToken );
+        return String.format(templateUrl, quickAccessToken);
     }
 
     private String getRecipientTypeForHTMLTemplate(NotificationRecipientInt recipientInt) {

@@ -61,7 +61,8 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
                                       NotificationRecipientInt recipientInt,
                                       LegalDigitalAddressInt digitalAddress,
                                       String timelineEventId,
-                                      String aarKey) {
+                                      String aarKey,
+                                      String quickAccessToken) {
         //Invio messaggio legali necessità di risposta da external channel
         sendDigitalNotification(digitalAddress.getAddress(), notificationInt, timelineEventId);
     }

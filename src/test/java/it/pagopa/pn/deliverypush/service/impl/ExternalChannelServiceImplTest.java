@@ -60,6 +60,7 @@ class ExternalChannelServiceImplTest {
         //GIVEN
         String iun = "IUN01";
         String taxId = "taxId";
+        String quickAccessToken = null;
 
         LegalDigitalAddressInt digitalDomicile = LegalDigitalAddressInt.builder()
                 .address("digitalDomicile@test.it")
@@ -105,7 +106,7 @@ class ExternalChannelServiceImplTest {
                         .build()
         );
         
-        Mockito.verify(externalChannel).sendLegalNotification(notification, recipient,  digitalDomicile, eventIdExpected, aarKey);
+        Mockito.verify(externalChannel).sendLegalNotification(notification, recipient,  digitalDomicile, eventIdExpected, aarKey, quickAccessToken);
         Mockito.verify(externalChannelUtils).addSendDigitalNotificationToTimeline(notification, digitalDomicile, addressSource, recIndex, sentAttemptMade, eventIdExpected);
     }
 
@@ -121,6 +122,7 @@ class ExternalChannelServiceImplTest {
         //GIVEN
         String iun = "IUN01";
         String taxId = "taxId";
+        String quickAccessToken = null;
 
         LegalDigitalAddressInt digitalDomicile = LegalDigitalAddressInt.builder()
                 .address("digitalDomicile@test.it")
@@ -167,7 +169,7 @@ class ExternalChannelServiceImplTest {
                         .build()
         );
 
-        Mockito.verify(externalChannel).sendLegalNotification(notification, recipient,  digitalDomicile, eventIdExpected, aarKey);
+        Mockito.verify(externalChannel).sendLegalNotification(notification, recipient,  digitalDomicile, eventIdExpected, aarKey, quickAccessToken);
         
         Mockito.verify(digitalWorkFlowUtils).addDigitalDeliveringProgressTimelineElement(
                 eq(notification),
