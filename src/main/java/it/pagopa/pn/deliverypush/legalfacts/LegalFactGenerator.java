@@ -50,6 +50,7 @@ public class LegalFactGenerator {
     public static final String FIELD_END_WORKFLOW_DATE = "endWorkflowDate";
     public static final String FIELD_LEGALFACT_CREATION_DATE = "legalFactCreationDate";
     public static final String FIELD_QRCODE_QUICK_ACCESS_LINK = "qrCodeQuickAccessLink";
+    public static final String FIELD_QUICK_ACCESS_LINK = "quickAccessLink";
     public static final String FIELD_RECIPIENT_TYPE = "recipientType";
 
     private final DocumentComposition documentComposition;
@@ -285,7 +286,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_PIATTAFORMA_NOTIFICHE_URL, this.getAccessUrl(notification.getIun()) );
         templateModel.put(FIELD_PIATTAFORMA_NOTIFICHE_URL_LABEL, this.getAccessUrlLabel() );
         templateModel.put(FIELD_PN_FAQ_URL, this.pnDeliveryPushConfigs.getWebapp().getFaqUrlTemplate() );
-        templateModel.put(FIELD_QRCODE_QUICK_ACCESS_LINK, this.getQrCodeQuickAccessUrlAarDetail(recipient) );
+        templateModel.put(FIELD_QUICK_ACCESS_LINK, this.getQuickAccessLink(recipient) );
         templateModel.put(FIELD_RECIPIENT_TYPE, this.getRecipientTypeForHTMLTemplate(recipient));
 
         return documentComposition.executeTextTemplate(
@@ -336,16 +337,20 @@ public class LegalFactGenerator {
             log.warn("cannot get host", e);
             return pnDeliveryPushConfigs.getWebapp().getDirectAccessUrlTemplate();
         }
-    }   
+    }
 
     private String getQrCodeQuickAccessUrlAarDetail(NotificationRecipientInt recipient) {
-      String templateUrl = RecipientTypeInt.PF == recipient.getRecipientType()  
-          ? pnDeliveryPushConfigs.getWebapp().getQuickAccessUrlAarDetailPfTemplate() 
-          : pnDeliveryPushConfigs.getWebapp().getQuickAccessUrlAarDetailPgTemplate();
-    
-      String url = String.format(templateUrl, recipient.getQuickAccessLinkToken());
+      String url = getQuickAccessLink(recipient);
       // Definire altezza e larghezza del qrcode
       return "data:image/png;base64, ".concat(Base64Utils.encodeToString(QrCodeUtils.generateQRCodeImage(url, 180, 180)));
+    }
+
+    private String getQuickAccessLink(NotificationRecipientInt recipient) {
+        String templateUrl = RecipientTypeInt.PF == recipient.getRecipientType()
+                ? pnDeliveryPushConfigs.getWebapp().getQuickAccessUrlAarDetailPfTemplate()
+                : pnDeliveryPushConfigs.getWebapp().getQuickAccessUrlAarDetailPgTemplate();
+
+        return String.format(templateUrl, recipient.getQuickAccessLinkToken());
     }
 
     private String getRecipientTypeForHTMLTemplate(NotificationRecipientInt recipientInt) {
