@@ -237,8 +237,10 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_NOTIFICATION, notification);
         templateModel.put(FIELD_RECIPIENT, recipient);
         templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
-        templateModel.put(FIELD_QRCODE_QUICK_ACCESS_LINK, this.getQrCodeQuickAccessUrlAarDetail(recipient) );
-        templateModel.put(FIELD_PN_FAQ_URL, this.pnDeliveryPushConfigs.getWebapp().getFaqUrlTemplate() );
+        String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient);
+        log.debug( "generateNotificationAAR iun {} quickAccessUrl {}", notification.getIun(), qrCodeQuickAccessUrlAarDetail );
+        templateModel.put(FIELD_QRCODE_QUICK_ACCESS_LINK, qrCodeQuickAccessUrlAarDetail);
+        templateModel.put(FIELD_PN_FAQ_URL, this.pnDeliveryPushConfigs.getWebapp().getFaqUrlTemplate());
 
         if( Boolean.FALSE.equals( mvpParameterConsumer.isMvp( notification.getSender().getPaTaxId() ) ) ){
             return documentComposition.executePdfTemplate(
@@ -350,12 +352,13 @@ public class LegalFactGenerator {
                 ? pnDeliveryPushConfigs.getWebapp().getQuickAccessUrlAarDetailPfTemplate()
                 : pnDeliveryPushConfigs.getWebapp().getQuickAccessUrlAarDetailPgTemplate();
 
+        log.debug( "getQrCodeQuickAccessUrlAarDetail templateUrl {} quickAccessLink {}", templateUrl, recipient.getQuickAccessLinkToken() );
         return String.format(templateUrl, recipient.getQuickAccessLinkToken());
     }
 
     private String getRecipientTypeForHTMLTemplate(NotificationRecipientInt recipientInt) {
         return recipientInt.getRecipientType() == RecipientTypeInt.PG ? "giuridica" : "fisica";
     }
-    
+
 }
 

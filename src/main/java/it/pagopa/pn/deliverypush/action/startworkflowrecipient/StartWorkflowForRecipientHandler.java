@@ -35,10 +35,10 @@ public class StartWorkflowForRecipientHandler {
     }
 
     public void startNotificationWorkflowForRecipient(String iun, int recIndex, RecipientsWorkflowDetails details) {
-        log.info("Start notification workflow for recipient - iun {} id {}", iun, recIndex);
-        
+        log.info("Start notification workflow for recipient - iun {} id {} token {}", iun, recIndex, details.getQuickAccessLinkToken());
         NotificationInt notification = notificationService.getNotificationByIun(iun);
         unrichNotificationWithQuickAccessLinkToken(notification, recIndex, details);
+        log.debug( "Unrich success iun {} id {} token {}", iun, recIndex, notification.getRecipients().get(0).getQuickAccessLinkToken() );
         generateAAR(notification, recIndex);
 
         //... Invio messaggio di cortesia ... 
