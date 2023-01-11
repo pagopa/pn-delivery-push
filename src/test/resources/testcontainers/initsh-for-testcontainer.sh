@@ -5,10 +5,16 @@ bash <(curl -s https://raw.githubusercontent.com/pagopa/pn-delivery-push/f9a146e
 
 echo "### CREATE QUEUES FIFO ###"
 queues_fifo="local-delivery-push-inputs.fifo"
+
 for qn in  $( echo $queues_fifo | tr " " "\n" ) ; do
+
     echo creating queue fifo $qn ...
+
     aws --profile default --region us-east-1 --endpoint-url http://localstack:4566 \
         sqs create-queue \
         --attributes '{"DelaySeconds":"2","FifoQueue": "true","ContentBasedDeduplication": "true"}' \
         --queue-name $qn
+
+
+
 done

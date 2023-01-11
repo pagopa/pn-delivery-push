@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
+import java.time.OffsetDateTime;
 
 @Component
 @Slf4j
@@ -82,6 +83,7 @@ public class PaperChannelSendClientImpl implements PaperChannelSendClient {
         sendRequest.setArAddress(mapInternalToExternal(paperChannelSendRequest.getArAddress()));
         sendRequest.setSenderAddress(mapInternalToExternal(paperChannelSendRequest.getSenderAddress()));
         sendRequest.setRequestPaId(paperChannelSendRequest.getNotificationInt().getSender().getPaTaxId());
+        sendRequest.setClientRequestTimeStamp(OffsetDateTime.now());
 
         log.info("iun={} the request for send is {}", paperChannelSendRequest.getNotificationInt().getIun() , sendRequest);
 
