@@ -2,7 +2,6 @@ package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
-import it.pagopa.pn.deliverypush.action.startworkflow.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -32,7 +31,6 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     private final TimelineUtils timelineUtils;
     private final MVPParameterConsumer mvpParameterConsumer;
     private final AnalogWorkflowUtils analogWorkflowUtils;
-    private final AttachmentUtils attachmentUtils;
 
     public PaperChannelServiceImpl(PaperChannelUtils paperChannelUtils,
                                    PaperChannelSendClient paperChannelSendClient,
@@ -40,8 +38,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
                                    AarUtils aarUtils,
                                    TimelineUtils timelineUtils,
                                    MVPParameterConsumer mvpParameterConsumer,
-                                   AnalogWorkflowUtils analogWorkflowUtils,
-                                   AttachmentUtils attachmentUtils) {
+                                   AnalogWorkflowUtils analogWorkflowUtils) {
         this.paperChannelUtils = paperChannelUtils;
         this.paperChannelSendClient = paperChannelSendClient;
         this.notificationUtils = notificationUtils;
@@ -49,7 +46,6 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         this.timelineUtils = timelineUtils;
         this.mvpParameterConsumer = mvpParameterConsumer;
         this.analogWorkflowUtils = analogWorkflowUtils;
-        this.attachmentUtils = attachmentUtils;
     }
 
 
@@ -198,10 +194,8 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         List<String> attachments = new ArrayList<>();
         attachments.add(0, aarGenerationDetails.getGeneratedAarUrl());
         // nel caso in cui NON sia simple registered letter, devo allegare anche gli atti
-        if (!isSimpleRegisteredLetter)
-        {
-            attachments.addAll(attachmentUtils.getNotificationAttachments(notification, recIndex));
-        }
+        // Da valutare eventuale inserimento condizionato degli allegati della notifica, per ora vien commentato
+        // l'invocazione a attachments  addAll (attachmentUtils  getNotificationAttachments )
         return attachments;
     }
 
