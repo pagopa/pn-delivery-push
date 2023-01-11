@@ -353,7 +353,7 @@ public class LegalFactGenerator {
                 : pnDeliveryPushConfigs.getWebapp().getQuickAccessUrlAarDetailPgTemplate();
 
         log.debug( "getQrCodeQuickAccessUrlAarDetail templateUrl {} quickAccessLink {}", templateUrl, quickAccessToken );
-        return String.format(templateUrl, quickAccessToken);
+        return templateUrl + '=' + quickAccessToken;
     }
 
     private String getRecipientTypeForHTMLTemplate(NotificationRecipientInt recipientInt) {

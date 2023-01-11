@@ -66,8 +66,8 @@ class LegalFactPdfGeneratorTest {
 		pnDeliveryPushConfigs.setWebapp(new PnDeliveryPushConfigs.Webapp());
 		pnDeliveryPushConfigs.getWebapp().setFaqUrlTemplate("https://notifichedigitali.it/faq");
 		pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplate("https://notifichedigitali.it/iun=%s");
-		pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailPfTemplate("http://localhost:8090/notifica?aar=%s");
-		pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailPgTemplate("http://localhost:8090/notifica?aar=%s");
+		pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailPfTemplate("http://localhost:8090/notifica?aar");
+		pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailPgTemplate("http://localhost:8090/notifica?aar");
 
 		pdfUtils = new LegalFactGenerator(documentComposition, instantWriter, physicalAddressWriter, pnDeliveryPushConfigs, instantNowSupplier, mvpParameterConsumer);
 
