@@ -10,7 +10,7 @@ import java.time.Instant;
 import java.util.List;
 
 public interface SaveLegalFactsService {
-    PdfInfo saveAAR(NotificationInt notification, NotificationRecipientInt recipient, String token);
+    PdfInfo saveAAR(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken);
 
     String saveNotificationReceivedLegalFact(NotificationInt notification);
 
