@@ -26,6 +26,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Map;
+
 import static org.mockito.ArgumentMatchers.eq;
 
 class ExternalChannelServiceImplTest {
@@ -60,6 +62,7 @@ class ExternalChannelServiceImplTest {
         //GIVEN
         String iun = "IUN01";
         String taxId = "taxId";
+        String quickAccessToken = "test";
 
         LegalDigitalAddressInt digitalDomicile = LegalDigitalAddressInt.builder()
                 .address("digitalDomicile@test.it")
@@ -87,6 +90,9 @@ class ExternalChannelServiceImplTest {
 
         String aarKey = "testKey";
         Mockito.when( externalChannelUtils.getAarKey(Mockito.anyString(), Mockito.anyInt()) ).thenReturn(aarKey);
+
+        Map<String, String> quickLinkTestMap = Map.of(recipient.getInternalId(), quickAccessToken);
+        Mockito.when(notificationService.getRecipientsQuickAccessLinkToken(iun)).thenReturn(quickLinkTestMap);
         
         DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
         int recIndex = 0;
@@ -105,7 +111,7 @@ class ExternalChannelServiceImplTest {
                         .build()
         );
         
-        Mockito.verify(externalChannel).sendLegalNotification(notification, recipient,  digitalDomicile, eventIdExpected, aarKey);
+        Mockito.verify(externalChannel).sendLegalNotification(notification, recipient,  digitalDomicile, eventIdExpected, aarKey, quickAccessToken);
         Mockito.verify(externalChannelUtils).addSendDigitalNotificationToTimeline(notification, digitalDomicile, addressSource, recIndex, sentAttemptMade, eventIdExpected);
     }
 
@@ -121,6 +127,7 @@ class ExternalChannelServiceImplTest {
         //GIVEN
         String iun = "IUN01";
         String taxId = "taxId";
+        String quickAccessToken = "test";
 
         LegalDigitalAddressInt digitalDomicile = LegalDigitalAddressInt.builder()
                 .address("digitalDomicile@test.it")
@@ -153,6 +160,9 @@ class ExternalChannelServiceImplTest {
         String aarKey = "testKey";
         Mockito.when( externalChannelUtils.getAarKey(Mockito.anyString(), Mockito.anyInt()) ).thenReturn(aarKey);
 
+        Map<String, String> quickLinkTestMap = Map.of(recipient.getInternalId(), quickAccessToken);
+        Mockito.when(notificationService.getRecipientsQuickAccessLinkToken(iun)).thenReturn(quickLinkTestMap);
+
         //WHEN
         externalChannelService.sendDigitalNotification(notification, digitalDomicile, addressSource, recIndex, sentAttemptMade, true);
 
@@ -167,7 +177,7 @@ class ExternalChannelServiceImplTest {
                         .build()
         );
 
-        Mockito.verify(externalChannel).sendLegalNotification(notification, recipient,  digitalDomicile, eventIdExpected, aarKey);
+        Mockito.verify(externalChannel).sendLegalNotification(notification, recipient,  digitalDomicile, eventIdExpected, aarKey, quickAccessToken);
         
         Mockito.verify(digitalWorkFlowUtils).addDigitalDeliveringProgressTimelineElement(
                 eq(notification),

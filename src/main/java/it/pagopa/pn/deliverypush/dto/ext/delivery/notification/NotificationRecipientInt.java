@@ -21,5 +21,4 @@ public class NotificationRecipientInt {
     private PhysicalAddressInt physicalAddress;
     private NotificationPaymentInfoInt payment;
     private RecipientTypeInt recipientType;
-    private String quickAccessLinkToken;
 }

@@ -556,9 +556,10 @@ public class TestUtils {
                                                LegalFactGenerator legalFactGenerator,
                                                boolean itWasGenerated){
         int times = getTimes(itWasGenerated);
+        String quickAccessToken = "test";
 
         try {
-            Mockito.verify(legalFactGenerator, Mockito.times(times)).generateNotificationAAR(notification, recipient);
+            Mockito.verify(legalFactGenerator, Mockito.times(times)).generateNotificationAAR(notification, recipient, quickAccessToken);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

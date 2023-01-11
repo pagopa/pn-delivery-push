@@ -58,7 +58,7 @@ class StartWorkflowForRecipientHandlerTest {
         handler.startNotificationWorkflowForRecipient(notification.getIun(), 0, new RecipientsWorkflowDetails("test"));
         
         //THEN
-        Mockito.verify(aarUtils).generateAARAndSaveInSafeStorageAndAddTimelineevent(Mockito.any(NotificationInt.class), Mockito.anyInt());
+        Mockito.verify(aarUtils).generateAARAndSaveInSafeStorageAndAddTimelineevent(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.anyString());
         Mockito.verify(courtesyMessageUtils).checkAddressesAndSendCourtesyMessage(Mockito.any(NotificationInt.class), Mockito.anyInt());
         Mockito.verify(schedulerService).scheduleEvent(Mockito.anyString(), Mockito.anyInt(),
                 Mockito.any(Instant.class), Mockito.any(ActionType.class));
@@ -73,7 +73,7 @@ class StartWorkflowForRecipientHandlerTest {
         String iun = notification.getIun();
         Mockito.when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
 
-        doThrow(new PnNotFoundException("Not found","","")).when(aarUtils).generateAARAndSaveInSafeStorageAndAddTimelineevent(Mockito.any(NotificationInt.class), Mockito.anyInt());
+        doThrow(new PnNotFoundException("Not found","","")).when(aarUtils).generateAARAndSaveInSafeStorageAndAddTimelineevent(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.anyString());
         RecipientsWorkflowDetails details = new RecipientsWorkflowDetails("test");
         //WHEN
         assertThrows(PnNotFoundException.class, () -> {

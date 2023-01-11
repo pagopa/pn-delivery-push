@@ -82,11 +82,12 @@ class ExternalChannelSendClientImplTest {
         LegalDigitalAddressInt legalDigitalAddressInt = buildLegalDigitalAddressInt();
         String timelineEventId = "001";
         String aarKey = "testKey";
+        String quickAccessToken = "test";
 
         Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(ResponseEntity.ok(""));
 
-        assertDoesNotThrow(() -> client.sendLegalNotification(notificationInt, notificationRecipientInt, legalDigitalAddressInt, timelineEventId, aarKey));
+        assertDoesNotThrow(() -> client.sendLegalNotification(notificationInt, notificationRecipientInt, legalDigitalAddressInt, timelineEventId, aarKey, quickAccessToken));
     }
 
     @Test

@@ -244,6 +244,7 @@ class ValidationDocumentErrorTestIT {
                 Mockito.any(NotificationRecipientInt.class),
                 Mockito.any(LegalDigitalAddressInt.class),
                 Mockito.anyString(),
+                Mockito.anyString(),
                 Mockito.anyString()
         );
         Mockito.verify(paperChannelMock, Mockito.times(0)).send(Mockito.any(PaperChannelSendRequest.class));

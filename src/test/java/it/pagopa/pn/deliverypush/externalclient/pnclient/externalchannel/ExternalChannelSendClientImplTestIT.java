@@ -64,6 +64,7 @@ class ExternalChannelSendClientImplTestIT {
         LegalDigitalAddressInt addressInt = mock(LegalDigitalAddressInt.class);
         String eventId = "rtyuiokjhgvcbnjmk4567890";
         String aarKey = "testKey";
+        String quickAccessToken = "test";
 
         Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(ResponseEntity.ok(""));
@@ -73,7 +74,7 @@ class ExternalChannelSendClientImplTestIT {
 
         //When
 
-        assertDoesNotThrow(() -> externalChannelSendClient.sendLegalNotification(notificationInt, recipientInt, addressInt, eventId, aarKey));
+        assertDoesNotThrow(() -> externalChannelSendClient.sendLegalNotification(notificationInt, recipientInt, addressInt, eventId, aarKey, quickAccessToken));
 
     }
 

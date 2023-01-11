@@ -71,10 +71,11 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
                                       NotificationRecipientInt recipientInt,
                                       LegalDigitalAddressInt digitalAddress,
                                       String timelineEventId,
-                                      String aarKey)
+                                      String aarKey,
+                                      String quickAccessToken)
     {
         if (digitalAddress.getType() == LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC) {
-            sendNotificationPEC(timelineEventId, notificationInt, recipientInt, digitalAddress,aarKey);
+            sendNotificationPEC(timelineEventId, notificationInt, recipientInt, digitalAddress,aarKey, quickAccessToken);
         } else {
             log.error("channel type not supported for iun={}", notificationInt.getIun());
             throw new PnInternalException("channel type not supported", ERROR_CODE_DELIVERYPUSH_CHANNELTYPENOTSUPPORTED);
@@ -103,12 +104,13 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
                                      NotificationInt notificationInt,
                                      NotificationRecipientInt recipientInt,
                                      DigitalAddressInt digitalAddress,
-                                     String aarKey)
+                                     String aarKey,
+                                     String quickAccessToken)
     {
         try {
             log.info("[enter] sendNotificationPEC address={} requestId={} recipient={}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
 
-            String mailBody = legalFactGenerator.generateNotificationAARPECBody(notificationInt, recipientInt);
+            String mailBody = legalFactGenerator.generateNotificationAARPECBody(notificationInt, recipientInt, quickAccessToken);
             String mailSubj = legalFactGenerator.generateNotificationAARSubject(notificationInt);
 
             DigitalNotificationRequest digitalNotificationRequestDto = new DigitalNotificationRequest();
