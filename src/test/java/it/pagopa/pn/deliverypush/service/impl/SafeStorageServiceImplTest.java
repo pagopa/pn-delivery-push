@@ -20,14 +20,12 @@ import reactor.core.publisher.Mono;
 class SafeStorageServiceImplTest {
     @Mock
     private PnSafeStorageClient safeStorageClient;
-    @Mock
-    private PnSafeStorageClient safeStorageClientReactive;
     
     private SafeStorageServiceImpl safeStorageService;
     
     @BeforeEach
     public void init(){
-        safeStorageService = new SafeStorageServiceImpl( safeStorageClient, safeStorageClientReactive);
+        safeStorageService = new SafeStorageServiceImpl( safeStorageClient);
     }
     
     @Test
@@ -80,7 +78,7 @@ class SafeStorageServiceImplTest {
         fileDownloadResponseExpected.setDocumentStatus("status");
         fileDownloadResponseExpected.setDocumentType("type");
 
-        Mockito.when(safeStorageClientReactive.getFile(Mockito.anyString(), Mockito.anyBoolean()))
+        Mockito.when(safeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(fileDownloadResponseExpected));
 
         //WHEN

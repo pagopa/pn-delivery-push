@@ -7,6 +7,7 @@ import lombok.Getter;
 @Builder(toBuilder = true)
 public class DelegateInfoInt {
     private String internalId;
+    private String taxId;
     private String operatorUuid;
     private String mandateId;
     private String denomination;

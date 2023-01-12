@@ -11,7 +11,6 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Mono;
 
 @Slf4j
 @Component
@@ -38,15 +37,16 @@ public class RefinementHandler {
                     .doOnSuccess( notificationCost ->
                             log.debug("Notification cost is {} - iun {} id {}",notificationCost, iun, recIndex)
                     )
-                    .zipWhen( notificationCost ->
-                        Mono.fromRunnable( () -> {
-                            attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement());
+                    .doOnNext( res -> 
+                        attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement())
+                    )
+                    .doOnNext( notificationCost ->
                             addTimelineElement(
                                     timelineUtils.buildRefinementTimelineElement(notification, recIndex, notificationCost),
                                     notification
-                            );
-                        })
-                    );
+                            )
+                    ).subscribe();
+            
         } else {
             log.info("Notification is already viewed, refinement will not start - iun={} id={}", iun, recIndex);
         }

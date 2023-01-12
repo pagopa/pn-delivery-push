@@ -16,5 +16,5 @@ public interface ConfidentialInformationService {
 
     Optional<Map<String, ConfidentialTimelineElementDtoInt>> getTimelineConfidentialInformation(String iun);
 
-    Mono<BaseRecipientDtoInt> getRecipientDenominationByInternalId(String internalId);
+    Mono<BaseRecipientDtoInt> getRecipientInformationByInternalId(String internalId);
 }

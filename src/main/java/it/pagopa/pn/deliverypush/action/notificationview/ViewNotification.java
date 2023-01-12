@@ -14,8 +14,11 @@ import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import lombok.Builder;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -36,7 +39,7 @@ public class ViewNotification {
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private final ConfidentialInformationService confidentialInformationService;
     
-    public Mono<Void> startVewNotificationProcess(NotificationInt notification,
+    public void startVewNotificationProcess(NotificationInt notification,
                                             NotificationRecipientInt recipient,
                                             Integer recIndex,
                                             RaddInfo raddInfo,
@@ -44,45 +47,87 @@ public class ViewNotification {
                                             Instant eventTimestamp
     ) {
         log.info("Start view notification process - iun={} id={}", notification.getIun(), recIndex);
-        return Mono.fromRunnable( () ->{
-                    attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement());
-                    Mono<BaseRecipientDtoInt> monoRecipientDenomination = Mono.empty();
-                    if(delegateInfo != null){
-                        monoRecipientDenomination = confidentialInformationService.getRecipientDenominationByInternalId(delegateInfo.getInternalId());
-                    }
-                    Mono<String> monoLegalFactId = legalFactStore.saveNotificationViewedLegalFact(notification, recipient, instantNowSupplier.get());
-                    Mono<Integer> monoNotificationCost = notificationCost.getNotificationCost(notification, recIndex);
-
-                    Mono.zip(monoLegalFactId, monoNotificationCost, monoRecipientDenomination)
-                            .doOnSuccess( res -> {
-                                log.info("Get information for view notification process - iun={} id={}", notification.getIun(), recIndex);
+        attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement());
+        
+       legalFactStore.saveNotificationViewedLegalFact(notification, recipient, instantNowSupplier.get())
+               .doOnNext( legalFactId ->
+                       log.info("Completed saveNotificationViewedLegalFact legalFactId={} - iun={} id={}", legalFactId, notification.getIun(), recIndex)
+               )
+               .flatMap(legalFactId ->
+                    notificationCost.getNotificationCost(notification, recIndex)
+                            .doOnNext( cost ->
+                                    log.info("Completed getNotificationCost cost={}- iun={} id={}", cost, notification.getIun(), recIndex)
+                            )
+                            .flatMap(responseCost -> {
+                                Integer cost = responseCost.orElse(null);
+                                return getDenominationAndSaveInTimeline(notification, recipient, recIndex, raddInfo, eventTimestamp, legalFactId, cost, delegateInfo);
                             })
-                            .doOnNext(
-                                    response -> {
-                                        
-                                        if(response.getT3() != null){
-                                            String denomination = response.getT3().getDenomination();
-                                            delegateInfo.toBuilder()
-                                                    .denomination(denomination).build();
-
-                                        }
-                                        Integer cost = response.getT2();
-                                        String legalFactId = response.getT1();
-                                        
-                                        addTimelineElement(
-                                                timelineUtils.buildNotificationViewedTimelineElement(notification, recIndex, legalFactId, cost, raddInfo,
-                                                        delegateInfo, eventTimestamp),
-                                                notification
-                                        );
-                                    }
-                            ).doOnNext( res ->
-                                    paperNotificationFailedService.deleteNotificationFailed(recipient.getInternalId(), notification.getIun()) //Viene eliminata l'eventuale istanza di notifica fallita dal momento che la stessa è stata letta
-                            );
-                }
-        );
+               ).subscribe();
     }
     
+    private Mono<Void> getDenominationAndSaveInTimeline(
+            NotificationInt notification,
+            NotificationRecipientInt recipient,
+            Integer recIndex,
+            RaddInfo raddInfo,
+            Instant eventTimestamp,
+            String legalFactId,
+            Integer cost,
+            DelegateInfoInt  delegateInfo){
+        
+        if ( delegateInfo != null){
+            return getBaseRecipientDtoIntMono(delegateInfo)
+                    .doOnNext( baseRecipientDto ->
+                            log.info("Completed getBaseRecipientDtoIntMono - iun={} id={}" , notification.getIun(), recIndex)
+                    )
+                    .map(baseRecipientDto ->
+                            delegateInfo.toBuilder()
+                                    .denomination(baseRecipientDto.getDenomination())
+                                    .taxId(baseRecipientDto.getTaxId())
+                                    .build()
+                    )
+                    .flatMap(delegateInfoInt ->{
+                        log.info("Completed flatMap - iun={} id={}" , notification.getIun(), recIndex);
+                        return addTimelineAndDeletePaperNotificationFailed(notification, recipient, recIndex, raddInfo, eventTimestamp, legalFactId, cost, delegateInfoInt);
+                    });
+        }else {
+            return addTimelineAndDeletePaperNotificationFailed(notification, recipient, recIndex, raddInfo, eventTimestamp, legalFactId, cost, null);
+        }
+    }
+
+    @NotNull
+    private Mono<Void> addTimelineAndDeletePaperNotificationFailed(NotificationInt notification, NotificationRecipientInt recipient, Integer recIndex, RaddInfo raddInfo, Instant eventTimestamp, String legalFactId, Integer cost, DelegateInfoInt delegateInfoInt) {
+        log.info("addTimelineAndDeletePaperNotificationFailed - iun={} id={}" , notification.getIun(), recIndex);
+
+        //Viene eliminata l'eventuale istanza di notifica fallita dal momento che la stessa è stata letta
+        paperNotificationFailedService.deleteNotificationFailed(recipient.getInternalId(), notification.getIun());
+
+        addTimelineElement(
+                timelineUtils.buildNotificationViewedTimelineElement(notification, recIndex, legalFactId, cost, raddInfo,
+                        delegateInfoInt, eventTimestamp),
+                notification
+        );
+        
+        return Mono.empty();
+    }
+
+
+    private Mono<BaseRecipientDtoInt> getBaseRecipientDtoIntMono(DelegateInfoInt delegateInfo) {
+        if(delegateInfo != null){
+            return confidentialInformationService.getRecipientInformationByInternalId(delegateInfo.getInternalId());
+        }
+        return Mono.empty();
+    }
+
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
         timelineService.addTimelineElement(element, notification);
+    }
+    
+    @Builder(toBuilder = true)
+    @Getter
+    private static class UserInfo{
+        private Integer cost;
+        private String denomination;
+        private String legalFactsId;
     }
 }

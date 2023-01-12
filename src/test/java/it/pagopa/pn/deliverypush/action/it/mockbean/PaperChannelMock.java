@@ -66,6 +66,7 @@ public class PaperChannelMock implements PaperChannelSendClient {
 
     @Override
     public Integer send(PaperChannelSendRequest paperChannelSendRequest) {
+        //TODO Da eliminare questo log
         log.info("send paperChannelSendRequest:{}", paperChannelSendRequest);
 
 

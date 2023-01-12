@@ -20,12 +20,9 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 @Service
 public class SafeStorageServiceImpl implements SafeStorageService {
     private final PnSafeStorageClient safeStorageClient;
-    private final PnSafeStorageClient safeStorageClientReactive;
 
-    public SafeStorageServiceImpl(PnSafeStorageClient safeStorageClient, 
-                                  PnSafeStorageClient safeStorageClientReactive) {
+    public SafeStorageServiceImpl(PnSafeStorageClient safeStorageClient) {
         this.safeStorageClient = safeStorageClient;
-        this.safeStorageClientReactive = safeStorageClientReactive;
     }
 
     @Override
@@ -60,7 +57,7 @@ public class SafeStorageServiceImpl implements SafeStorageService {
     
     @Override
     public Mono<FileDownloadResponseInt> getFileReactive(String fileKey, Boolean metadataOnly){
-        return safeStorageClientReactive.getFile(fileKey, metadataOnly)
+        return safeStorageClient.getFile(fileKey, metadataOnly)
                 .onErrorResume( ex -> {
                             String message = String.format("Get file failed for - fileKey=%s isMetadataOnly=%b", fileKey, metadataOnly);
                             throw new PnNotFoundException("Not found", message, ERROR_CODE_DELIVERYPUSH_NOTFOUND, ex);
@@ -76,7 +73,7 @@ public class SafeStorageServiceImpl implements SafeStorageService {
 
             String sha256 = computeSha256(fileCreationRequest.getContent());
 
-            return safeStorageClientReactive.createFile(fileCreationRequest, sha256)
+            return safeStorageClient.createFile(fileCreationRequest, sha256)
                     .doOnNext(
                             fileCreationResponse -> safeStorageClient.uploadContent(fileCreationRequest, fileCreationResponse, sha256)
                     ).map(

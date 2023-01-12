@@ -120,7 +120,7 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
     }
     
     @Override
-    public Mono<BaseRecipientDtoInt> getRecipientDenominationByInternalId(String internalId) {
+    public Mono<BaseRecipientDtoInt> getRecipientInformationByInternalId(String internalId) {
         return pnDataVaultClientReactive.getRecipientDenominationByInternalId(List.of(internalId))
                 .filter( el -> internalId.equals(el.getInternalId()))
                 .map( el -> BaseRecipientDtoInt.builder()

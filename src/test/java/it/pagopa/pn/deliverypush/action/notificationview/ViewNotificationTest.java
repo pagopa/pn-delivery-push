@@ -22,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 
@@ -75,7 +76,7 @@ class ViewNotificationTest {
         when(legalFactStore.saveNotificationViewedLegalFact(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(Instant.class)))
                 .thenReturn(Mono.just(legalFactsId));
         int notificationCost = 10;
-        when(this.notificationCost.getNotificationCost(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(Mono.just(notificationCost));
+        when(this.notificationCost.getNotificationCost(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(Mono.just(Optional.of(notificationCost)));
         when(instantNowSupplier.get()).thenReturn(Instant.now());
         Instant viewDate = Instant.now();
 
