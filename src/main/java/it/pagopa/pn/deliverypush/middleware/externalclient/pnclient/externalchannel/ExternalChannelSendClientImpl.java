@@ -128,6 +128,12 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
 
             if (StringUtils.hasText(cfg.getExternalchannelSenderPec()))
                 digitalNotificationRequestDto.setSenderDigitalAddress(cfg.getExternalchannelSenderPec());
+            
+            //TODO log da eliminare
+            log.info("Sending notificationPec for requestId={} with request {}",
+                    requestId,
+                    digitalNotificationRequestDto
+            );
 
             digitalLegalMessagesApi.sendDigitalLegalMessage(requestId, cfg.getExternalchannelCxId(), digitalNotificationRequestDto);
 
