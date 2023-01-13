@@ -66,8 +66,8 @@ class LegalFactPdfGeneratorTest {
 		pnDeliveryPushConfigs.setWebapp(new PnDeliveryPushConfigs.Webapp());
 		pnDeliveryPushConfigs.getWebapp().setFaqUrlTemplate("https://notifichedigitali.it/faq");
 		pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplate("https://notifichedigitali.it/iun=%s");
-		pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailPfTemplate("http://localhost:8090/notifica?aar=%s");
-		pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailPgTemplate("http://localhost:8090/notifica?aar=%s");
+		pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailPfTemplate("http://localhost:8090/notifica?aar");
+		pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailPgTemplate("http://localhost:8090/notifica?aar");
 
 		pdfUtils = new LegalFactGenerator(documentComposition, instantWriter, physicalAddressWriter, pnDeliveryPushConfigs, instantNowSupplier, mvpParameterConsumer);
 
@@ -151,9 +151,9 @@ class LegalFactPdfGeneratorTest {
 
 		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
 		NotificationInt notificationInt = buildNotification();
-		NotificationRecipientInt  recipient = notificationInt.getRecipients().get(0).toBuilder().quickAccessLinkToken("test")
-				.recipientType(RecipientTypeInt.PF).build();
-		Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationAAR(notificationInt, recipient)));
+		String quickAccessToken = "test";
+		NotificationRecipientInt recipient = notificationInt.getRecipients().get(0).toBuilder().recipientType( RecipientTypeInt.PF ).build();
+		Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken)));
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
 	
@@ -164,8 +164,9 @@ class LegalFactPdfGeneratorTest {
 		
 		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAARMVP.pdf");
 		NotificationInt notificationInt = buildNotification();
-		NotificationRecipientInt  recipient = notificationInt.getRecipients().get(0).toBuilder().quickAccessLinkToken("test").build();
-		Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationAAR(notificationInt, recipient)));
+		String quickAccessToken = "test";
+		NotificationRecipientInt recipient = notificationInt.getRecipients().get(0);
+		Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken)));
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
 
@@ -178,9 +179,9 @@ class LegalFactPdfGeneratorTest {
 		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
 
         NotificationInt notificationInt = buildNotification();
-        NotificationRecipientInt  recipient = notificationInt.getRecipients().get(0).toBuilder().quickAccessLinkToken("test")
-            .recipientType(RecipientTypeInt.PG).build();
-        Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationAAR(notificationInt, recipient)));
+		String quickAccessToken = "test";
+		NotificationRecipientInt recipient = notificationInt.getRecipients().get(0).toBuilder().recipientType( RecipientTypeInt.PF ).build();
+        Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken)));
         System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
     }
 	
@@ -208,9 +209,10 @@ class LegalFactPdfGeneratorTest {
 
 		NotificationInt notificationInt = buildNotification();
 		NotificationRecipientInt notificationRecipientInt = notificationInt.getRecipients().get(0);
+		String quickAccessToken = "test";
 
 		Assertions.assertDoesNotThrow(() -> {
-					String element = pdfUtils.generateNotificationAARPECBody(notificationInt, notificationRecipientInt);
+					String element = pdfUtils.generateNotificationAARPECBody(notificationInt, notificationRecipientInt, quickAccessToken);
 					PrintWriter out = new PrintWriter(filePath.toString());
 					out.println(element);
 		

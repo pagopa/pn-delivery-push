@@ -62,12 +62,13 @@ class SaveLegalFactsServiceImplTest {
         NotificationRecipientInt recipient = buildRecipient(denomination);
         FileCreationWithContentRequest fileCreation = buildFileCreationWithContentRequest(PN_AAR);
         FileCreationResponseInt file = buildFileCreationResponseInt();
+        String quickAccessToken = "test";
 
-        Mockito.when(legalFactBuilder.generateNotificationAAR(notification, recipient)).thenReturn(denomination.getBytes());
+        Mockito.when(legalFactBuilder.generateNotificationAAR(notification, recipient, quickAccessToken)).thenReturn(denomination.getBytes());
         Mockito.when(legalFactBuilder.getNumberOfPages(denomination.getBytes())).thenReturn(1);
         Mockito.when(safeStorageService.createAndUploadContent(fileCreation)).thenReturn(Mono.just(file));
 
-        PdfInfo actual = saveLegalFactsService.saveAAR(notification, recipient);
+        PdfInfo actual = saveLegalFactsService.saveAAR(notification, recipient, quickAccessToken);
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("safestorage://001", actual.getKey()),
@@ -82,9 +83,10 @@ class SaveLegalFactsServiceImplTest {
         NotificationRecipientInt recipient = buildRecipient(denomination);
         FileCreationWithContentRequest fileCreation = buildFileCreationWithContentRequest(PN_AAR);
         FileCreationResponseInt file = buildFileCreationResponseInt();
+        String quickAccessToken = "test";
 
         PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
-            saveLegalFactsService.saveAAR(notification, recipient);
+            saveLegalFactsService.saveAAR(notification, recipient, quickAccessToken);
         });
 
         String expectErrorMsg = "PN_DELIVERYPUSH_SAVELEGALFACTSFAILED";

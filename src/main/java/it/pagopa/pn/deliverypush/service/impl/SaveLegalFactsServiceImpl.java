@@ -56,11 +56,12 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
     }
 
     public PdfInfo saveAAR(NotificationInt notification,
-                           NotificationRecipientInt recipient) {
+                           NotificationRecipientInt recipient,
+                           String quickAccessToken) {
         try {
             log.debug("Start Save AAR - iun={}", notification.getIun());
 
-            byte[] pdfByte = legalFactBuilder.generateNotificationAAR(notification, recipient);
+            byte[] pdfByte = legalFactBuilder.generateNotificationAAR(notification, recipient, quickAccessToken);
             int numberOfPages = legalFactBuilder.getNumberOfPages(pdfByte);
 
             FileCreationWithContentRequest fileCreationRequest = new FileCreationWithContentRequest();

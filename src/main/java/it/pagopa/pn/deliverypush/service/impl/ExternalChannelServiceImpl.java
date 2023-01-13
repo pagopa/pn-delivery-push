@@ -8,15 +8,18 @@ import it.pagopa.pn.deliverypush.dto.address.DigitalAddressFeedback;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
 import it.pagopa.pn.deliverypush.service.ExternalChannelService;
+import it.pagopa.pn.deliverypush.service.NotificationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -25,15 +28,18 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     private final ExternalChannelSendClient externalChannel;
     private final NotificationUtils notificationUtils;
     private final DigitalWorkFlowUtils digitalWorkFlowUtils;
+    private final NotificationService notificationService;
     
     public ExternalChannelServiceImpl(ExternalChannelUtils externalChannelUtils,
                                       ExternalChannelSendClient externalChannel,
                                       NotificationUtils notificationUtils,
-                                      DigitalWorkFlowUtils digitalWorkFlowUtils) {
+                                      DigitalWorkFlowUtils digitalWorkFlowUtils,
+                                      NotificationService notificationService) {
         this.externalChannelUtils = externalChannelUtils;
         this.externalChannel = externalChannel;
         this.notificationUtils = notificationUtils;
         this.digitalWorkFlowUtils = digitalWorkFlowUtils;
+        this.notificationService = notificationService;
     }
 
     /**
@@ -58,7 +64,10 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     ) {
 
         String aarKey = externalChannelUtils.getAarKey(notification.getIun(), recIndex);
-        
+        NotificationRecipientInt recipientFromIndex = notificationUtils.getRecipientFromIndex(notification, recIndex);
+        Map<String, String> recipientsQuickAccessLinkTokens = notificationService.getRecipientsQuickAccessLinkToken(notification.getIun());
+        String quickAccessToken = recipientsQuickAccessLinkTokens.get(recipientFromIndex.getInternalId());
+
         String eventId;
         if (!sendAlreadyInProgress)
         {
@@ -72,8 +81,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                             .sentAttemptMade(sentAttemptMade)
                             .build()
             );
-
-            externalChannel.sendLegalNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), digitalAddress, eventId, aarKey);
+            externalChannel.sendLegalNotification(notification, recipientFromIndex, digitalAddress, eventId, aarKey, quickAccessToken);
             externalChannelUtils.addSendDigitalNotificationToTimeline(notification, digitalAddress, addressSource, recIndex, sentAttemptMade, eventId);
         }
         else
@@ -92,7 +100,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                             .build()
             );
 
-            externalChannel.sendLegalNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), digitalAddress, eventId, aarKey);
+            externalChannel.sendLegalNotification(notification, recipientFromIndex, digitalAddress, eventId, aarKey, quickAccessToken);
 
             DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
                     .retryNumber(sentAttemptMade)

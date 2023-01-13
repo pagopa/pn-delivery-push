@@ -69,7 +69,8 @@ public class StartWorkflowHandler {
 
             for (NotificationRecipientInt recipient : notification.getRecipients()) {
                 Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
-                String quickAccessLinkToken = quickAccessLinkTokens.get(recipient.getInternalId()); 
+                String quickAccessLinkToken = quickAccessLinkTokens.get(recipient.getInternalId());
+                log.debug( "Get quickAccessToken={} for iun={} recIndex={}", quickAccessLinkToken, iun, recIndex );
                 scheduleStartRecipientWorkflow(iun, recIndex, new RecipientsWorkflowDetails(quickAccessLinkToken));
             }
         } catch (PnValidationException ex) {

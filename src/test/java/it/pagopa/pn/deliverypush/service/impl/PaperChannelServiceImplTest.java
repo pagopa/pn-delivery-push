@@ -2,23 +2,18 @@ package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
-import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
-import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
-import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
-import it.pagopa.pn.deliverypush.action.startworkflow.AttachmentUtils;
-import it.pagopa.pn.deliverypush.action.utils.*;
-import it.pagopa.pn.deliverypush.dto.address.*;
+import it.pagopa.pn.deliverypush.action.utils.AarUtils;
+import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
+import it.pagopa.pn.deliverypush.action.utils.PaperChannelUtils;
+import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
-import it.pagopa.pn.deliverypush.dto.timeline.EventId;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendClient;
 import it.pagopa.pn.deliverypush.service.PaperChannelService;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,8 +22,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
-
-import static org.mockito.ArgumentMatchers.eq;
 
 class PaperChannelServiceImplTest {
     @Mock
@@ -45,8 +38,6 @@ class PaperChannelServiceImplTest {
     private MVPParameterConsumer mvpParameterConsumer;
     @Mock
     private AnalogWorkflowUtils analogWorkflowUtils;
-    @Mock
-    private AttachmentUtils attachmentUtils;
 
 
     private PaperChannelService paperChannelService;
@@ -60,8 +51,7 @@ class PaperChannelServiceImplTest {
                 aarUtils,
                 timelineUtils,
                 mvpParameterConsumer,
-                analogWorkflowUtils,
-                attachmentUtils);
+                analogWorkflowUtils);
     }
 
 
