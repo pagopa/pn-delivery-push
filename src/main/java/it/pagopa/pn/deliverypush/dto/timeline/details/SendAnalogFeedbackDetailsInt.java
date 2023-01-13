@@ -23,7 +23,7 @@ public class SendAnalogFeedbackDetailsInt implements RecipientRelatedTimelineEle
     private Boolean investigation;
     private PhysicalAddressInt newAddress;
     private List<String> errors = null;
-    private ResponseStatusInt status;
+    private ResponseStatusInt responseStatus;
     private List<SendingReceipt> sendingReceipts;
     private String requestTimelineId;
 
@@ -32,7 +32,7 @@ public class SendAnalogFeedbackDetailsInt implements RecipientRelatedTimelineEle
                 "recIndex=%d sentAttemptMade=%d responseStatus=%s errors=%s physicalAddress=%s requestTimelineId=%s",
                 recIndex,
                 sentAttemptMade,
-                status,
+                responseStatus,
                 errors,
                 AuditLogUtils.SENSITIVE,
                 requestTimelineId
