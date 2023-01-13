@@ -226,7 +226,9 @@ components:
           $ref: '#/components/schemas/RaddType'
         raddTransactionId:
           $ref: '#/components/schemas/RaddTransactionId'
-          
+        delegateInfo:
+          $ref: '#/components/schemas/DelegateInfo'
+
     PublicRegistryCallDetails:
       type: object
       required:
@@ -622,3 +624,25 @@ components:
     RaddTransactionId:
       type: string
       description: Identificativo della pratica all'interno della rete RADD
+
+    DelegateInfo:
+      type: object
+      properties:
+        internalId:
+          type: string
+        taxId:
+          type: string
+        operatorUuid:
+          type: string
+        mandateId:
+          type: string
+        denomination:
+          type: string
+        delegateType:
+          $ref: '#/components/schemas/DelegateType'
+
+    DelegateType:
+      type: string
+      enum:
+        - PF
+        - PG

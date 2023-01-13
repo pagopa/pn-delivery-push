@@ -36,7 +36,7 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
     public void saveTimelineConfidentialInformation(TimelineElementInternal timelineElement) {
         String iun = timelineElement.getIun();
 
-        if (checkPresenceConfidentialInformation(timelineElement)) {
+        if (timelineElement.getDetails() instanceof ConfidentialInformationTimelineElement) {
 
             ConfidentialTimelineElementDtoInt dtoInt = getConfidentialDtoFromTimeline(timelineElement);
 
@@ -45,7 +45,6 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
             pnDataVaultClient.updateNotificationTimelineByIunAndTimelineElementId(iun, dtoExt);
 
             log.debug("UpdateNotificationTimelineByIunAndTimelineElementId OK for - iun {} timelineElementId {}", iun, dtoInt.getTimelineElementId());
-           
         }
     }
 
@@ -69,7 +68,15 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
 
         if (details instanceof NewAddressRelatedTimelineElement newAddressDetails && newAddressDetails.getNewAddress() != null) {
             builder.newPhysicalAddress(newAddressDetails.getNewAddress());
-
+        }
+        
+        if(details instanceof PersonalInformationRelatedTimelineElement personalInfoDetails){
+            if(personalInfoDetails.getTaxId() != null){
+                builder.taxId(personalInfoDetails.getTaxId());
+            }
+            if(personalInfoDetails.getDenomination() != null){
+                builder.denomination(personalInfoDetails.getDenomination());
+            }
         }
 
         return builder.build();
@@ -108,15 +115,6 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
         log.debug("getTimelineConfidentialInformation haven't confidential information for - iun {} ", iun);
         return Optional.empty();
        
-    }
-
-    private boolean checkPresenceConfidentialInformation(TimelineElementInternal timelineElementInternal) {
-        TimelineElementDetailsInt details = timelineElementInternal.getDetails();
-
-        return details instanceof CourtesyAddressRelatedTimelineElement ||
-                details instanceof DigitalAddressRelatedTimelineElement ||
-                details instanceof PhysicalAddressRelatedTimelineElement ||
-                details instanceof NewAddressRelatedTimelineElement;
     }
     
     @Override

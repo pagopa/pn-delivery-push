@@ -11,6 +11,8 @@ import lombok.*;
 @ToString
 public class ConfidentialTimelineElementDtoInt {
     private String timelineElementId;
+    private String taxId;
+    private String denomination;
     private String digitalAddress;
     private PhysicalAddressInt physicalAddress;
     private PhysicalAddressInt newPhysicalAddress;

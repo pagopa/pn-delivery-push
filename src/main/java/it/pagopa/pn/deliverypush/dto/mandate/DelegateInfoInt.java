@@ -1,10 +1,12 @@
 package it.pagopa.pn.deliverypush.dto.mandate;
 
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 @Getter
+@Setter
 @Builder(toBuilder = true)
+@ToString
+@EqualsAndHashCode
 public class DelegateInfoInt {
     private String internalId;
     private String taxId;
@@ -12,7 +14,7 @@ public class DelegateInfoInt {
     private String mandateId;
     private String denomination;
     private DelegateType delegateType;
-
+    
     public enum DelegateType {
         PF("PF"),
 
@@ -33,4 +35,5 @@ public class DelegateInfoInt {
             return String.valueOf(value);
         }
     }
+    
 }
