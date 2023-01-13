@@ -1,6 +1,9 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
+import it.pagopa.pn.commons.log.PnAuditLogBuilder;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
 import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -267,4 +270,6 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     private PhysicalAddressInt.ANALOG_TYPE getAnalogType(NotificationInt notification) {
         return notification.getPhysicalCommunicationType() == ServiceLevelTypeInt.REGISTERED_LETTER_890 ? PhysicalAddressInt.ANALOG_TYPE.REGISTERED_LETTER_890 : PhysicalAddressInt.ANALOG_TYPE.AR_REGISTERED_LETTER;
     }
+
+
 }

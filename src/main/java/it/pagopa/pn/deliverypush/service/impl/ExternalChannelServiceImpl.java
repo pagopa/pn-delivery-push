@@ -1,5 +1,8 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowUtils;
 import it.pagopa.pn.deliverypush.action.utils.ExternalChannelUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
@@ -12,7 +15,9 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
+import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.ExternalChannelService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import lombok.extern.slf4j.Slf4j;
@@ -29,17 +34,19 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     private final NotificationUtils notificationUtils;
     private final DigitalWorkFlowUtils digitalWorkFlowUtils;
     private final NotificationService notificationService;
+    private final AuditLogService auditLogService;
     
     public ExternalChannelServiceImpl(ExternalChannelUtils externalChannelUtils,
                                       ExternalChannelSendClient externalChannel,
                                       NotificationUtils notificationUtils,
                                       DigitalWorkFlowUtils digitalWorkFlowUtils,
-                                      NotificationService notificationService) {
+                                      NotificationService notificationService, AuditLogService auditLogService) {
         this.externalChannelUtils = externalChannelUtils;
         this.externalChannel = externalChannel;
         this.notificationUtils = notificationUtils;
         this.digitalWorkFlowUtils = digitalWorkFlowUtils;
         this.notificationService = notificationService;
+        this.auditLogService = auditLogService;
     }
 
     /**
@@ -62,64 +69,71 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                                           int sentAttemptMade,
                                           boolean sendAlreadyInProgress
     ) {
+        PnAuditLogEvent logEvent = buildAuditLogEvent(notification.getIun(), digitalAddress, recIndex);
 
-        String aarKey = externalChannelUtils.getAarKey(notification.getIun(), recIndex);
-        NotificationRecipientInt recipientFromIndex = notificationUtils.getRecipientFromIndex(notification, recIndex);
-        Map<String, String> recipientsQuickAccessLinkTokens = notificationService.getRecipientsQuickAccessLinkToken(notification.getIun());
-        String quickAccessToken = recipientsQuickAccessLinkTokens.get(recipientFromIndex.getInternalId());
+        try {
+            String aarKey = externalChannelUtils.getAarKey(notification.getIun(), recIndex);
+            NotificationRecipientInt recipientFromIndex = notificationUtils.getRecipientFromIndex(notification, recIndex);
+            Map<String, String> recipientsQuickAccessLinkTokens = notificationService.getRecipientsQuickAccessLinkToken(notification.getIun());
+            String quickAccessToken = recipientsQuickAccessLinkTokens.get(recipientFromIndex.getInternalId());
 
-        String eventId;
-        if (!sendAlreadyInProgress)
-        {
-            log.debug("Start sendDigitalNotification - iun={} recipientIndex={} attempt={}", notification.getIun(), recIndex, sentAttemptMade);
+            String eventId;
+            if (!sendAlreadyInProgress)
+            {
+                log.debug("Start sendDigitalNotification - iun={} recipientIndex={} attempt={}", notification.getIun(), recIndex, sentAttemptMade);
 
-            eventId = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
-                    EventId.builder()
-                            .iun(notification.getIun())
-                            .recIndex(recIndex)
-                            .source(addressSource)
-                            .sentAttemptMade(sentAttemptMade)
-                            .build()
-            );
-            externalChannel.sendLegalNotification(notification, recipientFromIndex, digitalAddress, eventId, aarKey, quickAccessToken);
-            externalChannelUtils.addSendDigitalNotificationToTimeline(notification, digitalAddress, addressSource, recIndex, sentAttemptMade, eventId);
+                eventId = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
+                        EventId.builder()
+                                .iun(notification.getIun())
+                                .recIndex(recIndex)
+                                .source(addressSource)
+                                .sentAttemptMade(sentAttemptMade)
+                                .build()
+                );
+                externalChannel.sendLegalNotification(notification, recipientFromIndex, digitalAddress, eventId, aarKey, quickAccessToken);
+                externalChannelUtils.addSendDigitalNotificationToTimeline(notification, digitalAddress, addressSource, recIndex, sentAttemptMade, eventId);
+            }
+            else
+            {
+                int progressIndex = digitalWorkFlowUtils.getPreviousTimelineProgress(notification, recIndex, sentAttemptMade, addressSource).size() + 1;
+
+                log.debug("Start sendDigitalNotification for retry - iun={} recipientIndex={} attempt={} progressIndex={}", notification.getIun(), recIndex, sentAttemptMade, progressIndex);
+
+                eventId = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
+                        EventId.builder()
+                                .iun(notification.getIun())
+                                .recIndex(recIndex)
+                                .source(addressSource)
+                                .sentAttemptMade(sentAttemptMade)
+                                .progressIndex(progressIndex)
+                                .build()
+                );
+
+                externalChannel.sendLegalNotification(notification, recipientFromIndex, digitalAddress, eventId, aarKey, quickAccessToken);
+
+                DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
+                        .retryNumber(sentAttemptMade)
+                        .eventTimestamp(Instant.now())
+                        .digitalAddressSource(addressSource)
+                        .digitalAddress(digitalAddress)
+                        .build();
+
+                digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(
+                        notification,
+                        EventCodeInt.DP00,
+                        recIndex,
+                        false,
+                        null,
+                        digitalAddressFeedback);
+
+            }
+
+            logEvent.generateSuccess();
+            return eventId;
+        } catch (Exception e) {
+            logEvent.generateFailure("Error in sendDigitalNotification, error={} iun={} id={}", e.getMessage(), notification.getIun(), recIndex);
+            throw e;
         }
-        else
-        {
-            int progressIndex = digitalWorkFlowUtils.getPreviousTimelineProgress(notification, recIndex, sentAttemptMade, addressSource).size() + 1;
-
-            log.debug("Start sendDigitalNotification for retry - iun={} recipientIndex={} attempt={} progressIndex={}", notification.getIun(), recIndex, sentAttemptMade, progressIndex);
-
-            eventId = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
-                    EventId.builder()
-                            .iun(notification.getIun())
-                            .recIndex(recIndex)
-                            .source(addressSource)
-                            .sentAttemptMade(sentAttemptMade)
-                            .progressIndex(progressIndex)
-                            .build()
-            );
-
-            externalChannel.sendLegalNotification(notification, recipientFromIndex, digitalAddress, eventId, aarKey, quickAccessToken);
-
-            DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
-                    .retryNumber(sentAttemptMade)
-                    .eventTimestamp(Instant.now())
-                    .digitalAddressSource(addressSource)
-                    .digitalAddress(digitalAddress)
-                    .build();
-            
-            digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(
-                    notification, 
-                    EventCodeInt.DP00,
-                    recIndex,
-                    false, 
-                    null,
-                    digitalAddressFeedback);
-
-        }
-
-        return eventId;
     }
 
     /**
@@ -130,8 +144,37 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     @Override
     public void sendCourtesyNotification(NotificationInt notification, CourtesyDigitalAddressInt courtesyAddress, Integer recIndex, String eventId) {
         log.debug("Start sendCourtesyNotification - iun {} id {}", notification.getIun(), recIndex);
-        String aarKey = externalChannelUtils.getAarKey(notification.getIun(), recIndex);
-        externalChannel.sendCourtesyNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), courtesyAddress, eventId, aarKey);
+
+        PnAuditLogEvent logEvent = buildAuditLogEvent(notification.getIun(), courtesyAddress, recIndex);
+
+        try {
+            String aarKey = externalChannelUtils.getAarKey(notification.getIun(), recIndex);
+            externalChannel.sendCourtesyNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), courtesyAddress, eventId, aarKey);
+            logEvent.generateSuccess();
+        } catch (Exception e) {
+            logEvent.generateFailure("Error in sendCourtesyNotification, error={} iun={} id={}", e.getMessage(), notification.getIun(), recIndex);
+            throw e;
+        }
     }
+
+
+    private PnAuditLogEvent buildAuditLogEvent(String iun, LegalDigitalAddressInt legalDigitalAddressInt, int recIndex) {
+        if (legalDigitalAddressInt.getType() == LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC) {
+            return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_DD_SEND, "sendPECMessage");
+        }
+
+        throw new PnInternalException("Unsupported LEGAL_DIGITAL_ADDRESS_TYPE " + legalDigitalAddressInt.getType().getValue(), PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ADDRESSTYPENOTSUPPORTED);
+    }
+
+    private PnAuditLogEvent buildAuditLogEvent(String iun, CourtesyDigitalAddressInt courtesyAddress, int recIndex) {
+        if (courtesyAddress.getType() == CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL) {
+            return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_AD_SEND_EMAIL, "sendEmailMessage");
+        }
+        else
+        {
+            return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_AD_SEND_SMS, "sendSMSMessage");
+        }
+    }
+
 
 }

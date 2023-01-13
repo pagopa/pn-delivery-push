@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.action.digitalworkflow;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
@@ -17,6 +16,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalSendTimelineElementDetails;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalProgressDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
+import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import lombok.extern.slf4j.Slf4j;
@@ -39,18 +39,20 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
     private final CompletionWorkFlowHandler completionWorkflow; 
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private final DigitalWorkFlowHandler digitalWorkFlowHandler;
+    private final AuditLogService auditLogService;
 
     public DigitalWorkFlowExternalChannelResponseHandler(NotificationService notificationService,
                                                          SchedulerService schedulerService,
                                                          DigitalWorkFlowUtils digitalWorkFlowUtils,
                                                          CompletionWorkFlowHandler completionWorkflow,
-                                                         PnDeliveryPushConfigs pnDeliveryPushConfigs, DigitalWorkFlowHandler digitalWorkFlowHandler) {
+                                                         PnDeliveryPushConfigs pnDeliveryPushConfigs, DigitalWorkFlowHandler digitalWorkFlowHandler, AuditLogService auditLogService) {
         this.notificationService = notificationService;
         this.schedulerService = schedulerService;
         this.digitalWorkFlowUtils = digitalWorkFlowUtils;
         this.completionWorkflow = completionWorkflow;
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
         this.digitalWorkFlowHandler = digitalWorkFlowHandler;
+        this.auditLogService = auditLogService;
     }
  
 
@@ -95,34 +97,22 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
         log.debug("Start handleExternalChannelResponseByStatus with status={} eventCode={} - iun={} requestId={}", digitalResultInfos.getStatus(), digitalResultInfos.getResponse().getEventCode(), digitalResultInfos.getNotification().getIun(), digitalResultInfos.getResponse().getRequestId());
 
         switch (digitalResultInfos.getStatus()) {
-            case PROGRESS:
-                handleStatusProgress(digitalResultInfos, false);
-                break;
-            case OK:
-                handleSuccessfulSending(digitalResultInfos);
-                break;
-            case KO:
-                handleNotSuccessfulSending(digitalResultInfos);
-                break;
-            case PROGRESS_WITH_RETRY:
-                handleStatusProgressWithRetry(digitalResultInfos);
-                break;
-            default:
+            case PROGRESS -> handleStatusProgress(digitalResultInfos, false);
+            case OK -> handleSuccessfulSending(digitalResultInfos);
+            case KO -> handleNotSuccessfulSending(digitalResultInfos);
+            case PROGRESS_WITH_RETRY -> handleStatusProgressWithRetry(digitalResultInfos);
+            default -> {
                 log.error("Status {} is not handled - iun={} id={}", digitalResultInfos.getStatus(), digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex());
-                throw new PnInternalException("Status "+ digitalResultInfos.getStatus() +" is not handled - iun="+ digitalResultInfos.getNotification().getIun() +" id="+ digitalResultInfos.getRecIndex(), ERROR_CODE_DELIVERYPUSH_INVALIDEVENTCODE);
+                throw new PnInternalException("Status " + digitalResultInfos.getStatus() + " is not handled - iun=" + digitalResultInfos.getNotification().getIun() + " id=" + digitalResultInfos.getRecIndex(), ERROR_CODE_DELIVERYPUSH_INVALIDEVENTCODE);
+            }
         }
     }
 
     private PnAuditLogEvent buildAuditLog(  DigitalWorkFlowHandler.DigitalResultInfos digitalResultInfos ){
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-
-        PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_CHECK, "Digital workflow Ext channel response for source {} retryNumber={} status={} eventCode={} - iun={} id={}",
-                        digitalResultInfos.getDigitalAddressSourceInt(), digitalResultInfos.getRetryNumber(), digitalResultInfos.getStatus(), digitalResultInfos.getResponse().getEventCode(), digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex())
-                .iun(digitalResultInfos.getNotification().getIun())
-                .build();
-        logEvent.log();
-        return logEvent;
+        return auditLogService.buildAuditLogEvent(digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex(),
+                PnAuditLogEventType.AUD_DD_RECEIVE,"Digital workflow Ext channel response for source {} retryNumber={} status={} eventCode={} ",
+                digitalResultInfos.getDigitalAddressSourceInt(), digitalResultInfos.getRetryNumber(), digitalResultInfos.getStatus(),
+                digitalResultInfos.getResponse().getEventCode() );
     }
 
     void handleNotSuccessfulSending(DigitalWorkFlowHandler.DigitalResultInfos digitalResultInfos) {
