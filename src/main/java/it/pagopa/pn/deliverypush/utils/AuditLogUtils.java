@@ -19,7 +19,7 @@ public class AuditLogUtils {
     public static PnAuditLogEventType getAuditLogEventType(NotificationInt notification, String senderRecipientId, String mandateId) {
         if (StringUtils.hasText(mandateId)) {
             //La request è stata ricevuta da un delagato, generazione audit log per destinatario
-            return PnAuditLogEventType.AUD_NT_LEGALOPEN_RCP;
+            return PnAuditLogEventType.AUD_NT_LEGALOPEN_DEL;
         } else {
             String paId = notification.getSender().getPaId();
             boolean isRequestFromSender = senderRecipientId.equals(paId);
