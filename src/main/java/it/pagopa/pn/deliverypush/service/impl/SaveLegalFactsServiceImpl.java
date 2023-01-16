@@ -97,7 +97,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
             String url = this.saveLegalFact(legalFactBuilder.generateNotificationReceivedLegalFact(notification));
 
             log.debug("End saveNotificationReceivedLegalFact - iun={}", notification.getIun());
-            logEvent.generateSuccess().log();
+            logEvent.generateSuccess("SaveNotificationReceivedLegalFact success with fileKey={} - iun={}", url, notification.getIun()).log();
             return url;
         } catch (Exception exc) {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "REQUEST_ACCEPTED", notification.getIun(), "N/A");
