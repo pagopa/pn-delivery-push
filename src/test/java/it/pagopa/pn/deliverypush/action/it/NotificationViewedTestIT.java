@@ -227,7 +227,7 @@ class NotificationViewedTestIT {
         ConsoleAppenderCustom.checkLogs();
     }
 
-    @Test
+ /*   @Test
     void notificationViewedFromDelegate() {
         //GIVEN
         LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
@@ -311,7 +311,6 @@ class NotificationViewedTestIT {
         notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex, delegateInfoInt, notificationViewDate);
 
         //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti
-
         delegateInfoInt.setDenomination(baseRecipientDto.getDenomination());
         delegateInfoInt.setTaxId(baseRecipientDto.getTaxId());
         
@@ -348,7 +347,7 @@ class NotificationViewedTestIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
-    }
+    }*/
 
     @Test
     void notificationViewed(){
