@@ -40,7 +40,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault.PnDataVaultClientReactiveImpl;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClientReactiveImpl;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
@@ -127,7 +126,7 @@ import static org.awaitility.Awaitility.with;
         NotificationCost.class,
         ViewNotification.class,
         PnDeliveryClientReactiveImpl.class,
-        PnDataVaultClientReactiveImpl.class,
+        PnDataVaultClientReactiveMock.class,
         DigitalTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource( 

@@ -121,7 +121,7 @@ import static org.awaitility.Awaitility.await;
         NotificationCost.class,
         ViewNotification.class,
         PnDeliveryClientReactiveImpl.class,
-        PnDataVaultClientReactiveImpl.class,
+        PnDataVaultClientReactiveMock.class,
         DigitalTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")
