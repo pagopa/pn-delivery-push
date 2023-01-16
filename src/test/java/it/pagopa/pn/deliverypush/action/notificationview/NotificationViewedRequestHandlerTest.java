@@ -7,6 +7,8 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
+import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
+import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
@@ -45,7 +47,7 @@ class NotificationViewedRequestHandlerTest {
 
     @ExtendWith(MockitoExtension.class)
     @Test
-    void handleViewNotification() {
+    void handleViewNotificationDelivery() {
         //GIVEN
         String iun = "test_iun";
         NotificationInt notification = getNotification(iun);
@@ -74,6 +76,73 @@ class NotificationViewedRequestHandlerTest {
         );
     }
 
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void handleViewNotificationDeliveryWithDelegate() {
+        //GIVEN
+        String iun = "test_iun";
+        NotificationInt notification = getNotification(iun);
+        NotificationRecipientInt recipientInt = notification.getRecipients().get(0);
+
+        Mockito.when(timelineUtils.checkNotificationIsAlreadyViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
+        Mockito.when(statusUtils.getCurrentStatusFromNotification(Mockito.any(NotificationInt.class), Mockito.any()))
+                .thenReturn(NotificationStatusInt.DELIVERING);
+
+        Instant viewDate = Instant.now();
+        int recIndex = 0;
+
+        //WHEN
+        DelegateInfoInt delegateInfo = DelegateInfoInt.builder().build();
+        handler.handleViewNotificationDelivery(notification.getIun(), recIndex, delegateInfo, viewDate);
+
+        //THEN
+
+        Mockito.verify(viewNotification).startVewNotificationProcess(
+                Mockito.eq(notification),
+                Mockito.eq(recipientInt),
+                Mockito.eq(recIndex),
+                Mockito.isNull(),
+                Mockito.eq(delegateInfo),
+                Mockito.eq(viewDate)
+        );
+    }
+    
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void handleViewNotificationRadd() {
+        //GIVEN
+        String iun = "test_iun";
+        NotificationInt notification = getNotification(iun);
+        NotificationRecipientInt recipientInt = notification.getRecipients().get(0);
+
+        Mockito.when(timelineUtils.checkNotificationIsAlreadyViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
+        Mockito.when(statusUtils.getCurrentStatusFromNotification(Mockito.any(NotificationInt.class), Mockito.any()))
+                .thenReturn(NotificationStatusInt.DELIVERING);
+
+        Instant viewDate = Instant.now();
+        int recIndex = 0;
+
+        RaddInfo raddInfo = RaddInfo.builder()
+                .transactionId("transiD")
+                .type("TYPE")
+                .build();
+        //WHEN
+        handler.handleViewNotificationRadd(notification.getIun(), recIndex, null, viewDate);
+
+        //THEN
+
+        Mockito.verify(viewNotification).startVewNotificationProcess(
+                Mockito.eq(notification),
+                Mockito.eq(recipientInt),
+                Mockito.eq(recIndex),
+                Mockito.eq(raddInfo),
+                Mockito.isNull(),
+                Mockito.eq(viewDate)
+        );
+    }
+    
     @ExtendWith(MockitoExtension.class)
     @Test
     void handleAlreadyViewedNotification() {
