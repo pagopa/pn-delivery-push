@@ -58,8 +58,17 @@ class ViewNotificationTest {
     public void setup() {
         when(pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement()).thenReturn(120);
         notificationUtils = new NotificationUtils();
-        viewNotification = new ViewNotification(instantNowSupplier, legalFactStore,
-                paperNotificationFailedService, notificationCost, timelineUtils, timelineService, attachmentUtils, pnDeliveryPushConfigs, confidentialInformationService);
+        viewNotification = new ViewNotification(instantNowSupplier, 
+                legalFactStore,
+                paperNotificationFailedService, 
+                notificationCost,
+                timelineUtils, 
+                timelineService, 
+                attachmentUtils, 
+                pnDeliveryPushConfigs, 
+                confidentialInformationService,
+                notificationUtils
+        );
     }
     
     @Test

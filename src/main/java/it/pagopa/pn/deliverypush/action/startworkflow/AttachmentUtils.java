@@ -120,13 +120,19 @@ public class AttachmentUtils {
                     ex 
             );
         }
-
-        String attachmentKey = fd.getKey();
-        log.debug( "Check preload digest for attachment with key={}", attachmentKey);
-        if ( !attachment.getDigests().getSha256().equals( fd.getChecksum() )) {
+        
+        if(fd != null){
+            String attachmentKey = fd.getKey();
+            log.debug( "Check preload digest for attachment with key={}", attachmentKey);
+            if ( !attachment.getDigests().getSha256().equals( fd.getChecksum() )) {
+                throw new PnValidationNotMatchingShaException( ERROR_CODE_DELIVERYPUSH_SHAFILEERROR,
+                        "Validation failed, different sha256 expected="+ attachment.getDigests().getSha256()
+                                + " actual="+ fd.getChecksum() );
+            }
+        } else{
             throw new PnValidationNotMatchingShaException( ERROR_CODE_DELIVERYPUSH_SHAFILEERROR,
                     "Validation failed, different sha256 expected="+ attachment.getDigests().getSha256()
-                            + " actual="+ fd.getChecksum() );
+                            + " actual="+ null );
         }
     }
 

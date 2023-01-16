@@ -237,7 +237,8 @@ class ValidationDocumentErrorTestIT {
                         EventId.builder()
                                 .iun(iun)
                                 .recIndex(recIndex)
-                                .build())).isPresent());
+                                .build())).isPresent()
+        );
 
         Mockito.verify(externalChannelMock, Mockito.times(0)).sendLegalNotification(
                 Mockito.any(NotificationInt.class),

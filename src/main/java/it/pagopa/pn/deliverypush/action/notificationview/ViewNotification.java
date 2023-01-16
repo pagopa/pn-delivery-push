@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.action.notificationview;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.startworkflow.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
+import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.BaseRecipientDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -14,8 +15,6 @@ import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
-import lombok.Builder;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -38,7 +37,8 @@ public class ViewNotification {
     private final AttachmentUtils attachmentUtils;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private final ConfidentialInformationService confidentialInformationService;
-    
+    private final NotificationUtils notificationUtils;
+
     public void startVewNotificationProcess(NotificationInt notification,
                                             NotificationRecipientInt recipient,
                                             Integer recIndex,
@@ -60,20 +60,19 @@ public class ViewNotification {
                             )
                             .flatMap(responseCost -> {
                                 Integer cost = responseCost.orElse(null);
-                                return getDenominationAndSaveInTimeline(notification, recipient, recIndex, raddInfo, eventTimestamp, legalFactId, cost, delegateInfo);
+                                return getDenominationAndSaveInTimeline(notification, recIndex, raddInfo, eventTimestamp, legalFactId, cost, delegateInfo);
                             })
                ).subscribe();
     }
     
     private Mono<Void> getDenominationAndSaveInTimeline(
             NotificationInt notification,
-            NotificationRecipientInt recipient,
             Integer recIndex,
             RaddInfo raddInfo,
             Instant eventTimestamp,
             String legalFactId,
             Integer cost,
-            DelegateInfoInt  delegateInfo){
+            DelegateInfoInt delegateInfo){
         
         if ( delegateInfo != null){
             return getBaseRecipientDtoIntMono(delegateInfo)
@@ -88,17 +87,18 @@ public class ViewNotification {
                     )
                     .flatMap(delegateInfoInt ->{
                         log.info("Completed flatMap - iun={} id={}" , notification.getIun(), recIndex);
-                        return addTimelineAndDeletePaperNotificationFailed(notification, recipient, recIndex, raddInfo, eventTimestamp, legalFactId, cost, delegateInfoInt);
+                        return addTimelineAndDeletePaperNotificationFailed(notification, recIndex, raddInfo, eventTimestamp, legalFactId, cost, delegateInfoInt);
                     });
         }else {
-            return addTimelineAndDeletePaperNotificationFailed(notification, recipient, recIndex, raddInfo, eventTimestamp, legalFactId, cost, null);
+            return addTimelineAndDeletePaperNotificationFailed(notification, recIndex, raddInfo, eventTimestamp, legalFactId, cost, null);
         }
     }
 
     @NotNull
-    private Mono<Void> addTimelineAndDeletePaperNotificationFailed(NotificationInt notification, NotificationRecipientInt recipient, Integer recIndex, RaddInfo raddInfo, Instant eventTimestamp, String legalFactId, Integer cost, DelegateInfoInt delegateInfoInt) {
+    private Mono<Void> addTimelineAndDeletePaperNotificationFailed(NotificationInt notification, Integer recIndex, RaddInfo raddInfo, Instant eventTimestamp, String legalFactId, Integer cost, DelegateInfoInt delegateInfoInt) {
         log.info("addTimelineAndDeletePaperNotificationFailed - iun={} id={}" , notification.getIun(), recIndex);
 
+        NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
         //Viene eliminata l'eventuale istanza di notifica fallita dal momento che la stessa è stata letta
         paperNotificationFailedService.deleteNotificationFailed(recipient.getInternalId(), notification.getIun());
 
@@ -121,13 +121,5 @@ public class ViewNotification {
 
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
         timelineService.addTimelineElement(element, notification);
-    }
-    
-    @Builder(toBuilder = true)
-    @Getter
-    private static class UserInfo{
-        private Integer cost;
-        private String denomination;
-        private String legalFactsId;
     }
 }
