@@ -90,16 +90,18 @@ public class NotificationViewedRequestHandler {
 
     private PnAuditLogEvent generateAuditLog(String iun, Integer recIndex, RaddInfo raddInfo, DelegateInfoInt delegateInfo ) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-
+        boolean viewedFromDelegate = delegateInfo != null;
+        
+        PnAuditLogEventType type = viewedFromDelegate ? PnAuditLogEventType.AUD_NT_VIEW_DEL : PnAuditLogEventType.AUD_NT_VIEW_RCP;
         return auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_VIEW_RCP, "Start HandleViewNotification - iun={} id={} " +
+                .before(type, "Start HandleViewNotification - iun={} id={} " +
                         "raddType={} raddTransactionId={} internalDelegateId={} mandateId={}", 
                         iun, 
                         recIndex,
                         raddInfo != null ? raddInfo.getType() : null,
                         raddInfo != null ? raddInfo.getTransactionId() : null,
-                        delegateInfo != null ? delegateInfo.getDelegateType() : null,
-                        delegateInfo != null ? delegateInfo.getMandateId() : null
+                        viewedFromDelegate ? delegateInfo.getDelegateType() : null,
+                        viewedFromDelegate ? delegateInfo.getMandateId() : null
                 )
                 .iun(iun)
                 .build();
