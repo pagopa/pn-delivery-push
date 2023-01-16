@@ -59,7 +59,8 @@ public class PaperChannelSendClientImpl implements PaperChannelSendClient {
 
         prepareRequest.setRelatedRequestId(paperChannelPrepareRequest.getRelatedRequestId());
         prepareRequest.setDiscoveredAddress(mapInternalToExternal(paperChannelPrepareRequest.getDiscoveredAddress()));
-        
+
+        // FIXME togliere log una volta terminata integrazione con paper channel (contiene info sensibili)
         log.info("iun={} the request for prepare is {}", paperChannelPrepareRequest.getNotificationInt().getIun() , prepareRequest);
         paperMessagesApi.sendPaperPrepareRequest(paperChannelPrepareRequest.getRequestId(), prepareRequest);
 
@@ -85,6 +86,7 @@ public class PaperChannelSendClientImpl implements PaperChannelSendClient {
         sendRequest.setRequestPaId(paperChannelSendRequest.getNotificationInt().getSender().getPaTaxId());
         sendRequest.setClientRequestTimeStamp(OffsetDateTime.now());
 
+        // FIXME togliere log una volta terminata integrazione con paper channel (contiene info sensibili)
         log.info("iun={} the request for send is {}", paperChannelSendRequest.getNotificationInt().getIun() , sendRequest);
 
         SendResponse response = paperMessagesApi.sendPaperSendRequest(paperChannelSendRequest.getRequestId(), sendRequest);
