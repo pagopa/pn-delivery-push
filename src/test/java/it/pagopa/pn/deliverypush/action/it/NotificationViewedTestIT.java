@@ -227,8 +227,9 @@ class NotificationViewedTestIT {
         ConsoleAppenderCustom.checkLogs();
     }
 
- /*   @Test
+    @Test
     void notificationViewedFromDelegate() {
+        System.out.println("Start test notificationViewedFromDelegate");
         //GIVEN
         LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
                 .address("platformAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
@@ -298,6 +299,8 @@ class NotificationViewedTestIT {
                 Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
 
+        System.out.println("END test notificationViewedFromDelegate");
+
         //Simulazione visualizzazione della notifica
         Instant notificationViewDate = Instant.now();
 
@@ -347,7 +350,7 @@ class NotificationViewedTestIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
-    }*/
+    }
 
     @Test
     void notificationViewed(){
