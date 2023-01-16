@@ -129,7 +129,7 @@ class NotificationViewedRequestHandlerTest {
                 .type("TYPE")
                 .build();
         //WHEN
-        handler.handleViewNotificationRadd(notification.getIun(), recIndex, null, viewDate);
+        handler.handleViewNotificationRadd(notification.getIun(), recIndex, raddInfo, viewDate);
 
         //THEN
 
