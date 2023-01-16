@@ -5,7 +5,6 @@ import it.pagopa.pn.deliverypush.action.startworkflow.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
-import it.pagopa.pn.deliverypush.dto.ext.datavault.BaseRecipientDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
@@ -75,7 +74,9 @@ public class ViewNotification {
             DelegateInfoInt delegateInfo){
         
         if ( delegateInfo != null){
-            return getBaseRecipientDtoIntMono(delegateInfo)
+            log.debug("View is from delegate - iun={} id={}" , notification.getIun(), recIndex);
+
+            return confidentialInformationService.getRecipientInformationByInternalId(delegateInfo.getInternalId())
                     .doOnNext( baseRecipientDto ->
                             log.info("Completed getBaseRecipientDtoIntMono - iun={} id={}" , notification.getIun(), recIndex)
                     )
@@ -90,6 +91,7 @@ public class ViewNotification {
                         return addTimelineAndDeletePaperNotificationFailed(notification, recIndex, raddInfo, eventTimestamp, legalFactId, cost, delegateInfoInt);
                     });
         }else {
+            log.debug("View is not from delegate - iun={} id={}" , notification.getIun(), recIndex);
             return addTimelineAndDeletePaperNotificationFailed(notification, recIndex, raddInfo, eventTimestamp, legalFactId, cost, null);
         }
     }
@@ -108,14 +110,6 @@ public class ViewNotification {
                 notification
         );
         
-        return Mono.empty();
-    }
-
-
-    private Mono<BaseRecipientDtoInt> getBaseRecipientDtoIntMono(DelegateInfoInt delegateInfo) {
-        if(delegateInfo != null){
-            return confidentialInformationService.getRecipientInformationByInternalId(delegateInfo.getInternalId());
-        }
         return Mono.empty();
     }
 

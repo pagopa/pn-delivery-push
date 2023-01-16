@@ -7,8 +7,10 @@ import it.pagopa.pn.deliverypush.action.startworkflow.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.BaseRecipientDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
@@ -98,6 +100,60 @@ class ViewNotificationTest {
 
         Mockito.verify(timelineService).addTimelineElement(Mockito.any(), Mockito.any( NotificationInt.class ));
         
+        Mockito.verify(paperNotificationFailedService).deleteNotificationFailed(recipient.getInternalId(), notification.getIun());
+
+    }
+
+    @Test
+    @ExtendWith(MockitoExtension.class)
+    void startVewNotificationProcessWithDelegate() {
+        //GIVEN
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder().build();
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationRecipient(recipient)
+                .build();
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+
+        String legalFactsId = "legalFactsId";
+        when(legalFactStore.saveNotificationViewedLegalFact(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(Instant.class)))
+                .thenReturn(Mono.just(legalFactsId));
+        int notificationCost = 10;
+        when(this.notificationCost.getNotificationCost(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(Mono.just(Optional.of(notificationCost)));
+        when(instantNowSupplier.get()).thenReturn(Instant.now());
+        Instant viewDate = Instant.now();
+
+        String internalId = "internalId";
+        BaseRecipientDtoInt baseRecipientDto = BaseRecipientDtoInt.builder()
+                .internalId(internalId)
+                .denomination("denomination")
+                .taxId("taxId")
+                .build();
+        
+        Mockito.when(confidentialInformationService.getRecipientInformationByInternalId(Mockito.anyString())).thenReturn(Mono.just(baseRecipientDto));
+
+        //WHEN
+        DelegateInfoInt delegateInfo = DelegateInfoInt.builder()
+                .internalId(internalId)
+                .delegateType(DelegateInfoInt.DelegateType.PF)
+                .mandateId("mandate")
+                .build();
+        
+        viewNotification.startVewNotificationProcess(notification, recipient, recIndex, null, delegateInfo, viewDate);
+
+        //THEN
+        Mockito.verify(confidentialInformationService).getRecipientInformationByInternalId(delegateInfo.getInternalId());
+
+        DelegateInfoInt delegateInfoWithPersonalInformation = delegateInfo.toBuilder()
+                .taxId(baseRecipientDto.getTaxId())
+                .denomination(baseRecipientDto.getDenomination())
+                .build();
+        
+        Mockito.verify(timelineUtils).buildNotificationViewedTimelineElement(Mockito.eq(notification), Mockito.eq(recIndex),
+                Mockito.eq(legalFactsId),  Mockito.eq(notificationCost), Mockito.isNull(), Mockito.eq(delegateInfoWithPersonalInformation),
+                Mockito.eq(viewDate));
+
+        Mockito.verify(timelineService).addTimelineElement(Mockito.any(), Mockito.any( NotificationInt.class ));
+
         Mockito.verify(paperNotificationFailedService).deleteNotificationFailed(recipient.getInternalId(), notification.getIun());
 
     }
