@@ -551,6 +551,9 @@ class DigitalTestMultiRecipientIT {
 
         // Viene atteso fino a che non sia presente il REFINEMENT per il secondo recipient
         await().untilAsserted(() ->
+                Assertions.assertTrue(TestUtils.checkIsPresentViewed(iun, recIndex1, timelineService))
+        );
+        await().untilAsserted(() ->
                 Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex2, timelineService))
         );
 
