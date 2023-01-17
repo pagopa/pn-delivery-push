@@ -9,6 +9,7 @@ import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressFeedback;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
@@ -108,11 +109,14 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
         }
     }
 
-    private PnAuditLogEvent buildAuditLog(  DigitalWorkFlowHandler.DigitalResultInfos digitalResultInfos ){
+    private PnAuditLogEvent buildAuditLog(  DigitalWorkFlowHandler.DigitalResultInfos digitalResultInfos){
+        DigitalMessageReferenceInt digitalMessageReference = digitalResultInfos.getResponse().getGeneratedMessage();
+        String attachments = (digitalMessageReference!=null && digitalMessageReference.getLocation()!=null)?digitalMessageReference.getLocation():"";
+
         return auditLogService.buildAuditLogEvent(digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex(),
-                PnAuditLogEventType.AUD_DD_RECEIVE,"Digital workflow Ext channel response for source {} retryNumber={} status={} eventCode={} ",
+                PnAuditLogEventType.AUD_DD_RECEIVE,"Digital workflow Ext channel response for source {} retryNumber={} status={} eventCode={} attachments={}",
                 digitalResultInfos.getDigitalAddressSourceInt(), digitalResultInfos.getRetryNumber(), digitalResultInfos.getStatus(),
-                digitalResultInfos.getResponse().getEventCode() );
+                digitalResultInfos.getResponse().getEventCode() , attachments);
     }
 
     void handleNotSuccessfulSending(DigitalWorkFlowHandler.DigitalResultInfos digitalResultInfos) {

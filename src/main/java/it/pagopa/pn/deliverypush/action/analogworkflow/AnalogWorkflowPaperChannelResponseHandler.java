@@ -20,6 +20,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.RecipientRelatedTimelineEl
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.PaperChannelService;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.*;
 
@@ -41,6 +43,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private final AnalogWorkflowHandler analogWorkflowHandler;
     private final PaperChannelUtils paperChannelUtils;
+    private final AuditLogService auditLogService;
 
 
     public AnalogWorkflowPaperChannelResponseHandler(NotificationService notificationService,
@@ -48,8 +51,8 @@ public class AnalogWorkflowPaperChannelResponseHandler {
                                                      CompletionWorkFlowHandler completionWorkFlow,
                                                      AnalogWorkflowUtils analogWorkflowUtils,
                                                      PnDeliveryPushConfigs pnDeliveryPushConfigs,
-                                                     AnalogWorkflowHandler analogWorkflowHandler, 
-                                                     PaperChannelUtils paperChannelUtils) {
+                                                     AnalogWorkflowHandler analogWorkflowHandler,
+                                                     PaperChannelUtils paperChannelUtils, AuditLogService auditLogService) {
         this.notificationService = notificationService;
         this.paperChannelService = paperChannelService;
         this.completionWorkFlow = completionWorkFlow;
@@ -57,6 +60,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
         this.analogWorkflowHandler = analogWorkflowHandler;
         this.paperChannelUtils = paperChannelUtils;
+        this.auditLogService = auditLogService;
     }
 
     public void paperChannelPrepareResponseHandler(PrepareEventInt response) {
@@ -159,8 +163,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
     }
 
     private void handleStatusOK(SendEventInt response, SendAnalogDetailsInt sendPaperDetails, NotificationInt notification, Integer recIndex, List<LegalFactsIdInt> legalFactsListEntryIds) {
-        // AUD_NT_CHECK
-        PnAuditLogEvent logEvent = buildAuditLog(notification.getIun(), recIndex, response, sendPaperDetails);
+        PnAuditLogEvent logEvent = buildAuditLog(notification.getIun(), recIndex, response, sendPaperDetails, legalFactsListEntryIds);
         logEvent.generateSuccess().log();
         // La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
         analogWorkflowUtils.addAnalogSuccessAttemptToTimeline(notification, sendPaperDetails.getSentAttemptMade(), legalFactsListEntryIds, response.getDiscoveredAddress(), null, sendPaperDetails);
@@ -168,7 +171,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
     }
 
     private void handleStatusKO(SendEventInt response, SendAnalogDetailsInt sendPaperDetails, NotificationInt notification, Integer recIndex, List<LegalFactsIdInt> legalFactsListEntryIds) {
-        PnAuditLogEvent logEvent = buildAuditLog(notification.getIun(), recIndex, response, sendPaperDetails);
+        PnAuditLogEvent logEvent = buildAuditLog(notification.getIun(), recIndex, response, sendPaperDetails, legalFactsListEntryIds);
         logEvent.generateSuccess("WARNING Analog notification failed with failure cause {} ", response.getDeliveryFailureCause()).log();
 
         // External channel non è riuscito a effettuare la notificazione, si passa al prossimo step del workflow
@@ -182,15 +185,9 @@ public class AnalogWorkflowPaperChannelResponseHandler {
     }
 
 
-    private PnAuditLogEvent buildAuditLog(  String iun, int recIndex, SendEventInt response, SendAnalogDetailsInt sendPaperDetails ){
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-
-        PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_CHECK, "Analog workflow Paper channel response iun={} id={} with status={} and sentAttemptMade={}", iun, recIndex, response.getStatusCode(), sendPaperDetails.getSentAttemptMade())
-                .iun(iun)
-                .build();
-        logEvent.log();
-        return logEvent;
+    private PnAuditLogEvent buildAuditLog(  String iun, int recIndex, SendEventInt response, SendAnalogDetailsInt sendPaperDetails, List<LegalFactsIdInt> legalFactsListEntryIds ){
+        String attachments = legalFactsListEntryIds==null?"":legalFactsListEntryIds.stream().map(LegalFactsIdInt::getKey).collect(Collectors.joining(","));
+        return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_FD_RECEIVE, "Analog workflow Paper channel response iun={} id={} with status={} and sentAttemptMade={} attachments={}", response.getStatusCode(), sendPaperDetails.getSentAttemptMade(), attachments);
     }
 
 
