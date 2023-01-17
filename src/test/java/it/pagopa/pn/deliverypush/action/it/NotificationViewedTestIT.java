@@ -27,6 +27,7 @@ import it.pagopa.pn.deliverypush.action.startworkflow.StartWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -275,13 +276,13 @@ class NotificationViewedTestIT {
         publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String delegateInternalId = "delegateInternalId";
-        DelegateInfoInt.DelegateType delegateType = DelegateInfoInt.DelegateType.PF;
+        RecipientType delegateType = RecipientType.PF;
 
         BaseRecipientDto baseRecipientDto = BaseRecipientDto.builder()
                 .internalId(delegateInternalId)
                 .denomination("delegateName")
                 .taxId("delegateTaxId")
-                .recipientType(RecipientType.fromValue(delegateType.getValue()))
+                .recipientType(delegateType)
                 .build();
         
         pnDataVaultClientReactiveMock.insertBaseRecipientDto(baseRecipientDto);
@@ -306,7 +307,7 @@ class NotificationViewedTestIT {
                 .internalId(delegateInternalId)
                 .mandateId("delegateMandateId")
                 .operatorUuid("delegateOperator")
-                .delegateType(delegateType)
+                .delegateType(RecipientTypeInt.valueOf(delegateType.getValue()))
                 .build();
         
         notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex, delegateInfoInt, notificationViewDate);

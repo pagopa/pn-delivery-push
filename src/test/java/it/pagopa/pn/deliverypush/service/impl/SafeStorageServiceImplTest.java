@@ -59,37 +59,12 @@ class SafeStorageServiceImplTest {
     void getFileError() {
         //GIVEN
         Mockito.when(safeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
-                .thenThrow( new PnInternalException("test", "test") );
+                .thenReturn( Mono.error(new PnInternalException("test", "test")) );
 
         //WHEN
         Assertions.assertThrows( PnNotFoundException.class, () ->{
-            safeStorageService.getFile("test", true);
+            safeStorageService.getFile("test", true).block();
         });
-    }
-
-    @Test
-    @ExtendWith(SpringExtension.class)
-    void getFileReactive() {
-        //GIVEN
-        FileDownloadResponse fileDownloadResponseExpected = new FileDownloadResponse();
-        fileDownloadResponseExpected.setKey("key");
-        fileDownloadResponseExpected.setChecksum("checkSum");
-        fileDownloadResponseExpected.setContentType("content");
-        fileDownloadResponseExpected.setDocumentStatus("status");
-        fileDownloadResponseExpected.setDocumentType("type");
-
-        Mockito.when(safeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
-                .thenReturn(Mono.just(fileDownloadResponseExpected));
-
-        //WHEN
-        Mono<FileDownloadResponseInt> response = safeStorageService.getFileReactive("test", true);
-
-        //THEN
-        FileDownloadResponseInt fileDownloadResponse = response.block();
-        Assertions.assertNotNull(fileDownloadResponse);
-        Assertions.assertEquals(fileDownloadResponseExpected.getKey(), fileDownloadResponse.getKey());
-        Assertions.assertEquals(fileDownloadResponseExpected.getChecksum(), fileDownloadResponse.getChecksum());
-        Assertions.assertEquals(fileDownloadResponseExpected.getContentType(), fileDownloadResponse.getContentType());
     }
 
     @Test
@@ -113,5 +88,26 @@ class SafeStorageServiceImplTest {
         FileCreationResponseInt response = responseMono.block();
         Assertions.assertNotNull(response);
         Assertions.assertEquals(response.getKey(), expectedResponse.getKey());
+    }
+
+    @Test
+    @ExtendWith(SpringExtension.class)
+    void createAndUploadContentError() {
+        //GIVEN
+        FileCreationWithContentRequest fileCreationWithContentRequest = new FileCreationWithContentRequest();
+        fileCreationWithContentRequest.setContent("content".getBytes());
+
+        FileCreationResponse expectedResponse = new FileCreationResponse();
+        expectedResponse.setKey("key");
+        expectedResponse.setSecret("secret");
+
+        Mockito.when(safeStorageClient.createFile(Mockito.any(FileCreationWithContentRequest.class), Mockito.anyString()))
+                .thenReturn(Mono.error(new PnInternalException("test", "test")));
+
+        //WHEN
+
+        Assertions.assertThrows( PnInternalException.class, () ->{
+            safeStorageService.createAndUploadContent(fileCreationWithContentRequest).block();
+        });
     }
 }

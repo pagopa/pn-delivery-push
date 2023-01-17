@@ -33,11 +33,10 @@ public class RefinementHandler {
         if( !isNotificationAlreadyViewed ){
             log.info("Handle refinement - iun {} id {}", iun, recIndex);
             NotificationInt notification = notificationService.getNotificationByIun(iun);
+            
             notificationCostService.getNotificationCost(notification, recIndex)
-                    .doOnSuccess( notificationCost ->
-                            log.debug("Notification cost is {} - iun {} id {}",notificationCost, iun, recIndex)
-                    )
-                    .doOnNext( res -> 
+                    .doOnSuccess( notificationCost -> log.debug("Notification cost is {} - iun {} id {}",notificationCost, iun, recIndex))
+                    .doOnNext( res ->
                         attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement())
                     )
                     .doOnNext( notificationCost ->
@@ -45,8 +44,7 @@ public class RefinementHandler {
                                     timelineUtils.buildRefinementTimelineElement(notification, recIndex, notificationCost),
                                     notification
                             )
-                    ).subscribe();
-            
+                    ).block();
         } else {
             log.info("Notification is already viewed, refinement will not start - iun={} id={}", iun, recIndex);
         }

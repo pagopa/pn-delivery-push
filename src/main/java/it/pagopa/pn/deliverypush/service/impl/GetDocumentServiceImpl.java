@@ -38,7 +38,7 @@ public class GetDocumentServiceImpl implements GetDocumentService {
         return notificationService.getNotificationByIunReactive(iun)
                 .flatMap( notification -> {
                     authUtils.checkUserAuthorization(notification, recipientId);
-                    return safeStorageService.getFileReactive(documentId, false);
+                    return safeStorageService.getFile(documentId, false);
                 }).map(
                         fileDownloadResponse -> {
                             DocumentDownloadMetadataResponse response =  generateResponse(iun, documentType, documentId, fileDownloadResponse);
@@ -53,7 +53,7 @@ public class GetDocumentServiceImpl implements GetDocumentService {
         log.info("Start getDocumentWebMetadata iun={} senderReceiverId={} mandateId={} documentId={}", iun, senderReceiverId, mandateId, documentId );
         return notificationService.getNotificationByIunReactive(iun)
                 .doOnNext(notificationInt -> authUtils.checkUserPaAndMandateAuthorization(notificationInt, senderReceiverId, mandateId))
-                .flatMap(notificationInt -> safeStorageService.getFileReactive(documentId, false))
+                .flatMap(notificationInt -> safeStorageService.getFile(documentId, false))
                 .map(fileDownloadResponse -> generateResponse(iun, documentType, documentId,fileDownloadResponse))
                 .doOnSuccess(documentDownloadMetadataResponse -> log.info( "getDocumentWebMetadata Success iun={} documentId={}", iun, documentId ));
     }

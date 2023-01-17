@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
 import it.pagopa.pn.deliverypush.dto.address.*;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -411,7 +412,7 @@ class TimelineUtilsTest {
                 .transactionId("002")
                 .build();
         DelegateInfoInt delegateInfoInt = DelegateInfoInt.builder()
-                .delegateType(DelegateInfoInt.DelegateType.PF)
+                .delegateType(RecipientTypeInt.PF)
                 .mandateId("mandate")
                 .operatorUuid("iioaxx11")
                 .internalId("internCF")

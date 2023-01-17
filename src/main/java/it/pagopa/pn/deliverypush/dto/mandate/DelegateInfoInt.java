@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.dto.mandate;
 
+import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import lombok.*;
 
 @Getter
@@ -13,27 +14,5 @@ public class DelegateInfoInt {
     private String operatorUuid;
     private String mandateId;
     private String denomination;
-    private DelegateType delegateType;
-    
-    public enum DelegateType {
-        PF("PF"),
-
-        PG("PG");
-
-        private final String value;
-
-        DelegateType(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        @Override
-        public String toString() {
-            return String.valueOf(value);
-        }
-    }
-    
+    private RecipientTypeInt delegateType;
 }

@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 import it.pagopa.pn.api.dto.events.NotificationViewDelegateInfo;
 import it.pagopa.pn.api.dto.events.PnDeliveryNotificationViewedEvent;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -58,7 +59,7 @@ public class NotificationViewedEventHandler {
                     .internalId(notificationViewDelegateInfo.getInternalId())
                     .operatorUuid(notificationViewDelegateInfo.getOperatorUuid())
                     .mandateId(notificationViewDelegateInfo.getMandateId())
-                    .delegateType(DelegateInfoInt.DelegateType.valueOf(notificationViewDelegateInfo.getDelegateType().getValue()))
+                    .delegateType(RecipientTypeInt.valueOf(notificationViewDelegateInfo.getDelegateType().getValue()))
                     .build();
         }
 

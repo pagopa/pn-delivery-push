@@ -11,8 +11,6 @@ public interface SafeStorageService {
 
     Mono<FileDownloadResponseInt> getFile(String fileKey, Boolean metadataOnly) ;
     
-    Mono<FileDownloadResponseInt> getFileReactive(String fileKey, Boolean metadataOnly) ;
-
     Mono<FileCreationResponseInt> createAndUploadContent(FileCreationWithContentRequest fileCreationRequest);
 
     Mono<UpdateFileMetadataResponseInt> updateFileMetadata(String fileKey, UpdateFileMetadataRequest updateFileMetadataRequest);

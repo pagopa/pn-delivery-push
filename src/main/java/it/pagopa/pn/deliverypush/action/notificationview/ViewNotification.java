@@ -49,19 +49,15 @@ public class ViewNotification {
         attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement());
         
        legalFactStore.saveNotificationViewedLegalFact(notification, recipient, instantNowSupplier.get())
-               .doOnNext( legalFactId ->
-                       log.info("Completed saveNotificationViewedLegalFact legalFactId={} - iun={} id={}", legalFactId, notification.getIun(), recIndex)
-               )
+               .doOnSuccess( legalFactId -> log.info("Completed saveNotificationViewedLegalFact legalFactId={} - iun={} id={}", legalFactId, notification.getIun(), recIndex))
                .flatMap(legalFactId ->
                     notificationCost.getNotificationCost(notification, recIndex)
-                            .doOnNext( cost ->
-                                    log.info("Completed getNotificationCost cost={}- iun={} id={}", cost, notification.getIun(), recIndex)
-                            )
+                            .doOnSuccess( cost -> log.info("Completed getNotificationCost cost={}- iun={} id={}", cost, notification.getIun(), recIndex))
                             .flatMap(responseCost -> {
                                 Integer cost = responseCost.orElse(null);
                                 return getDenominationAndSaveInTimeline(notification, recIndex, raddInfo, eventTimestamp, legalFactId, cost, delegateInfo);
                             })
-               ).subscribe();
+               ).block();
     }
     
     private Mono<Void> getDenominationAndSaveInTimeline(
@@ -77,9 +73,7 @@ public class ViewNotification {
             log.debug("View is from delegate - iun={} id={}" , notification.getIun(), recIndex);
 
             return confidentialInformationService.getRecipientInformationByInternalId(delegateInfo.getInternalId())
-                    .doOnNext( baseRecipientDto ->
-                            log.info("Completed getBaseRecipientDtoIntMono - iun={} id={}" , notification.getIun(), recIndex)
-                    )
+                    .doOnSuccess( baseRecipientDto -> log.info("Completed getBaseRecipientDtoIntMono - iun={} id={}" , notification.getIun(), recIndex))
                     .map(baseRecipientDto ->
                             delegateInfo.toBuilder()
                                     .denomination(baseRecipientDto.getDenomination())

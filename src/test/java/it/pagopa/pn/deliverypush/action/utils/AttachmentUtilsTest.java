@@ -13,6 +13,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPayme
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.UpdateFileMetadataResponseInt;
+import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,7 @@ import org.springframework.util.Base64Utils;
 import reactor.core.publisher.Mono;
 
 import static it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTFOUND;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
@@ -67,7 +69,7 @@ class AttachmentUtilsTest {
     }
 
     @Test
-    void validateAttachmentFail() {
+    void validateAttachmentFailDifferentKey() {
         //GIVEN
         NotificationRecipientInt recipient = getNotificationRecipientInt();
         NotificationInt notification = getNotificationInt(recipient);
@@ -81,6 +83,23 @@ class AttachmentUtilsTest {
         assertThrows(PnValidationException.class, () -> attachmentUtils.validateAttachment(notification));
     }
 
+    @Test
+    void validateAttachmentFailErrorSafeStorage() {
+        //GIVEN
+        NotificationRecipientInt recipient = getNotificationRecipientInt();
+        NotificationInt notification = getNotificationInt(recipient);
+
+        FileDownloadResponseInt resp = new FileDownloadResponseInt();
+        resp.setKey("abcd");
+
+        String message = String.format("Get file failed for - fileKey=%s isMetadataOnly=%b", resp.getKey(), false);
+
+        Mockito.when(safeStorageService.getFile(Mockito.any(), Mockito.anyBoolean())).thenReturn(Mono.error(new PnNotFoundException("Not found", message, ERROR_CODE_DELIVERYPUSH_NOTFOUND)));
+
+        //THEN
+        assertThrows(PnValidationException.class, () -> attachmentUtils.validateAttachment(notification));
+    }
+    
     @Test
     void changeAttachmentsStatusToAttached() {
         //GIVEN

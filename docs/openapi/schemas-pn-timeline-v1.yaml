@@ -639,10 +639,4 @@ components:
         denomination:
           type: string
         delegateType:
-          $ref: '#/components/schemas/DelegateType'
-
-    DelegateType:
-      type: string
-      enum:
-        - PF
-        - PG
+          $ref: './schemas-pn-notification-v1.yaml#/components/schemas/RecipientType'

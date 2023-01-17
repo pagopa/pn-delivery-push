@@ -100,7 +100,7 @@ public class NotificationViewedRequestHandler {
                         recIndex,
                         raddInfo != null ? raddInfo.getType() : null,
                         raddInfo != null ? raddInfo.getTransactionId() : null,
-                        viewedFromDelegate ? delegateInfo.getDelegateType() : null,
+                        viewedFromDelegate ? delegateInfo.getInternalId() : null,
                         viewedFromDelegate ? delegateInfo.getMandateId() : null
                 )
                 .iun(iun)

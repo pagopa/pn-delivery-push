@@ -59,8 +59,9 @@ public class PnSafeStorageClientImpl extends BaseClient implements PnSafeStorage
         log.debug("Start call getFile - fileKey={} metadataOnly={}", fileKey, metadataOnly);
         fileKey = fileKey.replace(SAFE_STORAGE_URL_PREFIX, "");
         return fileDownloadApi.getFile( fileKey, this.cfg.getSafeStorageCxId(), metadataOnly )
-                .onErrorResume( error -> {
-                    throw new PnInternalException("Safe Storage client get file error", ERROR_CODE_DELIVERYPUSH_GETFILEERROR, error);
+                .onErrorResume( error ->{
+                    log.error("Safe Storage client get file error ", error);
+                    return Mono.error(new PnInternalException("Safe Storage client get file error", ERROR_CODE_DELIVERYPUSH_GETFILEERROR, error));
                 });
     }
 
@@ -81,11 +82,10 @@ public class PnSafeStorageClientImpl extends BaseClient implements PnSafeStorage
         log.debug("Start call updateFileMetadata - fileKey={} request={}", fileKey, request);
 
         return fileMetadataUpdateApi.updateFileMetadata( fileKey, this.cfg.getSafeStorageCxIdUpdatemetadata(), request )
-                .doOnSuccess( res -> 
-                    log.debug("End call updateFileMetadata, updated metadata file with key={}", fileKey)
-                )
+                .doOnSuccess( res -> log.debug("End call updateFileMetadata, updated metadata file with key={}", fileKey))
                 .onErrorResume( err -> {
-                    throw new PnInternalException("Exception invoking updateFileMetadata", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_UPDATEMETAFILEERROR, err);
+                    log.error("Exception invoking updateFileMetadata fileKey={} err ",fileKey, err);
+                    return Mono.error(new PnInternalException("Exception invoking updateFileMetadata", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_UPDATEMETAFILEERROR, err));
                 });
     }
 

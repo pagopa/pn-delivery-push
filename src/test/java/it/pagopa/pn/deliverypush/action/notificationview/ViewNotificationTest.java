@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.BaseRecipientDtoInt;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
@@ -134,7 +135,7 @@ class ViewNotificationTest {
         //WHEN
         DelegateInfoInt delegateInfo = DelegateInfoInt.builder()
                 .internalId(internalId)
-                .delegateType(DelegateInfoInt.DelegateType.PF)
+                .delegateType(RecipientTypeInt.PF)
                 .mandateId("mandate")
                 .build();
         

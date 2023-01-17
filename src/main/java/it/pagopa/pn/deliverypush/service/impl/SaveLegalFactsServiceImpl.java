@@ -102,7 +102,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
             return this.saveLegalFact(legalFactBuilder.generateNotificationReceivedLegalFact(notification))
                     .map( responseUrl -> {
                         log.debug("End saveNotificationReceivedLegalFact - iun={}", notification.getIun());
-                        logEvent.generateSuccess("SaveNotificationReceivedLegalFact success with fileKey={} - iun={}", url, notification.getIun()).log();
+                        logEvent.generateSuccess("SaveNotificationReceivedLegalFact success with fileKey={} - iun={}", responseUrl, notification.getIun()).log();
                         return responseUrl;
                     }).block();
             
