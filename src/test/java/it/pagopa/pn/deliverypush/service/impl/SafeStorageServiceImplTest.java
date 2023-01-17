@@ -61,10 +61,10 @@ class SafeStorageServiceImplTest {
         Mockito.when(safeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
                 .thenReturn( Mono.error(new PnInternalException("test", "test")) );
 
+        Mono<FileDownloadResponseInt> mono = safeStorageService.getFile("test", true);
+        
         //WHEN
-        Assertions.assertThrows( PnNotFoundException.class, () ->{
-            safeStorageService.getFile("test", true).block();
-        });
+        Assertions.assertThrows( PnNotFoundException.class, mono::block);
     }
 
     @Test
@@ -96,18 +96,13 @@ class SafeStorageServiceImplTest {
         //GIVEN
         FileCreationWithContentRequest fileCreationWithContentRequest = new FileCreationWithContentRequest();
         fileCreationWithContentRequest.setContent("content".getBytes());
-
-        FileCreationResponse expectedResponse = new FileCreationResponse();
-        expectedResponse.setKey("key");
-        expectedResponse.setSecret("secret");
-
+        
         Mockito.when(safeStorageClient.createFile(Mockito.any(FileCreationWithContentRequest.class), Mockito.anyString()))
                 .thenReturn(Mono.error(new PnInternalException("test", "test")));
 
         //WHEN
+        Mono<FileCreationResponseInt> mono = safeStorageService.createAndUploadContent(fileCreationWithContentRequest);
 
-        Assertions.assertThrows( PnInternalException.class, () ->{
-            safeStorageService.createAndUploadContent(fileCreationWithContentRequest).block();
-        });
+        Assertions.assertThrows( PnInternalException.class, mono::block);
     }
 }
