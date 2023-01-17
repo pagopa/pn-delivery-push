@@ -128,10 +128,10 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
 
             }
 
-            logEvent.generateSuccess();
+            logEvent.generateSuccess().log();
             return eventId;
         } catch (Exception e) {
-            logEvent.generateFailure("Error in sendDigitalNotification, error={} iun={} id={}", e.getMessage(), notification.getIun(), recIndex);
+            logEvent.generateFailure("Error in sendDigitalNotification, error={} iun={} id={}", e.getMessage(), notification.getIun(), recIndex).log();
             throw e;
         }
     }
@@ -150,9 +150,9 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         try {
             String aarKey = externalChannelUtils.getAarKey(notification.getIun(), recIndex);
             externalChannel.sendCourtesyNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), courtesyAddress, eventId, aarKey);
-            logEvent.generateSuccess();
+            logEvent.generateSuccess().log();
         } catch (Exception e) {
-            logEvent.generateFailure("Error in sendCourtesyNotification, error={} iun={} id={}", e.getMessage(), notification.getIun(), recIndex);
+            logEvent.generateFailure("Error in sendCourtesyNotification, error={} iun={} id={}", e.getMessage(), notification.getIun(), recIndex).log();
             throw e;
         }
     }

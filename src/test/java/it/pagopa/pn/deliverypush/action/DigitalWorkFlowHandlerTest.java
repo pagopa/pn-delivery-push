@@ -686,6 +686,7 @@ class DigitalWorkFlowHandlerTest {
                 Mockito.any(DigitalAddressFeedback.class)
         );
         Mockito.verify( auditLogEvent).generateSuccess(Mockito.any(), Mockito.any());
+        Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
 
         // STEP 3 - non torna retry, ci si aspetta un retry
@@ -807,6 +808,7 @@ class DigitalWorkFlowHandlerTest {
                 Mockito.any(DigitalAddressFeedback.class)
         );
         Mockito.verify( auditLogEvent).generateSuccess(Mockito.any(), Mockito.any());
+        Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
 
     }
@@ -1562,6 +1564,7 @@ class DigitalWorkFlowHandlerTest {
                 Mockito.any(DigitalMessageReferenceInt.class),
                 Mockito.any(DigitalAddressFeedback.class));
         Mockito.verify( auditLogEvent).generateSuccess(Mockito.any(), Mockito.any());
+        Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
     }
 
@@ -1639,6 +1642,7 @@ class DigitalWorkFlowHandlerTest {
                 Mockito.any(DigitalAddressFeedback.class));
 
         Mockito.verify( auditLogEvent).generateSuccess(Mockito.any(), Mockito.any());
+        Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
     }
 
@@ -1722,6 +1726,7 @@ class DigitalWorkFlowHandlerTest {
                 extChannelResponse.getGeneratedMessage(),
                 digitalAddressFeedback);
         Mockito.verify( auditLogEvent).generateSuccess(Mockito.any(), Mockito.any());
+        Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
     }
 
@@ -1850,6 +1855,7 @@ class DigitalWorkFlowHandlerTest {
                 digitalAddressFeedback);
 
         Mockito.verify( auditLogEvent).generateSuccess();
+        Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
     }
 

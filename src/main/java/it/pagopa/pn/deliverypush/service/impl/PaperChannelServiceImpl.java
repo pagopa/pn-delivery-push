@@ -1,8 +1,13 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
-import it.pagopa.pn.deliverypush.action.utils.*;
+import it.pagopa.pn.deliverypush.action.utils.AarUtils;
+import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
+import it.pagopa.pn.deliverypush.action.utils.PaperChannelUtils;
+import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
@@ -13,6 +18,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsI
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelPrepareRequest;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
+import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.PaperChannelService;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -31,6 +37,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     private final TimelineUtils timelineUtils;
     private final MVPParameterConsumer mvpParameterConsumer;
     private final AnalogWorkflowUtils analogWorkflowUtils;
+    private final AuditLogService auditLogService;
 
     public PaperChannelServiceImpl(PaperChannelUtils paperChannelUtils,
                                    PaperChannelSendClient paperChannelSendClient,
@@ -38,7 +45,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
                                    AarUtils aarUtils,
                                    TimelineUtils timelineUtils,
                                    MVPParameterConsumer mvpParameterConsumer,
-                                   AnalogWorkflowUtils analogWorkflowUtils) {
+                                   AnalogWorkflowUtils analogWorkflowUtils, AuditLogService auditLogService) {
         this.paperChannelUtils = paperChannelUtils;
         this.paperChannelSendClient = paperChannelSendClient;
         this.notificationUtils = notificationUtils;
@@ -46,6 +53,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         this.timelineUtils = timelineUtils;
         this.mvpParameterConsumer = mvpParameterConsumer;
         this.analogWorkflowUtils = analogWorkflowUtils;
+        this.auditLogService = auditLogService;
     }
 
 
@@ -172,10 +180,19 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         // recupero gli allegati
         List<String> attachments = retrieveAttachments(notification, recIndex, analogType== PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER);
 
-        paperChannelSendClient.prepare (new PaperChannelPrepareRequest(notification,
-                notificationUtils.getRecipientFromIndex(notification, recIndex),
-                receiverAddress, eventId, analogType,
-                attachments, relatedRequestId, discoveredAddress));
+        PnAuditLogEvent auditLogEvent = buildAuditLogEvent(notification.getIun(), recIndex, true, eventId, analogType.name(), attachments);
+
+        try {
+            paperChannelSendClient.prepare (new PaperChannelPrepareRequest(notification,
+                    notificationUtils.getRecipientFromIndex(notification, recIndex),
+                    receiverAddress, eventId, analogType,
+                    attachments, relatedRequestId, discoveredAddress));
+
+            auditLogEvent.generateSuccess().log();
+        } catch (Exception exc) {
+            auditLogEvent.generateFailure("failed prepare exc={}", exc).log();
+            throw exc;
+        }
     }
 
 
@@ -255,12 +272,20 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         // recupero gli allegati
         List<String> attachments = retrieveAttachments(notification, recIndex, isSimpleRegisteredLetter);
 
+        PnAuditLogEvent auditLogEvent = buildAuditLogEvent(notification.getIun(), recIndex, false, prepareRequestId, productType, attachments);
 
-        // IL sender/ar address son impostati a pagopa
-        return paperChannelSendClient.send(
-                new PaperChannelSendRequest(notification, notificationUtils.getRecipientFromIndex(notification, recIndex),
-                        receiverAddress, prepareRequestId, productType, attachments, paperChannelUtils.getSenderAddress(), paperChannelUtils.getSenderAddress()));
+        try {
+            // IL sender/ar address son impostati a pagopa
+            Integer cost = paperChannelSendClient.send(
+                    new PaperChannelSendRequest(notification, notificationUtils.getRecipientFromIndex(notification, recIndex),
+                            receiverAddress, prepareRequestId, productType, attachments, paperChannelUtils.getSenderAddress(), paperChannelUtils.getSenderAddress()));
 
+            auditLogEvent.generateSuccess("send success cost={}", cost).log();
+            return cost;
+        } catch (Exception exc) {
+            auditLogEvent.generateFailure("failed send exc={}", exc).log();
+            throw exc;
+        }
     }
 
     @NotNull
@@ -268,5 +293,16 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         return notification.getPhysicalCommunicationType() == ServiceLevelTypeInt.REGISTERED_LETTER_890 ? PhysicalAddressInt.ANALOG_TYPE.REGISTERED_LETTER_890 : PhysicalAddressInt.ANALOG_TYPE.AR_REGISTERED_LETTER;
     }
 
+
+    private PnAuditLogEvent buildAuditLogEvent(String iun, int recIndex, boolean isPrepare, String requestId, String analogType, List<String> attachmentsList) {
+        String attachments = attachmentsList==null?"":String.join(",", attachmentsList);
+        if (isPrepare) {
+            return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_FD_RESOLVE_LOGIC, "prepareRequest requestId={} analogType={} attachments={}", requestId, analogType, attachments);
+        }
+        else
+        {
+            return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_FD_SEND, "sendRequest requestId={} analogType={} attachments={}", requestId, analogType, attachments);
+        }
+    }
 
 }
