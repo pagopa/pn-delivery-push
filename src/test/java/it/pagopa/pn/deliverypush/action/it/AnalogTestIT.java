@@ -46,6 +46,7 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
+import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.PaperChannelService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.*;
@@ -91,6 +92,7 @@ import static org.awaitility.Awaitility.with;
         PaperChannelResponseHandler.class,
         AnalogWorkflowPaperChannelResponseHandler.class,
         PublicRegistryServiceImpl.class,
+        AuditLogServiceImpl.class,
         ExternalChannelServiceImpl.class,
         IoServiceImpl.class,
         NotificationCostServiceImpl.class,
@@ -199,6 +201,9 @@ class AnalogTestIT {
 
     @Autowired
     private StatusUtils statusUtils;
+
+    @Autowired
+    private AuditLogService auditLogService;
     
     @BeforeEach
     public void setup() {

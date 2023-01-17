@@ -40,10 +40,7 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
-import it.pagopa.pn.deliverypush.service.PaperChannelService;
-import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
-import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
@@ -82,6 +79,7 @@ import static org.mockito.ArgumentMatchers.eq;
         PaperChannelUtils.class,
         PaperChannelResponseHandler.class,
         AnalogWorkflowPaperChannelResponseHandler.class,
+        AuditLogServiceImpl.class,
         CompletionWorkFlowHandler.class,
         PublicRegistryResponseHandler.class,
         PublicRegistryServiceImpl.class,
@@ -201,6 +199,9 @@ class NotificationViewedTestIT {
 
     @Autowired
     private PaperChannelUtils paperChannelUtils;
+
+    @Autowired
+    private AuditLogService auditLogService;
 
     @BeforeEach
     public void setup() {
