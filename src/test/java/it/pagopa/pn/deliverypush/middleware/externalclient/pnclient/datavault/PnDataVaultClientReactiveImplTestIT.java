@@ -30,7 +30,7 @@ import static org.mockserver.model.HttpResponse.response;
         "pn.delivery-push.data-vault-base-url=http://localhost:9998",
 })
 @Import(LocalStackTestConfig.class)
-class PnDataVaultClientReactiveImplTest {
+class PnDataVaultClientReactiveImplTestIT {
     @Autowired
     private PnDataVaultClientReactiveImpl client;
     
@@ -66,7 +66,7 @@ class PnDataVaultClientReactiveImplTest {
                         .withStatusCode(200)
                 );
 
-        Flux<BaseRecipientDto> responseMono = client.getRecipientDenominationByInternalId(List.of(internalId));
+        Flux<BaseRecipientDto> responseMono = client.getRecipientsDenominationByInternalId(List.of(internalId));
         Assertions.assertNotNull(responseMono);
         BaseRecipientDto response = responseMono.blockFirst();
         Assertions.assertEquals(responseDto, response);
@@ -92,7 +92,7 @@ class PnDataVaultClientReactiveImplTest {
                         .withStatusCode(400)
                 );
 
-        Flux<BaseRecipientDto> responseMono = client.getRecipientDenominationByInternalId(List.of(internalId));
+        Flux<BaseRecipientDto> responseMono = client.getRecipientsDenominationByInternalId(List.of(internalId));
         Assertions.assertNotNull(responseMono);
         
         Assertions.assertThrows( PnInternalException.class, responseMono::blockFirst);

@@ -20,7 +20,7 @@ public class PnDataVaultClientReactiveMock implements PnDataVaultClientReactive 
     }
     
     @Override
-    public Flux<BaseRecipientDto> getRecipientDenominationByInternalId(List<String> listInternalId) {
+    public Flux<BaseRecipientDto> getRecipientsDenominationByInternalId(List<String> listInternalId) {
         return Flux.fromStream(listInternalId.stream()
                 .filter( internalId -> confidentialMap.get(internalId) != null)
                 .map(internalId -> confidentialMap.get(internalId)));

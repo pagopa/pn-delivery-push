@@ -35,7 +35,7 @@ public class PnDataVaultClientReactiveImpl extends BaseClient implements PnDataV
             maxAttempts = 3,
             backoff = @Backoff(random = true, delay = 500, maxDelay = 1000, multiplier = 2)
     )
-    public Flux<BaseRecipientDto> getRecipientDenominationByInternalId(List<String> listInternalId) {
+    public Flux<BaseRecipientDto> getRecipientsDenominationByInternalId(List<String> listInternalId) {
         log.debug("Start call getRecipientDenominationByInternalId - listInternalId={}", listInternalId);
 
         return recipientsApi.getRecipientDenominationByInternalId(listInternalId)

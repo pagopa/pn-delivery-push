@@ -119,7 +119,7 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
     
     @Override
     public Mono<BaseRecipientDtoInt> getRecipientInformationByInternalId(String internalId) {
-        return pnDataVaultClientReactive.getRecipientDenominationByInternalId(List.of(internalId))
+        return pnDataVaultClientReactive.getRecipientsDenominationByInternalId(List.of(internalId))
                 .filter( el -> internalId.equals(el.getInternalId()))
                 .map( el -> BaseRecipientDtoInt.builder()
                         .taxId(el.getTaxId())

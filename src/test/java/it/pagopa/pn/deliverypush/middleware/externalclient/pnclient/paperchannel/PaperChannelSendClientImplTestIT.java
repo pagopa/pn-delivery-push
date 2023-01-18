@@ -36,7 +36,7 @@ import static org.mockserver.model.HttpResponse.response;
         "pn.delivery-push.paper-channel-base-url=http://localhost:9998",
 })
 @Import(LocalStackTestConfig.class)
-class PaperChannelSendClientImplTest {
+class PaperChannelSendClientImplTestIT {
     @Autowired
     private PaperChannelSendClient client;
 

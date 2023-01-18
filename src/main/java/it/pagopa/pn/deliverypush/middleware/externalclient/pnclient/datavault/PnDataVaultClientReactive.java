@@ -6,5 +6,5 @@ import reactor.core.publisher.Flux;
 import java.util.List;
 
 public interface PnDataVaultClientReactive {
-    Flux<BaseRecipientDto> getRecipientDenominationByInternalId(List<String> listInternalId);
+    Flux<BaseRecipientDto> getRecipientsDenominationByInternalId(List<String> listInternalId);
 }

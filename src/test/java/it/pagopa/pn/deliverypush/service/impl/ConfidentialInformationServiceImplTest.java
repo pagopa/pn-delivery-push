@@ -209,7 +209,7 @@ class ConfidentialInformationServiceImplTest {
                         .internalId(internalId)
                         .denomination(denomination)
                 .build());
-        Mockito.when(pnDataVaultClientReactive.getRecipientDenominationByInternalId(Mockito.any())).thenReturn(flux);
+        Mockito.when(pnDataVaultClientReactive.getRecipientsDenominationByInternalId(Mockito.any())).thenReturn(flux);
         Mono<BaseRecipientDtoInt> monoBaseRec = confidentialInformationService.getRecipientInformationByInternalId(internalId);
 
         BaseRecipientDtoInt baseRecipientDto = monoBaseRec.block();
