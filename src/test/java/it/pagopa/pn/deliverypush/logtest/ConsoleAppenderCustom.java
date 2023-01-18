@@ -17,8 +17,7 @@ public class ConsoleAppenderCustom extends ConsoleAppender<ILoggingEvent> {
     @Override
     protected void append(ILoggingEvent event) {
         super.append(event);
-        if(Level.WARN.equals(event.getLevel()) ||
-                Level.ERROR.equals(event.getLevel())){
+        if(Level.ERROR.equals(event.getLevel())){
             
             eventList.add(LogEvent.builder()
                     .classPath(event.getLoggerName())
@@ -28,10 +27,10 @@ public class ConsoleAppenderCustom extends ConsoleAppender<ILoggingEvent> {
         }
     }
     
-    //Check log ERROR o WARNING
+    //Check log ERROR
     public static void checkLogs(){
         if( eventList != null && ! eventList.isEmpty() ){
-            log.warn("There not excpeted eventList {}", eventList);
+            log.warn("There are log not excpeted. Log list {}", eventList);
             NotExpectedLogException expectedLogExceptionTest = new NotExpectedLogException("There are problem ", eventList);
             initializeLog();
             throw expectedLogExceptionTest;
