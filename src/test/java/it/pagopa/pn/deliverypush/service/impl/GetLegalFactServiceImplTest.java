@@ -13,10 +13,7 @@ import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.GetAddressInfoDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactDownloadMetadataResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsId;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.GetLegalFactService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
@@ -38,6 +35,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.*;
 
 class GetLegalFactServiceImplTest {
 
@@ -76,53 +74,53 @@ class GetLegalFactServiceImplTest {
 
     @Test
     void getLegalFactsSuccess() {
-        List<LegalFactListElement> legalFactsExpectedResult = Collections.singletonList( LegalFactListElement.builder()
-                .iun( IUN )
-                .taxId( TAX_ID )
-                .legalFactsId( LegalFactsId.builder()
-                        .key( KEY )
-                        .category( LegalFactCategory.SENDER_ACK )
+        List<LegalFactListElement> legalFactsExpectedResult = Collections.singletonList(LegalFactListElement.builder()
+                .iun(IUN)
+                .taxId(TAX_ID)
+                .legalFactsId(LegalFactsId.builder()
+                        .key(KEY)
+                        .category(LegalFactCategory.SENDER_ACK)
                         .build()
                 ).build()
         );
-        
-        Set<TimelineElementInternal> timelineElementsResult = Collections.singleton( TimelineElementInternal.builder()
-                .iun( IUN )
-                .details( GetAddressInfoDetailsInt.builder()
+
+        Set<TimelineElementInternal> timelineElementsResult = Collections.singleton(TimelineElementInternal.builder()
+                .iun(IUN)
+                .details(GetAddressInfoDetailsInt.builder()
                         .recIndex(0)
-                        .build() )
-                .category( TimelineElementCategoryInt.GET_ADDRESS )
-                .elementId( "element_id" )
-                .legalFactsIds( Collections.singletonList( LegalFactsIdInt.builder()
-                                .key( KEY )
-                                .category( LegalFactCategoryInt.SENDER_ACK )
+                        .build())
+                .category(TimelineElementCategoryInt.GET_ADDRESS)
+                .elementId("element_id")
+                .legalFactsIds(Collections.singletonList(LegalFactsIdInt.builder()
+                        .key(KEY)
+                        .category(LegalFactCategoryInt.SENDER_ACK)
                         .build())
                 ).build()
         );
 
-        Mockito.when( timelineService.getTimeline( Mockito.anyString(), Mockito.anyBoolean()) )
-                .thenReturn( timelineElementsResult );
+        Mockito.when(timelineService.getTimeline(anyString(), anyBoolean()))
+                .thenReturn(timelineElementsResult);
 
         NotificationRecipientInt recipientInt = NotificationRecipientInt.builder()
                 .taxId(TAX_ID)
-                .internalId(TAX_ID +"ANON")
+                .internalId(TAX_ID + "ANON")
                 .build();
-        
+
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun(IUN)
                 .withNotificationRecipient(recipientInt)
                 .build();
-        
-        Mockito.when( notificationService.getNotificationByIun( Mockito.anyString() ) )
-                .thenReturn( notification );
-        
-        Mockito.when( notificationUtils.getRecipientFromIndex( Mockito.any(NotificationInt.class), Mockito.anyInt() ) )
-                .thenReturn( recipientInt );
-        
 
-        List<LegalFactListElement> result = getLegalFactService.getLegalFacts( IUN , recipientInt.getInternalId(), null );
+        Mockito.when(notificationService.getNotificationByIun(anyString()))
+                .thenReturn(notification);
 
-        assertEquals( legalFactsExpectedResult, result );
+        Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt()))
+                .thenReturn(recipientInt);
+
+
+        List<LegalFactListElement> result = getLegalFactService.getLegalFacts(IUN, recipientInt.getInternalId(), null, CxTypeAuthFleet.PF, null);
+
+        assertEquals(legalFactsExpectedResult, result);
     }
     
     @Test
@@ -130,8 +128,8 @@ class GetLegalFactServiceImplTest {
         //Given
         String[] urls = new String[1];
         try {
-            Path path = Files.createTempFile( null,null );
-            urls[0] =  new File(path.toString()).toURI().toURL().toString();
+            Path path = Files.createTempFile(null, null);
+            urls[0] = new File(path.toString()).toURI().toURL().toString();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -145,17 +143,17 @@ class GetLegalFactServiceImplTest {
         fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
 
         //When
-        Mockito.when( safeStorageService.getFile( Mockito.anyString(), Mockito.eq(false) ) )
-                .thenReturn( fileDownloadResponse );
-        
+        Mockito.when(safeStorageService.getFile(anyString(), eq(false)))
+                .thenReturn(fileDownloadResponse);
+
         NotificationInt notificationInt = newNotification();
         NotificationRecipientInt recipientInt = notificationInt.getRecipients().get(0);
-        Mockito.when( notificationService.getNotificationByIun( Mockito.anyString() ) )
-                .thenReturn( notificationInt );
+        Mockito.when(notificationService.getNotificationByIun(anyString()))
+                .thenReturn(notificationInt);
 
-        LegalFactDownloadMetadataResponse result = getLegalFactService.getLegalFactMetadata( IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID, recipientInt.getInternalId(), null);
+        LegalFactDownloadMetadataResponse result = getLegalFactService.getLegalFactMetadata(IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID, recipientInt.getInternalId(), null, CxTypeAuthFleet.PF, null);
         //Then
-        assertNotNull( result );
+        assertNotNull(result);
         assertNotNull(result.getFilename());
         assertEquals(fileDownloadResponse.getDownload().getUrl(), result.getUrl());
         assertEquals(fileDownloadResponse.getDownload().getRetryAfter(), result.getRetryAfter());
@@ -167,8 +165,8 @@ class GetLegalFactServiceImplTest {
         //Given
         String[] urls = new String[1];
         try {
-            Path path = Files.createTempFile( null,null );
-            urls[0] =  new File(path.toString()).toURI().toURL().toString();
+            Path path = Files.createTempFile(null, null);
+            urls[0] = new File(path.toString()).toURI().toURL().toString();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -182,19 +180,19 @@ class GetLegalFactServiceImplTest {
         fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
 
         //When
-        Mockito.when( safeStorageService.getFile( Mockito.anyString(), Mockito.eq(false) ) )
-                .thenReturn( fileDownloadResponse );
+        Mockito.when(safeStorageService.getFile(anyString(), eq(false)))
+                .thenReturn(fileDownloadResponse);
 
         NotificationInt notificationInt = newNotification();
         NotificationRecipientInt recipientInt = notificationInt.getRecipients().get(0);
-        Mockito.when( notificationService.getNotificationByIun( Mockito.anyString() ) )
-                .thenReturn( notificationInt );
+        Mockito.when(notificationService.getNotificationByIun(anyString()))
+                .thenReturn(notificationInt);
 
-        LegalFactDownloadMetadataResponse result = getLegalFactService.getLegalFactMetadata( IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID, recipientInt.getInternalId(), null);
+        LegalFactDownloadMetadataResponse result = getLegalFactService.getLegalFactMetadata(IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID, recipientInt.getInternalId(), null, CxTypeAuthFleet.PF, null);
         //Then
-        assertNotNull( result );
+        assertNotNull(result);
         assertNotNull(result.getFilename());
-        assertEquals("xml", result.getFilename().substring(result.getFilename().length() -3));
+        assertEquals("xml", result.getFilename().substring(result.getFilename().length() - 3));
         assertEquals(fileDownloadResponse.getDownload().getUrl(), result.getUrl());
         assertEquals(fileDownloadResponse.getDownload().getRetryAfter(), result.getRetryAfter());
         assertEquals(fileDownloadResponse.getContentLength(), result.getContentLength());

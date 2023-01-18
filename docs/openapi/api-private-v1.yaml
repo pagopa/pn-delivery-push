@@ -179,6 +179,8 @@ paths:
         - $ref: '#/components/parameters/recipientInternalId'
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/legalFactsSearchMandateId'
+        - $ref: '#/components/parameters/xPagoPaPnCxType'
+        - $ref: '#/components/parameters/xPagoPaPnCxGroups'
       responses:
         '200':
           description: OK
@@ -221,6 +223,8 @@ paths:
         - $ref: '#/components/parameters/pathLegalFactType'
         - $ref: '#/components/parameters/pathLegalFactId'
         - $ref: '#/components/parameters/legalFactsSearchMandateId'
+        - $ref: '#/components/parameters/xPagoPaPnCxType'
+        - $ref: '#/components/parameters/xPagoPaPnCxGroups'
       responses:
         '200':
           description: OK
@@ -288,6 +292,21 @@ paths:
 
 components:
   parameters:
+
+    xPagoPaPnCxType:
+      name: x-pagopa-pn-cx-type
+      in: query
+      description: cx-type (PF, PG, PA)
+      schema:
+        $ref: '#/components/schemas/cxTypeAuthFleet'
+
+    xPagoPaPnCxGroups:
+      name: x-pagopa-pn-cx-groups
+      in: query
+      schema:
+        type: array
+        items:
+          type: string
 
     ############################################################################################
     ###                        PARAMETRI RICERCA NOTIFICA ACCETTATA                         ###
@@ -399,6 +418,13 @@ components:
         type: string
 
   schemas:
+
+    cxTypeAuthFleet:
+      type: string
+      enum:
+        - PG
+        - PF
+        - PA
 
     ############################################################################################
     ###           COMUNICAZIONE DELLA NOTIFICHE DI DESTINATARI NON RAGGIUNGIBILI            ###
