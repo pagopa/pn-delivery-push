@@ -35,7 +35,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault.PnDataVaultClientReactiveImpl;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClientReactiveImpl;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
@@ -394,6 +393,8 @@ class DigitalTestMultiRecipientIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     private void checkAddressAvailabilityFirstRecipient(String iun, int recIndex1) {
@@ -617,6 +618,8 @@ class DigitalTestMultiRecipientIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     private void checkAddressAvailabilitySecondRecipient(String iun, int recIndex2) {
@@ -776,6 +779,8 @@ class DigitalTestMultiRecipientIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     // Entrambi i destinatari sono non raggiungibili
@@ -925,6 +930,8 @@ class DigitalTestMultiRecipientIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     // Entrambi i destinatari sono non raggiungibili, ma il primo visualizza la notifica su PN dopo che il workflow
@@ -1091,6 +1098,8 @@ class DigitalTestMultiRecipientIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     // Entrambi i destinatari sono non raggiungibili, ma il primo visualizza la notifica su PN prima che il workflow
@@ -1261,6 +1270,8 @@ class DigitalTestMultiRecipientIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     // Entrambi i destinatari sono raggiungibili e il primo visualizza la notifica su PN dopo che il workflow
@@ -1397,6 +1408,8 @@ class DigitalTestMultiRecipientIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     // Entrambi i destinatari sono raggiungibili ma nessuno visualizza la notifica
@@ -1515,6 +1528,8 @@ class DigitalTestMultiRecipientIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     private void checkIsPresentAcceptanceAndDeliveringAttachmentInTimeline(String address,
