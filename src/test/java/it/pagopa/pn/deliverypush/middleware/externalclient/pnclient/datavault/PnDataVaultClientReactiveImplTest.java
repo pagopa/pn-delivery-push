@@ -6,9 +6,7 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.RecipientType;
 import it.pagopa.pn.deliverypush.LocalStackTestConfig;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.integration.ClientAndServer;
@@ -37,25 +35,17 @@ class PnDataVaultClientReactiveImplTest {
     private PnDataVaultClientReactiveImpl client;
     
     private static ClientAndServer mockServer;
-
-    @BeforeAll
-    public static void startMockServer() {
-        mockServer = startClientAndServer(9998);
-    }
-
-    @AfterAll
-    public static void stopMockServer() {
-        mockServer.stop();
-    }
-
+    
     @Test
     void getRecipientDenominationByInternalId() throws JsonProcessingException {
+        mockServer = startClientAndServer(9998);
+
         //Given
         String path = "/datavault-private/v1/recipients/internal";
 
         ObjectMapper mapper = new ObjectMapper();
 
-        String internalId = "internalId";
+        String internalId = "internalIdTest";
 
         BaseRecipientDto responseDto = new BaseRecipientDto();
         responseDto.setDenomination("denomination");
@@ -80,10 +70,14 @@ class PnDataVaultClientReactiveImplTest {
         Assertions.assertNotNull(responseMono);
         BaseRecipientDto response = responseMono.blockFirst();
         Assertions.assertEquals(responseDto, response);
+
+        mockServer.stop();
     }
 
     @Test
     void getRecipientDenominationByInternalIdKo() throws JsonProcessingException {
+        mockServer = startClientAndServer(9998);
+
         //Given
         String path = "/datavault-private/v1/recipients/internal";
         String internalId = "internalId";
@@ -95,12 +89,14 @@ class PnDataVaultClientReactiveImplTest {
                 )
                 .respond(response()
                         .withContentType(MediaType.APPLICATION_JSON)
-                        .withStatusCode(500)
+                        .withStatusCode(400)
                 );
 
         Flux<BaseRecipientDto> responseMono = client.getRecipientDenominationByInternalId(List.of(internalId));
         Assertions.assertNotNull(responseMono);
         
         Assertions.assertThrows( PnInternalException.class, responseMono::blockFirst);
+        
+        mockServer.stop();
     }
 }
