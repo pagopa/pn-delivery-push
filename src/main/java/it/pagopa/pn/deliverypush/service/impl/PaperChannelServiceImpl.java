@@ -117,7 +117,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
 
         // nel caso sia un ritentativo, vado in cerca del precedente feedback dell'eventuale discovered address
         String relatedEventId = null;
-        PhysicalAddressInt receiverAddress;
+        PhysicalAddressInt receiverAddress = null;
         PhysicalAddressInt discoveredAddress = null;
         if (sentAttemptMade > 0)
         {
@@ -132,12 +132,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
             TimelineElementInternal previousResult = paperChannelUtils.getPaperChannelNotificationTimelineElement(notification.getIun(), relatedAnalogFeedbackEventId);
             discoveredAddress = ((SendAnalogFeedbackDetailsInt)previousResult.getDetails()).getNewAddress();
 
-            // se la relatedrequestid non è nulla, il receiver address è quello usato nella prima send
-            String eventIdPreviousSend = paperChannelUtils.buildSendAnalogDomicileEventId(notification, recIndex, sentAttemptMade-1);
-            TimelineElementInternal previousSendEvent = paperChannelUtils.getPaperChannelNotificationTimelineElement(notification.getIun(), eventIdPreviousSend);
-            
-            //PaperChannel ha bisogno per il secondo tentativo dell'indirizzo del primo tentativo
-            receiverAddress = ((PhysicalAddressRelatedTimelineElement)previousSendEvent.getDetails()).getPhysicalAddress();
+            //PaperChannel NON ha bisogno per il secondo tentativo dell'indirizzo del primo tentativo
         }
         else
         {

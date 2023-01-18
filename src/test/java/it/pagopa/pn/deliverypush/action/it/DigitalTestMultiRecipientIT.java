@@ -546,7 +546,7 @@ class DigitalTestMultiRecipientIT {
 
         // Viene atteso fino a che non sia presente il REFINEMENT per il secondo recipient
         await().untilAsserted(() ->
-                Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex2, timelineService))
+            Assertions.assertTrue(TestUtils.checkIsPresentViewed(iun, recIndex1, timelineService) && TestUtils.checkIsPresentRefinement(iun, recIndex2, timelineService))
         );
 
         //Viene verificato il numero di send PEC verso external channel

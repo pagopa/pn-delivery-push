@@ -66,6 +66,7 @@ public class TimelineDaoDynamo implements TimelineDao {
                             .at(null)
                             .municipalityDetails(null)
                             .zip(null)
+                            .foreignState(null)
                             .addressDetails(null)
                             .province(null)
                             .municipality(null)
@@ -82,6 +83,7 @@ public class TimelineDaoDynamo implements TimelineDao {
                     .addressDetails(null)
                     .province(null)
                     .municipality(null)
+                    .foreignState(null)
                     .address(null)
                     .build());
         }

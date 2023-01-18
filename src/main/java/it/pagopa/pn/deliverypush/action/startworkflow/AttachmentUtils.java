@@ -57,7 +57,7 @@ public class AttachmentUtils {
     public void validateAttachment(NotificationInt notification ) throws PnValidationException {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_VALID, "Start check attachment for iun={}", notification.getIun() )
+                .before(PnAuditLogEventType.AUD_NT_VALID, "Check attachment for iun={}", notification.getIun() )
                 .iun(notification.getIun())
                 .build();
         logEvent.log();
