@@ -45,7 +45,7 @@ public class PaperChannelSendClientImpl implements PaperChannelSendClient {
 
     @Override
     public void prepare(PaperChannelPrepareRequest paperChannelPrepareRequest) {
-        log.info("[enter] prepare iun={} address={} recipient={} requestId={} attachments={}", paperChannelPrepareRequest.getNotificationInt().getIun(), LogUtils.maskGeneric(paperChannelPrepareRequest.getPaAddress().getAddress()), LogUtils.maskGeneric(paperChannelPrepareRequest.getRecipientInt().getDenomination()), paperChannelPrepareRequest.getRequestId(), paperChannelPrepareRequest.getAttachments());
+        log.info("[enter] prepare iun={} address={} recipient={} requestId={} attachments={} relatedRequestId={}", paperChannelPrepareRequest.getNotificationInt().getIun(), LogUtils.maskGeneric(paperChannelPrepareRequest.getPaAddress()==null?"null":paperChannelPrepareRequest.getPaAddress().getAddress()), LogUtils.maskGeneric(paperChannelPrepareRequest.getRecipientInt().getDenomination()), paperChannelPrepareRequest.getRequestId(), paperChannelPrepareRequest.getAttachments(), paperChannelPrepareRequest.getRelatedRequestId());
 
         PrepareRequest prepareRequest = new PrepareRequest();
         prepareRequest.setRequestId(paperChannelPrepareRequest.getRequestId());
@@ -63,7 +63,7 @@ public class PaperChannelSendClientImpl implements PaperChannelSendClient {
         log.info("iun={} the request for prepare is {}", paperChannelPrepareRequest.getNotificationInt().getIun() , prepareRequest);
         paperMessagesApi.sendPaperPrepareRequest(paperChannelPrepareRequest.getRequestId(), prepareRequest);
 
-        log.info("[exit] prepare iun={}  address={} recipient={} requestId={} attachments={}", paperChannelPrepareRequest.getNotificationInt().getIun(), LogUtils.maskGeneric(paperChannelPrepareRequest.getPaAddress().getAddress()), LogUtils.maskGeneric(paperChannelPrepareRequest.getRecipientInt().getDenomination()), paperChannelPrepareRequest.getRequestId(), paperChannelPrepareRequest.getAttachments());
+        log.info("[exit] prepare iun={}  address={} recipient={} requestId={} attachments={} relatedRequestId={}", paperChannelPrepareRequest.getNotificationInt().getIun(), LogUtils.maskGeneric(paperChannelPrepareRequest.getPaAddress()==null?"null":paperChannelPrepareRequest.getPaAddress().getAddress()), LogUtils.maskGeneric(paperChannelPrepareRequest.getRecipientInt().getDenomination()), paperChannelPrepareRequest.getRequestId(), paperChannelPrepareRequest.getAttachments(), paperChannelPrepareRequest.getRelatedRequestId());
     }
 
 
