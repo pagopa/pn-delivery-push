@@ -154,8 +154,11 @@ class GetLegalFactServiceImplTest {
         Mockito.when( notificationService.getNotificationByIun( Mockito.anyString() ) )
                 .thenReturn( notificationInt );
 
-        LegalFactDownloadMetadataResponse result = getLegalFactService.getLegalFactMetadata( IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID, recipientInt.getInternalId(), null);
+        Mono<LegalFactDownloadMetadataResponse> resultMono = getLegalFactService.getLegalFactMetadata( IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID, recipientInt.getInternalId(), null);
+        
         //Then
+        assertNotNull( resultMono );
+        LegalFactDownloadMetadataResponse result = resultMono.block();
         assertNotNull( result );
         assertNotNull(result.getFilename());
         assertEquals(fileDownloadResponse.getDownload().getUrl(), result.getUrl());
@@ -191,8 +194,10 @@ class GetLegalFactServiceImplTest {
         Mockito.when( notificationService.getNotificationByIun( Mockito.anyString() ) )
                 .thenReturn( notificationInt );
 
-        LegalFactDownloadMetadataResponse result = getLegalFactService.getLegalFactMetadata( IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID, recipientInt.getInternalId(), null);
+        Mono<LegalFactDownloadMetadataResponse> resultMono = getLegalFactService.getLegalFactMetadata( IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID, recipientInt.getInternalId(), null);
         //Then
+        assertNotNull( resultMono );
+        LegalFactDownloadMetadataResponse result = resultMono.block();
         assertNotNull( result );
         assertNotNull(result.getFilename());
         assertEquals("xml", result.getFilename().substring(result.getFilename().length() -3));

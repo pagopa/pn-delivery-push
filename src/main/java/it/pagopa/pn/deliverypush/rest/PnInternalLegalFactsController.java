@@ -34,10 +34,9 @@ public class PnInternalLegalFactsController implements LegalFactsPrivateApi {
             String mandateId,
             ServerWebExchange exchange) {
 
-        return Mono.fromSupplier(() ->{
-                    log.debug("Start getLegalFactPrivate for iun={} recipientInternalId={}", iun, recipientInternalId);
-                    return ResponseEntity.ok(getLegalFactService.getLegalFactMetadata(iun, legalFactType, legalFactId, recipientInternalId, mandateId ));
-                }
+        return getLegalFactService.getLegalFactMetadata(iun, legalFactType, legalFactId, recipientInternalId, mandateId )
+        .map(response -> ResponseEntity.ok()
+                .body(response)
         );
     }
 
