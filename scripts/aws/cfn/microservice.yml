@@ -96,10 +96,6 @@ Parameters:
     Type: String
     Description: pn-delivery-push input queue age alarm ARN
 
-  ExternalChannelsInputsQueueARN:
-    Type: String
-    Description: 'Send external-channel messages to this Queue'
-
   ExternalChannelsOutputsQueueName:
     Type: String
     Description: 'Pull external-channel messages from this Queue'
@@ -392,7 +388,6 @@ Resources:
               - sqs:SendMessageBatch
             Resource:
               - !Ref DeliveryPushInputsQueueARN
-              - !Ref ExternalChannelsInputsQueueARN
               - !Ref ExternalChannelsOutputsQueueARN
               - !Ref ScheduledActionsQueueARN
               - !Ref DoneActionsQueueARN
