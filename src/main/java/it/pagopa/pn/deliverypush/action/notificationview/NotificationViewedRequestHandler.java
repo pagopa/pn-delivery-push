@@ -8,6 +8,8 @@ import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
+import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
+import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
@@ -40,13 +42,19 @@ public class NotificationViewedRequestHandler {
         this.notificationUtils = notificationUtils;
         this.viewNotification = viewNotification;
     }
-
-    public void handleViewNotification(String iun, Integer recIndex, Instant eventTimestamp) {
-        handleViewNotification(iun, recIndex, null, null, eventTimestamp);
+    
+    //La richiesta proviene da delivery (La visualizzazione potrebbe essere da parte del delegato o da parte del destinatario)
+    public void handleViewNotificationDelivery(String iun, Integer recIndex, DelegateInfoInt delegateInfo, Instant eventTimestamp) {
+        handleViewNotification(iun, recIndex, null, delegateInfo, eventTimestamp);
     }
 
-    public void handleViewNotification(String iun, Integer recIndex, String raddType, String raddTransactionId, Instant eventTimestamp) {
-        PnAuditLogEvent logEvent = generateAuditLog(iun, recIndex, raddType, raddTransactionId);
+    //La richiesta proviene da RADD, visualizzazione da parte del destinatario 
+    public void handleViewNotificationRadd(String iun, Integer recIndex, RaddInfo raddInfo, Instant eventTimestamp) {
+        handleViewNotification(iun, recIndex, raddInfo, null, eventTimestamp);
+    }
+    
+    private void handleViewNotification(String iun, Integer recIndex, RaddInfo raddInfo, DelegateInfoInt delegateInfo, Instant eventTimestamp) {
+        PnAuditLogEvent logEvent = generateAuditLog(iun, recIndex, raddInfo, delegateInfo);
         logEvent.log();
         
         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex);
@@ -64,7 +72,7 @@ public class NotificationViewedRequestHandler {
 
                 try {
                     NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
-                    viewNotification.startVewNotificationProcess(notification, recipient, recIndex, raddType, raddTransactionId, eventTimestamp);
+                    viewNotification.startVewNotificationProcess(notification, recipient, recIndex, raddInfo, delegateInfo, eventTimestamp);
                     
                     logEvent.generateSuccess().log();
                 } catch (Exception exc) {
@@ -80,12 +88,25 @@ public class NotificationViewedRequestHandler {
         }
     }
 
-    private PnAuditLogEvent generateAuditLog(String iun, Integer recIndex, String raddType, String raddTransactionId) {
+    private PnAuditLogEvent generateAuditLog(String iun, Integer recIndex, RaddInfo raddInfo, DelegateInfoInt delegateInfo ) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        boolean viewedFromDelegate = delegateInfo != null;
+        
+        PnAuditLogEventType type = viewedFromDelegate ? PnAuditLogEventType.AUD_NT_VIEW_DEL : PnAuditLogEventType.AUD_NT_VIEW_RCP;
         return auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_VIEW_RCP, "Start HandleViewNotification - iun={} id={} raddType={} raddTransactionId={}", iun, recIndex, raddType, raddTransactionId)
+                .before(type, "Start HandleViewNotification - iun={} id={} " +
+                        "raddType={} raddTransactionId={} internalDelegateId={} mandateId={}", 
+                        iun, 
+                        recIndex,
+                        raddInfo != null ? raddInfo.getType() : null,
+                        raddInfo != null ? raddInfo.getTransactionId() : null,
+                        viewedFromDelegate ? delegateInfo.getInternalId() : null,
+                        viewedFromDelegate ? delegateInfo.getMandateId() : null
+                )
                 .iun(iun)
                 .build();
     }
+
+
 
 }

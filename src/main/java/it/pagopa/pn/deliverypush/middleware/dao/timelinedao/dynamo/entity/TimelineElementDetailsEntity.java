@@ -50,5 +50,6 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("raddTransactionId")})) private String raddTransactionId;
     @Getter(onMethod=@__({@DynamoDbAttribute("productType")})) private String productType;
     @Getter(onMethod=@__({@DynamoDbAttribute("requestTimelineId")})) private String requestTimelineId;
+    @Getter(onMethod=@__({@DynamoDbAttribute("delegateInfo")})) private DelegateInfoEntity delegateInfo;
 
 }

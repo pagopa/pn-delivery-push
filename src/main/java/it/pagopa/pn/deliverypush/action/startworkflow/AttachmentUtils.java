@@ -112,7 +112,7 @@ public class AttachmentUtils {
         NotificationDocumentInt.Ref ref = attachment.getRef();
         FileDownloadResponseInt fd = null;
         try {
-            fd = safeStorageService.getFile(ref.getKey(),true);
+            fd = safeStorageService.getFile(ref.getKey(),true).block();
         } catch ( PnNotFoundException ex ) {
             throw new PnValidationFileNotFoundException(
                     ERROR_CODE_DELIVERYPUSH_NOTFOUND,
@@ -120,13 +120,19 @@ public class AttachmentUtils {
                     ex 
             );
         }
-
-        String attachmentKey = fd.getKey();
-        log.debug( "Check preload digest for attachment with key={}", attachmentKey);
-        if ( !attachment.getDigests().getSha256().equals( fd.getChecksum() )) {
+        
+        if(fd != null){
+            String attachmentKey = fd.getKey();
+            log.debug( "Check preload digest for attachment with key={}", attachmentKey);
+            if ( !attachment.getDigests().getSha256().equals( fd.getChecksum() )) {
+                throw new PnValidationNotMatchingShaException( ERROR_CODE_DELIVERYPUSH_SHAFILEERROR,
+                        "Validation failed, different sha256 expected="+ attachment.getDigests().getSha256()
+                                + " actual="+ fd.getChecksum() );
+            }
+        } else{
             throw new PnValidationNotMatchingShaException( ERROR_CODE_DELIVERYPUSH_SHAFILEERROR,
                     "Validation failed, different sha256 expected="+ attachment.getDigests().getSha256()
-                            + " actual="+ fd.getChecksum() );
+                            + " actual="+ null );
         }
     }
 
@@ -156,9 +162,9 @@ public class AttachmentUtils {
         request.setStatus(statusRequest);
         request.setRetentionUntil(retentionUntilRequest);
 
-        UpdateFileMetadataResponseInt fd = safeStorageService.updateFileMetadata(fileKey, request);
+        UpdateFileMetadataResponseInt fd = safeStorageService.updateFileMetadata(fileKey, request).block();
 
-        if (!fd.getResultCode().startsWith("2"))
+        if (fd != null && !fd.getResultCode().startsWith("2"))
         {
             // è un FAIL
             log.error("Cannot change metadata for attachment key={} result={}", fileKey, fd);

@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTFOUND;
 
@@ -47,6 +46,7 @@ public class PaperNotificationFailedServiceImpl implements PaperNotificationFail
 
     @Override
     public void deleteNotificationFailed(String recipientId, String iun) {
+        log.info("Paper notification failed start recipientId={} iun={}", recipientId, iun);
         paperNotificationFailedDao.deleteNotificationFailed(recipientId, iun);
     }
 

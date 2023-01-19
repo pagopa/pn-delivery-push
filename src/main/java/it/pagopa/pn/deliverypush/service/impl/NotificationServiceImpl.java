@@ -10,12 +10,11 @@ import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.mapper.NotificationMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED;
-
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
+
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED;
 
 @Service
 @Slf4j
@@ -54,7 +53,7 @@ public class NotificationServiceImpl implements NotificationService {
         return pnDeliveryClientReactive.getSentNotification(iun)
                 .onErrorResume( error -> {
                     log.error("Get notification error ={} - iun {}", error,  iun);
-                    throw new PnInternalException("Get notification error - iun " + iun, ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED, error);
+                    return Mono.error(new PnInternalException("Get notification error - iun " + iun, ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED, error));
                 })
                 .switchIfEmpty(
                     Mono.error(new PnNotFoundException("Not found", "Get notification is not valid for - iun " + iun,

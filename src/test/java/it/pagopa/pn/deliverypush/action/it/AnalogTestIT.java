@@ -42,7 +42,6 @@ import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClientReactiveImpl;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelPrepareRequest;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClientReactiveImpl;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
@@ -51,7 +50,6 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -126,8 +124,8 @@ import static org.awaitility.Awaitility.with;
         MVPParameterConsumer.class,
         NotificationCost.class,
         ViewNotification.class,
-        PnSafeStorageClientReactiveImpl.class,
         PnDeliveryClientReactiveImpl.class,
+        PnDataVaultClientReactiveMock.class,
         AnalogTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")
@@ -211,11 +209,6 @@ class AnalogTestIT {
         timelineDaoMock.clear();
         paperNotificationFailedDaoMock.clear();
         pnDataVaultClientMock.clear();
-    }
-
-    @AfterEach
-    public void afterEach(){
-        ConsoleAppenderCustom.checkLogs();
     }
     
     @Test
@@ -347,6 +340,8 @@ class AnalogTestIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     @Test
@@ -461,6 +456,8 @@ class AnalogTestIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     @Test
@@ -599,6 +596,8 @@ class AnalogTestIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     @Test
@@ -697,6 +696,8 @@ class AnalogTestIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     @Test
@@ -892,6 +893,8 @@ class AnalogTestIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
 
@@ -1100,6 +1103,8 @@ class AnalogTestIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
 
@@ -1297,6 +1302,8 @@ class AnalogTestIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
 
@@ -1493,6 +1500,8 @@ class AnalogTestIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
 }

@@ -76,7 +76,7 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
             
         try {
             // la key è la legalfactid
-            FileDownloadResponseInt fileDownloadResponse = safeStorageService.getFile(legalfactId, false);
+            FileDownloadResponseInt fileDownloadResponse = safeStorageService.getFile(legalfactId, false).block();
             LegalFactDownloadMetadataResponse response = generateResponse(iun, legalFactType, legalfactId, fileDownloadResponse);
             String fileName = response.getFilename();
             String url = response.getUrl();

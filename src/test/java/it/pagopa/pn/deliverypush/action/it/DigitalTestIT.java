@@ -41,7 +41,6 @@ import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClientReactiveImpl;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClientReactiveImpl;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PaperChannelResponseHandler;
@@ -54,7 +53,10 @@ import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.model.SendMessageRequest;
 import it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.model.SendMessageResponse;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -126,8 +128,8 @@ import static org.awaitility.Awaitility.await;
         MVPParameterConsumer.class,
         NotificationCost.class,
         ViewNotification.class,
-        PnSafeStorageClientReactiveImpl.class,
         PnDeliveryClientReactiveImpl.class,
+        PnDataVaultClientReactiveMock.class,
         DigitalTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")
@@ -232,11 +234,6 @@ class DigitalTestIT {
         safeStorageClientMock.clear();
     }
     
-    @AfterEach
-    public void afterEach(){
-        ConsoleAppenderCustom.checkLogs();
-    }
-
     @Test
     void completeFailWithRegisteredLetterAlreadyViewedCourtesyEmail() throws IOException {
         /*
@@ -366,6 +363,8 @@ class DigitalTestIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
     
     @Test
@@ -504,11 +503,13 @@ class DigitalTestIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     @Test
     @Disabled("Da capire come calcolare il timestamp di scheduled")
-    void completeFailWithRegisteredLetter() {
+    void CcompleteFailWithRegisteredLetter() {
         /*
        - Platform address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
        - Special address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il digitalDomicile del recipient con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
@@ -621,6 +622,7 @@ class DigitalTestIT {
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
 
+        ConsoleAppenderCustom.checkLogs();
     }
     
     @Test
@@ -728,6 +730,8 @@ class DigitalTestIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
 
@@ -880,6 +884,8 @@ class DigitalTestIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     @Test
@@ -967,11 +973,12 @@ class DigitalTestIT {
                 legalFactGenerator,
                 timelineService
         );
-
-
+        
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
 
@@ -1087,6 +1094,8 @@ class DigitalTestIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     @Test
@@ -1174,6 +1183,8 @@ class DigitalTestIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     @Test
@@ -1278,6 +1289,8 @@ class DigitalTestIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     @Test
@@ -1388,6 +1401,8 @@ class DigitalTestIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     private void checkExternalChannelSentAttempt(LegalDigitalAddressInt platformAddress, LegalDigitalAddressInt digitalDomicile, LegalDigitalAddressInt pbDigitalAddress, String iun, Integer recIndex, List<NotificationInt> notificationIntsEvents, List<LegalDigitalAddressInt> digitalAddressesEvents) {
@@ -1526,6 +1541,8 @@ class DigitalTestIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     private void checkExternalChannelAttempt(LegalDigitalAddressInt platformAddress, LegalDigitalAddressInt digitalDomicile, LegalDigitalAddressInt pbDigitalAddress, String iun, Integer recIndex, List<NotificationInt> notificationIntsEvents, List<LegalDigitalAddressInt> digitalAddressesEvents) {
@@ -1676,5 +1693,7 @@ class DigitalTestIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 }

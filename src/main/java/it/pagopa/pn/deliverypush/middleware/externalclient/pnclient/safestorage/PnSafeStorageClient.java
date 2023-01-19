@@ -5,16 +5,17 @@ import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDow
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.OperationResultCodeResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.UpdateFileMetadataRequest;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
+import reactor.core.publisher.Mono;
 
 public interface PnSafeStorageClient {
-
     String SAFE_STORAGE_URL_PREFIX = "safestorage://";
 
-    FileDownloadResponse getFile(String fileKey, Boolean metadataOnly);
+    Mono<FileDownloadResponse> getFile(String fileKey, Boolean metadataOnly);
 
-    FileCreationResponse createFile(FileCreationWithContentRequest fileCreationRequest, String sha256);
+    Mono<FileCreationResponse> createFile(FileCreationWithContentRequest fileCreationRequest, String sha256);
 
-    OperationResultCodeResponse updateFileMetadata(String fileKey, UpdateFileMetadataRequest request);
+    Mono<OperationResultCodeResponse> updateFileMetadata(String fileKey, UpdateFileMetadataRequest request);
 
     void uploadContent(FileCreationWithContentRequest fileCreationRequest, FileCreationResponse fileCreationResponse, String sha256);
+
 }

@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
 import it.pagopa.pn.deliverypush.dto.address.*;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -11,6 +12,8 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
+import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
+import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementDetailsEntity;
@@ -404,12 +407,21 @@ class TimelineUtilsTest {
         Integer recIndex = 1;
         String legalFactId = "001";
         Integer notificationCost = 100;
-        String raddType = "test";
-        String raddTransactionId = "002";
+        RaddInfo raddInfo = RaddInfo.builder()
+                .type("test")
+                .transactionId("002")
+                .build();
+        DelegateInfoInt delegateInfoInt = DelegateInfoInt.builder()
+                .delegateType(RecipientTypeInt.PF)
+                .mandateId("mandate")
+                .operatorUuid("iioaxx11")
+                .internalId("internCF")
+                .build();
+        
         Instant eventTimestamp = Instant.now();
 
         TimelineElementInternal actual = timelineUtils.buildNotificationViewedTimelineElement(
-                notification, recIndex, legalFactId, notificationCost, raddType, raddTransactionId, eventTimestamp
+                notification, recIndex, legalFactId, notificationCost, raddInfo, delegateInfoInt, eventTimestamp
         );
 
         Assertions.assertAll(

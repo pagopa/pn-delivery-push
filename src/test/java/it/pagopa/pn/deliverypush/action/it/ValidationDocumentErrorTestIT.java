@@ -26,9 +26,9 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClientReactiveImpl;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClientReactiveImpl;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
@@ -101,8 +101,8 @@ import java.util.Collections;
         PaperNotificationFailedDaoMock.class,
         PnDataVaultClientMock.class,
         MVPParameterConsumer.class,
-        PnSafeStorageClientReactiveImpl.class,
         PnDeliveryClientReactiveImpl.class,
+        PnDataVaultClientReactiveMock.class,
         ValidationDocumentErrorTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource(
@@ -237,7 +237,8 @@ class ValidationDocumentErrorTestIT {
                         EventId.builder()
                                 .iun(iun)
                                 .recIndex(recIndex)
-                                .build())).isPresent());
+                                .build())).isPresent()
+        );
 
         Mockito.verify(externalChannelMock, Mockito.times(0)).sendLegalNotification(
                 Mockito.any(NotificationInt.class),
@@ -248,7 +249,7 @@ class ValidationDocumentErrorTestIT {
                 Mockito.anyString()
         );
         Mockito.verify(paperChannelMock, Mockito.times(0)).send(Mockito.any(PaperChannelSendRequest.class));
+
+        ConsoleAppenderCustom.checkLogs();
     }
-
-
 }
