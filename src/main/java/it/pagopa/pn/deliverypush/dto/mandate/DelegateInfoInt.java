@@ -8,6 +8,8 @@ import lombok.*;
 @Builder(toBuilder = true)
 @ToString
 @EqualsAndHashCode
+@AllArgsConstructor
+@NoArgsConstructor
 public class DelegateInfoInt {
     private String internalId;
     private String taxId;
