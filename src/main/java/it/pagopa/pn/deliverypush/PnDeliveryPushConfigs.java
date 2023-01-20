@@ -144,10 +144,11 @@ public class PnDeliveryPushConfigs {
 
    @Data
    public static class Webapp {
-        private String directAccessUrlTemplate;
-        private String faqUrlTemplate;
-        private String quickAccessUrlAarDetailPfTemplate;
-        private String quickAccessUrlAarDetailPgTemplate;
+        private String directAccessUrlTemplatePhysical;
+        private String directAccessUrlTemplateLegal;
+        private String faqUrlTemplateSuffix;
+        private String quickAccessUrlAarDetailSuffix;
+        private String landingUrl;
    }
 
     @Data

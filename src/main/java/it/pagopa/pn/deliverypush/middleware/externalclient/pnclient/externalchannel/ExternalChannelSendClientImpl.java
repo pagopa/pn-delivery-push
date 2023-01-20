@@ -87,10 +87,11 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
                                          NotificationRecipientInt recipientInt,
                                          CourtesyDigitalAddressInt digitalAddress,
                                          String timelineEventId,
-                                         String aarKey)
+                                         String aarKey,
+                                         String quickAccessToken)
     {
         if (digitalAddress.getType() == CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL) {
-            sendNotificationEMAIL(timelineEventId, notificationInt, recipientInt, digitalAddress, aarKey);
+            sendNotificationEMAIL(timelineEventId, notificationInt, recipientInt, digitalAddress, aarKey, quickAccessToken);
         } else if (digitalAddress.getType() == CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.SMS) {
             sendNotificationSMS(timelineEventId, notificationInt, recipientInt, digitalAddress);
         } else {
@@ -129,7 +130,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
             if (StringUtils.hasText(cfg.getExternalchannelSenderPec()))
                 digitalNotificationRequestDto.setSenderDigitalAddress(cfg.getExternalchannelSenderPec());
             
-            //TODO log da eliminare
+            //FIXME log da eliminare
             log.info("Sending notificationPec for requestId={} with request {}",
                     requestId,
                     digitalNotificationRequestDto
@@ -148,12 +149,13 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
                                        NotificationInt notificationInt,
                                        NotificationRecipientInt recipientInt,
                                        DigitalAddressInt digitalAddress,
-                                       String aarKey)
+                                       String aarKey,
+                                       String quickAccessToken)
     {
         try {
             log.info("[enter] sendNotificationEMAIL address={} requestId={} recipient={}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
 
-            String mailbody = legalFactGenerator.generateNotificationAARBody(notificationInt, recipientInt);
+            String mailbody = legalFactGenerator.generateNotificationAARBody(notificationInt, recipientInt, quickAccessToken);
             String mailsubj = legalFactGenerator.generateNotificationAARSubject(notificationInt);
 
             DigitalCourtesyMailRequest digitalNotificationRequestDto = new DigitalCourtesyMailRequest();

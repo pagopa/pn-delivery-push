@@ -221,6 +221,9 @@ class ExternalChannelServiceImplTest {
 
         String aarKey = "testKey";
         Mockito.when( externalChannelUtils.getAarKey(Mockito.anyString(), Mockito.anyInt()) ).thenReturn(aarKey);
+        String quickAccessToken = "test";
+        Map<String, String> quickLinkTestMap = Map.of(recipient.getInternalId(), quickAccessToken);
+        Mockito.when(notificationService.getRecipientsQuickAccessLinkToken(iun)).thenReturn(quickLinkTestMap);
 
         int recIndex = 0;
         String eventId = "eventId";
@@ -229,7 +232,7 @@ class ExternalChannelServiceImplTest {
         externalChannelService.sendCourtesyNotification(notification, courtesyDigitalAddress, recIndex, eventId);
 
         //THEN
-        Mockito.verify(externalChannel).sendCourtesyNotification(notification, recipient,  courtesyDigitalAddress, eventId, aarKey);
+        Mockito.verify(externalChannel).sendCourtesyNotification(notification, recipient,  courtesyDigitalAddress, eventId, aarKey, quickAccessToken);
     }
 
 }

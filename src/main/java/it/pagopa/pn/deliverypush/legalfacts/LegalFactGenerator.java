@@ -18,6 +18,7 @@ import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Base64Utils;
 import java.io.IOException;
@@ -231,16 +232,8 @@ public class LegalFactGenerator {
 
     public byte[] generateNotificationAAR(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) throws IOException {
 
-        Map<String, Object> templateModel = new HashMap<>();
-        templateModel.put(FIELD_SEND_DATE, instantWriter.instantToDate( notification.getSentAt() ) );
-        templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( notification.getSentAt(), true ) );
-        templateModel.put(FIELD_NOTIFICATION, notification);
-        templateModel.put(FIELD_RECIPIENT, recipient);
-        templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
-        String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient, quickAccessToken);
-        log.debug( "generateNotificationAAR iun {} quickAccessUrl {}", notification.getIun(), qrCodeQuickAccessUrlAarDetail );
-        templateModel.put(FIELD_QRCODE_QUICK_ACCESS_LINK, qrCodeQuickAccessUrlAarDetail);
-        templateModel.put(FIELD_PN_FAQ_URL, this.pnDeliveryPushConfigs.getWebapp().getFaqUrlTemplate());
+        Map<String, Object> templateModel = prepareTemplateModelParams(notification, recipient, quickAccessToken);
+
 
         if( Boolean.FALSE.equals( mvpParameterConsumer.isMvp( notification.getSender().getPaTaxId() ) ) ){
             return documentComposition.executePdfTemplate(
@@ -257,18 +250,9 @@ public class LegalFactGenerator {
 
     }
 
-    public String generateNotificationAARBody(NotificationInt notification, NotificationRecipientInt recipient) {
+    public String generateNotificationAARBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccesstoken) {
 
-        Map<String, Object> templateModel = new HashMap<>();
-        templateModel.put(FIELD_SEND_DATE, instantWriter.instantToDate( notification.getSentAt() ) );
-        templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( notification.getSentAt(), true ) );
-        templateModel.put(FIELD_NOTIFICATION, notification);
-        templateModel.put(FIELD_RECIPIENT, recipient);
-        templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
-        templateModel.put(FIELD_PIATTAFORMA_NOTIFICHE_URL, this.getAccessUrl(notification.getIun()) );
-        templateModel.put(FIELD_PIATTAFORMA_NOTIFICHE_URL_LABEL, this.getAccessUrlLabel() );
-        templateModel.put(FIELD_PN_FAQ_URL, this.pnDeliveryPushConfigs.getWebapp().getFaqUrlTemplate() );
-
+        Map<String, Object> templateModel = prepareTemplateModelParams(notification, recipient, quickAccesstoken);
 
         return documentComposition.executeTextTemplate(
                 DocumentComposition.TemplateType.AAR_NOTIFICATION_EMAIL,
@@ -279,17 +263,7 @@ public class LegalFactGenerator {
 
     public String generateNotificationAARPECBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccesstoken) {
 
-        Map<String, Object> templateModel = new HashMap<>();
-        templateModel.put(FIELD_SEND_DATE, instantWriter.instantToDate( notification.getSentAt() ) );
-        templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( notification.getSentAt(), true ) );
-        templateModel.put(FIELD_NOTIFICATION, notification);
-        templateModel.put(FIELD_RECIPIENT, recipient);
-        templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
-        templateModel.put(FIELD_PIATTAFORMA_NOTIFICHE_URL, this.getAccessUrl(notification.getIun()) );
-        templateModel.put(FIELD_PIATTAFORMA_NOTIFICHE_URL_LABEL, this.getAccessUrlLabel() );
-        templateModel.put(FIELD_PN_FAQ_URL, this.pnDeliveryPushConfigs.getWebapp().getFaqUrlTemplate() );
-        templateModel.put(FIELD_QUICK_ACCESS_LINK, this.getQuickAccessLink(recipient, quickAccesstoken) );
-        templateModel.put(FIELD_RECIPIENT_TYPE, this.getRecipientTypeForHTMLTemplate(recipient));
+        Map<String, Object> templateModel = prepareTemplateModelParams(notification, recipient, quickAccesstoken);
 
         return documentComposition.executeTextTemplate(
                 DocumentComposition.TemplateType.AAR_NOTIFICATION_PEC,
@@ -328,16 +302,33 @@ public class LegalFactGenerator {
     }
 
 
-    private String getAccessUrl(String iun) {
-        return String.format(pnDeliveryPushConfigs.getWebapp().getDirectAccessUrlTemplate(), iun);
+    @NotNull
+    private Map<String, Object> prepareTemplateModelParams(NotificationInt notification, NotificationRecipientInt recipient, String quickAccesstoken) {
+        Map<String, Object> templateModel = new HashMap<>();
+        templateModel.put(FIELD_SEND_DATE, instantWriter.instantToDate( notification.getSentAt() ) );
+        templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( notification.getSentAt(), true ) );
+        templateModel.put(FIELD_NOTIFICATION, notification);
+        templateModel.put(FIELD_RECIPIENT, recipient);
+        templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
+        templateModel.put(FIELD_PIATTAFORMA_NOTIFICHE_URL, this.getAccessUrl(recipient) );
+        templateModel.put(FIELD_PIATTAFORMA_NOTIFICHE_URL_LABEL, this.getAccessUrlLabel(recipient) );
+        templateModel.put(FIELD_PN_FAQ_URL, this.getFAQAccessLink());
+        templateModel.put(FIELD_QUICK_ACCESS_LINK, this.getQuickAccessLink(recipient, quickAccesstoken) );
+        templateModel.put(FIELD_RECIPIENT_TYPE, this.getRecipientTypeForHTMLTemplate(recipient));
+
+        String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient, quickAccesstoken);
+        log.debug( "generateNotificationAAR iun {} quickAccessUrl {}", notification.getIun(), qrCodeQuickAccessUrlAarDetail );
+        templateModel.put(FIELD_QRCODE_QUICK_ACCESS_LINK, qrCodeQuickAccessUrlAarDetail);
+
+        return templateModel;
     }
 
-    private String getAccessUrlLabel() {
+    private String getAccessUrlLabel(NotificationRecipientInt recipient) {
         try {
-            return new URL(pnDeliveryPushConfigs.getWebapp().getDirectAccessUrlTemplate()).getHost();
+            return new URL(getAccessUrl(recipient)).getHost();
         } catch (MalformedURLException e) {
             log.warn("cannot get host", e);
-            return pnDeliveryPushConfigs.getWebapp().getDirectAccessUrlTemplate();
+            return getAccessUrl(recipient);
         }
     }
 
@@ -348,16 +339,26 @@ public class LegalFactGenerator {
     }
 
     private String getQuickAccessLink(NotificationRecipientInt recipient, String quickAccessToken) {
-        String templateUrl = RecipientTypeInt.PF == recipient.getRecipientType()
-                ? pnDeliveryPushConfigs.getWebapp().getQuickAccessUrlAarDetailPfTemplate()
-                : pnDeliveryPushConfigs.getWebapp().getQuickAccessUrlAarDetailPgTemplate();
+        String templateUrl = getAccessUrl(recipient) + pnDeliveryPushConfigs.getWebapp().getQuickAccessUrlAarDetailSuffix() ;
 
         log.debug( "getQrCodeQuickAccessUrlAarDetail templateUrl {} quickAccessLink {}", templateUrl, quickAccessToken );
         return templateUrl + '=' + quickAccessToken;
     }
 
+
+    private String getFAQAccessLink() {
+        return pnDeliveryPushConfigs.getWebapp().getLandingUrl() + pnDeliveryPushConfigs.getWebapp().getFaqUrlTemplateSuffix();
+    }
+
     private String getRecipientTypeForHTMLTemplate(NotificationRecipientInt recipientInt) {
         return recipientInt.getRecipientType() == RecipientTypeInt.PG ? "giuridica" : "fisica";
+    }
+
+    private String getAccessUrl(NotificationRecipientInt recipient) {
+
+        return RecipientTypeInt.PF == recipient.getRecipientType()
+                ? pnDeliveryPushConfigs.getWebapp().getDirectAccessUrlTemplatePhysical()
+                : pnDeliveryPushConfigs.getWebapp().getDirectAccessUrlTemplateLegal();
     }
 
 }
