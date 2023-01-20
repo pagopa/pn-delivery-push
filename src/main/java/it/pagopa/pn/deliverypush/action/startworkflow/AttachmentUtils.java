@@ -11,7 +11,6 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
-import it.pagopa.pn.deliverypush.dto.ext.safestorage.UpdateFileMetadataResponseInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotMatchingShaException;
@@ -162,13 +161,14 @@ public class AttachmentUtils {
         request.setStatus(statusRequest);
         request.setRetentionUntil(retentionUntilRequest);
 
-        UpdateFileMetadataResponseInt fd = safeStorageService.updateFileMetadata(fileKey, request).block();
-
-        if (fd != null && !fd.getResultCode().startsWith("2"))
-        {
-            // è un FAIL
-            log.error("Cannot change metadata for attachment key={} result={}", fileKey, fd);
-            throw new PnInternalException("Failed update metadata attachment", ERROR_CODE_DELIVERYPUSH_ATTACHMENTCHANGESTATUSFAILED);
-        }
+        safeStorageService.updateFileMetadata(fileKey, request)
+                .doOnSuccess( fd -> {
+                    if (fd != null && !fd.getResultCode().startsWith("2"))
+                    {
+                        // è un FAIL
+                        log.error("Cannot change metadata for attachment key={} result={}", fileKey, fd);
+                        throw new PnInternalException("Failed update metadata attachment", ERROR_CODE_DELIVERYPUSH_ATTACHMENTCHANGESTATUSFAILED);
+                    }
+                });
     }
 }

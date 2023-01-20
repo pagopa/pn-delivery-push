@@ -158,22 +158,22 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
                 .iun(notification.getIun())
                 .build();
         logEvent.log();
-        try {
-            log.debug("Start saveNotificationViewedLegalFact - iun={}", notification.getIun());
+        log.debug("Start saveNotificationViewedLegalFact - iun={}", notification.getIun());
 
-            return this.saveLegalFact(legalFactBuilder.generateNotificationViewedLegalFact(
-                    notification.getIun(), recipient, timeStamp))
-                            .map( responseUrl -> {
-                                log.debug("End saveNotificationViewedLegalFact - iun={}", notification.getIun());
-                                logEvent.generateSuccess().log();
-                                return responseUrl;
-                            });
-
-        } catch (Exception exc) {
-            logEvent.generateFailure("Error in saveNotificationViewedLegalFact,  exc=", exc).log();
-
-            String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "NOTIFICATION_VIEWED", notification.getIun(), recipient.getTaxId());
-            throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_SAVENOTIFICATIONFAILED, exc);
-        }
+        return Mono.fromCallable(() -> legalFactBuilder.generateNotificationViewedLegalFact(
+                notification.getIun(), recipient, timeStamp))
+                .flatMap( res -> 
+                        this.saveLegalFact(res)
+                                .map( responseUrl -> {
+                                    log.debug("End saveNotificationViewedLegalFact - iun={}", notification.getIun());
+                                    logEvent.generateSuccess().log();
+                                    return responseUrl;
+                                })
+                ).onErrorResume( err ->{
+                        logEvent.generateFailure("Error in saveNotificationViewedLegalFact,  exc=", err).log();
+                        String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "NOTIFICATION_VIEWED", notification.getIun(), recipient.getTaxId());
+                        return Mono.error(new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_SAVENOTIFICATIONFAILED, err));
+                });
     }
+
 }

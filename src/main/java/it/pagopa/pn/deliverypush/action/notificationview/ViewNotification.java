@@ -57,7 +57,7 @@ public class ViewNotification {
                                 Integer cost = responseCost.orElse(null);
                                 return getDenominationAndSaveInTimeline(notification, recIndex, raddInfo, eventTimestamp, legalFactId, cost, delegateInfo);
                             })
-               ).block();
+               ).subscribe();
     }
     
     private Mono<Void> getDenominationAndSaveInTimeline(
@@ -84,7 +84,7 @@ public class ViewNotification {
                         log.info("Completed flatMap - iun={} id={}" , notification.getIun(), recIndex);
                         return addTimelineAndDeletePaperNotificationFailed(notification, recIndex, raddInfo, eventTimestamp, legalFactId, cost, delegateInfoInt);
                     });
-        }else {
+        } else {
             log.debug("View is not from delegate - iun={} id={}" , notification.getIun(), recIndex);
             return addTimelineAndDeletePaperNotificationFailed(notification, recIndex, raddInfo, eventTimestamp, legalFactId, cost, null);
         }
@@ -93,18 +93,21 @@ public class ViewNotification {
     @NotNull
     private Mono<Void> addTimelineAndDeletePaperNotificationFailed(NotificationInt notification, Integer recIndex, RaddInfo raddInfo, Instant eventTimestamp, String legalFactId, Integer cost, DelegateInfoInt delegateInfoInt) {
         log.info("addTimelineAndDeletePaperNotificationFailed - iun={} id={}" , notification.getIun(), recIndex);
-
-        NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
-        //Viene eliminata l'eventuale istanza di notifica fallita dal momento che la stessa è stata letta
-        paperNotificationFailedService.deleteNotificationFailed(recipient.getInternalId(), notification.getIun());
-
-        addTimelineElement(
-                timelineUtils.buildNotificationViewedTimelineElement(notification, recIndex, legalFactId, cost, raddInfo,
-                        delegateInfoInt, eventTimestamp),
-                notification
-        );
         
-        return Mono.empty();
+        return Mono.fromCallable( () -> notificationUtils.getRecipientFromIndex(notification, recIndex))
+                .flatMap( recipient -> {
+                    //Viene eliminata l'eventuale istanza di notifica fallita dal momento che la stessa è stata letta
+                    Mono.fromRunnable( () ->  paperNotificationFailedService.deleteNotificationFailed(recipient.getInternalId(), notification.getIun()))
+                            .doOnSuccess( res -> log.info( "delete paperNotificationFailed {}", notification.getIun()));
+                    
+                    return Mono.fromCallable( () -> timelineUtils.buildNotificationViewedTimelineElement(notification, recIndex, legalFactId, cost, raddInfo,
+                            delegateInfoInt, eventTimestamp))
+                            .flatMap( timelineElementInternal -> 
+                                    Mono.fromRunnable( () -> addTimelineElement(timelineElementInternal, notification))
+                                            .doOnSuccess( res -> log.info( "addTimelineElement OK {}", notification.getIun()))
+                                            .map( res -> null)
+                            );
+                });
     }
 
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
