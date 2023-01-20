@@ -815,6 +815,7 @@ class AnalogTestIT {
                         Mockito.any(NotificationRecipientInt.class),
                         Mockito.any(CourtesyDigitalAddressInt.class),
                         Mockito.anyString(),
+                        Mockito.anyString(),
                         Mockito.anyString()
                 );
 

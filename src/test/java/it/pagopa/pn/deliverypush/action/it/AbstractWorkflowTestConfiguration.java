@@ -83,9 +83,10 @@ public class AbstractWorkflowTestConfiguration {
         PhysicalAddressWriter physicalAddressWriter = new PhysicalAddressWriter();
         PnDeliveryPushConfigs pnDeliveryPushConfigs =  Mockito.mock(PnDeliveryPushConfigs.class);
         Mockito.when(pnDeliveryPushConfigs.getWebapp()).thenReturn(new PnDeliveryPushConfigs.Webapp());
-        pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailPfTemplate("http://localhost:8090/notifica?aar=%s");
-        pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailPgTemplate("http://localhost:8090/notifica?aar=%s");
-        pnDeliveryPushConfigs.getWebapp().setFaqUrlTemplate("http://localhost:8090/dist/faq.html");
+        pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailSuffix("aar=%s");
+        pnDeliveryPushConfigs.getWebapp().setFaqUrlTemplateSuffix("faq.html");
+        pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplatePhysical("https://notifichedigitali.it");
+        pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplateLegal("https://notifichedigitali.legal.it");
         return new LegalFactGenerator( dc, instantWriter, physicalAddressWriter,  pnDeliveryPushConfigs, new InstantNowSupplier(), mvpParameterConsumer);
     }
     

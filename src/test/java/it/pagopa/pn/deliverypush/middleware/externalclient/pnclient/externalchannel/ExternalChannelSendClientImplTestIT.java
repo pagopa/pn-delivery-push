@@ -93,7 +93,7 @@ class ExternalChannelSendClientImplTestIT {
 
         //When
 
-        assertDoesNotThrow(() -> externalChannelSendClient.sendCourtesyNotification(notificationInt, recipientInt, addressInt, eventid, aarKey));
+        assertDoesNotThrow(() -> externalChannelSendClient.sendCourtesyNotification(notificationInt, recipientInt, addressInt, eventid, aarKey, ""));
 
     }
 
@@ -113,7 +113,7 @@ class ExternalChannelSendClientImplTestIT {
 
         //When
 
-        assertDoesNotThrow(() -> externalChannelSendClient.sendCourtesyNotification(notificationInt, recipientInt, addressInt, eventid, aarKey));
+        assertDoesNotThrow(() -> externalChannelSendClient.sendCourtesyNotification(notificationInt, recipientInt, addressInt, eventid, aarKey, ""));
 
     }
 }

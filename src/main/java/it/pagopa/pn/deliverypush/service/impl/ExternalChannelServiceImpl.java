@@ -63,10 +63,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                                           boolean sendAlreadyInProgress
     ) {
 
-        String aarKey = externalChannelUtils.getAarKey(notification.getIun(), recIndex);
-        NotificationRecipientInt recipientFromIndex = notificationUtils.getRecipientFromIndex(notification, recIndex);
-        Map<String, String> recipientsQuickAccessLinkTokens = notificationService.getRecipientsQuickAccessLinkToken(notification.getIun());
-        String quickAccessToken = recipientsQuickAccessLinkTokens.get(recipientFromIndex.getInternalId());
+        DigitalParameters digitalParameters = retrieveDigitalParameters(notification, recIndex);
 
         String eventId;
         if (!sendAlreadyInProgress)
@@ -81,7 +78,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                             .sentAttemptMade(sentAttemptMade)
                             .build()
             );
-            externalChannel.sendLegalNotification(notification, recipientFromIndex, digitalAddress, eventId, aarKey, quickAccessToken);
+            externalChannel.sendLegalNotification(notification, digitalParameters.recipientFromIndex, digitalAddress, eventId, digitalParameters.aarKey, digitalParameters.quickAccessToken);
             externalChannelUtils.addSendDigitalNotificationToTimeline(notification, digitalAddress, addressSource, recIndex, sentAttemptMade, eventId);
         }
         else
@@ -100,7 +97,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                             .build()
             );
 
-            externalChannel.sendLegalNotification(notification, recipientFromIndex, digitalAddress, eventId, aarKey, quickAccessToken);
+            externalChannel.sendLegalNotification(notification, digitalParameters.recipientFromIndex, digitalAddress, eventId, digitalParameters.aarKey, digitalParameters.quickAccessToken);
 
             DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
                     .retryNumber(sentAttemptMade)
@@ -130,8 +127,22 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     @Override
     public void sendCourtesyNotification(NotificationInt notification, CourtesyDigitalAddressInt courtesyAddress, Integer recIndex, String eventId) {
         log.debug("Start sendCourtesyNotification - iun {} id {}", notification.getIun(), recIndex);
-        String aarKey = externalChannelUtils.getAarKey(notification.getIun(), recIndex);
-        externalChannel.sendCourtesyNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), courtesyAddress, eventId, aarKey);
+        DigitalParameters digitalParameters = retrieveDigitalParameters(notification, recIndex);
+        externalChannel.sendCourtesyNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), courtesyAddress, eventId,
+                digitalParameters.aarKey,
+                digitalParameters.quickAccessToken);
     }
+
+
+    private DigitalParameters retrieveDigitalParameters(NotificationInt notification, Integer recIndex) {
+        NotificationRecipientInt recipientFromIndex = notificationUtils.getRecipientFromIndex(notification, recIndex);
+        Map<String, String> recipientsQuickAccessLinkTokens = notificationService.getRecipientsQuickAccessLinkToken(notification.getIun());
+        String aarKey = externalChannelUtils.getAarKey(notification.getIun(), recIndex);
+        return new DigitalParameters(aarKey, recipientFromIndex, recipientsQuickAccessLinkTokens.get(recipientFromIndex.getInternalId()));
+    }
+
+    private record DigitalParameters(String aarKey,
+                          NotificationRecipientInt recipientFromIndex,
+                          String quickAccessToken) {}
 
 }
