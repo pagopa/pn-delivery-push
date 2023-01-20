@@ -97,7 +97,7 @@ class ViewNotificationTest {
         Instant viewDate = Instant.now();
 
         //WHEN
-        viewNotification.startVewNotificationProcess(notification, recipient, recIndex, null, null, viewDate);
+        viewNotification.startVewNotificationProcess(notification, recipient, recIndex, null, null, viewDate).block();
 
         //THEN
         Mockito.verify(timelineUtils).buildNotificationViewedTimelineElement(Mockito.eq(notification), Mockito.eq(recIndex), 
@@ -146,7 +146,7 @@ class ViewNotificationTest {
                 .mandateId("mandate")
                 .build();
         
-        viewNotification.startVewNotificationProcess(notification, recipient, recIndex, null, delegateInfo, viewDate);
+        viewNotification.startVewNotificationProcess(notification, recipient, recIndex, null, delegateInfo, viewDate).block();
 
         //THEN
         Mockito.verify(confidentialInformationService).getRecipientInformationByInternalId(delegateInfo.getInternalId());

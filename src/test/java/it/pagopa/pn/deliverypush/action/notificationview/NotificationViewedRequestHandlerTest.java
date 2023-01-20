@@ -18,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -57,7 +58,10 @@ class NotificationViewedRequestHandlerTest {
         Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
         Mockito.when(statusUtils.getCurrentStatusFromNotification(Mockito.any(NotificationInt.class), Mockito.any()))
                 .thenReturn(NotificationStatusInt.DELIVERING);
+        Mockito.when(viewNotification.startVewNotificationProcess(Mockito.any(NotificationInt.class), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.empty());
 
+        
         Instant viewDate = Instant.now();
         int recIndex = 0;
 
@@ -88,6 +92,8 @@ class NotificationViewedRequestHandlerTest {
         Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
         Mockito.when(statusUtils.getCurrentStatusFromNotification(Mockito.any(NotificationInt.class), Mockito.any()))
                 .thenReturn(NotificationStatusInt.DELIVERING);
+        Mockito.when(viewNotification.startVewNotificationProcess(Mockito.any(NotificationInt.class), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.empty());
 
         Instant viewDate = Instant.now();
         int recIndex = 0;
@@ -120,6 +126,8 @@ class NotificationViewedRequestHandlerTest {
         Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
         Mockito.when(statusUtils.getCurrentStatusFromNotification(Mockito.any(NotificationInt.class), Mockito.any()))
                 .thenReturn(NotificationStatusInt.DELIVERING);
+        Mockito.when(viewNotification.startVewNotificationProcess(Mockito.any(NotificationInt.class), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.empty());
 
         Instant viewDate = Instant.now();
         int recIndex = 0;
@@ -129,7 +137,7 @@ class NotificationViewedRequestHandlerTest {
                 .type("TYPE")
                 .build();
         //WHEN
-        handler.handleViewNotificationRadd(notification.getIun(), recIndex, raddInfo, viewDate);
+        handler.handleViewNotificationRadd(notification.getIun(), recIndex, raddInfo, viewDate).block();
 
         //THEN
 

@@ -38,7 +38,7 @@ public class ViewNotification {
     private final ConfidentialInformationService confidentialInformationService;
     private final NotificationUtils notificationUtils;
 
-    public void startVewNotificationProcess(NotificationInt notification,
+    public Mono<Void> startVewNotificationProcess(NotificationInt notification,
                                             NotificationRecipientInt recipient,
                                             Integer recIndex,
                                             RaddInfo raddInfo,
@@ -46,7 +46,7 @@ public class ViewNotification {
                                             Instant eventTimestamp
     ) {
         log.info("Start view notification process - iun={} id={}", notification.getIun(), recIndex);
-        Mono.fromRunnable( () -> attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement()))
+        return Mono.fromRunnable( () -> attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement()))
             .then(
                 legalFactStore.saveNotificationViewedLegalFact(notification, recipient, instantNowSupplier.get())
                         .doOnSuccess( legalFactId -> log.info("Completed saveNotificationViewedLegalFact legalFactId={} - iun={} id={}", legalFactId, notification.getIun(), recIndex))
@@ -58,7 +58,7 @@ public class ViewNotification {
                                             return getDenominationAndSaveInTimeline(notification, recIndex, raddInfo, eventTimestamp, legalFactId, cost, delegateInfo);
                                         })
                         )
-            ).subscribe();
+            );
     }
     
     private Mono<Void> getDenominationAndSaveInTimeline(
@@ -105,7 +105,7 @@ public class ViewNotification {
                             .flatMap( timelineElementInternal ->
                                     Mono.fromRunnable( () -> addTimelineElement(timelineElementInternal, notification))
                                             .doOnSuccess( res -> log.info( "addTimelineElement OK {}", notification.getIun()))
-                                            .map(res -> null)
+                                            .map(res -> Mono.empty())
                             )
                             .thenEmpty(
                                     Mono.fromRunnable( () -> paperNotificationFailedService.deleteNotificationFailed(recipient.getInternalId(), notification.getIun()))
