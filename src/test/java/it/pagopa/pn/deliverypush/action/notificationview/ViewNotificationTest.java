@@ -12,6 +12,7 @@ import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
@@ -90,6 +91,9 @@ class ViewNotificationTest {
         int notificationCost = 10;
         when(this.notificationCost.getNotificationCost(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(Mono.just(Optional.of(notificationCost)));
         when(instantNowSupplier.get()).thenReturn(Instant.now());
+        when(timelineUtils.buildNotificationViewedTimelineElement(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(TimelineElementInternal.builder().build());
+                
         Instant viewDate = Instant.now();
 
         //WHEN
@@ -122,6 +126,9 @@ class ViewNotificationTest {
         when(this.notificationCost.getNotificationCost(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(Mono.just(Optional.of(notificationCost)));
         when(instantNowSupplier.get()).thenReturn(Instant.now());
         Instant viewDate = Instant.now();
+
+        when(timelineUtils.buildNotificationViewedTimelineElement(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(TimelineElementInternal.builder().build());
 
         String internalId = "internalId";
         BaseRecipientDtoInt baseRecipientDto = BaseRecipientDtoInt.builder()

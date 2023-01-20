@@ -92,24 +92,26 @@ public class ViewNotification {
 
     @NotNull
     private Mono<Void> addTimelineAndDeletePaperNotificationFailed(NotificationInt notification, Integer recIndex, RaddInfo raddInfo, Instant eventTimestamp, String legalFactId, Integer cost, DelegateInfoInt delegateInfoInt) {
-        log.info("addTimelineAndDeletePaperNotificationFailed - iun={} id={}" , notification.getIun(), recIndex);
         
-        return Mono.fromCallable( () -> notificationUtils.getRecipientFromIndex(notification, recIndex))
+        return Mono.fromCallable( () -> {
+                    log.info("addTimelineAndDeletePaperNotificationFailed - iun={} id={}" , notification.getIun(), recIndex);
+                    return notificationUtils.getRecipientFromIndex(notification, recIndex);
+                })
                 .flatMap( recipient -> {
                     //Viene eliminata l'eventuale istanza di notifica fallita dal momento che la stessa è stata letta
-                    Mono.fromRunnable( () ->  paperNotificationFailedService.deleteNotificationFailed(recipient.getInternalId(), notification.getIun()))
-                            .doOnSuccess( res -> log.info( "delete paperNotificationFailed {}", notification.getIun()));
-                    
                     return Mono.fromCallable( () -> timelineUtils.buildNotificationViewedTimelineElement(notification, recIndex, legalFactId, cost, raddInfo,
-                            delegateInfoInt, eventTimestamp))
-                            .flatMap( timelineElementInternal -> 
+                                    delegateInfoInt, eventTimestamp))
+                            .flatMap( timelineElementInternal ->
                                     Mono.fromRunnable( () -> addTimelineElement(timelineElementInternal, notification))
                                             .doOnSuccess( res -> log.info( "addTimelineElement OK {}", notification.getIun()))
-                                            .map( res -> null)
+                                            .map(res -> null)
+                            )
+                            .thenEmpty(
+                                    Mono.fromRunnable( () -> paperNotificationFailedService.deleteNotificationFailed(recipient.getInternalId(), notification.getIun()))
                             );
                 });
     }
-
+    
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
         timelineService.addTimelineElement(element, notification);
     }

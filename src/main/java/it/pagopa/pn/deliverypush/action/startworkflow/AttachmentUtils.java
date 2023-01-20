@@ -17,6 +17,7 @@ import it.pagopa.pn.deliverypush.exceptions.PnValidationNotMatchingShaException;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
@@ -139,11 +140,10 @@ public class AttachmentUtils {
         NotificationDocumentInt.Ref ref = attachment.getRef();
         final String ATTACHED_STATUS = "ATTACHED";
         log.debug( "changeAttachmentStatusToAttached begin changing status for attachment with key={}", ref.getKey());
-
-        updateFileMetadata(ref.getKey(), ATTACHED_STATUS, null);
-
-        log.info( "changeAttachmentStatusToAttached changed status for attachment with key={}", ref.getKey());
-
+        
+        updateFileMetadata(ref.getKey(), ATTACHED_STATUS, null)
+                .doOnSuccess( res -> log.info( "changeAttachmentStatusToAttached changed status for attachment with key={}", ref.getKey()))
+                .block();
     }
 
     private void changeAttachmentRetention(NotificationDocumentInt attachment, int retentionUntilDays) {
@@ -156,18 +156,20 @@ public class AttachmentUtils {
         log.info( "changeAttachmentRetention changed retentionUntil for attachment with key={}", ref.getKey());
     }
 
-    private void updateFileMetadata(String fileKey, String statusRequest, OffsetDateTime retentionUntilRequest) {
+    private Mono<Void> updateFileMetadata(String fileKey, String statusRequest, OffsetDateTime retentionUntilRequest) {
         UpdateFileMetadataRequest request = new UpdateFileMetadataRequest();
         request.setStatus(statusRequest);
         request.setRetentionUntil(retentionUntilRequest);
 
-        safeStorageService.updateFileMetadata(fileKey, request)
-                .doOnSuccess( fd -> {
+        return safeStorageService.updateFileMetadata(fileKey, request)
+                .flatMap( fd -> {
                     if (fd != null && !fd.getResultCode().startsWith("2"))
                     {
                         // è un FAIL
                         log.error("Cannot change metadata for attachment key={} result={}", fileKey, fd);
-                        throw new PnInternalException("Failed update metadata attachment", ERROR_CODE_DELIVERYPUSH_ATTACHMENTCHANGESTATUSFAILED);
+                        return Mono.error(new PnInternalException("Failed update metadata attachment", ERROR_CODE_DELIVERYPUSH_ATTACHMENTCHANGESTATUSFAILED));
+                    }else {
+                        return Mono.empty();
                     }
                 });
     }

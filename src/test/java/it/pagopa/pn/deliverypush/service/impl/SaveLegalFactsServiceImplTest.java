@@ -198,7 +198,7 @@ class SaveLegalFactsServiceImplTest {
         FileCreationResponseInt file = buildFileCreationResponseInt();
 
         PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
-            saveLegalFactsService.saveNotificationViewedLegalFact(notification, recipient, timeStamp);
+            saveLegalFactsService.saveNotificationViewedLegalFact(notification, recipient, timeStamp).block();
         });
 
         String expectErrorMsg = "PN_DELIVERYPUSH_SAVENOTIFICATIONFAILED";
