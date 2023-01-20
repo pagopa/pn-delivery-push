@@ -36,14 +36,14 @@ public class NotificationCost {
                         .build()
         );
 
-        /*
-         * Il costo della notifica viene valorizzato in fase di visualizzazione solo se la notifica non è già perfezionata per decorrenza termini
-         * in quel caso il costo della notifica sarà sull'elemento di timeline corrispondente
-         */
-        if( timelineService.getTimelineElement(notification.getIun(), elementId).isEmpty() ){
-            notificationCostOpt = Optional.ofNullable(notificationCostService.getNotificationCost(notification, recIndex).block());
-        }
-        return Mono.just(notificationCostOpt);
+        return Mono.fromCallable( () -> timelineService.getTimelineElement(notification.getIun(), elementId))
+                .flatMap( timelineElementOpt -> {
+                    if(timelineElementOpt.isEmpty()){
+                        return notificationCostService.getNotificationCost(notification, recIndex).map(Optional::of);
+                    }else {
+                        return Mono.just(notificationCostOpt);
+                    }
+                });
     }
 
 }

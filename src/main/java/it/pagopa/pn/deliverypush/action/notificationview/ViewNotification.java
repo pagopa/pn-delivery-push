@@ -38,7 +38,7 @@ public class ViewNotification {
     private final ConfidentialInformationService confidentialInformationService;
     private final NotificationUtils notificationUtils;
 
-    public void startVewNotificationProcess(NotificationInt notification,
+    public Mono<Void> startVewNotificationProcess(NotificationInt notification,
                                             NotificationRecipientInt recipient,
                                             Integer recIndex,
                                             RaddInfo raddInfo,
@@ -46,18 +46,19 @@ public class ViewNotification {
                                             Instant eventTimestamp
     ) {
         log.info("Start view notification process - iun={} id={}", notification.getIun(), recIndex);
-        attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement());
-        
-       legalFactStore.saveNotificationViewedLegalFact(notification, recipient, instantNowSupplier.get())
-               .doOnSuccess( legalFactId -> log.info("Completed saveNotificationViewedLegalFact legalFactId={} - iun={} id={}", legalFactId, notification.getIun(), recIndex))
-               .flatMap(legalFactId ->
-                    notificationCost.getNotificationCost(notification, recIndex)
-                            .doOnSuccess( cost -> log.info("Completed getNotificationCost cost={}- iun={} id={}", cost, notification.getIun(), recIndex))
-                            .flatMap(responseCost -> {
-                                Integer cost = responseCost.orElse(null);
-                                return getDenominationAndSaveInTimeline(notification, recIndex, raddInfo, eventTimestamp, legalFactId, cost, delegateInfo);
-                            })
-               ).block();
+        return Mono.fromRunnable( () -> attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement()))
+            .then(
+                legalFactStore.saveNotificationViewedLegalFact(notification, recipient, instantNowSupplier.get())
+                        .doOnSuccess( legalFactId -> log.info("Completed saveNotificationViewedLegalFact legalFactId={} - iun={} id={}", legalFactId, notification.getIun(), recIndex))
+                        .flatMap(legalFactId ->
+                                notificationCost.getNotificationCost(notification, recIndex)
+                                        .doOnSuccess( cost -> log.info("Completed getNotificationCost cost={}- iun={} id={}", cost, notification.getIun(), recIndex))
+                                        .flatMap(responseCost -> {
+                                            Integer cost = responseCost.orElse(null);
+                                            return getDenominationAndSaveInTimeline(notification, recIndex, raddInfo, eventTimestamp, legalFactId, cost, delegateInfo);
+                                        })
+                        )
+            );
     }
     
     private Mono<Void> getDenominationAndSaveInTimeline(
@@ -84,7 +85,7 @@ public class ViewNotification {
                         log.info("Completed flatMap - iun={} id={}" , notification.getIun(), recIndex);
                         return addTimelineAndDeletePaperNotificationFailed(notification, recIndex, raddInfo, eventTimestamp, legalFactId, cost, delegateInfoInt);
                     });
-        }else {
+        } else {
             log.debug("View is not from delegate - iun={} id={}" , notification.getIun(), recIndex);
             return addTimelineAndDeletePaperNotificationFailed(notification, recIndex, raddInfo, eventTimestamp, legalFactId, cost, null);
         }
@@ -92,21 +93,26 @@ public class ViewNotification {
 
     @NotNull
     private Mono<Void> addTimelineAndDeletePaperNotificationFailed(NotificationInt notification, Integer recIndex, RaddInfo raddInfo, Instant eventTimestamp, String legalFactId, Integer cost, DelegateInfoInt delegateInfoInt) {
-        log.info("addTimelineAndDeletePaperNotificationFailed - iun={} id={}" , notification.getIun(), recIndex);
-
-        NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
-        //Viene eliminata l'eventuale istanza di notifica fallita dal momento che la stessa è stata letta
-        paperNotificationFailedService.deleteNotificationFailed(recipient.getInternalId(), notification.getIun());
-
-        addTimelineElement(
-                timelineUtils.buildNotificationViewedTimelineElement(notification, recIndex, legalFactId, cost, raddInfo,
-                        delegateInfoInt, eventTimestamp),
-                notification
-        );
         
-        return Mono.empty();
+        return Mono.fromCallable( () -> {
+                    log.info("addTimelineAndDeletePaperNotificationFailed - iun={} id={}" , notification.getIun(), recIndex);
+                    return notificationUtils.getRecipientFromIndex(notification, recIndex);
+                })
+                .flatMap( recipient -> 
+                    //Viene eliminata l'eventuale istanza di notifica fallita dal momento che la stessa è stata letta
+                    Mono.fromCallable( () -> timelineUtils.buildNotificationViewedTimelineElement(notification, recIndex, legalFactId, cost, raddInfo,
+                                    delegateInfoInt, eventTimestamp))
+                            .flatMap( timelineElementInternal ->
+                                    Mono.fromRunnable( () -> addTimelineElement(timelineElementInternal, notification))
+                                            .doOnSuccess( res -> log.info( "addTimelineElement OK {}", notification.getIun()))
+                                            .map(res -> Mono.empty())
+                            )
+                            .thenEmpty(
+                                    Mono.fromRunnable( () -> paperNotificationFailedService.deleteNotificationFailed(recipient.getInternalId(), notification.getIun()))
+                            )
+                );
     }
-
+    
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
         timelineService.addTimelineElement(element, notification);
     }

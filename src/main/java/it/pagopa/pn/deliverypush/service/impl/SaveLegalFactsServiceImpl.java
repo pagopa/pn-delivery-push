@@ -14,6 +14,7 @@ import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -158,22 +159,29 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
                 .iun(notification.getIun())
                 .build();
         logEvent.log();
-        try {
-            log.debug("Start saveNotificationViewedLegalFact - iun={}", notification.getIun());
+        log.debug("Start saveNotificationViewedLegalFact - iun={}", notification.getIun());
 
-            return this.saveLegalFact(legalFactBuilder.generateNotificationViewedLegalFact(
-                    notification.getIun(), recipient, timeStamp))
-                            .map( responseUrl -> {
-                                log.debug("End saveNotificationViewedLegalFact - iun={}", notification.getIun());
-                                logEvent.generateSuccess().log();
-                                return responseUrl;
-                            });
+        return Mono.fromCallable(() -> legalFactBuilder.generateNotificationViewedLegalFact(notification.getIun(), recipient, timeStamp))
+                .flatMap( res -> {
+                        log.info("generateNotificationViewedLegalFact completed - iun={} are not nulls={}", notification.getIun(), res != null);
 
-        } catch (Exception exc) {
-            logEvent.generateFailure("Error in saveNotificationViewedLegalFact,  exc=", exc).log();
-
-            String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "NOTIFICATION_VIEWED", notification.getIun(), recipient.getTaxId());
-            throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_SAVENOTIFICATIONFAILED, exc);
-        }
+                        return this.saveLegalFact(res)
+                        .map( responseUrl -> {
+                            log.debug("End saveNotificationViewedLegalFact - iun={}", notification.getIun());
+                            logEvent.generateSuccess().log();
+                            return responseUrl;
+                        });
+                })
+                .onErrorResume( err ->
+                    generateError(notification, recipient, logEvent, err)
+                );
     }
+
+    @NotNull
+    private Mono<String> generateError(NotificationInt notification, NotificationRecipientInt recipient, PnAuditLogEvent logEvent, Throwable err) {
+        logEvent.generateFailure("Error in saveNotificationViewedLegalFact,  exc=", err).log();
+        String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "NOTIFICATION_VIEWED", notification.getIun(), recipient.getTaxId());
+        return Mono.error(new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_SAVENOTIFICATIONFAILED, err));
+    }
+
 }

@@ -74,12 +74,14 @@ class NotificationCostTest {
         //WHEN
         Mono<Optional<Integer>> monoCostOpt = notificationCost.getNotificationCost(notification, recIndex);
         //THEN
-        Mockito.verify(notificationCostService).getNotificationCost(notification, recIndex);
-
         Assertions.assertNotNull(monoCostOpt);
         Optional<Integer> costOpt = monoCostOpt.block();
+
+        Assertions.assertNotNull(costOpt);
         Assertions.assertTrue(costOpt.isPresent());
         Assertions.assertNotNull(costOpt.get());
         Assertions.assertEquals(expectedCost, costOpt.get());
+
+        Mockito.verify(notificationCostService).getNotificationCost(notification, recIndex);
     }
 }
