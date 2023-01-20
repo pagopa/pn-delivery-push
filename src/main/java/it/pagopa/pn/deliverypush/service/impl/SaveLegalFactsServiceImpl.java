@@ -175,7 +175,6 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
                 .onErrorResume( err ->
                     generateError(notification, recipient, logEvent, err)
                 );
-                //.switchIfEmpty( generateError(notification, recipient, logEvent, null));
     }
 
     @NotNull
