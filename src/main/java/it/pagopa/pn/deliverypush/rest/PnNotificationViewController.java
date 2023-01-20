@@ -3,7 +3,6 @@ package it.pagopa.pn.deliverypush.rest;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.EventComunicationApi;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.RequestNotificationViewedDto;
@@ -46,13 +45,7 @@ public class PnNotificationViewController implements EventComunicationApi {
                     .type(request.getRaddType())
                     .transactionId(request.getRaddBusinessTransactionId())
                     .build();
-            
-            notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex, DelegateInfoInt.builder()
-                    .internalId("PF-E517B60M67RTTMRF")
-                    .mandateId("test")
-                    .operatorUuid("test")
-                    .build(),
-                    request.getRaddBusinessTransactionDate());
+            notificationViewedRequestHandler.handleViewNotificationRadd(iun, recIndex, raddInfo, request.getRaddBusinessTransactionDate());
             
             // return iun
             log.info("End notifyNotificationViewed - iun={} internalId={} raddTransactionId={} raddType={}", iun, request.getRecipientInternalId(), request.getRaddBusinessTransactionId(), request.getRaddType());

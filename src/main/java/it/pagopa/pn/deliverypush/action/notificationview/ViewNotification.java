@@ -46,18 +46,19 @@ public class ViewNotification {
                                             Instant eventTimestamp
     ) {
         log.info("Start view notification process - iun={} id={}", notification.getIun(), recIndex);
-        attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement());
-        
-       legalFactStore.saveNotificationViewedLegalFact(notification, recipient, instantNowSupplier.get())
-               .doOnSuccess( legalFactId -> log.info("Completed saveNotificationViewedLegalFact legalFactId={} - iun={} id={}", legalFactId, notification.getIun(), recIndex))
-               .flatMap(legalFactId ->
-                    notificationCost.getNotificationCost(notification, recIndex)
-                            .doOnSuccess( cost -> log.info("Completed getNotificationCost cost={}- iun={} id={}", cost, notification.getIun(), recIndex))
-                            .flatMap(responseCost -> {
-                                Integer cost = responseCost.orElse(null);
-                                return getDenominationAndSaveInTimeline(notification, recIndex, raddInfo, eventTimestamp, legalFactId, cost, delegateInfo);
-                            })
-               ).subscribe();
+        Mono.fromRunnable( () -> attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement()))
+            .then(
+                legalFactStore.saveNotificationViewedLegalFact(notification, recipient, instantNowSupplier.get())
+                        .doOnSuccess( legalFactId -> log.info("Completed saveNotificationViewedLegalFact legalFactId={} - iun={} id={}", legalFactId, notification.getIun(), recIndex))
+                        .flatMap(legalFactId ->
+                                notificationCost.getNotificationCost(notification, recIndex)
+                                        .doOnSuccess( cost -> log.info("Completed getNotificationCost cost={}- iun={} id={}", cost, notification.getIun(), recIndex))
+                                        .flatMap(responseCost -> {
+                                            Integer cost = responseCost.orElse(null);
+                                            return getDenominationAndSaveInTimeline(notification, recIndex, raddInfo, eventTimestamp, legalFactId, cost, delegateInfo);
+                                        })
+                        )
+            ).subscribe();
     }
     
     private Mono<Void> getDenominationAndSaveInTimeline(

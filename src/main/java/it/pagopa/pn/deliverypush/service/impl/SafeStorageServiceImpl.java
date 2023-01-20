@@ -67,20 +67,19 @@ public class SafeStorageServiceImpl implements SafeStorageService {
                         log.error("Cannot create file ", exception);
                         return Mono.error(new PnInternalException("Cannot create file", ERROR_CODE_DELIVERYPUSH_UPLOADFILEERROR, exception));
                     })
-                    .doOnSuccess(
-                            fileCreationResponse -> safeStorageClient.uploadContent(fileCreationRequest, fileCreationResponse, sha256)
-                    )
-                    .map(
-                            fileCreationResponse ->{
-                                FileCreationResponseInt fileCreationResponseInt = FileCreationResponseInt.builder()
-                                        .key(fileCreationResponse.getKey())
-                                        .build();
+                    .flatMap(fileCreationResponse -> {
+                        Mono.fromRunnable(() -> safeStorageClient.uploadContent(fileCreationRequest, fileCreationResponse, sha256));
+                        return Mono.just(fileCreationResponse);
+                    })
+                    .map(fileCreationResponse ->{
+                        FileCreationResponseInt fileCreationResponseInt = FileCreationResponseInt.builder()
+                                .key(fileCreationResponse.getKey())
+                                .build();
 
-                                log.info("createAndUploadContent file uploaded successfully key={} sha256={}", fileCreationResponseInt.getKey(), sha256);
-                                
-                                return fileCreationResponseInt;
-                            }
-                    );
+                        log.info("createAndUploadContent file uploaded successfully key={} sha256={}", fileCreationResponseInt.getKey(), sha256);
+                        
+                        return fileCreationResponseInt;
+                    });
     }
     
     @Override

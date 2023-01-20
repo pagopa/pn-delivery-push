@@ -151,9 +151,7 @@ public class AttachmentUtils {
         OffsetDateTime retentionUntil = OffsetDateTime.now().plus(retentionUntilDays, ChronoUnit.DAYS);
         log.debug( "changeAttachmentRetention begin changing retentionUntil for attachment with key={}", ref.getKey());
 
-        updateFileMetadata(ref.getKey(), null, retentionUntil);
-
-        log.info( "changeAttachmentRetention changed retentionUntil for attachment with key={}", ref.getKey());
+        updateFileMetadata(ref.getKey(), null, retentionUntil).subscribe();
     }
 
     private Mono<Void> updateFileMetadata(String fileKey, String statusRequest, OffsetDateTime retentionUntilRequest) {
@@ -163,14 +161,17 @@ public class AttachmentUtils {
 
         return safeStorageService.updateFileMetadata(fileKey, request)
                 .flatMap( fd -> {
+                    log.info( "Response updateFileMetadata returned={}",fd);
+
                     if (fd != null && !fd.getResultCode().startsWith("2"))
                     {
                         // è un FAIL
                         log.error("Cannot change metadata for attachment key={} result={}", fileKey, fd);
                         return Mono.error(new PnInternalException("Failed update metadata attachment", ERROR_CODE_DELIVERYPUSH_ATTACHMENTCHANGESTATUSFAILED));
-                    }else {
-                        return Mono.empty();
                     }
+
+                    return Mono.empty();
+
                 });
     }
 }

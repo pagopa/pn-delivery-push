@@ -25,6 +25,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -189,7 +190,7 @@ class SaveLegalFactsServiceImplTest {
     }
 
     @Test
-    void saveNotificationViewedLegalFactFailed() {
+    void saveNotificationViewedLegalFactFailed() throws IOException {
         String denomination = "<h1>SSRF WITH IMAGE POC</h1> <img src='https://prova.it'></img>";
         NotificationInt notification = buildNotification(denomination);
         NotificationRecipientInt recipient = buildRecipient(denomination);
@@ -197,6 +198,9 @@ class SaveLegalFactsServiceImplTest {
         FileCreationWithContentRequest fileCreation = buildFileCreationWithContentRequest(PN_LEGAL_FACTS);
         FileCreationResponseInt file = buildFileCreationResponseInt();
 
+        Mockito.when(legalFactBuilder.generateNotificationViewedLegalFact(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn("this".getBytes(StandardCharsets.UTF_8));
+        
+        
         PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
             saveLegalFactsService.saveNotificationViewedLegalFact(notification, recipient, timeStamp).block();
         });
