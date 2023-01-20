@@ -470,7 +470,7 @@ class DigitalTestMultiRecipientIT {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        String iun = "IUN01";
+        String iun = "IUN01-REC1VIEWEDREC2GENERALOK";
 
         //Simulazione visualizzazione notifica a valle della ricezione primo esito fallito di externalChannel
         String taxId01 = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.SEND_DIGITAL_FEEDBACK.buildEventId(
