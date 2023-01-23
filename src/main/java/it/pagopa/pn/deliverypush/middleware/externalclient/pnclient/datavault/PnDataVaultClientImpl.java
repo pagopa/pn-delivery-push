@@ -16,7 +16,7 @@ import java.util.List;
 @Component
 public class PnDataVaultClientImpl implements PnDataVaultClient{
     private final NotificationsApi pnDataVaultNotificationApi;
-
+    
     public PnDataVaultClientImpl(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryPushConfigs cfg) {
         ApiClient newApiClient = new ApiClient(restTemplate);
         newApiClient.setBasePath(cfg.getDataVaultBaseUrl());

@@ -64,10 +64,10 @@ class LegalFactPdfGeneratorTest {
 		PnDeliveryPushConfigs pnDeliveryPushConfigs = new PnDeliveryPushConfigs();
 		InstantNowSupplier instantNowSupplier = new InstantNowSupplier();
 		pnDeliveryPushConfigs.setWebapp(new PnDeliveryPushConfigs.Webapp());
-		pnDeliveryPushConfigs.getWebapp().setFaqUrlTemplate("https://notifichedigitali.it/faq");
-		pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplate("https://notifichedigitali.it/iun=%s");
-		pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailPfTemplate("http://localhost:8090/notifica?aar");
-		pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailPgTemplate("http://localhost:8090/notifica?aar");
+		pnDeliveryPushConfigs.getWebapp().setFaqUrlTemplateSuffix("faq");
+		pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplatePhysical("https://notifichedigitali.it");
+		pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplateLegal("https://notifichedigitali.legal.it");
+		pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailSuffix("aar");
 
 		pdfUtils = new LegalFactGenerator(documentComposition, instantWriter, physicalAddressWriter, pnDeliveryPushConfigs, instantNowSupplier, mvpParameterConsumer);
 
@@ -190,9 +190,30 @@ class LegalFactPdfGeneratorTest {
 		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_EMAIL.html");
 		NotificationInt notificationInt = buildNotification();
 		NotificationRecipientInt notificationRecipientInt = notificationInt.getRecipients().get(0);
+		String quickAccesstoken = "quickaccesstoken123";
 
 		Assertions.assertDoesNotThrow(() -> {
-					String element = pdfUtils.generateNotificationAARBody(notificationInt, notificationRecipientInt);
+					String element = pdfUtils.generateNotificationAARBody(notificationInt, notificationRecipientInt, quickAccesstoken);
+					PrintWriter out = new PrintWriter(filePath.toString());
+					out.println(element);
+
+					System.out.println("element "+element);
+				}
+		);
+
+		System.out.print("*** AAR PEC BODY successfully created");
+	}
+
+
+	@Test
+	void generateNotificationAAREmailTest_Legal() throws IOException {
+		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_EMAIL.html");
+		NotificationInt notificationInt = buildNotification();
+		NotificationRecipientInt recipient = buildRecipientsLegalWithSpecialChar().get(0);
+		String quickAccesstoken = "quickaccesstoken123";
+
+		Assertions.assertDoesNotThrow(() -> {
+					String element = pdfUtils.generateNotificationAARBody(notificationInt, recipient, quickAccesstoken);
 					PrintWriter out = new PrintWriter(filePath.toString());
 					out.println(element);
 
@@ -225,8 +246,9 @@ class LegalFactPdfGeneratorTest {
 	void generateNotificationAAREMAILTest() {
 		NotificationInt notificationInt = buildNotification();
 		NotificationRecipientInt notificationRecipientInt = notificationInt.getRecipients().get(0);
+		String quickAccesstoken = "quickaccesstoken123";
 
-		Assertions.assertDoesNotThrow(() -> pdfUtils.generateNotificationAARBody(notificationInt, notificationRecipientInt));
+		Assertions.assertDoesNotThrow(() -> pdfUtils.generateNotificationAARBody(notificationInt, notificationRecipientInt, quickAccesstoken));
 
 		System.out.print("*** AAR EMAIL BODY successfully created");
 	}
@@ -335,6 +357,32 @@ class LegalFactPdfGeneratorTest {
 	private List<NotificationRecipientInt> buildRecipientsWithSpecialChar() {
 		NotificationRecipientInt rec1 = NotificationRecipientInt.builder()
 				.taxId("CDCFSC11R99X001Z")
+				.denomination("Galileo Brunè <h1>ciao</h1>")
+				.digitalDomicile(LegalDigitalAddressInt.builder()
+						.address("test@dominioàPec.it")
+						.type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+						.build())
+				.physicalAddress(new PhysicalAddressInt(
+						"Galileo Bruno",
+						"Palazzò dell'Inquisizionß",
+						"corso Italia 666",
+						"Pianô Terra (piatta)",
+						"00100",
+						"Roma",
+						null,
+						"RM",
+						"IT"
+				))
+				.build();
+
+		return Collections.singletonList( rec1 );
+	}
+
+
+	private List<NotificationRecipientInt> buildRecipientsLegalWithSpecialChar() {
+		NotificationRecipientInt rec1 = NotificationRecipientInt.builder()
+				.taxId("CDCFSC11R99X001Z")
+				.recipientType(RecipientTypeInt.PG)
 				.denomination("Galileo Brunè <h1>ciao</h1>")
 				.digitalDomicile(LegalDigitalAddressInt.builder()
 						.address("test@dominioàPec.it")

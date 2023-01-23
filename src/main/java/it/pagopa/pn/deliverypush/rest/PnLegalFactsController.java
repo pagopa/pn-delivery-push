@@ -33,9 +33,10 @@ public class PnLegalFactsController implements LegalFactsApi {
             String mandateId,
             ServerWebExchange exchange) {
         
-        return Mono.fromSupplier(() ->
-                ResponseEntity.ok(getLegalFactService.getLegalFactMetadata(iun, legalFactType, legalFactId, xPagopaPnCxId, mandateId ))
-        );
+        return getLegalFactService.getLegalFactMetadata(iun, legalFactType, legalFactId, xPagopaPnCxId, mandateId )
+                .map(response -> ResponseEntity.ok()
+                        .body(response)
+                );
     }
     
     @Override

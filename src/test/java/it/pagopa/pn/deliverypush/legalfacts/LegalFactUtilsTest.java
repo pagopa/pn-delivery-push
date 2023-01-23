@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import reactor.core.publisher.Mono;
 
 import static org.mockito.Mockito.when;
 
@@ -41,12 +42,10 @@ class LegalFactUtilsTest {
         FileCreationResponseInt response = new FileCreationResponseInt();
         response.setKey("123");
 
-        when(safeStorageService.createAndUploadContent(Mockito.any())).thenReturn(response);
-
-
+        when(safeStorageService.createAndUploadContent(Mockito.any())).thenReturn(Mono.just(response));
+        
         legalFactsService.saveLegalFact(legalFact);
-
-
+        
         ArgumentCaptor<FileCreationWithContentRequest> argCapture = ArgumentCaptor.forClass(FileCreationWithContentRequest.class);
 
         Mockito.verify(safeStorageService).createAndUploadContent(
@@ -75,12 +74,10 @@ class LegalFactUtilsTest {
         FileCreationResponseInt response = new FileCreationResponseInt();
         response.setKey("123");
 
-        when(safeStorageService.createAndUploadContent(Mockito.any())).thenReturn(response);
-
+        when(safeStorageService.createAndUploadContent(Mockito.any())).thenReturn(Mono.just(response));
 
         legalFactsService.saveLegalFact(legalFact1);
         legalFactsService.saveLegalFact(legalFact2);
-
    
         Mockito.verify(safeStorageService, Mockito.times(2)).createAndUploadContent(
                 Mockito.any()

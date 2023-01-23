@@ -20,7 +20,6 @@ public class SendAnalogFeedbackDetailsInt implements RecipientRelatedTimelineEle
     private PhysicalAddressInt physicalAddress;
     private ServiceLevelInt serviceLevel;
     private Integer sentAttemptMade;
-    private Boolean investigation;
     private PhysicalAddressInt newAddress;
     private List<String> errors = null;
     private ResponseStatusInt responseStatus;

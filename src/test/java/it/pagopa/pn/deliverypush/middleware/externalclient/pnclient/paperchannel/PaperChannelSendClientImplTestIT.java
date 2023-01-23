@@ -36,7 +36,7 @@ import static org.mockserver.model.HttpResponse.response;
         "pn.delivery-push.paper-channel-base-url=http://localhost:9998",
 })
 @Import(LocalStackTestConfig.class)
-class PaperChannelSendClientImplTest {
+class PaperChannelSendClientImplTestIT {
     @Autowired
     private PaperChannelSendClient client;
 
@@ -100,6 +100,39 @@ class PaperChannelSendClientImplTest {
                 .paAddress(PhysicalAddressInt.builder()
                         .address("test")
                         .build())
+                .recipientInt(NotificationRecipientTestBuilder.builder().build())
+                .notificationInt(NotificationTestBuilder.builder().build())
+                .attachments(List.of("Att"))
+                .build();
+
+        new MockServerClient("localhost", 9998)
+                .when(request()
+                        .withMethod("POST")
+                        .withPath(path)
+                )
+                .respond(response()
+                        .withStatusCode(200)
+                );
+
+
+        assertDoesNotThrow( ()  ->{
+                    client.prepare(paperChannelPrepareRequest);
+                }
+        );
+    }
+
+
+    @Test
+    @ExtendWith(SpringExtension.class)
+    void prepareAR_secondrequest() {
+        String requestId = "requestId";
+        String path = "/paper-channel-private/v1/b2b/paper-deliveries-prepare/{requestId}"
+                .replace("{requestId}", requestId);
+
+        PaperChannelPrepareRequest paperChannelPrepareRequest = PaperChannelPrepareRequest.builder()
+                .analogType(PhysicalAddressInt.ANALOG_TYPE.AR_REGISTERED_LETTER)
+                .requestId(requestId)
+                .relatedRequestId("requestId_0")
                 .recipientInt(NotificationRecipientTestBuilder.builder().build())
                 .notificationInt(NotificationTestBuilder.builder().build())
                 .attachments(List.of("Att"))

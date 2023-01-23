@@ -37,7 +37,6 @@ import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClientReactiveImpl;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClientReactiveImpl;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
@@ -122,8 +121,8 @@ import static org.awaitility.Awaitility.await;
         MVPParameterConsumer.class,
         NotificationCost.class,
         ViewNotification.class,
-        PnSafeStorageClientReactiveImpl.class,
         PnDeliveryClientReactiveImpl.class,
+        PnDataVaultClientReactiveMock.class,
         DigitalTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")
@@ -399,6 +398,8 @@ class DigitalTestMultiRecipientIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     private void checkAddressAvailabilityFirstRecipient(String iun, int recIndex1) {
@@ -474,7 +475,7 @@ class DigitalTestMultiRecipientIT {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        String iun = "IUN01";
+        String iun = "IUN01-REC1VIEWEDREC2GENERALOK";
 
         //Simulazione visualizzazione notifica a valle della ricezione primo esito fallito di externalChannel
         String taxId01 = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.SEND_DIGITAL_FEEDBACK.buildEventId(
@@ -551,10 +552,7 @@ class DigitalTestMultiRecipientIT {
 
         // Viene atteso fino a che non sia presente il REFINEMENT per il secondo recipient
         await().untilAsserted(() ->
-                Assertions.assertTrue(TestUtils.checkIsPresentViewed(iun, recIndex1, timelineService))
-        );
-        await().untilAsserted(() ->
-                Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex2, timelineService))
+            Assertions.assertTrue(TestUtils.checkIsPresentViewed(iun, recIndex1, timelineService) && TestUtils.checkIsPresentRefinement(iun, recIndex2, timelineService))
         );
 
         //Viene verificato il numero di send PEC verso external channel
@@ -625,6 +623,8 @@ class DigitalTestMultiRecipientIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     private void checkAddressAvailabilitySecondRecipient(String iun, int recIndex2) {
@@ -784,6 +784,8 @@ class DigitalTestMultiRecipientIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     // Entrambi i destinatari sono non raggiungibili
@@ -933,6 +935,8 @@ class DigitalTestMultiRecipientIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     // Entrambi i destinatari sono non raggiungibili, ma il primo visualizza la notifica su PN dopo che il workflow
@@ -1099,6 +1103,8 @@ class DigitalTestMultiRecipientIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     // Entrambi i destinatari sono non raggiungibili, ma il primo visualizza la notifica su PN prima che il workflow
@@ -1269,6 +1275,8 @@ class DigitalTestMultiRecipientIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     // Entrambi i destinatari sono raggiungibili e il primo visualizza la notifica su PN dopo che il workflow
@@ -1405,6 +1413,8 @@ class DigitalTestMultiRecipientIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     // Entrambi i destinatari sono raggiungibili ma nessuno visualizza la notifica
@@ -1523,6 +1533,8 @@ class DigitalTestMultiRecipientIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     private void checkIsPresentAcceptanceAndDeliveringAttachmentInTimeline(String address,

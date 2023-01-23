@@ -52,7 +52,7 @@ class AuditLogUtilsTest {
 
         PnAuditLogEventType type = AuditLogUtils.getAuditLogEventType(notification, null, "mandate");
 
-        Assertions.assertEquals(PnAuditLogEventType.AUD_NT_LEGALOPEN_RCP, type);
+        Assertions.assertEquals(PnAuditLogEventType.AUD_NT_LEGALOPEN_DEL, type);
     }
 
     @Test

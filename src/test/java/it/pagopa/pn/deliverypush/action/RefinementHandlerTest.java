@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.service.NotificationCostService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -17,9 +18,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 class RefinementHandlerTest {
@@ -46,20 +49,22 @@ class RefinementHandlerTest {
 
     @BeforeEach
     public void setup() {
-        when(pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement()).thenReturn(120);
         refinementHandler = new RefinementHandler(timelineService,
                 timelineUtils, notificationService, notificationCostService, attachmentUtils, pnDeliveryPushConfigs);
     }
+    
     @ExtendWith(MockitoExtension.class)
     @Test
     void handleRefinement() {
         String iun = "I01";
         Integer recIndex = 1;
         NotificationInt notification = getNotificationWithPhysicalAddress();
-        
+
+        when(pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement()).thenReturn(120);
         when(timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex)).thenReturn(Boolean.FALSE);
         when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
-        when(notificationCostService.getNotificationCost(notification, recIndex)).thenReturn(100);
+        when(notificationCostService.getNotificationCost(notification, recIndex)).thenReturn(Mono.just(100));
+        when(timelineUtils.buildRefinementTimelineElement(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(TimelineElementInternal.builder().build());
 
         refinementHandler.handleRefinement(iun, recIndex);
         
@@ -68,6 +73,21 @@ class RefinementHandlerTest {
         
     }
 
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void handleRefinementError() {
+        String iun = "I01";
+        Integer recIndex = 1;
+        NotificationInt notification = getNotificationWithPhysicalAddress();
+
+        when(timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex)).thenReturn(Boolean.FALSE);
+        when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
+        when(notificationCostService.getNotificationCost(notification, recIndex)).thenReturn(Mono.error(new RuntimeException("questa è l'eccezione")));
+
+        assertThrows(RuntimeException.class, () -> {
+            refinementHandler.handleRefinement(iun, recIndex);
+        });
+    }
     
     private NotificationInt getNotificationWithPhysicalAddress() {
         return NotificationInt.builder()

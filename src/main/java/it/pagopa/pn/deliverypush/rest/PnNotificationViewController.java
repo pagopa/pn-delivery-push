@@ -2,7 +2,7 @@ package it.pagopa.pn.deliverypush.rest;
 
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.EventComunicationApi;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.RequestNotificationViewedDto;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseNotificationViewedDto;
@@ -30,21 +30,25 @@ public class PnNotificationViewController implements EventComunicationApi {
 
     @Override
     public Mono<ResponseEntity<ResponseNotificationViewedDto>> notifyNotificationViewed(String iun, Mono<RequestNotificationViewedDto> requestNotificationViewedDto, final ServerWebExchange exchange) {
-        return requestNotificationViewedDto.flatMap(request -> Mono.fromSupplier(() -> {
+        return requestNotificationViewedDto.flatMap(request -> {
             log.info("Start notifyNotificationViewed - iun={} internalId={} raddTransactionId={} raddType={}", iun, request.getRecipientInternalId(), request.getRaddBusinessTransactionId(), request.getRaddType());
+            return Mono.fromCallable(() -> notificationService.getNotificationByIun(iun))
+                    .flatMap( notification -> {
+                        int recIndex = notificationUtils.getRecipientIndexFromInternalId(notification, request.getRecipientInternalId());
 
-            // get notification from iun
-            NotificationInt notification = notificationService.getNotificationByIun(iun);
-            
-            // get recipient index from internal id
-            int recIndex = notificationUtils.getRecipientIndexFromInternalId(notification, request.getRecipientInternalId());
-            // handle view event
-            notificationViewedRequestHandler.handleViewNotification(iun, recIndex, request.getRaddType(), request.getRaddBusinessTransactionId(), request.getRaddBusinessTransactionDate());
-            // return iun
-            log.info("End notifyNotificationViewed - iun={} internalId={} raddTransactionId={} raddType={}", iun, request.getRecipientInternalId(), request.getRaddBusinessTransactionId(), request.getRaddType());
-            ResponseNotificationViewedDto response = ResponseNotificationViewedDto.builder().iun(iun).build();
-            return ResponseEntity.ok(response);
-            
-        }));
+                        RaddInfo raddInfo = RaddInfo.builder()
+                                .type(request.getRaddType())
+                                .transactionId(request.getRaddBusinessTransactionId())
+                                .build();
+                        return notificationViewedRequestHandler.handleViewNotificationRadd(iun, recIndex, raddInfo, request.getRaddBusinessTransactionDate())
+                                .then(
+                                        Mono.fromCallable(() -> {
+                                            log.info("End notifyNotificationViewed - iun={} internalId={} raddTransactionId={} raddType={}", iun, request.getRecipientInternalId(), request.getRaddBusinessTransactionId(), request.getRaddType());
+                                            ResponseNotificationViewedDto response = ResponseNotificationViewedDto.builder().iun(iun).build();
+                                            return ResponseEntity.ok(response);
+                                        })
+                                );
+                    });
+        });
     }
 }

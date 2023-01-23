@@ -9,11 +9,9 @@ import reactor.core.publisher.Mono;
 
 public interface SafeStorageService {
 
-    FileDownloadResponseInt getFile(String fileKey, Boolean metadataOnly) ;
+    Mono<FileDownloadResponseInt> getFile(String fileKey, Boolean metadataOnly) ;
     
-    Mono<FileDownloadResponseInt> getFileReactive(String fileKey, Boolean metadataOnly) ;
+    Mono<FileCreationResponseInt> createAndUploadContent(FileCreationWithContentRequest fileCreationRequest);
 
-    FileCreationResponseInt createAndUploadContent(FileCreationWithContentRequest fileCreationRequest);
-
-    UpdateFileMetadataResponseInt updateFileMetadata(String fileKey, UpdateFileMetadataRequest updateFileMetadataRequest);
+    Mono<UpdateFileMetadataResponseInt> updateFileMetadata(String fileKey, UpdateFileMetadataRequest updateFileMetadataRequest);
 }

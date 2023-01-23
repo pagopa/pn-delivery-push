@@ -19,6 +19,7 @@ public interface ExternalChannelSendClient {
                                   NotificationRecipientInt recipientInt,
                                   CourtesyDigitalAddressInt digitalAddress,
                                   String timelineEventId,
-                                  String aarKey);
+                                  String aarKey,
+                                  String quickAccessToken);
 
 }

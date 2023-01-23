@@ -6,3 +6,4 @@ public interface PublicRegistry {
 
     void sendRequestForGetPhysicalAddress(String taxId, String correlationId);
 }
+ 

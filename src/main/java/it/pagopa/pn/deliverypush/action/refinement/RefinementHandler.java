@@ -11,6 +11,7 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @Component
@@ -33,19 +34,25 @@ public class RefinementHandler {
         if( !isNotificationAlreadyViewed ){
             log.info("Handle refinement - iun {} id {}", iun, recIndex);
             NotificationInt notification = notificationService.getNotificationByIun(iun);
-            Integer notificationCost = notificationCostService.getNotificationCost(notification, recIndex);
-            log.debug("Notification cost is {} - iun {} id {}",notificationCost, iun, recIndex);
-
-            attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement());
-            addTimelineElement(
-                    timelineUtils.buildRefinementTimelineElement(notification, recIndex, notificationCost),
-                    notification
-            );
-        }else {
+            
+            notificationCostService.getNotificationCost(notification, recIndex)
+                    .doOnSuccess( notificationCost -> log.debug("Notification cost is {} - iun {} id {}",notificationCost, iun, recIndex))
+                    .flatMap( res ->
+                            Mono.fromRunnable( () -> attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement()))
+                                    .then(Mono.just(res))
+                    )
+                    .flatMap( notificationCost ->
+                        Mono.fromCallable( () -> timelineUtils.buildRefinementTimelineElement(notification, recIndex, notificationCost))
+                                .flatMap( timelineElementInternal ->
+                                        Mono.fromRunnable( () -> addTimelineElement(timelineElementInternal, notification))
+                                                .doOnSuccess( res -> log.info( "addTimelineElement OK {}", notification.getIun()))
+                                )
+                    ).block();
+        } else {
             log.info("Notification is already viewed, refinement will not start - iun={} id={}", iun, recIndex);
         }
     }
-
+    
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
         timelineService.addTimelineElement(element, notification);
     }

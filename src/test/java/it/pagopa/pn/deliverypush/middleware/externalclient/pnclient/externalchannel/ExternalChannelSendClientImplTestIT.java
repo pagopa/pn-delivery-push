@@ -1,15 +1,13 @@
-package it.pagopa.pn.deliverypush.externalclient.pnclient.externalchannel;
+package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel;
 
 import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.api.PaperMessagesApi;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel.ExternalChannelSendClientImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -95,7 +93,7 @@ class ExternalChannelSendClientImplTestIT {
 
         //When
 
-        assertDoesNotThrow(() -> externalChannelSendClient.sendCourtesyNotification(notificationInt, recipientInt, addressInt, eventid, aarKey));
+        assertDoesNotThrow(() -> externalChannelSendClient.sendCourtesyNotification(notificationInt, recipientInt, addressInt, eventid, aarKey, ""));
 
     }
 
@@ -115,7 +113,7 @@ class ExternalChannelSendClientImplTestIT {
 
         //When
 
-        assertDoesNotThrow(() -> externalChannelSendClient.sendCourtesyNotification(notificationInt, recipientInt, addressInt, eventid, aarKey));
+        assertDoesNotThrow(() -> externalChannelSendClient.sendCourtesyNotification(notificationInt, recipientInt, addressInt, eventid, aarKey, ""));
 
     }
 }

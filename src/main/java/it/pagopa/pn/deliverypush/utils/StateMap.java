@@ -193,7 +193,8 @@ class StateMap {
                         .build();
                 return getStateTransition(transitionRequestForSingleRecipient);
             }
-            log.warn("Illegal input \"" + timelineRowType + "\" in state \"" + fromStatus + "\"");
+            
+            log.error("Illegal input \"" + timelineRowType + "\" in state \"" + fromStatus + "\"");
             return fromStatus;
         }
     }

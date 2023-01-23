@@ -12,8 +12,10 @@ public class ConfidentialTimelineElementDtoMapper {
 
     public static ConfidentialTimelineElementDto internalToExternal(ConfidentialTimelineElementDtoInt dtoInt) {
         ConfidentialTimelineElementDto.ConfidentialTimelineElementDtoBuilder dtoExtBuilder = ConfidentialTimelineElementDto.builder()
-                .timelineElementId(dtoInt.getTimelineElementId());
-
+                .timelineElementId(dtoInt.getTimelineElementId())
+                .taxId(dtoInt.getTaxId())
+                .denomination(dtoInt.getDenomination());
+        
         if (dtoInt.getDigitalAddress() != null) {
             dtoExtBuilder.digitalAddress(
                     AddressDto.builder()
@@ -57,7 +59,9 @@ public class ConfidentialTimelineElementDtoMapper {
 
     public static ConfidentialTimelineElementDtoInt externalToInternal(ConfidentialTimelineElementDto dtoExt) {
         ConfidentialTimelineElementDtoInt.ConfidentialTimelineElementDtoIntBuilder dtoIntBuilder = ConfidentialTimelineElementDtoInt.builder()
-                .timelineElementId(dtoExt.getTimelineElementId());
+                .timelineElementId(dtoExt.getTimelineElementId())
+                .taxId(dtoExt.getTaxId())
+                .denomination(dtoExt.getDenomination());
 
         if (dtoExt.getDigitalAddress() != null) {
             dtoIntBuilder.digitalAddress(dtoExt.getDigitalAddress().getValue());

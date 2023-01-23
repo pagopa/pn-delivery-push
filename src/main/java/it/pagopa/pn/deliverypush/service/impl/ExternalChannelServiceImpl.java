@@ -35,7 +35,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     private final DigitalWorkFlowUtils digitalWorkFlowUtils;
     private final NotificationService notificationService;
     private final AuditLogService auditLogService;
-    
+
     public ExternalChannelServiceImpl(ExternalChannelUtils externalChannelUtils,
                                       ExternalChannelSendClient externalChannel,
                                       NotificationUtils notificationUtils,
@@ -72,10 +72,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         PnAuditLogEvent logEvent = buildAuditLogEvent(notification.getIun(), digitalAddress, recIndex);
 
         try {
-            String aarKey = externalChannelUtils.getAarKey(notification.getIun(), recIndex);
-            NotificationRecipientInt recipientFromIndex = notificationUtils.getRecipientFromIndex(notification, recIndex);
-            Map<String, String> recipientsQuickAccessLinkTokens = notificationService.getRecipientsQuickAccessLinkToken(notification.getIun());
-            String quickAccessToken = recipientsQuickAccessLinkTokens.get(recipientFromIndex.getInternalId());
+            DigitalParameters digitalParameters = retrieveDigitalParameters(notification, recIndex);
 
             String eventId;
             if (!sendAlreadyInProgress)
@@ -90,7 +87,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                                 .sentAttemptMade(sentAttemptMade)
                                 .build()
                 );
-                externalChannel.sendLegalNotification(notification, recipientFromIndex, digitalAddress, eventId, aarKey, quickAccessToken);
+                externalChannel.sendLegalNotification(notification, digitalParameters.recipientFromIndex, digitalAddress, eventId, digitalParameters.aarKey, digitalParameters.quickAccessToken);
                 externalChannelUtils.addSendDigitalNotificationToTimeline(notification, digitalAddress, addressSource, recIndex, sentAttemptMade, eventId);
             }
             else
@@ -109,7 +106,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                                 .build()
                 );
 
-                externalChannel.sendLegalNotification(notification, recipientFromIndex, digitalAddress, eventId, aarKey, quickAccessToken);
+            externalChannel.sendLegalNotification(notification, digitalParameters.recipientFromIndex, digitalAddress, eventId, digitalParameters.aarKey, digitalParameters.quickAccessToken);
 
                 DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
                         .retryNumber(sentAttemptMade)
@@ -148,14 +145,25 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         PnAuditLogEvent logEvent = buildAuditLogEvent(notification.getIun(), courtesyAddress, recIndex);
 
         try {
-            String aarKey = externalChannelUtils.getAarKey(notification.getIun(), recIndex);
-            externalChannel.sendCourtesyNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), courtesyAddress, eventId, aarKey);
+            DigitalParameters digitalParameters = retrieveDigitalParameters(notification, recIndex);
+            externalChannel.sendCourtesyNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), courtesyAddress, eventId,
+                digitalParameters.aarKey,
+                digitalParameters.quickAccessToken);
             logEvent.generateSuccess().log();
         } catch (Exception e) {
             logEvent.generateFailure("Error in sendCourtesyNotification, error={} iun={} id={}", e.getMessage(), notification.getIun(), recIndex).log();
             throw e;
         }
     }
+
+
+    private DigitalParameters retrieveDigitalParameters(NotificationInt notification, Integer recIndex) {
+        NotificationRecipientInt recipientFromIndex = notificationUtils.getRecipientFromIndex(notification, recIndex);
+        Map<String, String> recipientsQuickAccessLinkTokens = notificationService.getRecipientsQuickAccessLinkToken(notification.getIun());
+        String aarKey = externalChannelUtils.getAarKey(notification.getIun(), recIndex);
+        return new DigitalParameters(aarKey, recipientFromIndex, recipientsQuickAccessLinkTokens.get(recipientFromIndex.getInternalId()));
+    }
+
 
 
     private PnAuditLogEvent buildAuditLogEvent(String iun, LegalDigitalAddressInt legalDigitalAddressInt, int recIndex) {
@@ -175,6 +183,11 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
             return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_AD_SEND_SMS, "sendSMSMessage");
         }
     }
+
+
+    private record DigitalParameters(String aarKey,
+                                     NotificationRecipientInt recipientFromIndex,
+                                     String quickAccessToken) {}
 
 
 }

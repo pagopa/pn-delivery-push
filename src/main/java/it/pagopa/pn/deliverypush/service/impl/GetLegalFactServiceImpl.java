@@ -25,6 +25,7 @@ import it.pagopa.pn.deliverypush.utils.AuthUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.util.Comparator;
 import java.util.List;
@@ -53,43 +54,57 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
     }
 
     @Override
-    public LegalFactDownloadMetadataResponse getLegalFactMetadata(String iun,
-                                                                  LegalFactCategory legalFactType,
-                                                                  String legalfactId,
-                                                                  String senderReceiverId,
-                                                                  String mandateId) {
+    public Mono<LegalFactDownloadMetadataResponse> getLegalFactMetadata(String iun,
+                                                                        LegalFactCategory legalFactType,
+                                                                        String legalfactId,
+                                                                        String senderReceiverId,
+                                                                        String mandateId) {
 
-        log.debug( "GetLegalFactMetadata iun={} legalFactId={}", iun, legalfactId );
+        log.debug( "GetLegalFactMetadata iun={} legalFactId={} senderReceiverId={}", iun, legalfactId, senderReceiverId );
+        
+        return Mono.fromCallable(() -> notificationService.getNotificationByIun(iun))
+                .flatMap(notification -> {
+                            Mono.fromRunnable(() -> authUtils.checkUserPaAndMandateAuthorization(notification, senderReceiverId, mandateId));
+                            return Mono.just(notification);
+                        }
+                )
+                .map(notification -> {
+                    PnAuditLogEvent logEvent = getAuditLog(iun, legalfactId, senderReceiverId, mandateId, notification);
+                    logEvent.log();
+                    return logEvent;
+                })
+                .flatMap( logEvent ->
+                    // la key è la legalfactid
+                    safeStorageService.getFile(legalfactId, false)
+                            .onErrorResume( exc -> {
+                                    logEvent.generateFailure("Exception in getLegalFactMetadata exc={}", exc).log();
+                                        return Mono.error(exc);
+                                    }
+                            )
+                            .map( fileDownloadResponse -> {
+                                LegalFactDownloadMetadataResponse response = generateResponse(iun, legalFactType, legalfactId, fileDownloadResponse);
+                                generateSuccessAuditLog(iun, legalfactId, senderReceiverId, logEvent, response);
+                                return response;
+                            })
+                );
+    }
 
-       
-        NotificationInt notification = notificationService.getNotificationByIun(iun);
-        authUtils.checkUserPaAndMandateAuthorization(notification, senderReceiverId, mandateId);
+    private void generateSuccessAuditLog(String iun, String legalfactId, String senderReceiverId, PnAuditLogEvent logEvent, LegalFactDownloadMetadataResponse response) {
+        String fileName = response.getFilename();
+        String url = response.getUrl();
+        String retryAfter = String.valueOf( response.getRetryAfter() );
+        String message = LogUtils.createAuditLogMessageForDownloadDocument( fileName, url, retryAfter );
+        logEvent.generateSuccess("getLegalFactMetadata iun={} legalFactId={} senderReceiverId={} {}",
+                iun, legalfactId, senderReceiverId, message).log();
+    }
 
+    private PnAuditLogEvent getAuditLog(String iun, String legalfactId, String senderReceiverId, String mandateId, NotificationInt notification) {
         PnAuditLogEventType eventType = AuditLogUtils.getAuditLogEventType(notification, senderReceiverId, mandateId);
-
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        PnAuditLogEvent logEvent = auditLogBuilder
+        return auditLogBuilder
                 .before(eventType, "getLegalFactMetadata iun={} legalFactId={} senderReceiverId={}", iun, legalfactId, senderReceiverId)
                 .iun(iun)
                 .build();
-        logEvent.log();
-            
-        try {
-            // la key è la legalfactid
-            FileDownloadResponseInt fileDownloadResponse = safeStorageService.getFile(legalfactId, false);
-            LegalFactDownloadMetadataResponse response = generateResponse(iun, legalFactType, legalfactId, fileDownloadResponse);
-            String fileName = response.getFilename();
-            String url = response.getUrl();
-            String retryAfter = String.valueOf( response.getRetryAfter() );
-            String message = LogUtils.createAuditLogMessageForDownloadDocument( fileName, url, retryAfter );
-            logEvent.generateSuccess("getLegalFactMetadata iun={} legalFactId={} senderReceiverId={} {}",
-                    iun, legalfactId, senderReceiverId, message).log();
-            return response;
-        } catch (Exception exc) {
-            logEvent.generateFailure("Exception in getLegalFactMetadata exc={}", exc).log();
-            throw exc;
-        }
-        
     }
 
     @NotNull
@@ -160,7 +175,4 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
 
         return recipientId;
     }
-
-
-
 }
