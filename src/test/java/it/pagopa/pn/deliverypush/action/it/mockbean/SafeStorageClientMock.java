@@ -4,6 +4,7 @@ import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.*;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Base64Utils;
 import reactor.core.publisher.Mono;
 
@@ -16,6 +17,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 public class SafeStorageClientMock implements PnSafeStorageClient {
     private Map<String, FileCreationWithContentRequest> savedFileMap = new HashMap<>();
 
@@ -66,6 +68,7 @@ public class SafeStorageClientMock implements PnSafeStorageClient {
 
     @Override
     public void uploadContent(FileCreationWithContentRequest fileCreationRequest, FileCreationResponse fileCreationResponse, String sha256) {
+        log.info("Upload content Mock - key={} uploadUrl={}", fileCreationResponse.getKey(), fileCreationResponse.getUploadUrl());
 
     }
 

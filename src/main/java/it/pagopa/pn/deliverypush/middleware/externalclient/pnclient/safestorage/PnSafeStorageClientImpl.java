@@ -94,7 +94,8 @@ public class PnSafeStorageClientImpl extends BaseClient implements PnSafeStorage
     @Override
     public void uploadContent(FileCreationWithContentRequest fileCreationRequest, FileCreationResponse fileCreationResponse, String sha256) {
         try {
-
+            log.info("Start upload content - key={} uploadUrl={}", fileCreationResponse.getKey(), fileCreationResponse.getUploadUrl());
+            
             MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
             headers.add("Content-type", fileCreationRequest.getContentType());
             headers.add("x-amz-checksum-sha256", sha256);
@@ -111,6 +112,7 @@ public class PnSafeStorageClientImpl extends BaseClient implements PnSafeStorage
             {
                 throw new PnInternalException("File upload failed", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_UPLOADFILEERROR);
             }
+            log.info("End upload content - key={} uploadUrl={}", fileCreationResponse.getKey(), fileCreationResponse.getUploadUrl());
         } catch (PnInternalException ee)
         {
             log.error("uploadContent PnInternalException uploading file", ee);
