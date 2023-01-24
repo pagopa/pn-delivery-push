@@ -18,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
@@ -65,7 +66,8 @@ class RefinementHandlerTest {
         when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
         when(notificationCostService.getNotificationCost(notification, recIndex)).thenReturn(Mono.just(100));
         when(timelineUtils.buildRefinementTimelineElement(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(TimelineElementInternal.builder().build());
-
+        when(attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement())).thenReturn(Flux.empty());
+        
         refinementHandler.handleRefinement(iun, recIndex);
         
         Mockito.verify(timelineUtils, Mockito.times(1)).buildRefinementTimelineElement(notification,
