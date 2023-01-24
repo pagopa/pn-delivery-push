@@ -22,6 +22,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -82,7 +83,8 @@ public class AttachmentUtils {
 
     public Flux<Void> changeAttachmentsRetention(NotificationInt notification, int retentionUntilDays) {
         log.info( "changeAttachmentsRetention iun={}", notification.getIun());
-        return Mono.just(getAllAttachment(notification)).flatMapIterable( x -> x )
+        return Mono.just(getAllAttachment(notification))
+                .flatMapIterable( x -> x )
                 .flatMap( doc -> this.changeAttachmentRetention(doc, retentionUntilDays));
     }
 
@@ -108,7 +110,8 @@ public class AttachmentUtils {
 
     private List<NotificationDocumentInt> getAllAttachment(NotificationInt notification)
     {
-        List<NotificationDocumentInt> notificationDocuments = notification.getDocuments();
+        List<NotificationDocumentInt> notificationDocuments = new ArrayList<>(notification.getDocuments());
+
         notification.getRecipients().forEach( recipient -> {
             if(recipient.getPayment() != null ){
 

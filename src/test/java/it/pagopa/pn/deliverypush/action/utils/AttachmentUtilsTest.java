@@ -19,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.util.Base64Utils;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS;
@@ -129,6 +130,40 @@ class AttachmentUtilsTest {
 
         //WHEN
         assertThrows(PnInternalException.class, () -> attachmentUtils.changeAttachmentsStatusToAttached(notification));
+
+        //THEN
+        Mockito.verify(safeStorageService, Mockito.times(1)).updateFileMetadata(Mockito.any(), Mockito.any());
+    }
+
+    @Test
+    void changeAttachmentsRetention() {
+        //GIVEN
+        NotificationRecipientInt recipient = getNotificationRecipientInt();
+        NotificationInt notification = getNotificationInt(recipient);
+
+        UpdateFileMetadataResponseInt resp = new UpdateFileMetadataResponseInt();
+        resp.setResultCode("200.00");
+
+        Mockito.when(safeStorageService.updateFileMetadata(Mockito.any(), Mockito.any())).thenReturn(Mono.just(resp));
+
+        //WHEN
+        attachmentUtils.changeAttachmentsRetention(notification, 20).blockFirst();
+
+        //THEN
+        Mockito.verify(safeStorageService, Mockito.times(2)).updateFileMetadata(Mockito.any(), Mockito.any());
+    }
+    
+    @Test
+    void changeAttachmentsRetentionKO() {
+        //GIVEN
+        NotificationRecipientInt recipient = getNotificationRecipientInt();
+        NotificationInt notification = getNotificationInt(recipient);
+
+        Mockito.when(safeStorageService.updateFileMetadata(Mockito.any(), Mockito.any())).thenThrow(new PnInternalException("test", "test"));
+
+        Flux<Void> flux = attachmentUtils.changeAttachmentsRetention(notification, 20);
+        //WHEN
+        assertThrows(PnInternalException.class, flux::blockFirst);
 
         //THEN
         Mockito.verify(safeStorageService, Mockito.times(1)).updateFileMetadata(Mockito.any(), Mockito.any());
