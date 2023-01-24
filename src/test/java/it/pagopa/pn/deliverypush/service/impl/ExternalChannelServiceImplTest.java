@@ -101,7 +101,7 @@ class ExternalChannelServiceImplTest {
         Mockito.when( externalChannelUtils.getAarKey(Mockito.anyString(), Mockito.anyInt()) ).thenReturn(aarKey);
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
         Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_SEND), Mockito.anyString())).thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateSuccess()).thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
 
         Map<String, String> quickLinkTestMap = Map.of(recipient.getInternalId(), quickAccessToken);
         Mockito.when(notificationService.getRecipientsQuickAccessLinkToken(iun)).thenReturn(quickLinkTestMap);
@@ -125,7 +125,7 @@ class ExternalChannelServiceImplTest {
         
         Mockito.verify(externalChannel).sendLegalNotification(notification, recipient,  digitalDomicile, eventIdExpected, aarKey, quickAccessToken);
         Mockito.verify(externalChannelUtils).addSendDigitalNotificationToTimeline(notification, digitalDomicile, addressSource, recIndex, sentAttemptMade, eventIdExpected);
-        Mockito.verify( auditLogEvent).generateSuccess();
+        Mockito.verify( auditLogEvent).generateSuccess(Mockito.anyString(), Mockito.any());
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
     }
@@ -238,7 +238,7 @@ class ExternalChannelServiceImplTest {
         Mockito.when( externalChannelUtils.getAarKey(Mockito.anyString(), Mockito.anyInt()) ).thenReturn(aarKey);
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
         Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_SEND), Mockito.anyString())).thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateSuccess()).thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
 
         Map<String, String> quickLinkTestMap = Map.of(recipient.getInternalId(), quickAccessToken);
         Mockito.when(notificationService.getRecipientsQuickAccessLinkToken(iun)).thenReturn(quickLinkTestMap);
@@ -268,7 +268,7 @@ class ExternalChannelServiceImplTest {
                                                 Mockito.any(DigitalAddressFeedback.class)
         );
 
-        Mockito.verify( auditLogEvent).generateSuccess();
+        Mockito.verify( auditLogEvent).generateSuccess(Mockito.anyString(), Mockito.any());
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
     }
@@ -309,7 +309,7 @@ class ExternalChannelServiceImplTest {
         Map<String, String> quickLinkTestMap = Map.of(recipient.getInternalId(), quickAccessToken);
         Mockito.when(notificationService.getRecipientsQuickAccessLinkToken(iun)).thenReturn(quickLinkTestMap);
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
-        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_AD_SEND_EMAIL), Mockito.anyString())).thenReturn(auditLogEvent);
+        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_AD_SEND_EMAIL), Mockito.anyString(), Mockito.anyString())).thenReturn(auditLogEvent);
         Mockito.when(auditLogEvent.generateSuccess()).thenReturn(auditLogEvent);
 
 
@@ -358,8 +358,11 @@ class ExternalChannelServiceImplTest {
 
         String aarKey = "testKey";
         Mockito.when( externalChannelUtils.getAarKey(Mockito.anyString(), Mockito.anyInt()) ).thenReturn(aarKey);
+        String quickAccessToken = "test";
+        Map<String, String> quickLinkTestMap = Map.of(recipient.getInternalId(), quickAccessToken);
+        Mockito.when(notificationService.getRecipientsQuickAccessLinkToken(iun)).thenReturn(quickLinkTestMap);
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
-        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_AD_SEND_SMS), Mockito.anyString())).thenReturn(auditLogEvent);
+        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_AD_SEND_SMS), Mockito.anyString(), Mockito.anyString())).thenReturn(auditLogEvent);
         Mockito.when(auditLogEvent.generateSuccess()).thenReturn(auditLogEvent);
 
         int recIndex = 0;
@@ -369,7 +372,7 @@ class ExternalChannelServiceImplTest {
         externalChannelService.sendCourtesyNotification(notification, courtesyDigitalAddress, recIndex, eventId);
 
         //THEN
-        Mockito.verify(externalChannel).sendCourtesyNotification(notification, recipient,  courtesyDigitalAddress, eventId, aarKey);
+        Mockito.verify(externalChannel).sendCourtesyNotification(notification, recipient,  courtesyDigitalAddress, eventId, aarKey, quickAccessToken);
         Mockito.verify( auditLogEvent).generateSuccess();
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
@@ -408,11 +411,14 @@ class ExternalChannelServiceImplTest {
 
         String aarKey = "testKey";
         Mockito.when( externalChannelUtils.getAarKey(Mockito.anyString(), Mockito.anyInt()) ).thenReturn(aarKey);
+        String quickAccessToken = "test";
+        Map<String, String> quickLinkTestMap = Map.of(recipient.getInternalId(), quickAccessToken);
+        Mockito.when(notificationService.getRecipientsQuickAccessLinkToken(iun)).thenReturn(quickLinkTestMap);
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
-        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_AD_SEND_SMS), Mockito.anyString())).thenReturn(auditLogEvent);
+        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_AD_SEND_SMS), Mockito.anyString(), Mockito.anyString())).thenReturn(auditLogEvent);
         Mockito.when(auditLogEvent.generateFailure(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
 
-        Mockito.doThrow(new PnInternalException("fake", "fake")).when(externalChannel).sendCourtesyNotification(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any());
+        Mockito.doThrow(new PnInternalException("fake", "fake")).when(externalChannel).sendCourtesyNotification(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.anyString());
 
         int recIndex = 0;
         String eventId = "eventId";
@@ -421,7 +427,7 @@ class ExternalChannelServiceImplTest {
         Assertions.assertThrows(PnInternalException.class, () -> externalChannelService.sendCourtesyNotification(notification, courtesyDigitalAddress, recIndex, eventId));
 
         //THEN
-        Mockito.verify(externalChannel).sendCourtesyNotification(notification, recipient,  courtesyDigitalAddress, eventId, aarKey);
+        Mockito.verify(externalChannel).sendCourtesyNotification(notification, recipient,  courtesyDigitalAddress, eventId, aarKey, quickAccessToken);
         Mockito.verify( auditLogEvent, Mockito.never()).generateSuccess();
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent).generateFailure(Mockito.any(), Mockito.any());

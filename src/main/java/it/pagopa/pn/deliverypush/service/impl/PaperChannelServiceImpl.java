@@ -13,7 +13,6 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.PhysicalAddressRelatedTimelineElement;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelPrepareRequest;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendClient;
@@ -65,7 +64,6 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     @Override
     public void prepareAnalogNotificationForSimpleRegisteredLetter(NotificationInt notification,  Integer recIndex) {
         log.debug("Start sendNotificationForRegisteredLetter - iun={} recipientIndex={}", notification.getIun(), recIndex);
-                 
         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
 
         if(! isNotificationAlreadyViewed){
@@ -87,7 +85,6 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     @Override
     public void prepareAnalogNotification(NotificationInt notification, Integer recIndex, int sentAttemptMade) {
         log.debug("Start prepareAnalogNotification - iun {} id {}", notification.getIun(), recIndex);
-
         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
 
         if( !isNotificationAlreadyViewed ){
@@ -105,85 +102,77 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         } else {
             log.info("Notification is already viewed, paper notification will not be sent to paperChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
         }
+
     }
 
     private void prepareSimpleRegisteredLetter(NotificationInt notification, Integer recIndex) {
         String eventId = paperChannelUtils.buildPrepareSimpleRegisteredLetterEventId(notification, recIndex);
 
-        // nel caso della simple registgered, l'indirizzo è sempre quello fornito dalla pa
-        PhysicalAddressInt receiverAddress = analogWorkflowUtils.getPhysicalAddress(notification, recIndex);
+        // recupero gli allegati
+        List<String> attachments = retrieveAttachments(notification, recIndex);
+        PnAuditLogEvent auditLogEvent = buildAuditLogEvent(notification.getIun(), recIndex, true, eventId, PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER.name(), attachments);
 
-        retrievePrepareInfoAndInvoke(notification, recIndex, receiverAddress, eventId,
-                PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER, null, null);
+        try {
+            // nel caso della simple registgered, l'indirizzo è sempre quello fornito dalla pa
+            PhysicalAddressInt receiverAddress = analogWorkflowUtils.getPhysicalAddress(notification, recIndex);
+
+            paperChannelSendClient.prepare (new PaperChannelPrepareRequest(notification,
+                    notificationUtils.getRecipientFromIndex(notification, recIndex),
+                    receiverAddress, eventId, PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER,
+                    attachments, null, null));
+
+            String timelineId = paperChannelUtils.addPrepareSimpleRegisteredLetterToTimeline(notification, receiverAddress, recIndex, eventId, 1);
 
 
-        paperChannelUtils.addPrepareSimpleRegisteredLetterToTimeline(notification, receiverAddress, recIndex, eventId, 1);
+            auditLogEvent.generateSuccess("Prepare invoked timelineId={}", timelineId).log();
+        } catch (Exception exc) {
+            auditLogEvent.generateFailure("failed prepare exc={}", exc).log();
+            throw exc;
+        }
     }
 
     private void prepareAnalogDomicile(NotificationInt notification, Integer recIndex, int sentAttemptMade) {
         String eventId = paperChannelUtils.buildPrepareAnalogDomicileEventId(notification, recIndex, sentAttemptMade);
 
-        // nel caso sia un ritentativo, vado in cerca del precedente feedback dell'eventuale discovered address
-        String relatedEventId = null;
-        PhysicalAddressInt receiverAddress = null;
-        PhysicalAddressInt discoveredAddress = null;
-        if (sentAttemptMade > 0)
-        {
-            // ricostruisco il related corrispondente, tanto ha la forma che gli avevo dato io all'iterazione precedente
-            // il relatedEventId del primo tentativo serve a paperChannel distinguere e correlare la seconda invocazione dalla prima
-            relatedEventId = paperChannelUtils.buildPrepareAnalogDomicileEventId(notification, recIndex, sentAttemptMade - 1);
-
-            // ricostruisco il feedback corrispondente, tanto ha la forma che gli avevo dato io all'iterazione precedente.
-            // mi serve per recuperare il discoveredAddress all'interno
-            String relatedAnalogFeedbackEventId = paperChannelUtils.buildSendAnalogFeedbackEventId(notification, recIndex, sentAttemptMade - 1);
-
-            TimelineElementInternal previousResult = paperChannelUtils.getPaperChannelNotificationTimelineElement(notification.getIun(), relatedAnalogFeedbackEventId);
-            discoveredAddress = ((SendAnalogFeedbackDetailsInt)previousResult.getDetails()).getNewAddress();
-
-            //PaperChannel NON ha bisogno per il secondo tentativo dell'indirizzo del primo tentativo
-        }
-        else
-        {
-            // se sentAttemptMade è 0, il receiver addres è quello fornito dalla PA
-            receiverAddress = analogWorkflowUtils.getPhysicalAddress(notification, recIndex);
-        }
-        
-        retrievePrepareInfoAndInvoke(notification, recIndex, receiverAddress, eventId,
-                getAnalogType(notification),
-                relatedEventId, discoveredAddress
-                );
-
-
-        paperChannelUtils.addPrepareAnalogNotificationToTimeline(notification, receiverAddress, recIndex, relatedEventId, sentAttemptMade, eventId, discoveredAddress);
-    }
-
-
-    /**
-     * Recupera le informazioni necessarie all'invio della prepare.
-     * Se il relatedRequestId è null, si intende come prima richiesta, e recupera l'indirizzo della PA fornito.
-     * Se  il relatedRequestId NON è null, si intende che è una seconda richiesta non recupera l'indirizzo della PA
-     *
-     * @param notification notifica
-     * @param recIndex indice destinatario
-     * @param eventId timelineid (requestId)
-     * @param analogType tipo invio
-     * @param relatedRequestId eventuale requestId originario
-     * @param discoveredAddress eventuale indirizzo indagine
-     */
-    private void retrievePrepareInfoAndInvoke(NotificationInt notification, Integer recIndex, PhysicalAddressInt receiverAddress,
-                                                            String eventId, PhysicalAddressInt.ANALOG_TYPE analogType, String relatedRequestId, PhysicalAddressInt discoveredAddress) {
         // recupero gli allegati
-        List<String> attachments = retrieveAttachments(notification, recIndex, analogType== PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER);
-
+        List<String> attachments = retrieveAttachments(notification, recIndex);
+        PhysicalAddressInt.ANALOG_TYPE analogType = getAnalogType(notification);
         PnAuditLogEvent auditLogEvent = buildAuditLogEvent(notification.getIun(), recIndex, true, eventId, analogType.name(), attachments);
 
         try {
+            // nel caso sia un ritentativo, vado in cerca del precedente feedback dell'eventuale discovered address
+            String relatedEventId = null;
+            PhysicalAddressInt receiverAddress = null;
+            PhysicalAddressInt discoveredAddress = null;
+            if (sentAttemptMade > 0)
+            {
+                // ricostruisco il related corrispondente, tanto ha la forma che gli avevo dato io all'iterazione precedente
+                // il relatedEventId del primo tentativo serve a paperChannel distinguere e correlare la seconda invocazione dalla prima
+                relatedEventId = paperChannelUtils.buildPrepareAnalogDomicileEventId(notification, recIndex, sentAttemptMade - 1);
+
+                // ricostruisco il feedback corrispondente, tanto ha la forma che gli avevo dato io all'iterazione precedente.
+                // mi serve per recuperare il discoveredAddress all'interno
+                String relatedAnalogFeedbackEventId = paperChannelUtils.buildSendAnalogFeedbackEventId(notification, recIndex, sentAttemptMade - 1);
+
+                TimelineElementInternal previousResult = paperChannelUtils.getPaperChannelNotificationTimelineElement(notification.getIun(), relatedAnalogFeedbackEventId);
+                discoveredAddress = ((SendAnalogFeedbackDetailsInt)previousResult.getDetails()).getNewAddress();
+
+                //PaperChannel NON ha bisogno per il secondo tentativo dell'indirizzo del primo tentativo
+            }
+            else
+            {
+                // se sentAttemptMade è 0, il receiver addres è quello fornito dalla PA
+                receiverAddress = analogWorkflowUtils.getPhysicalAddress(notification, recIndex);
+            }
+
             paperChannelSendClient.prepare (new PaperChannelPrepareRequest(notification,
                     notificationUtils.getRecipientFromIndex(notification, recIndex),
                     receiverAddress, eventId, analogType,
-                    attachments, relatedRequestId, discoveredAddress));
+                    attachments, relatedEventId, discoveredAddress));
 
-            auditLogEvent.generateSuccess().log();
+
+            String timelineId = paperChannelUtils.addPrepareAnalogNotificationToTimeline(notification, receiverAddress, recIndex, relatedEventId, sentAttemptMade, eventId, discoveredAddress);
+            auditLogEvent.generateSuccess("Prepare invoked timelineId={}", timelineId).log();
         } catch (Exception exc) {
             auditLogEvent.generateFailure("failed prepare exc={}", exc).log();
             throw exc;
@@ -196,11 +185,10 @@ public class PaperChannelServiceImpl implements PaperChannelService {
      *
      * @param notification notifica
      * @param recIndex indice destinatario
-     * @param isSimpleRegisteredLetter tipo invio
      * @return lista id allegati
      */
     @NotNull
-    private List<String> retrieveAttachments(NotificationInt notification, Integer recIndex, boolean isSimpleRegisteredLetter) {
+    private List<String> retrieveAttachments(NotificationInt notification, Integer recIndex) {
         AarGenerationDetailsInt aarGenerationDetails = aarUtils.getAarGenerationDetails(notification, recIndex);
 
         List<String> attachments = new ArrayList<>();
@@ -212,76 +200,85 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     }
 
     @Override
-    public void sendSimpleRegisteredLetter(NotificationInt notification, Integer recIndex, String requestId, PhysicalAddressInt receiverAddress, String productType){
+    public String sendSimpleRegisteredLetter(NotificationInt notification, Integer recIndex, String requestId, PhysicalAddressInt receiverAddress, String productType){
+        log.info("Registered Letter check if send to paperChannel - iun={} id={}", notification.getIun(), recIndex);
+        String timelineId = null;
         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
 
         if(! isNotificationAlreadyViewed) {
             log.info("Registered Letter sending to paperChannel - iun={} id={}", notification.getIun(), recIndex);
 
-            Integer sendCost = retrieveSendInfoAndInvoke(notification, recIndex, true, requestId, productType, receiverAddress);
+            // recupero gli allegati
+            List<String> attachments = retrieveAttachments(notification, recIndex);
 
-            paperChannelUtils.addSendSimpleRegisteredLetterToTimeline(notification, receiverAddress, recIndex, sendCost, productType);
-            log.info("Registered Letter sent to paperChannel - iun={} id={}", notification.getIun(), recIndex);
+            PnAuditLogEvent auditLogEvent = buildAuditLogEvent(notification.getIun(), recIndex, false, requestId, productType, attachments);
+
+
+            try {
+                Integer sendCost = paperChannelSendClient.send(
+                        new PaperChannelSendRequest(notification, notificationUtils.getRecipientFromIndex(notification, recIndex),
+                                receiverAddress, requestId, productType, attachments, paperChannelUtils.getSenderAddress(), paperChannelUtils.getSenderAddress()));
+
+                timelineId = paperChannelUtils.addSendSimpleRegisteredLetterToTimeline(notification, receiverAddress, recIndex, sendCost, productType);
+                log.info("Registered Letter sent to paperChannel - iun={} id={}", notification.getIun(), recIndex);
+                auditLogEvent.generateSuccess("send success cost={} send timelineId={}", sendCost, timelineId).log();
+
+            } catch (Exception exc) {
+                auditLogEvent.generateFailure("failed send exc={}", exc).log();
+                throw exc;
+            }
         }
         else {
             log.info("Notification is already viewed before send, registered Letter will not be sent to paperChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
         }
+
+        return timelineId;
     }
 
     @Override
-    public void sendAnalogNotification(NotificationInt notification, Integer recIndex, int sentAttemptMade,
+    public String sendAnalogNotification(NotificationInt notification, Integer recIndex, int sentAttemptMade,
                                        String prepareRequestId, PhysicalAddressInt receiverAddress, String productType){
-
+        String timelineId = null;
         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
 
         if(! isNotificationAlreadyViewed) {
             log.info("Analog notification sending to paperChannel - iun={} id={}", notification.getIun(), recIndex);
-            String relatedEventId = null;
-            if (sentAttemptMade > 0) {
-                relatedEventId = paperChannelUtils.buildPrepareAnalogDomicileEventId(notification, recIndex, sentAttemptMade - 1);
+
+            // recupero gli allegati
+            List<String> attachments = retrieveAttachments(notification, recIndex);
+
+            PnAuditLogEvent auditLogEvent = buildAuditLogEvent(notification.getIun(), recIndex, false, prepareRequestId, productType, attachments);
+
+
+            try {
+                String relatedEventId = null;
+                if (sentAttemptMade > 0) {
+                    relatedEventId = paperChannelUtils.buildPrepareAnalogDomicileEventId(notification, recIndex, sentAttemptMade - 1);
+                }
+
+                // IL sender/ar address son impostati a pagopa
+                Integer sendCost =  paperChannelSendClient.send(
+                        new PaperChannelSendRequest(notification, notificationUtils.getRecipientFromIndex(notification, recIndex),
+                                receiverAddress, prepareRequestId, productType, attachments, paperChannelUtils.getSenderAddress(), paperChannelUtils.getSenderAddress()));
+
+
+                timelineId = paperChannelUtils.addSendAnalogNotificationToTimeline(notification, receiverAddress, recIndex, sentAttemptMade, sendCost, relatedEventId, productType);
+
+                log.info("Analog notification sent to paperChannel - iun={} id={}", notification.getIun(), recIndex);
+                auditLogEvent.generateSuccess("send success cost={} send timelineId={}", sendCost, timelineId).log();
+
+            } catch (Exception exc) {
+                auditLogEvent.generateFailure("failed send exc={}", exc).log();
+                throw exc;
             }
-
-            Integer sendCost = retrieveSendInfoAndInvoke(notification, recIndex, false, prepareRequestId, productType, receiverAddress);
-
-            paperChannelUtils.addSendAnalogNotificationToTimeline(notification, receiverAddress, recIndex, sentAttemptMade, sendCost, relatedEventId, productType);
-
-            log.info("Analog notification sent to paperChannel - iun={} id={}", notification.getIun(), recIndex);
         }
         else {
             log.info("Notification is already viewed before send, paper notification will not be sent to paperChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
         }
+
+        return timelineId;
     }
 
-    /**
-     * Recupera le informazioni necessarie all'invio della send
-     * @param notification notifica
-     * @param recIndex indice destinatario
-     * @param productType tipo invio
-     * @param receiverAddress indirizzo a cui spedire
-     *
-     */
-    private Integer retrieveSendInfoAndInvoke(NotificationInt notification, Integer recIndex, boolean isSimpleRegisteredLetter,
-                                                         String prepareRequestId, String productType,
-                                                         PhysicalAddressInt receiverAddress) {
-
-        // recupero gli allegati
-        List<String> attachments = retrieveAttachments(notification, recIndex, isSimpleRegisteredLetter);
-
-        PnAuditLogEvent auditLogEvent = buildAuditLogEvent(notification.getIun(), recIndex, false, prepareRequestId, productType, attachments);
-
-        try {
-            // IL sender/ar address son impostati a pagopa
-            Integer cost = paperChannelSendClient.send(
-                    new PaperChannelSendRequest(notification, notificationUtils.getRecipientFromIndex(notification, recIndex),
-                            receiverAddress, prepareRequestId, productType, attachments, paperChannelUtils.getSenderAddress(), paperChannelUtils.getSenderAddress()));
-
-            auditLogEvent.generateSuccess("send success cost={}", cost).log();
-            return cost;
-        } catch (Exception exc) {
-            auditLogEvent.generateFailure("failed send exc={}", exc).log();
-            throw exc;
-        }
-    }
 
     @NotNull
     private PhysicalAddressInt.ANALOG_TYPE getAnalogType(NotificationInt notification) {
@@ -292,11 +289,11 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     private PnAuditLogEvent buildAuditLogEvent(String iun, int recIndex, boolean isPrepare, String requestId, String analogType, List<String> attachmentsList) {
         String attachments = attachmentsList==null?"":String.join(",", attachmentsList);
         if (isPrepare) {
-            return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_FD_RESOLVE_LOGIC, "prepareRequest requestId={} analogType={} attachments={}", requestId, analogType, attachments);
+            return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_PD_PREPARE, "prepareRequest requestId={} analogType={} attachments={}", requestId, analogType, attachments);
         }
         else
         {
-            return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_FD_SEND, "sendRequest requestId={} analogType={} attachments={}", requestId, analogType, attachments);
+            return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_PD_EXECUTE, "sendRequest requestId={} analogType={} attachments={}", requestId, analogType, attachments);
         }
     }
 

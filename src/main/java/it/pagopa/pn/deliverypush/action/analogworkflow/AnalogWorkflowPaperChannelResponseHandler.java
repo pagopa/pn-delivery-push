@@ -67,47 +67,76 @@ public class AnalogWorkflowPaperChannelResponseHandler {
 
         log.info("paperChannelPrepareResponseHandler response iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
 
+
         NotificationInt notification = notificationService.getNotificationByIun(response.getIun());
         TimelineElementInternal timelineElementInternal = paperChannelUtils.getPaperChannelNotificationTimelineElement(response.getIun(), response.getRequestId());
 
         int recIndex = ((RecipientRelatedTimelineElementDetails)timelineElementInternal.getDetails()).getRecIndex();
         String requestId = response.getRequestId();
 
-        PrepareEventInt.STATUS_CODE statusCode = PrepareEventInt.STATUS_CODE.valueOf(response.getStatusCode());
+        PnAuditLogEvent auditLogEvent = buildPrepareEventAuditLog(response.getIun(), recIndex, response);
 
-        if (statusCode == PrepareEventInt.STATUS_CODE.OK)
-        {
-            PhysicalAddressInt receiverAddress = response.getReceiverAddress();
-            String productType = response.getProductType();
+        try {
+            PrepareEventInt.STATUS_CODE statusCode = PrepareEventInt.STATUS_CODE.valueOf(response.getStatusCode());
 
-            // se era una prepare di un analog, procedo con la sendanalog, altrimenti con la send della simpleregistered
-            if (timelineElementInternal.getDetails() instanceof SendAnalogDetailsInt sendAnalogDetails){
-                log.info("paperChannelPrepareResponseHandler prepare response is for analog, sending it iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
-                int sentAttemptMade = sendAnalogDetails.getSentAttemptMade();
-                this.paperChannelService.sendAnalogNotification(notification, recIndex, sentAttemptMade, requestId, receiverAddress, productType);
+            if (statusCode == PrepareEventInt.STATUS_CODE.OK)
+            {
+                handlerPrepareOK(response, notification, timelineElementInternal, recIndex, requestId, auditLogEvent);
             }
-            else if ( timelineElementInternal.getDetails() instanceof SimpleRegisteredLetterDetailsInt ){
-                log.info("paperChannelPrepareResponseHandler prepare response is for simple registered letter, now registered letter can be sent iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
+            else if (statusCode == PrepareEventInt.STATUS_CODE.KOUNREACHABLE) {
 
-                this.paperChannelService.sendSimpleRegisteredLetter(notification, recIndex, requestId, receiverAddress, productType);
+                handlePrepareKOUNREACHABLE(response, notification, timelineElementInternal, recIndex, requestId, auditLogEvent);
             }
-            else
-                throw new PnInternalException("Unexpected detail of timelineElement timeline=" + requestId, ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED);
+        } catch (Exception exc) {
+            auditLogEvent.generateFailure("Unexpected error exc=", exc).log();
+            throw exc;
         }
-        else if (statusCode == PrepareEventInt.STATUS_CODE.KOUNREACHABLE) {
+    }
 
-            // se era una prepare di un analog, procedo con la sendanalog, altrimenti con la send della simpleregistered
-            if (timelineElementInternal.getCategory() == TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE){
-                log.info("paperChannelPrepareResponseHandler prepare response is for analog, setting as unreachable iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
-                this.analogWorkflowHandler.nextWorkflowStep(notification, recIndex, AnalogWorkflowHandler.ATTEMPT_MADE_UNREACHABLE, null);
-            }
-            else if (timelineElementInternal.getCategory() == TimelineElementCategoryInt.PREPARE_SIMPLE_REGISTERED_LETTER){
-                log.error("paperChannelPrepareResponseHandler prepare response is for simple registered letter  event is KOUNREACHABLE and is not expected iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
+    private void handlePrepareKOUNREACHABLE(PrepareEventInt response, NotificationInt notification, TimelineElementInternal timelineElementInternal, int recIndex, String requestId, PnAuditLogEvent auditLogEvent) {
+        // se era una prepare di un analog, procedo con nextworkflow
+        if (timelineElementInternal.getCategory() == TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE){
+            log.info("paperChannelPrepareResponseHandler prepare response is for analog, setting as unreachable iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
+            this.analogWorkflowHandler.nextWorkflowStep(notification, recIndex, AnalogWorkflowHandler.ATTEMPT_MADE_UNREACHABLE, null);
+        }
+        else if (timelineElementInternal.getCategory() == TimelineElementCategoryInt.PREPARE_SIMPLE_REGISTERED_LETTER){
+            log.error("paperChannelPrepareResponseHandler prepare response is for simple registered letter  event is KOUNREACHABLE and is not expected iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
 
-                throw new PnInternalException("Unexpected KOUNREACHABLE for simple registered letter requestId=" + requestId, ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED);
-            }
-            else
-                throw new PnInternalException("Unexpected detail of timelineElement timeline=" + requestId, ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED);
+            auditLogEvent.generateFailure("Unexpected KOUNREACHABLE for simple registered letter requestId=" + requestId).log();
+            throw new PnInternalException("Unexpected KOUNREACHABLE for simple registered letter requestId=" + requestId, ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED);
+        }
+        else
+        {
+            auditLogEvent.generateFailure("Unexpected detail of timelineElement on KOUNREACHABLE event timeline=" + requestId).log();
+            throw new PnInternalException("Unexpected detail of timelineElement timeline=" + requestId, ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED);
+        }
+    }
+
+    private void handlerPrepareOK(PrepareEventInt response, NotificationInt notification, TimelineElementInternal timelineElementInternal, int recIndex, String requestId, PnAuditLogEvent auditLogEvent) {
+        PhysicalAddressInt receiverAddress = response.getReceiverAddress();
+        String productType = response.getProductType();
+
+        // se era una prepare di un analog, procedo con la sendanalog, altrimenti con la send della simpleregistered
+        if (timelineElementInternal.getDetails() instanceof SendAnalogDetailsInt sendAnalogDetails){
+            log.info("paperChannelPrepareResponseHandler prepare response is for analog, sending it iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
+            int sentAttemptMade = sendAnalogDetails.getSentAttemptMade();
+
+
+            String timelineId = this.paperChannelService.sendAnalogNotification(notification, recIndex, sentAttemptMade, requestId, receiverAddress, productType);
+            String auditlogmessage = timelineId==null?"nothing sended":"generated timelineId="+timelineId;
+            auditLogEvent.generateSuccess(auditlogmessage).log();
+        }
+        else if ( timelineElementInternal.getDetails() instanceof SimpleRegisteredLetterDetailsInt ){
+            log.info("paperChannelPrepareResponseHandler prepare response is for simple registered letter, now registered letter can be sent iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
+
+            String timelineId = this.paperChannelService.sendSimpleRegisteredLetter(notification, recIndex, requestId, receiverAddress, productType);
+            String auditlogmessage = timelineId==null?"nothing sended":"generated timelineId="+timelineId;
+            auditLogEvent.generateSuccess(auditlogmessage).log();
+        }
+        else
+        {
+            auditLogEvent.generateFailure("Unexpected detail of timelineElement on OK event timeline=" + requestId).log();
+            throw new PnInternalException("Unexpected detail of timelineElement timeline=" + requestId, ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED);
         }
     }
 
@@ -163,21 +192,34 @@ public class AnalogWorkflowPaperChannelResponseHandler {
     }
 
     private void handleStatusOK(SendEventInt response, SendAnalogDetailsInt sendPaperDetails, NotificationInt notification, Integer recIndex, List<LegalFactsIdInt> legalFactsListEntryIds) {
-        PnAuditLogEvent logEvent = buildAuditLog(notification.getIun(), recIndex, response, sendPaperDetails, legalFactsListEntryIds);
-        logEvent.generateSuccess().log();
+        PnAuditLogEvent logEvent = buildSendEventAuditLog(notification.getIun(), recIndex, response, sendPaperDetails, legalFactsListEntryIds);
+
         // La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
-        analogWorkflowUtils.addAnalogSuccessAttemptToTimeline(notification, sendPaperDetails.getSentAttemptMade(), legalFactsListEntryIds, response.getDiscoveredAddress(), null, sendPaperDetails);
-        completionWorkFlow.completionAnalogWorkflow(notification, recIndex, legalFactsListEntryIds, response.getStatusDateTime(), sendPaperDetails.getPhysicalAddress(), EndWorkflowStatus.SUCCESS);
+        try {
+            String timelineId = analogWorkflowUtils.addAnalogSuccessAttemptToTimeline(notification, sendPaperDetails.getSentAttemptMade(), legalFactsListEntryIds, response.getDiscoveredAddress(), null, sendPaperDetails);
+            completionWorkFlow.completionAnalogWorkflow(notification, recIndex, legalFactsListEntryIds, response.getStatusDateTime(), sendPaperDetails.getPhysicalAddress(), EndWorkflowStatus.SUCCESS);
+
+            logEvent.generateSuccess("generated success timelineid={}", timelineId).log();
+        } catch (Exception e) {
+            logEvent.generateFailure("Error handling execute response ex={}", e).log();
+            throw  e;
+        }
     }
 
     private void handleStatusKO(SendEventInt response, SendAnalogDetailsInt sendPaperDetails, NotificationInt notification, Integer recIndex, List<LegalFactsIdInt> legalFactsListEntryIds) {
-        PnAuditLogEvent logEvent = buildAuditLog(notification.getIun(), recIndex, response, sendPaperDetails, legalFactsListEntryIds);
-        logEvent.generateSuccess("WARNING Analog notification failed with failure cause {} ", response.getDeliveryFailureCause()).log();
+        PnAuditLogEvent logEvent = buildSendEventAuditLog(notification.getIun(), recIndex, response, sendPaperDetails, legalFactsListEntryIds);
 
-        // External channel non è riuscito a effettuare la notificazione, si passa al prossimo step del workflow
-        analogWorkflowUtils.addAnalogFailureAttemptToTimeline(notification, sendPaperDetails.getSentAttemptMade(), legalFactsListEntryIds, response.getDiscoveredAddress(), response.getDeliveryFailureCause() == null ? null : List.of(response.getDeliveryFailureCause()), sendPaperDetails);
-        int sentAttemptMade = sendPaperDetails.getSentAttemptMade() + 1;
-        analogWorkflowHandler.nextWorkflowStep(notification, recIndex, sentAttemptMade, response.getStatusDateTime());
+        try {
+            // External channel non è riuscito a effettuare la notificazione, si passa al prossimo step del workflow
+            String timelineId = analogWorkflowUtils.addAnalogFailureAttemptToTimeline(notification, sendPaperDetails.getSentAttemptMade(), legalFactsListEntryIds, response.getDiscoveredAddress(), response.getDeliveryFailureCause() == null ? null : List.of(response.getDeliveryFailureCause()), sendPaperDetails);
+            int sentAttemptMade = sendPaperDetails.getSentAttemptMade() + 1;
+            analogWorkflowHandler.nextWorkflowStep(notification, recIndex, sentAttemptMade, response.getStatusDateTime());
+            logEvent.generateSuccess("WARNING Analog notification failed with failure cause {} generated failure timelineid={}", response.getDeliveryFailureCause(), timelineId).log();
+
+        } catch (Exception e) {
+            logEvent.generateFailure("Error handling execute response ex={}", e).log();
+            throw  e;
+        }
     }
 
     private void handleStatusIgnored(SendEventInt event, String iun, Integer recIndex) {
@@ -185,9 +227,14 @@ public class AnalogWorkflowPaperChannelResponseHandler {
     }
 
 
-    private PnAuditLogEvent buildAuditLog(  String iun, int recIndex, SendEventInt response, SendAnalogDetailsInt sendPaperDetails, List<LegalFactsIdInt> legalFactsListEntryIds ){
+    private PnAuditLogEvent buildSendEventAuditLog(  String iun, int recIndex, SendEventInt response, SendAnalogDetailsInt sendPaperDetails, List<LegalFactsIdInt> legalFactsListEntryIds ){
         String attachments = legalFactsListEntryIds==null?"":legalFactsListEntryIds.stream().map(LegalFactsIdInt::getKey).collect(Collectors.joining(","));
-        return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_FD_RECEIVE, "Analog workflow Paper channel response iun={} id={} with status={} and sentAttemptMade={} attachments={}", response.getStatusCode(), sendPaperDetails.getSentAttemptMade(), attachments);
+        return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_PD_EXECUTE_RECEIVE, "Analog workflow Paper channel execute response requestId={} statusCode={} sentAttemptMade={} attachments={} relatedRequestId={}", response.getRequestId(), response.getStatusCode(), sendPaperDetails.getSentAttemptMade(), attachments, sendPaperDetails.getRelatedRequestId());
+    }
+
+    private PnAuditLogEvent buildPrepareEventAuditLog(  String iun, int recIndex, PrepareEventInt response){
+
+        return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_PD_PREPARE_RECEIVE, "Analog workflow Paper channel prepare response requestId={} statusCode={}", response.getRequestId(), response.getStatusCode());
     }
 
 

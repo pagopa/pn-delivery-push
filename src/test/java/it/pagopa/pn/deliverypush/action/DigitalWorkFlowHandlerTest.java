@@ -1833,7 +1833,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(externalChannel.getDigitalCodesSuccess()).thenReturn(List.of("C003"));
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
         Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_RECEIVE), Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateSuccess()).thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
 
         //WHEN
         handlerExtChannel.handleExternalChannelResponse(extChannelResponse);
@@ -1854,7 +1854,7 @@ class DigitalWorkFlowHandlerTest {
                 extChannelResponse.getGeneratedMessage(),
                 digitalAddressFeedback);
 
-        Mockito.verify( auditLogEvent).generateSuccess();
+        Mockito.verify( auditLogEvent).generateSuccess(Mockito.anyString(), Mockito.any());
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
     }

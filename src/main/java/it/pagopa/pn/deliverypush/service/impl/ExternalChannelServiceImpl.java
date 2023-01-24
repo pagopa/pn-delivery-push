@@ -125,7 +125,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
 
             }
 
-            logEvent.generateSuccess().log();
+            logEvent.generateSuccess("successful sent eventId={}", eventId).log();
             return eventId;
         } catch (Exception e) {
             logEvent.generateFailure("Error in sendDigitalNotification, error={} iun={} id={}", e.getMessage(), notification.getIun(), recIndex).log();
@@ -142,7 +142,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     public void sendCourtesyNotification(NotificationInt notification, CourtesyDigitalAddressInt courtesyAddress, Integer recIndex, String eventId) {
         log.debug("Start sendCourtesyNotification - iun {} id {}", notification.getIun(), recIndex);
 
-        PnAuditLogEvent logEvent = buildAuditLogEvent(notification.getIun(), courtesyAddress, recIndex);
+        PnAuditLogEvent logEvent = buildAuditLogEvent(notification.getIun(), courtesyAddress, recIndex, eventId);
 
         try {
             DigitalParameters digitalParameters = retrieveDigitalParameters(notification, recIndex);
@@ -174,13 +174,13 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         throw new PnInternalException("Unsupported LEGAL_DIGITAL_ADDRESS_TYPE " + legalDigitalAddressInt.getType().getValue(), PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ADDRESSTYPENOTSUPPORTED);
     }
 
-    private PnAuditLogEvent buildAuditLogEvent(String iun, CourtesyDigitalAddressInt courtesyAddress, int recIndex) {
+    private PnAuditLogEvent buildAuditLogEvent(String iun, CourtesyDigitalAddressInt courtesyAddress, int recIndex, String eventId) {
         if (courtesyAddress.getType() == CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL) {
-            return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_AD_SEND_EMAIL, "sendEmailMessage");
+            return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_AD_SEND_EMAIL, "sendEmailMessage eventId={}", eventId);
         }
         else
         {
-            return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_AD_SEND_SMS, "sendSMSMessage");
+            return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_AD_SEND_SMS, "sendSMSMessage eventId={}", eventId);
         }
     }
 

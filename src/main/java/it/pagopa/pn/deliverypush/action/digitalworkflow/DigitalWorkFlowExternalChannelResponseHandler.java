@@ -124,31 +124,36 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
 
         PnAuditLogEvent logEvent =buildAuditLog( digitalResultInfos );
 
-        logEvent.generateSuccess("WARNING Digital notification failed with eventCode={} eventDetails={}",
-                digitalResultInfos.getResponse().getEventCode(), digitalResultInfos.getResponse().getEventDetails()).log();
+        try {
+            log.debug("Response is for 'DELIVERY FAILURE' generatedMessage={} - iun={} id={}", digitalResultInfos.getResponse().getGeneratedMessage(), iun, digitalResultInfos.getRecIndex());
 
-        log.debug("Response is for 'DELIVERY FAILURE' generatedMessage={} - iun={} id={}", digitalResultInfos.getResponse().getGeneratedMessage(), iun, digitalResultInfos.getRecIndex());
+            // unschedulo eventuale timer programmato di invio
+            digitalWorkFlowHandler.unscheduleTimeoutAction(iun, digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
 
-        // unschedulo eventuale timer programmato di invio
-        digitalWorkFlowHandler.unscheduleTimeoutAction(iun, digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
+            DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
+                    .retryNumber(digitalResultInfos.getRetryNumber())
+                    .eventTimestamp(digitalResultInfos.getResponse().getEventTimestamp())
+                    .digitalAddressSource(digitalResultInfos.getDigitalAddressSourceInt())
+                    .digitalAddress(digitalResultInfos.getDigitalAddressInt())
+                    .build();
 
-        DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
-                .retryNumber(digitalResultInfos.getRetryNumber())
-                .eventTimestamp(digitalResultInfos.getResponse().getEventTimestamp())
-                .digitalAddressSource(digitalResultInfos.getDigitalAddressSourceInt())
-                .digitalAddress(digitalResultInfos.getDigitalAddressInt())
-                .build();
-        
-        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(
-                digitalResultInfos.getNotification(),
-                digitalResultInfos.getStatus(),
-                digitalResultInfos.getResponse().getEventDetails() == null ? new ArrayList<>() : List.of(digitalResultInfos.getResponse().getEventDetails()),
-                digitalResultInfos.getRecIndex(),
-                digitalResultInfos.getResponse().getGeneratedMessage(),
-                digitalAddressFeedback
-        );
+            String timelineId = digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(
+                    digitalResultInfos.getNotification(),
+                    digitalResultInfos.getStatus(),
+                    digitalResultInfos.getResponse().getEventDetails() == null ? new ArrayList<>() : List.of(digitalResultInfos.getResponse().getEventDetails()),
+                    digitalResultInfos.getRecIndex(),
+                    digitalResultInfos.getResponse().getGeneratedMessage(),
+                    digitalAddressFeedback
+            );
 
-        digitalWorkFlowHandler.nextWorkflowStep( digitalResultInfos );
+            digitalWorkFlowHandler.nextWorkflowStep( digitalResultInfos );
+            logEvent.generateSuccess("WARNING Digital notification failed with eventCode={} eventDetails={} timelineId={}",
+                    digitalResultInfos.getResponse().getEventCode(), digitalResultInfos.getResponse().getEventDetails(), timelineId).log();
+
+        } catch (Exception e) {
+            logEvent.generateFailure("Error handleNotSuccessfulSending exc={}", e).log();
+           throw e;
+        }
     }
 
 
@@ -158,39 +163,46 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
         log.info("Start handleSuccessfulSending with eventCode={} generatedMessage={} - iun={} id={}",  digitalResultInfos.getResponse().getGeneratedMessage(), digitalResultInfos.getResponse().getEventCode(),  iun, digitalResultInfos.getRecIndex());
         PnAuditLogEvent logEvent = buildAuditLog( digitalResultInfos );
 
-        //AVVENUTA CONSEGNA
+        try {
+            //AVVENUTA CONSEGNA
 
-        logEvent.generateSuccess().log();
 
-        // unschedulo eventuale timer programmato di invio
-        digitalWorkFlowHandler.unscheduleTimeoutAction(iun, digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
+            // unschedulo eventuale timer programmato di invio
+            digitalWorkFlowHandler.unscheduleTimeoutAction(iun, digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
 
-        DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
-                .retryNumber(digitalResultInfos.getRetryNumber())
-                .eventTimestamp(digitalResultInfos.getResponse().getEventTimestamp())
-                .digitalAddressSource(digitalResultInfos.getDigitalAddressSourceInt())
-                .digitalAddress(digitalResultInfos.getDigitalAddressInt())
-                .build();
-        
-        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(
-                digitalResultInfos.getNotification(),
-                digitalResultInfos.getStatus(),
-                Collections.emptyList(),
-                digitalResultInfos.getRecIndex(),
-                digitalResultInfos.getResponse().getGeneratedMessage(),
-                digitalAddressFeedback
-        );
+            DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
+                    .retryNumber(digitalResultInfos.getRetryNumber())
+                    .eventTimestamp(digitalResultInfos.getResponse().getEventTimestamp())
+                    .digitalAddressSource(digitalResultInfos.getDigitalAddressSourceInt())
+                    .digitalAddress(digitalResultInfos.getDigitalAddressInt())
+                    .build();
 
-        log.info("Notification sent successfully, starting completion workflow - iun={} id={}",  digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex());
+            digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(
+                    digitalResultInfos.getNotification(),
+                    digitalResultInfos.getStatus(),
+                    Collections.emptyList(),
+                    digitalResultInfos.getRecIndex(),
+                    digitalResultInfos.getResponse().getGeneratedMessage(),
+                    digitalAddressFeedback
+            );
 
-        //La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
-        completionWorkflow.completionDigitalWorkflow(
-                digitalResultInfos.getNotification(),
-                digitalResultInfos.getRecIndex(),
-                digitalResultInfos.getResponse().getEventTimestamp(),
-                digitalResultInfos.getDigitalAddressInt(),
-                EndWorkflowStatus.SUCCESS
-        );
+            log.info("Notification sent successfully, starting completion workflow - iun={} id={}",  digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex());
+
+            //La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
+            String timelineId = completionWorkflow.completionDigitalWorkflow(
+                    digitalResultInfos.getNotification(),
+                    digitalResultInfos.getRecIndex(),
+                    digitalResultInfos.getResponse().getEventTimestamp(),
+                    digitalResultInfos.getDigitalAddressInt(),
+                    EndWorkflowStatus.SUCCESS
+            );
+
+            logEvent.generateSuccess("handleSuccessfulSending timelineId={}", timelineId).log();
+
+        } catch (Exception e) {
+            logEvent.generateFailure("Error handleSuccessfulSending exc={}", e).log();
+            throw e;
+        }
     }
 
     void handleStatusProgress(DigitalWorkFlowHandler.DigitalResultInfos digitalResultInfos, boolean shouldRetry) {
