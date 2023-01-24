@@ -45,6 +45,7 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionsp
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
+import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.PaperChannelService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -88,6 +89,7 @@ import static org.awaitility.Awaitility.await;
         PaperChannelUtils.class,
         PaperChannelResponseHandler.class,
         AnalogWorkflowPaperChannelResponseHandler.class,
+        AuditLogServiceImpl.class,
         DigitalWorkFlowRetryHandler.class,
         CompletionWorkFlowHandler.class,
         PublicRegistryResponseHandler.class,
@@ -217,7 +219,9 @@ class DigitalTestIT {
 
     @Autowired
     private PaperChannelUtils paperChannelUtils;
-    
+
+    @Autowired
+    private AuditLogService auditLogService;
 
     @BeforeEach
     public void setup() {

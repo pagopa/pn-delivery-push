@@ -82,11 +82,14 @@ public class AnalogWorkflowUtils {
         return false;
     }
 
-    public void addAnalogFailureAttemptToTimeline(NotificationInt notification, int sentAttemptMade, List<LegalFactsIdInt> attachmentKeys,
+    public String addAnalogFailureAttemptToTimeline(NotificationInt notification, int sentAttemptMade, List<LegalFactsIdInt> attachmentKeys,
                                                   PhysicalAddressInt newAddress, List<String> errors, SendAnalogDetailsInt sendPaperDetails) {
-        addTimelineElement(
-                timelineUtils.buildAnalogFailureAttemptTimelineElement(notification, sentAttemptMade, attachmentKeys, newAddress, errors, sendPaperDetails),
+        TimelineElementInternal timelineElementInternal = timelineUtils.buildAnalogFailureAttemptTimelineElement(notification, sentAttemptMade, attachmentKeys, newAddress, errors, sendPaperDetails);
+
+        addTimelineElement(timelineElementInternal,
                 notification);
+
+        return timelineElementInternal.getElementId();
     }
 
 
@@ -99,11 +102,14 @@ public class AnalogWorkflowUtils {
                 notification);
     }
 
-    public void addAnalogSuccessAttemptToTimeline(NotificationInt notification, int sentAttemptMade, List<LegalFactsIdInt> attachmentKeys,
+    public String addAnalogSuccessAttemptToTimeline(NotificationInt notification, int sentAttemptMade, List<LegalFactsIdInt> attachmentKeys,
                                                   PhysicalAddressInt newAddress, List<String> errors, SendAnalogDetailsInt sendPaperDetails) {
-        addTimelineElement(
-                timelineUtils.buildAnalogSuccessAttemptTimelineElement(notification, sentAttemptMade, attachmentKeys, newAddress, errors, sendPaperDetails),
+        TimelineElementInternal timelineElementInternal = timelineUtils.buildAnalogSuccessAttemptTimelineElement(notification, sentAttemptMade, attachmentKeys, newAddress, errors, sendPaperDetails);
+
+        addTimelineElement(timelineElementInternal,
                 notification);
+
+        return timelineElementInternal.getElementId();
     }
 
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {

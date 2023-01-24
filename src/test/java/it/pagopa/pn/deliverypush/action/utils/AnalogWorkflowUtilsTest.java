@@ -143,6 +143,8 @@ class AnalogWorkflowUtilsTest {
                 .sentAttemptMade(0)
                 .build();
 
+        Mockito.when(timelineUtils.buildAnalogFailureAttemptTimelineElement(Mockito.any(), Mockito.anyInt(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mockito.mock(TimelineElementInternal.class));
+
 
         analogWorkflowUtils.addAnalogFailureAttemptToTimeline(notificationInt, 1, attachmentKeys, newAddress, errors, sendPaperDetails);
 

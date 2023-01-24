@@ -65,18 +65,6 @@ public class PaperChannelUtils {
     }
 
 
-
-    public String buildSendAnalogDomicileEventId(NotificationInt notification, Integer recIndex, int sentAttemptMade){
-        return TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(
-                EventId.builder()
-                        .iun(notification.getIun())
-                        .recIndex(recIndex)
-                        .sentAttemptMade(sentAttemptMade)
-                        .build()
-        );
-    }
-
-
     public String buildSendAnalogFeedbackEventId(NotificationInt notification, Integer recIndex, int sentAttemptMade){
         return TimelineEventId.SEND_ANALOG_FEEDBACK.buildEventId(
                 EventId.builder()
@@ -87,36 +75,40 @@ public class PaperChannelUtils {
         );
     }
 
-    public void addPrepareSimpleRegisteredLetterToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex,
+    public String addPrepareSimpleRegisteredLetterToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex,
                                                            String eventId, Integer numberOfPages) {
-        addTimelineElement(
-                timelineUtils.buildPrepareSimpleRegisteredLetterTimelineElement(recIndex, notification, physicalAddress, eventId, numberOfPages),
+        TimelineElementInternal timelineElementInternal = timelineUtils.buildPrepareSimpleRegisteredLetterTimelineElement(recIndex, notification, physicalAddress, eventId, numberOfPages);
+        addTimelineElement(timelineElementInternal,
                 notification
         );
+        return timelineElementInternal.getElementId();
     }
 
-    public void addSendSimpleRegisteredLetterToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex,
+    public String addSendSimpleRegisteredLetterToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex,
                                                         Integer analogCost, String productType) {
-        addTimelineElement(
-                timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification, physicalAddress, analogCost, productType),
+        TimelineElementInternal timelineElementInternal = timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification, physicalAddress, analogCost, productType);
+        addTimelineElement(timelineElementInternal,
                 notification
         );
+        return timelineElementInternal.getElementId();
     }
 
 
-    public void addPrepareAnalogNotificationToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex, String relatedRequestId,
+    public String addPrepareAnalogNotificationToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex, String relatedRequestId,
                                                     int sentAttemptMade, String eventId, PhysicalAddressInt discoveredAddress) {
-        addTimelineElement(
-                timelineUtils.buildPrepareAnalogNotificationTimelineElement(physicalAddress, recIndex, notification, relatedRequestId, sentAttemptMade, eventId, discoveredAddress),
+        TimelineElementInternal timelineElementInternal = timelineUtils.buildPrepareAnalogNotificationTimelineElement(physicalAddress, recIndex, notification, relatedRequestId, sentAttemptMade, eventId, discoveredAddress);
+        addTimelineElement(timelineElementInternal,
                 notification
         );
+        return timelineElementInternal.getElementId();
     }
-    public void addSendAnalogNotificationToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex,
+    public String addSendAnalogNotificationToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex,
                                                     int sentAttemptMade, Integer analogCost, String relatedRequestId, String productType) {
-        addTimelineElement(
-                timelineUtils.buildSendAnalogNotificationTimelineElement(physicalAddress, recIndex, notification, relatedRequestId, sentAttemptMade, analogCost, productType),
+        TimelineElementInternal timelineElementInternal = timelineUtils.buildSendAnalogNotificationTimelineElement(physicalAddress, recIndex, notification, relatedRequestId, sentAttemptMade, analogCost, productType);
+        addTimelineElement(timelineElementInternal,
                 notification
         );
+        return timelineElementInternal.getElementId();
     }
 
 
