@@ -132,7 +132,9 @@ public class TimelineUtils {
     }
 
 
-    public TimelineElementInternal buildDigitalFeedbackTimelineElement(NotificationInt notification, 
+    public TimelineElementInternal buildDigitalFeedbackTimelineElement(
+                                                                       String digitalDomicileTimelineId,
+                                                                       NotificationInt notification,
                                                                        ResponseStatusInt status,
                                                                        List<String> errors,
                                                                        int recIndex,
@@ -164,7 +166,7 @@ public class TimelineUtils {
                                         .build())
                                 :null
                 )
-                .requestTimelineId(elementId)
+                .requestTimelineId(digitalDomicileTimelineId)
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()

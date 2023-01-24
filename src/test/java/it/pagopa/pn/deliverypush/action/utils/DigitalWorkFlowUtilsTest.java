@@ -267,6 +267,7 @@ class DigitalWorkFlowUtilsTest {
                 .build();
         
         Mockito.when(timelineUtils.buildDigitalFeedbackTimelineElement(
+                "IUN-01_event_idx_0",
                 notification,
                 status,
                 Collections.emptyList(),
@@ -276,6 +277,7 @@ class DigitalWorkFlowUtilsTest {
                 .thenReturn(timelineElementInternal);
 
         digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(
+                "IUN-01_event_idx_0",
                 notification,
                 status,
                 Collections.emptyList(),

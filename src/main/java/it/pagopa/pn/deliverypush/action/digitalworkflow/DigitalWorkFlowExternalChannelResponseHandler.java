@@ -146,6 +146,7 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
                 .build();
         
         digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(
+                digitalResultInfos.getTimelineElementInternal()==null?"":digitalResultInfos.getTimelineElementInternal().getElementId(),
                 digitalResultInfos.getNotification(),
                 digitalResultInfos.getStatus(),
                 digitalResultInfos.getResponse().getEventDetails() == null ? new ArrayList<>() : List.of(digitalResultInfos.getResponse().getEventDetails()),
@@ -179,6 +180,7 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
                 .build();
         
         digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(
+                digitalResultInfos.getTimelineElementInternal()==null?"":digitalResultInfos.getTimelineElementInternal().getElementId(),
                 digitalResultInfos.getNotification(),
                 digitalResultInfos.getStatus(),
                 Collections.emptyList(),

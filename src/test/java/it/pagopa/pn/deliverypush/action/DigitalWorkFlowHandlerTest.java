@@ -112,7 +112,7 @@ class DigitalWorkFlowHandlerTest {
                                 .build())
                         .lastAttemptDate(lastAttemptMade.getLastAttemptDate())
                         .build());
-        
+
         
         NotificationInt notification = getNotification();
 
@@ -673,6 +673,7 @@ class DigitalWorkFlowHandlerTest {
 
         //THEN
         Mockito.verify(digitalWorkFlowUtils).addDigitalFeedbackTimelineElement(
+                Mockito.any(),
                 Mockito.any(NotificationInt.class),
                 Mockito.eq(ResponseStatusInt.KO),
                 Mockito.any(),
@@ -789,6 +790,7 @@ class DigitalWorkFlowHandlerTest {
         );
         
         Mockito.verify(digitalWorkFlowUtils).addDigitalFeedbackTimelineElement(
+                Mockito.any(),
                 Mockito.any(NotificationInt.class),
                 Mockito.eq(ResponseStatusInt.KO),
                 Mockito.any(),
@@ -1408,6 +1410,7 @@ class DigitalWorkFlowHandlerTest {
 
         //THEN
         Mockito.verify(digitalWorkFlowUtils, Mockito.never()).addDigitalFeedbackTimelineElement(
+                Mockito.any(),
                 Mockito.any(NotificationInt.class),
                 Mockito.eq(ResponseStatusInt.KO),
                 Mockito.any(), 
@@ -1469,6 +1472,7 @@ class DigitalWorkFlowHandlerTest {
 
         //THEN
         Mockito.verify(digitalWorkFlowUtils, Mockito.never()).addDigitalFeedbackTimelineElement(
+                Mockito.any(),
                 Mockito.any(NotificationInt.class), 
                 Mockito.eq(ResponseStatusInt.KO),
                 Mockito.any(),
@@ -1540,6 +1544,7 @@ class DigitalWorkFlowHandlerTest {
 
         //THEN
         Mockito.verify(digitalWorkFlowUtils, Mockito.times(1)).addDigitalFeedbackTimelineElement(
+                Mockito.any(),
                 Mockito.any(NotificationInt.class), 
                 Mockito.eq(ResponseStatusInt.KO),
                 Mockito.any(),
@@ -1611,6 +1616,7 @@ class DigitalWorkFlowHandlerTest {
 
         //THEN
         Mockito.verify(digitalWorkFlowUtils, Mockito.times(1)).addDigitalFeedbackTimelineElement(
+                Mockito.any(),
                 Mockito.any(NotificationInt.class), 
                 Mockito.eq(ResponseStatusInt.KO),
                 Mockito.any(), 
@@ -1689,6 +1695,7 @@ class DigitalWorkFlowHandlerTest {
                 .build();
         
         Mockito.verify(digitalWorkFlowUtils).addDigitalFeedbackTimelineElement(
+                null,
                 notification, 
                 ResponseStatusInt.KO,
                 Collections.emptyList(),
@@ -1812,6 +1819,7 @@ class DigitalWorkFlowHandlerTest {
                 .build();
         
         Mockito.verify(digitalWorkFlowUtils).addDigitalFeedbackTimelineElement(
+                null,
                 notification, 
                 ResponseStatusInt.OK,
                 Collections.emptyList(),

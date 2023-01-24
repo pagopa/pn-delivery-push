@@ -225,7 +225,9 @@ public class DigitalWorkFlowUtils {
         );
     }
 
-    public void addDigitalFeedbackTimelineElement(NotificationInt notification, 
+    public void addDigitalFeedbackTimelineElement(
+                                                  String digitalDomicileTimeLineId,
+                                                  NotificationInt notification,
                                                   ResponseStatusInt status, 
                                                   List<String> errors,
                                                   int recIndex,
@@ -233,7 +235,9 @@ public class DigitalWorkFlowUtils {
                                                   DigitalAddressFeedback digitalAddressInfo
                                                   ) {
         addTimelineElement(
-                timelineUtils.buildDigitalFeedbackTimelineElement(notification, status, errors, recIndex, digitalMessageReference, digitalAddressInfo),
+                timelineUtils.buildDigitalFeedbackTimelineElement(
+                        digitalDomicileTimeLineId,notification, status, errors, recIndex, digitalMessageReference, digitalAddressInfo
+                ),
                 notification
         );
     }
