@@ -5,25 +5,20 @@ import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationRequest;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
-import it.pagopa.pn.deliverypush.service.SchedulerService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.*;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Component
+@AllArgsConstructor
 @Slf4j
 public class StartWorkflowHandler {
     private final SaveLegalFactsService saveLegalFactsService;
@@ -33,23 +28,7 @@ public class StartWorkflowHandler {
     private final AttachmentUtils attachmentUtils;
     private final NotificationUtils notificationUtils;
     private final SchedulerService schedulerService;
-    
-    public StartWorkflowHandler(
-            SaveLegalFactsService saveLegalFactsService,
-            NotificationService notificationService,
-            TimelineService timelineService,
-            TimelineUtils timelineUtils,
-            AttachmentUtils checkAttachmentUtils,
-            NotificationUtils notificationUtils,
-            SchedulerService schedulerService) {
-        this.saveLegalFactsService = saveLegalFactsService;
-        this.notificationService = notificationService;
-        this.timelineService = timelineService;
-        this.timelineUtils = timelineUtils;
-        this.attachmentUtils = checkAttachmentUtils;
-        this.notificationUtils = notificationUtils;
-        this.schedulerService = schedulerService;
-    }
+    private final DocumentCreationRequestService documentCreationRequestService;
     
     /**
      * Start new Notification Workflow. For all notification recipient send courtesy message and start choose delivery type
@@ -66,12 +45,12 @@ public class StartWorkflowHandler {
 
             saveNotificationReceivedLegalFacts(notification);
 
-            for (NotificationRecipientInt recipient : notification.getRecipients()) {
+/*            for (NotificationRecipientInt recipient : notification.getRecipients()) {
                 Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
                 String quickAccessLinkToken = quickAccessLinkTokens.get(recipient.getInternalId());
                 log.debug( "Get quickAccessToken={} for iun={} recIndex={}", quickAccessLinkToken, iun, recIndex );
                 scheduleStartRecipientWorkflow(iun, recIndex, new RecipientsWorkflowDetails(quickAccessLinkToken));
-            }
+            }*/
         } catch (PnValidationException ex) {
             handleValidationError(notification, ex);
         }
@@ -80,12 +59,14 @@ public class StartWorkflowHandler {
     private void saveNotificationReceivedLegalFacts(NotificationInt notification) {
         // salvo il legalfactid di avvenuta ricezione da parte di PN
         String legalFactId = saveLegalFactsService.saveNotificationReceivedLegalFact(notification);
-
+        documentCreationRequestService.addDocumentCreationRequest(legalFactId, notification.getIun(), DocumentCreationRequest.DocumentCreationType.SENDER_ACK );
+/*
         // cambio lo stasto degli attachment in ATTACHED
         attachmentUtils.changeAttachmentsStatusToAttached(notification);
 
         // aggiungo l'evento in timeline
         addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification, legalFactId), notification);
+*/
     }
     
     private void scheduleStartRecipientWorkflow(String iun, Integer recIndex, RecipientsWorkflowDetails details) {

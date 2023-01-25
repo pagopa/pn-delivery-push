@@ -1,8 +1,8 @@
 package it.pagopa.pn.deliverypush.action;
 
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.deliverypush.action.startworkflow.StartWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.AttachmentUtils;
+import it.pagopa.pn.deliverypush.action.startworkflow.StartWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -12,10 +12,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSende
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotMatchingShaException;
-import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
-import it.pagopa.pn.deliverypush.service.SchedulerService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,6 +37,8 @@ class StartWorkflowHandlerTest {
     private AttachmentUtils checkAttachmentUtils;
     @Mock
     private SchedulerService schedulerService;
+    @Mock
+    private DocumentCreationRequestService documentCreationRequestService;
     
     private StartWorkflowHandler handler;
     
@@ -49,7 +48,7 @@ class StartWorkflowHandlerTest {
         
         handler = new StartWorkflowHandler(saveLegalFactsService, notificationService,
                 timelineService, timelineUtils, checkAttachmentUtils,
-                notificationUtils, schedulerService);
+                notificationUtils, schedulerService, documentCreationRequestService);
     }
 
     @ExtendWith(MockitoExtension.class)

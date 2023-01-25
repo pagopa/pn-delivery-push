@@ -1,3 +1,5 @@
+## Quando viene aggiornato questo file, aggiornare anche il commitId presente nel file initsh-for-testcontainer-sh
+
 echo "### CREATE QUEUES ###"
 queues="local-delivery-push-safestorage-inputs local-delivery-push-actions local-ext-channels-inputs local-ext-channels-outputs local-delivery-push-actions-done local-ext-channels-elab-res"
 for qn in  $( echo $queues | tr " " "\n" ) ; do
@@ -102,5 +104,17 @@ aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
     --provisioned-throughput \
         ReadCapacityUnits=10,WriteCapacityUnits=5
 
+aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
+    dynamodb create-table \
+    --table-name DocumentCreationRequest \
+    --attribute-definitions \
+        AttributeName=key,AttributeType=S \
+        AttributeName=iun,AttributeType=S \
+        AttributeName=recIndex,AttributeType=S \
+        AttributeName=documentType,AttributeType=S \
+    --key-schema \
+        AttributeName=key,KeyType=HASH \
+    --provisioned-throughput \
+        ReadCapacityUnits=10,WriteCapacityUnits=5
 
 echo "Initialization terminated"
