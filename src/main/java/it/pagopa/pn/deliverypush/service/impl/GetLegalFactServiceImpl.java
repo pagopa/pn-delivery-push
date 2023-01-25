@@ -19,7 +19,7 @@ import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.LegalFactIdMapper;
-import it.pagopa.pn.deliverypush.service.utils.FileNameUtils;
+import it.pagopa.pn.deliverypush.service.utils.FileUtils;
 import it.pagopa.pn.deliverypush.utils.AuditLogUtils;
 import it.pagopa.pn.deliverypush.utils.AuthUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -110,7 +110,7 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
     @NotNull
     private LegalFactDownloadMetadataResponse generateResponse(String iun, LegalFactCategory legalFactType, String legalfactId, FileDownloadResponseInt fileDownloadResponse) {
         LegalFactDownloadMetadataResponse response = new LegalFactDownloadMetadataResponse();
-        response.setFilename( FileNameUtils.buildFileName(iun, legalFactType.getValue(), legalfactId, fileDownloadResponse.getContentType()));
+        response.setFilename( FileUtils.buildFileName(iun, legalFactType.getValue(), legalfactId, fileDownloadResponse.getContentType()));
         response.setContentLength(fileDownloadResponse.getContentLength());
         response.setRetryAfter(fileDownloadResponse.getDownload() != null ? fileDownloadResponse.getDownload().getRetryAfter() : null);
         response.setUrl(fileDownloadResponse.getDownload().getUrl());

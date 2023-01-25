@@ -48,7 +48,7 @@ class StartWorkflowHandlerTest {
         
         handler = new StartWorkflowHandler(saveLegalFactsService, notificationService,
                 timelineService, timelineUtils, checkAttachmentUtils,
-                notificationUtils, schedulerService, documentCreationRequestService);
+                documentCreationRequestService);
     }
 
     @ExtendWith(MockitoExtension.class)

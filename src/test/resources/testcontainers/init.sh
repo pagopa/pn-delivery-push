@@ -104,7 +104,6 @@ aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
     --provisioned-throughput \
         ReadCapacityUnits=10,WriteCapacityUnits=5
 
-echo " - Create DocumentCreationRequest"
 aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
     dynamodb create-table \
     --table-name DocumentCreationRequest \

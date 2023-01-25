@@ -4,12 +4,13 @@ import it.pagopa.pn.commons.utils.MimeTypesUtils;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 
 import static it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient.SAFE_STORAGE_URL_PREFIX;
 
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class FileNameUtils {
+public class FileUtils {
     
     /**
      * il nome, viene generato da iun, type e factid e per ora si suppone essere un pdf
@@ -32,5 +33,10 @@ public class FileNameUtils {
                 + "_" + fileType
                 + "_" + fileId.replace(SAFE_STORAGE_URL_PREFIX, "").replaceAll("[^a-zA-Z0-9]", "")
                 + "." + extension;
+    }
+
+    @NotNull
+    public static String getKeyWithStoragePrefix(String key) {
+        return SAFE_STORAGE_URL_PREFIX + key;
     }
 }
