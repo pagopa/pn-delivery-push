@@ -45,6 +45,7 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
+import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.PaperChannelService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.*;
@@ -85,6 +86,7 @@ import static org.awaitility.Awaitility.with;
         PaperChannelUtils.class,
         PaperChannelResponseHandler.class,
         AnalogWorkflowPaperChannelResponseHandler.class,
+        AuditLogServiceImpl.class,
         CompletionWorkFlowHandler.class,
         PublicRegistryResponseHandler.class,
         PublicRegistryServiceImpl.class,
@@ -207,7 +209,10 @@ class NotHandledTestIT {
 
     @Autowired
     private PaperChannelUtils paperChannelUtils;
-    
+
+    @Autowired
+    private AuditLogService auditLogService;
+
     @BeforeEach
     public void setup() {
         

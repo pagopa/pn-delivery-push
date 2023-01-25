@@ -43,10 +43,7 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnD
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
-import it.pagopa.pn.deliverypush.service.PaperChannelService;
-import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
-import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
@@ -85,6 +82,7 @@ import static org.mockito.ArgumentMatchers.eq;
         PaperChannelUtils.class,
         PaperChannelResponseHandler.class,
         AnalogWorkflowPaperChannelResponseHandler.class,
+        AuditLogServiceImpl.class,
         CompletionWorkFlowHandler.class,
         PublicRegistryResponseHandler.class,
         PublicRegistryServiceImpl.class,
@@ -206,6 +204,9 @@ class NotificationViewedTestIT {
     private PaperChannelUtils paperChannelUtils;
 
     @Autowired
+    private AuditLogService auditLogService;
+
+    @Autowired
     private PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock;
 
     @BeforeEach
@@ -282,12 +283,12 @@ class NotificationViewedTestIT {
                 .taxId("delegateTaxId")
                 .recipientType(delegateType)
                 .build();
-        
+
         pnDataVaultClientReactiveMock.insertBaseRecipientDto(baseRecipientDto);
-        
+
         String iun = notification.getIun();
         Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
-        
+
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
@@ -307,20 +308,20 @@ class NotificationViewedTestIT {
                 .operatorUuid("delegateOperator")
                 .delegateType(RecipientTypeInt.valueOf(delegateType.getValue()))
                 .build();
-        
+
         notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex, delegateInfoInt, notificationViewDate);
 
         //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti
         delegateInfoInt.setDenomination(baseRecipientDto.getDenomination());
         delegateInfoInt.setTaxId(baseRecipientDto.getTaxId());
-        
+
         checkNotificationViewTimelineElement(iun, recIndex, notificationViewDate, delegateInfoInt);
         Mockito.verify(legalFactStore, Mockito.times(1)).saveNotificationViewedLegalFact(eq(notification), eq(recipient), Mockito.any(Instant.class));
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient.getInternalId(), iun);
 
         //Simulazione seconda visualizzazione della notifica
         notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex, null, Instant.now());
-        
+
         //Viene effettuata la verifica che i processi correlati alla visualizzazione non siano avvenuti, dunque che il numero d'invocazioni dei metodi sia rimasto lo stesso
         Mockito.verify(legalFactStore, Mockito.times(1)).saveNotificationViewedLegalFact(eq(notification),eq(recipient), Mockito.any(Instant.class));
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient.getInternalId(), iun);
@@ -467,7 +468,7 @@ class NotificationViewedTestIT {
         Assertions.assertEquals(notificationViewDate, notificationViewTimelineElement.getTimestamp());
     }
 
-    private void checkNotificationViewTimelineElement(String iun, 
+    private void checkNotificationViewTimelineElement(String iun,
                                                       Integer recIndex,
                                                       Instant notificationViewDate,
                                                       DelegateInfoInt delegateInfo) {
