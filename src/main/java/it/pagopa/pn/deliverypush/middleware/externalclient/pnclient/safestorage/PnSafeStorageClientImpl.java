@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.pnclients.CommonBaseClient;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.OperationResultCodeResponse;
@@ -12,7 +13,6 @@ import it.pagopa.pn.delivery.generated.openapi.clients.safestorage_reactive.api.
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.common.BaseClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ByteArrayResource;
@@ -34,7 +34,7 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 
 @Component
 @Slf4j
-public class PnSafeStorageClientImpl extends BaseClient implements PnSafeStorageClient {
+public class PnSafeStorageClientImpl extends CommonBaseClient implements PnSafeStorageClient {
     private final FileDownloadApi fileDownloadApi;
     private final FileUploadApi fileUploadApi;
     private final FileMetadataUpdateApi fileMetadataUpdateApi;
@@ -46,7 +46,7 @@ public class PnSafeStorageClientImpl extends BaseClient implements PnSafeStorage
                                    @Qualifier("withOffsetDateTimeFormatter") RestTemplate restTemplate) {
         this.cfg = cfg;
         
-        ApiClient newApiClient = new ApiClient( initWebClient(ApiClient.buildWebClientBuilder()).build() );
+        ApiClient newApiClient = new ApiClient( initWebClient(ApiClient.buildWebClientBuilder()) );
         newApiClient.setBasePath( this.cfg.getSafeStorageBaseUrl() );
         this.fileUploadApi =new FileUploadApi( newApiClient );
         this.fileDownloadApi = new FileDownloadApi( newApiClient );
