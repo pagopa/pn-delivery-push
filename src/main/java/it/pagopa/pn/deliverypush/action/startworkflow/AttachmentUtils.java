@@ -17,10 +17,12 @@ import it.pagopa.pn.deliverypush.exceptions.PnValidationNotMatchingShaException;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -79,13 +81,12 @@ public class AttachmentUtils {
         forEachAttachment(notification, this::changeAttachmentStatusToAttached);
     }
 
-    public void changeAttachmentsRetention(NotificationInt notification, int retentionUntilDays) {
+    public Flux<Void> changeAttachmentsRetention(NotificationInt notification, int retentionUntilDays) {
         log.info( "changeAttachmentsRetention iun={}", notification.getIun());
-
-        forEachAttachment(notification,
-                notificationDocumentInt -> this.changeAttachmentRetention(notificationDocumentInt, retentionUntilDays));
+        return Mono.just(getAllAttachment(notification))
+                .flatMapIterable( x -> x )
+                .flatMap( doc -> this.changeAttachmentRetention(doc, retentionUntilDays));
     }
-
 
     private void forEachAttachment(NotificationInt notification, Consumer<NotificationDocumentInt> callback)
     {
@@ -107,6 +108,24 @@ public class AttachmentUtils {
         }
     }
 
+    private List<NotificationDocumentInt> getAllAttachment(NotificationInt notification)
+    {
+        List<NotificationDocumentInt> notificationDocuments = new ArrayList<>(notification.getDocuments());
+
+        notification.getRecipients().forEach( recipient -> {
+            if(recipient.getPayment() != null ){
+
+                if(recipient.getPayment().getPagoPaForm() != null){
+                    notificationDocuments.add(recipient.getPayment().getPagoPaForm());
+                }
+                if(recipient.getPayment().getF24flatRate() != null){
+                    notificationDocuments.add(recipient.getPayment().getF24flatRate());
+                }
+            }
+        });
+        
+        return notificationDocuments;
+    }
 
     private void checkAttachment(NotificationDocumentInt attachment) {
         NotificationDocumentInt.Ref ref = attachment.getRef();
@@ -146,12 +165,12 @@ public class AttachmentUtils {
                 .block();
     }
 
-    private void changeAttachmentRetention(NotificationDocumentInt attachment, int retentionUntilDays) {
+    private Mono<Void> changeAttachmentRetention(NotificationDocumentInt attachment, int retentionUntilDays) {
         NotificationDocumentInt.Ref ref = attachment.getRef();
         OffsetDateTime retentionUntil = OffsetDateTime.now().plus(retentionUntilDays, ChronoUnit.DAYS);
-        log.debug( "changeAttachmentRetention begin changing retentionUntil for attachment with key={}", ref.getKey());
+        log.info( "changeAttachmentRetention begin changing retentionUntil for attachment with key={}", ref.getKey());
 
-        updateFileMetadata(ref.getKey(), null, retentionUntil).subscribe();
+        return updateFileMetadata(ref.getKey(), null, retentionUntil);
     }
 
     private Mono<Void> updateFileMetadata(String fileKey, String statusRequest, OffsetDateTime retentionUntilRequest) {

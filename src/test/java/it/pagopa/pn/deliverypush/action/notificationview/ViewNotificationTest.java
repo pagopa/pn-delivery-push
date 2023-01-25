@@ -23,6 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
@@ -93,7 +94,8 @@ class ViewNotificationTest {
         when(instantNowSupplier.get()).thenReturn(Instant.now());
         when(timelineUtils.buildNotificationViewedTimelineElement(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(TimelineElementInternal.builder().build());
-                
+        when(attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement())).thenReturn(Flux.empty());
+
         Instant viewDate = Instant.now();
 
         //WHEN
@@ -138,6 +140,7 @@ class ViewNotificationTest {
                 .build();
         
         Mockito.when(confidentialInformationService.getRecipientInformationByInternalId(Mockito.anyString())).thenReturn(Mono.just(baseRecipientDto));
+        when(attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement())).thenReturn(Flux.empty());
 
         //WHEN
         DelegateInfoInt delegateInfo = DelegateInfoInt.builder()

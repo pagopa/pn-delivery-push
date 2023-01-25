@@ -38,7 +38,7 @@ public class RefinementHandler {
             notificationCostService.getNotificationCost(notification, recIndex)
                     .doOnSuccess( notificationCost -> log.debug("Notification cost is {} - iun {} id {}",notificationCost, iun, recIndex))
                     .flatMap( res ->
-                            Mono.fromRunnable( () -> attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement()))
+                            attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement()).collectList()
                                     .then(Mono.just(res))
                     )
                     .flatMap( notificationCost ->
