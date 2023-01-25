@@ -228,12 +228,6 @@ Resources:
       AttributeDefinitions:
         - AttributeName: "key"
           AttributeType: "S"
-        - AttributeName: "iun"
-          AttributeType: "S"
-        - AttributeName: "recIndex"
-          AttributeType: "S"
-        - AttributeName: "documentType"
-          AttributeType: "S"
       KeySchema:
         - AttributeName: "key"
           KeyType: "HASH"
@@ -241,7 +235,7 @@ Resources:
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
   
-      
+
 Outputs:
 
   # Scheduled Actions

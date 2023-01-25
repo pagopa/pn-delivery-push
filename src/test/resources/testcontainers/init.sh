@@ -110,9 +110,6 @@ aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
     --table-name DocumentCreationRequest \
     --attribute-definitions \
         AttributeName=key,AttributeType=S \
-        AttributeName=iun,AttributeType=S \
-        AttributeName=recIndex,AttributeType=S \
-        AttributeName=documentType,AttributeType=S \
     --key-schema \
         AttributeName=key,KeyType=HASH \
     --provisioned-throughput \
