@@ -37,29 +37,14 @@ public class StartWorkflowForRecipientHandler {
     public void startNotificationWorkflowForRecipient(String iun, int recIndex, RecipientsWorkflowDetails details) {
         log.info("Start notification workflow for recipient - iun {} id {} token {}", iun, recIndex, details.getQuickAccessLinkToken());
         NotificationInt notification = notificationService.getNotificationByIun(iun);
-        generateAAR(notification, recIndex, details.getQuickAccessLinkToken());
+        // ... genero il pdf dell'AAR, salvo su Safestorage e genero elemento in timeline AAR_GENERATION, potrebbe servirmi dopo ...
+        aarUtils.generateAARAndSaveInSafeStorageAndAddTimelineevent(notification, recIndex, details.getQuickAccessLinkToken());
 
         //... Invio messaggio di cortesia ... 
         courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, recIndex);
 
         //... e viene schedulato il processo di scelta della tipologia di notificazione
         scheduleChooseDeliveryMode(iun, recIndex);
-    }
-    private void generateAAR(NotificationInt notification, Integer recIndex, String quickAccessToken) {
-        // ... genero il pdf dell'AAR, salvo su Safestorage e genero elemento in timeline AAR_GENERATION, potrebbe servirmi dopo ...
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_AAR, "Notification AAR generation for iun={} and recIndex={}", notification.getIun(), recIndex)
-                .iun(notification.getIun())
-                .build();
-        logEvent.log();
-        try {
-            aarUtils.generateAARAndSaveInSafeStorageAndAddTimelineevent(notification, recIndex, quickAccessToken);
-            logEvent.generateSuccess().log();
-        } catch (Exception exc) {
-            logEvent.generateFailure("Exception on generation of AAR", exc.getMessage()).log();
-            throw exc;
-        }
     }
 
     private void scheduleChooseDeliveryMode(String iun, Integer recIndex) {
