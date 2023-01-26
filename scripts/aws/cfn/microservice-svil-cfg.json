@@ -19,7 +19,6 @@
     "NotificationNonVisibilityTime": "21:00",
     "TimeToAddInNonVisibilityTimeCase": "10m",
     "IsMvpDefaultValue": "true",
-    "RetentionAttachmentDaysAfterRefinement": "120",
-    "NationalRegistriesBaseUrl": ""
+    "RetentionAttachmentDaysAfterRefinement": "120"
   }
 }
