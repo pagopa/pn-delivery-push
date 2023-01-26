@@ -74,6 +74,7 @@ class AarUtilsTest {
     void generateAARAndSaveInSafeStorageAndAddTimelineeventIsPresent() {
 
         NotificationInt notificationInt = newNotification();
+        String msg = "PN_DELIVERYPUSH_GENERATEPDFFAILED";
         NotificationRecipientInt recipientInt = notificationInt.getRecipients().get(0);
         Optional<TimelineElementInternal> timeline = Optional.of(newTimelineElementInternal());
         String elementId = "IUN_01_aar_gen_0";
@@ -82,9 +83,11 @@ class AarUtilsTest {
 
         Mockito.when(timelineService.getTimelineElement(notificationInt.getIun(), elementId)).thenReturn(timeline);
 
-        aarUtils.generateAARAndSaveInSafeStorageAndAddTimelineevent(notificationInt, recIndex, quickAccessToken);
+        PnInternalException exception = Assertions.assertThrows(PnInternalException.class, () -> {
+            aarUtils.generateAARAndSaveInSafeStorageAndAddTimelineevent(notificationInt, recIndex, quickAccessToken);
+        });
 
-        Mockito.verify(timelineService, Mockito.never()).addTimelineElement(newTimelineElementInternal(), notificationInt);
+        Assertions.assertEquals(msg, exception.getProblem().getErrors().get(0).getCode());
     }
 
     @Test
