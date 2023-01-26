@@ -58,13 +58,13 @@ class StartWorkflowHandlerTest {
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(getNotification());
 
-        Mockito.when( saveLegalFactsService.saveNotificationReceivedLegalFact(Mockito.any( NotificationInt.class ))).thenReturn( "" );
+        Mockito.when( saveLegalFactsService.sendCreationRequestForNotificationReceivedLegalFact(Mockito.any( NotificationInt.class ))).thenReturn( "" );
         
         //WHEN
         handler.startWorkflow("IUN_01");
 
         //THEN
-        Mockito.verify(saveLegalFactsService).saveNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
+        Mockito.verify(saveLegalFactsService).sendCreationRequestForNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
         Mockito.verify(timelineUtils).buildAcceptedRequestTimelineElement(Mockito.any(NotificationInt.class), Mockito.anyString());
     }
 
@@ -81,7 +81,7 @@ class StartWorkflowHandlerTest {
         handler.startWorkflow("IUN_01");
 
         //THEN
-        Mockito.verify(saveLegalFactsService, Mockito.times(0)).saveNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
+        Mockito.verify(saveLegalFactsService, Mockito.times(0)).sendCreationRequestForNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
         Mockito.verify(timelineUtils).buildRefusedRequestTimelineElement(Mockito.any(NotificationInt.class), Mockito.any());
     }
 
@@ -98,7 +98,7 @@ class StartWorkflowHandlerTest {
         handler.startWorkflow("IUN_01");
 
         //THEN
-        Mockito.verify(saveLegalFactsService, Mockito.times(0)).saveNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
+        Mockito.verify(saveLegalFactsService, Mockito.times(0)).sendCreationRequestForNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
         Mockito.verify(timelineUtils).buildRefusedRequestTimelineElement(Mockito.any(NotificationInt.class), Mockito.any());
     }
 
@@ -115,7 +115,7 @@ class StartWorkflowHandlerTest {
         handler.startWorkflow("IUN_01");
 
         //THEN
-        Mockito.verify(saveLegalFactsService, Mockito.times(0)).saveNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
+        Mockito.verify(saveLegalFactsService, Mockito.times(0)).sendCreationRequestForNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
         Mockito.verify(timelineUtils).buildRefusedRequestTimelineElement(Mockito.any(NotificationInt.class), Mockito.any());
     }
 
@@ -132,7 +132,7 @@ class StartWorkflowHandlerTest {
         handler.startWorkflow("IUN_01");
 
         //THEN
-        Mockito.verify(saveLegalFactsService, Mockito.times(1)).saveNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
+        Mockito.verify(saveLegalFactsService, Mockito.times(1)).sendCreationRequestForNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
         Mockito.verify(timelineUtils, Mockito.never()).buildAcceptedRequestTimelineElement(Mockito.any(NotificationInt.class), Mockito.any());
     }
 

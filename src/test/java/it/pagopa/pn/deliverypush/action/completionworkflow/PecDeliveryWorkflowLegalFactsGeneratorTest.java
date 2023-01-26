@@ -86,7 +86,7 @@ class PecDeliveryWorkflowLegalFactsGeneratorTest {
         SendDigitalFeedbackDetailsInt details = (SendDigitalFeedbackDetailsInt) timelineElementInternal.getDetails();
 
         //THEN
-        Mockito.verify(saveLegalFactsService).savePecDeliveryWorkflowLegalFact(
+        Mockito.verify(saveLegalFactsService).sendCreationRequestForPecDeliveryWorkflowLegalFact(
                 Collections.singletonList(details),
                 notification,
                 recipient,
@@ -135,7 +135,7 @@ class PecDeliveryWorkflowLegalFactsGeneratorTest {
         SimpleRegisteredLetterDetailsInt registeredLetterDetails = (SimpleRegisteredLetterDetailsInt) timelineElementInternal2.getDetails();
 
         //THEN
-        Mockito.verify(saveLegalFactsService).savePecDeliveryWorkflowLegalFact(
+        Mockito.verify(saveLegalFactsService).sendCreationRequestForPecDeliveryWorkflowLegalFact(
                 Collections.singletonList(sendDigitalFeedbackDetailsInt),
                 notification,
                 recipient,

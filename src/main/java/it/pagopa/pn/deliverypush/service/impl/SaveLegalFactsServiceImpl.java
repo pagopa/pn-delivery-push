@@ -56,11 +56,11 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
                 .map( fileCreationResponse -> FileUtils.getKeyWithStoragePrefix(fileCreationResponse.getKey()));
     }
 
-    public PdfInfo saveAAR(NotificationInt notification,
-                           NotificationRecipientInt recipient,
-                           String quickAccessToken) {
+    public PdfInfo sendCreationRequestForAAR(NotificationInt notification,
+                                             NotificationRecipientInt recipient,
+                                             String quickAccessToken) {
         try {
-            log.debug("Start Save AAR - iun={}", notification.getIun());
+            log.debug("Start sendCreationRequestForAAR - iun={}", notification.getIun());
 
             byte[] pdfByte = legalFactBuilder.generateNotificationAAR(notification, recipient, quickAccessToken);
             int numberOfPages = legalFactBuilder.getNumberOfPages(pdfByte);
@@ -90,9 +90,9 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
         }
     }
 
-    public String saveNotificationReceivedLegalFact(NotificationInt notification) {
+    public String sendCreationRequestForNotificationReceivedLegalFact(NotificationInt notification) {
         try {
-            log.info("Start saveNotificationReceivedLegalFact - iun={}", notification.getIun());
+            log.info("Start sendCreationRequestForNotificationReceivedLegalFact - iun={}", notification.getIun());
             
             return this.saveLegalFact(legalFactBuilder.generateNotificationReceivedLegalFact(notification))
                     .map( responseUrl -> {
@@ -108,7 +108,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
 
     }
 
-    public String savePecDeliveryWorkflowLegalFact(
+    public String sendCreationRequestForPecDeliveryWorkflowLegalFact(
             List<SendDigitalFeedbackDetailsInt> listFeedbackFromExtChannel,
             NotificationInt notification,
             NotificationRecipientInt recipient,
@@ -124,7 +124,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
         logEvent.log();
 
         try {
-            log.debug("Start savePecDeliveryWorkflowLegalFact - iun={}", notification.getIun());
+            log.debug("Start sendCreationRequestForPecDeliveryWorkflowLegalFact - iun={}", notification.getIun());
 
             return this.saveLegalFact(legalFactBuilder.generatePecDeliveryWorkflowLegalFact(
                             listFeedbackFromExtChannel, notification, recipient, status, completionWorkflowDate))
@@ -142,7 +142,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
     } 
     
 
-    public Mono<String> saveNotificationViewedLegalFact(
+    public Mono<String> sendCreationRequestForNotificationViewedLegalFact(
             NotificationInt notification,
             NotificationRecipientInt recipient,
             Instant timeStamp
@@ -154,7 +154,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
                 .iun(notification.getIun())
                 .build();
         logEvent.log();
-        log.debug("Start saveNotificationViewedLegalFact - iun={}", notification.getIun());
+        log.debug("Start sendCreationRequestForPecDeliveryWorkflowLegalFact - iun={}", notification.getIun());
 
         return Mono.fromCallable(() -> legalFactBuilder.generateNotificationViewedLegalFact(notification.getIun(), recipient, timeStamp))
                 .flatMap( res -> {

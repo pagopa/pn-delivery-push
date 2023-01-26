@@ -51,5 +51,5 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("productType")})) private String productType;
     @Getter(onMethod=@__({@DynamoDbAttribute("requestTimelineId")})) private String requestTimelineId;
     @Getter(onMethod=@__({@DynamoDbAttribute("delegateInfo")})) private DelegateInfoEntity delegateInfo;
-
+    @Getter(onMethod=@__({@DynamoDbAttribute("documentCreationType")})) private String documentCreationType;
 }

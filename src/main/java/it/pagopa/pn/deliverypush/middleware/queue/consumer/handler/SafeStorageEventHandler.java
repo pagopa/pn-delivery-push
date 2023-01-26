@@ -1,13 +1,11 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
-import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.log.PnAuditLogBuilder;
-import it.pagopa.pn.commons.log.PnAuditLogEvent;
-import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
-import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationResponseHandler;
+import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationRequest;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
+import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.utils.FileUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,11 +13,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_DOCUMENT_CREATION_RESPONSE_TYPE_NOT_HANDLED;
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NO_DOCUMENT_CREATION_REQUEST;
 import static it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient.SAFE_STORAGE_DOCUMENT_TYPE_AAR;
 import static it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient.SAFE_STORAGE_DOCUMENT_TYPE_LEGAL_FACT;
 
@@ -27,8 +24,8 @@ import static it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safes
 @AllArgsConstructor
 @Slf4j
 public class SafeStorageEventHandler {
-    private final ReceivedLegalFactCreationResponseHandler handler;
     private final DocumentCreationRequestService service;
+    private final SchedulerService schedulerService;
     
     @Bean
     public Consumer<Message<FileDownloadResponse>> pnSafeStorageEventInboundConsumer() {
@@ -45,75 +42,31 @@ public class SafeStorageEventHandler {
                 if(documentCreationRequestOpt.isPresent()){
                     
                     DocumentCreationRequest creationRequest = documentCreationRequestOpt.get();
-                    DocumentCreationRequest.DocumentCreationType documentCreationType = creationRequest.getDocumentCreationType();
+                    log.debug("DocumentCreationTypeInt is {} and Key to search {}", creationRequest.getDocumentCreationType(), keyWithPrefix);
 
-                    log.debug("DocumentCreationType is {} and Key to search {}", documentCreationType, keyWithPrefix);
-                    
-                    String iun = creationRequest.getIun();
-                    handleResponseReceived(response, keyWithPrefix, creationRequest, documentCreationType, iun);
-
+                    scheduleHandleDocumentCreationResponse(creationRequest);
                 } else {
                     String error = String.format("There isn't saved DocumentCreationRequest for fileKey=%s", keyWithPrefix);
                     log.error(error);
-                    throw new PnInternalException(error, ERROR_CODE_DELIVERYPUSH_NO_DOCUMENT_CREATION_REQUEST);
+                    //throw new PnInternalException(error, ERROR_CODE_DELIVERYPUSH_NO_DOCUMENT_CREATION_REQUEST);
                 }
             } else {
-                log.warn("Safe storage event received is not handled - documentType={}", response.getDocumentType());
+                log.debug("Safe storage event received is not handled - documentType={}", response.getDocumentType());
             }
             
         };
     }
 
-    private void handleResponseReceived(FileDownloadResponse response, String keyWithPrefix, DocumentCreationRequest creationRequest, DocumentCreationRequest.DocumentCreationType documentCreationType, String iun) {
-        PnAuditLogEvent logEvent = generateAuditLog(response, keyWithPrefix, creationRequest, documentCreationType, iun);
-        logEvent.log();
-
-        try {
-            switch (documentCreationType) {
-                case SENDER_ACK ->
-                        handler.handleReceivedLegalFactCreationResponse(creationRequest.getIun(), keyWithPrefix);
-                case AAR ->
-                        log.warn("AAR NOT HANDLED");
-                case DIGITAL_DELIVERY ->
-                        log.warn("DIGITAL_DELIVERY NOT HANDLED");
-                case RECIPIENT_ACCESS ->
-                        log.warn("RECIPIENT ACCESS NOT HANDLED");
-            }
-
-            logEvent.generateSuccess("Successful creation - fileKey={}", keyWithPrefix);
-        } catch (Exception ex){
-            logEvent.generateFailure("Error for fileKey={}", keyWithPrefix);
-            throw ex;
-        }
-    }
-
-    private PnAuditLogEvent generateAuditLog(FileDownloadResponse response, String keyWithPrefix, DocumentCreationRequest creationRequest, DocumentCreationRequest.DocumentCreationType documentCreationType, String iun) {
-        PnAuditLogEventType type = null;
-        String auditMessage = null;
-
-        switch (documentCreationType){
-            case AAR -> {
-                type = PnAuditLogEventType.AUD_NT_AAR;
-                auditMessage = String.format("AAR generation for iun=%s, recIndex=%s, fileKey=%s", iun, creationRequest.getRecIndex(), keyWithPrefix);
-            }
-            case SENDER_ACK, DIGITAL_DELIVERY, RECIPIENT_ACCESS ->{
-                type = PnAuditLogEventType.AUD_NT_NEWLEGAL;
-                if(creationRequest.getRecIndex() != null )
-                    auditMessage = String.format("LegalFact generation, type=%s, iun=%s, recIndex=%s, fileKey=%s", documentCreationType, iun, creationRequest.getRecIndex(), keyWithPrefix);
-                else
-                    auditMessage = String.format("LegalFact generation, type=%s, iun=%s, fileKey=%s", documentCreationType, iun, keyWithPrefix);
-            }
-            default -> {
-                String error = String.format("DocumentType=%s not handled for fileKey=%s", response.getDocumentType(), keyWithPrefix);
-                log.error(error);
-                throw new PnInternalException(error, ERROR_CODE_DELIVERYPUSH_DOCUMENT_CREATION_RESPONSE_TYPE_NOT_HANDLED);
-            }
-        }
-
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        return auditLogBuilder
-                .before(type, auditMessage)
-                .iun(iun)
+    private void scheduleHandleDocumentCreationResponse(DocumentCreationRequest request) {
+        DocumentCreationResponseActionDetails details = DocumentCreationResponseActionDetails.builder()
+                .documentCreationType(request.getDocumentCreationType())
+                .key(request.getKey())
                 .build();
+        
+        Instant schedulingDate = Instant.now();
+        log.info("Scheduling HandleDocumentCreationResponse schedulingDate={} - iun={} recIndex={} docType={}", schedulingDate, request.getIun(), request.getRecIndex(), request.getDocumentCreationType());
+        schedulerService.scheduleEvent(request.getIun(), request.getRecIndex(), schedulingDate, ActionType.DOCUMENT_CREATION_RESPONSE, request.getTimelineId(), details);
     }
+
+   
 }

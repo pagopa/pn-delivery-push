@@ -20,6 +20,8 @@ class StateMap {
         
         // Received state
         this.fromState(NotificationStatusInt.IN_VALIDATION)
+                //STATE UNCHANGE
+                .withTimelineGoToState(TimelineElementCategoryInt.DOCUMENT_CREATION_REQUEST, NotificationStatusInt.IN_VALIDATION, SINGLE_RECIPINET)
                 //STATE CHANGE
                 .withTimelineGoToState(TimelineElementCategoryInt.REQUEST_ACCEPTED, NotificationStatusInt.ACCEPTED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.REQUEST_REFUSED, NotificationStatusInt.REFUSED, SINGLE_RECIPINET)

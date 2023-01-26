@@ -316,14 +316,14 @@ class NotificationViewedTestIT {
         delegateInfoInt.setTaxId(baseRecipientDto.getTaxId());
 
         checkNotificationViewTimelineElement(iun, recIndex, notificationViewDate, delegateInfoInt);
-        Mockito.verify(legalFactStore, Mockito.times(1)).saveNotificationViewedLegalFact(eq(notification), eq(recipient), Mockito.any(Instant.class));
+        Mockito.verify(legalFactStore, Mockito.times(1)).sendCreationRequestForNotificationViewedLegalFact(eq(notification), eq(recipient), Mockito.any(Instant.class));
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient.getInternalId(), iun);
 
         //Simulazione seconda visualizzazione della notifica
         notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex, null, Instant.now());
 
         //Viene effettuata la verifica che i processi correlati alla visualizzazione non siano avvenuti, dunque che il numero d'invocazioni dei metodi sia rimasto lo stesso
-        Mockito.verify(legalFactStore, Mockito.times(1)).saveNotificationViewedLegalFact(eq(notification),eq(recipient), Mockito.any(Instant.class));
+        Mockito.verify(legalFactStore, Mockito.times(1)).sendCreationRequestForNotificationViewedLegalFact(eq(notification),eq(recipient), Mockito.any(Instant.class));
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient.getInternalId(), iun);
 
         //Viene effettuato il check dei legalFacts generati
@@ -417,7 +417,7 @@ class NotificationViewedTestIT {
         
         //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti
         checkNotificationViewTimelineElement(iun, recIndex, notificationViewDate, null);
-        Mockito.verify(legalFactStore, Mockito.times(1)).saveNotificationViewedLegalFact(eq(notification), eq(recipient), Mockito.any(Instant.class));
+        Mockito.verify(legalFactStore, Mockito.times(1)).sendCreationRequestForNotificationViewedLegalFact(eq(notification), eq(recipient), Mockito.any(Instant.class));
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient.getInternalId(), iun);
 
         //Simulazione seconda visualizzazione della notifica
@@ -426,7 +426,7 @@ class NotificationViewedTestIT {
         checkIsNotificationViewed(iun, recIndex, notificationViewDate);
 
         //Viene effettuata la verifica che i processi correlati alla visualizzazione non siano avvenuti, dunque che il numero d'invocazioni dei metodi sia rimasto lo stesso
-        Mockito.verify(legalFactStore, Mockito.times(1)).saveNotificationViewedLegalFact(eq(notification),eq(recipient), Mockito.any(Instant.class));
+        Mockito.verify(legalFactStore, Mockito.times(1)).sendCreationRequestForNotificationViewedLegalFact(eq(notification),eq(recipient), Mockito.any(Instant.class));
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient.getInternalId(), iun);
 
         //Viene effettuato il check dei legalFacts generati
@@ -564,7 +564,7 @@ class NotificationViewedTestIT {
         //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti
         checkNotificationViewTimelineElement(iun, recIndex1, notificationViewDate1, null);
 
-        Mockito.verify(legalFactStore, Mockito.times(1)).saveNotificationViewedLegalFact(eq(notification),eq(recipient1), Mockito.any(Instant.class));
+        Mockito.verify(legalFactStore, Mockito.times(1)).sendCreationRequestForNotificationViewedLegalFact(eq(notification),eq(recipient1), Mockito.any(Instant.class));
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient1.getInternalId(), iun);
 
         //Simulazione visualizzazione della notifica per il primo recipient
@@ -576,7 +576,7 @@ class NotificationViewedTestIT {
         //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti
         checkNotificationViewTimelineElement(iun, recIndex2, notificationViewDate2, null);
 
-        Mockito.verify(legalFactStore, Mockito.times(1)).saveNotificationViewedLegalFact(eq(notification),eq(recipient2), Mockito.any(Instant.class));
+        Mockito.verify(legalFactStore, Mockito.times(1)).sendCreationRequestForNotificationViewedLegalFact(eq(notification),eq(recipient2), Mockito.any(Instant.class));
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient2.getInternalId(), iun);
         
         //Vengono stampati tutti i legalFacts generati

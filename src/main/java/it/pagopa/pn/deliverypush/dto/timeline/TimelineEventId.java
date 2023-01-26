@@ -338,6 +338,26 @@ public enum TimelineEventId {
                     eventId.getIun()
             );
         }
+    },
+
+    DOCUMENT_CREATION_REQUEST() {
+        @Override
+        public String buildEventId(EventId eventId) {
+            if(eventId.getRecIndex() != null){
+                return String.format(
+                        "document_creation_request_iun_%s_recIndex_%d_docType_%s",
+                        eventId.getIun(),
+                        eventId.getRecIndex(),
+                        eventId.getDocumentCreationType()
+                );
+            } else {
+                return String.format(
+                        "document_creation_request_iun_%s_docType_%s",
+                        eventId.getIun(),
+                        eventId.getDocumentCreationType()
+                );
+            }
+        }
     }
     ;
 

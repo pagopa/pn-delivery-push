@@ -13,6 +13,7 @@ public class DtoToEntityDocumentCreationRequestMapper {
                 .iun(dto.getIun())
                 .recIndex(dto.getRecIndex())
                 .documentType(dto.getDocumentCreationType().getValue())
+                .timelineId(dto.getTimelineId())
                 .build();
     }
 }

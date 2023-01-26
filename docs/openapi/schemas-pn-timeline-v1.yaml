@@ -36,6 +36,7 @@ components:
           * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
           * `PAYMENT` - Ricezione pagamento della notifica
           * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
+          * `DOCUMENT_CREATION_REQUEST` - Invio della richiesta di creazione di un nuovo documento (AAR o Atto opponibile a terzi) a safe storage
       enum:
         - REQUEST_ACCEPTED
         - SEND_COURTESY_MESSAGE
@@ -65,6 +66,7 @@ components:
         - REQUEST_REFUSED
         - AAR_GENERATION
         - NOT_HANDLED
+        - DOCUMENT_CREATION_REQUEST
     
     TimelineElement:
       type: object
@@ -120,7 +122,7 @@ components:
         - "$ref": "#/components/schemas/AarGenerationDetails"
         - "$ref": "#/components/schemas/NotHandledDetails"
         - "$ref": "#/components/schemas/NotificationPaidDetails"
-  
+        - "$ref": "#/components/schemas/DocumentCreationRequestDetails"
 
     NotificationRequestAcceptedDetails:
       type: object
@@ -570,7 +572,29 @@ components:
           type: integer
           description: Index destinatario che ha effettuato il pagamento della notifica
           format: int32
+
+    DocumentCreationRequestDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario che ha effettuato il pagamento della notifica
+          format: int32
+        documentCreationType:
+          $ref: '#/components/schemas/DocumentCreationType'
           
+
+    DocumentCreationType:
+      type: string
+      description: tipologia di documento inviato a safeStorage
+      enum:
+        - AAR
+        - SENDER_ACK
+        - DIGITAL_DELIVERY
+        - RECIPIENT_ACCESS
+
     DigitalAddressSource:
       type: string
       description: sorgente indirizzo di invio della notifica

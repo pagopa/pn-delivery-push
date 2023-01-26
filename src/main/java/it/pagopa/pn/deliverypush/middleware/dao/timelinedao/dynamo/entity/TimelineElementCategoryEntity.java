@@ -60,7 +60,9 @@ public enum TimelineElementCategoryEntity {
 
     AAR_GENERATION("AAR_GENERATION"),
 
-    NOT_HANDLED("NOT_HANDLED");
+    NOT_HANDLED("NOT_HANDLED"),
+
+    DOCUMENT_CREATION_REQUEST("DOCUMENT_CREATION_REQUEST");
 
     private final String value;
 

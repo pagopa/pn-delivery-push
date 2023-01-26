@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.dto.timeline;
 
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
+import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
 import lombok.*;
@@ -21,4 +22,5 @@ public class EventId {
     private int sentAttemptMade;
     private DeliveryModeInt deliveryMode;
     private int progressIndex;
+    private DocumentCreationTypeInt documentCreationType;
 }

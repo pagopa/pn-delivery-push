@@ -75,7 +75,7 @@ public class TimeLineServiceImpl implements TimelineService {
                 confidentialInformationService.saveTimelineConfidentialInformation(dto);
 
                 //aggiungo al DTO lo status info che poi verrà mappato sull'entity e salvato
-                TimelineElementInternal dtoWithStatusInfo = enrichWithStatusInfo(dto, currentTimeline, notificationStatuses);
+                TimelineElementInternal dtoWithStatusInfo = enrichWithStatusInfo(dto, currentTimeline, notificationStatuses, notification.getSentAt());
 
                 timelineInsertSkipped = persistTimelineElement(dtoWithStatusInfo);
 
@@ -366,20 +366,21 @@ public class TimeLineServiceImpl implements TimelineService {
     }
 
     private TimelineElementInternal enrichWithStatusInfo(TimelineElementInternal dto, Set<TimelineElementInternal> currentTimeline,
-                                      StatusService.NotificationStatusUpdate notificationStatuses) {
+                                      StatusService.NotificationStatusUpdate notificationStatuses, Instant notificationSentAt) {
 
-        Instant timestampLastTimelineElement = getTimestampLastUpdateStatus(currentTimeline);
+        Instant timestampLastTimelineElement = getTimestampLastUpdateStatus(currentTimeline, notificationSentAt);
         StatusInfoInternal statusInfo = buildStatusInfo(notificationStatuses, timestampLastTimelineElement);
         return dto.toBuilder().statusInfo(statusInfo).build();
     }
 
-    private Instant getTimestampLastUpdateStatus(Set<TimelineElementInternal> currentTimeline) {
+    private Instant getTimestampLastUpdateStatus(Set<TimelineElementInternal> currentTimeline, Instant notificationSentAt) {
         Optional<StatusInfoInternal> max = currentTimeline.stream()
                 .map(TimelineElementInternal::getStatusInfo)
                 .filter(Objects::nonNull)
                 .max(Comparator.comparing(StatusInfoInternal::getStatusChangeTimestamp));
 
-        return max.map(StatusInfoInternal::getStatusChangeTimestamp).orElse(null);
+        return max.map(StatusInfoInternal::getStatusChangeTimestamp).orElse(notificationSentAt);
+        
     }
 
     protected StatusInfoInternal buildStatusInfo(StatusService.NotificationStatusUpdate notificationStatuses,

@@ -3,7 +3,7 @@ package it.pagopa.pn.deliverypush.action.startworkflow;
 
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
-import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationRequest;
+import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
@@ -51,11 +51,18 @@ public class StartWorkflowHandler {
     
     private void saveNotificationReceivedLegalFacts(NotificationInt notification) {
         // salvo il legalfactid di avvenuta ricezione da parte di PN
-        String legalFactId = saveLegalFactsService.saveNotificationReceivedLegalFact(notification);
+        String legalFactId = saveLegalFactsService.sendCreationRequestForNotificationReceivedLegalFact(notification);
+
+        DocumentCreationTypeInt documentCreationType = DocumentCreationTypeInt.SENDER_ACK;
+
+        TimelineElementInternal timelineElementInternal = timelineUtils.buildDocumentCreationRequestTimelineElement(notification, documentCreationType);
+        addTimelineElement( timelineElementInternal , notification);
         
         //Vengono inserite le informazioni della richiesta di creazione del legalFacts a safeStorage
-        documentCreationRequestService.addDocumentCreationRequest(legalFactId, notification.getIun(), DocumentCreationRequest.DocumentCreationType.SENDER_ACK );
+        documentCreationRequestService.addDocumentCreationRequest(legalFactId, notification.getIun(), documentCreationType, timelineElementInternal.getElementId());
     }
+
+    
     
     private void handleValidationError(NotificationInt notification, PnValidationException ex) {
         List<String> errors = new ArrayList<>();

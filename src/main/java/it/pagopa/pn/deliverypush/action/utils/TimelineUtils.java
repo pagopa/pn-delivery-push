@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
 import it.pagopa.pn.deliverypush.dto.address.*;
+import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
@@ -745,7 +746,45 @@ public class TimelineUtils {
                 timelineBuilder
         );
     }
-    
+
+    public TimelineElementInternal buildDocumentCreationRequestTimelineElement(NotificationInt notification, 
+                                                                               int recIndex,
+                                                                               DocumentCreationTypeInt documentCreationType) {
+        return buildDocumentCreationRequest(notification, recIndex, documentCreationType);
+    }
+
+    public TimelineElementInternal buildDocumentCreationRequestTimelineElement(NotificationInt notification,
+                                                                               DocumentCreationTypeInt documentCreationType) {
+        return buildDocumentCreationRequest(notification, null, documentCreationType);
+    }
+
+    private TimelineElementInternal buildDocumentCreationRequest(NotificationInt notification, Integer recIndex, DocumentCreationTypeInt documentCreationType) {
+        log.debug("buildDocumentCreationRequest - iun={} id={}", notification.getIun(), recIndex);
+
+        String elementId = TimelineEventId.DOCUMENT_CREATION_REQUEST.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .documentCreationType(documentCreationType)
+                        .build());
+
+        DocumentCreationRequestDetailsInt details = DocumentCreationRequestDetailsInt.builder()
+                .recIndex(recIndex)
+                .documentCreationType(documentCreationType)
+                .build();
+
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
+                .legalFactsIds(Collections.emptyList());
+
+        return buildTimeline(
+                notification,
+                TimelineElementCategoryInt.DOCUMENT_CREATION_REQUEST,
+                elementId,
+                details,
+                timelineBuilder
+        );
+    }
+
     public List<LegalFactsIdInt> singleLegalFactId(String legalFactKey, LegalFactCategoryInt type) {
         return Collections.singletonList( LegalFactsIdInt.builder()
                 .key( legalFactKey )
