@@ -13,6 +13,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.AuditLogService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -29,20 +30,23 @@ public class AarUtils {
     private final TimelineService timelineService;
     private final NotificationUtils notificationUtils;
 
-    public AarUtils(TimelineService timelineService, TimelineUtils timelineUtils, SaveLegalFactsService saveLegalFactsService, NotificationUtils notificationUtils) {
+    private final AuditLogService auditLogService;
+
+    public AarUtils(
+            TimelineService timelineService,
+            TimelineUtils timelineUtils,
+            SaveLegalFactsService saveLegalFactsService,
+            NotificationUtils notificationUtils,
+            AuditLogService auditLogService
+    ) {
         this.saveLegalFactsService = saveLegalFactsService;
         this.timelineUtils = timelineUtils;
         this.timelineService = timelineService;
         this.notificationUtils = notificationUtils;
+        this.auditLogService = auditLogService;
     }
 
     public void generateAARAndSaveInSafeStorageAndAddTimelineevent(NotificationInt notification, Integer recIndex, String quickAccessToken) {
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_AAR, "Notification AAR generation for iun={} and recIndex={}", notification.getIun(), recIndex)
-                .iun(notification.getIun())
-                .build();
-        logEvent.log();
         try {
             // check se già esiste
             String elementId = TimelineEventId.AAR_GENERATION.buildEventId(
@@ -53,17 +57,28 @@ public class AarUtils {
 
             Optional<TimelineElementInternal> timeline = timelineService.getTimelineElement(notification.getIun(), elementId);
             if (timeline.isEmpty()) {
-                PdfInfo pdfInfo = saveLegalFactsService.saveAAR(notification, notificationUtils.getRecipientFromIndex(notification, recIndex), quickAccessToken);
-
-                timelineService.addTimelineElement(
-                        timelineUtils.buildAarGenerationTimelineElement(notification, recIndex, pdfInfo.getKey(), pdfInfo.getNumberOfPages()),
-                        notification
+                PnAuditLogEvent logEvent = auditLogService.buildAuditLogEvent(
+                        notification.getIun(),
+                        recIndex,
+                        PnAuditLogEventType.AUD_NT_AAR,
+                        "Notification AAR generation for iun={} and recIndex={}", notification.getIun(), recIndex
                 );
-                logEvent.generateSuccess().log();
+                logEvent.log();
+                try {
+                    PdfInfo pdfInfo = saveLegalFactsService.saveAAR(notification, notificationUtils.getRecipientFromIndex(notification, recIndex), quickAccessToken);
+
+                    timelineService.addTimelineElement(
+                            timelineUtils.buildAarGenerationTimelineElement(notification, recIndex, pdfInfo.getKey(), pdfInfo.getNumberOfPages()),
+                            notification
+                    );
+                    logEvent.generateSuccess().log();
+                } catch (Exception e) {
+                    logEvent.generateFailure("Exception on generation of AAR error={}", e.getMessage()).log();
+                    throw new PnInternalException("cannot generate AAR pdf", ERROR_CODE_DELIVERYPUSH_GENERATEPDFFAILED, e);
+                }
             } else
                 log.debug("no need to recreate AAR iun={} timelineId={}", notification.getIun(), elementId);
         } catch (Exception e) {
-            logEvent.generateFailure("Exception on generation of AAR", e.getMessage()).log();
             throw new PnInternalException("cannot generate AAR pdf", ERROR_CODE_DELIVERYPUSH_GENERATEPDFFAILED, e);
         }
     }

@@ -11,6 +11,7 @@ import it.pagopa.pn.deliverypush.dto.legalfacts.PdfInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Assertions;
@@ -30,6 +31,8 @@ class AarUtilsTest {
 
     private static final String TAX_ID = "tax_id";
     @Mock
+    private AuditLogService auditLogService;
+    @Mock
     private NotificationUtils notificationUtils;
     @Mock
     private TimelineService timelineService;
@@ -48,7 +51,8 @@ class AarUtilsTest {
         timelineService = Mockito.mock(TimelineService.class);
         timelineUtils = Mockito.mock(TimelineUtils.class);
         saveLegalFactsService = Mockito.mock(SaveLegalFactsService.class);
-        aarUtils = new AarUtils(timelineService, timelineUtils, saveLegalFactsService, notificationUtils);
+        auditLogService = Mockito.mock(AuditLogService.class);
+        aarUtils = new AarUtils(timelineService, timelineUtils, saveLegalFactsService, notificationUtils, auditLogService);
     }
 
     @ExtendWith(MockitoExtension.class)
