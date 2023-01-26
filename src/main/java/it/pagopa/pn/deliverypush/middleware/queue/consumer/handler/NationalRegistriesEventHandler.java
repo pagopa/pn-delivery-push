@@ -29,17 +29,26 @@ public class NationalRegistriesEventHandler {
                 log.info("National registries event received, message {}", message);
 
                 AddressSQSMessage payload = message.getPayload();
-                PublicRegistryResponse response = PublicRegistryResponse.builder()
-                        .correlationId(payload.getCorrelationId())
-                        .digitalAddress(CollectionUtils.isEmpty(payload.getDigitalAddress()) ? null :
-                                mapToLegalDigitalAddressInt(payload.getDigitalAddress().get(0)))
-                        .build();
-                publicRegistryResponseHandler.handleResponse(response);
+                var digitalAddresses = payload.getDigitalAddress();
+                String correlationId = payload.getCorrelationId();
+                if(! CollectionUtils.isEmpty(digitalAddresses)) {
+
+                    PublicRegistryResponse response = buildPublicRegistryResponse(correlationId, digitalAddresses.get(0));
+                    publicRegistryResponseHandler.handleResponse(response);
+
+                }
             } catch (Exception ex) {
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
             }
         };
+    }
+
+    private PublicRegistryResponse buildPublicRegistryResponse(String correlationId, AddressSQSMessageDigitalAddress digitalAddress) {
+        return PublicRegistryResponse.builder()
+                .correlationId(correlationId)
+                .digitalAddress(mapToLegalDigitalAddressInt(digitalAddress))
+                .build();
     }
 
     private LegalDigitalAddressInt mapToLegalDigitalAddressInt(AddressSQSMessageDigitalAddress digitalAddress) {
