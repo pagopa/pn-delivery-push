@@ -1,6 +1,8 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -63,14 +65,18 @@ class AarUtilsTest {
         NotificationInt notificationInt = newNotification();
         String elementId = "IUN_01_aar_gen_0";
         String quickAccessToken = "test";
-
-        Mockito.when(timelineService.getTimelineElement(notificationInt.getIun(), elementId)).thenThrow(new PnInternalException("cannot generate AAR pdf", "test"));
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when(auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_NT_AAR), Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateFailure(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
 
         PnInternalException exception = Assertions.assertThrows(PnInternalException.class, () -> {
-            aarUtils.generateAARAndSaveInSafeStorageAndAddTimelineevent(notificationInt, recIndex, quickAccessToken);
+            aarUtils.saveAARinSafeStorageAndAddTimelineElement(notificationInt, recIndex, quickAccessToken);
         });
 
         Assertions.assertEquals(msg, exception.getProblem().getErrors().get(0).getCode());
+        Mockito.verify( auditLogEvent).generateFailure(Mockito.any(), Mockito.any());
+        Mockito.verify( auditLogEvent).log();
+        Mockito.verify( auditLogEvent, Mockito.never()).generateSuccess();
     }
 
     @ExtendWith(MockitoExtension.class)

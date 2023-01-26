@@ -2,7 +2,6 @@ package it.pagopa.pn.deliverypush.action.utils;
 
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -11,9 +10,9 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
+import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
-import it.pagopa.pn.deliverypush.service.AuditLogService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -57,28 +56,31 @@ public class AarUtils {
 
             Optional<TimelineElementInternal> timeline = timelineService.getTimelineElement(notification.getIun(), elementId);
             if (timeline.isEmpty()) {
-                PnAuditLogEvent logEvent = auditLogService.buildAuditLogEvent(
-                        notification.getIun(),
-                        recIndex,
-                        PnAuditLogEventType.AUD_NT_AAR,
-                        "Notification AAR generation for iun={} and recIndex={}", notification.getIun(), recIndex
-                );
-                logEvent.log();
-                try {
-                    PdfInfo pdfInfo = saveLegalFactsService.saveAAR(notification, notificationUtils.getRecipientFromIndex(notification, recIndex), quickAccessToken);
-
-                    timelineService.addTimelineElement(
-                            timelineUtils.buildAarGenerationTimelineElement(notification, recIndex, pdfInfo.getKey(), pdfInfo.getNumberOfPages()),
-                            notification
-                    );
-                    logEvent.generateSuccess().log();
-                } catch (Exception e) {
-                    logEvent.generateFailure("Exception on generation of AAR error={}", e.getMessage()).log();
-                    throw new PnInternalException("cannot generate AAR pdf", ERROR_CODE_DELIVERYPUSH_GENERATEPDFFAILED, e);
-                }
+                saveAARinSafeStorageAndAddTimelineElement(notification, recIndex, quickAccessToken);
             } else
                 log.debug("no need to recreate AAR iun={} timelineId={}", notification.getIun(), elementId);
         } catch (Exception e) {
+            throw new PnInternalException("cannot generate AAR pdf", ERROR_CODE_DELIVERYPUSH_GENERATEPDFFAILED, e);
+        }
+    }
+
+    public void saveAARinSafeStorageAndAddTimelineElement(NotificationInt notification, Integer recIndex, String quickAccessToken) {
+        PnAuditLogEvent logEvent = auditLogService.buildAuditLogEvent(
+                notification.getIun(),
+                recIndex,
+                PnAuditLogEventType.AUD_NT_AAR,
+                "Notification AAR generation"
+        );
+        try {
+            PdfInfo pdfInfo = saveLegalFactsService.saveAAR(notification, notificationUtils.getRecipientFromIndex(notification, recIndex), quickAccessToken);
+
+            timelineService.addTimelineElement(
+                    timelineUtils.buildAarGenerationTimelineElement(notification, recIndex, pdfInfo.getKey(), pdfInfo.getNumberOfPages()),
+                    notification
+            );
+            logEvent.generateSuccess().log();
+        } catch (Exception e) {
+            logEvent.generateFailure("Exception on generation of AAR error={}", e.getMessage()).log();
             throw new PnInternalException("cannot generate AAR pdf", ERROR_CODE_DELIVERYPUSH_GENERATEPDFFAILED, e);
         }
     }
