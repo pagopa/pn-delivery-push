@@ -82,7 +82,7 @@ class AarUtilsTest {
 
         Mockito.when(timelineService.getTimelineElement(notificationInt.getIun(), elementId)).thenReturn(timeline);
 
-            aarUtils.generateAARAndSaveInSafeStorageAndAddTimelineevent(notificationInt, recIndex, quickAccessToken);
+        aarUtils.generateAARAndSaveInSafeStorageAndAddTimelineevent(notificationInt, recIndex, quickAccessToken);
 
         Mockito.verify(timelineService, Mockito.never()).addTimelineElement(newTimelineElementInternal(), notificationInt);
     }
