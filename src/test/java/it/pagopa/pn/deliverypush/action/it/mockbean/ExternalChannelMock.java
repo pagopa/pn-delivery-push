@@ -79,7 +79,7 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
     }
 
     private void sendDigitalNotification(String address, NotificationInt notification, String timelineEventId){
-        log.info("sendDigitalNotification address:{} requestId:{}", address, timelineEventId);
+        log.info("[TEST] sendDigitalNotification address:{} requestId:{}", address, timelineEventId);
         
         new Thread(() -> {
             Assertions.assertDoesNotThrow(() -> {
@@ -97,7 +97,7 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
                     simulateExternalChannelDigitalResponse(address, timelineEventId);
 
                 }else {
-                    log.error("SendDigitalDetails is not present");
+                    log.error("[TEST] SendDigitalDetails is not present");
                 }
             });
         }).start();

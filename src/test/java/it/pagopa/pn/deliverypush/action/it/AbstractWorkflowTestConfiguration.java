@@ -15,6 +15,8 @@ import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowRetryHandler;
+import it.pagopa.pn.deliverypush.action.documentcreationresponsehandler.DocumentCreationResponseHandler;
+import it.pagopa.pn.deliverypush.action.documentcreationresponsehandler.SafeStorageResponseHandler;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
@@ -29,6 +31,7 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregi
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.userattributes.UserAttributesClient;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
+import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.impl.SaveLegalFactsServiceImpl;
 import it.pagopa.pn.deliverypush.utils.HtmlSanitizer;
@@ -51,8 +54,9 @@ public class AbstractWorkflowTestConfiguration {
     }
     
     @Bean
-    public PnSafeStorageClient safeStorageTest() {
-        return new SafeStorageClientMock();
+    public PnSafeStorageClient safeStorageTest(DocumentCreationRequestService creationRequestService,
+                                               SafeStorageResponseHandler safeStorageResponseHandler) {
+        return new SafeStorageClientMock(creationRequestService, safeStorageResponseHandler);
     }
 
     @Bean
@@ -110,7 +114,8 @@ public class AbstractWorkflowTestConfiguration {
                                                          @Lazy RefinementHandler refinementHandler, 
                                                          @Lazy InstantNowSupplier instantNowSupplier,
                                                          @Lazy StartWorkflowForRecipientHandler startWorkflowForRecipientHandler,
-                                                         @Lazy ChooseDeliveryModeHandler chooseDeliveryModeHandler) {
+                                                         @Lazy ChooseDeliveryModeHandler chooseDeliveryModeHandler,
+                                                         @Lazy DocumentCreationResponseHandler documentCreationResponseHandler) {
         return new SchedulerServiceMock(
                 digitalWorkFlowHandler,
                 digitalWorkFlowRetryHandler,
@@ -118,7 +123,8 @@ public class AbstractWorkflowTestConfiguration {
                 refinementHandler,
                 instantNowSupplier,
                 startWorkflowForRecipientHandler, 
-                chooseDeliveryModeHandler);
+                chooseDeliveryModeHandler, 
+                documentCreationResponseHandler);
     }
 
     

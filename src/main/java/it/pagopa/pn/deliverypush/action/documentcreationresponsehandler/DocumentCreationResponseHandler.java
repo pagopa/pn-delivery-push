@@ -1,9 +1,10 @@
-package it.pagopa.pn.deliverypush.action;
+package it.pagopa.pn.deliverypush.action.documentcreationresponsehandler;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationResponseHandler;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import lombok.AllArgsConstructor;
@@ -18,7 +19,10 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 public class DocumentCreationResponseHandler {
     private final ReceivedLegalFactCreationResponseHandler receivedLegalFactHandler;
 
-    public void handleResponseReceived( String fileKey, String iun, Integer recIndex, DocumentCreationTypeInt documentCreationType) {
+    public void handleResponseReceived( String iun, Integer recIndex, DocumentCreationResponseActionDetails details) {
+        String fileKey = details.getKey();
+        DocumentCreationTypeInt documentCreationType = details.getDocumentCreationType();
+        
         PnAuditLogEvent logEvent = generateAuditLog(fileKey, recIndex, documentCreationType, iun);
         logEvent.log();
 

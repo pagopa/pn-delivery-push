@@ -13,6 +13,8 @@ import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowExternalC
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowRetryHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowUtils;
+import it.pagopa.pn.deliverypush.action.documentcreationresponsehandler.DocumentCreationResponseHandler;
+import it.pagopa.pn.deliverypush.action.documentcreationresponsehandler.SafeStorageResponseHandler;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
@@ -23,6 +25,8 @@ import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedReque
 import it.pagopa.pn.deliverypush.action.notificationview.ViewNotification;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.AttachmentUtils;
+import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationResponseHandler;
+import it.pagopa.pn.deliverypush.action.startworkflow.ScheduleRecipientWorkflow;
 import it.pagopa.pn.deliverypush.action.startworkflow.StartWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.*;
@@ -132,6 +136,12 @@ import static org.awaitility.Awaitility.await;
         ViewNotification.class,
         PnDeliveryClientReactiveImpl.class,
         PnDataVaultClientReactiveMock.class,
+        DocumentCreationRequestServiceImpl.class,
+        DocumentCreationRequestDaoMock.class,
+        SafeStorageResponseHandler.class,
+        DocumentCreationResponseHandler.class,
+        ReceivedLegalFactCreationResponseHandler.class,
+        ScheduleRecipientWorkflow.class,
         DigitalTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")
@@ -223,6 +233,9 @@ class DigitalTestIT {
     @Autowired
     private AuditLogService auditLogService;
 
+    @Autowired
+    private DocumentCreationRequestDaoMock documentCreationRequestDaoMock;
+    
     @BeforeEach
     public void setup() {
         
@@ -236,6 +249,7 @@ class DigitalTestIT {
         pnDeliveryClientMock.clear();
         pnDataVaultClientMock.clear();
         safeStorageClientMock.clear();
+        documentCreationRequestDaoMock.clear();
     }
     
     @Test

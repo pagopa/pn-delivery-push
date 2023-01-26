@@ -77,7 +77,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
                                 .numberOfPages(numberOfPages)
                                 .build();
 
-                        log.debug("End Save AAR - iun={}", notification.getIun());
+                        log.debug("End sendCreationRequestForAAR - iun={}", notification.getIun());
                         
                         return pdfInfo;
                     }
@@ -85,7 +85,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
 
         } catch (Exception exc) {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "AAR", notification.getIun(), "N/A");
-            log.error("Exception in saveAAR ex=", exc);
+            log.error("Exception in sendCreationRequestForAAR ex=", exc);
             throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_SAVELEGALFACTSFAILED, exc);
         }
     }
@@ -96,7 +96,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
             
             return this.saveLegalFact(legalFactBuilder.generateNotificationReceivedLegalFact(notification))
                     .map( responseUrl -> {
-                        log.info("SaveNotificationReceivedLegalFact completed with fileKey={} - iun={}", responseUrl, notification.getIun());
+                        log.info("sendCreationRequestForNotificationReceivedLegalFact completed with fileKey={} - iun={}", responseUrl, notification.getIun());
                         return responseUrl;
                     }).block();
             
@@ -129,12 +129,12 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
             return this.saveLegalFact(legalFactBuilder.generatePecDeliveryWorkflowLegalFact(
                             listFeedbackFromExtChannel, notification, recipient, status, completionWorkflowDate))
                     .map( responseUrl -> {
-                        log.debug("End savePecDeliveryWorkflowLegalFact - iun={}", notification.getIun());
+                        log.debug("End sendCreationRequestForPecDeliveryWorkflowLegalFact - iun={}", notification.getIun());
                         logEvent.generateSuccess().log();
                         return responseUrl;
                     }).block();
         } catch (Exception exc) {
-            logEvent.generateFailure("Error in savePecDeliveryWorkflowLegalFact, exc=", exc).log();
+            logEvent.generateFailure("Error in sendCreationRequestForPecDeliveryWorkflowLegalFact, exc=", exc).log();
 
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "DIGITAL_DELIVERY", notification.getIun(), recipient.getTaxId());
             throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_SAVELEGALFACTSFAILED, exc);
@@ -154,15 +154,15 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
                 .iun(notification.getIun())
                 .build();
         logEvent.log();
-        log.debug("Start sendCreationRequestForPecDeliveryWorkflowLegalFact - iun={}", notification.getIun());
+        log.debug("Start sendCreationRequestForNotificationViewedLegalFact - iun={}", notification.getIun());
 
         return Mono.fromCallable(() -> legalFactBuilder.generateNotificationViewedLegalFact(notification.getIun(), recipient, timeStamp))
                 .flatMap( res -> {
-                        log.info("generateNotificationViewedLegalFact completed - iun={} are not nulls={}", notification.getIun(), res != null);
+                        log.info("sendCreationRequestForNotificationViewedLegalFact completed - iun={} are not nulls={}", notification.getIun(), res != null);
 
                         return this.saveLegalFact(res)
                         .map( responseUrl -> {
-                            log.debug("End saveNotificationViewedLegalFact - iun={}", notification.getIun());
+                            log.debug("End sendCreationRequestForNotificationViewedLegalFact - iun={}", notification.getIun());
                             logEvent.generateSuccess().log();
                             return responseUrl;
                         });

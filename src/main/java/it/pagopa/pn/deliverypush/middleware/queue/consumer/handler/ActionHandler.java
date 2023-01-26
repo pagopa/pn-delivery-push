@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
-import it.pagopa.pn.deliverypush.action.DocumentCreationResponseHandler;
+import it.pagopa.pn.deliverypush.action.documentcreationresponsehandler.DocumentCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
@@ -154,7 +154,7 @@ public class ActionHandler {
                 log.debug("pnDeliveryPushDocumentCreationResponseConsumer, message {}", message);
                 Action action = message.getPayload();
                 DocumentCreationResponseActionDetails details = (DocumentCreationResponseActionDetails) action.getDetails();
-                documentCreationResponseHandler.handleResponseReceived(details.getKey(), action.getIun(), action.getRecipientIndex(), details.getDocumentCreationType() );
+                documentCreationResponseHandler.handleResponseReceived(action.getIun(), action.getRecipientIndex(), details );
             } catch (Exception ex) {
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
