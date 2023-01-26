@@ -1,12 +1,12 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.pnclients.CommonBaseClient;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault_reactive.ApiClient;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault_reactive.api.RecipientsApi;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.common.BaseClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -18,12 +18,12 @@ import java.util.List;
 
 @Component
 @Slf4j
-public class PnDataVaultClientReactiveImpl extends BaseClient implements PnDataVaultClientReactive {
+public class PnDataVaultClientReactiveImpl extends CommonBaseClient implements PnDataVaultClientReactive {
     private final RecipientsApi recipientsApi;
 
     public PnDataVaultClientReactiveImpl(PnDeliveryPushConfigs cfg) {
         
-        ApiClient newApiClient = new ApiClient( initWebClient(ApiClient.buildWebClientBuilder()).build() );
+        ApiClient newApiClient = new ApiClient( initWebClient(ApiClient.buildWebClientBuilder()) );
         newApiClient.setBasePath( cfg.getDataVaultBaseUrl() );
 
         this.recipientsApi = new RecipientsApi( newApiClient );
