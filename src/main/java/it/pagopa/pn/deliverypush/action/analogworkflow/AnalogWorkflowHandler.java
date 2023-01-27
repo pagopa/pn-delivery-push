@@ -17,7 +17,7 @@ import java.time.Instant;
 @Slf4j
 public class AnalogWorkflowHandler {
 
-    public static final int ATTEMPT_MADE_UNREACHABLE = 2;
+    public static final int ATTEMPT_MADE_UNREACHABLE = 2; 
 
     private final NotificationService notificationService;
     private final PaperChannelService paperChannelService;
