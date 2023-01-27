@@ -52,17 +52,13 @@ public class StartWorkflowHandler {
     private void saveNotificationReceivedLegalFacts(NotificationInt notification) {
         // salvo il legalfactid di avvenuta ricezione da parte di PN
         String legalFactId = saveLegalFactsService.sendCreationRequestForNotificationReceivedLegalFact(notification);
-
-        DocumentCreationTypeInt documentCreationType = DocumentCreationTypeInt.SENDER_ACK;
-
-        TimelineElementInternal timelineElementInternal = timelineUtils.buildDocumentCreationRequestTimelineElement(notification, documentCreationType);
+        
+        TimelineElementInternal timelineElementInternal = timelineUtils.buildSenderAckLegalFactCreationRequest(notification, legalFactId);
         addTimelineElement( timelineElementInternal , notification);
         
         //Vengono inserite le informazioni della richiesta di creazione del legalFacts a safeStorage
-        documentCreationRequestService.addDocumentCreationRequest(legalFactId, notification.getIun(), documentCreationType, timelineElementInternal.getElementId());
+        documentCreationRequestService.addDocumentCreationRequest(legalFactId, notification.getIun(), DocumentCreationTypeInt.SENDER_ACK, timelineElementInternal.getElementId());
     }
-
-    
     
     private void handleValidationError(NotificationInt notification, PnValidationException ex) {
         List<String> errors = new ArrayList<>();

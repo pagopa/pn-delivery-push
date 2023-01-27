@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.action.documentcreationresponsehandler;
+package it.pagopa.pn.deliverypush.middleware.responsehandler;
 
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;

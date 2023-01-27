@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.action.documentcreationresponsehandler;
+package it.pagopa.pn.deliverypush.middleware.responsehandler;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;

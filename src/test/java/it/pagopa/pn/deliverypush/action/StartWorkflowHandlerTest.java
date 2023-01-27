@@ -65,7 +65,7 @@ class StartWorkflowHandlerTest {
         Mockito.when( saveLegalFactsService.sendCreationRequestForNotificationReceivedLegalFact(Mockito.any( NotificationInt.class ))).thenReturn(legalFactId);
 
         TimelineElementInternal elementInternal = TimelineElementInternal.builder().elementId("elId").build();
-        Mockito.when( timelineUtils.buildDocumentCreationRequestTimelineElement(Mockito.any(NotificationInt.class), Mockito.any(DocumentCreationTypeInt.class))).thenReturn(elementInternal);
+        Mockito.when( timelineUtils.buildSenderAckLegalFactCreationRequest(Mockito.any(NotificationInt.class), Mockito.anyString())).thenReturn(elementInternal);
         
         //WHEN
         handler.startWorkflow("IUN_01");
