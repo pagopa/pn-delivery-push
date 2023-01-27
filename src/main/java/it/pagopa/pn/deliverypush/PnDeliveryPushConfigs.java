@@ -79,6 +79,8 @@ public class PnDeliveryPushConfigs {
 
     private Integer retentionAttachmentDaysAfterRefinement;
 
+    private String nationalRegistriesBaseUrl;
+
     @Data
     public static class Topics {
 
