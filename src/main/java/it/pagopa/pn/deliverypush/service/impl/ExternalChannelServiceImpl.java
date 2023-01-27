@@ -176,11 +176,11 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
 
     private PnAuditLogEvent buildAuditLogEvent(String iun, CourtesyDigitalAddressInt courtesyAddress, int recIndex, String eventId) {
         if (courtesyAddress.getType() == CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL) {
-            return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_AD_SEND_EMAIL, "sendEmailMessage eventId={}", eventId);
+            return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_DA_SEND_EMAIL, "sendEmailMessage eventId={}", eventId);
         }
         else
         {
-            return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_AD_SEND_SMS, "sendSMSMessage eventId={}", eventId);
+            return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_DA_SEND_SMS, "sendSMSMessage eventId={}", eventId);
         }
     }
 
