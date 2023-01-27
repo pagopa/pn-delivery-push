@@ -40,7 +40,7 @@ public class IoServiceImpl implements IoService {
         SendMessageRequest sendMessageRequest = getSendMessageRequest(notification, recipientInt);
 
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_AD_SEND_IO, "sendIOMessage - iun={} id={}", notification.getIun(), recIndex)
+        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_DA_SEND_IO, "sendIOMessage - iun={} id={}", notification.getIun(), recIndex)
                 .iun(sendMessageRequest.getIun())
                 .build();
         logEvent.log();
