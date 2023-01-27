@@ -1,7 +1,7 @@
-package it.pagopa.pn.deliverypush.middleware.dao.documentcreationDao.dynamo.mapper;
+package it.pagopa.pn.deliverypush.middleware.dao.documentcreationdao.dynamo.mapper;
 
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationRequest;
-import it.pagopa.pn.deliverypush.middleware.dao.documentcreationDao.dynamo.entity.DocumentCreationRequestEntity;
+import it.pagopa.pn.deliverypush.middleware.dao.documentcreationdao.dynamo.entity.DocumentCreationRequestEntity;
 import org.springframework.stereotype.Component;
 
 @Component

@@ -47,7 +47,7 @@ public class StartWorkflowForRecipientHandler {
     private void generateAAR(NotificationInt notification, Integer recIndex, String quickAccessToken) {
         // ... genero il pdf dell'AAR, salvo su Safestorage e genero elemento in timeline AAR_GENERATION, potrebbe servirmi dopo ...
         
-        //FIXME AUDITLOG DA ELIMINARE
+        //TODO AUDITLOG DA ELIMINARE
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_AAR, "Notification AAR generation for iun={} and recIndex={}", notification.getIun(), recIndex)

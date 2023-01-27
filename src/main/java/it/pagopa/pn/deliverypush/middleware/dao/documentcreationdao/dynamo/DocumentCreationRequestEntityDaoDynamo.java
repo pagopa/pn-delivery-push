@@ -1,12 +1,12 @@
-package it.pagopa.pn.deliverypush.middleware.dao.documentcreationDao.dynamo;
+package it.pagopa.pn.deliverypush.middleware.dao.documentcreationdao.dynamo;
 
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.middleware.dao.documentcreationDao.DocumentCreationRequestDao;
-import it.pagopa.pn.deliverypush.middleware.dao.documentcreationDao.DocumentCreationRequestEntityDao;
-import it.pagopa.pn.deliverypush.middleware.dao.documentcreationDao.dynamo.entity.DocumentCreationRequestEntity;
+import it.pagopa.pn.deliverypush.middleware.dao.documentcreationdao.DocumentCreationRequestDao;
+import it.pagopa.pn.deliverypush.middleware.dao.documentcreationdao.DocumentCreationRequestEntityDao;
+import it.pagopa.pn.deliverypush.middleware.dao.documentcreationdao.dynamo.entity.DocumentCreationRequestEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;

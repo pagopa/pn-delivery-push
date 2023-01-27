@@ -68,6 +68,7 @@ class ReceivedLegalFactCreationResponseHandlerTest {
         //GIVEN
         String legalFactId = "legalFactId";
         NotificationInt notification = getNotification();
+        String iun = notification.getIun();
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
         
@@ -76,7 +77,7 @@ class ReceivedLegalFactCreationResponseHandlerTest {
 
         //WHEN
         Assertions.assertThrows(RuntimeException.class, () -> {
-            handler.handleReceivedLegalFactCreationResponse(notification.getIun(), legalFactId);
+            handler.handleReceivedLegalFactCreationResponse(iun, legalFactId);
         });
 
         //THEN

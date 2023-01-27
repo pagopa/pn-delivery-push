@@ -115,7 +115,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
             EndWorkflowStatus status,
             Instant completionWorkflowDate
     ) {
-        //FIXME AUDITLOG DA ELIMINARE
+        //TODO AUDITLOG DA ELIMINARE
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_NEWLEGAL, "SavePecDeliveryWorkflowLegalFact - iun={}", notification.getIun())
@@ -147,7 +147,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
             NotificationRecipientInt recipient,
             Instant timeStamp
     ) {
-        //FIXME AUDITLOG DA ELIMINARE
+        //TODO AUDITLOG DA ELIMINARE
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_NEWLEGAL, "SaveNotificationViewedLegalFact - iun={}", notification.getIun())

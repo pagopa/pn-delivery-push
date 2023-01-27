@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.middleware.dao.documentcreationDao;
+package it.pagopa.pn.deliverypush.middleware.dao.documentcreationdao;
 
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationRequest;
 

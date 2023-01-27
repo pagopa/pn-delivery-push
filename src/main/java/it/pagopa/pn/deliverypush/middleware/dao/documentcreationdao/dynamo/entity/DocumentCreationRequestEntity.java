@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.middleware.dao.documentcreationDao.dynamo.entity;
+package it.pagopa.pn.deliverypush.middleware.dao.documentcreationdao.dynamo.entity;
 
 import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;

@@ -2,7 +2,7 @@ package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationRequest;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
-import it.pagopa.pn.deliverypush.middleware.dao.documentcreationDao.DocumentCreationRequestDao;
+import it.pagopa.pn.deliverypush.middleware.dao.documentcreationdao.DocumentCreationRequestDao;
 import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

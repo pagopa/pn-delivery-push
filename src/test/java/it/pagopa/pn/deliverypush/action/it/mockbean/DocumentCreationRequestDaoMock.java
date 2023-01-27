@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationRequest;
-import it.pagopa.pn.deliverypush.middleware.dao.documentcreationDao.DocumentCreationRequestDao;
+import it.pagopa.pn.deliverypush.middleware.dao.documentcreationdao.DocumentCreationRequestDao;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
