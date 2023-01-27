@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.service.impl;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -60,7 +61,7 @@ class PublicRegistryServiceImplTest {
         service.sendRequestForGetDigitalGeneralAddress(notification, recIndex, contactPhase, sentAttemptMade);
 
         Mockito.verify(publicRegistryUtils, Mockito.times(1)).addPublicRegistryCallToTimeline(notification, recIndex, contactPhase, sentAttemptMade, correlationId, DeliveryModeInt.DIGITAL);
-        Mockito.verify(publicRegistry, Mockito.times(1)).sendRequestForGetDigitalAddress(recipient.getTaxId(), correlationId);
+        Mockito.verify(publicRegistry, Mockito.times(1)).sendRequestForGetDigitalAddress(recipient.getTaxId(), recipient.getRecipientType().getValue(), correlationId);
     }
 
     @Test
@@ -116,6 +117,7 @@ class PublicRegistryServiceImplTest {
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                         .build())
                 .physicalAddress(buildPhysicalAddressInt())
+                .recipientType(RecipientTypeInt.PF)
                 .build();
 
         return rec1;

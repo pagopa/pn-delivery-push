@@ -5,6 +5,7 @@ import lombok.Getter;
 
 @Getter
 public enum TimelineElementCategoryInt {
+    SENDER_ACK_CREATION_REQUEST(SenderAckCreationRequestDetailsInt.class, TimelineElementCategory.SENDER_ACK_CREATION_REQUEST.getValue()),
     REQUEST_ACCEPTED(NotificationRequestAcceptedDetailsInt.class, TimelineElementCategory.REQUEST_ACCEPTED.getValue()),
     SEND_COURTESY_MESSAGE(SendCourtesyMessageDetailsInt.class, TimelineElementCategory.SEND_COURTESY_MESSAGE.getValue()),
     GET_ADDRESS(GetAddressInfoDetailsInt.class, TimelineElementCategory.GET_ADDRESS.getValue()),
@@ -32,8 +33,7 @@ public enum TimelineElementCategoryInt {
     COMPLETELY_UNREACHABLE(CompletelyUnreachableDetailsInt.class, TimelineElementCategory.COMPLETELY_UNREACHABLE.getValue()),
     REQUEST_REFUSED(RequestRefusedDetailsInt.class, TimelineElementCategory.REQUEST_REFUSED.getValue()),
     AAR_GENERATION(AarGenerationDetailsInt.class, TimelineElementCategory.AAR_GENERATION.getValue()),
-    NOT_HANDLED(NotHandledDetailsInt.class, TimelineElementCategory.NOT_HANDLED.getValue()),
-    DOCUMENT_CREATION_REQUEST(DocumentCreationRequestDetailsInt.class, TimelineElementCategory.DOCUMENT_CREATION_REQUEST.getValue());
+    NOT_HANDLED(NotHandledDetailsInt.class, TimelineElementCategory.NOT_HANDLED.getValue());
     
     private final Class<? extends TimelineElementDetailsInt> detailsJavaClass;
     private final String value;

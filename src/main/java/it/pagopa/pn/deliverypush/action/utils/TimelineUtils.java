@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
 import it.pagopa.pn.deliverypush.dto.address.*;
-import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
@@ -749,38 +748,24 @@ public class TimelineUtils {
         );
     }
 
-    public TimelineElementInternal buildDocumentCreationRequestTimelineElement(NotificationInt notification, 
-                                                                               int recIndex,
-                                                                               DocumentCreationTypeInt documentCreationType) {
-        return buildDocumentCreationRequest(notification, recIndex, documentCreationType);
-    }
+    public TimelineElementInternal buildSenderAckLegalFactCreationRequest(NotificationInt notification, String legalFactId) {
+        log.debug("buildSenderAckLegalFactCreationRequest- iun={}", notification.getIun());
 
-    public TimelineElementInternal buildDocumentCreationRequestTimelineElement(NotificationInt notification,
-                                                                               DocumentCreationTypeInt documentCreationType) {
-        return buildDocumentCreationRequest(notification, null, documentCreationType);
-    }
-
-    private TimelineElementInternal buildDocumentCreationRequest(NotificationInt notification, Integer recIndex, DocumentCreationTypeInt documentCreationType) {
-        log.debug("buildDocumentCreationRequest - iun={} id={}", notification.getIun(), recIndex);
-
-        String elementId = TimelineEventId.DOCUMENT_CREATION_REQUEST.buildEventId(
+        String elementId = TimelineEventId.SENDERACK_CREATION_REQUEST.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())
-                        .recIndex(recIndex)
-                        .documentCreationType(documentCreationType)
                         .build());
-
-        DocumentCreationRequestDetailsInt details = DocumentCreationRequestDetailsInt.builder()
-                .recIndex(recIndex)
-                .documentCreationType(documentCreationType)
-                .build();
+        
+      SenderAckCreationRequestDetailsInt details = SenderAckCreationRequestDetailsInt.builder()
+              .legalFactId(legalFactId)
+              .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds(Collections.emptyList());
 
         return buildTimeline(
                 notification,
-                TimelineElementCategoryInt.DOCUMENT_CREATION_REQUEST,
+                TimelineElementCategoryInt.SENDER_ACK_CREATION_REQUEST,
                 elementId,
                 details,
                 timelineBuilder

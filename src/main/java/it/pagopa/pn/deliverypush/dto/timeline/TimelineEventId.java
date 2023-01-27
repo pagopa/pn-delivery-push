@@ -1,7 +1,16 @@
 package it.pagopa.pn.deliverypush.dto.timeline;
 
 public enum TimelineEventId {
-
+    SENDERACK_CREATION_REQUEST() {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return String.format(
+                    "senderack_legalfact_creation_request_iun_%s",
+                    eventId.getIun()
+            );
+        }
+    },
+    
     REQUEST_ACCEPTED() {
         @Override
         public String buildEventId(EventId eventId) {
@@ -337,26 +346,6 @@ public enum TimelineEventId {
                     "%s_notification_paid",
                     eventId.getIun()
             );
-        }
-    },
-
-    DOCUMENT_CREATION_REQUEST() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            if(eventId.getRecIndex() != null){
-                return String.format(
-                        "document_creation_request_iun_%s_recIndex_%d_docType_%s",
-                        eventId.getIun(),
-                        eventId.getRecIndex(),
-                        eventId.getDocumentCreationType()
-                );
-            } else {
-                return String.format(
-                        "document_creation_request_iun_%s_docType_%s",
-                        eventId.getIun(),
-                        eventId.getDocumentCreationType()
-                );
-            }
         }
     }
     ;

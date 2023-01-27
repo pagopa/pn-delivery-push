@@ -8,6 +8,7 @@ components:
       type: string
       description: >
         stato di avanzamento del processo di notifica:`
+          * `SENDER_ACK_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa in carico per il mittente a safe storage
           * `REQUEST_ACCEPTED` - Richiesta di notifica accettata a seguito dei controlli di validazione
           * `REQUEST_REFUSED` - Richiesta di notifica rifiutata per fallimento di validazione
           * `SEND_COURTESY_MESSAGE` - Invio di un messaggio di cortesia
@@ -36,8 +37,8 @@ components:
           * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
           * `PAYMENT` - Ricezione pagamento della notifica
           * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
-          * `DOCUMENT_CREATION_REQUEST` - Invio della richiesta di creazione di un nuovo documento (AAR o Atto opponibile a terzi) a safe storage
       enum:
+        - SENDER_ACK_CREATION_REQUEST
         - REQUEST_ACCEPTED
         - SEND_COURTESY_MESSAGE
         - GET_ADDRESS
@@ -66,7 +67,6 @@ components:
         - REQUEST_REFUSED
         - AAR_GENERATION
         - NOT_HANDLED
-        - DOCUMENT_CREATION_REQUEST
     
     TimelineElement:
       type: object
@@ -97,6 +97,7 @@ components:
     TimelineElementDetails:
       description: The raw event payload that will be different based on the event.
       oneOf:
+        - "$ref": "#/components/schemas/SenderAckCreationRequestDetails"
         - "$ref": "#/components/schemas/NotificationRequestAcceptedDetails"
         - "$ref": "#/components/schemas/AnalogFailureWorkflowDetails"
         - "$ref": "#/components/schemas/AnalogSuccessWorkflowDetails"
@@ -122,7 +123,6 @@ components:
         - "$ref": "#/components/schemas/AarGenerationDetails"
         - "$ref": "#/components/schemas/NotHandledDetails"
         - "$ref": "#/components/schemas/NotificationPaidDetails"
-        - "$ref": "#/components/schemas/DocumentCreationRequestDetails"
 
     NotificationRequestAcceptedDetails:
       type: object
@@ -573,27 +573,13 @@ components:
           description: Index destinatario che ha effettuato il pagamento della notifica
           format: int32
 
-    DocumentCreationRequestDetails:
+    SenderAckCreationRequestDetails:
       type: object
-      required:
-        - recIndex
       properties:
-        recIndex:
-          type: integer
-          description: Index destinatario che ha effettuato il pagamento della notifica
-          format: int32
-        documentCreationType:
-          $ref: '#/components/schemas/DocumentCreationType'
-          
-
-    DocumentCreationType:
-      type: string
-      description: tipologia di documento inviato a safeStorage
-      enum:
-        - AAR
-        - SENDER_ACK
-        - DIGITAL_DELIVERY
-        - RECIPIENT_ACCESS
+        legalfactId:
+          type: string
+          description: >-
+            Identificativo dell'atto opponibile a terzi del quale è stata richiesta la creazione
 
     DigitalAddressSource:
       type: string

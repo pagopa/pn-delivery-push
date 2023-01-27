@@ -7,7 +7,6 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
-import it.pagopa.pn.deliverypush.dto.legalfacts.PdfInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
@@ -48,13 +47,13 @@ class AarUtilsTest {
         timelineService = Mockito.mock(TimelineService.class);
         timelineUtils = Mockito.mock(TimelineUtils.class);
         saveLegalFactsService = Mockito.mock(SaveLegalFactsService.class);
-        aarUtils = new AarUtils(timelineService, timelineUtils, saveLegalFactsService, notificationUtils);
+        aarUtils = new AarUtils(saveLegalFactsService, timelineUtils, timelineService, notificationUtils);
     }
 
     @ExtendWith(MockitoExtension.class)
     @Test
     void generateAARAndSaveInSafeStorageAndAddTimelineeventFailed() {
-        
+
         String msg = "PN_DELIVERYPUSH_GENERATEPDFFAILED";
         NotificationInt notificationInt = newNotification();
         String elementId = "IUN_01_aar_gen_0";
@@ -74,10 +73,8 @@ class AarUtilsTest {
     void generateAARAndSaveInSafeStorageAndAddTimelineeventIsPresent() {
 
         NotificationInt notificationInt = newNotification();
-        NotificationRecipientInt recipientInt = notificationInt.getRecipients().get(0);
         Optional<TimelineElementInternal> timeline = Optional.of(newTimelineElementInternal());
         String elementId = "IUN_01_aar_gen_0";
-        PdfInfo pdfInfo = PdfInfo.builder().key("one").numberOfPages(1).build();
         String quickAccessToken = "test";
 
         Mockito.when(timelineService.getTimelineElement(notificationInt.getIun(), elementId)).thenReturn(timeline);
@@ -112,11 +109,9 @@ class AarUtilsTest {
         return TimelineElementInternal.builder()
                 .iun("1")
                 .elementId("1")
-                //.timestamp(Instant.now())
                 .paId("1")
                 .category(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK)
                 .legalFactsIds(legalFactsIds)
-                // .details(Mockito.any(TimelineElementDetailsInt.class))
                 .build();
     }
 
