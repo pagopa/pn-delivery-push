@@ -64,7 +64,7 @@ public class AarUtils {
         }
     }
 
-    public void saveAARinSafeStorageAndAddTimelineElement(NotificationInt notification, Integer recIndex, String quickAccessToken) {
+    private void saveAARinSafeStorageAndAddTimelineElement(NotificationInt notification, Integer recIndex, String quickAccessToken) {
         PnAuditLogEvent logEvent = auditLogService.buildAuditLogEvent(
                 notification.getIun(),
                 recIndex,
