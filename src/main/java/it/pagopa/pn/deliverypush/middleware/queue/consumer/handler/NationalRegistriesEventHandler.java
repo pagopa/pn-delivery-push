@@ -1,9 +1,9 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
-import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
+import it.pagopa.pn.deliverypush.utils.NationalRegistriesMessageUtil;
 import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.model.AddressSQSMessage;
 import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.model.AddressSQSMessageDigitalAddress;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 import org.springframework.util.CollectionUtils;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 @Configuration
@@ -28,12 +29,11 @@ public class NationalRegistriesEventHandler {
             try {
                 log.info("National registries event received, message {}", message);
 
-                AddressSQSMessage payload = message.getPayload();
-                var digitalAddresses = payload.getDigitalAddress();
-                String correlationId = payload.getCorrelationId();
+                List<AddressSQSMessageDigitalAddress> digitalAddresses = message.getPayload().getDigitalAddress();
+                String correlationId = message.getPayload().getCorrelationId();
                 if(! CollectionUtils.isEmpty(digitalAddresses)) {
 
-                    PublicRegistryResponse response = buildPublicRegistryResponse(correlationId, digitalAddresses.get(0));
+                    PublicRegistryResponse response = NationalRegistriesMessageUtil.buildPublicRegistryResponse(correlationId, digitalAddresses.get(0));
                     publicRegistryResponseHandler.handleResponse(response);
 
                 }
@@ -42,20 +42,6 @@ public class NationalRegistriesEventHandler {
                 throw ex;
             }
         };
-    }
-
-    private PublicRegistryResponse buildPublicRegistryResponse(String correlationId, AddressSQSMessageDigitalAddress digitalAddress) {
-        return PublicRegistryResponse.builder()
-                .correlationId(correlationId)
-                .digitalAddress(mapToLegalDigitalAddressInt(digitalAddress))
-                .build();
-    }
-
-    private LegalDigitalAddressInt mapToLegalDigitalAddressInt(AddressSQSMessageDigitalAddress digitalAddress) {
-        return LegalDigitalAddressInt.builder()
-                .address(digitalAddress.getAddress())
-                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
-                .build();
     }
 
 }
