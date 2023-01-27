@@ -32,9 +32,7 @@ public class ReceivedLegalFactCreationResponseHandler {
         
         // cambio lo stato degli attachment in ATTACHED
         attachmentUtils.changeAttachmentsStatusToAttached(notification);
-
-        //TODO Verifica che non sia stato già scodato l'elemento capire se farlo con elemento timeline oppure con parametro in più sulla nuova tabella documentCreation
-
+        
         addAcceptedRequestToTimeline(iun, legalFactId, notification);
         
         scheduleRecipientWorkflow.startScheduleRecipientWorkflow(notification);
