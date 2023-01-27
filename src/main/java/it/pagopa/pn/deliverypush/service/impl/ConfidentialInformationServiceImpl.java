@@ -1,14 +1,18 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.ConfidentialTimelineElementDto;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.BaseRecipientDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDtoInt;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault.PnDataVaultClient;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault.PnDataVaultClientReactive;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.mapper.ConfidentialTimelineElementDtoMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
@@ -20,16 +24,19 @@ import java.util.stream.Collectors;
 @Service
 public class ConfidentialInformationServiceImpl implements ConfidentialInformationService {
     private final PnDataVaultClient pnDataVaultClient;
-
-    public ConfidentialInformationServiceImpl(PnDataVaultClient pnDataVaultClient) {
+    private final PnDataVaultClientReactive pnDataVaultClientReactive;
+    
+    public ConfidentialInformationServiceImpl(PnDataVaultClient pnDataVaultClient,
+                                              PnDataVaultClientReactive pnDataVaultClientReactive) {
         this.pnDataVaultClient = pnDataVaultClient;
+        this.pnDataVaultClientReactive = pnDataVaultClientReactive;
     }
 
     @Override
     public void saveTimelineConfidentialInformation(TimelineElementInternal timelineElement) {
         String iun = timelineElement.getIun();
 
-        if (checkPresenceConfidentialInformation(timelineElement)) {
+        if (timelineElement.getDetails() instanceof ConfidentialInformationTimelineElement) {
 
             ConfidentialTimelineElementDtoInt dtoInt = getConfidentialDtoFromTimeline(timelineElement);
 
@@ -38,7 +45,6 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
             pnDataVaultClient.updateNotificationTimelineByIunAndTimelineElementId(iun, dtoExt);
 
             log.debug("UpdateNotificationTimelineByIunAndTimelineElementId OK for - iun {} timelineElementId {}", iun, dtoInt.getTimelineElementId());
-           
         }
     }
 
@@ -62,7 +68,15 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
 
         if (details instanceof NewAddressRelatedTimelineElement newAddressDetails && newAddressDetails.getNewAddress() != null) {
             builder.newPhysicalAddress(newAddressDetails.getNewAddress());
-
+        }
+        
+        if(details instanceof PersonalInformationRelatedTimelineElement personalInfoDetails){
+            if(personalInfoDetails.getTaxId() != null){
+                builder.taxId(personalInfoDetails.getTaxId());
+            }
+            if(personalInfoDetails.getDenomination() != null){
+                builder.denomination(personalInfoDetails.getDenomination());
+            }
         }
 
         return builder.build();
@@ -102,15 +116,24 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
         return Optional.empty();
        
     }
-
-    private boolean checkPresenceConfidentialInformation(TimelineElementInternal timelineElementInternal) {
-        TimelineElementDetailsInt details = timelineElementInternal.getDetails();
-
-        return details instanceof CourtesyAddressRelatedTimelineElement ||
-                details instanceof DigitalAddressRelatedTimelineElement ||
-                details instanceof PhysicalAddressRelatedTimelineElement ||
-                details instanceof NewAddressRelatedTimelineElement;
+    
+    @Override
+    public Mono<BaseRecipientDtoInt> getRecipientInformationByInternalId(String internalId) {
+        return pnDataVaultClientReactive.getRecipientsDenominationByInternalId(List.of(internalId))
+                .filter( el -> internalId.equals(el.getInternalId()))
+                .map( el -> BaseRecipientDtoInt.builder()
+                        .taxId(el.getTaxId())
+                        .denomination(el.getDenomination())
+                        .internalId(el.getInternalId())
+                        .recipientType(el.getRecipientType() != null ? RecipientTypeInt.valueOf(el.getRecipientType().getValue()) : null)
+                        .internalId(el.getInternalId())
+                        .build()
+                ).collectList()
+                .map(list -> {
+                    if(list != null && !list.isEmpty())
+                        return list.get(0);
+                    else 
+                        return null;
+                });
     }
-
-
 }

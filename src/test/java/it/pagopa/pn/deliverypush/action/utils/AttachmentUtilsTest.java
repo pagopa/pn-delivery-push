@@ -13,13 +13,17 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPayme
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.UpdateFileMetadataResponseInt;
+import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.util.Base64Utils;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import static it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTFOUND;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
@@ -54,9 +58,9 @@ class AttachmentUtilsTest {
         resp3.setChecksum( "a2V5ZjI0ZmxhdHJhdGU=" );
 
         //Mockito.doNothing().when(validator).checkPreloadedDigests(Mockito.anyString(), Mockito.any( NotificationDocumentInt.Digests.class), Mockito.any( NotificationDocumentInt.Digests.class));
-        Mockito.when(safeStorageService.getFile( "c2hhMjU2X2RvYzAw", true)).thenReturn(resp1);
-        Mockito.when(safeStorageService.getFile( "c2hhMjU2X2RvYzAx", true)).thenReturn(resp2);
-        Mockito.when(safeStorageService.getFile( "keyf24flatrate", true)).thenReturn(resp3);
+        Mockito.when(safeStorageService.getFile( "c2hhMjU2X2RvYzAw", true)).thenReturn(Mono.just(resp1));
+        Mockito.when(safeStorageService.getFile( "c2hhMjU2X2RvYzAx", true)).thenReturn(Mono.just(resp2));
+        Mockito.when(safeStorageService.getFile( "keyf24flatrate", true)).thenReturn(Mono.just(resp3));
 
         //WHEN
         attachmentUtils.validateAttachment(notification);
@@ -66,7 +70,7 @@ class AttachmentUtilsTest {
     }
 
     @Test
-    void validateAttachmentFail() {
+    void validateAttachmentFailDifferentKey() {
         //GIVEN
         NotificationRecipientInt recipient = getNotificationRecipientInt();
         NotificationInt notification = getNotificationInt(recipient);
@@ -74,13 +78,29 @@ class AttachmentUtilsTest {
         FileDownloadResponseInt resp = new FileDownloadResponseInt();
         resp.setKey("abcd");
 
-        //WHEN
-        Mockito.when(safeStorageService.getFile(Mockito.any(), Mockito.anyBoolean())).thenReturn(resp);
+        Mockito.when(safeStorageService.getFile(Mockito.any(), Mockito.anyBoolean())).thenReturn(Mono.just(resp));
 
         //THEN
         assertThrows(PnValidationException.class, () -> attachmentUtils.validateAttachment(notification));
     }
 
+    @Test
+    void validateAttachmentFailErrorSafeStorage() {
+        //GIVEN
+        NotificationRecipientInt recipient = getNotificationRecipientInt();
+        NotificationInt notification = getNotificationInt(recipient);
+
+        FileDownloadResponseInt resp = new FileDownloadResponseInt();
+        resp.setKey("abcd");
+
+        String message = String.format("Get file failed for - fileKey=%s isMetadataOnly=%b", resp.getKey(), false);
+
+        Mockito.when(safeStorageService.getFile(Mockito.any(), Mockito.anyBoolean())).thenReturn(Mono.error(new PnNotFoundException("Not found", message, ERROR_CODE_DELIVERYPUSH_NOTFOUND)));
+
+        //THEN
+        assertThrows(PnValidationException.class, () -> attachmentUtils.validateAttachment(notification));
+    }
+    
     @Test
     void changeAttachmentsStatusToAttached() {
         //GIVEN
@@ -90,7 +110,7 @@ class AttachmentUtilsTest {
         UpdateFileMetadataResponseInt resp = new UpdateFileMetadataResponseInt();
         resp.setResultCode("200.00");
 
-        Mockito.when(safeStorageService.updateFileMetadata(Mockito.any(), Mockito.any())).thenReturn(resp);
+        Mockito.when(safeStorageService.updateFileMetadata(Mockito.any(), Mockito.any())).thenReturn(Mono.just(resp));
 
         //WHEN
         attachmentUtils.changeAttachmentsStatusToAttached(notification);
@@ -116,6 +136,40 @@ class AttachmentUtilsTest {
     }
 
     @Test
+    void changeAttachmentsRetention() {
+        //GIVEN
+        NotificationRecipientInt recipient = getNotificationRecipientInt();
+        NotificationInt notification = getNotificationInt(recipient);
+
+        UpdateFileMetadataResponseInt resp = new UpdateFileMetadataResponseInt();
+        resp.setResultCode("200.00");
+
+        Mockito.when(safeStorageService.updateFileMetadata(Mockito.any(), Mockito.any())).thenReturn(Mono.just(resp));
+
+        //WHEN
+        attachmentUtils.changeAttachmentsRetention(notification, 20).blockFirst();
+
+        //THEN
+        Mockito.verify(safeStorageService, Mockito.times(2)).updateFileMetadata(Mockito.any(), Mockito.any());
+    }
+    
+    @Test
+    void changeAttachmentsRetentionKO() {
+        //GIVEN
+        NotificationRecipientInt recipient = getNotificationRecipientInt();
+        NotificationInt notification = getNotificationInt(recipient);
+
+        Mockito.when(safeStorageService.updateFileMetadata(Mockito.any(), Mockito.any())).thenThrow(new PnInternalException("test", "test"));
+
+        Flux<Void> flux = attachmentUtils.changeAttachmentsRetention(notification, 20);
+        //WHEN
+        assertThrows(PnInternalException.class, flux::blockFirst);
+
+        //THEN
+        Mockito.verify(safeStorageService, Mockito.times(1)).updateFileMetadata(Mockito.any(), Mockito.any());
+    }
+
+    @Test
     void changeAttachmentsStatusToAttachedFail400() {
         //GIVEN
         NotificationRecipientInt recipient = getNotificationRecipientInt();
@@ -124,7 +178,7 @@ class AttachmentUtilsTest {
         UpdateFileMetadataResponseInt resp = new UpdateFileMetadataResponseInt();
         resp.setResultCode("400.00");
 
-        Mockito.when(safeStorageService.updateFileMetadata(Mockito.any(), Mockito.any())).thenReturn(resp);
+        Mockito.when(safeStorageService.updateFileMetadata(Mockito.any(), Mockito.any())).thenReturn(Mono.just(resp));
 
         //WHEN
         assertThrows(PnInternalException.class, () -> attachmentUtils.changeAttachmentsStatusToAttached(notification));

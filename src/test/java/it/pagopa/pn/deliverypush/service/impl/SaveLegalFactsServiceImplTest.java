@@ -22,8 +22,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -65,7 +67,7 @@ class SaveLegalFactsServiceImplTest {
 
         Mockito.when(legalFactBuilder.generateNotificationAAR(notification, recipient, quickAccessToken)).thenReturn(denomination.getBytes());
         Mockito.when(legalFactBuilder.getNumberOfPages(denomination.getBytes())).thenReturn(1);
-        Mockito.when(safeStorageService.createAndUploadContent(fileCreation)).thenReturn(file);
+        Mockito.when(safeStorageService.createAndUploadContent(fileCreation)).thenReturn(Mono.just(file));
 
         PdfInfo actual = saveLegalFactsService.saveAAR(notification, recipient, quickAccessToken);
 
@@ -102,7 +104,7 @@ class SaveLegalFactsServiceImplTest {
         FileCreationResponseInt file = buildFileCreationResponseInt();
 
         Mockito.when(legalFactBuilder.generateNotificationReceivedLegalFact(notification)).thenReturn(denomination.getBytes());
-        Mockito.when(safeStorageService.createAndUploadContent(fileCreation)).thenReturn(file);
+        Mockito.when(safeStorageService.createAndUploadContent(fileCreation)).thenReturn(Mono.just(file));
 
         String actual = saveLegalFactsService.saveNotificationReceivedLegalFact(notification);
 
@@ -139,7 +141,7 @@ class SaveLegalFactsServiceImplTest {
 
         Mockito.when(legalFactBuilder.generatePecDeliveryWorkflowLegalFact(
                 listFeedbackFromExtChannel, notification, recipient, status, completionWorkflowDate)).thenReturn(denomination.getBytes());
-        Mockito.when(safeStorageService.createAndUploadContent(fileCreation)).thenReturn(file);
+        Mockito.when(safeStorageService.createAndUploadContent(fileCreation)).thenReturn(Mono.just(file));
 
         String actual = saveLegalFactsService.savePecDeliveryWorkflowLegalFact(listFeedbackFromExtChannel,
                 notification, recipient, status, completionWorkflowDate);
@@ -180,15 +182,15 @@ class SaveLegalFactsServiceImplTest {
 
         Mockito.when(legalFactBuilder.generateNotificationViewedLegalFact(
                 notification.getIun(), recipient, timeStamp)).thenReturn(denomination.getBytes());
-        Mockito.when(safeStorageService.createAndUploadContent(fileCreation)).thenReturn(file);
+        Mockito.when(safeStorageService.createAndUploadContent(fileCreation)).thenReturn(Mono.just(file));
 
-        String actual = saveLegalFactsService.saveNotificationViewedLegalFact(notification, recipient, timeStamp);
+        Mono<String> actualMono = saveLegalFactsService.saveNotificationViewedLegalFact(notification, recipient, timeStamp);
 
-        Assertions.assertEquals("safestorage://001", actual);
+        Assertions.assertEquals("safestorage://001", actualMono.block());
     }
 
     @Test
-    void saveNotificationViewedLegalFactFailed() {
+    void saveNotificationViewedLegalFactFailed() throws IOException {
         String denomination = "<h1>SSRF WITH IMAGE POC</h1> <img src='https://prova.it'></img>";
         NotificationInt notification = buildNotification(denomination);
         NotificationRecipientInt recipient = buildRecipient(denomination);
@@ -196,9 +198,10 @@ class SaveLegalFactsServiceImplTest {
         FileCreationWithContentRequest fileCreation = buildFileCreationWithContentRequest(PN_LEGAL_FACTS);
         FileCreationResponseInt file = buildFileCreationResponseInt();
 
-        PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
-            saveLegalFactsService.saveNotificationViewedLegalFact(notification, recipient, timeStamp);
-        });
+        Mockito.when(legalFactBuilder.generateNotificationViewedLegalFact(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn("this".getBytes(StandardCharsets.UTF_8));
+
+        Mono<String> response = saveLegalFactsService.saveNotificationViewedLegalFact(notification, recipient, timeStamp);
+        PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, response::block);
 
         String expectErrorMsg = "PN_DELIVERYPUSH_SAVENOTIFICATIONFAILED";
 

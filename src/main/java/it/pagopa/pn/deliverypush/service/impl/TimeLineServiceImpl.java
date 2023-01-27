@@ -323,7 +323,11 @@ public class TimeLineServiceImpl implements TimelineService {
             newAddress = getPhysicalAddress(newAddress, confidentialDto.getNewPhysicalAddress());
 
             ((NewAddressRelatedTimelineElement) details).setNewAddress(newAddress);
+        }
 
+        if (details instanceof PersonalInformationRelatedTimelineElement personalInformationRelatedTimelineElement) {
+            personalInformationRelatedTimelineElement.setTaxId(confidentialDto.getTaxId());
+            personalInformationRelatedTimelineElement.setDenomination(confidentialDto.getDenomination());
         }
     }
 

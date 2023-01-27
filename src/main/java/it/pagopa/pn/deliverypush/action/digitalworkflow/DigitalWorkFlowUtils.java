@@ -224,18 +224,21 @@ public class DigitalWorkFlowUtils {
                 notification
         );
     }
-
-    public void addDigitalFeedbackTimelineElement(NotificationInt notification, 
+    public String addDigitalFeedbackTimelineElement(
+                                                  String digitalDomicileTimeLineId,
+                                                  NotificationInt notification,
                                                   ResponseStatusInt status, 
                                                   List<String> errors,
                                                   int recIndex,
                                                   DigitalMessageReferenceInt digitalMessageReference,
                                                   DigitalAddressFeedback digitalAddressInfo
                                                   ) {
-        addTimelineElement(
-                timelineUtils.buildDigitalFeedbackTimelineElement(notification, status, errors, recIndex, digitalMessageReference, digitalAddressInfo),
-                notification
+        TimelineElementInternal timelineElementInternal = timelineUtils.buildDigitalFeedbackTimelineElement(
+                digitalDomicileTimeLineId,notification, status, errors, recIndex, digitalMessageReference, digitalAddressInfo
         );
+        addTimelineElement(timelineElementInternal, notification);
+
+        return timelineElementInternal.getElementId();
     }
 
     public void addDigitalDeliveringProgressTimelineElement(NotificationInt notification,
@@ -284,16 +287,12 @@ public class DigitalWorkFlowUtils {
     }
 
     public static DigitalAddressSourceInt nextSource(DigitalAddressSourceInt source) {
-        switch (source) {
-            case PLATFORM:
-                return DigitalAddressSourceInt.SPECIAL;
-            case SPECIAL:
-                return DigitalAddressSourceInt.GENERAL;
-            case GENERAL:
-                return DigitalAddressSourceInt.PLATFORM;
-            default:
-                throw new PnInternalException(" BUG: add support to next for " + source.getClass() + "::" + source.name(), ERROR_CODE_DELIVERYPUSH_INVALIDADDRESSSOURCE);
-        }
+        return switch (source) {
+            case PLATFORM -> DigitalAddressSourceInt.SPECIAL;
+            case SPECIAL -> DigitalAddressSourceInt.GENERAL;
+            case GENERAL -> DigitalAddressSourceInt.PLATFORM;
+            default -> throw new PnInternalException(" BUG: add support to next for " + source.getClass() + "::" + source.name(), ERROR_CODE_DELIVERYPUSH_INVALIDADDRESSSOURCE);
+        };
     }
     
 }

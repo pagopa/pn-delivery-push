@@ -3,18 +3,25 @@ package it.pagopa.pn.deliverypush.service.impl;
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.AddressDto;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.AnalogDomicile;
+import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.ConfidentialTimelineElementDto;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.BaseRecipientDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDtoInt;
+import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault.PnDataVaultClient;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault.PnDataVaultClientReactive;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,14 +33,16 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class ConfidentialInformationServiceImplTest {
     private ConfidentialInformationService confidentialInformationService;
     private PnDataVaultClient pnDataVaultClient;
+    private PnDataVaultClientReactive pnDataVaultClientReactive;
     
     @BeforeEach
     void setup() {
         pnDataVaultClient = Mockito.mock( PnDataVaultClient.class );
+        pnDataVaultClientReactive = Mockito.mock( PnDataVaultClientReactive.class );
 
         confidentialInformationService = new ConfidentialInformationServiceImpl(
-                pnDataVaultClient
-        );
+                pnDataVaultClient,
+                pnDataVaultClientReactive);
 
     }
     
@@ -59,6 +68,27 @@ class ConfidentialInformationServiceImplTest {
         ConfidentialTimelineElementDto capturedDto = confDtoCaptor.getValue();
         Assertions.assertNotNull( capturedDto.getPhysicalAddress() );
         Assertions.assertEquals( ((SendAnalogDetailsInt) element.getDetails()).getPhysicalAddress().getAddress(), capturedDto.getPhysicalAddress().getAddress() );
+    }
+
+    @Test
+    void saveTimelineConfidentialInformationNotificationViewed() {
+        String iun = "testIun";
+        String elementId = "testElementId";
+
+        //GIVEN
+        TimelineElementInternal element = notificationViewedDetails(iun, elementId);
+        
+        //WHEN
+        confidentialInformationService.saveTimelineConfidentialInformation(element);
+
+        //THEN
+        ArgumentCaptor<ConfidentialTimelineElementDto> confDtoCaptor = ArgumentCaptor.forClass(ConfidentialTimelineElementDto.class);
+
+        Mockito.verify(pnDataVaultClient).updateNotificationTimelineByIunAndTimelineElementId(Mockito.eq(iun), confDtoCaptor.capture());
+
+        ConfidentialTimelineElementDto capturedDto = confDtoCaptor.getValue();
+        Assertions.assertNotNull( capturedDto.getTaxId() );
+        Assertions.assertNotNull( capturedDto.getDenomination() );
     }
 
     @Test
@@ -168,6 +198,27 @@ class ConfidentialInformationServiceImplTest {
     }
 
     @Test
+    void getRecipientInformationByInternalId() {
+        //GIVEN
+        String internalId = "internalId";
+        String taxId = "testTaxId";
+        String denomination = "denomination1";
+        
+        Flux<BaseRecipientDto> flux = Flux.just(BaseRecipientDto.builder()
+                        .taxId(taxId)
+                        .internalId(internalId)
+                        .denomination(denomination)
+                .build());
+        Mockito.when(pnDataVaultClientReactive.getRecipientsDenominationByInternalId(Mockito.any())).thenReturn(flux);
+        Mono<BaseRecipientDtoInt> monoBaseRec = confidentialInformationService.getRecipientInformationByInternalId(internalId);
+
+        BaseRecipientDtoInt baseRecipientDto = monoBaseRec.block();
+        Assertions.assertNotNull(baseRecipientDto);
+        Assertions.assertEquals(taxId, baseRecipientDto.getTaxId());
+        Assertions.assertEquals(denomination, baseRecipientDto.getDenomination());
+    }
+    
+    @Test
     void getTimelineConfidentialInformationKo() {
         //GIVEN
         String iun = "testIun";
@@ -196,6 +247,25 @@ class ConfidentialInformationServiceImplTest {
                 .sentAttemptMade(0)
                 .build();
          
+        return TimelineElementInternal.builder()
+                .elementId(elementId)
+                .iun(iun)
+                .details( details )
+                .build();
+    }
+
+    private TimelineElementInternal notificationViewedDetails(String iun, String elementId) {
+        NotificationViewedDetailsInt details =  NotificationViewedDetailsInt.builder()
+                .notificationCost(100)
+                .recIndex(0)
+                .raddTransactionId("154")
+                .delegateInfo(DelegateInfoInt.builder()
+                        .internalId("idInterno")
+                        .denomination("test")
+                        .taxId("prova")
+                        .build())
+                .build();
+
         return TimelineElementInternal.builder()
                 .elementId(elementId)
                 .iun(iun)

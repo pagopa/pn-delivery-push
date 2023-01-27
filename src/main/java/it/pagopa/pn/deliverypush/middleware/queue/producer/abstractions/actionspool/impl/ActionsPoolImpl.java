@@ -1,12 +1,12 @@
 package it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl;
 
-import it.pagopa.pn.api.dto.events.StandardEventHeader;
 import it.pagopa.pn.api.dto.events.MomProducer;
+import it.pagopa.pn.api.dto.events.StandardEventHeader;
 import it.pagopa.pn.commons.utils.DateFormatUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.middleware.dao.actiondao.LastPollForFutureActionsDao;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionsPool;
-import it.pagopa.pn.deliverypush.middleware.dao.actiondao.LastPollForFutureActionsDao;
 import it.pagopa.pn.deliverypush.service.ActionService;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.core.LockAssert;
@@ -14,10 +14,7 @@ import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -103,6 +100,8 @@ public class ActionsPoolImpl implements ActionsPool {
     @SchedulerLock(name = "actionPoll", lockAtMostFor = "1m", lockAtLeastFor = "30s")
     protected void pollForFutureActions() {
         // To assert that the lock is held (prevents misconfiguration errors)
+        Instant start = Instant.now();
+        
         LockAssert.assertLocked();
 
         Optional<Instant> savedLastPollTime = lastFutureActionPoolExecutionTimeDao.getLastPollTime();
@@ -117,12 +116,17 @@ public class ActionsPoolImpl implements ActionsPool {
             }
         }
         log.debug("Action pool start poll {}", lastPollExecuted);
-
+        
+        
         Instant now = clock.instant();
         List<String> uncheckedTimeSlots = computeTimeSlots(lastPollExecuted, now);
         
         for ( String timeSlot: uncheckedTimeSlots) {
-            actionService.findActionsByTimeSlot(timeSlot).stream()
+            List<Action> actionList = actionService.findActionsByTimeSlot(timeSlot);
+            
+            log.debug("timeSlot size is {}", actionList.size());
+
+            actionList.stream()
                     .filter(action -> now.isAfter(action.getNotBefore()))
                     .forEach(action -> this.scheduleOne(action, timeSlot));
 
@@ -130,6 +134,10 @@ public class ActionsPoolImpl implements ActionsPool {
             lastFutureActionPoolExecutionTimeDao.updateLastPollTime( instantTimeSlot );
         }
 
+        Instant end = Instant.now();
+        Duration timeSpent = Duration.between(start, end);
+
+        log.debug("Action pool end. Time spent is {} millis", timeSpent.toMillis());
     }
 
     private void scheduleOne( Action action, String timeSlot) {

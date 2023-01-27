@@ -96,10 +96,6 @@ Parameters:
     Type: String
     Description: pn-delivery-push input queue age alarm ARN
 
-  ExternalChannelsInputsQueueARN:
-    Type: String
-    Description: 'Send external-channel messages to this Queue'
-
   ExternalChannelsOutputsQueueName:
     Type: String
     Description: 'Pull external-channel messages from this Queue'
@@ -299,6 +295,23 @@ Parameters:
     Type: String
     Description: 'Application load balancer security group'
 
+  NationalRegistryGatewayOutputsQueueName:
+    Type: String
+    Description: 'National Registries to delivery-push queue name'
+
+  NationalRegistryGatewayOutputsQueueARN:
+    Type: String
+    Description: 'National Registries to delivery-push queue ARN'
+
+  NationalRegistryGatewayOutputsQueueAlarmARN:
+    Type: String
+    Description: 'National Registries to delivery-push queue dlq alarm'
+
+  NationalRegistryGatewayOutputsQueueAgeAlarmARN:
+    Type: String
+    Description: 'National Registries to delivery-push queue age alarm'
+
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   
@@ -317,15 +330,15 @@ Resources:
         ContainerImageURI: !Sub '${ContainerImageUri}'
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
         ContainerEnvEntry2: !Sub 'PN_DELIVERYPUSH_TOPICS_NEWNOTIFICATIONS=${DeliveryPushInputsQueueName}'
-        ContainerEnvEntry3: !Sub 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILPFTEMPLATE=${PhysicalPersonPortalUrl}notifica?aar'
-        ContainerEnvEntry4: !Sub 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILPGTEMPLATE=${LegalPersonPortalUrl}notifica?aar'
+        ContainerEnvEntry3: !Sub 'PN_DELIVERYPUSH_WEBAPP_DIRECTACCESSURLTEMPLATEPHYSICAL=${PhysicalPersonPortalUrl}'
+        ContainerEnvEntry4: !Sub 'PN_DELIVERYPUSH_WEBAPP_DIRECTACCESSURLTEMPLATELEGAL=${LegalPersonPortalUrl}'
         ContainerEnvEntry5: !Sub 'PN_DELIVERYPUSH_PAPERCHANNELBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry6: !Sub 'PN_DELIVERYPUSH_TOPICS_FROMEXTERNALCHANNEL=${ExternalChannelsOutputsQueueName}'
         ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}'
         ContainerEnvEntry8: !Sub 'PN_DELIVERYPUSH_TOPICS_EXECUTEDACTIONS=${DoneActionsQueueName}'
         ContainerEnvEntry9: !Sub 'PN_DELIVERYPUSH_WEBHOOK_SCHEDULEINTERVAL=${WebhookScanInterval}'
         ContainerEnvEntry10: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXLENGTH=${WebhookMaxLength}'
-        ContainerEnvEntry11: !Sub 'PN_DELIVERYPUSH_WEBAPP_DIRECTACCESSURLTEMPLATE=${PhysicalPersonPortalUrl}'
+        ContainerEnvEntry11: 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILSUFFIX=?aar'
         ContainerEnvEntry12: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_EVENTSTABLENAME=${PnDeliveryPushWebhookEventsTableName}'
         ContainerEnvEntry13: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_STREAMSTABLENAME=${PnDeliveryPushWebhookStreamsTableName}'
         ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_WAITINGFORREADCOURTESYMESSAGE=${WaitingForReadCourtesyMessage}'
@@ -347,7 +360,7 @@ Resources:
         ContainerEnvEntry26: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry27: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName}'
+        ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName},${NationalRegistryGatewayOutputsQueueName}'
         ContainerEnvEntry30: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
         ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
         ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
@@ -356,10 +369,11 @@ Resources:
         ContainerEnvEntry35: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_TABLENAME=${LastPollForFutureActionDynamoTableName}'
         ContainerEnvEntry36: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_LOCKTABLENAME=${PnDeliveryPushShedLockDynamoTableName}'
         ContainerEnvEntry37: !Sub 'PN_COMMONS_FEATURES_ISMVPDEFAULTVALUE=${IsMvpDefaultValue}'
-        ContainerEnvEntry38: !Sub 'PN_DELIVERYPUSH_WEBAPP_FAQURLTEMPLATE=${PhysicalPersonPortalUrl}faq.html'
+        ContainerEnvEntry38: 'PN_DELIVERYPUSH_WEBAPP_FAQURLTEMPLATESUFFIX=faq'
         ContainerEnvEntry39: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_NOTIFICATIONNONVISIBILITYTIME=${NotificationNonVisibilityTime}'
         ContainerEnvEntry40: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_TIMETOADDINNONVISIBILITYTIME=${TimeToAddInNonVisibilityTimeCase}'
         ContainerEnvEntry41: !Sub 'PN_DELIVERYPUSH_RETENTION_ATTACHMENT_DAYS_AFTER_REFINEMENT=${RetentionAttachmentDaysAfterRefinement}'
+        ContainerEnvEntry42: !Sub 'PN_DELIVERYPUSH_NATIONALREGISTRIESBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*,/delivery-progresses/*'
         ECSClusterName: !Ref ECSClusterName
@@ -392,10 +406,10 @@ Resources:
               - sqs:SendMessageBatch
             Resource:
               - !Ref DeliveryPushInputsQueueARN
-              - !Ref ExternalChannelsInputsQueueARN
               - !Ref ExternalChannelsOutputsQueueARN
               - !Ref ScheduledActionsQueueARN
               - !Ref DoneActionsQueueARN
+              - !Ref NationalRegistryGatewayOutputsQueueARN
           - Effect: Allow
             Action:
               - 'dynamodb:GetItem'
@@ -564,7 +578,9 @@ Resources:
             - !Ref DoneActionsQueueAlarmARN
             - !Ref DoneActionsQueueAgeAlarmARN
             - !Ref ScheduledActionsQueueAlarmARN
-            - !Ref ScheduledActionsQueueAgeAlarmARN         
+            - !Ref ScheduledActionsQueueAgeAlarmARN
+            - !Ref NationalRegistryGatewayOutputsQueueAlarmARN
+            - !Ref NationalRegistryGatewayOutputsQueueAgeAlarmARN
         QueueArns: !Join
           - ','
           - - !Ref DeliveryPushInputsQueueARN
@@ -572,3 +588,4 @@ Resources:
             - !Ref ScheduledActionsQueueARN
             - !Ref DoneActionsQueueARN
             - !Ref SafeStorageToDeliveryPushQueueARN
+            - !Ref NationalRegistryGatewayOutputsQueueARN

@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Mono;
 
 import java.util.Optional;
 
@@ -48,10 +49,12 @@ class NotificationCostTest {
         Mockito.when(timelineService.getTimelineElement(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.of(timelineElementInternal));
         
         //WHEN
-        Integer cost = notificationCost.getNotificationCost(notification, recIndex);
+        Mono<Optional<Integer>> monoCostOpt = notificationCost.getNotificationCost(notification, recIndex);
         //THEN
         Mockito.verify(notificationCostService, Mockito.never()).getNotificationCost(notification, recIndex);
-        Assertions.assertNull(cost);
+        Assertions.assertNotNull(monoCostOpt);
+        Optional<Integer> costOpt = monoCostOpt.block();
+        Assertions.assertTrue(costOpt.isEmpty());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -66,12 +69,19 @@ class NotificationCostTest {
 
         Mockito.when(timelineService.getTimelineElement(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.empty());
         int expectedCost = 10;
-        Mockito.when(notificationCostService.getNotificationCost(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(expectedCost);
+        Mockito.when(notificationCostService.getNotificationCost(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(Mono.just(expectedCost));
 
         //WHEN
-        Integer cost = notificationCost.getNotificationCost(notification, recIndex);
+        Mono<Optional<Integer>> monoCostOpt = notificationCost.getNotificationCost(notification, recIndex);
         //THEN
+        Assertions.assertNotNull(monoCostOpt);
+        Optional<Integer> costOpt = monoCostOpt.block();
+
+        Assertions.assertNotNull(costOpt);
+        Assertions.assertTrue(costOpt.isPresent());
+        Assertions.assertNotNull(costOpt.get());
+        Assertions.assertEquals(expectedCost, costOpt.get());
+
         Mockito.verify(notificationCostService).getNotificationCost(notification, recIndex);
-        Assertions.assertEquals(expectedCost, cost);
     }
 }

@@ -58,7 +58,7 @@ class GetDocumentServiceImplTest {
         FileDownloadResponseInt fileDownloadResponse = buildFileDownloadResponseInt();
 
         
-        Mockito.when(safeStorageService.getFileReactive(Mockito.anyString(), Mockito.anyBoolean()))
+        Mockito.when(safeStorageService.getFile(Mockito.anyString(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(fileDownloadResponse));
         
         //WHEN
@@ -95,7 +95,7 @@ class GetDocumentServiceImplTest {
                 .thenReturn(Mono.just(notification));
 
 
-        Mockito.when(safeStorageService.getFileReactive(documentId, false))
+        Mockito.when(safeStorageService.getFile(documentId, false))
                 .thenReturn(Mono.just(fileDownloadResponse));
 
 

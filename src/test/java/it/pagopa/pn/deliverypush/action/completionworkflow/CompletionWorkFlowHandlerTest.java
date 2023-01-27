@@ -9,6 +9,7 @@ import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -67,6 +68,8 @@ class CompletionWorkFlowHandlerTest {
         
         String legalFactId = "legalFactsId";
         Mockito.when( pecDeliveryWorkflowLegalFactsGenerator.generatePecDeliveryWorkflowLegalFact(notification, recIndex,EndWorkflowStatus.SUCCESS, notificationDate ) ).thenReturn(legalFactId);
+        Mockito.when(timelineUtils.buildSuccessDigitalWorkflowTimelineElement(Mockito.any(), Mockito.anyInt(), Mockito.any(), Mockito.any())).thenReturn(Mockito.mock(TimelineElementInternal.class));
+
 
         //WHEN
         handler.completionDigitalWorkflow(notification, recIndex, notificationDate, recipient.getDigitalDomicile(), EndWorkflowStatus.SUCCESS);
@@ -94,7 +97,8 @@ class CompletionWorkFlowHandlerTest {
         Mockito.when( pecDeliveryWorkflowLegalFactsGenerator.generatePecDeliveryWorkflowLegalFact(notification, recIndex,EndWorkflowStatus.FAILURE, notificationDate ) ).thenReturn(legalFactId);
         
         Mockito.when(mvpParameterConsumer.isMvp(Mockito.anyString())).thenReturn(false);
-        
+        Mockito.when(timelineUtils.buildFailureDigitalWorkflowTimelineElement(Mockito.any(), Mockito.anyInt(), Mockito.anyString(), Mockito.any())).thenReturn(Mockito.mock(TimelineElementInternal.class));
+
         //WHEN
         handler.completionDigitalWorkflow(notification, recIndex, notificationDate, recipient.getDigitalDomicile(), EndWorkflowStatus.FAILURE);
 
@@ -124,7 +128,8 @@ class CompletionWorkFlowHandlerTest {
         Mockito.when( pecDeliveryWorkflowLegalFactsGenerator.generatePecDeliveryWorkflowLegalFact(notification, recIndex,EndWorkflowStatus.FAILURE, notificationDate ) ).thenReturn(legalFactId);
         
         Mockito.when(timelineUtils.checkNotificationIsAlreadyViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
-        
+        Mockito.when(timelineUtils.buildFailureDigitalWorkflowTimelineElement(Mockito.any(), Mockito.anyInt(), Mockito.anyString(), Mockito.any())).thenReturn(Mockito.mock(TimelineElementInternal.class));
+
         //WHEN
         handler.completionDigitalWorkflow(notification, recIndex, notificationDate, recipient.getDigitalDomicile(), EndWorkflowStatus.FAILURE);
 
@@ -163,6 +168,7 @@ class CompletionWorkFlowHandlerTest {
         Mockito.when( pecDeliveryWorkflowLegalFactsGenerator.generatePecDeliveryWorkflowLegalFact(notification, recIndex,EndWorkflowStatus.FAILURE, notificationDate ) ).thenReturn(legalFactId);
 
         Mockito.when(timelineUtils.checkNotificationIsAlreadyViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(timelineUtils.buildFailureDigitalWorkflowTimelineElement(Mockito.any(), Mockito.anyInt(), Mockito.anyString(), Mockito.any())).thenReturn(Mockito.mock(TimelineElementInternal.class));
 
         //WHEN
         handler.completionDigitalWorkflow(notification, recIndex, notificationDate, recipient.getDigitalDomicile(), EndWorkflowStatus.FAILURE);

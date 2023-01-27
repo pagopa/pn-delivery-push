@@ -4,8 +4,9 @@ import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.*;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
-import org.springframework.http.ResponseEntity;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Base64Utils;
+import reactor.core.publisher.Mono;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +17,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 public class SafeStorageClientMock implements PnSafeStorageClient {
     private Map<String, FileCreationWithContentRequest> savedFileMap = new HashMap<>();
 
@@ -24,7 +26,7 @@ public class SafeStorageClientMock implements PnSafeStorageClient {
     }
 
     @Override
-    public FileDownloadResponse getFile(String fileKey, Boolean metadataOnly) {
+    public Mono<FileDownloadResponse> getFile(String fileKey, Boolean metadataOnly) {
         FileCreationWithContentRequest fileCreationWithContentRequest = savedFileMap.get(fileKey);
         
         FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
@@ -38,11 +40,11 @@ public class SafeStorageClientMock implements PnSafeStorageClient {
         downloadInfo.setRetryAfter(new BigDecimal(0));
         fileDownloadResponse.setDownload(downloadInfo);
         
-        return fileDownloadResponse;
+        return Mono.just(fileDownloadResponse);
     }
 
     @Override
-    public FileCreationResponse createFile(FileCreationWithContentRequest fileCreationRequest, String sha256) {
+    public Mono<FileCreationResponse> createFile(FileCreationWithContentRequest fileCreationRequest, String sha256) {
         String key = sha256;
         savedFileMap.put(key,fileCreationRequest);
 
@@ -52,20 +54,21 @@ public class SafeStorageClientMock implements PnSafeStorageClient {
         fileCreationResponse.setUploadUrl("https://www.unqualcheurl.it");
         fileCreationResponse.setUploadMethod(FileCreationResponse.UploadMethodEnum.POST);
 
-        return fileCreationResponse;
+        return Mono.just(fileCreationResponse);
     }
 
     @Override
-    public OperationResultCodeResponse updateFileMetadata(String fileKey, UpdateFileMetadataRequest request) {
+    public Mono<OperationResultCodeResponse> updateFileMetadata(String fileKey, UpdateFileMetadataRequest request) {
         OperationResultCodeResponse operationResultCodeResponse = new OperationResultCodeResponse();
         operationResultCodeResponse.setResultCode("200.00");
         operationResultCodeResponse.setResultDescription("OK");
         
-        return operationResultCodeResponse;
+        return Mono.just(operationResultCodeResponse);
     }
 
     @Override
     public void uploadContent(FileCreationWithContentRequest fileCreationRequest, FileCreationResponse fileCreationResponse, String sha256) {
+        log.info("Upload content Mock - key={} uploadUrl={}", fileCreationResponse.getKey(), fileCreationResponse.getUploadUrl());
 
     }
 

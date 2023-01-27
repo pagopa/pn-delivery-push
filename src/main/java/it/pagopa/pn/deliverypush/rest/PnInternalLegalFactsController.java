@@ -37,11 +37,8 @@ public class PnInternalLegalFactsController implements LegalFactsPrivateApi {
             List<String> xPagopaPnCxGroups,
             ServerWebExchange exchange) {
 
-        return Mono.fromSupplier(() -> {
-                    log.debug("Start getLegalFactPrivate for iun={} recipientInternalId={}", iun, recipientInternalId);
-                    return ResponseEntity.ok(getLegalFactService.getLegalFactMetadata(iun, legalFactType, legalFactId, recipientInternalId, mandateId, xPagopaPnCxType, xPagopaPnCxGroups));
-                }
-        );
+        return getLegalFactService.getLegalFactMetadata(iun, legalFactType, legalFactId, recipientInternalId, mandateId, xPagopaPnCxType, xPagopaPnCxGroups)
+                .map(response -> ResponseEntity.ok().body(response));
     }
 
     @Override

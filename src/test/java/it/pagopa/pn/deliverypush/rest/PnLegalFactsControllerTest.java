@@ -13,6 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.List;
@@ -102,7 +103,7 @@ class PnLegalFactsControllerTest {
                         .url("url.com");
 
         Mockito.when(getLegalFactService.getLegalFactMetadata(anyString(), Mockito.any(LegalFactCategory.class), anyString(), anyString(), anyString(), any(), any()))
-                .thenReturn(legalFactDownloadMetadataResponse);
+                .thenReturn(Mono.just(legalFactDownloadMetadataResponse));
 
         String legalFactType = LegalFactCategory.SENDER_ACK.getValue();
         String legalFactsId = "id100";

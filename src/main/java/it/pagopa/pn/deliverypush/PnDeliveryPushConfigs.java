@@ -38,6 +38,7 @@ public class PnDeliveryPushConfigs {
     private String safeStorageBaseUrl;
 
     private String safeStorageCxId;
+    
     private String safeStorageCxIdUpdatemetadata;
 
     private String userAttributesBaseUrl;
@@ -75,6 +76,8 @@ public class PnDeliveryPushConfigs {
     private LegalFacts legalfacts;
 
     private Integer retentionAttachmentDaysAfterRefinement;
+
+    private String nationalRegistriesBaseUrl;
 
     @Data
     public static class Topics {
@@ -143,10 +146,11 @@ public class PnDeliveryPushConfigs {
 
    @Data
    public static class Webapp {
-        private String directAccessUrlTemplate;
-        private String faqUrlTemplate;
-        private String quickAccessUrlAarDetailPfTemplate;
-        private String quickAccessUrlAarDetailPgTemplate;
+        private String directAccessUrlTemplatePhysical;
+        private String directAccessUrlTemplateLegal;
+        private String faqUrlTemplateSuffix;
+        private String quickAccessUrlAarDetailSuffix;
+        private String landingUrl;
    }
 
     @Data

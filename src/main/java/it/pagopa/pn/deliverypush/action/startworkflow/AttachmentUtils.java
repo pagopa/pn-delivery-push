@@ -11,16 +11,18 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
-import it.pagopa.pn.deliverypush.dto.ext.safestorage.UpdateFileMetadataResponseInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotMatchingShaException;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -79,13 +81,12 @@ public class AttachmentUtils {
         forEachAttachment(notification, this::changeAttachmentStatusToAttached);
     }
 
-    public void changeAttachmentsRetention(NotificationInt notification, int retentionUntilDays) {
+    public Flux<Void> changeAttachmentsRetention(NotificationInt notification, int retentionUntilDays) {
         log.info( "changeAttachmentsRetention iun={}", notification.getIun());
-
-        forEachAttachment(notification,
-                notificationDocumentInt -> this.changeAttachmentRetention(notificationDocumentInt, retentionUntilDays));
+        return Mono.just(getAllAttachment(notification))
+                .flatMapIterable( x -> x )
+                .flatMap( doc -> this.changeAttachmentRetention(doc, retentionUntilDays));
     }
-
 
     private void forEachAttachment(NotificationInt notification, Consumer<NotificationDocumentInt> callback)
     {
@@ -107,12 +108,30 @@ public class AttachmentUtils {
         }
     }
 
+    private List<NotificationDocumentInt> getAllAttachment(NotificationInt notification)
+    {
+        List<NotificationDocumentInt> notificationDocuments = new ArrayList<>(notification.getDocuments());
+
+        notification.getRecipients().forEach( recipient -> {
+            if(recipient.getPayment() != null ){
+
+                if(recipient.getPayment().getPagoPaForm() != null){
+                    notificationDocuments.add(recipient.getPayment().getPagoPaForm());
+                }
+                if(recipient.getPayment().getF24flatRate() != null){
+                    notificationDocuments.add(recipient.getPayment().getF24flatRate());
+                }
+            }
+        });
+        
+        return notificationDocuments;
+    }
 
     private void checkAttachment(NotificationDocumentInt attachment) {
         NotificationDocumentInt.Ref ref = attachment.getRef();
         FileDownloadResponseInt fd = null;
         try {
-            fd = safeStorageService.getFile(ref.getKey(),true);
+            fd = safeStorageService.getFile(ref.getKey(),true).block();
         } catch ( PnNotFoundException ex ) {
             throw new PnValidationFileNotFoundException(
                     ERROR_CODE_DELIVERYPUSH_NOTFOUND,
@@ -120,13 +139,19 @@ public class AttachmentUtils {
                     ex 
             );
         }
-
-        String attachmentKey = fd.getKey();
-        log.debug( "Check preload digest for attachment with key={}", attachmentKey);
-        if ( !attachment.getDigests().getSha256().equals( fd.getChecksum() )) {
+        
+        if(fd != null){
+            String attachmentKey = fd.getKey();
+            log.debug( "Check preload digest for attachment with key={}", attachmentKey);
+            if ( !attachment.getDigests().getSha256().equals( fd.getChecksum() )) {
+                throw new PnValidationNotMatchingShaException( ERROR_CODE_DELIVERYPUSH_SHAFILEERROR,
+                        "Validation failed, different sha256 expected="+ attachment.getDigests().getSha256()
+                                + " actual="+ fd.getChecksum() );
+            }
+        } else{
             throw new PnValidationNotMatchingShaException( ERROR_CODE_DELIVERYPUSH_SHAFILEERROR,
                     "Validation failed, different sha256 expected="+ attachment.getDigests().getSha256()
-                            + " actual="+ fd.getChecksum() );
+                            + " actual="+ null );
         }
     }
 
@@ -134,35 +159,38 @@ public class AttachmentUtils {
         NotificationDocumentInt.Ref ref = attachment.getRef();
         final String ATTACHED_STATUS = "ATTACHED";
         log.debug( "changeAttachmentStatusToAttached begin changing status for attachment with key={}", ref.getKey());
-
-        updateFileMetadata(ref.getKey(), ATTACHED_STATUS, null);
-
-        log.info( "changeAttachmentStatusToAttached changed status for attachment with key={}", ref.getKey());
-
+        
+        updateFileMetadata(ref.getKey(), ATTACHED_STATUS, null)
+                .doOnSuccess( res -> log.info( "changeAttachmentStatusToAttached changed status for attachment with key={}", ref.getKey()))
+                .block();
     }
 
-    private void changeAttachmentRetention(NotificationDocumentInt attachment, int retentionUntilDays) {
+    private Mono<Void> changeAttachmentRetention(NotificationDocumentInt attachment, int retentionUntilDays) {
         NotificationDocumentInt.Ref ref = attachment.getRef();
         OffsetDateTime retentionUntil = OffsetDateTime.now().plus(retentionUntilDays, ChronoUnit.DAYS);
-        log.debug( "changeAttachmentRetention begin changing retentionUntil for attachment with key={}", ref.getKey());
+        log.info( "changeAttachmentRetention begin changing retentionUntil for attachment with key={}", ref.getKey());
 
-        updateFileMetadata(ref.getKey(), null, retentionUntil);
-
-        log.info( "changeAttachmentRetention changed retentionUntil for attachment with key={}", ref.getKey());
+        return updateFileMetadata(ref.getKey(), null, retentionUntil);
     }
 
-    private void updateFileMetadata(String fileKey, String statusRequest, OffsetDateTime retentionUntilRequest) {
+    private Mono<Void> updateFileMetadata(String fileKey, String statusRequest, OffsetDateTime retentionUntilRequest) {
         UpdateFileMetadataRequest request = new UpdateFileMetadataRequest();
         request.setStatus(statusRequest);
         request.setRetentionUntil(retentionUntilRequest);
 
-        UpdateFileMetadataResponseInt fd = safeStorageService.updateFileMetadata(fileKey, request);
+        return safeStorageService.updateFileMetadata(fileKey, request)
+                .flatMap( fd -> {
+                    log.info( "Response updateFileMetadata returned={}",fd);
 
-        if (!fd.getResultCode().startsWith("2"))
-        {
-            // è un FAIL
-            log.error("Cannot change metadata for attachment key={} result={}", fileKey, fd);
-            throw new PnInternalException("Failed update metadata attachment", ERROR_CODE_DELIVERYPUSH_ATTACHMENTCHANGESTATUSFAILED);
-        }
+                    if (fd != null && !fd.getResultCode().startsWith("2"))
+                    {
+                        // è un FAIL
+                        log.error("Cannot change metadata for attachment key={} result={}", fileKey, fd);
+                        return Mono.error(new PnInternalException("Failed update metadata attachment", ERROR_CODE_DELIVERYPUSH_ATTACHMENTCHANGESTATUSFAILED));
+                    }
+
+                    return Mono.empty();
+
+                });
     }
 }
