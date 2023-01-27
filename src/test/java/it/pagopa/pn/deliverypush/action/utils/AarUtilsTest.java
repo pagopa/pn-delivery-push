@@ -75,6 +75,7 @@ class AarUtilsTest {
 
         Assertions.assertEquals(msg, exception.getProblem().getErrors().get(0).getCode());
         Mockito.verify( auditLogEvent).generateFailure(Mockito.any(), Mockito.any());
+        Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateSuccess();
     }
 
@@ -114,6 +115,7 @@ class AarUtilsTest {
 
         Mockito.verify(timelineService).addTimelineElement(Mockito.any(), Mockito.any( NotificationInt.class ));
         Mockito.verify( auditLogEvent).generateSuccess();
+        Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any(), Mockito.any());
     }
 
