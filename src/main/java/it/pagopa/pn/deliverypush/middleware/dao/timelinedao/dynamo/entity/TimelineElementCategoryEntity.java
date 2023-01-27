@@ -6,7 +6,7 @@ import lombok.ToString;
 @ToString
 @Getter
 public enum TimelineElementCategoryEntity {
-    SENDER_ACK_CREATION_REQUEST("DOCUMENT_CREATION_REQUEST"),
+    SENDER_ACK_CREATION_REQUEST("SENDER_ACK_CREATION_REQUEST"),
 
     REQUEST_ACCEPTED("REQUEST_ACCEPTED"),
 
