@@ -224,18 +224,19 @@ public class DigitalWorkFlowUtils {
                 notification
         );
     }
-
-    public String addDigitalFeedbackTimelineElement(NotificationInt notification,
+    public String addDigitalFeedbackTimelineElement(
+                                                  String digitalDomicileTimeLineId,
+                                                  NotificationInt notification,
                                                   ResponseStatusInt status, 
                                                   List<String> errors,
                                                   int recIndex,
                                                   DigitalMessageReferenceInt digitalMessageReference,
                                                   DigitalAddressFeedback digitalAddressInfo
                                                   ) {
-        TimelineElementInternal timelineElementInternal = timelineUtils.buildDigitalFeedbackTimelineElement(notification, status, errors, recIndex, digitalMessageReference, digitalAddressInfo);
-        addTimelineElement(timelineElementInternal,
-                notification
+        TimelineElementInternal timelineElementInternal = timelineUtils.buildDigitalFeedbackTimelineElement(
+                digitalDomicileTimeLineId,notification, status, errors, recIndex, digitalMessageReference, digitalAddressInfo
         );
+        addTimelineElement(timelineElementInternal, notification);
 
         return timelineElementInternal.getElementId();
     }

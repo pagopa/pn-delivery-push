@@ -119,6 +119,7 @@ class TimelineUtilsTest {
         
         TimelineElementInternal actual = 
                 timelineUtils.buildDigitalFeedbackTimelineElement(
+                        "digital_domicile_timeline_id_0",
                         notification, 
                         ResponseStatusInt.OK,
                         Collections.emptyList(),

@@ -136,14 +136,15 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
                     .digitalAddressSource(digitalResultInfos.getDigitalAddressSourceInt())
                     .digitalAddress(digitalResultInfos.getDigitalAddressInt())
                     .build();
-
-            String timelineId = digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(
-                    digitalResultInfos.getNotification(),
-                    digitalResultInfos.getStatus(),
-                    digitalResultInfos.getResponse().getEventDetails() == null ? new ArrayList<>() : List.of(digitalResultInfos.getResponse().getEventDetails()),
-                    digitalResultInfos.getRecIndex(),
-                    digitalResultInfos.getResponse().getGeneratedMessage(),
-                    digitalAddressFeedback
+        
+           String timelineId = digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(
+                digitalResultInfos.getTimelineElementInternal()==null?"":digitalResultInfos.getTimelineElementInternal().getElementId(),
+                digitalResultInfos.getNotification(),
+                digitalResultInfos.getStatus(),
+                digitalResultInfos.getResponse().getEventDetails() == null ? new ArrayList<>() : List.of(digitalResultInfos.getResponse().getEventDetails()),
+                digitalResultInfos.getRecIndex(),
+                digitalResultInfos.getResponse().getGeneratedMessage(),
+                digitalAddressFeedback
             );
 
             digitalWorkFlowHandler.nextWorkflowStep( digitalResultInfos );
@@ -171,19 +172,20 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
             digitalWorkFlowHandler.unscheduleTimeoutAction(iun, digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
 
             DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
-                    .retryNumber(digitalResultInfos.getRetryNumber())
-                    .eventTimestamp(digitalResultInfos.getResponse().getEventTimestamp())
-                    .digitalAddressSource(digitalResultInfos.getDigitalAddressSourceInt())
-                    .digitalAddress(digitalResultInfos.getDigitalAddressInt())
-                    .build();
-
+                .retryNumber(digitalResultInfos.getRetryNumber())
+                .eventTimestamp(digitalResultInfos.getResponse().getEventTimestamp())
+                .digitalAddressSource(digitalResultInfos.getDigitalAddressSourceInt())
+                .digitalAddress(digitalResultInfos.getDigitalAddressInt())
+                .build();
+        
             digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(
-                    digitalResultInfos.getNotification(),
-                    digitalResultInfos.getStatus(),
-                    Collections.emptyList(),
-                    digitalResultInfos.getRecIndex(),
-                    digitalResultInfos.getResponse().getGeneratedMessage(),
-                    digitalAddressFeedback
+                digitalResultInfos.getTimelineElementInternal()==null?"":digitalResultInfos.getTimelineElementInternal().getElementId(),
+                digitalResultInfos.getNotification(),
+                digitalResultInfos.getStatus(),
+                Collections.emptyList(),
+                digitalResultInfos.getRecIndex(),
+                digitalResultInfos.getResponse().getGeneratedMessage(),
+                digitalAddressFeedback
             );
 
             log.info("Notification sent successfully, starting completion workflow - iun={} id={}",  digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex());
