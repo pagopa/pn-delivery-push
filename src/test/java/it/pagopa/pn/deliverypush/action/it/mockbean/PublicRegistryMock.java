@@ -37,7 +37,7 @@ public class PublicRegistryMock implements PublicRegistry {
     }
     
     @Override
-    public void sendRequestForGetDigitalAddress(String taxId, String correlationId) {
+    public void sendRequestForGetDigitalAddress(String taxId, String recipientType, String correlationId) {
         new Thread(() -> {
             Assertions.assertDoesNotThrow(() -> {
                 simulateDigitalAddressResponse(taxId, correlationId);
