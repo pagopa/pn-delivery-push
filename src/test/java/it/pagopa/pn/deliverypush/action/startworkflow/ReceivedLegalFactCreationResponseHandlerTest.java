@@ -79,7 +79,7 @@ class ReceivedLegalFactCreationResponseHandlerTest {
         Assertions.assertThrows(RuntimeException.class, () -> {
             handler.handleReceivedLegalFactCreationResponse(iun, legalFactId);
         });
-
+        
         //THEN
         Mockito.verify(timelineService, Mockito.never()).addTimelineElement(Mockito.any(TimelineElementInternal.class), Mockito.any(NotificationInt.class));
         Mockito.verify(timelineUtils, Mockito.never()).buildAcceptedRequestTimelineElement(notification, legalFactId);
