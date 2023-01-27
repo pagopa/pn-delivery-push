@@ -54,6 +54,8 @@ public class PublicRegistryImpl extends CommonBaseClient implements PublicRegist
                 .onErrorResume(throwable -> Mono.empty())
                 .subscribe();
 
+        log.info("sendRequestForGetDigitalAddress with correlationId: {} done", correlationId);
+
     }
 
     @Override
