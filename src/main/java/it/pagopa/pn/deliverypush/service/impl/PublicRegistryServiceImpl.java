@@ -37,7 +37,7 @@ public class PublicRegistryServiceImpl implements PublicRegistryService {
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
 
         publicRegistryUtils.addPublicRegistryCallToTimeline(notification, recIndex, contactPhase, sentAttemptMade, correlationId, DeliveryModeInt.DIGITAL);
-        publicRegistry.sendRequestForGetDigitalAddress(recipient.getTaxId(), correlationId);
+        publicRegistry.sendRequestForGetDigitalAddress(recipient.getTaxId(), recipient.getRecipientType().getValue(), correlationId);
 
         log.debug("End sendRequestForGetAddress correlationId={} - iun={} id={}", correlationId, notification.getIun(), recIndex);
     }
