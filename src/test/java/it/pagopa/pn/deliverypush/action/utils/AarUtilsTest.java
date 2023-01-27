@@ -63,7 +63,7 @@ class AarUtilsTest {
         Mockito.when(timelineService.getTimelineElement(notificationInt.getIun(), elementId)).thenThrow(new PnInternalException("cannot generate AAR pdf", "test"));
 
         PnInternalException exception = Assertions.assertThrows(PnInternalException.class, () -> {
-            aarUtils.generateAARAndSaveInSafeStorageAndAddTimelineevent(notificationInt, recIndex, quickAccessToken);
+            aarUtils.generateAARAndSaveInSafeStorageAndAddTimelineEvent(notificationInt, recIndex, quickAccessToken);
         });
 
         Assertions.assertEquals(msg, exception.getProblem().getErrors().get(0).getCode());
@@ -82,7 +82,7 @@ class AarUtilsTest {
 
         Mockito.when(timelineService.getTimelineElement(notificationInt.getIun(), elementId)).thenReturn(timeline);
 
-        aarUtils.generateAARAndSaveInSafeStorageAndAddTimelineevent(notificationInt, recIndex, quickAccessToken);
+        aarUtils.generateAARAndSaveInSafeStorageAndAddTimelineEvent(notificationInt, recIndex, quickAccessToken);
 
         Mockito.verify(timelineService, Mockito.never()).addTimelineElement(newTimelineElementInternal(), notificationInt);
     }
