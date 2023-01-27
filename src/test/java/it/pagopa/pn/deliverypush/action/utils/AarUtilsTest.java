@@ -10,6 +10,7 @@ import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Assertions;
@@ -38,6 +39,8 @@ class AarUtilsTest {
     private TimelineUtils timelineUtils;
     @Mock
     private AarUtils aarUtils;
+    @Mock    
+    private DocumentCreationRequestService documentCreationRequestService;
 
     private final Integer recIndex = 0;
 
@@ -47,7 +50,7 @@ class AarUtilsTest {
         timelineService = Mockito.mock(TimelineService.class);
         timelineUtils = Mockito.mock(TimelineUtils.class);
         saveLegalFactsService = Mockito.mock(SaveLegalFactsService.class);
-        aarUtils = new AarUtils(saveLegalFactsService, timelineUtils, timelineService, notificationUtils);
+        aarUtils = new AarUtils(saveLegalFactsService, timelineUtils, timelineService, notificationUtils, documentCreationRequestService);
     }
 
     @ExtendWith(MockitoExtension.class)

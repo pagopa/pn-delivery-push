@@ -47,11 +47,14 @@ public class AarUtils {
                 DocumentCreationTypeInt documentType = DocumentCreationTypeInt.AAR;
                 
                 //Viene salvata in timeline la request document creation request
+                //TODO QUI VA CREATO NUOVO ELEMENTO TIMLINE SPECIFICO
+/*
                 TimelineElementInternal timelineElementInternal = timelineUtils.buildDocumentCreationRequestTimelineElement(notification, recIndex, documentType);
                 timelineService.addTimelineElement( timelineElementInternal , notification);
 
                 //Vengono inserite le informazioni della richiesta di creazione del legalFacts a safeStorage
                 documentCreationRequestService.addDocumentCreationRequest(pdfInfo.getKey(), notification.getIun(), documentType, timelineElementInternal.getElementId());
+*/
                 
             } else
                 log.debug("No need to recreate AAR iun={} timelineId={}", notification.getIun(), elementId);

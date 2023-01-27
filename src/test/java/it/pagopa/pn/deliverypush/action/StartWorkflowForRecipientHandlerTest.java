@@ -1,18 +1,15 @@
 package it.pagopa.pn.deliverypush.action;
 
-import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
-import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
+import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.AarUtils;
-import it.pagopa.pn.deliverypush.action.utils.CourtesyMessageUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.service.SchedulerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,29 +17,23 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.Instant;
-
 import static it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doThrow;
 
 class StartWorkflowForRecipientHandlerTest {
     @Mock
-    private CourtesyMessageUtils courtesyMessageUtils;
-    @Mock
-    private SchedulerService schedulerService;
-    @Mock
     private AarUtils aarUtils;
     @Mock
     private NotificationService notificationService;
 
+    
     private StartWorkflowForRecipientHandler handler;
 
     @ExtendWith(MockitoExtension.class)
     @BeforeEach
     public void setup() {
-        handler = new StartWorkflowForRecipientHandler(courtesyMessageUtils, schedulerService,
-                aarUtils, notificationService);
+        handler = new StartWorkflowForRecipientHandler(aarUtils, notificationService);
 
     }
 
@@ -59,9 +50,6 @@ class StartWorkflowForRecipientHandlerTest {
         
         //THEN
         Mockito.verify(aarUtils).generateAARAndSaveInSafeStorageAndAddTimelineEvent(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.anyString());
-        Mockito.verify(courtesyMessageUtils).checkAddressesAndSendCourtesyMessage(Mockito.any(NotificationInt.class), Mockito.anyInt());
-        Mockito.verify(schedulerService).scheduleEvent(Mockito.anyString(), Mockito.anyInt(),
-                Mockito.any(Instant.class), Mockito.any(ActionType.class));
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -79,11 +67,6 @@ class StartWorkflowForRecipientHandlerTest {
         assertThrows(PnNotFoundException.class, () -> {
             handler.startNotificationWorkflowForRecipient(iun, 0, details);
         });
-
-        //THEN
-        Mockito.verify(courtesyMessageUtils, Mockito.times(0)).checkAddressesAndSendCourtesyMessage(Mockito.any(NotificationInt.class), Mockito.anyInt());
-        Mockito.verify(schedulerService, Mockito.times(0)).scheduleEvent(Mockito.anyString(), Mockito.anyInt(),
-                Mockito.any(Instant.class), Mockito.any(ActionType.class));
     }
     
     private NotificationInt getNotification() {
