@@ -10,6 +10,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -19,19 +20,13 @@ import java.util.Optional;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_GENERATEPDFFAILED;
 
 @Component
+@AllArgsConstructor
 @Slf4j
 public class AarUtils {
     private final SaveLegalFactsService saveLegalFactsService;
     private final TimelineUtils timelineUtils;
     private final TimelineService timelineService;
     private final NotificationUtils notificationUtils;
-
-    public AarUtils(TimelineService timelineService, TimelineUtils timelineUtils, SaveLegalFactsService saveLegalFactsService, NotificationUtils notificationUtils) {
-        this.saveLegalFactsService = saveLegalFactsService;
-        this.timelineUtils = timelineUtils;
-        this.timelineService = timelineService;
-        this.notificationUtils = notificationUtils;
-    }
 
     public void generateAARAndSaveInSafeStorageAndAddTimelineevent(NotificationInt notification, Integer recIndex, String quickAccessToken) {
         try {
@@ -57,8 +52,7 @@ public class AarUtils {
             throw new PnInternalException("cannot generate AAR pdf", ERROR_CODE_DELIVERYPUSH_GENERATEPDFFAILED, e);
         }
     }
-
-
+    
     public AarGenerationDetailsInt getAarGenerationDetails(NotificationInt notification, Integer recIndex) {
         // ricostruisco il timelineid della  genrazione dell'aar
         String aarGenerationEventId = TimelineEventId.AAR_GENERATION.buildEventId(
