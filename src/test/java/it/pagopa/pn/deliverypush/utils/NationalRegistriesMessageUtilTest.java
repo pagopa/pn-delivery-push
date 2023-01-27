@@ -9,6 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class NationalRegistriesMessageUtilTest {
 
+
     @Test
     void buildPublicRegistryResponseTest() {
         String correlationId = "corrId1";
