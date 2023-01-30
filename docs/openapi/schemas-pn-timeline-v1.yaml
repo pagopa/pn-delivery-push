@@ -34,6 +34,7 @@ components:
           * `SEND_ANALOG_PROGRESS` - Ricezione evento non finale dell'invio cartaceo
           * `SEND_ANALOG_FEEDBACK` - Ricezione esito dell'invio cartaceo
           * `COMPLETELY_UNREACHABLE` - Tutti i destinatari risultano irraggiungibili
+          * `AAR_CREATION_REQUEST` - Invio della richiesta di creazione dell'AAR (Avviso di Avvenuta Ricezione) a safe storage 
           * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
           * `PAYMENT` - Ricezione pagamento della notifica
           * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
@@ -65,6 +66,7 @@ components:
         - PAYMENT
         - COMPLETELY_UNREACHABLE
         - REQUEST_REFUSED
+        - AAR_CREATION_REQUEST
         - AAR_GENERATION
         - NOT_HANDLED
     
@@ -120,6 +122,7 @@ components:
         - "$ref": "#/components/schemas/SendAnalogDetails"
         - "$ref": "#/components/schemas/SendAnalogFeedbackDetails"
         - "$ref": "#/components/schemas/SimpleRegisteredLetterDetails"
+        - "$ref": "#/components/schemas/AarCreationRequestDetails"
         - "$ref": "#/components/schemas/AarGenerationDetails"
         - "$ref": "#/components/schemas/NotHandledDetails"
         - "$ref": "#/components/schemas/NotificationPaidDetails"
@@ -526,6 +529,25 @@ components:
           description: costo in eurocent dell'invio
           format: int32
 
+    AarCreationRequestDetails:
+      type: object
+      required:
+        - recIndex
+        - aarKey
+        - numberOfPages
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        aarKey:
+          type: string
+          description: Chiave per recupero da safe-storage del documento aar
+        numberOfPages:
+          type: integer
+          description: numero di pagine del PDF generato
+          format: int32
+    
     AarGenerationDetails:
       type: object
       required:

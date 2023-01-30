@@ -44,13 +44,14 @@ public class AarUtils {
             if (timeline.isEmpty()) {
                 PdfInfo pdfInfo = saveLegalFactsService.sendCreationRequestForAAR(notification, notificationUtils.getRecipientFromIndex(notification, recIndex), quickAccessToken);
 
-                DocumentCreationTypeInt documentType = DocumentCreationTypeInt.AAR;
                 
                 //Viene salvata in timeline la request document creation request
                 //TODO QUI VA CREATO NUOVO ELEMENTO TIMLINE SPECIFICO
-/*
-                TimelineElementInternal timelineElementInternal = timelineUtils.buildDocumentCreationRequestTimelineElement(notification, recIndex, documentType);
+
+                TimelineElementInternal timelineElementInternal = timelineUtils.buildDocumentCreationRequestTimelineElement(notification, recIndex, pdfInfo);
                 timelineService.addTimelineElement( timelineElementInternal , notification);
+/*
+                DocumentCreationTypeInt documentType = DocumentCreationTypeInt.AAR;
 
                 //Vengono inserite le informazioni della richiesta di creazione del legalFacts a safeStorage
                 documentCreationRequestService.addDocumentCreationRequest(pdfInfo.getKey(), notification.getIun(), documentType, timelineElementInternal.getElementId());

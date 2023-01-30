@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
+import it.pagopa.pn.deliverypush.dto.legalfacts.PdfInfo;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
@@ -759,6 +760,33 @@ public class TimelineUtils {
       SenderAckCreationRequestDetailsInt details = SenderAckCreationRequestDetailsInt.builder()
               .legalFactId(legalFactId)
               .build();
+
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
+                .legalFactsIds(Collections.emptyList());
+
+        return buildTimeline(
+                notification,
+                TimelineElementCategoryInt.SENDER_ACK_CREATION_REQUEST,
+                elementId,
+                details,
+                timelineBuilder
+        );
+    }
+
+    public TimelineElementInternal buildAarCreationRequest(NotificationInt notification, int recIndex, PdfInfo pdfInfo) {
+        log.debug("buildAarCreationRequest- iun={}", notification.getIun());
+
+        String elementId = TimelineEventId.AAR_CREATION_REQUEST.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build());
+
+        AarCreationRequestDetailsInt details = AarCreationRequestDetailsInt.builder()
+                .recIndex(recIndex)
+                .aarKey(pdfInfo.getKey())
+                .numberOfPages(pdfInfo.getNumberOfPages())
+                .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds(Collections.emptyList());

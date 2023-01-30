@@ -52,4 +52,5 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("requestTimelineId")})) private String requestTimelineId;
     @Getter(onMethod=@__({@DynamoDbAttribute("delegateInfo")})) private DelegateInfoEntity delegateInfo;
     @Getter(onMethod=@__({@DynamoDbAttribute("legalFactId")})) private String legalFactId;
+    @Getter(onMethod=@__({@DynamoDbAttribute("aarKey")})) private String aarKey;
 }

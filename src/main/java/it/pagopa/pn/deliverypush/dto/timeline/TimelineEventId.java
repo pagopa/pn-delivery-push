@@ -316,6 +316,17 @@ public enum TimelineEventId {
             );
         }
     },
+
+    AAR_CREATION_REQUEST() {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return String.format(
+                    "iun_%s_recIndex_%d_aar_creation_request",
+                    eventId.getIun(),
+                    eventId.getRecIndex()
+            );
+        }
+    },
     
     AAR_GENERATION() {
         @Override

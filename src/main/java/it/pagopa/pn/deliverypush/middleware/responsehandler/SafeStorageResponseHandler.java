@@ -34,6 +34,7 @@ public class SafeStorageResponseHandler {
             DocumentCreationRequest creationRequest = documentCreationRequestOpt.get();
             log.debug("DocumentCreationTypeInt is {} and Key to search {}", creationRequest.getDocumentCreationType(), keyWithPrefix);
 
+            //Effettuando lo scheduling dell'evento siamo sicuri che l'evento verrà gestito una sola volta, dal momento che lo scheduling è in  putIfAbsent
             scheduleHandleDocumentCreationResponse(creationRequest);
         } else {
             //TODO Portare log ad error e decommentare exception una volta gestiti tutti i casi di risposta (tutti i legalFacts + aar) in DocumentCreationResponseHandler
