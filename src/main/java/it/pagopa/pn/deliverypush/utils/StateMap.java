@@ -29,6 +29,7 @@ class StateMap {
                 
         this.fromState(NotificationStatusInt.ACCEPTED)
                 //STATE UNCHANGE
+                .withTimelineGoToState(TimelineElementCategoryInt.AAR_CREATION_REQUEST, NotificationStatusInt.ACCEPTED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.AAR_GENERATION, NotificationStatusInt.ACCEPTED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_COURTESY_MESSAGE, NotificationStatusInt.ACCEPTED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.GET_ADDRESS, NotificationStatusInt.ACCEPTED, SINGLE_RECIPINET)

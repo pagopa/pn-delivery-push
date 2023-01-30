@@ -793,7 +793,7 @@ public class TimelineUtils {
 
         return buildTimeline(
                 notification,
-                TimelineElementCategoryInt.SENDER_ACK_CREATION_REQUEST,
+                TimelineElementCategoryInt.AAR_CREATION_REQUEST,
                 elementId,
                 details,
                 timelineBuilder

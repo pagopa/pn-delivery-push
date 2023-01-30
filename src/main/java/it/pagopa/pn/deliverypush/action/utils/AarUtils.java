@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.action.utils;
 
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.PdfInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
@@ -42,20 +43,13 @@ public class AarUtils {
             Optional<TimelineElementInternal> timeline = timelineService.getTimelineElement(notification.getIun(), elementId);
             if (timeline.isEmpty()) {
                 PdfInfo pdfInfo = saveLegalFactsService.sendCreationRequestForAAR(notification, notificationUtils.getRecipientFromIndex(notification, recIndex), quickAccessToken);
-
                 
                 //Viene salvata in timeline la request document creation request
-                //TODO QUI VA CREATO NUOVO ELEMENTO TIMLINE SPECIFICO
-
                 TimelineElementInternal timelineElementInternal = timelineUtils.buildAarCreationRequest(notification, recIndex, pdfInfo);
                 timelineService.addTimelineElement( timelineElementInternal , notification);
-/*
-                DocumentCreationTypeInt documentType = DocumentCreationTypeInt.AAR;
 
                 //Vengono inserite le informazioni della richiesta di creazione del legalFacts a safeStorage
-                documentCreationRequestService.addDocumentCreationRequest(pdfInfo.getKey(), notification.getIun(), documentType, timelineElementInternal.getElementId());
-*/
-                
+                documentCreationRequestService.addDocumentCreationRequest(pdfInfo.getKey(), notification.getIun(), recIndex, DocumentCreationTypeInt.AAR, timelineElementInternal.getElementId());
             } else
                 log.debug("No need to recreate AAR iun={} timelineId={}", notification.getIun(), elementId);
         } catch (Exception e) {
