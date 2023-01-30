@@ -1,17 +1,24 @@
 package it.pagopa.pn.deliverypush.action.startworkflowrecipient;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 import it.pagopa.pn.deliverypush.action.utils.AarUtils;
 import it.pagopa.pn.deliverypush.action.utils.CourtesyMessageUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.PdfInfo;
+import it.pagopa.pn.deliverypush.dto.timeline.details.AarCreationRequestDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.Optional;
+
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND;
 
 @Component
 @AllArgsConstructor
@@ -21,20 +28,33 @@ public class AarCreationResponseHandler {
     private NotificationService notificationService;
     private final CourtesyMessageUtils courtesyMessageUtils;
     private final SchedulerService schedulerService;
-
-    public void handleAarCreationResponse(String iun, int recIndex, String legalFactId) {
-        log.info("Start handleReceivedLegalFactCreationResponse recipientWorkflow process - iun={} legalFactId={}", iun, legalFactId);
+    private final TimelineService timelineService;
+    
+    public void handleAarCreationResponse(String iun, int recIndex, DocumentCreationResponseActionDetails actionDetails) {
+        log.info("Start handleAarCreationResponse recipientWorkflow process - iun={} aarKey={}", iun, actionDetails.getKey());
         NotificationInt notification = notificationService.getNotificationByIun(iun);
 
-        //TODO Capire se ha ancora senso passare il numero di pagine del pdf, se cosi fosse andrà inserito e recuperato dalla timeline
-        PdfInfo pdfInfo = PdfInfo.builder().key(legalFactId).build();
-        aarUtils.addAarGenerationToTimeline(notification, recIndex, pdfInfo);
+        Optional<AarCreationRequestDetailsInt> aarCreationDetailsOpt = timelineService.getTimelineElementDetails(iun, actionDetails.getTimelineId(), AarCreationRequestDetailsInt.class);
+        
+        if(aarCreationDetailsOpt.isPresent()){
+            AarCreationRequestDetailsInt timelineDetails = aarCreationDetailsOpt.get();
+            
+            PdfInfo pdfInfo = PdfInfo.builder()
+                    .key(actionDetails.getKey())
+                    .numberOfPages(timelineDetails.getNumberOfPages())
+                    .build();
+            
+            aarUtils.addAarGenerationToTimeline(notification, recIndex, pdfInfo);
 
-        //... Invio messaggio di cortesia ... 
-        courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, recIndex);
+            //... Invio messaggio di cortesia ... 
+            courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, recIndex);
 
-        //... e viene schedulato il processo di scelta della tipologia di notificazione
-        scheduleChooseDeliveryMode(iun, recIndex);
+            //... e viene schedulato il processo di scelta della tipologia di notificazione
+            scheduleChooseDeliveryMode(iun, recIndex);
+        } else {
+            log.error("handleAarCreationResponse failed, timelineId is not present {} - iun={} id={}", actionDetails.getTimelineId(), iun, recIndex);
+            throw new PnInternalException("AarCreationRequestDetails timelineId is not present", ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND);
+        }
     }
 
     private void scheduleChooseDeliveryMode(String iun, Integer recIndex) {

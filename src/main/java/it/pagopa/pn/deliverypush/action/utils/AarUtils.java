@@ -2,7 +2,6 @@ package it.pagopa.pn.deliverypush.action.utils;
 
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.PdfInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
@@ -48,7 +47,7 @@ public class AarUtils {
                 //Viene salvata in timeline la request document creation request
                 //TODO QUI VA CREATO NUOVO ELEMENTO TIMLINE SPECIFICO
 
-                TimelineElementInternal timelineElementInternal = timelineUtils.buildDocumentCreationRequestTimelineElement(notification, recIndex, pdfInfo);
+                TimelineElementInternal timelineElementInternal = timelineUtils.buildAarCreationRequest(notification, recIndex, pdfInfo);
                 timelineService.addTimelineElement( timelineElementInternal , notification);
 /*
                 DocumentCreationTypeInt documentType = DocumentCreationTypeInt.AAR;
@@ -66,10 +65,10 @@ public class AarUtils {
     }
 
     public void addAarGenerationToTimeline(NotificationInt notification, Integer recIndex, PdfInfo pdfInfo) {
-            timelineService.addTimelineElement(
-                    timelineUtils.buildAarGenerationTimelineElement(notification, recIndex, pdfInfo.getKey(), pdfInfo.getNumberOfPages()),
-                    notification
-            );
+        timelineService.addTimelineElement(
+                timelineUtils.buildAarGenerationTimelineElement(notification, recIndex, pdfInfo.getKey(), pdfInfo.getNumberOfPages()),
+                notification
+        );
     }
 
     public AarGenerationDetailsInt getAarGenerationDetails(NotificationInt notification, Integer recIndex) {

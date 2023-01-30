@@ -33,7 +33,7 @@ public class DocumentCreationResponseHandler {
                 case SENDER_ACK ->
                         receivedLegalFactHandler.handleReceivedLegalFactCreationResponse(iun, fileKey);
                 case AAR ->
-                        aarCreationResponseHandler.handleAarCreationResponse(iun, recIndex, details.getKey());
+                        aarCreationResponseHandler.handleAarCreationResponse(iun, recIndex, details);
                 case DIGITAL_DELIVERY ->
                         log.warn("DIGITAL_DELIVERY NOT HANDLED");
                 case RECIPIENT_ACCESS ->

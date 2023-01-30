@@ -48,6 +48,7 @@ public class SafeStorageResponseHandler {
         DocumentCreationResponseActionDetails details = DocumentCreationResponseActionDetails.builder()
                 .documentCreationType(request.getDocumentCreationType())
                 .key(request.getKey())
+                .timelineId(request.getTimelineId())
                 .build();
 
         Instant schedulingDate = Instant.now();
