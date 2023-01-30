@@ -237,7 +237,7 @@ class NotificationViewedTestIT {
     }
 
     @Test
-    @Disabled("Fail only in build fase")
+    @Disabled("Test fail only in build fase PN-3853")
     void notificationViewedFromDelegate() {
         System.out.println("Start test notificationViewedFromDelegate");
         //GIVEN
@@ -503,6 +503,7 @@ class NotificationViewedTestIT {
     }
 
     @Test
+    @Disabled("Test fail only in build fase PN-3853")
     void testNotificationViewedTwoRecipient(){
         //Primo Recipient
         LegalDigitalAddressInt platformAddress1 = LegalDigitalAddressInt.builder()
