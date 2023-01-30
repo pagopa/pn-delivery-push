@@ -464,7 +464,7 @@ class DigitalTestMultiRecipientIT {
     // Il primo destinatario è UNREACHBLE, il secondo è raggiungibile, ma il primo destinatario visualizza la notifica
     // via PN dopo il primo feedback (negativo) di External Channels.
     @Test
-    void rec1ViewedRec2GeneralOk() {
+    void rec1ViewedRec2GeneralOk() { 
        /* Primo recipient
        - Platform address presente ed entrambi gli invii con fallimento
        - Special address presente ed entrambi gli invii con fallimento
