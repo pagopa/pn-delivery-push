@@ -331,9 +331,9 @@ Outputs:
     Value: !Sub '${PnDeliveryPushWebhookEventsTable.Arn}'
 
   DocumentCreationRequestTableName:
-    Description: Name of dynamodb table containing
+    Description: Name of dynamodb table containing Document creation request to storage
     Value: !Ref DocumentCreationRequestTable
   DocumentCreationRequestTableArn:
-    Description: ARN of dynamodb table containing
+    Description: ARN of dynamodb table containing Document creation request to storage
     Value: !Sub '${DocumentCreationRequestTable.Arn}'
 
