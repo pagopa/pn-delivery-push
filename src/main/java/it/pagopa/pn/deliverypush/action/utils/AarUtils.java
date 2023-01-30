@@ -65,10 +65,10 @@ public class AarUtils {
     }
 
     public void addAarGenerationToTimeline(NotificationInt notification, Integer recIndex, PdfInfo pdfInfo) {
-        timelineService.addTimelineElement(
-                timelineUtils.buildAarGenerationTimelineElement(notification, recIndex, pdfInfo.getKey(), pdfInfo.getNumberOfPages()),
-                notification
-        );
+            timelineService.addTimelineElement(
+                    timelineUtils.buildAarGenerationTimelineElement(notification, recIndex, pdfInfo.getKey(), pdfInfo.getNumberOfPages()),
+                    notification
+            );
     }
 
     public AarGenerationDetailsInt getAarGenerationDetails(NotificationInt notification, Integer recIndex) {
