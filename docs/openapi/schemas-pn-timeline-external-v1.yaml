@@ -712,6 +712,12 @@ components:
           type: string
           description: >-
             Identificativo dell'atto opponibile a terzi del quale è stata richiesta la creazione
+        errors:                                                                               # ONLY EXTERNAL
+          type: array                                                                         # ONLY EXTERNAL
+          description: placeholder per il campo errors                                        # ONLY EXTERNAL
+          deprecated: true                                                                    # ONLY EXTERNAL
+          items:                                                                              # ONLY EXTERNAL
+            type: string                                                                      # ONLY EXTERNAL
 
     DigitalAddressSource:
       type: string
