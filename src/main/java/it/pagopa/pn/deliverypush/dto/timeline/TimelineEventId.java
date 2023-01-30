@@ -1,7 +1,16 @@
 package it.pagopa.pn.deliverypush.dto.timeline;
 
 public enum TimelineEventId {
-
+    SENDERACK_CREATION_REQUEST() {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return String.format(
+                    "senderack_legalfact_creation_request_iun_%s",
+                    eventId.getIun()
+            );
+        }
+    },
+    
     REQUEST_ACCEPTED() {
         @Override
         public String buildEventId(EventId eventId) {

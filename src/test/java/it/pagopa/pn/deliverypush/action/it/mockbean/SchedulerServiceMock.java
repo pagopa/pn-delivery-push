@@ -3,9 +3,11 @@ package it.pagopa.pn.deliverypush.action.it.mockbean;
 
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
+import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowRetryHandler;
+import it.pagopa.pn.deliverypush.middleware.responsehandler.DocumentCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
@@ -33,13 +35,16 @@ public class SchedulerServiceMock implements SchedulerService {
   private final InstantNowSupplier instantNowSupplier;
   private final StartWorkflowForRecipientHandler startWorkflowForRecipientHandler;
   private final ChooseDeliveryModeHandler chooseDeliveryModeHandler;
-
+  private final DocumentCreationResponseHandler documentCreationResponseHandler;
+  
   public SchedulerServiceMock(@Lazy DigitalWorkFlowHandler digitalWorkFlowHandler,
-      @Lazy DigitalWorkFlowRetryHandler digitalWorkFlowRetryHandler,
-      @Lazy AnalogWorkflowHandler analogWorkflowHandler, @Lazy RefinementHandler refinementHandler,
-      @Lazy InstantNowSupplier instantNowSupplier,
-      @Lazy StartWorkflowForRecipientHandler startWorkflowForRecipientHandler,
-      @Lazy ChooseDeliveryModeHandler chooseDeliveryModeHandler) {
+                              @Lazy DigitalWorkFlowRetryHandler digitalWorkFlowRetryHandler,
+                              @Lazy AnalogWorkflowHandler analogWorkflowHandler, 
+                              @Lazy RefinementHandler refinementHandler,
+                              @Lazy InstantNowSupplier instantNowSupplier,
+                              @Lazy StartWorkflowForRecipientHandler startWorkflowForRecipientHandler,
+                              @Lazy ChooseDeliveryModeHandler chooseDeliveryModeHandler,
+                              @Lazy DocumentCreationResponseHandler documentCreationResponseHandler) {
     this.digitalWorkFlowHandler = digitalWorkFlowHandler;
     this.digitalWorkFlowRetryHandler = digitalWorkFlowRetryHandler;
     this.analogWorkflowHandler = analogWorkflowHandler;
@@ -47,12 +52,13 @@ public class SchedulerServiceMock implements SchedulerService {
     this.instantNowSupplier = instantNowSupplier;
     this.startWorkflowForRecipientHandler = startWorkflowForRecipientHandler;
     this.chooseDeliveryModeHandler = chooseDeliveryModeHandler;
+    this.documentCreationResponseHandler = documentCreationResponseHandler;
   }
 
   @Override
   public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule,
       ActionType actionType, ActionDetails actionDetails) {
-    log.info("Start scheduling - iun={} id={} actionType={} ", iun, recIndex, actionType);
+    log.info("[TEST] Start scheduling - iun={} id={} actionType={} ", iun, recIndex, actionType);
 
     new Thread(() -> {
       
@@ -77,13 +83,15 @@ public class SchedulerServiceMock implements SchedulerService {
           case DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION ->
                   digitalWorkFlowRetryHandler.elapsedExtChannelTimeout(iun, recIndex,
                   iun + "_retry_action_" + recIndex);
+          default ->
+                  log.error("[TEST] actionType not found {}", actionType);
         }
       });
     }).start();
   }
 
   private void waitSchedulingTime(Instant dateToSchedule) throws InterruptedException {
-    log.info("DateToSchedule {} instantNow = {}", dateToSchedule, Instant.now());
+    log.info("[TEST] DateToSchedule {} instantNow = {}", dateToSchedule, Instant.now());
 
     await()
             .atMost(100, TimeUnit.SECONDS)
@@ -93,7 +101,7 @@ public class SchedulerServiceMock implements SchedulerService {
   @Override
   public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule,
       ActionType actionType, String timelineId) {
-    log.info("Start scheduling with timelineid - iun={} id={} actionType={} timelineid={} ", iun, recIndex, actionType, timelineId);
+    log.info("[TEST] Start scheduling with timelineid - iun={} id={} actionType={} timelineid={} ", iun, recIndex, actionType, timelineId);
 
     new Thread(() -> {
       Assertions.assertDoesNotThrow(() -> {
@@ -138,6 +146,25 @@ public class SchedulerServiceMock implements SchedulerService {
   @Override
   public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule,
       ActionType actionType, String timelineId, ActionDetails actionDetails) {
+    if(timelineId != null && actionDetails != null){
+
+      new Thread(() -> {
+
+        Assertions.assertDoesNotThrow(() -> {
+          waitSchedulingTime(dateToSchedule);
+
+          switch (actionType) {
+            case DOCUMENT_CREATION_RESPONSE ->
+                    documentCreationResponseHandler.handleResponseReceived(iun, recIndex, (DocumentCreationResponseActionDetails) actionDetails);
+            default -> 
+                    log.error("[TEST] actionType not found {}", actionType);
+          }
+        });
+      }).start();
+      
+    }else {
+      
+    }
     if (timelineId == null)
       this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, actionDetails);
     else

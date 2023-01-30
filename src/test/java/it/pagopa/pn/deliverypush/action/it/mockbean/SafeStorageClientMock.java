@@ -1,10 +1,15 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.*;
+import it.pagopa.pn.deliverypush.middleware.responsehandler.SafeStorageResponseHandler;
+import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
+import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
+import it.pagopa.pn.deliverypush.service.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.util.Base64Utils;
 import reactor.core.publisher.Mono;
 
@@ -14,12 +19,24 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.awaitility.Awaitility.await;
 
 @Slf4j
 public class SafeStorageClientMock implements PnSafeStorageClient {
     private Map<String, FileCreationWithContentRequest> savedFileMap = new HashMap<>();
+    
+    private final DocumentCreationRequestService creationRequestService;
+    private final SafeStorageResponseHandler safeStorageResponseHandler;
+    
+    public SafeStorageClientMock(DocumentCreationRequestService creationRequestService, 
+                                 SafeStorageResponseHandler safeStorageResponseHandler) {
+        this.creationRequestService = creationRequestService;
+        this.safeStorageResponseHandler = safeStorageResponseHandler;
+    }
 
     public void clear() {
         this.savedFileMap =  new HashMap<>();
@@ -45,15 +62,48 @@ public class SafeStorageClientMock implements PnSafeStorageClient {
 
     @Override
     public Mono<FileCreationResponse> createFile(FileCreationWithContentRequest fileCreationRequest, String sha256) {
+        log.info("[TEST] createFile documentType={}", fileCreationRequest.getDocumentType());
+
         String key = sha256;
         savedFileMap.put(key,fileCreationRequest);
+
+        new Thread(() -> {
+            Assertions.assertDoesNotThrow(() -> {
+                String keyWithPrefix = FileUtils.getKeyWithStoragePrefix(key);
+
+                log.info("[TEST] Start wait for createFile documentType={} keyWithPrefix={}",fileCreationRequest.getDocumentType(), keyWithPrefix);
+
+                if(! TestUtils.PN_NOTIFICATION_ATTACHMENT.equals(fileCreationRequest.getDocumentType())){
+                    try {
+                        await().atMost(Duration.ofSeconds(1)).untilAsserted(() ->
+                                Assertions.assertTrue(creationRequestService.getDocumentCreationRequest(keyWithPrefix).isPresent())
+                        );
+                    }catch (org.awaitility.core.ConditionTimeoutException ex){
+                        //TODO Fare salire l'exception volta gestiti tutti i casi di risposta (tutti i legalFacts + aar) in DocumentCreationResponseHandler
+                        log.warn("TEST] Exception in createFile DocumentCreationRequest not founded - fileKey={} documentType={}", keyWithPrefix, fileCreationRequest.getDocumentType());
+                    }
+                    
+                    log.info("[TEST] END wait for createFile documentType={} keyWithPrefix={}",fileCreationRequest.getDocumentType(), keyWithPrefix);
+
+                    FileDownloadResponse mockedResponse =  new FileDownloadResponse();
+                    mockedResponse.setDocumentType(fileCreationRequest.getDocumentType());
+                    mockedResponse.setDocumentStatus(fileCreationRequest.getStatus());
+                    mockedResponse.setKey(key);
+                    mockedResponse.setChecksum(sha256);
+                    safeStorageResponseHandler.handleSafeStorageResponse(mockedResponse);
+                } else{
+                    log.info("[TEST] No need to wait response for PN_NOTIFICATION_ATTACHMENT");
+                }
+
+            });
+        }).start();
 
         FileCreationResponse fileCreationResponse = new FileCreationResponse();
         fileCreationResponse.setKey(key);
         fileCreationResponse.setSecret("abc");
         fileCreationResponse.setUploadUrl("https://www.unqualcheurl.it");
         fileCreationResponse.setUploadMethod(FileCreationResponse.UploadMethodEnum.POST);
-
+        
         return Mono.just(fileCreationResponse);
     }
 
@@ -68,7 +118,7 @@ public class SafeStorageClientMock implements PnSafeStorageClient {
 
     @Override
     public void uploadContent(FileCreationWithContentRequest fileCreationRequest, FileCreationResponse fileCreationResponse, String sha256) {
-        log.info("Upload content Mock - key={} uploadUrl={}", fileCreationResponse.getKey(), fileCreationResponse.getUploadUrl());
+        log.info("[TEST] Upload content Mock - key={} uploadUrl={}", fileCreationResponse.getKey(), fileCreationResponse.getUploadUrl());
 
     }
 

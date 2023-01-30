@@ -48,7 +48,7 @@ public class ViewNotification {
         log.info("Start view notification process - iun={} id={}", notification.getIun(), recIndex);
         return attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement()).collectList()
             .then(
-                legalFactStore.saveNotificationViewedLegalFact(notification, recipient, instantNowSupplier.get())
+                legalFactStore.sendCreationRequestForNotificationViewedLegalFact(notification, recipient, instantNowSupplier.get())
                         .doOnSuccess( legalFactId -> log.info("Completed saveNotificationViewedLegalFact legalFactId={} - iun={} id={}", legalFactId, notification.getIun(), recIndex))
                         .flatMap(legalFactId ->
                                 notificationCost.getNotificationCost(notification, recIndex)

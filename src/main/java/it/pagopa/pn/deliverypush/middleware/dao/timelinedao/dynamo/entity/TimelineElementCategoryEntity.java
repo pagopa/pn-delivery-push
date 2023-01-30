@@ -6,6 +6,8 @@ import lombok.ToString;
 @ToString
 @Getter
 public enum TimelineElementCategoryEntity {
+    SENDER_ACK_CREATION_REQUEST("SENDER_ACK_CREATION_REQUEST"),
+
     REQUEST_ACCEPTED("REQUEST_ACCEPTED"),
 
     SEND_COURTESY_MESSAGE("SEND_COURTESY_MESSAGE"),
@@ -61,7 +63,7 @@ public enum TimelineElementCategoryEntity {
     AAR_GENERATION("AAR_GENERATION"),
 
     NOT_HANDLED("NOT_HANDLED");
-
+    
     private final String value;
 
     TimelineElementCategoryEntity(String value) {

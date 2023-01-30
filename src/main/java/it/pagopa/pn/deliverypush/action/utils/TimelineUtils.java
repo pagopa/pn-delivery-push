@@ -747,7 +747,31 @@ public class TimelineUtils {
                 timelineBuilder
         );
     }
-    
+
+    public TimelineElementInternal buildSenderAckLegalFactCreationRequest(NotificationInt notification, String legalFactId) {
+        log.debug("buildSenderAckLegalFactCreationRequest- iun={}", notification.getIun());
+
+        String elementId = TimelineEventId.SENDERACK_CREATION_REQUEST.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .build());
+        
+      SenderAckCreationRequestDetailsInt details = SenderAckCreationRequestDetailsInt.builder()
+              .legalFactId(legalFactId)
+              .build();
+
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
+                .legalFactsIds(Collections.emptyList());
+
+        return buildTimeline(
+                notification,
+                TimelineElementCategoryInt.SENDER_ACK_CREATION_REQUEST,
+                elementId,
+                details,
+                timelineBuilder
+        );
+    }
+
     public List<LegalFactsIdInt> singleLegalFactId(String legalFactKey, LegalFactCategoryInt type) {
         return Collections.singletonList( LegalFactsIdInt.builder()
                 .key( legalFactKey )

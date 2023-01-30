@@ -11,11 +11,11 @@ import java.time.Instant;
 import java.util.List;
 
 public interface SaveLegalFactsService {
-    PdfInfo saveAAR(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken);
+    PdfInfo sendCreationRequestForAAR(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken);
 
-    String saveNotificationReceivedLegalFact(NotificationInt notification);
+    String sendCreationRequestForNotificationReceivedLegalFact(NotificationInt notification);
 
-    String savePecDeliveryWorkflowLegalFact(
+    String sendCreationRequestForPecDeliveryWorkflowLegalFact(
             List<SendDigitalFeedbackDetailsInt> listFeedbackFromExtChannel,
             NotificationInt notification,
             NotificationRecipientInt recipient,
@@ -23,7 +23,7 @@ public interface SaveLegalFactsService {
             Instant completionWorkflowDate
     );
     
-    Mono<String> saveNotificationViewedLegalFact(
+    Mono<String> sendCreationRequestForNotificationViewedLegalFact(
             NotificationInt notification,
             NotificationRecipientInt recipient,
             Instant timeStamp

@@ -11,6 +11,8 @@ import it.pagopa.pn.deliverypush.action.completionworkflow.*;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowUtils;
+import it.pagopa.pn.deliverypush.middleware.responsehandler.DocumentCreationResponseHandler;
+import it.pagopa.pn.deliverypush.middleware.responsehandler.SafeStorageResponseHandler;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
@@ -21,6 +23,8 @@ import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedReque
 import it.pagopa.pn.deliverypush.action.notificationview.ViewNotification;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.AttachmentUtils;
+import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationResponseHandler;
+import it.pagopa.pn.deliverypush.action.startworkflow.ScheduleRecipientWorkflow;
 import it.pagopa.pn.deliverypush.action.startworkflow.StartWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.*;
@@ -47,10 +51,7 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -123,7 +124,13 @@ import static org.awaitility.Awaitility.await;
         ViewNotification.class,
         PnDeliveryClientReactiveImpl.class,
         PnDataVaultClientReactiveMock.class,
-        DigitalTestIT.SpringTestConfiguration.class
+        DocumentCreationRequestServiceImpl.class,
+        DocumentCreationRequestDaoMock.class,
+        SafeStorageResponseHandler.class,
+        DocumentCreationResponseHandler.class,
+        ReceivedLegalFactCreationResponseHandler.class,
+        ScheduleRecipientWorkflow.class,
+        DigitalTestMultiRecipientIT.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
@@ -214,6 +221,9 @@ class DigitalTestMultiRecipientIT {
     @Autowired
     private AuditLogService auditLogService;
 
+    @Autowired
+    private DocumentCreationRequestDaoMock documentCreationRequestDaoMock;
+
     @BeforeEach
     public void setup() {
 
@@ -227,6 +237,7 @@ class DigitalTestMultiRecipientIT {
         pnDeliveryClientMock.clear();
         pnDataVaultClientMock.clear();
         safeStorageClientMock.clear();
+        documentCreationRequestDaoMock.clear();
     }
 
     @AfterEach

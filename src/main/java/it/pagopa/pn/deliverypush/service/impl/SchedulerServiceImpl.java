@@ -36,8 +36,7 @@ public class SchedulerServiceImpl implements SchedulerService {
     public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType) {
         this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, null, null);
     }
-
-
+    
     @Override
     public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType, String timelineEventId, ActionDetails actionDetails) {
         Action action = Action.builder()

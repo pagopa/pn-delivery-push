@@ -12,12 +12,16 @@ import it.pagopa.pn.deliverypush.action.completionworkflow.*;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowUtils;
+import it.pagopa.pn.deliverypush.middleware.responsehandler.DocumentCreationResponseHandler;
+import it.pagopa.pn.deliverypush.middleware.responsehandler.SafeStorageResponseHandler;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.AttachmentUtils;
+import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationResponseHandler;
+import it.pagopa.pn.deliverypush.action.startworkflow.ScheduleRecipientWorkflow;
 import it.pagopa.pn.deliverypush.action.startworkflow.StartWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.*;
@@ -105,6 +109,12 @@ import java.util.Collections;
         MVPParameterConsumer.class,
         PnDeliveryClientReactiveImpl.class,
         PnDataVaultClientReactiveMock.class,
+        DocumentCreationRequestServiceImpl.class,
+        DocumentCreationRequestDaoMock.class,
+        SafeStorageResponseHandler.class,
+        DocumentCreationResponseHandler.class,
+        ReceivedLegalFactCreationResponseHandler.class,
+        ScheduleRecipientWorkflow.class,
         ValidationDocumentErrorTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource(
@@ -173,6 +183,9 @@ class ValidationDocumentErrorTestIT {
     @Autowired
     private AuditLogService auditLogService;
 
+    @Autowired
+    private DocumentCreationRequestDaoMock documentCreationRequestDaoMock;
+
     @BeforeEach
     public void setup() {
         //Mock for get current date
@@ -186,6 +199,7 @@ class ValidationDocumentErrorTestIT {
         timelineDaoMock.clear();
         paperNotificationFailedDaoMock.clear();
         pnDataVaultClientMock.clear();
+        documentCreationRequestDaoMock.clear();
     }
 
     @Test

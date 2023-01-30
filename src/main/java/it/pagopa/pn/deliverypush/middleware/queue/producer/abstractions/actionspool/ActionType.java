@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actions
 
 import it.pagopa.pn.deliverypush.action.details.NotHandledDetails;
 import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
+import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 import lombok.Getter;
 
 @Getter
@@ -61,12 +62,23 @@ public enum ActionType {
           action.getRecipientIndex());
     }
   },
+  
   SENDER_ACK(NotHandledDetails.class) {
 
     @Override
     public String buildActionId(Action action) {
       return String.format("%s_start", action.getIun());
     }
+  },
+
+  DOCUMENT_CREATION_RESPONSE(DocumentCreationResponseActionDetails.class) {
+    @Override
+    public String buildActionId(Action action) {
+        return String.format("safe_storage_response_timelineId=%s",
+                action.getTimelineId()
+        );
+    }
+    
   };
 
   private final Class<? extends ActionDetails> detailsJavaClass;

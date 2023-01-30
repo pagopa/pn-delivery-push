@@ -6,7 +6,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DocumentDownloa
 import it.pagopa.pn.deliverypush.service.GetDocumentService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
-import it.pagopa.pn.deliverypush.service.utils.FileNameUtils;
+import it.pagopa.pn.deliverypush.service.utils.FileUtils;
 import it.pagopa.pn.deliverypush.utils.AuthUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -63,7 +63,7 @@ public class GetDocumentServiceImpl implements GetDocumentService {
                                                               DocumentCategory documentType, 
                                                               String documentId, 
                                                               FileDownloadResponseInt fileDownloadResponse) {
-        String fileName = FileNameUtils.buildFileName(iun, documentType.getValue(), documentId, fileDownloadResponse.getContentType());
+        String fileName = FileUtils.buildFileName(iun, documentType.getValue(), documentId, fileDownloadResponse.getContentType());
         
         return DocumentDownloadMetadataResponse.builder()
                 .filename(fileName)

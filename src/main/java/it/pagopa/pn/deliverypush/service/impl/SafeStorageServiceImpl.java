@@ -28,7 +28,7 @@ public class SafeStorageServiceImpl implements SafeStorageService {
     @Override
     public Mono<FileDownloadResponseInt> getFile(String fileKey, Boolean metadataOnly) {
         return safeStorageClient.getFile(fileKey, metadataOnly)
-                .doOnSuccess(fileDownloadResponse -> log.info("Response getFile from SafeStorage: {}", fileDownloadResponse))
+                .doOnSuccess(fileDownloadResponse -> log.debug("Response getFile from SafeStorage: {}", fileDownloadResponse))
                 .onErrorResume( ex -> {
                             String message = String.format("Get file failed for - fileKey=%s isMetadataOnly=%b", fileKey, metadataOnly);
                             return Mono.error(new PnNotFoundException("Not found", message, ERROR_CODE_DELIVERYPUSH_NOTFOUND, ex));
@@ -58,7 +58,7 @@ public class SafeStorageServiceImpl implements SafeStorageService {
     
     @Override
     public Mono<FileCreationResponseInt> createAndUploadContent(FileCreationWithContentRequest fileCreationRequest) {
-            log.debug("Start call createAndUploadFile - documentType={} filesize={}", fileCreationRequest.getDocumentType(), fileCreationRequest.getContent().length);
+            log.info("Start createAndUploadFile - documentType={} filesize={}", fileCreationRequest.getDocumentType(), fileCreationRequest.getContent().length);
 
             String sha256 = computeSha256(fileCreationRequest.getContent());
 

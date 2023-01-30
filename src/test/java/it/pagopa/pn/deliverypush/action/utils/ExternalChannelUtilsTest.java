@@ -9,10 +9,10 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotHandledDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalProgressDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.utils.FileUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -77,7 +77,7 @@ class ExternalChannelUtilsTest {
     @Test
     void getAarKeyOk() {
         AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
-                .generatedAarUrl(SAFE_STORAGE_URL_PREFIX + "testKey")
+                .generatedAarUrl(FileUtils.getKeyWithStoragePrefix("testKey"))
                 .numberOfPages(1)
                 .build();
         
