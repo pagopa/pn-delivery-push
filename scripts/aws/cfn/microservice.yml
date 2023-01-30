@@ -212,6 +212,14 @@ Parameters:
     Type: String
     Description: 'ARN of dynamodb table containing'
 
+  DocumentCreationRequestTableName:
+    Type: String
+    Description: 'Name of dynamodb table containing unreacheble notifications recipients'
+
+  DocumentCreationRequestTableArn:
+    Type: String
+    Description: 'ARN of dynamodb table containing unreacheble notifications recipients'
+      
   AlarmSNSTopicArn:
     Type: String
     Description: 'ARN of alarm topic'
@@ -379,6 +387,7 @@ Resources:
         ContainerEnvEntry41: !Sub 'PN_DELIVERYPUSH_RETENTION_ATTACHMENT_DAYS_AFTER_REFINEMENT=${RetentionAttachmentDaysAfterRefinement}'
         ContainerEnvEntry42: !Sub 'PN_DELIVERYPUSH_TOPICS_SAFESTORAGEEVENTS=${SafeStorageToDeliveryPushQueueName}'
         ContainerEnvEntry43: !Sub 'PN_DELIVERYPUSH_NATIONALREGISTRIESBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry44: !Sub 'PN_DELIVERYPUSH_DOCUMENTCREATIONREQUESTDAO_TABLENAME=${DocumentCreationRequestTableName}'
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*,/delivery-progresses/*'
         ECSClusterName: !Ref ECSClusterName
@@ -444,13 +453,14 @@ Resources:
               - !Sub "${PnDeliveryPushShedLockDynamoTableArn}"
               - !Sub "${PnDeliveryPushWebhookStreamsTableArn}"
               - !Sub "${PnDeliveryPushWebhookEventsTableArn}"
+              - !Sub "${DocumentCreationRequestTableArn}"
           - Effect: Allow
             Action:
               - ssm:GetParameter
               - ssm:GetParameters
             Resource:
               - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapPaMVP'
-
+  
   # Expose PN-Delivery-push microservice public API with API-GW for B2B usage
   DeliveryPushMicroservicePublicAPI:
     Type: AWS::CloudFormation::Stack
@@ -544,7 +554,7 @@ Resources:
       Parameters:
         WAFName: !Sub '${ProjectName}-delivery-push-io'
         APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicIoAPI.Outputs.APIGatewayARN
-
+  
   ## Dashboard
   DeliveryPushMicroserviceCloudWatchDashboard:
     Type: AWS::CloudFormation::Stack
@@ -562,6 +572,7 @@ Resources:
             - !Ref PnDeliveryPushShedLockDynamoTableName
             - !Ref PnDeliveryPushWebhookStreamsTableName
             - !Ref PnDeliveryPushWebhookEventsTableName
+            - !Ref DocumentCreationRequestTableName 
         RestApiStageArns: !Join
           - ','
           - - !GetAtt DeliveryPushMicroservicePublicAPI.Outputs.RestApiStageArn
