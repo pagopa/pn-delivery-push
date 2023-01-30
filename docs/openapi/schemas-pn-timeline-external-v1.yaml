@@ -131,12 +131,12 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
-#        errors:                                                                               # ONLY EXTERNAL
-#          type: array                                                                         # ONLY EXTERNAL
-#          description: placeholder per il campo errors                                        # ONLY EXTERNAL
-#          deprecated: true                                                                    # ONLY EXTERNAL
-#          items:                                                                              # ONLY EXTERNAL
-#            type: string                                                                      # ONLY EXTERNAL
+        errors:                                                                               # ONLY EXTERNAL
+          type: array                                                                         # ONLY EXTERNAL
+          description: placeholder per il campo errors                                        # ONLY EXTERNAL
+          deprecated: true                                                                    # ONLY EXTERNAL
+          items:                                                                              # ONLY EXTERNAL
+            type: string                                                                      # ONLY EXTERNAL
 
     AnalogFailureWorkflowDetails:
       type: object
@@ -147,12 +147,12 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
-#        errors:                                                                               # ONLY EXTERNAL
-#          type: array                                                                         # ONLY EXTERNAL
-#          description: placeholder per il campo errors                                        # ONLY EXTERNAL
-#          deprecated: true                                                                    # ONLY EXTERNAL
-#          items:                                                                              # ONLY EXTERNAL
-#            type: string                                                                      # ONLY EXTERNAL
+        errors:                                                                               # ONLY EXTERNAL
+          type: array                                                                         # ONLY EXTERNAL
+          description: placeholder per il campo errors                                        # ONLY EXTERNAL
+          deprecated: true                                                                    # ONLY EXTERNAL
+          items:                                                                              # ONLY EXTERNAL
+            type: string                                                                      # ONLY EXTERNAL
 
     AnalogSuccessWorkflowDetails:
       type: object
@@ -166,12 +166,12 @@ components:
           format: int32
         physicalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
-#        errors:                                                                               # ONLY EXTERNAL
-#          type: array                                                                         # ONLY EXTERNAL
-#          description: placeholder per il campo errors                                        # ONLY EXTERNAL
-#          deprecated: true                                                                    # ONLY EXTERNAL
-#          items:                                                                              # ONLY EXTERNAL
-#            type: string                                                                      # ONLY EXTERNAL
+        errors:                                                                               # ONLY EXTERNAL
+          type: array                                                                         # ONLY EXTERNAL
+          description: placeholder per il campo errors                                        # ONLY EXTERNAL
+          deprecated: true                                                                    # ONLY EXTERNAL
+          items:                                                                              # ONLY EXTERNAL
+            type: string                                                                      # ONLY EXTERNAL
 
     DigitalFailureWorkflowDetails:
       type: object
@@ -182,12 +182,12 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
-#        errors:                                                                               # ONLY EXTERNAL
-#          type: array                                                                         # ONLY EXTERNAL
-#          description: placeholder per il campo errors                                        # ONLY EXTERNAL
-#          deprecated: true                                                                    # ONLY EXTERNAL
-#          items:                                                                              # ONLY EXTERNAL
-#            type: string                                                                      # ONLY EXTERNAL
+        errors:                                                                               # ONLY EXTERNAL
+          type: array                                                                         # ONLY EXTERNAL
+          description: placeholder per il campo errors                                        # ONLY EXTERNAL
+          deprecated: true                                                                    # ONLY EXTERNAL
+          items:                                                                              # ONLY EXTERNAL
+            type: string                                                                      # ONLY EXTERNAL
 
     DigitalSuccessWorkflowDetails:
       type: object
@@ -201,12 +201,12 @@ components:
           format: int32
         digitalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
-#        errors:                                                                               # ONLY EXTERNAL
-#          type: array                                                                         # ONLY EXTERNAL
-#          description: placeholder per il campo errors                                        # ONLY EXTERNAL
-#          deprecated: true                                                                    # ONLY EXTERNAL
-#          items:                                                                              # ONLY EXTERNAL
-#            type: string                                                                      # ONLY EXTERNAL
+        errors:                                                                               # ONLY EXTERNAL
+          type: array                                                                         # ONLY EXTERNAL
+          description: placeholder per il campo errors                                        # ONLY EXTERNAL
+          deprecated: true                                                                    # ONLY EXTERNAL
+          items:                                                                              # ONLY EXTERNAL
+            type: string                                                                      # ONLY EXTERNAL
 
     CompletelyUnreachableDetails:
       type: object
@@ -217,12 +217,12 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
-#        errors:                                                                               # ONLY EXTERNAL
-#          type: array                                                                         # ONLY EXTERNAL
-#          description: placeholder per il campo errors                                        # ONLY EXTERNAL
-#          deprecated: true                                                                    # ONLY EXTERNAL
-#          items:                                                                              # ONLY EXTERNAL
-#            type: string                                                                      # ONLY EXTERNAL
+        errors:                                                                               # ONLY EXTERNAL
+          type: array                                                                         # ONLY EXTERNAL
+          description: placeholder per il campo errors                                        # ONLY EXTERNAL
+          deprecated: true                                                                    # ONLY EXTERNAL
+          items:                                                                              # ONLY EXTERNAL
+            type: string                                                                      # ONLY EXTERNAL
 
     GetAddressInfoDetails: 
       type: object
@@ -245,12 +245,12 @@ components:
           type: string
           description: Data tentativo
           format: date-time
-#        errors:                                                                               # ONLY EXTERNAL
-#          type: array                                                                         # ONLY EXTERNAL
-#          description: placeholder per il campo errors                                        # ONLY EXTERNAL
-#          deprecated: true                                                                    # ONLY EXTERNAL
-#          items:                                                                              # ONLY EXTERNAL
-#            type: string                                                                      # ONLY EXTERNAL
+        errors:                                                                               # ONLY EXTERNAL
+          type: array                                                                         # ONLY EXTERNAL
+          description: placeholder per il campo errors                                        # ONLY EXTERNAL
+          deprecated: true                                                                    # ONLY EXTERNAL
+          items:                                                                              # ONLY EXTERNAL
+            type: string                                                                      # ONLY EXTERNAL
 
     NotificationViewedDetails:
       type: object
@@ -272,12 +272,12 @@ components:
           $ref: '#/components/schemas/RaddTransactionId'
         delegateInfo:
           $ref: '#/components/schemas/DelegateInfo'
-#        errors:                                                                               # ONLY EXTERNAL
-#          type: array                                                                         # ONLY EXTERNAL
-#          description: placeholder per il campo errors                                        # ONLY EXTERNAL
-#          deprecated: true                                                                    # ONLY EXTERNAL
-#          items:                                                                              # ONLY EXTERNAL
-#            type: string                                                                      # ONLY EXTERNAL
+        errors:                                                                               # ONLY EXTERNAL
+          type: array                                                                         # ONLY EXTERNAL
+          description: placeholder per il campo errors                                        # ONLY EXTERNAL
+          deprecated: true                                                                    # ONLY EXTERNAL
+          items:                                                                              # ONLY EXTERNAL
+            type: string                                                                      # ONLY EXTERNAL
 
     PublicRegistryCallDetails:
       type: object
@@ -304,12 +304,12 @@ components:
           type: string
           description: Data invio richiesta ai public registry
           format: date-time
-#        errors:                                                                               # ONLY EXTERNAL
-#          type: array                                                                         # ONLY EXTERNAL
-#          description: placeholder per il campo errors                                        # ONLY EXTERNAL
-#          deprecated: true                                                                    # ONLY EXTERNAL
-#          items:                                                                              # ONLY EXTERNAL
-#            type: string                                                                      # ONLY EXTERNAL
+        errors:                                                                               # ONLY EXTERNAL
+          type: array                                                                         # ONLY EXTERNAL
+          description: placeholder per il campo errors                                        # ONLY EXTERNAL
+          deprecated: true                                                                    # ONLY EXTERNAL
+          items:                                                                              # ONLY EXTERNAL
+            type: string                                                                      # ONLY EXTERNAL
 
     PublicRegistryResponseDetails:
       type: object
@@ -324,12 +324,12 @@ components:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
         physicalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
-#        errors:                                                                               # ONLY EXTERNAL
-#          type: array                                                                         # ONLY EXTERNAL
-#          description: placeholder per il campo errors                                        # ONLY EXTERNAL
-#          deprecated: true                                                                    # ONLY EXTERNAL
-#          items:                                                                              # ONLY EXTERNAL
-#            type: string                                                                      # ONLY EXTERNAL
+        errors:                                                                               # ONLY EXTERNAL
+          type: array                                                                         # ONLY EXTERNAL
+          description: placeholder per il campo errors                                        # ONLY EXTERNAL
+          deprecated: true                                                                    # ONLY EXTERNAL
+          items:                                                                              # ONLY EXTERNAL
+            type: string                                                                      # ONLY EXTERNAL
 
     RefinementDetails:
       type: object
@@ -345,12 +345,12 @@ components:
           example: 1220
           type: integer
           format: int64
-#        errors:                                                                               # ONLY EXTERNAL
-#          type: array                                                                         # ONLY EXTERNAL
-#          description: placeholder per il campo errors                                        # ONLY EXTERNAL
-#          deprecated: true                                                                    # ONLY EXTERNAL
-#          items:                                                                              # ONLY EXTERNAL
-#            type: string                                                                      # ONLY EXTERNAL
+        errors:                                                                               # ONLY EXTERNAL
+          type: array                                                                         # ONLY EXTERNAL
+          description: placeholder per il campo errors                                        # ONLY EXTERNAL
+          deprecated: true                                                                    # ONLY EXTERNAL
+          items:                                                                              # ONLY EXTERNAL
+            type: string                                                                      # ONLY EXTERNAL
 
     RequestRefusedDetails:
       type: object
@@ -373,12 +373,12 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
-#        errors:                                                                               # ONLY EXTERNAL
-#          type: array                                                                         # ONLY EXTERNAL
-#          description: placeholder per il campo errors                                        # ONLY EXTERNAL
-#          deprecated: true                                                                    # ONLY EXTERNAL
-#          items:                                                                              # ONLY EXTERNAL
-#            type: string                                                                      # ONLY EXTERNAL
+        errors:                                                                               # ONLY EXTERNAL
+          type: array                                                                         # ONLY EXTERNAL
+          description: placeholder per il campo errors                                        # ONLY EXTERNAL
+          deprecated: true                                                                    # ONLY EXTERNAL
+          items:                                                                              # ONLY EXTERNAL
+            type: string                                                                      # ONLY EXTERNAL
 
     ScheduleDigitalWorkflowDetails:
       type: object
@@ -403,12 +403,12 @@ components:
         lastAttemptDate:
           type: string
           format: date-time
-#        errors:                                                                               # ONLY EXTERNAL
-#          type: array                                                                         # ONLY EXTERNAL
-#          description: placeholder per il campo errors                                        # ONLY EXTERNAL
-#          deprecated: true                                                                    # ONLY EXTERNAL
-#          items:                                                                              # ONLY EXTERNAL
-#            type: string                                                                      # ONLY EXTERNAL
+        errors:                                                                               # ONLY EXTERNAL
+          type: array                                                                         # ONLY EXTERNAL
+          description: placeholder per il campo errors                                        # ONLY EXTERNAL
+          deprecated: true                                                                    # ONLY EXTERNAL
+          items:                                                                              # ONLY EXTERNAL
+            type: string                                                                      # ONLY EXTERNAL
 
     ScheduleRefinementDetails:
       type: object
@@ -419,12 +419,12 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
-#        errors:                                                                               # ONLY EXTERNAL
-#          type: array                                                                         # ONLY EXTERNAL
-#          description: placeholder per il campo errors                                        # ONLY EXTERNAL
-#          deprecated: true                                                                    # ONLY EXTERNAL
-#          items:                                                                              # ONLY EXTERNAL
-#            type: string                                                                      # ONLY EXTERNAL
+        errors:                                                                               # ONLY EXTERNAL
+          type: array                                                                         # ONLY EXTERNAL
+          description: placeholder per il campo errors                                        # ONLY EXTERNAL
+          deprecated: true                                                                    # ONLY EXTERNAL
+          items:                                                                              # ONLY EXTERNAL
+            type: string                                                                      # ONLY EXTERNAL
 
     SendCourtesyMessageDetails:
       type: object
@@ -443,12 +443,12 @@ components:
           type: string
           description: data invio messaggio di cortesia
           format: date-time
-#        errors:                                                                               # ONLY EXTERNAL
-#          type: array                                                                         # ONLY EXTERNAL
-#          description: placeholder per il campo errors                                        # ONLY EXTERNAL
-#          deprecated: true                                                                    # ONLY EXTERNAL
-#          items:                                                                              # ONLY EXTERNAL
-#            type: string                                                                      # ONLY EXTERNAL
+        errors:                                                                               # ONLY EXTERNAL
+          type: array                                                                         # ONLY EXTERNAL
+          description: placeholder per il campo errors                                        # ONLY EXTERNAL
+          deprecated: true                                                                    # ONLY EXTERNAL
+          items:                                                                              # ONLY EXTERNAL
+            type: string                                                                      # ONLY EXTERNAL
 
     SendDigitalDetails:
       type: object
@@ -470,12 +470,12 @@ components:
           type: integer
           description: numero dei tentativi effettuati
           format: int32
-#        errors:                                                                               # ONLY EXTERNAL
-#          type: array                                                                         # ONLY EXTERNAL
-#          description: placeholder per il campo errors                                        # ONLY EXTERNAL
-#          deprecated: true                                                                    # ONLY EXTERNAL
-#          items:                                                                              # ONLY EXTERNAL
-#            type: string                                                                      # ONLY EXTERNAL
+        errors:                                                                               # ONLY EXTERNAL
+          type: array                                                                         # ONLY EXTERNAL
+          description: placeholder per il campo errors                                        # ONLY EXTERNAL
+          deprecated: true                                                                    # ONLY EXTERNAL
+          items:                                                                              # ONLY EXTERNAL
+            type: string                                                                      # ONLY EXTERNAL
 
     SendDigitalProgressDetails:
       type: object
@@ -506,12 +506,12 @@ components:
           type: integer
           description: numero dei tentativi effettuati
           format: int32
-#        errors:                                                                               # ONLY EXTERNAL
-#          type: array                                                                         # ONLY EXTERNAL
-#          description: placeholder per il campo errors                                        # ONLY EXTERNAL
-#          deprecated: true                                                                    # ONLY EXTERNAL
-#          items:                                                                              # ONLY EXTERNAL
-#            type: string                                                                      # ONLY EXTERNAL
+        errors:                                                                               # ONLY EXTERNAL
+          type: array                                                                         # ONLY EXTERNAL
+          description: placeholder per il campo errors                                        # ONLY EXTERNAL
+          deprecated: true                                                                    # ONLY EXTERNAL
+          items:                                                                              # ONLY EXTERNAL
+            type: string                                                                      # ONLY EXTERNAL
 
     SendDigitalFeedbackDetails:
       type: object
@@ -574,12 +574,12 @@ components:
           type: integer
           description: costo in eurocent dell'invio
           format: int32
-#        errors:                                                                               # ONLY EXTERNAL
-#          type: array                                                                         # ONLY EXTERNAL
-#          description: placeholder per il campo errors                                        # ONLY EXTERNAL
-#          deprecated: true                                                                    # ONLY EXTERNAL
-#          items:                                                                              # ONLY EXTERNAL
-#            type: string                                                                      # ONLY EXTERNAL
+        errors:                                                                               # ONLY EXTERNAL
+          type: array                                                                         # ONLY EXTERNAL
+          description: placeholder per il campo errors                                        # ONLY EXTERNAL
+          deprecated: true                                                                    # ONLY EXTERNAL
+          items:                                                                              # ONLY EXTERNAL
+            type: string                                                                      # ONLY EXTERNAL
 
     SendAnalogFeedbackDetails:
       type: object
@@ -633,12 +633,12 @@ components:
           type: integer
           description: costo in eurocent dell'invio
           format: int32
-#        errors:                                                                               # ONLY EXTERNAL
-#          type: array                                                                         # ONLY EXTERNAL
-#          description: placeholder per il campo errors                                        # ONLY EXTERNAL
-#          deprecated: true                                                                    # ONLY EXTERNAL
-#          items:                                                                              # ONLY EXTERNAL
-#            type: string                                                                      # ONLY EXTERNAL
+        errors:                                                                               # ONLY EXTERNAL
+          type: array                                                                         # ONLY EXTERNAL
+          description: placeholder per il campo errors                                        # ONLY EXTERNAL
+          deprecated: true                                                                    # ONLY EXTERNAL
+          items:                                                                              # ONLY EXTERNAL
+            type: string                                                                      # ONLY EXTERNAL
 
     AarGenerationDetails:
       type: object
@@ -658,12 +658,12 @@ components:
           type: integer
           description: numero di pagine del PDF generato
           format: int32
-#        errors:                                                                               # ONLY EXTERNAL
-#          type: array                                                                         # ONLY EXTERNAL
-#          description: placeholder per il campo errors                                        # ONLY EXTERNAL
-#          deprecated: true                                                                    # ONLY EXTERNAL
-#          items:                                                                              # ONLY EXTERNAL
-#            type: string                                                                      # ONLY EXTERNAL
+        errors:                                                                               # ONLY EXTERNAL
+          type: array                                                                         # ONLY EXTERNAL
+          description: placeholder per il campo errors                                        # ONLY EXTERNAL
+          deprecated: true                                                                    # ONLY EXTERNAL
+          items:                                                                              # ONLY EXTERNAL
+            type: string                                                                      # ONLY EXTERNAL
 
     NotHandledDetails:
       type: object
@@ -682,12 +682,12 @@ components:
         reason:
           type: string
           description: Motivazione casistica non gestita
-#        errors:                                                                               # ONLY EXTERNAL
-#          type: array                                                                         # ONLY EXTERNAL
-#          description: placeholder per il campo errors                                        # ONLY EXTERNAL
-#          deprecated: true                                                                    # ONLY EXTERNAL
-#          items:                                                                              # ONLY EXTERNAL
-#            type: string                                                                      # ONLY EXTERNAL
+        errors:                                                                               # ONLY EXTERNAL
+          type: array                                                                         # ONLY EXTERNAL
+          description: placeholder per il campo errors                                        # ONLY EXTERNAL
+          deprecated: true                                                                    # ONLY EXTERNAL
+          items:                                                                              # ONLY EXTERNAL
+            type: string                                                                      # ONLY EXTERNAL
 
     NotificationPaidDetails:
       type: object
@@ -698,12 +698,12 @@ components:
           type: integer
           description: Index destinatario che ha effettuato il pagamento della notifica
           format: int32
-#        errors:                                                                               # ONLY EXTERNAL
-#          type: array                                                                         # ONLY EXTERNAL
-#          description: placeholder per il campo errors                                        # ONLY EXTERNAL
-#          deprecated: true                                                                    # ONLY EXTERNAL
-#          items:                                                                              # ONLY EXTERNAL
-#            type: string                                                                      # ONLY EXTERNAL
+        errors:                                                                               # ONLY EXTERNAL
+          type: array                                                                         # ONLY EXTERNAL
+          description: placeholder per il campo errors                                        # ONLY EXTERNAL
+          deprecated: true                                                                    # ONLY EXTERNAL
+          items:                                                                              # ONLY EXTERNAL
+            type: string                                                                      # ONLY EXTERNAL
 
     SenderAckCreationRequestDetails:
       type: object
