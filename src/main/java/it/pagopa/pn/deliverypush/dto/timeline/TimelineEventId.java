@@ -321,7 +321,7 @@ public enum TimelineEventId {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
-                    "iun_%s_recIndex_%d_aar_creation_request",
+                    "aar_creation_request_iun_%s_recIndex_%d",
                     eventId.getIun(),
                     eventId.getRecIndex()
             );
