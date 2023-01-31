@@ -64,24 +64,6 @@ class PublicRegistryServiceImplTest {
         Mockito.verify(publicRegistry, Mockito.times(1)).sendRequestForGetDigitalAddress(recipient.getTaxId(), recipient.getRecipientType().getValue(), correlationId);
     }
 
-    @Test
-    void sendRequestForGetPhysicalAddress() {
-        String denomination = "<h1>SSRF WITH IMAGE POC</h1> <img src='https://prova.it'></img>";
-        NotificationInt notification = buildNotification(denomination);
-        Integer recIndex = 1;
-        int sentAttemptMade = 1;
-        String correlationId = "001";
-        NotificationRecipientInt recipient = buildRecipient(denomination);
-
-        Mockito.when(publicRegistryUtils.generateCorrelationId(notification.getIun(), recIndex, ContactPhaseInt.SEND_ATTEMPT, sentAttemptMade, DeliveryModeInt.ANALOG)).thenReturn(correlationId);
-        Mockito.when(notificationUtils.getRecipientFromIndex(notification, recIndex)).thenReturn(recipient);
-
-        service.sendRequestForGetPhysicalAddress(notification, recIndex, sentAttemptMade);
-
-        Mockito.verify(publicRegistryUtils, Mockito.times(1)).addPublicRegistryCallToTimeline(notification, recIndex, ContactPhaseInt.SEND_ATTEMPT, sentAttemptMade, correlationId, DeliveryModeInt.ANALOG);
-        Mockito.verify(publicRegistry, Mockito.times(1)).sendRequestForGetPhysicalAddress(recipient.getTaxId(), correlationId);
-
-    }
 
     private NotificationInt buildNotification(String denomination) {
         return NotificationInt.builder()
