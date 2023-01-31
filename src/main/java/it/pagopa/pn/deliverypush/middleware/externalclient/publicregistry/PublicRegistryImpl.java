@@ -35,7 +35,7 @@ public class PublicRegistryImpl extends CommonBaseClient implements PublicRegist
     @PostConstruct
     public void init() {
         ApiClient newApiClient = new ApiClient( initWebClient(ApiClient.buildWebClientBuilder()) );
-        newApiClient.setBasePath( this.cfg.getSafeStorageBaseUrl() );
+        newApiClient.setBasePath( this.cfg.getNationalRegistriesBaseUrl() );
         addressApi = new AddressApi(newApiClient);
     }
 
