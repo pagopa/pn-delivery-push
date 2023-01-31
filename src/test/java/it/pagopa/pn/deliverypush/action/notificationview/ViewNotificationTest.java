@@ -83,15 +83,7 @@ class ViewNotificationTest {
         when(timelineUtils.buildNotificationViewedLegalFactCreationRequestTimelineElement(Mockito.eq(notification), Mockito.eq(recIndex),
                         Mockito.eq(legalFactsId), Mockito.isNull(), Mockito.isNull(), Mockito.any()))
                 .thenReturn(timelineElementInternal);
-
-/*
-        int notificationCost = 10;
-        when(this.notificationCost.getNotificationCost(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(Mono.just(Optional.of(notificationCost)));
-        when(timelineUtils.buildNotificationViewedTimelineElement(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(TimelineElementInternal.builder().build());
-       
-        Mockito.verify(paperNotificationFailedService).deleteNotificationFailed(recipient.getInternalId(), notification.getIun());
-*/
+        
         Instant viewDate = Instant.now();
 
         //WHEN
@@ -129,22 +121,7 @@ class ViewNotificationTest {
                 .thenReturn(timelineElementInternal);
         
         when(attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement())).thenReturn(Flux.empty());
-
-/*
-        int notificationCost = 10;
-
-        when(this.notificationCost.getNotificationCost(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(Mono.just(Optional.of(notificationCost)));
-        when(timelineUtils.buildNotificationViewedTimelineElement(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(TimelineElementInternal.builder().build());
-        BaseRecipientDtoInt baseRecipientDto = BaseRecipientDtoInt.builder()
-                .internalId(internalId)
-                .denomination("denomination")
-                .taxId("taxId")
-                .build();
         
-        Mockito.when(confidentialInformationService.getRecipientInformationByInternalId(Mockito.anyString())).thenReturn(Mono.just(baseRecipientDto));
-
-*/
         //WHEN
         String internalId = "internalId";
 
@@ -157,21 +134,7 @@ class ViewNotificationTest {
         viewNotification.startVewNotificationProcess(notification, recipient, recIndex, null, delegateInfo, viewDate).block();
 
         //THEN
-
-/*        
-        Mockito.verify(confidentialInformationService).getRecipientInformationByInternalId(delegateInfo.getInternalId());
-
-        DelegateInfoInt delegateInfoWithPersonalInformation = delegateInfo.toBuilder()
-                .taxId(baseRecipientDto.getTaxId())
-                .denomination(baseRecipientDto.getDenomination())
-                .build();
         
-        Mockito.verify(timelineUtils).buildNotificationViewedTimelineElement(Mockito.eq(notification), Mockito.eq(recIndex),
-                Mockito.eq(legalFactsId),  Mockito.eq(notificationCost), Mockito.isNull(), Mockito.eq(delegateInfoWithPersonalInformation),
-                Mockito.eq(viewDate));
-        Mockito.verify(paperNotificationFailedService).deleteNotificationFailed(recipient.getInternalId(), notification.getIun());
-
-        */
         Mockito.verify(timelineUtils).buildNotificationViewedLegalFactCreationRequestTimelineElement(Mockito.eq(notification), Mockito.eq(recIndex),
                 Mockito.eq(legalFactsId), Mockito.isNull(), Mockito.eq(delegateInfo), Mockito.eq(viewDate));
 

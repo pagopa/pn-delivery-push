@@ -1,8 +1,5 @@
 package it.pagopa.pn.deliverypush.action.notificationview;
 
-import it.pagopa.pn.commons.log.PnAuditLogBuilder;
-import it.pagopa.pn.commons.log.PnAuditLogEvent;
-import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -60,12 +57,6 @@ public class NotificationViewedRequestHandler {
                 
                 //I processi collegati alla visualizzazione di una notifica vengono effettuati solo la prima volta che la stessa viene visualizzata
                 if(Boolean.FALSE.equals(isNotificationAlreadyViewed) ){
-                    
-                    //TODO AuditLog da eliminare
-/*
-                    PnAuditLogEvent logEvent = generateAuditLog(iun, recIndex, raddInfo, delegateInfo);
-                    logEvent.log();
-*/
 
                     log.debug("Notification is not already viewed - iun={} id={}", iun, recIndex);
 
@@ -78,45 +69,17 @@ public class NotificationViewedRequestHandler {
                                             log.debug("Notification is not in state CANCELLED - iun={} id={}", iun, recIndex);
                                             
                                             NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
-                                            return viewNotification.startVewNotificationProcess(notification, recipient, recIndex, raddInfo, delegateInfo, eventTimestamp)
-                                                    .thenEmpty(
-                                                            Mono.fromCallable(() -> {
-                                                               // logEvent.generateSuccess().log();
-                                                                return null;
-                                                            })
-                                                    );
+                                            return viewNotification.startVewNotificationProcess(notification, recipient, recIndex, raddInfo, delegateInfo, eventTimestamp);
                                         } else {
                                             log.debug("Notification is in status {}, can't start view Notification process - iun={} id={}", currentStatus, iun, recIndex);
                                             return Mono.empty();
                                         }
                                     })
-                            ).doOnError( err ->System.out.println("error")); //logEvent.generateFailure("Exception in View notification ex={}", err).log());
+                            );
                 } else {
                     log.debug("Notification is already viewed - iun={} id={}", iun, recIndex);
                     return Mono.empty();
                 }
             });
     }
-
-    private PnAuditLogEvent generateAuditLog(String iun, Integer recIndex, RaddInfo raddInfo, DelegateInfoInt delegateInfo ) {
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        boolean viewedFromDelegate = delegateInfo != null;
-        
-        PnAuditLogEventType type = viewedFromDelegate ? PnAuditLogEventType.AUD_NT_VIEW_DEL : PnAuditLogEventType.AUD_NT_VIEW_RCP;
-        return auditLogBuilder
-                .before(type, "View Notification - iun={} id={} " +
-                        "raddType={} raddTransactionId={} internalDelegateId={} mandateId={}", 
-                        iun, 
-                        recIndex,
-                        raddInfo != null ? raddInfo.getType() : null,
-                        raddInfo != null ? raddInfo.getTransactionId() : null,
-                        viewedFromDelegate ? delegateInfo.getInternalId() : null,
-                        viewedFromDelegate ? delegateInfo.getMandateId() : null
-                )
-                .iun(iun)
-                .build();
-    }
-
-
-
 }

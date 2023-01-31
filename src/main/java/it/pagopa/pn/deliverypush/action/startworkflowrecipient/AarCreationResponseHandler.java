@@ -1,6 +1,9 @@
 package it.pagopa.pn.deliverypush.action.startworkflowrecipient;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.log.PnAuditLogBuilder;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 import it.pagopa.pn.deliverypush.action.utils.AarUtils;
 import it.pagopa.pn.deliverypush.action.utils.CourtesyMessageUtils;
@@ -13,11 +16,13 @@ import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.Optional;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_SAVELEGALFACTSFAILED;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND;
 
 @Component
@@ -32,25 +37,39 @@ public class AarCreationResponseHandler {
     
     public void handleAarCreationResponse(String iun, int recIndex, DocumentCreationResponseActionDetails actionDetails) {
         log.info("Start handleAarCreationResponse recipientWorkflow process - iun={} aarKey={}", iun, actionDetails.getKey());
-        NotificationInt notification = notificationService.getNotificationByIun(iun);
 
-        Optional<AarCreationRequestDetailsInt> aarCreationDetailsOpt = timelineService.getTimelineElementDetails(iun, actionDetails.getTimelineId(), AarCreationRequestDetailsInt.class);
+        PnAuditLogEvent logEvent = generateAuditLog(iun, recIndex, actionDetails.getKey());
+        logEvent.log();
         
+        NotificationInt notification = notificationService.getNotificationByIun(iun);
+        
+        try {
+            storingAarResponse(iun, recIndex, actionDetails, logEvent, notification);
+        } catch (Exception ex){
+            logEvent.generateFailure("Saving AAR exception", ex).log();
+            throw new PnInternalException("Saving AAR exception", ERROR_CODE_DELIVERYPUSH_SAVELEGALFACTSFAILED, ex);
+        }
+        
+        //... Invio messaggio di cortesia ... 
+        courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, recIndex);
+
+        //... e viene schedulato il processo di scelta della tipologia di notificazione
+        scheduleChooseDeliveryMode(iun, recIndex);
+    }
+
+    private void storingAarResponse(String iun, int recIndex, DocumentCreationResponseActionDetails actionDetails, PnAuditLogEvent logEvent, NotificationInt notification) {
+        Optional<AarCreationRequestDetailsInt> aarCreationDetailsOpt = timelineService.getTimelineElementDetails(iun, actionDetails.getTimelineId(), AarCreationRequestDetailsInt.class);
+
         if(aarCreationDetailsOpt.isPresent()){
             AarCreationRequestDetailsInt timelineDetails = aarCreationDetailsOpt.get();
-            
+
             PdfInfo pdfInfo = PdfInfo.builder()
                     .key(actionDetails.getKey())
                     .numberOfPages(timelineDetails.getNumberOfPages())
                     .build();
-            
+
             aarUtils.addAarGenerationToTimeline(notification, recIndex, pdfInfo);
-
-            //... Invio messaggio di cortesia ... 
-            courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, recIndex);
-
-            //... e viene schedulato il processo di scelta della tipologia di notificazione
-            scheduleChooseDeliveryMode(iun, recIndex);
+            logEvent.generateSuccess("Saving AAR success with fileKey={} - iun={} recIndex={}", actionDetails.getKey(), notification.getIun()).log();
         } else {
             log.error("handleAarCreationResponse failed, timelineId is not present {} - iun={} id={}", actionDetails.getTimelineId(), iun, recIndex);
             throw new PnInternalException("AarCreationRequestDetails timelineId is not present", ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND);
@@ -62,5 +81,17 @@ public class AarCreationResponseHandler {
         log.info("Scheduling choose delivery mode schedulingDate={} - iun={} id={}", schedulingDate, iun, recIndex);
         schedulerService.scheduleEvent(iun, recIndex, schedulingDate, ActionType.CHOOSE_DELIVERY_MODE);
     }
+
+    @NotNull
+    private PnAuditLogEvent generateAuditLog(String iun, int recIndex, String legalFactId) {
+        String auditMessage = String.format("Saving AAR fileKey=%s recIndex=%d", legalFactId, recIndex);
+
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        return auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_NEWLEGAL, auditMessage)
+                .iun(iun)
+                .build();
+    }
+
 
 }

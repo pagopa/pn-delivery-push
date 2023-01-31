@@ -1,10 +1,14 @@
 package it.pagopa.pn.deliverypush.action.notificationview;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.log.PnAuditLogBuilder;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -38,30 +42,56 @@ public class NotificationViewLegalFactCreationResponseHandler {
     
     public void handleLegalFactCreationResponse(String iun, int recIndex, DocumentCreationResponseActionDetails actionDetails) {
         log.info("Start handleLegalFactCreationResponse process - iun={} legalFactId={}", iun, actionDetails.getKey());
-        NotificationInt notification = notificationService.getNotificationByIun(iun);
+        PnAuditLogEvent logEvent = null;
+        
+        try {
+            NotificationInt notification = notificationService.getNotificationByIun(iun);
 
-        Optional<NotificationViewedCreationRequestDetailsInt> notificationViewLegalFactCreationDetailsOpt = timelineService.getTimelineElementDetails(iun, actionDetails.getTimelineId(), NotificationViewedCreationRequestDetailsInt.class);
+            Optional<NotificationViewedCreationRequestDetailsInt> notificationViewLegalFactCreationDetailsOpt = timelineService.getTimelineElementDetails(iun, actionDetails.getTimelineId(), NotificationViewedCreationRequestDetailsInt.class);
 
-        if(notificationViewLegalFactCreationDetailsOpt.isPresent()){
-            NotificationViewedCreationRequestDetailsInt timelineDetails = notificationViewLegalFactCreationDetailsOpt.get();
+            if(notificationViewLegalFactCreationDetailsOpt.isPresent()){
 
-            RaddInfo raddInfo = RaddInfo.builder()
+                NotificationViewedCreationRequestDetailsInt timelineDetails = notificationViewLegalFactCreationDetailsOpt.get();
+
+                RaddInfo raddInfo = getRaddInfo(timelineDetails);
+                
+                logEvent = generateAuditLog(iun, recIndex, raddInfo, timelineDetails.getDelegateInfo());
+                logEvent.log();
+
+                PnAuditLogEvent finalLogEvent = logEvent;
+                notificationCost.getNotificationCost(notification, recIndex)
+                        .doOnSuccess( cost -> log.info("Completed getNotificationCost cost={}- iun={} id={}", cost, notification.getIun(), recIndex))
+                        .flatMap(responseCost -> {
+                            Integer cost = responseCost.orElse(null);
+                            return getDenominationAndSaveInTimeline(notification, recIndex, raddInfo, timelineDetails.getEventTimestamp(), timelineDetails.getLegalFactId(), cost, timelineDetails.getDelegateInfo())
+                                    .doOnSuccess( res -> finalLogEvent.generateSuccess().log());
+                        }).block();
+            } else {
+                log.error("handleAarCreationResponse failed, timelineId is not present {} - iun={} id={}", actionDetails.getTimelineId(), iun, recIndex);
+                throw new PnInternalException("AarCreationRequestDetails timelineId is not present", ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND);
+            }
+
+        }catch (Exception ex){
+            if(logEvent == null){
+                logEvent = generateAuditLog(iun, recIndex, null, null);
+                logEvent.log();
+            }
+
+            logEvent.generateFailure("Exception in View notification ex={}", ex).log();
+            
+            throw ex;
+        }
+    }
+
+    private RaddInfo getRaddInfo(NotificationViewedCreationRequestDetailsInt timelineDetails) {
+        RaddInfo raddInfo = null;
+        if( timelineDetails.getRaddType() != null && timelineDetails.getRaddTransactionId() != null){
+            raddInfo = RaddInfo.builder()
                     .type(timelineDetails.getRaddType())
                     .transactionId(timelineDetails.getRaddTransactionId())
                     .build();
-            
-            notificationCost.getNotificationCost(notification, recIndex)
-                    .doOnSuccess( cost -> log.info("Completed getNotificationCost cost={}- iun={} id={}", cost, notification.getIun(), recIndex))
-                    .flatMap(responseCost -> {
-                        Integer cost = responseCost.orElse(null);
-                        return getDenominationAndSaveInTimeline(notification, recIndex, raddInfo, timelineDetails.getEventTimestamp(), timelineDetails.getLegalFactId(), cost, timelineDetails.getDelegateInfo());
-                    }).block();
-            
-        } else {
-            log.error("handleAarCreationResponse failed, timelineId is not present {} - iun={} id={}", actionDetails.getTimelineId(), iun, recIndex);
-            throw new PnInternalException("AarCreationRequestDetails timelineId is not present", ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND);
         }
-
+        return raddInfo;
     }
 
     private Mono<Void> getDenominationAndSaveInTimeline(
@@ -119,6 +149,26 @@ public class NotificationViewLegalFactCreationResponseHandler {
 
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
         timelineService.addTimelineElement(element, notification);
+    }
+
+    private PnAuditLogEvent generateAuditLog(String iun, Integer recIndex, RaddInfo raddInfo, DelegateInfoInt delegateInfo ) {
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        boolean viewedFromDelegate = delegateInfo != null;
+
+        PnAuditLogEventType type = viewedFromDelegate ? PnAuditLogEventType.AUD_NT_VIEW_DEL : PnAuditLogEventType.AUD_NT_VIEW_RCP;
+        return auditLogBuilder
+                .before(type, "Saving legalfact type={} - iun={} id={} " +
+                                "raddType={} raddTransactionId={} internalDelegateId={} mandateId={}",
+                        LegalFactCategoryInt.RECIPIENT_ACCESS,
+                        iun,
+                        recIndex,
+                        raddInfo != null ? raddInfo.getType() : null,
+                        raddInfo != null ? raddInfo.getTransactionId() : null,
+                        viewedFromDelegate ? delegateInfo.getInternalId() : null,
+                        viewedFromDelegate ? delegateInfo.getMandateId() : null
+                )
+                .iun(iun)
+                .build();
     }
 
 }
