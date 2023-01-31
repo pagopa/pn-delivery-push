@@ -46,7 +46,7 @@ public class AarCreationResponseHandler {
         try {
             storingAarResponse(iun, recIndex, actionDetails, logEvent, notification);
         } catch (Exception ex){
-            logEvent.generateFailure("Saving AAR exception", ex).log();
+            logEvent.generateFailure("Saving AAR FAILURE fileKey={} ex={}", actionDetails.getKey(), ex).log();
             throw new PnInternalException("Saving AAR exception", ERROR_CODE_DELIVERYPUSH_SAVELEGALFACTSFAILED, ex);
         }
         
@@ -69,7 +69,7 @@ public class AarCreationResponseHandler {
                     .build();
 
             aarUtils.addAarGenerationToTimeline(notification, recIndex, pdfInfo);
-            logEvent.generateSuccess("Saving AAR success with fileKey={} - iun={} recIndex={}", actionDetails.getKey(), notification.getIun()).log();
+            logEvent.generateSuccess("Saving AAR SUCCESS with fileKey={} recIndex={}", actionDetails.getKey(), recIndex).log();
         } else {
             log.error("handleAarCreationResponse failed, timelineId is not present {} - iun={} id={}", actionDetails.getTimelineId(), iun, recIndex);
             throw new PnInternalException("AarCreationRequestDetails timelineId is not present", ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND);
@@ -84,11 +84,9 @@ public class AarCreationResponseHandler {
 
     @NotNull
     private PnAuditLogEvent generateAuditLog(String iun, int recIndex, String legalFactId) {
-        String auditMessage = String.format("Saving AAR fileKey=%s recIndex=%d", legalFactId, recIndex);
-
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         return auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_NEWLEGAL, auditMessage)
+                .before(PnAuditLogEventType.AUD_NT_AAR, "Saving AAR fileKey={} recIndex={}", legalFactId, recIndex)
                 .iun(iun)
                 .build();
     }

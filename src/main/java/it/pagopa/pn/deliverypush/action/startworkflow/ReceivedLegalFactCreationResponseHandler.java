@@ -43,23 +43,21 @@ public class ReceivedLegalFactCreationResponseHandler {
 
             scheduleRecipientWorkflow.startScheduleRecipientWorkflow(notification);
 
-            logEvent.generateSuccess("SaveNotificationReceivedLegalFact success with fileKey={} - iun={}", legalFactId, notification.getIun()).log();
+            logEvent.generateSuccess("Saving legalFact SUCCESS type={} fileKey={}", LegalFactCategoryInt.SENDER_ACK, legalFactId).log();
 
             log.debug("End handleReceivedLegalFactCreationResponse - iun={}", notification.getIun());
         }catch (Exception ex){
+            logEvent.generateFailure("Saving legalFact FAILURE type={} fileKey={} ex={}", LegalFactCategoryInt.SENDER_ACK, legalFactId, ex).log();
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, LegalFactCategoryInt.SENDER_ACK, iun, "N/A");
-            logEvent.generateFailure(msg, ex).log();
             throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_SAVELEGALFACTSFAILED, ex);
         }
     }
 
     @NotNull
     private PnAuditLogEvent generateAuditLog(String iun, String legalFactId) {
-        String auditMessage = String.format("Saving legalFact type=%s fileKey=%s", LegalFactCategoryInt.SENDER_ACK, legalFactId);
-        
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         return auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_NEWLEGAL, auditMessage)
+                .before(PnAuditLogEventType.AUD_NT_NEWLEGAL, "Saving legalFact type={} fileKey={}", LegalFactCategoryInt.SENDER_ACK, legalFactId)
                 .iun(iun)
                 .build();
     }

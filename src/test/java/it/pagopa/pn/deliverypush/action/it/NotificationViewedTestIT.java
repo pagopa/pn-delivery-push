@@ -241,7 +241,6 @@ class NotificationViewedTestIT {
     @Test
     @Disabled("Test fail only in build fase PN-3853")
     void notificationViewedFromDelegate() {
-        System.out.println("Start test notificationViewedFromDelegate");
         //GIVEN
         LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
                 .address("platformAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
