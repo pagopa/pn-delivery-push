@@ -19,6 +19,7 @@ import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationCost;
+import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFactCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.deliverypush.action.notificationview.ViewNotification;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
@@ -132,6 +133,7 @@ import static org.mockito.ArgumentMatchers.eq;
         ReceivedLegalFactCreationResponseHandler.class,
         ScheduleRecipientWorkflow.class,
         AarCreationResponseHandler.class,
+        NotificationViewLegalFactCreationResponseHandler.class,
         NotificationViewedTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")
@@ -323,6 +325,10 @@ class NotificationViewedTestIT {
 
         notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex, delegateInfoInt, notificationViewDate);
 
+        await().untilAsserted(() ->
+                Assertions.assertEquals(NotificationStatusInt.VIEWED, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        );
+        
         //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti
         delegateInfoInt.setDenomination(baseRecipientDto.getDenomination());
         delegateInfoInt.setTaxId(baseRecipientDto.getTaxId());
@@ -426,6 +432,10 @@ class NotificationViewedTestIT {
         //Simulazione visualizzazione della notifica
         Instant notificationViewDate = Instant.now();
         notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex, null, notificationViewDate);
+
+        await().untilAsserted(() ->
+                Assertions.assertEquals(NotificationStatusInt.VIEWED, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        );
         
         //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti
         checkNotificationViewTimelineElement(iun, recIndex, notificationViewDate, null);
@@ -577,6 +587,17 @@ class NotificationViewedTestIT {
         Instant notificationViewDate1 = Instant.now();
         notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex1, null, notificationViewDate1);
 
+        await().untilAsserted(() ->
+                Assertions.assertTrue(
+                        timelineService.getTimelineElement(iun, TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
+                                EventId.builder()
+                                        .iun(iun)
+                                        .recIndex(recIndex1)
+                                        .build()
+                        )).isPresent()
+                )
+        );
+        
         checkIsNotificationViewed(iun, recIndex1, notificationViewDate1);
 
         //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti
@@ -585,10 +606,22 @@ class NotificationViewedTestIT {
         Mockito.verify(legalFactStore, Mockito.times(1)).sendCreationRequestForNotificationViewedLegalFact(eq(notification),eq(recipient1), Mockito.any(Instant.class));
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient1.getInternalId(), iun);
 
-        //Simulazione visualizzazione della notifica per il primo recipient
+        //Simulazione visualizzazione della notifica per il secondo recipient
         Instant notificationViewDate2 = Instant.now();
         notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex2, null, notificationViewDate2);
 
+
+        await().untilAsserted(() ->
+                Assertions.assertTrue(
+                        timelineService.getTimelineElement(iun, TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
+                                EventId.builder()
+                                        .iun(iun)
+                                        .recIndex(recIndex2)
+                                        .build()
+                        )).isPresent()
+                )
+        );
+        
         checkIsNotificationViewed(iun, recIndex2, notificationViewDate2);
 
         //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti

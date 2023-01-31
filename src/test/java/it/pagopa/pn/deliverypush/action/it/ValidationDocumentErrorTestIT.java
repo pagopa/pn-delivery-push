@@ -16,6 +16,8 @@ import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
+import it.pagopa.pn.deliverypush.action.notificationview.NotificationCost;
+import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFactCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationResponseHandler;
@@ -113,6 +115,8 @@ import java.util.Collections;
         ReceivedLegalFactCreationResponseHandler.class,
         ScheduleRecipientWorkflow.class,
         AarCreationResponseHandler.class,
+        NotificationViewLegalFactCreationResponseHandler.class,
+        NotificationCost.class,
         ValidationDocumentErrorTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource(

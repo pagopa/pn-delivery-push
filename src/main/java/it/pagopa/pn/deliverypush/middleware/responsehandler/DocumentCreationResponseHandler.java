@@ -5,6 +5,7 @@ import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
+import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFactCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.AarCreationResponseHandler;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
@@ -20,6 +21,7 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 public class DocumentCreationResponseHandler {
     private final ReceivedLegalFactCreationResponseHandler receivedLegalFactHandler;
     private final AarCreationResponseHandler aarCreationResponseHandler;
+    private final NotificationViewLegalFactCreationResponseHandler notificationViewLegalFactCreationResponseHandler;
     
     public void handleResponseReceived( String iun, Integer recIndex, DocumentCreationResponseActionDetails details) {
         String fileKey = details.getKey();
@@ -37,7 +39,7 @@ public class DocumentCreationResponseHandler {
                 case DIGITAL_DELIVERY ->
                         log.warn("DIGITAL_DELIVERY NOT HANDLED");
                 case RECIPIENT_ACCESS ->
-                        log.warn("RECIPIENT ACCESS NOT HANDLED");
+                        notificationViewLegalFactCreationResponseHandler.handleLegalFactCreationResponse(iun, recIndex, details);
             }
 
             logEvent.generateSuccess("Successful creation - fileKey={}", fileKey);

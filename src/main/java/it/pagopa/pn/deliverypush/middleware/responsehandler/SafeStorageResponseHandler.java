@@ -30,7 +30,6 @@ public class SafeStorageResponseHandler {
         Optional<DocumentCreationRequest> documentCreationRequestOpt = service.getDocumentCreationRequest(keyWithPrefix);
 
         if(documentCreationRequestOpt.isPresent()){
-
             DocumentCreationRequest creationRequest = documentCreationRequestOpt.get();
             log.debug("DocumentCreationTypeInt is {} and Key to search {}", creationRequest.getDocumentCreationType(), keyWithPrefix);
 

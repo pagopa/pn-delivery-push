@@ -61,8 +61,11 @@ public class NotificationViewedRequestHandler {
                 //I processi collegati alla visualizzazione di una notifica vengono effettuati solo la prima volta che la stessa viene visualizzata
                 if(Boolean.FALSE.equals(isNotificationAlreadyViewed) ){
                     
+                    //TODO AuditLog da eliminare
+/*
                     PnAuditLogEvent logEvent = generateAuditLog(iun, recIndex, raddInfo, delegateInfo);
                     logEvent.log();
+*/
 
                     log.debug("Notification is not already viewed - iun={} id={}", iun, recIndex);
 
@@ -78,7 +81,7 @@ public class NotificationViewedRequestHandler {
                                             return viewNotification.startVewNotificationProcess(notification, recipient, recIndex, raddInfo, delegateInfo, eventTimestamp)
                                                     .thenEmpty(
                                                             Mono.fromCallable(() -> {
-                                                                logEvent.generateSuccess().log();
+                                                               // logEvent.generateSuccess().log();
                                                                 return null;
                                                             })
                                                     );
@@ -87,7 +90,7 @@ public class NotificationViewedRequestHandler {
                                             return Mono.empty();
                                         }
                                     })
-                            ).doOnError( err -> logEvent.generateFailure("Exception in View notification ex={}", err).log());
+                            ).doOnError( err ->System.out.println("error")); //logEvent.generateFailure("Exception in View notification ex={}", err).log());
                 } else {
                     log.debug("Notification is already viewed - iun={} id={}", iun, recIndex);
                     return Mono.empty();
@@ -101,7 +104,7 @@ public class NotificationViewedRequestHandler {
         
         PnAuditLogEventType type = viewedFromDelegate ? PnAuditLogEventType.AUD_NT_VIEW_DEL : PnAuditLogEventType.AUD_NT_VIEW_RCP;
         return auditLogBuilder
-                .before(type, "Start HandleViewNotification - iun={} id={} " +
+                .before(type, "View Notification - iun={} id={} " +
                         "raddType={} raddTransactionId={} internalDelegateId={} mandateId={}", 
                         iun, 
                         recIndex,

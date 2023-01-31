@@ -17,6 +17,7 @@ import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationCost;
+import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFactCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.deliverypush.action.notificationview.ViewNotification;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
@@ -128,6 +129,7 @@ import static org.awaitility.Awaitility.await;
         ReceivedLegalFactCreationResponseHandler.class,
         ScheduleRecipientWorkflow.class,
         AarCreationResponseHandler.class,
+        NotificationViewLegalFactCreationResponseHandler.class,
         DigitalTestMultiRecipientIT.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")

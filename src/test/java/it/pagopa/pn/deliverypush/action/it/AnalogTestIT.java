@@ -17,6 +17,7 @@ import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationCost;
+import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFactCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.deliverypush.action.notificationview.ViewNotification;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
@@ -136,6 +137,7 @@ import static org.awaitility.Awaitility.with;
         ReceivedLegalFactCreationResponseHandler.class,
         ScheduleRecipientWorkflow.class,
         AarCreationResponseHandler.class,
+        NotificationViewLegalFactCreationResponseHandler.class,
         AnalogTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")
@@ -248,7 +250,7 @@ class AnalogTestIT {
         String iun = "IUN01";
 
         //Simulazione visualizzazione notifica a valle del send del messaggio di cortesi
-        String taxId = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.SEND_ANALOG_FEEDBACK.buildEventId(EventId.builder()
+        String taxId = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.PREPARE_ANALOG_DOMICILE.buildEventId(EventId.builder()
                 .iun(iun)
                 .recIndex(0)
                 .sentAttemptMade(0)
@@ -317,8 +319,6 @@ class AnalogTestIT {
 
 
         Mockito.verify(paperChannelMock, Mockito.times(1)).send(Mockito.any(PaperChannelSendRequest.class));
-
-
 
         //Viene verificato che la notifica sia stata visualizzata e che il costo sia valorizzato
         Optional<TimelineElementInternal> timelineElementOpt = timelineService.getTimelineElement(

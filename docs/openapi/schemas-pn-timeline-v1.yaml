@@ -28,6 +28,7 @@ components:
           * `ANALOG_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio cartaceo
           * `PREPARE_SIMPLE_REGISTERED_LETTER` - Preparazione all'invio di raccomandata semplice
           * `SEND_SIMPLE_REGISTERED_LETTER` - Invio di raccomandata semplice
+          * `NOTIFICATION_VIEWED_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa visione a safe storage
           * `NOTIFICATION_VIEWED` - Perfezionamento per presa visione
           * `PREPARE_ANALOG_DOMICILE` - Preparazione all'invio cartaceo dell’avviso di notifica
           * `SEND_ANALOG_DOMICILE` - Invio cartaceo dell’avviso di notifica
@@ -58,6 +59,7 @@ components:
         - ANALOG_FAILURE_WORKFLOW
         - PREPARE_SIMPLE_REGISTERED_LETTER
         - SEND_SIMPLE_REGISTERED_LETTER
+        - NOTIFICATION_VIEWED_CREATION_REQUEST
         - NOTIFICATION_VIEWED
         - PREPARE_ANALOG_DOMICILE
         - SEND_ANALOG_DOMICILE
@@ -107,6 +109,7 @@ components:
         - "$ref": "#/components/schemas/DigitalFailureWorkflowDetails"
         - "$ref": "#/components/schemas/DigitalSuccessWorkflowDetails"
         - "$ref": "#/components/schemas/GetAddressInfoDetails"
+        - "$ref": "#/components/schemas/NotificationViewedCreationRequestDetails"
         - "$ref": "#/components/schemas/NotificationViewedDetails"
         - "$ref": "#/components/schemas/PublicRegistryCallDetails"
         - "$ref": "#/components/schemas/PublicRegistryResponseDetails"
@@ -213,6 +216,29 @@ components:
           description: Data tentativo
           format: date-time
 
+    NotificationViewedCreationRequestDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        legalfactId:
+          type: string
+          description: Identificativo dell'atto opponibile a terzi del quale è stata richiesta la creazione
+        eventTimestamp:
+          type: string
+          description: Data ricezione richiesta visualizzazione notifica
+          format: date-time
+        raddType:
+          $ref: '#/components/schemas/RaddType'
+        raddTransactionId:
+          $ref: '#/components/schemas/RaddTransactionId'
+        delegateInfo:
+          $ref: '#/components/schemas/DelegateInfo'
+        
     NotificationViewedDetails:
       type: object
       required:

@@ -579,6 +579,39 @@ public class TimelineUtils {
                 details, timelineBuilder);
     }
 
+    public TimelineElementInternal  buildNotificationViewedLegalFactCreationRequestTimelineElement(
+            NotificationInt notification,
+            Integer recIndex,
+            String legalFactId,
+            RaddInfo raddInfo,
+            DelegateInfoInt delegateInfo,
+            Instant eventTimestamp) {
+        log.debug("buildNotificationViewedLegalFactCreationRequestTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
+
+        String elementId = TimelineEventId.NOTIFICATION_VIEWED_CREATION_REQUEST.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build());
+
+        NotificationViewedCreationRequestDetailsInt details = NotificationViewedCreationRequestDetailsInt.builder()
+                .recIndex(recIndex)
+                .legalFactId(legalFactId)
+                .raddType(raddInfo != null ? raddInfo.getType() : null)
+                .raddTransactionId(raddInfo != null ? raddInfo.getTransactionId() : null)
+                .delegateInfo(delegateInfo)
+                .eventTimestamp(eventTimestamp)
+                .build();
+
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
+                .legalFactsIds( Collections.emptyList() );
+
+        return buildTimeline(notification, TimelineElementCategoryInt.NOTIFICATION_VIEWED_CREATION_REQUEST, elementId,
+                details, timelineBuilder);
+    }
+
+    
+
     public TimelineElementInternal  buildCompletelyUnreachableTimelineElement(NotificationInt notification, Integer recIndex) {
         log.debug("buildCompletelyUnreachableTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
 

@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action.documentcreationresponsehandler;
 
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
+import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFactCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.AarCreationResponseHandler;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
@@ -20,12 +21,14 @@ class DocumentCreationResponseHandlerTest {
     private ReceivedLegalFactCreationResponseHandler receivedLegalFactHandler;
     @Mock
     private AarCreationResponseHandler aarCreationResponseHandler;
-
+    @Mock
+    private NotificationViewLegalFactCreationResponseHandler notificationViewLegalFactCreationResponseHandler;
+    
     private DocumentCreationResponseHandler handler;
 
     @BeforeEach
     public void setup() {
-        handler = new DocumentCreationResponseHandler(receivedLegalFactHandler, aarCreationResponseHandler);
+        handler = new DocumentCreationResponseHandler(receivedLegalFactHandler, aarCreationResponseHandler, notificationViewLegalFactCreationResponseHandler);
     }
 
     @ExtendWith(SpringExtension.class)
@@ -41,6 +44,7 @@ class DocumentCreationResponseHandlerTest {
         
         //WHEN
         handler.handleResponseReceived(iun, recIndex, details);
+        
         //THEN
         Mockito.verify(receivedLegalFactHandler).handleReceivedLegalFactCreationResponse(iun, details.getKey());
     }
@@ -50,14 +54,17 @@ class DocumentCreationResponseHandlerTest {
     void handleResponseReceivedAAR() {
         //GIVEN
         String iun = "testIun";
-        Integer recIndex = 0;
+        int recIndex = 0;
         DocumentCreationResponseActionDetails details = DocumentCreationResponseActionDetails.builder()
                 .key("legalFactId")
                 .documentCreationType(DocumentCreationTypeInt.AAR)
                 .build();
 
         //WHEN
-        Assertions.assertDoesNotThrow(() -> handler.handleResponseReceived(iun, recIndex, details));
+        handler.handleResponseReceived(iun, recIndex, details);
+
+        //THEN
+        Mockito.verify(aarCreationResponseHandler).handleAarCreationResponse(iun, recIndex, details);
     }
 
     @ExtendWith(SpringExtension.class)
@@ -87,7 +94,10 @@ class DocumentCreationResponseHandlerTest {
                 .build();
 
         //WHEN
-        Assertions.assertDoesNotThrow(() -> handler.handleResponseReceived(iun, recIndex, details));
+        handler.handleResponseReceived(iun, recIndex, details);
+
+        //THEN
+        Mockito.verify(notificationViewLegalFactCreationResponseHandler).handleLegalFactCreationResponse(iun, recIndex, details);
     }
     
     @ExtendWith(SpringExtension.class)
