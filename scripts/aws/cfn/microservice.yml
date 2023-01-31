@@ -307,19 +307,19 @@ Parameters:
     Type: String
     Description: 'Application load balancer security group'
 
-  NationalRegistryGatewayOutputsQueueName:
+  NationalRegistries2DeliveryPushQueueName:
     Type: String
     Description: 'National Registries to delivery-push queue name'
 
-  NationalRegistryGatewayOutputsQueueARN:
+  NationalRegistries2DeliveryPushQueueARN:
     Type: String
     Description: 'National Registries to delivery-push queue ARN'
 
-  NationalRegistryGatewayOutputsQueueAlarmARN:
+  NationalRegistries2DeliveryPushQueueAlarmARN:
     Type: String
     Description: 'National Registries to delivery-push queue dlq alarm'
 
-  NationalRegistryGatewayOutputsQueueAgeAlarmARN:
+  NationalRegistries2DeliveryPushQueueAgeAlarmARN:
     Type: String
     Description: 'National Registries to delivery-push queue age alarm'
 
@@ -372,7 +372,7 @@ Resources:
         ContainerEnvEntry26: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry27: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName},${SafeStorageToDeliveryPushQueueName},${NationalRegistryGatewayOutputsQueueName}'
+        ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName},${SafeStorageToDeliveryPushQueueName},${NationalRegistries2DeliveryPushQueueName}'
         ContainerEnvEntry30: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
         ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
         ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
@@ -424,7 +424,7 @@ Resources:
               - !Ref ScheduledActionsQueueARN
               - !Ref DoneActionsQueueARN
               - !Ref SafeStorageToDeliveryPushQueueARN
-              - !Ref NationalRegistryGatewayOutputsQueueARN
+              - !Ref NationalRegistries2DeliveryPushQueueARN
           - Effect: Allow
             Action:
               - 'dynamodb:GetItem'
@@ -596,8 +596,8 @@ Resources:
             - !Ref DoneActionsQueueAgeAlarmARN
             - !Ref ScheduledActionsQueueAlarmARN
             - !Ref ScheduledActionsQueueAgeAlarmARN
-            - !Ref NationalRegistryGatewayOutputsQueueAlarmARN
-            - !Ref NationalRegistryGatewayOutputsQueueAgeAlarmARN
+            - !Ref NationalRegistries2DeliveryPushQueueAlarmARN
+            - !Ref NationalRegistries2DeliveryPushQueueAgeAlarmARN
         QueueArns: !Join
           - ','
           - - !Ref DeliveryPushInputsQueueARN
@@ -605,4 +605,4 @@ Resources:
             - !Ref ScheduledActionsQueueARN
             - !Ref DoneActionsQueueARN
             - !Ref SafeStorageToDeliveryPushQueueARN
-            - !Ref NationalRegistryGatewayOutputsQueueARN
+            - !Ref NationalRegistries2DeliveryPushQueueARN
