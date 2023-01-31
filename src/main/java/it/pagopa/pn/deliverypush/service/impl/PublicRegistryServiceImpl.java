@@ -36,24 +36,10 @@ public class PublicRegistryServiceImpl implements PublicRegistryService {
 
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
 
-        publicRegistryUtils.addPublicRegistryCallToTimeline(notification, recIndex, contactPhase, sentAttemptMade, correlationId, DeliveryModeInt.DIGITAL);
         publicRegistry.sendRequestForGetDigitalAddress(recipient.getTaxId(), recipient.getRecipientType().getValue(), correlationId);
+        publicRegistryUtils.addPublicRegistryCallToTimeline(notification, recIndex, contactPhase, sentAttemptMade, correlationId, DeliveryModeInt.DIGITAL);
 
         log.debug("End sendRequestForGetAddress correlationId={} - iun={} id={}", correlationId, notification.getIun(), recIndex);
     }
 
-    /**
-     * Send get request to public registry for physical address
-     **/
-    public void sendRequestForGetPhysicalAddress(NotificationInt notification, Integer recIndex, int sentAttemptMade) {
-        String correlationId = publicRegistryUtils.generateCorrelationId(notification.getIun(), recIndex, ContactPhaseInt.SEND_ATTEMPT, sentAttemptMade, DeliveryModeInt.ANALOG);
-        log.info("SendRequestForGetPhysicalAddress correlationId={} - iun={} id={}", correlationId, notification.getIun(), recIndex);
-
-        NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
-
-        publicRegistryUtils.addPublicRegistryCallToTimeline(notification, recIndex, ContactPhaseInt.SEND_ATTEMPT, sentAttemptMade, correlationId, DeliveryModeInt.ANALOG);
-        publicRegistry.sendRequestForGetPhysicalAddress(recipient.getTaxId(), correlationId);
-
-        log.debug("End sendRequestForGetPhysicalAddress correlationId={} - iun={} id={}", correlationId, notification.getIun(), recIndex);
-    }
 }
