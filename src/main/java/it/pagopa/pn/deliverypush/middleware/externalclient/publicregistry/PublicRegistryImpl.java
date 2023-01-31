@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.time.LocalDate;
 
 @Component
 @Slf4j
@@ -37,6 +38,7 @@ public class PublicRegistryImpl extends CommonBaseClient implements PublicRegist
         AddressRequestBodyFilter addressRequestBodyFilter = new AddressRequestBodyFilter()
                 .taxId(taxId)
                 .correlationId(correlationId)
+                .referenceRequestDate(LocalDate.now().toString()) //YYYY-MM-DD
                 .domicileType(AddressRequestBodyFilter.DomicileTypeEnum.DIGITAL);
 
 

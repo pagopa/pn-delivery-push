@@ -13,6 +13,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.Charset;
+import java.time.LocalDate;
 
 class PublicRegistryImplTest {
 
@@ -32,6 +33,7 @@ class PublicRegistryImplTest {
         AddressRequestBodyFilter addressRequestBodyFilter = new AddressRequestBodyFilter()
                 .taxId("001")
                 .correlationId("002")
+                .referenceRequestDate(LocalDate.now().toString())
                 .domicileType(AddressRequestBodyFilter.DomicileTypeEnum.DIGITAL);
         Mockito.when(addressApi.getAddresses("PF", new AddressRequestBody().filter(addressRequestBodyFilter)))
                         .thenReturn(Mono.just(new AddressOK().correlationId("002")));
@@ -48,6 +50,7 @@ class PublicRegistryImplTest {
         AddressRequestBodyFilter addressRequestBodyFilter = new AddressRequestBodyFilter()
                 .taxId("001")
                 .correlationId("002")
+                .referenceRequestDate(LocalDate.now().toString())
                 .domicileType(AddressRequestBodyFilter.DomicileTypeEnum.DIGITAL);
         Mockito.when(addressApi.getAddresses("PF", new AddressRequestBody().filter(addressRequestBodyFilter)))
                 .thenReturn(Mono.error(WebClientResponseException.create(502, "bad Gateway", null, null, Charset.defaultCharset())));
