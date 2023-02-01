@@ -33,6 +33,7 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.userattribut
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
 import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.SaveLegalFactsServiceImpl;
 import it.pagopa.pn.deliverypush.utils.HtmlSanitizer;
 import org.mockito.Mockito;
@@ -101,9 +102,11 @@ public class AbstractWorkflowTestConfiguration {
     }
 
     @Bean
-    public PublicRegistryMock publicRegistriesMapMock(@Lazy PublicRegistryResponseHandler publicRegistryResponseHandler) {
+    public PublicRegistryMock publicRegistriesMapMock(@Lazy PublicRegistryResponseHandler publicRegistryResponseHandler,
+                                                      @Lazy TimelineService timelineService) {
         return new PublicRegistryMock(
-                publicRegistryResponseHandler
+                publicRegistryResponseHandler,
+                timelineService
             );
     }
     

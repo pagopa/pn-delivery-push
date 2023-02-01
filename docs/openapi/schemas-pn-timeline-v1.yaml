@@ -140,7 +140,7 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
-          
+
     AnalogFailureWorkflowDetails:
       type: object
       required:
@@ -150,7 +150,7 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
-          
+
     AnalogSuccessWorkflowDetails:
       type: object
       required:
@@ -163,13 +163,13 @@ components:
           format: int32
         physicalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
-          
+
     DigitalFailureWorkflowDetails:
       type: object
       required:
         - recIndex
       properties:
-        recIndex: 
+        recIndex:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
@@ -208,7 +208,7 @@ components:
           format: int32
         digitalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
-          
+
     CompletelyUnreachableDetails:
       type: object
       required:
@@ -218,8 +218,8 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
-          
-    GetAddressInfoDetails: 
+
+    GetAddressInfoDetails:
       type: object
       required:
         - recIndex
@@ -310,7 +310,7 @@ components:
           type: string
           description: Data invio richiesta ai public registry
           format: date-time
-          
+
     PublicRegistryResponseDetails:
       type: object
       required:
@@ -324,7 +324,7 @@ components:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
         physicalAddress:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
-          
+
     RefinementDetails:
       type: object
       required:
@@ -339,7 +339,7 @@ components:
           example: 1220
           type: integer
           format: int64
-          
+
     RequestRefusedDetails:
       type: object
       required:
@@ -351,7 +351,7 @@ components:
           items:
             type: string
             description: Motivazioni che hanno portato al rifiuto della notifica
-            
+
     ScheduleAnalogWorkflowDetails:
       type: object
       required:
@@ -361,7 +361,7 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
-          
+
     ScheduleDigitalWorkflowDetails:
       type: object
       required:
@@ -385,7 +385,7 @@ components:
         lastAttemptDate:
           type: string
           format: date-time
-            
+
     ScheduleRefinementDetails:
       type: object
       required:
@@ -395,7 +395,7 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
-          
+
     SendCourtesyMessageDetails:
       type: object
       required:
@@ -413,7 +413,7 @@ components:
           type: string
           description: data invio messaggio di cortesia
           format: date-time
-          
+
     SendDigitalDetails:
       type: object
       required:
@@ -464,7 +464,7 @@ components:
           type: integer
           description: numero dei tentativi effettuati
           format: int32
-            
+
     SendDigitalFeedbackDetails:
       type: object
       required:
@@ -487,6 +487,7 @@ components:
           format: date-time
         errors:
           type: array
+          x-pn-fieldannotations: "@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)"
           description: Lista errori, vuota in caso di successo
           items:
             type: string
@@ -495,7 +496,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SendingReceipt'
-            
+
     SendAnalogDetails:
       type: object
       required:
@@ -555,11 +556,12 @@ components:
           $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
         errors:
           type: array
+          x-pn-fieldannotations: "@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)"
           description: Lista errori, vuota in caso di successo
           items:
             type: string
             description: Lista errori, vuota in caso di successo
-            
+
     SimpleRegisteredLetterDetails:
       type: object
       required:
@@ -617,7 +619,7 @@ components:
           type: integer
           description: numero di pagine del PDF generato
           format: int32
-    
+
     NotHandledDetails:
       type: object
       required:
@@ -635,7 +637,7 @@ components:
         reason:
           type: string
           description: Motivazione casistica non gestita
-          
+
     NotificationPaidDetails:
       type: object
       required:
