@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.dto.timeline;
 
 public enum TimelineEventId {
-    SENDERACK_CREATION_REQUEST() {
+    SENDERACK_CREATION_REQUEST("") {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
@@ -11,7 +11,7 @@ public enum TimelineEventId {
         }
     },
     
-    REQUEST_ACCEPTED() {
+    REQUEST_ACCEPTED("") {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
@@ -21,7 +21,7 @@ public enum TimelineEventId {
         }
     },
     
-    SEND_COURTESY_MESSAGE() {
+    SEND_COURTESY_MESSAGE("") {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
@@ -33,7 +33,7 @@ public enum TimelineEventId {
         }
     },
     
-    GET_ADDRESS() {
+    GET_ADDRESS("") {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
@@ -46,7 +46,7 @@ public enum TimelineEventId {
         }
     },
 
-    SEND_DIGITAL_FEEDBACK() {
+    SEND_DIGITAL_FEEDBACK("") {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
@@ -59,7 +59,7 @@ public enum TimelineEventId {
         }
     },
 
-    SEND_DIGITAL_PROGRESS() {
+    SEND_DIGITAL_PROGRESS("") {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
@@ -82,7 +82,7 @@ public enum TimelineEventId {
         }
     },
     
-    SEND_ANALOG_FEEDBACK() {
+    SEND_ANALOG_FEEDBACK("") {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
@@ -94,7 +94,7 @@ public enum TimelineEventId {
         }
     },
 
-    SEND_ANALOG_PROGRESS() {
+    SEND_ANALOG_PROGRESS("") {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
@@ -107,7 +107,7 @@ public enum TimelineEventId {
         }
     },
 
-    SEND_DIGITAL_DOMICILE() {
+    SEND_DIGITAL_DOMICILE("") {
         @Override
         public String buildEventId(EventId eventId) {
             int sendAttempt = eventId.getSentAttemptMade();
@@ -121,7 +121,7 @@ public enum TimelineEventId {
         }
     },
 
-    PREPARE_SIMPLE_REGISTERED_LETTER() {
+    PREPARE_SIMPLE_REGISTERED_LETTER("") {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
@@ -132,7 +132,7 @@ public enum TimelineEventId {
         }
     },
 
-    SEND_SIMPLE_REGISTERED_LETTER() {
+    SEND_SIMPLE_REGISTERED_LETTER("") {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
@@ -143,7 +143,7 @@ public enum TimelineEventId {
         }
     },
 
-    PREPARE_ANALOG_DOMICILE() {
+    PREPARE_ANALOG_DOMICILE("") {
         @Override
         public String buildEventId(EventId eventId) {
             int sendAttempt = eventId.getSentAttemptMade();
@@ -156,7 +156,7 @@ public enum TimelineEventId {
         }
     },
 
-    SEND_ANALOG_DOMICILE() {
+    SEND_ANALOG_DOMICILE("") {
         @Override
         public String buildEventId(EventId eventId) {
             int sendAttempt = eventId.getSentAttemptMade();
@@ -169,7 +169,7 @@ public enum TimelineEventId {
         }
     },
 
-    DIGITAL_SUCCESS_WORKFLOW() {
+    DIGITAL_SUCCESS_WORKFLOW("") {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
@@ -180,7 +180,7 @@ public enum TimelineEventId {
         }
     },
 
-    DIGITAL_FAILURE_WORKFLOW() {
+    DIGITAL_FAILURE_WORKFLOW("") {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
@@ -191,7 +191,7 @@ public enum TimelineEventId {
         }
     },
 
-    ANALOG_SUCCESS_WORKFLOW() {
+    ANALOG_SUCCESS_WORKFLOW("") {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
@@ -202,7 +202,7 @@ public enum TimelineEventId {
         }
     },
 
-    ANALOG_FAILURE_WORKFLOW() {
+    ANALOG_FAILURE_WORKFLOW("") {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
@@ -213,7 +213,7 @@ public enum TimelineEventId {
         }
     },
 
-    NOTIFICATION_VIEWED() {
+    NOTIFICATION_VIEWED("") {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
@@ -224,7 +224,7 @@ public enum TimelineEventId {
         }
     },
 
-    COMPLETELY_UNREACHABLE() {
+    COMPLETELY_UNREACHABLE("") {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
@@ -235,7 +235,7 @@ public enum TimelineEventId {
         }
     },
 
-    REFINEMENT() {
+    REFINEMENT("") {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
@@ -246,7 +246,7 @@ public enum TimelineEventId {
         }
     },
 
-    SCHEDULE_DIGITAL_WORKFLOW() {
+    SCHEDULE_DIGITAL_WORKFLOW("") {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
@@ -259,7 +259,7 @@ public enum TimelineEventId {
         }
     },
 
-    SCHEDULE_ANALOG_WORKFLOW() {
+    SCHEDULE_ANALOG_WORKFLOW("") {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
@@ -271,7 +271,7 @@ public enum TimelineEventId {
         }
     },
 
-    SCHEDULE_REFINEMENT_WORKFLOW() {
+    SCHEDULE_REFINEMENT_WORKFLOW("") {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
@@ -282,7 +282,7 @@ public enum TimelineEventId {
         }
     },
 
-    REQUEST_REFUSED() {
+    REQUEST_REFUSED("") {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
@@ -292,7 +292,7 @@ public enum TimelineEventId {
         }
     },
 
-    PUBLIC_REGISTRY_CALL() {
+    PUBLIC_REGISTRY_CALL("") {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
@@ -307,7 +307,7 @@ public enum TimelineEventId {
         }
     },
 
-    PUBLIC_REGISTRY_RESPONSE() {
+    PUBLIC_REGISTRY_RESPONSE("") {
         @Override
         public String buildEventId(String eventId) {
             return String.format(
@@ -317,7 +317,7 @@ public enum TimelineEventId {
         }
     },
     
-    AAR_GENERATION() {
+    AAR_GENERATION("") {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
@@ -328,18 +328,23 @@ public enum TimelineEventId {
         }
     },
     
-    NOT_HANDLED() {
+    NOT_HANDLED("") {
         @Override
         public String buildEventId(EventId eventId) {
-            return String.format(
-                    "%s_not_handled_%d",
-                    eventId.getIun(),
-                    eventId.getRecIndex()
-            );
+//            return String.format(
+//                    "%s_not_handled_%d",
+//                    eventId.getIun(),
+//                    eventId.getRecIndex()
+//            );
+            return new TimelineEventIdBuilder()
+                    .withCategory(this.getValue())
+                    .withIun(eventId.getIun())
+                    .withRecIndex(eventId.getRecIndex())
+                    .build();
         }
     },
 
-    NOTIFICATION_PAID() {
+    NOTIFICATION_PAID("notification_paid") {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
@@ -350,8 +355,14 @@ public enum TimelineEventId {
     }
     ;
 
+    //TODO cancellare tutti gli override, e valorizzare il builder con tutti i campi possibile
     public String buildEventId(EventId eventId) {
-        throw new UnsupportedOperationException("Must be implemented for each action type event ID");
+//        throw new UnsupportedOperationException("Must be implemented for each action type event ID");
+        return new TimelineEventIdBuilder()
+                .withCategory(this.getValue())
+                .withIun(eventId.getIun())
+                .withRecIndex(eventId.getRecIndex())
+                .build();
     }
 
     public String buildEventId(String eventId) {
@@ -361,4 +372,15 @@ public enum TimelineEventId {
     public String buildSearchEventIdByIunAndRecipientIndex(String iun, Integer recipientIndex) {
         throw new UnsupportedOperationException("Must be implemented for each action type");
     }
+
+    private String value;
+
+    TimelineEventId(String value ) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
 }
