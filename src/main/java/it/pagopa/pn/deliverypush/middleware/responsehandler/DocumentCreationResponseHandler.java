@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.responsehandler;
 
+import it.pagopa.pn.deliverypush.action.completionworkflow.DigitalDeliveryCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFactCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationResponseHandler;
@@ -16,6 +17,7 @@ public class DocumentCreationResponseHandler {
     private final ReceivedLegalFactCreationResponseHandler receivedLegalFactHandler;
     private final AarCreationResponseHandler aarCreationResponseHandler;
     private final NotificationViewLegalFactCreationResponseHandler notificationViewLegalFactCreationResponseHandler;
+    private final DigitalDeliveryCreationResponseHandler digitalDeliveryCreationResponseHandler;
     
     public void handleResponseReceived( String iun, Integer recIndex, DocumentCreationResponseActionDetails details) {
         String fileKey = details.getKey();
@@ -27,7 +29,7 @@ public class DocumentCreationResponseHandler {
             case AAR ->
                     aarCreationResponseHandler.handleAarCreationResponse(iun, recIndex, details);
             case DIGITAL_DELIVERY ->
-                    log.warn("DIGITAL_DELIVERY NOT HANDLED");
+                    digitalDeliveryCreationResponseHandler.handleDigitalDeliveryCreationResponse(iun, recIndex, details);
             case RECIPIENT_ACCESS ->
                     notificationViewLegalFactCreationResponseHandler.handleLegalFactCreationResponse(iun, recIndex, details);
         }

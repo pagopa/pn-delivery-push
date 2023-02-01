@@ -16,8 +16,10 @@ public class AarCreationRequestDetailsInt implements RecipientRelatedTimelineEle
 
     public String toLog() {
         return String.format(
-                "recIndex=%d",
-                recIndex
+                "recIndex=%d aarKey=%s numberOfPages=%s",
+                recIndex,
+                aarKey,
+                numberOfPages
         );
     }
 }

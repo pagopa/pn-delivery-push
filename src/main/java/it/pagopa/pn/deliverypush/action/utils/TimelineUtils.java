@@ -833,6 +833,35 @@ public class TimelineUtils {
         );
     }
 
+    public TimelineElementInternal buildDigitalDeliveryLegalFactCreationRequestTimelineElement(NotificationInt notification,
+                                                                                               Integer recIndex,
+                                                                                               EndWorkflowStatus status,
+                                                                                               Instant completionWorkflowDate,
+                                                                                               LegalDigitalAddressInt address,
+                                                                                               String legalFactId) {
+        log.debug("buildPecDeliveryWorkflowLegalFactCreationRequestTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
+
+        String elementId = TimelineEventId.DIGITAL_DELIVERY_CREATION_REQUEST.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build());
+
+        DigitalDeliveryCreationRequestDetailsInt details = DigitalDeliveryCreationRequestDetailsInt.builder()
+                .recIndex(recIndex)
+                .endWorkflowStatus(status)
+                .completionWorkflowDate(completionWorkflowDate)
+                .digitalAddress(address)
+                .legalFactId(legalFactId)
+                .build();
+
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
+                .legalFactsIds( Collections.emptyList() );
+
+        return buildTimeline(notification, TimelineElementCategoryInt.DIGITAL_DELIVERY_CREATION_REQUEST, elementId,
+                details, timelineBuilder);
+    }
+
     public List<LegalFactsIdInt> singleLegalFactId(String legalFactKey, LegalFactCategoryInt type) {
         return Collections.singletonList( LegalFactsIdInt.builder()
                 .key( legalFactKey )
@@ -857,5 +886,6 @@ public class TimelineUtils {
     {
         return timelineId.split("_")[0];
     }
+
 
 }

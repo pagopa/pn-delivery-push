@@ -18,6 +18,7 @@ public enum TimelineElementCategoryInt {
     SEND_DIGITAL_PROGRESS(SendDigitalProgressDetailsInt.class, TimelineElementCategory.SEND_DIGITAL_PROGRESS.getValue()),
     REFINEMENT(RefinementDetailsInt.class, TimelineElementCategory.REFINEMENT.getValue()),
     SCHEDULE_REFINEMENT(ScheduleRefinementDetailsInt.class, TimelineElementCategory.SCHEDULE_REFINEMENT.getValue()),
+    DIGITAL_DELIVERY_CREATION_REQUEST(DigitalDeliveryCreationRequestDetailsInt.class, TimelineElementCategory.DIGITAL_DELIVERY_CREATION_REQUEST.getValue()),
     DIGITAL_SUCCESS_WORKFLOW(DigitalSuccessWorkflowDetailsInt.class, TimelineElementCategory.DIGITAL_SUCCESS_WORKFLOW.getValue()),
     DIGITAL_FAILURE_WORKFLOW(DigitalFailureWorkflowDetailsInt.class, TimelineElementCategory.DIGITAL_FAILURE_WORKFLOW.getValue()),
     ANALOG_SUCCESS_WORKFLOW(AnalogSuccessWorkflowDetailsInt.class, TimelineElementCategory.ANALOG_SUCCESS_WORKFLOW.getValue()),

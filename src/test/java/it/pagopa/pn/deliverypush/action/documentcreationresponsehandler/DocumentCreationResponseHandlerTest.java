@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.documentcreationresponsehandler;
 
+import it.pagopa.pn.deliverypush.action.completionworkflow.DigitalDeliveryCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFactCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationResponseHandler;
@@ -23,12 +24,14 @@ class DocumentCreationResponseHandlerTest {
     private AarCreationResponseHandler aarCreationResponseHandler;
     @Mock
     private NotificationViewLegalFactCreationResponseHandler notificationViewLegalFactCreationResponseHandler;
-    
+    @Mock
+    private DigitalDeliveryCreationResponseHandler digitalDeliveryCreationResponseHandler;
+
     private DocumentCreationResponseHandler handler;
 
     @BeforeEach
     public void setup() {
-        handler = new DocumentCreationResponseHandler(receivedLegalFactHandler, aarCreationResponseHandler, notificationViewLegalFactCreationResponseHandler);
+        handler = new DocumentCreationResponseHandler(receivedLegalFactHandler, aarCreationResponseHandler, notificationViewLegalFactCreationResponseHandler, digitalDeliveryCreationResponseHandler);
     }
 
     @ExtendWith(SpringExtension.class)
@@ -77,9 +80,12 @@ class DocumentCreationResponseHandlerTest {
                 .key("legalFactId")
                 .documentCreationType(DocumentCreationTypeInt.DIGITAL_DELIVERY)
                 .build();
-
+        
         //WHEN
-        Assertions.assertDoesNotThrow(() -> handler.handleResponseReceived(iun, recIndex, details));
+        handler.handleResponseReceived(iun, recIndex, details);
+
+        //THEN
+        Mockito.verify(digitalDeliveryCreationResponseHandler).handleDigitalDeliveryCreationResponse(iun, recIndex, details);
     }
 
     @ExtendWith(SpringExtension.class)

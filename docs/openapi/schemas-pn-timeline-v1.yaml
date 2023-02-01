@@ -22,6 +22,7 @@ components:
           * `SEND_DIGITAL_FEEDBACK` - Ottenuto esito ad un invio digitale
           * `SCHEDULE_REFINEMENT` - Pianificato il perfezionamento per decorrenza termini
           * `REFINEMENT` - Perfezionamento per decorrenza termini
+          * `DIGITAL_DELIVERY_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di chiusura del workflow digitale a safe storage
           * `DIGITAL_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio digitale
           * `DIGITAL_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio digitale
           * `ANALOG_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio cartaceo
@@ -53,6 +54,7 @@ components:
         - SEND_DIGITAL_FEEDBACK
         - REFINEMENT
         - SCHEDULE_REFINEMENT
+        - DIGITAL_DELIVERY_CREATION_REQUEST
         - DIGITAL_SUCCESS_WORKFLOW
         - DIGITAL_FAILURE_WORKFLOW
         - ANALOG_SUCCESS_WORKFLOW
@@ -106,6 +108,7 @@ components:
         - "$ref": "#/components/schemas/AnalogFailureWorkflowDetails"
         - "$ref": "#/components/schemas/AnalogSuccessWorkflowDetails"
         - "$ref": "#/components/schemas/CompletelyUnreachableDetails"
+        - "$ref": "#/components/schemas/DigitalDeliveryCreationRequestDetails"
         - "$ref": "#/components/schemas/DigitalFailureWorkflowDetails"
         - "$ref": "#/components/schemas/DigitalSuccessWorkflowDetails"
         - "$ref": "#/components/schemas/GetAddressInfoDetails"
@@ -170,6 +173,28 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
+
+    DigitalDeliveryCreationRequestDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+        endWorkflowStatus:
+          $ref: "#/components/schemas/EndWorkflowStatus"
+        completionWorkflowDate:
+          type: string
+          description: Data chiusura workflow
+          format: date-time
+        legalfactId:
+          type: string
+          description: Identificativo dell'atto opponibile a terzi del quale è stata richiesta la creazione
           
     DigitalSuccessWorkflowDetails:
       type: object
@@ -665,6 +690,13 @@ components:
         - DIGITAL
         - ANALOG
 
+    EndWorkflowStatus:
+      type: string
+      description: Stato chiusura workflow
+      enum:
+        - SUCCESS
+        - FAILURE
+    
     SendingReceipt:
       type: object
       properties:

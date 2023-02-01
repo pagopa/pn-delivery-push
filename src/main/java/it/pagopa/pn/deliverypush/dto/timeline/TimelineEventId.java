@@ -169,6 +169,17 @@ public enum TimelineEventId {
         }
     },
 
+    DIGITAL_DELIVERY_CREATION_REQUEST() {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return String.format(
+                    "digital_delivery_creation_request_iun_%s_recindex_%d",
+                    eventId.getIun(),
+                    eventId.getRecIndex()
+            );
+        }
+    },
+    
     DIGITAL_SUCCESS_WORKFLOW() {
         @Override
         public String buildEventId(EventId eventId) {

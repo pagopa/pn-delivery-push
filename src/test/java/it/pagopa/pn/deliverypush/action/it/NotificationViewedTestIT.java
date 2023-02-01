@@ -134,6 +134,9 @@ import static org.mockito.ArgumentMatchers.eq;
         ScheduleRecipientWorkflow.class,
         AarCreationResponseHandler.class,
         NotificationViewLegalFactCreationResponseHandler.class,
+        DigitalDeliveryCreationResponseHandler.class,
+        FailureWorkflowHandler.class,
+        SuccessWorkflowHandler.class,
         NotificationViewedTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")

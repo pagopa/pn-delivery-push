@@ -117,6 +117,9 @@ import java.util.Collections;
         AarCreationResponseHandler.class,
         NotificationViewLegalFactCreationResponseHandler.class,
         NotificationCost.class,
+        DigitalDeliveryCreationResponseHandler.class,
+        FailureWorkflowHandler.class,
+        SuccessWorkflowHandler.class,
         ValidationDocumentErrorTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource(

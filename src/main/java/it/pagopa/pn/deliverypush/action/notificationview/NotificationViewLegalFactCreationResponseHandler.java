@@ -77,7 +77,7 @@ public class NotificationViewLegalFactCreationResponseHandler {
                 logEvent.log();
             }
 
-            logEvent.generateFailure("Saving legalfact FAILURE type={} ex={}", LegalFactCategoryInt.RECIPIENT_ACCESS,  ex).log();
+            logEvent.generateFailure("Saving legalfact FAILURE type={} iun={} recIndex={} ex={}", LegalFactCategoryInt.RECIPIENT_ACCESS, iun, recIndex, ex).log();
             
             throw ex;
         }

@@ -130,6 +130,9 @@ import static org.awaitility.Awaitility.await;
         ScheduleRecipientWorkflow.class,
         AarCreationResponseHandler.class,
         NotificationViewLegalFactCreationResponseHandler.class,
+        DigitalDeliveryCreationResponseHandler.class,
+        FailureWorkflowHandler.class,
+        SuccessWorkflowHandler.class,
         DigitalTestMultiRecipientIT.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")
