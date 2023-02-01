@@ -50,9 +50,9 @@ public class {{classname}} {{#parent}}extends {{{.}}}{{/parent}}{{^parent}}{{#ha
   private {{>nullableDataType}} {{name}} = {{#isNullable}}JsonNullable.undefined(){{/isNullable}}{{^isNullable}}{{#required}}{{{defaultValue}}}{{/required}}{{^required}}null{{/required}}{{/isNullable}};
   {{/openApiNullable}}
   {{^openApiNullable}}
-  {{#isArray}}
-  @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)
-  {{/isArray}}
+  {{#vendorExtensions.x-pn-fieldannotations}}
+  {{{.}}}
+  {{/vendorExtensions.x-pn-fieldannotations}}
   private {{>nullableDataType}} {{name}} = {{#required}}{{{defaultValue}}}{{/required}}{{^required}}null{{/required}};
   {{/openApiNullable}}
   {{/isContainer}}
