@@ -42,7 +42,10 @@ public class NotificationViewLegalFactCreationResponseHandler {
     
     public void handleLegalFactCreationResponse(String iun, int recIndex, DocumentCreationResponseActionDetails actionDetails) {
         log.info("Start handleLegalFactCreationResponse process - iun={} legalFactId={}", iun, actionDetails.getKey());
-        PnAuditLogEvent logEvent = null;
+        PnAuditLogEvent recipientAccessLegalFactAuditLog = getAuditLogLegalFact(iun, recIndex, actionDetails);
+        recipientAccessLegalFactAuditLog.log();
+
+        PnAuditLogEvent notificationViewAuditlog = null;
         
         try {
             NotificationInt notification = notificationService.getNotificationByIun(iun);
@@ -55,16 +58,19 @@ public class NotificationViewLegalFactCreationResponseHandler {
 
                 RaddInfo raddInfo = getRaddInfo(timelineDetails);
                 
-                logEvent = generateAuditLog(iun, recIndex, raddInfo, timelineDetails.getDelegateInfo());
-                logEvent.log();
+                notificationViewAuditlog = generateAuditLog(iun, recIndex, raddInfo, timelineDetails.getDelegateInfo());
+                notificationViewAuditlog.log();
 
-                PnAuditLogEvent finalLogEvent = logEvent;
+                PnAuditLogEvent notificationViewAuditlogFinal = notificationViewAuditlog;
                 notificationCost.getNotificationCost(notification, recIndex)
                         .doOnSuccess( cost -> log.info("Completed getNotificationCost cost={}- iun={} id={}", cost, notification.getIun(), recIndex))
                         .flatMap(responseCost -> {
                             Integer cost = responseCost.orElse(null);
                             return getDenominationAndSaveInTimeline(notification, recIndex, raddInfo, timelineDetails.getEventTimestamp(), timelineDetails.getLegalFactId(), cost, timelineDetails.getDelegateInfo())
-                                    .doOnSuccess( res -> finalLogEvent.generateSuccess().log());
+                                    .doOnSuccess( res -> {
+                                        recipientAccessLegalFactAuditLog.generateSuccess().log();
+                                        notificationViewAuditlogFinal.generateSuccess().log();
+                                    });
                         }).block();
             } else {
                 log.error("handleAarCreationResponse failed, timelineId is not present {} - iun={} id={}", actionDetails.getTimelineId(), iun, recIndex);
@@ -72,15 +78,22 @@ public class NotificationViewLegalFactCreationResponseHandler {
             }
 
         }catch (Exception ex){
-            if(logEvent == null){
-                logEvent = generateAuditLog(iun, recIndex, null, null);
-                logEvent.log();
+            if(notificationViewAuditlog == null){
+                notificationViewAuditlog = generateAuditLog(iun, recIndex, null, null);
+                notificationViewAuditlog.log();
             }
-
-            logEvent.generateFailure("Saving legalfact FAILURE type={} iun={} recIndex={} ex={}", LegalFactCategoryInt.RECIPIENT_ACCESS, iun, recIndex, ex).log();
-            
+            notificationViewAuditlog.generateFailure("NotificationView FAILURE iun={} recIndex={} ex={}", iun, recIndex, ex).log();
+            recipientAccessLegalFactAuditLog.generateFailure( "Saving legalFact FAILURE type={} fileKey={} iun={} recIndex={} ex={}", LegalFactCategoryInt.RECIPIENT_ACCESS, actionDetails.getKey(), iun, recIndex, ex).log();
             throw ex;
         }
+    }
+
+    private PnAuditLogEvent getAuditLogLegalFact(String iun, int recIndex, DocumentCreationResponseActionDetails actionDetails) {
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        return auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_NEWLEGAL, "Saving legalFact type={} fileKey={} iun={} recIndex={}", LegalFactCategoryInt.RECIPIENT_ACCESS, actionDetails.getKey(), iun, recIndex)
+                .iun(iun)
+                .build();
     }
 
     private RaddInfo getRaddInfo(NotificationViewedCreationRequestDetailsInt timelineDetails) {
@@ -157,9 +170,8 @@ public class NotificationViewLegalFactCreationResponseHandler {
 
         PnAuditLogEventType type = viewedFromDelegate ? PnAuditLogEventType.AUD_NT_VIEW_DEL : PnAuditLogEventType.AUD_NT_VIEW_RCP;
         return auditLogBuilder
-                .before(type, "Saving legalfact type={} - iun={} id={} " +
+                .before(type, "NotificationView - iun={} id={} " +
                                 "raddType={} raddTransactionId={} internalDelegateId={} mandateId={}",
-                        LegalFactCategoryInt.RECIPIENT_ACCESS,
                         iun,
                         recIndex,
                         raddInfo != null ? raddInfo.getType() : null,
