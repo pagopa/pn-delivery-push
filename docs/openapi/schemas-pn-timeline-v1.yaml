@@ -22,18 +22,21 @@ components:
           * `SEND_DIGITAL_FEEDBACK` - Ottenuto esito ad un invio digitale
           * `SCHEDULE_REFINEMENT` - Pianificato il perfezionamento per decorrenza termini
           * `REFINEMENT` - Perfezionamento per decorrenza termini
+          * `DIGITAL_DELIVERY_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di chiusura del workflow digitale a safe storage
           * `DIGITAL_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio digitale
           * `DIGITAL_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio digitale
           * `ANALOG_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio cartaceo
           * `ANALOG_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio cartaceo
           * `PREPARE_SIMPLE_REGISTERED_LETTER` - Preparazione all'invio di raccomandata semplice
           * `SEND_SIMPLE_REGISTERED_LETTER` - Invio di raccomandata semplice
+          * `NOTIFICATION_VIEWED_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa visione a safe storage
           * `NOTIFICATION_VIEWED` - Perfezionamento per presa visione
           * `PREPARE_ANALOG_DOMICILE` - Preparazione all'invio cartaceo dell’avviso di notifica
           * `SEND_ANALOG_DOMICILE` - Invio cartaceo dell’avviso di notifica
           * `SEND_ANALOG_PROGRESS` - Ricezione evento non finale dell'invio cartaceo
           * `SEND_ANALOG_FEEDBACK` - Ricezione esito dell'invio cartaceo
           * `COMPLETELY_UNREACHABLE` - Tutti i destinatari risultano irraggiungibili
+          * `AAR_CREATION_REQUEST` - Invio della richiesta di creazione dell'AAR (Avviso di Avvenuta Ricezione) a safe storage 
           * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
           * `PAYMENT` - Ricezione pagamento della notifica
           * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
@@ -51,12 +54,14 @@ components:
         - SEND_DIGITAL_FEEDBACK
         - REFINEMENT
         - SCHEDULE_REFINEMENT
+        - DIGITAL_DELIVERY_CREATION_REQUEST
         - DIGITAL_SUCCESS_WORKFLOW
         - DIGITAL_FAILURE_WORKFLOW
         - ANALOG_SUCCESS_WORKFLOW
         - ANALOG_FAILURE_WORKFLOW
         - PREPARE_SIMPLE_REGISTERED_LETTER
         - SEND_SIMPLE_REGISTERED_LETTER
+        - NOTIFICATION_VIEWED_CREATION_REQUEST
         - NOTIFICATION_VIEWED
         - PREPARE_ANALOG_DOMICILE
         - SEND_ANALOG_DOMICILE
@@ -65,6 +70,7 @@ components:
         - PAYMENT
         - COMPLETELY_UNREACHABLE
         - REQUEST_REFUSED
+        - AAR_CREATION_REQUEST
         - AAR_GENERATION
         - NOT_HANDLED
     
@@ -102,9 +108,11 @@ components:
         - "$ref": "#/components/schemas/AnalogFailureWorkflowDetails"
         - "$ref": "#/components/schemas/AnalogSuccessWorkflowDetails"
         - "$ref": "#/components/schemas/CompletelyUnreachableDetails"
+        - "$ref": "#/components/schemas/DigitalDeliveryCreationRequestDetails"
         - "$ref": "#/components/schemas/DigitalFailureWorkflowDetails"
         - "$ref": "#/components/schemas/DigitalSuccessWorkflowDetails"
         - "$ref": "#/components/schemas/GetAddressInfoDetails"
+        - "$ref": "#/components/schemas/NotificationViewedCreationRequestDetails"
         - "$ref": "#/components/schemas/NotificationViewedDetails"
         - "$ref": "#/components/schemas/PublicRegistryCallDetails"
         - "$ref": "#/components/schemas/PublicRegistryResponseDetails"
@@ -120,6 +128,7 @@ components:
         - "$ref": "#/components/schemas/SendAnalogDetails"
         - "$ref": "#/components/schemas/SendAnalogFeedbackDetails"
         - "$ref": "#/components/schemas/SimpleRegisteredLetterDetails"
+        - "$ref": "#/components/schemas/AarCreationRequestDetails"
         - "$ref": "#/components/schemas/AarGenerationDetails"
         - "$ref": "#/components/schemas/NotHandledDetails"
         - "$ref": "#/components/schemas/NotificationPaidDetails"
@@ -165,6 +174,28 @@ components:
           description: Index destinatario notifica digitale
           format: int32
 
+    DigitalDeliveryCreationRequestDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+        endWorkflowStatus:
+          $ref: "#/components/schemas/EndWorkflowStatus"
+        completionWorkflowDate:
+          type: string
+          description: Data chiusura workflow
+          format: date-time
+        legalfactId:
+          type: string
+          description: Identificativo dell'atto opponibile a terzi del quale è stata richiesta la creazione
+          
     DigitalSuccessWorkflowDetails:
       type: object
       required:
@@ -210,6 +241,29 @@ components:
           description: Data tentativo
           format: date-time
 
+    NotificationViewedCreationRequestDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        legalfactId:
+          type: string
+          description: Identificativo dell'atto opponibile a terzi del quale è stata richiesta la creazione
+        eventTimestamp:
+          type: string
+          description: Data ricezione richiesta visualizzazione notifica
+          format: date-time
+        raddType:
+          $ref: '#/components/schemas/RaddType'
+        raddTransactionId:
+          $ref: '#/components/schemas/RaddTransactionId'
+        delegateInfo:
+          $ref: '#/components/schemas/DelegateInfo'
+        
     NotificationViewedDetails:
       type: object
       required:
@@ -528,6 +582,25 @@ components:
           description: costo in eurocent dell'invio
           format: int32
 
+    AarCreationRequestDetails:
+      type: object
+      required:
+        - recIndex
+        - aarKey
+        - numberOfPages
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        aarKey:
+          type: string
+          description: Chiave per recupero da safe-storage del documento aar
+        numberOfPages:
+          type: integer
+          description: numero di pagine del PDF generato
+          format: int32
+    
     AarGenerationDetails:
       type: object
       required:
@@ -619,6 +692,13 @@ components:
         - DIGITAL
         - ANALOG
 
+    EndWorkflowStatus:
+      type: string
+      description: Stato chiusura workflow
+      enum:
+        - SUCCESS
+        - FAILURE
+    
     SendingReceipt:
       type: object
       properties:
