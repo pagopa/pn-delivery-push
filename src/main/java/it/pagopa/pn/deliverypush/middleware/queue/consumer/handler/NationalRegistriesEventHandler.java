@@ -31,6 +31,7 @@ public class NationalRegistriesEventHandler {
                 String correlationId = message.getPayload().getCorrelationId();
                 PublicRegistryResponse response = NationalRegistriesMessageUtil.buildPublicRegistryResponse(correlationId, digitalAddresses);
                 publicRegistryResponseHandler.handleResponse(response);
+
             } catch (Exception ex) {
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
