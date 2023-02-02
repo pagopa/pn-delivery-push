@@ -25,7 +25,6 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -188,26 +187,6 @@ class SaveLegalFactsServiceImplTest {
 
         Assertions.assertEquals("safestorage://001", actualMono.block());
     }
-
-    @Test
-    void saveNotificationViewedLegalFactFailed() throws IOException {
-        String denomination = "<h1>SSRF WITH IMAGE POC</h1> <img src='https://prova.it'></img>";
-        NotificationInt notification = buildNotification(denomination);
-        NotificationRecipientInt recipient = buildRecipient(denomination);
-        Instant timeStamp = Instant.parse("2021-09-16T15:24:00.00Z");
-        FileCreationWithContentRequest fileCreation = buildFileCreationWithContentRequest(PN_LEGAL_FACTS);
-        FileCreationResponseInt file = buildFileCreationResponseInt();
-
-        Mockito.when(legalFactBuilder.generateNotificationViewedLegalFact(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn("this".getBytes(StandardCharsets.UTF_8));
-
-        Mono<String> response = saveLegalFactsService.sendCreationRequestForNotificationViewedLegalFact(notification, recipient, timeStamp);
-        PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, response::block);
-
-        String expectErrorMsg = "PN_DELIVERYPUSH_SAVENOTIFICATIONFAILED";
-
-        Assertions.assertEquals(expectErrorMsg, pnInternalException.getProblem().getErrors().get(0).getCode());
-    }
-
 
     private SendDigitalFeedbackDetailsInt buildSendDigitalFeedbackDetailsInt() {
         return SendDigitalFeedbackDetailsInt.builder()

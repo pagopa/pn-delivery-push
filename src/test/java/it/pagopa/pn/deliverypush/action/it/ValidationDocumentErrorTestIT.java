@@ -12,17 +12,18 @@ import it.pagopa.pn.deliverypush.action.completionworkflow.*;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowUtils;
-import it.pagopa.pn.deliverypush.middleware.responsehandler.DocumentCreationResponseHandler;
-import it.pagopa.pn.deliverypush.middleware.responsehandler.SafeStorageResponseHandler;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
+import it.pagopa.pn.deliverypush.action.notificationview.NotificationCost;
+import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFactCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.ScheduleRecipientWorkflow;
 import it.pagopa.pn.deliverypush.action.startworkflow.StartWorkflowHandler;
+import it.pagopa.pn.deliverypush.action.startworkflowrecipient.AarCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -33,9 +34,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClientReactiveImpl;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
-import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
-import it.pagopa.pn.deliverypush.middleware.responsehandler.PaperChannelResponseHandler;
-import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
+import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.PaperChannelService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -115,6 +114,12 @@ import java.util.Collections;
         DocumentCreationResponseHandler.class,
         ReceivedLegalFactCreationResponseHandler.class,
         ScheduleRecipientWorkflow.class,
+        AarCreationResponseHandler.class,
+        NotificationViewLegalFactCreationResponseHandler.class,
+        NotificationCost.class,
+        DigitalDeliveryCreationResponseHandler.class,
+        FailureWorkflowHandler.class,
+        SuccessWorkflowHandler.class,
         ValidationDocumentErrorTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource(

@@ -169,6 +169,17 @@ public enum TimelineEventId {
         }
     },
 
+    DIGITAL_DELIVERY_CREATION_REQUEST() {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return String.format(
+                    "digital_delivery_creation_request_iun_%s_recindex_%d",
+                    eventId.getIun(),
+                    eventId.getRecIndex()
+            );
+        }
+    },
+    
     DIGITAL_SUCCESS_WORKFLOW() {
         @Override
         public String buildEventId(EventId eventId) {
@@ -213,6 +224,17 @@ public enum TimelineEventId {
         }
     },
 
+    NOTIFICATION_VIEWED_CREATION_REQUEST() {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return String.format(
+                    "notification_viewed_creation_request_iun_%s_recIndex_%d",
+                    eventId.getIun(),
+                    eventId.getRecIndex()
+            );
+        }
+    },
+    
     NOTIFICATION_VIEWED() {
         @Override
         public String buildEventId(EventId eventId) {
@@ -313,6 +335,17 @@ public enum TimelineEventId {
             return String.format(
                     "public_registry_response_%s",
                     eventId
+            );
+        }
+    },
+
+    AAR_CREATION_REQUEST() {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return String.format(
+                    "aar_creation_request_iun_%s_recIndex_%d",
+                    eventId.getIun(),
+                    eventId.getRecIndex()
             );
         }
     },

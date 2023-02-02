@@ -79,8 +79,8 @@ public class SafeStorageClientMock implements PnSafeStorageClient {
                                 Assertions.assertTrue(creationRequestService.getDocumentCreationRequest(keyWithPrefix).isPresent())
                         );
                     }catch (org.awaitility.core.ConditionTimeoutException ex){
-                        //TODO Fare salire l'exception volta gestiti tutti i casi di risposta (tutti i legalFacts + aar) in DocumentCreationResponseHandler
-                        log.warn("TEST] Exception in createFile DocumentCreationRequest not founded - fileKey={} documentType={}", keyWithPrefix, fileCreationRequest.getDocumentType());
+                        log.error("TEST] Exception in createFile DocumentCreationRequest not founded - fileKey={} documentType={}", keyWithPrefix, fileCreationRequest.getDocumentType());
+                        throw ex;
                     }
                     
                     log.info("[TEST] END wait for createFile documentType={} keyWithPrefix={}",fileCreationRequest.getDocumentType(), keyWithPrefix);
