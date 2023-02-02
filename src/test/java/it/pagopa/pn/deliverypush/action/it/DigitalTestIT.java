@@ -149,7 +149,7 @@ import static org.awaitility.Awaitility.await;
 })
 @TestPropertySource("classpath:/application-test.properties")
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
-class DigitalTestIT {
+class DigitalTestIT { 
     
     @TestConfiguration
     static class SpringTestConfiguration extends AbstractWorkflowTestConfiguration {
