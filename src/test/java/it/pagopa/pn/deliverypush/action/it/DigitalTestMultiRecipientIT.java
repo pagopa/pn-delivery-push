@@ -1126,6 +1126,7 @@ class DigitalTestMultiRecipientIT {
     // Entrambi i destinatari sono non raggiungibili, ma il primo visualizza la notifica su PN prima che il workflow
     // sia completato (in fallimento)
     @Test
+    @Disabled("Test fail only in build fase PN-3853")
     void rec1AllKoRec2AllKoButFirstViewedBeforeWorkflow() {
        /* Primo recipient
        - Platform address presente ed entrambi gli invii con fallimento
