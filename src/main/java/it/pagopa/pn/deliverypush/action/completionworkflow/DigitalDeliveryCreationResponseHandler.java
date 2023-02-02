@@ -47,17 +47,18 @@ public class DigitalDeliveryCreationResponseHandler {
                             successWorkflowHandler.handleSuccessWorkflow(notification, recIndex, logEvent, timelineDetails);
                     case FAILURE ->
                             failureWorkflowHandler.handleFailureWorkflow(notification, recIndex, logEvent, timelineDetails);
-                    default -> handleError(iun, recIndex, status);
+                    default -> handleError(iun, recIndex, status, logEvent, actionDetails.getKey());
                 }
             } else 
-                handleError(iun, recIndex, null);
+                handleError(iun, recIndex, null, logEvent, actionDetails.getKey());
 
         } else {
-            logEvent.generateFailure("Error in digitalDeliveryLegalFactCreation for timelineId={} and key={} - iun={} recIndex={}", actionDetails.getTimelineId(), actionDetails.getKey(), notification.getIun(), recIndex).log();
+            logEvent.generateFailure("Error in handleDigitalDeliveryCreationResponse for timelineId={} and key={} - iun={} recIndex={}", actionDetails.getTimelineId(), actionDetails.getKey(), notification.getIun(), recIndex).log();
         }
     }
 
-    private void handleError(String iun, Integer recIndex, EndWorkflowStatus status) {
+    private void handleError(String iun, Integer recIndex, EndWorkflowStatus status, PnAuditLogEvent logEvent, String key) {
+        logEvent.generateFailure("Error in handleDigitalDeliveryCreationResponse, not valid status={} and key={} - iun={} recIndex={}", status, key, iun, recIndex).log();
         log.error("Specified status {} does not exist. Iun {}, id {}", status, iun, recIndex);
         throw new PnInternalException("Specified status " + status + " does not exist. Iun " + iun + " id" + recIndex, ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND);
     }
