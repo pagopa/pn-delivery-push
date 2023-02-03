@@ -45,7 +45,7 @@ public class PaperChannelMock implements PaperChannelSendClient {
 
     @Override
     public void prepare(PaperChannelPrepareRequest paperChannelPrepareRequest) {
-        log.info("prepare paperChannelPrepareRequest:{}", paperChannelPrepareRequest);
+        log.info("[TEST] prepare paperChannelPrepareRequest:{}", paperChannelPrepareRequest);
 
         new Thread(() -> {
             await().pollDelay(Duration.ofMillis(200)).atMost(Duration.ofSeconds(30)).untilAsserted(() ->
@@ -67,7 +67,7 @@ public class PaperChannelMock implements PaperChannelSendClient {
     @Override
     public Integer send(PaperChannelSendRequest paperChannelSendRequest) {
         //TODO Da eliminare questo log
-        log.info("send paperChannelSendRequest:{}", paperChannelSendRequest);
+        log.info("[TEST] send paperChannelSendRequest:{}", paperChannelSendRequest);
 
 
         new Thread(() -> {

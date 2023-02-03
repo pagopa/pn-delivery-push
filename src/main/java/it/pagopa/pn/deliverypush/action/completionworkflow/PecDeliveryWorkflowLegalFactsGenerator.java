@@ -32,7 +32,7 @@ public class PecDeliveryWorkflowLegalFactsGenerator {
         this.notificationUtils = notificationUtils;
     }
 
-    public String generatePecDeliveryWorkflowLegalFact(NotificationInt notification, Integer recIndex, EndWorkflowStatus status, Instant completionWorkflowDate) {
+    public String generateAndSendCreationRequestForPecDeliveryWorkflowLegalFact(NotificationInt notification, Integer recIndex, EndWorkflowStatus status, Instant completionWorkflowDate) {
         Set<TimelineElementInternal> timeline = timelineService.getTimeline(notification.getIun(), true);
 
         List<TimelineElementInternal> timelineByTimestampSorted = timeline.stream()
@@ -50,7 +50,7 @@ public class PecDeliveryWorkflowLegalFactsGenerator {
         }
 
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
-        return saveLegalFactsService.savePecDeliveryWorkflowLegalFact(listFeedbackFromExtChannel, notification, recipient, status, completionWorkflowDate);
+        return saveLegalFactsService.sendCreationRequestForPecDeliveryWorkflowLegalFact(listFeedbackFromExtChannel, notification, recipient, status, completionWorkflowDate);
     }
 
     private Optional<RecipientRelatedTimelineElementDetails> getSpecificDetailRecipient(TimelineElementInternal element, int recIndex){

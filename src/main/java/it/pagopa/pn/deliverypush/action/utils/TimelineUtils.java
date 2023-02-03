@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
+import it.pagopa.pn.deliverypush.dto.legalfacts.PdfInfo;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
@@ -578,6 +579,39 @@ public class TimelineUtils {
                 details, timelineBuilder);
     }
 
+    public TimelineElementInternal  buildNotificationViewedLegalFactCreationRequestTimelineElement(
+            NotificationInt notification,
+            Integer recIndex,
+            String legalFactId,
+            RaddInfo raddInfo,
+            DelegateInfoInt delegateInfo,
+            Instant eventTimestamp) {
+        log.debug("buildNotificationViewedLegalFactCreationRequestTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
+
+        String elementId = TimelineEventId.NOTIFICATION_VIEWED_CREATION_REQUEST.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build());
+
+        NotificationViewedCreationRequestDetailsInt details = NotificationViewedCreationRequestDetailsInt.builder()
+                .recIndex(recIndex)
+                .legalFactId(legalFactId)
+                .raddType(raddInfo != null ? raddInfo.getType() : null)
+                .raddTransactionId(raddInfo != null ? raddInfo.getTransactionId() : null)
+                .delegateInfo(delegateInfo)
+                .eventTimestamp(eventTimestamp)
+                .build();
+
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
+                .legalFactsIds( Collections.emptyList() );
+
+        return buildTimeline(notification, TimelineElementCategoryInt.NOTIFICATION_VIEWED_CREATION_REQUEST, elementId,
+                details, timelineBuilder);
+    }
+
+    
+
     public TimelineElementInternal  buildCompletelyUnreachableTimelineElement(NotificationInt notification, Integer recIndex) {
         log.debug("buildCompletelyUnreachableTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
 
@@ -747,7 +781,87 @@ public class TimelineUtils {
                 timelineBuilder
         );
     }
-    
+
+    public TimelineElementInternal buildSenderAckLegalFactCreationRequest(NotificationInt notification, String legalFactId) {
+        log.debug("buildSenderAckLegalFactCreationRequest- iun={}", notification.getIun());
+
+        String elementId = TimelineEventId.SENDERACK_CREATION_REQUEST.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .build());
+        
+      SenderAckCreationRequestDetailsInt details = SenderAckCreationRequestDetailsInt.builder()
+              .legalFactId(legalFactId)
+              .build();
+
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
+                .legalFactsIds(Collections.emptyList());
+
+        return buildTimeline(
+                notification,
+                TimelineElementCategoryInt.SENDER_ACK_CREATION_REQUEST,
+                elementId,
+                details,
+                timelineBuilder
+        );
+    }
+
+    public TimelineElementInternal buildAarCreationRequest(NotificationInt notification, int recIndex, PdfInfo pdfInfo) {
+        log.debug("buildAarCreationRequest- iun={}", notification.getIun());
+
+        String elementId = TimelineEventId.AAR_CREATION_REQUEST.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build());
+
+        AarCreationRequestDetailsInt details = AarCreationRequestDetailsInt.builder()
+                .recIndex(recIndex)
+                .aarKey(pdfInfo.getKey())
+                .numberOfPages(pdfInfo.getNumberOfPages())
+                .build();
+
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
+                .legalFactsIds(Collections.emptyList());
+
+        return buildTimeline(
+                notification,
+                TimelineElementCategoryInt.AAR_CREATION_REQUEST,
+                elementId,
+                details,
+                timelineBuilder
+        );
+    }
+
+    public TimelineElementInternal buildDigitalDeliveryLegalFactCreationRequestTimelineElement(NotificationInt notification,
+                                                                                               Integer recIndex,
+                                                                                               EndWorkflowStatus status,
+                                                                                               Instant completionWorkflowDate,
+                                                                                               LegalDigitalAddressInt address,
+                                                                                               String legalFactId) {
+        log.debug("buildPecDeliveryWorkflowLegalFactCreationRequestTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
+
+        String elementId = TimelineEventId.DIGITAL_DELIVERY_CREATION_REQUEST.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build());
+
+        DigitalDeliveryCreationRequestDetailsInt details = DigitalDeliveryCreationRequestDetailsInt.builder()
+                .recIndex(recIndex)
+                .endWorkflowStatus(status)
+                .completionWorkflowDate(completionWorkflowDate)
+                .digitalAddress(address)
+                .legalFactId(legalFactId)
+                .build();
+
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
+                .legalFactsIds( Collections.emptyList() );
+
+        return buildTimeline(notification, TimelineElementCategoryInt.DIGITAL_DELIVERY_CREATION_REQUEST, elementId,
+                details, timelineBuilder);
+    }
+
     public List<LegalFactsIdInt> singleLegalFactId(String legalFactKey, LegalFactCategoryInt type) {
         return Collections.singletonList( LegalFactsIdInt.builder()
                 .key( legalFactKey )
@@ -772,5 +886,6 @@ public class TimelineUtils {
     {
         return timelineId.split("_")[0];
     }
+
 
 }

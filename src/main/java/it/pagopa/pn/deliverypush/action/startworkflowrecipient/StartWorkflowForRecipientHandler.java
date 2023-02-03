@@ -1,56 +1,26 @@
 package it.pagopa.pn.deliverypush.action.startworkflowrecipient;
 
-import it.pagopa.pn.commons.log.PnAuditLogBuilder;
-import it.pagopa.pn.commons.log.PnAuditLogEvent;
-import it.pagopa.pn.commons.log.PnAuditLogEventType;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
 import it.pagopa.pn.deliverypush.action.utils.AarUtils;
-import it.pagopa.pn.deliverypush.action.utils.CourtesyMessageUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.service.SchedulerService;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
-
 @Component
+@AllArgsConstructor
 @Slf4j
 public class StartWorkflowForRecipientHandler {
-    private final CourtesyMessageUtils courtesyMessageUtils;
-    private final SchedulerService schedulerService;
     private final AarUtils aarUtils;
     private final NotificationService notificationService;
     
-    public StartWorkflowForRecipientHandler(CourtesyMessageUtils courtesyMessageUtils,
-                                            SchedulerService schedulerService,
-                                            AarUtils aarUtils,
-                                            NotificationService notificationService) {
-        this.courtesyMessageUtils = courtesyMessageUtils;
-        this.schedulerService = schedulerService;
-        this.aarUtils = aarUtils;
-        this.notificationService = notificationService;
-    }
-
     public void startNotificationWorkflowForRecipient(String iun, int recIndex, RecipientsWorkflowDetails details) {
         log.info("Start notification workflow for recipient - iun {} id {} token {}", iun, recIndex, details.getQuickAccessLinkToken());
         NotificationInt notification = notificationService.getNotificationByIun(iun);
+
         // ... genero il pdf dell'AAR, salvo su Safestorage e genero elemento in timeline AAR_GENERATION, potrebbe servirmi dopo ...
-        aarUtils.generateAARAndSaveInSafeStorageAndAddTimelineevent(notification, recIndex, details.getQuickAccessLinkToken());
-
-        //... Invio messaggio di cortesia ... 
-        courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, recIndex);
-
-        //... e viene schedulato il processo di scelta della tipologia di notificazione
-        scheduleChooseDeliveryMode(iun, recIndex);
-    }
-
-    private void scheduleChooseDeliveryMode(String iun, Integer recIndex) {
-        Instant schedulingDate = Instant.now();
-        log.info("Scheduling choose delivery mode schedulingDate={} - iun={} id={}", schedulingDate, iun, recIndex);
-        schedulerService.scheduleEvent(iun, recIndex, schedulingDate, ActionType.CHOOSE_DELIVERY_MODE);
+        aarUtils.generateAARAndSaveInSafeStorageAndAddTimelineEvent(notification, recIndex, details.getQuickAccessLinkToken());
     }
     
 }

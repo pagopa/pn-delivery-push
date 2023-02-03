@@ -87,7 +87,7 @@ public class NotificationViewedRequestHandler {
                                             return Mono.empty();
                                         }
                                     })
-                            ).doOnError( err -> logEvent.generateFailure("Exception in View notification ex={}", err).log());
+                            ).doOnError( err -> logEvent.generateFailure("Exception in View notification ex={} - iun={} id={}", err, iun, recIndex).log());
                 } else {
                     log.debug("Notification is already viewed - iun={} id={}", iun, recIndex);
                     return Mono.empty();
@@ -101,9 +101,9 @@ public class NotificationViewedRequestHandler {
         
         PnAuditLogEventType type = viewedFromDelegate ? PnAuditLogEventType.AUD_NT_VIEW_DEL : PnAuditLogEventType.AUD_NT_VIEW_RCP;
         return auditLogBuilder
-                .before(type, "Start HandleViewNotification - iun={} id={} " +
-                        "raddType={} raddTransactionId={} internalDelegateId={} mandateId={}", 
-                        iun, 
+                .before(type, "View notification - iun={} id={} " +
+                                "raddType={} raddTransactionId={} internalDelegateId={} mandateId={}",
+                        iun,
                         recIndex,
                         raddInfo != null ? raddInfo.getType() : null,
                         raddInfo != null ? raddInfo.getTransactionId() : null,
@@ -113,7 +113,5 @@ public class NotificationViewedRequestHandler {
                 .iun(iun)
                 .build();
     }
-
-
 
 }

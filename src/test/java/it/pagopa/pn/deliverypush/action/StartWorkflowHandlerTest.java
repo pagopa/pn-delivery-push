@@ -1,21 +1,20 @@
 package it.pagopa.pn.deliverypush.action;
 
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.deliverypush.action.startworkflow.StartWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.AttachmentUtils;
+import it.pagopa.pn.deliverypush.action.startworkflow.StartWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotMatchingShaException;
-import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
-import it.pagopa.pn.deliverypush.service.SchedulerService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,6 +39,8 @@ class StartWorkflowHandlerTest {
     private AttachmentUtils checkAttachmentUtils;
     @Mock
     private SchedulerService schedulerService;
+    @Mock
+    private DocumentCreationRequestService documentCreationRequestService;
     
     private StartWorkflowHandler handler;
     
@@ -49,24 +50,29 @@ class StartWorkflowHandlerTest {
         
         handler = new StartWorkflowHandler(saveLegalFactsService, notificationService,
                 timelineService, timelineUtils, checkAttachmentUtils,
-                notificationUtils, schedulerService);
+                documentCreationRequestService);
     }
 
     @ExtendWith(MockitoExtension.class)
     @Test
     void startWorkflowOk() {
         //GIVEN
+        NotificationInt notification = getNotification();
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
-                .thenReturn(getNotification());
+                .thenReturn(notification);
 
-        Mockito.when( saveLegalFactsService.saveNotificationReceivedLegalFact(Mockito.any( NotificationInt.class ))).thenReturn( "" );
+        String legalFactId = "legId";
+        Mockito.when( saveLegalFactsService.sendCreationRequestForNotificationReceivedLegalFact(Mockito.any( NotificationInt.class ))).thenReturn(legalFactId);
+
+        TimelineElementInternal elementInternal = TimelineElementInternal.builder().elementId("elId").build();
+        Mockito.when( timelineUtils.buildSenderAckLegalFactCreationRequest(Mockito.any(NotificationInt.class), Mockito.anyString())).thenReturn(elementInternal);
         
         //WHEN
         handler.startWorkflow("IUN_01");
 
         //THEN
-        Mockito.verify(saveLegalFactsService).saveNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
-        Mockito.verify(timelineUtils).buildAcceptedRequestTimelineElement(Mockito.any(NotificationInt.class), Mockito.anyString());
+        Mockito.verify(saveLegalFactsService).sendCreationRequestForNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
+        Mockito.verify(documentCreationRequestService).addDocumentCreationRequest(legalFactId, notification.getIun(), DocumentCreationTypeInt.SENDER_ACK, elementInternal.getElementId());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -82,7 +88,8 @@ class StartWorkflowHandlerTest {
         handler.startWorkflow("IUN_01");
 
         //THEN
-        Mockito.verify(saveLegalFactsService, Mockito.times(0)).saveNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
+        Mockito.verify(saveLegalFactsService, Mockito.times(0)).sendCreationRequestForNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
+        Mockito.verify(documentCreationRequestService, Mockito.times(0)).addDocumentCreationRequest(Mockito.anyString(), Mockito.anyString(), Mockito.any(DocumentCreationTypeInt.class), Mockito.anyString());
         Mockito.verify(timelineUtils).buildRefusedRequestTimelineElement(Mockito.any(NotificationInt.class), Mockito.any());
     }
 
@@ -99,7 +106,7 @@ class StartWorkflowHandlerTest {
         handler.startWorkflow("IUN_01");
 
         //THEN
-        Mockito.verify(saveLegalFactsService, Mockito.times(0)).saveNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
+        Mockito.verify(saveLegalFactsService, Mockito.times(0)).sendCreationRequestForNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
         Mockito.verify(timelineUtils).buildRefusedRequestTimelineElement(Mockito.any(NotificationInt.class), Mockito.any());
     }
 
@@ -116,27 +123,10 @@ class StartWorkflowHandlerTest {
         handler.startWorkflow("IUN_01");
 
         //THEN
-        Mockito.verify(saveLegalFactsService, Mockito.times(0)).saveNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
+        Mockito.verify(saveLegalFactsService, Mockito.times(0)).sendCreationRequestForNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
         Mockito.verify(timelineUtils).buildRefusedRequestTimelineElement(Mockito.any(NotificationInt.class), Mockito.any());
     }
-
-    @ExtendWith(MockitoExtension.class)
-    @Test
-    void startWorkflowKoUpdateAttachment() {
-        //GIVEN
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
-                .thenReturn(getNotification());
-
-        doThrow(new PnValidationException("ex", Collections.emptySet())).when(checkAttachmentUtils).changeAttachmentsStatusToAttached(Mockito.any(NotificationInt.class));
-
-        //WHEN
-        handler.startWorkflow("IUN_01");
-
-        //THEN
-        Mockito.verify(saveLegalFactsService, Mockito.times(1)).saveNotificationReceivedLegalFact(Mockito.any(NotificationInt.class));
-        Mockito.verify(timelineUtils, Mockito.never()).buildAcceptedRequestTimelineElement(Mockito.any(NotificationInt.class), Mockito.any());
-    }
-
+    
     private NotificationInt getNotification() {
         return NotificationInt.builder()
                 .iun("IUN_01")

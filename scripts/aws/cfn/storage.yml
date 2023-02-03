@@ -114,6 +114,7 @@ Resources:
       BillingMode: "PAY_PER_REQUEST"
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
+        
   # Action Table
   ActionTable:
     Type: AWS::DynamoDB::Table
@@ -219,8 +220,22 @@ Resources:
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
 
+  # Safe storage table containing request
+  DocumentCreationRequestTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${ProjectName}-DocumentCreationRequestTable'
+      AttributeDefinitions:
+        - AttributeName: "key"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "key"
+          KeyType: "HASH"
+      BillingMode: "PAY_PER_REQUEST"
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
   
-      
+
 Outputs:
 
   # Scheduled Actions
@@ -314,4 +329,11 @@ Outputs:
   PnDeliveryPushWebhookEventsTableArn:
     Description: ARN of dynamodb table containing
     Value: !Sub '${PnDeliveryPushWebhookEventsTable.Arn}'
+
+  DocumentCreationRequestTableName:
+    Description: Name of dynamodb table containing Document creation request to storage
+    Value: !Ref DocumentCreationRequestTable
+  DocumentCreationRequestTableArn:
+    Description: ARN of dynamodb table containing Document creation request to storage
+    Value: !Sub '${DocumentCreationRequestTable.Arn}'
 

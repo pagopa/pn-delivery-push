@@ -69,6 +69,8 @@ public class PnDeliveryPushConfigs {
     
     private LastPollForFutureActionDao lastPollForFutureActionDao;
 
+    private DocumentCreationRequestDao documentCreationRequestDao;
+
     private ExternalChannel externalChannel;
 
     private PaperChannel paperChannel;
@@ -96,6 +98,7 @@ public class PnDeliveryPushConfigs {
 
         private String fromExternalChannel;
 
+        private String safeStorageEvents;
     }
 
     @Data
@@ -183,6 +186,11 @@ public class PnDeliveryPushConfigs {
     public static class LastPollForFutureActionDao {
         private String tableName;
         private String lockTableName;
+    }
+
+    @Data
+    public static class DocumentCreationRequestDao {
+        private String tableName;
     }
 
     @Data

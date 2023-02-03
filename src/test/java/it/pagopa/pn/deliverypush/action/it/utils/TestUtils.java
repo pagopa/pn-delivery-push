@@ -53,6 +53,7 @@ public class TestUtils {
 
     public static final String PUBLIC_REGISTRY_FAIL_GET_DIGITAL_ADDRESS = "PUBLIC_REGISTRY_FAIL_GET_DIGITAL_ADDRESS";
     public static final String PUBLIC_REGISTRY_FAIL_GET_ANALOG_ADDRESS = "PUBLIC_REGISTRY_FAIL_GET_ANALOG_ADDRESS";
+    public static final String PN_NOTIFICATION_ATTACHMENT = "PN_NOTIFICATION_ATTACHMENT";
 
 
     public static void checkSendCourtesyAddresses(String iun, Integer recIndex, List<CourtesyDigitalAddressInt> courtesyAddresses, TimelineService timelineService, ExternalChannelMock externalChannelMock) {
@@ -427,6 +428,7 @@ public class TestUtils {
         for(TestUtils.DocumentWithContent documentWithContent : documentWithContentList) {
             FileCreationWithContentRequest fileCreationWithContentRequest = new FileCreationWithContentRequest();
             fileCreationWithContentRequest.setContentType("application/pdf");
+            fileCreationWithContentRequest.setDocumentType(PN_NOTIFICATION_ATTACHMENT);
             fileCreationWithContentRequest.setContent(documentWithContent.getContent().getBytes());
             safeStorageClientMock.createFile(fileCreationWithContentRequest, documentWithContent.getDocument().getDigests().getSha256());
         }
@@ -436,6 +438,7 @@ public class TestUtils {
         for(NotificationDocumentInt attachment : notification.getDocuments()) {
             FileCreationWithContentRequest fileCreationWithContentRequest = new FileCreationWithContentRequest();
             fileCreationWithContentRequest.setContentType("application/pdf");
+            fileCreationWithContentRequest.setDocumentType(PN_NOTIFICATION_ATTACHMENT);
             fileCreationWithContentRequest.setContent(fileSha);
             safeStorageClientMock.createFile(fileCreationWithContentRequest, attachment.getDigests().getSha256());
         }
@@ -474,7 +477,7 @@ public class TestUtils {
                         LegalFactsIdInt legalFactsId = elem.getLegalFactsIds().get(0);
                         if( !LegalFactCategoryInt.PEC_RECEIPT.equals(legalFactsId.getCategory()) && !LegalFactCategoryInt.ANALOG_DELIVERY.equals(legalFactsId.getCategory())){
                             String key = legalFactsId.getKey().replace("safestorage://", "");
-                            log.info("writing safestoragemock key={} testName={} cat={}", key, testName, legalFactsId.getCategory());
+                            log.info("[TEST] writing safestoragemock key={} testName={} cat={}", key, testName, legalFactsId.getCategory());
                             safeStorageClientMock.writeFile(key, legalFactsId.getCategory(), testName);
                         }
                     }

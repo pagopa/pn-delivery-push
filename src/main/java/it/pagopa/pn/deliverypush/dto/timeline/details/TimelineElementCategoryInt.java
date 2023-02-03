@@ -5,6 +5,7 @@ import lombok.Getter;
 
 @Getter
 public enum TimelineElementCategoryInt {
+    SENDER_ACK_CREATION_REQUEST(SenderAckCreationRequestDetailsInt.class, TimelineElementCategory.SENDER_ACK_CREATION_REQUEST.getValue()),
     REQUEST_ACCEPTED(NotificationRequestAcceptedDetailsInt.class, TimelineElementCategory.REQUEST_ACCEPTED.getValue()),
     SEND_COURTESY_MESSAGE(SendCourtesyMessageDetailsInt.class, TimelineElementCategory.SEND_COURTESY_MESSAGE.getValue()),
     GET_ADDRESS(GetAddressInfoDetailsInt.class, TimelineElementCategory.GET_ADDRESS.getValue()),
@@ -17,12 +18,14 @@ public enum TimelineElementCategoryInt {
     SEND_DIGITAL_PROGRESS(SendDigitalProgressDetailsInt.class, TimelineElementCategory.SEND_DIGITAL_PROGRESS.getValue()),
     REFINEMENT(RefinementDetailsInt.class, TimelineElementCategory.REFINEMENT.getValue()),
     SCHEDULE_REFINEMENT(ScheduleRefinementDetailsInt.class, TimelineElementCategory.SCHEDULE_REFINEMENT.getValue()),
+    DIGITAL_DELIVERY_CREATION_REQUEST(DigitalDeliveryCreationRequestDetailsInt.class, TimelineElementCategory.DIGITAL_DELIVERY_CREATION_REQUEST.getValue()),
     DIGITAL_SUCCESS_WORKFLOW(DigitalSuccessWorkflowDetailsInt.class, TimelineElementCategory.DIGITAL_SUCCESS_WORKFLOW.getValue()),
     DIGITAL_FAILURE_WORKFLOW(DigitalFailureWorkflowDetailsInt.class, TimelineElementCategory.DIGITAL_FAILURE_WORKFLOW.getValue()),
     ANALOG_SUCCESS_WORKFLOW(AnalogSuccessWorkflowDetailsInt.class, TimelineElementCategory.ANALOG_SUCCESS_WORKFLOW.getValue()),
     ANALOG_FAILURE_WORKFLOW(AnalogFailureWorkflowDetailsInt.class, TimelineElementCategory.ANALOG_FAILURE_WORKFLOW.getValue()),
     PREPARE_SIMPLE_REGISTERED_LETTER(SimpleRegisteredLetterDetailsInt.class, TimelineElementCategory.PREPARE_SIMPLE_REGISTERED_LETTER.getValue()),
     SEND_SIMPLE_REGISTERED_LETTER(SimpleRegisteredLetterDetailsInt.class, TimelineElementCategory.SEND_SIMPLE_REGISTERED_LETTER.getValue()),
+    NOTIFICATION_VIEWED_CREATION_REQUEST(NotificationViewedCreationRequestDetailsInt.class, TimelineElementCategory.NOTIFICATION_VIEWED_CREATION_REQUEST.getValue()),
     NOTIFICATION_VIEWED(NotificationViewedDetailsInt.class, TimelineElementCategory.NOTIFICATION_VIEWED.getValue()),
     PREPARE_ANALOG_DOMICILE(SendAnalogDetailsInt.class, TimelineElementCategory.PREPARE_ANALOG_DOMICILE.getValue()),
     SEND_ANALOG_DOMICILE(SendAnalogDetailsInt.class, TimelineElementCategory.SEND_ANALOG_DOMICILE.getValue()),
@@ -31,9 +34,10 @@ public enum TimelineElementCategoryInt {
     PAYMENT(NotificationPaidDetails.class, TimelineElementCategory.PAYMENT.getValue()),
     COMPLETELY_UNREACHABLE(CompletelyUnreachableDetailsInt.class, TimelineElementCategory.COMPLETELY_UNREACHABLE.getValue()),
     REQUEST_REFUSED(RequestRefusedDetailsInt.class, TimelineElementCategory.REQUEST_REFUSED.getValue()),
+    AAR_CREATION_REQUEST(AarCreationRequestDetailsInt.class, TimelineElementCategory.AAR_CREATION_REQUEST.getValue()),
     AAR_GENERATION(AarGenerationDetailsInt.class, TimelineElementCategory.AAR_GENERATION.getValue()),
     NOT_HANDLED(NotHandledDetailsInt.class, TimelineElementCategory.NOT_HANDLED.getValue());
-
+    
     private final Class<? extends TimelineElementDetailsInt> detailsJavaClass;
     private final String value;
     

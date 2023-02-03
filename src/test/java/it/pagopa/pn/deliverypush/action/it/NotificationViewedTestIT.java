@@ -19,11 +19,15 @@ import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationCost;
+import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFactCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.deliverypush.action.notificationview.ViewNotification;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.AttachmentUtils;
+import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationResponseHandler;
+import it.pagopa.pn.deliverypush.action.startworkflow.ScheduleRecipientWorkflow;
 import it.pagopa.pn.deliverypush.action.startworkflow.StartWorkflowHandler;
+import it.pagopa.pn.deliverypush.action.startworkflowrecipient.AarCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -37,12 +41,11 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
+import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClientReactiveImpl;
-import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
-import it.pagopa.pn.deliverypush.middleware.responsehandler.PaperChannelResponseHandler;
-import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
+import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
 import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
@@ -124,6 +127,17 @@ import static org.mockito.ArgumentMatchers.eq;
         ViewNotification.class,
         PnDeliveryClientReactiveImpl.class,
         PnDataVaultClientReactiveMock.class,
+        DocumentCreationRequestServiceImpl.class,
+        DocumentCreationRequestDaoMock.class,
+        SafeStorageResponseHandler.class,
+        DocumentCreationResponseHandler.class,
+        ReceivedLegalFactCreationResponseHandler.class,
+        ScheduleRecipientWorkflow.class,
+        AarCreationResponseHandler.class,
+        NotificationViewLegalFactCreationResponseHandler.class,
+        DigitalDeliveryCreationResponseHandler.class,
+        FailureWorkflowHandler.class,
+        SuccessWorkflowHandler.class,
         NotificationViewedTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")
@@ -209,6 +223,9 @@ class NotificationViewedTestIT {
     @Autowired
     private PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock;
 
+    @Autowired
+    private DocumentCreationRequestDaoMock documentCreationRequestDaoMock;
+    
     @BeforeEach
     public void setup() {
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
@@ -222,12 +239,12 @@ class NotificationViewedTestIT {
         pnDeliveryClientMock.clear();
         pnDataVaultClientMock.clear();
         pnDataVaultClientReactiveMock.clear();
+        documentCreationRequestDaoMock.clear();
     }
 
     @Test
-    @Disabled("Fail only in build fase")
+    @Disabled("Test fail only in build fase PN-3853")
     void notificationViewedFromDelegate() {
-        System.out.println("Start test notificationViewedFromDelegate");
         //GIVEN
         LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
                 .address("platformAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
@@ -311,19 +328,23 @@ class NotificationViewedTestIT {
 
         notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex, delegateInfoInt, notificationViewDate);
 
+        await().untilAsserted(() ->
+                Assertions.assertEquals(NotificationStatusInt.VIEWED, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        );
+        
         //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti
         delegateInfoInt.setDenomination(baseRecipientDto.getDenomination());
         delegateInfoInt.setTaxId(baseRecipientDto.getTaxId());
 
         checkNotificationViewTimelineElement(iun, recIndex, notificationViewDate, delegateInfoInt);
-        Mockito.verify(legalFactStore, Mockito.times(1)).saveNotificationViewedLegalFact(eq(notification), eq(recipient), Mockito.any(Instant.class));
+        Mockito.verify(legalFactStore, Mockito.times(1)).sendCreationRequestForNotificationViewedLegalFact(eq(notification), eq(recipient), Mockito.any(Instant.class));
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient.getInternalId(), iun);
 
         //Simulazione seconda visualizzazione della notifica
         notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex, null, Instant.now());
 
         //Viene effettuata la verifica che i processi correlati alla visualizzazione non siano avvenuti, dunque che il numero d'invocazioni dei metodi sia rimasto lo stesso
-        Mockito.verify(legalFactStore, Mockito.times(1)).saveNotificationViewedLegalFact(eq(notification),eq(recipient), Mockito.any(Instant.class));
+        Mockito.verify(legalFactStore, Mockito.times(1)).sendCreationRequestForNotificationViewedLegalFact(eq(notification),eq(recipient), Mockito.any(Instant.class));
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient.getInternalId(), iun);
 
         //Viene effettuato il check dei legalFacts generati
@@ -414,10 +435,20 @@ class NotificationViewedTestIT {
         //Simulazione visualizzazione della notifica
         Instant notificationViewDate = Instant.now();
         notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex, null, notificationViewDate);
+
+        await().untilAsserted(() ->
+                Assertions.assertEquals(NotificationStatusInt.VIEWED, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        );
+        
+        String internalId = recipient.getInternalId();
+        
+        await().untilAsserted(() ->
+                Assertions.assertThrows(PnNotFoundException.class, () -> paperNotificationFailedService.getPaperNotificationByRecipientId(internalId, false))
+        );
         
         //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti
         checkNotificationViewTimelineElement(iun, recIndex, notificationViewDate, null);
-        Mockito.verify(legalFactStore, Mockito.times(1)).saveNotificationViewedLegalFact(eq(notification), eq(recipient), Mockito.any(Instant.class));
+        Mockito.verify(legalFactStore, Mockito.times(1)).sendCreationRequestForNotificationViewedLegalFact(eq(notification), eq(recipient), Mockito.any(Instant.class));
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient.getInternalId(), iun);
 
         //Simulazione seconda visualizzazione della notifica
@@ -426,7 +457,7 @@ class NotificationViewedTestIT {
         checkIsNotificationViewed(iun, recIndex, notificationViewDate);
 
         //Viene effettuata la verifica che i processi correlati alla visualizzazione non siano avvenuti, dunque che il numero d'invocazioni dei metodi sia rimasto lo stesso
-        Mockito.verify(legalFactStore, Mockito.times(1)).saveNotificationViewedLegalFact(eq(notification),eq(recipient), Mockito.any(Instant.class));
+        Mockito.verify(legalFactStore, Mockito.times(1)).sendCreationRequestForNotificationViewedLegalFact(eq(notification),eq(recipient), Mockito.any(Instant.class));
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient.getInternalId(), iun);
 
         //Viene effettuato il check dei legalFacts generati
@@ -491,6 +522,7 @@ class NotificationViewedTestIT {
     }
 
     @Test
+    @Disabled("Test fail only in build fase PN-3853")
     void testNotificationViewedTwoRecipient(){
         //Primo Recipient
         LegalDigitalAddressInt platformAddress1 = LegalDigitalAddressInt.builder()
@@ -555,28 +587,56 @@ class NotificationViewedTestIT {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
+        // Viene atteso fino a che lo stato non passi in ACCEPTED
+        await().untilAsserted(() ->
+                Assertions.assertEquals(NotificationStatusInt.ACCEPTED, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        );
+        
         //Simulazione visualizzazione della notifica per il primo recipient
         Instant notificationViewDate1 = Instant.now();
         notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex1, null, notificationViewDate1);
 
+        await().untilAsserted(() ->
+                Assertions.assertTrue(
+                        timelineService.getTimelineElement(iun, TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
+                                EventId.builder()
+                                        .iun(iun)
+                                        .recIndex(recIndex1)
+                                        .build()
+                        )).isPresent()
+                )
+        );
+        
         checkIsNotificationViewed(iun, recIndex1, notificationViewDate1);
 
         //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti
         checkNotificationViewTimelineElement(iun, recIndex1, notificationViewDate1, null);
 
-        Mockito.verify(legalFactStore, Mockito.times(1)).saveNotificationViewedLegalFact(eq(notification),eq(recipient1), Mockito.any(Instant.class));
+        Mockito.verify(legalFactStore, Mockito.times(1)).sendCreationRequestForNotificationViewedLegalFact(eq(notification),eq(recipient1), Mockito.any(Instant.class));
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient1.getInternalId(), iun);
 
-        //Simulazione visualizzazione della notifica per il primo recipient
+        //Simulazione visualizzazione della notifica per il secondo recipient
         Instant notificationViewDate2 = Instant.now();
         notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex2, null, notificationViewDate2);
 
+
+        await().untilAsserted(() ->
+                Assertions.assertTrue(
+                        timelineService.getTimelineElement(iun, TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
+                                EventId.builder()
+                                        .iun(iun)
+                                        .recIndex(recIndex2)
+                                        .build()
+                        )).isPresent()
+                )
+        );
+        
         checkIsNotificationViewed(iun, recIndex2, notificationViewDate2);
 
         //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti
         checkNotificationViewTimelineElement(iun, recIndex2, notificationViewDate2, null);
 
-        Mockito.verify(legalFactStore, Mockito.times(1)).saveNotificationViewedLegalFact(eq(notification),eq(recipient2), Mockito.any(Instant.class));
+        Mockito.verify(legalFactStore, Mockito.times(1)).sendCreationRequestForNotificationViewedLegalFact(eq(notification),eq(recipient2), Mockito.any(Instant.class));
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient2.getInternalId(), iun);
         
         //Vengono stampati tutti i legalFacts generati

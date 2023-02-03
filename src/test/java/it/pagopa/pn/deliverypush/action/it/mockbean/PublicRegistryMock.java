@@ -1,44 +1,50 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.middleware.externalclient.publicregistry.PublicRegistry;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Assertions;
 
+import java.time.Duration;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import static org.awaitility.Awaitility.await;
 
 public class PublicRegistryMock implements PublicRegistry {
 
     private final PublicRegistryResponseHandler publicRegistryResponseHandler;
     private ConcurrentMap<String, LegalDigitalAddressInt> digitalAddressResponse;
-    private ConcurrentMap<String, PhysicalAddressInt> physicalAddressResponse;
+    private final TimelineService timelineService;
 
 
     public PublicRegistryMock(
-            PublicRegistryResponseHandler publicRegistryResponseHandler
+            PublicRegistryResponseHandler publicRegistryResponseHandler,
+            TimelineService timelineService
     ) {
         this.publicRegistryResponseHandler = publicRegistryResponseHandler;
+        this.timelineService = timelineService;
     }
 
     public void clear() {
         this.digitalAddressResponse = new ConcurrentHashMap<>();
-        this.physicalAddressResponse = new ConcurrentHashMap<>();
     }
 
     public void addDigital(String key, LegalDigitalAddressInt value) {
         this.digitalAddressResponse.put(key,value);
     }
 
-    public void addPhysical(String key, PhysicalAddressInt value) {
-        this.physicalAddressResponse.put(key,value);
-    }
-    
     @Override
     public void sendRequestForGetDigitalAddress(String taxId, String recipientType, String correlationId) {
         new Thread(() -> {
+            // Viene atteso fino a che l'elemento di timeline relativo all'invio verso extChannel sia stato inserito
+            String iun = correlationId.substring(0, correlationId.indexOf("_"));
+            await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
+                    Assertions.assertTrue(timelineService.getTimelineElement(iun, correlationId).isPresent())
+            );
+
             Assertions.assertDoesNotThrow(() -> {
                 simulateDigitalAddressResponse(taxId, correlationId);
             });
@@ -51,25 +57,6 @@ public class PublicRegistryMock implements PublicRegistry {
         PublicRegistryResponse response = PublicRegistryResponse.builder()
                 .correlationId(correlationId)
                 .digitalAddress(address)
-                .build();
-        publicRegistryResponseHandler.handleResponse(response);
-    }
-
-    @Override
-    public void sendRequestForGetPhysicalAddress(String taxId, String correlationId) {
-        new Thread(() -> {
-            Assertions.assertDoesNotThrow(() -> {
-                simulatePhysicalAddressResponse(taxId, correlationId);
-            });
-        }).start();
-    }
-
-    private void simulatePhysicalAddressResponse(String taxId, String correlationId) {
-        PhysicalAddressInt address = this.physicalAddressResponse.get(taxId);
-
-        PublicRegistryResponse response = PublicRegistryResponse.builder()
-                .correlationId(correlationId)
-                .physicalAddress(address)
                 .build();
         publicRegistryResponseHandler.handleResponse(response);
     }

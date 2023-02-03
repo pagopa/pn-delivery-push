@@ -15,5 +15,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 public class ActionDetailsEntity {
 
     @Getter(onMethod=@__({@DynamoDbAttribute("quickAccessLinkToken")}))  private String quickAccessLinkToken;
-   
+    @Getter(onMethod=@__({@DynamoDbAttribute("key")}))  private String key;
+    @Getter(onMethod=@__({@DynamoDbAttribute("documentCreationType")}))  private String documentCreationType;
+    @Getter(onMethod=@__({@DynamoDbAttribute("timelineId")}))  private String timelineId;
 }

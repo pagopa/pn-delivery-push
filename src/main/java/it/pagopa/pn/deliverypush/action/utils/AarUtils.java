@@ -2,17 +2,17 @@ package it.pagopa.pn.deliverypush.action.utils;
 
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.log.PnAuditLogEvent;
-import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.PdfInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
-import it.pagopa.pn.deliverypush.service.AuditLogService;
+import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -22,32 +22,18 @@ import java.util.Optional;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_GENERATEPDFFAILED;
 
 @Component
+@AllArgsConstructor
 @Slf4j
 public class AarUtils {
     private final SaveLegalFactsService saveLegalFactsService;
     private final TimelineUtils timelineUtils;
     private final TimelineService timelineService;
     private final NotificationUtils notificationUtils;
+    private final DocumentCreationRequestService documentCreationRequestService;
 
-    private final AuditLogService auditLogService;
-
-    public AarUtils(
-            TimelineService timelineService,
-            TimelineUtils timelineUtils,
-            SaveLegalFactsService saveLegalFactsService,
-            NotificationUtils notificationUtils,
-            AuditLogService auditLogService
-    ) {
-        this.saveLegalFactsService = saveLegalFactsService;
-        this.timelineUtils = timelineUtils;
-        this.timelineService = timelineService;
-        this.notificationUtils = notificationUtils;
-        this.auditLogService = auditLogService;
-    }
-
-    public void generateAARAndSaveInSafeStorageAndAddTimelineevent(NotificationInt notification, Integer recIndex, String quickAccessToken) {
+    public void generateAARAndSaveInSafeStorageAndAddTimelineEvent(NotificationInt notification, Integer recIndex, String quickAccessToken) {
         try {
-            // check se già esiste
+            // check se già è stato creato l'AAR, dunque se siamo in questo metodo a valle di un reinserimento in coda del messaggio
             String elementId = TimelineEventId.AAR_GENERATION.buildEventId(
                     EventId.builder()
                             .iun(notification.getIun())
@@ -56,35 +42,28 @@ public class AarUtils {
 
             Optional<TimelineElementInternal> timeline = timelineService.getTimelineElement(notification.getIun(), elementId);
             if (timeline.isEmpty()) {
-                saveAARinSafeStorageAndAddTimelineElement(notification, recIndex, quickAccessToken);
+                PdfInfo pdfInfo = saveLegalFactsService.sendCreationRequestForAAR(notification, notificationUtils.getRecipientFromIndex(notification, recIndex), quickAccessToken);
+                
+                //Viene salvata in timeline la request document creation request
+                TimelineElementInternal timelineElementInternal = timelineUtils.buildAarCreationRequest(notification, recIndex, pdfInfo);
+                timelineService.addTimelineElement( timelineElementInternal , notification);
+
+                //Vengono inserite le informazioni della richiesta di creazione del legalFacts a safeStorage
+                documentCreationRequestService.addDocumentCreationRequest(pdfInfo.getKey(), notification.getIun(), recIndex, DocumentCreationTypeInt.AAR, timelineElementInternal.getElementId());
             } else
-                log.debug("no need to recreate AAR iun={} timelineId={}", notification.getIun(), elementId);
+                log.debug("No need to recreate AAR iun={} timelineId={}", notification.getIun(), elementId);
         } catch (Exception e) {
+            log.error("Cannot generate AAR pdf iun={} recIndex={} ex={}", notification.getIun(), recIndex, e);
             throw new PnInternalException("cannot generate AAR pdf", ERROR_CODE_DELIVERYPUSH_GENERATEPDFFAILED, e);
         }
     }
 
-    private void saveAARinSafeStorageAndAddTimelineElement(NotificationInt notification, Integer recIndex, String quickAccessToken) {
-        PnAuditLogEvent logEvent = auditLogService.buildAuditLogEvent(
-                notification.getIun(),
-                recIndex,
-                PnAuditLogEventType.AUD_NT_AAR,
-                "Notification AAR generation"
+    public void addAarGenerationToTimeline(NotificationInt notification, Integer recIndex, PdfInfo pdfInfo) {
+        timelineService.addTimelineElement(
+                timelineUtils.buildAarGenerationTimelineElement(notification, recIndex, pdfInfo.getKey(), pdfInfo.getNumberOfPages()),
+                notification
         );
-        try {
-            PdfInfo pdfInfo = saveLegalFactsService.saveAAR(notification, notificationUtils.getRecipientFromIndex(notification, recIndex), quickAccessToken);
-
-            timelineService.addTimelineElement(
-                    timelineUtils.buildAarGenerationTimelineElement(notification, recIndex, pdfInfo.getKey(), pdfInfo.getNumberOfPages()),
-                    notification
-            );
-            logEvent.generateSuccess().log();
-        } catch (Exception e) {
-            logEvent.generateFailure("Exception on generation of AAR error={}", e.getMessage()).log();
-            throw new PnInternalException("cannot generate AAR pdf", ERROR_CODE_DELIVERYPUSH_GENERATEPDFFAILED, e);
-        }
     }
-
 
     public AarGenerationDetailsInt getAarGenerationDetails(NotificationInt notification, Integer recIndex) {
         // ricostruisco il timelineid della  genrazione dell'aar

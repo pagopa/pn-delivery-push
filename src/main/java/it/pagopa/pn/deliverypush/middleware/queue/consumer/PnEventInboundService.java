@@ -34,10 +34,12 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 public class PnEventInboundService {
     private final EventHandler eventHandler;
     private final String externalChannelEventQueueName;
+    private final String safeStorageEventQueueName;
 
     public PnEventInboundService(EventHandler eventHandler, PnDeliveryPushConfigs cfg) {
         this.eventHandler = eventHandler;
         this.externalChannelEventQueueName = cfg.getTopics().getFromExternalChannel();
+        this.safeStorageEventQueueName = cfg.getTopics().getSafeStorageEvents();
     }
 
     @Bean
@@ -85,13 +87,13 @@ public class PnEventInboundService {
             }
             else if(eventType.equals("EXTERNAL_CHANNELS_EVENT")) {
                 //usato ora dal mock di external-channels, in futuro se viene modificato l'evento, adeguare anche il mock
-                eventType = handleExternalChannelEvent(message);
+                eventType = handleOtherEvent(message);
             }
         }else {
             //EXTERNAL CHANNEL dovrà INVIARE UN EventType specifico PN-1998
             
-            //Se l'eventType non è valorizzato entro sicuramente qui, cioè negli eventi di externalChannel
-            eventType = handleExternalChannelEvent(message);
+            //Se l'eventType non è valorizzato entro sicuramente qui
+            eventType = handleOtherEvent(message);
         }
 
         /*... arrivati qui, l'eventType o già valorizzato MA non era: ACTION_GENERIC, WEBHOOK_ACTION_GENERIC, EXTERNAL_CHANNELS_EVENT
@@ -107,12 +109,15 @@ public class PnEventInboundService {
     }
 
     @NotNull
-    private String handleExternalChannelEvent(Message<?> message) {
+    private String handleOtherEvent(Message<?> message) {
         String eventType;
         String queueName = (String) message.getHeaders().get("aws_receivedQueue");
         if (Objects.equals(queueName, externalChannelEventQueueName)) {
             eventType = "SEND_PEC_RESPONSE";
-        } else {
+        } else if (Objects.equals(queueName, safeStorageEventQueueName)) {
+            eventType = "SAFE_STORAGE_EVENTS";
+        }
+        else {
             log.error("eventType not present, cannot start scheduled action headers={} payload={}", message.getHeaders(), message.getPayload());
             throw new PnInternalException("eventType not present, cannot start scheduled action", ERROR_CODE_DELIVERYPUSH_EVENTTYPENOTSUPPORTED);
         }
