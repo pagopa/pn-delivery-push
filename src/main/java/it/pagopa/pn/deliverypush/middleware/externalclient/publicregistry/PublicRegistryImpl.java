@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.publicregistry;
 
-import it.pagopa.pn.commons.pnclients.CommonBaseClient;
 import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.ApiClient;
@@ -15,7 +14,7 @@ import java.time.LocalDate;
 
 @Component
 @Slf4j
-public class PublicRegistryImpl extends CommonBaseClient implements PublicRegistry {
+public class PublicRegistryImpl extends NationalRegistriesBaseClient implements PublicRegistry {
 
     private final PnDeliveryPushConfigs cfg;
 
