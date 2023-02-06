@@ -95,13 +95,14 @@ public class CourtesyMessageUtils {
             if (timelineShouldBeSaved)
             {
                 addSendCourtesyMessageToTimeline(notification, recIndex, courtesyAddress, eventId);
+                courtesyAddrIndex++;
             }
             else
             {
                 log.info("skipping saving courtesy timeline iun={} id={}", notification.getIun(), recIndex);
             }
 
-            courtesyAddrIndex++;
+            
         } catch (Exception ex) {
             //Se l'invio del messaggio di cortesia fallisce per un qualsiasi motivo il processo non si blocca. Viene fatto catch exception e loggata
             log.error("Exception in send courtesy message, courtesyType={} ex={} - iun={} id={}", courtesyAddress.getType(), ex, notification.getIun(), recIndex);

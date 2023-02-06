@@ -71,20 +71,37 @@ class CourtesyMessageUtilsTest {
 
         Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
 
-        Mockito.when(iOservice.sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(true);
+        Mockito.when(iOservice.sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(false);
 
-        CourtesyDigitalAddressInt courtesyDigitalAddressInt = CourtesyDigitalAddressInt.builder()
+        CourtesyDigitalAddressInt courtesyDigitalAddressAppIo = CourtesyDigitalAddressInt.builder()
                 .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.APPIO)
                 .address("indirizzo@test.it")
                 .build();
 
+        CourtesyDigitalAddressInt courtesyDigitalAddressSms = CourtesyDigitalAddressInt.builder()
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.SMS)
+                .address("indirizzo@test.it")
+                .build();
+
+        
         Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Optional.of(Collections.singletonList(courtesyDigitalAddressInt)));
+                .thenReturn(Optional.of( Arrays.asList(courtesyDigitalAddressAppIo, courtesyDigitalAddressSms) ));
 
         //WHEN
-        courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, 0);
+        final int recIndex = 0;
+        courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, recIndex);
 
         //THEN
+        String timelineEventIdExpected =  TimelineEventId.SEND_COURTESY_MESSAGE.buildEventId(EventId.builder()
+                .iun(notification.getIun())
+                .recIndex(recIndex)
+                .index(0)
+                .build()
+        );
+        
+        Mockito.verify(timelineUtils).buildSendCourtesyMessageTimelineElement(Mockito.any(), Mockito.eq(notification), 
+                Mockito.eq(courtesyDigitalAddressSms), Mockito.any(),  Mockito.eq(timelineEventIdExpected));
+        
         Mockito.verify(timelineService).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
     }
 
