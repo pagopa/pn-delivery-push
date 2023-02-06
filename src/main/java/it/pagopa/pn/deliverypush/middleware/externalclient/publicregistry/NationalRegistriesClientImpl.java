@@ -4,8 +4,8 @@ import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.ApiClient;
 import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.api.AddressApi;
-import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.model.AddressRequestBody;
-import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.model.AddressRequestBodyFilter;
+import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.api.AgenziaEntrateApi;
+import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -14,13 +14,14 @@ import java.time.LocalDate;
 
 @Component
 @Slf4j
-public class PublicRegistryImpl extends NationalRegistriesBaseClient implements PublicRegistry {
+public class NationalRegistriesClientImpl extends NationalRegistriesBaseClient implements NationalRegistriesClient {
 
     private final PnDeliveryPushConfigs cfg;
 
     private AddressApi addressApi;
-
-    public PublicRegistryImpl(PnDeliveryPushConfigs cfg) {
+    private AgenziaEntrateApi agenziaEntrateApi;
+    
+    public NationalRegistriesClientImpl(PnDeliveryPushConfigs cfg) {
         this.cfg = cfg;
     }
 
@@ -29,6 +30,7 @@ public class PublicRegistryImpl extends NationalRegistriesBaseClient implements 
         ApiClient newApiClient = new ApiClient( initWebClient(ApiClient.buildWebClientBuilder()) );
         newApiClient.setBasePath( this.cfg.getNationalRegistriesBaseUrl() );
         addressApi = new AddressApi(newApiClient);
+        agenziaEntrateApi = new AgenziaEntrateApi(newApiClient);
     }
 
     @Override
@@ -47,7 +49,21 @@ public class PublicRegistryImpl extends NationalRegistriesBaseClient implements 
                 .block();
 
         log.info("sendRequestForGetDigitalAddress with correlationId: {} done", correlationId);
+    }
 
+    @Override
+    public CheckTaxIdOK checkTaxId(String taxId) {
+        log.info("Start checkTaxId ");
+        
+        CheckTaxIdRequestBody checkTaxIdRequestBody = new CheckTaxIdRequestBody()
+                .filter(
+                    new CheckTaxIdRequestBodyFilter()
+                            .taxId(taxId)
+                );
+        
+        return agenziaEntrateApi.checkTaxId(checkTaxIdRequestBody)
+                .doOnSuccess( res -> log.info("CheckTaxId completed successful"))
+                .block();
     }
 
     public void setAddressApi(AddressApi addressApi) {

@@ -2,7 +2,7 @@ package it.pagopa.pn.deliverypush.action.it.mockbean;
 
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
-import it.pagopa.pn.deliverypush.middleware.externalclient.publicregistry.PublicRegistry;
+import it.pagopa.pn.deliverypush.middleware.externalclient.publicregistry.NationalRegistriesClient;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Assertions;
@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import static org.awaitility.Awaitility.await;
 
-public class PublicRegistryMock implements PublicRegistry {
+public class PublicRegistryMock implements NationalRegistriesClient {
 
     private final PublicRegistryResponseHandler publicRegistryResponseHandler;
     private ConcurrentMap<String, LegalDigitalAddressInt> digitalAddressResponse;

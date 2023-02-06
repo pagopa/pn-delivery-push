@@ -15,15 +15,15 @@ import reactor.core.publisher.Mono;
 import java.nio.charset.Charset;
 import java.time.LocalDate;
 
-class PublicRegistryImplTest {
+class NationalRegistriesClientImplTest {
 
-    private PublicRegistryImpl publicRegistry;
+    private NationalRegistriesClientImpl publicRegistry;
 
     @BeforeEach
     void setUp() {
         PnDeliveryPushConfigs cfgMock = Mockito.mock(PnDeliveryPushConfigs.class);
         Mockito.when(cfgMock.getNationalRegistriesBaseUrl()).thenReturn("localhost:8080");
-        publicRegistry = new PublicRegistryImpl(cfgMock);
+        publicRegistry = new NationalRegistriesClientImpl(cfgMock);
     }
 
     @Test

@@ -25,12 +25,12 @@ import static org.mockserver.model.HttpResponse.response;
         "pn.delivery-push.national-registries-base-url=http://localhost:9999"
 })
 @Import(LocalStackTestConfig.class)
-class PublicRegistryImplTestIT {
+class NationalRegistriesClientImplTestIT {
 
     private static ClientAndServer mockServer;
 
     @Autowired
-    private PublicRegistry publicRegistry;
+    private NationalRegistriesClient nationalRegistriesClient;
 
 
     @BeforeAll
@@ -56,7 +56,7 @@ class PublicRegistryImplTestIT {
                         .withStatusCode(200));
 
         Assertions.assertDoesNotThrow(
-                () -> publicRegistry.sendRequestForGetDigitalAddress("001", "PF", "002")
+                () -> nationalRegistriesClient.sendRequestForGetDigitalAddress("001", "PF", "002")
         );
     }
 

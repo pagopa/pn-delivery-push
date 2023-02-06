@@ -92,7 +92,7 @@ import static org.awaitility.Awaitility.with;
         PaperChannelUtils.class,
         PaperChannelResponseHandler.class,
         AnalogWorkflowPaperChannelResponseHandler.class,
-        PublicRegistryServiceImpl.class,
+        NationalRegistriesServiceImpl.class,
         AuditLogServiceImpl.class,
         ExternalChannelServiceImpl.class,
         IoServiceImpl.class,

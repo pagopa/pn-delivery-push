@@ -20,7 +20,7 @@ import org.mockito.Mockito;
 import java.util.Collections;
 import java.util.Optional;
 
-class PublicRegistryUtilsTest {
+class NationalRegistriesClientUtilsTest {
 
     private TimelineService timelineService;
 

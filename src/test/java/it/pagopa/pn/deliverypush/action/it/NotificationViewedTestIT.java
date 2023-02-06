@@ -88,7 +88,7 @@ import static org.mockito.ArgumentMatchers.eq;
         AuditLogServiceImpl.class,
         CompletionWorkFlowHandler.class,
         PublicRegistryResponseHandler.class,
-        PublicRegistryServiceImpl.class,
+        NationalRegistriesServiceImpl.class,
         ExternalChannelServiceImpl.class,
         ExternalChannelResponseHandler.class,
         SafeStorageServiceImpl.class,
