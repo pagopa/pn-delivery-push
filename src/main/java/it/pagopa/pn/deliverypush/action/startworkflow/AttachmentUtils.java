@@ -8,7 +8,6 @@ import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.UpdateFileMetadataRequest;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
@@ -25,7 +24,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.*;
 
@@ -36,24 +34,6 @@ public class AttachmentUtils {
 
     public AttachmentUtils(SafeStorageService safeStorageService) {
         this.safeStorageService = safeStorageService;
-    }
-
-    public List<String> getNotificationAttachments(NotificationInt notification, int recIndex) {
-        log.info( "getNotificationAttachments iun={} recIndex={}", notification.getIun(), recIndex);
-
-        // FIXME: devo tornare ANCHE i moduli di pagamento, corretto?
-        List<String> attachments = notification.getDocuments().stream().map(x -> x.getRef().getKey()).collect(Collectors.toList());
-        NotificationPaymentInfoInt notificationPaymentInfoInt = notification.getRecipients().get(recIndex).getPayment();
-        if (notificationPaymentInfoInt != null)
-        {
-            if (notificationPaymentInfoInt.getF24flatRate() != null)
-                attachments.add(notificationPaymentInfoInt.getF24flatRate().getRef().getKey());
-            if (notificationPaymentInfoInt.getF24standard() != null)
-                attachments.add(notificationPaymentInfoInt.getF24standard().getRef().getKey());
-            if (notificationPaymentInfoInt.getPagoPaForm() != null)
-                attachments.add(notificationPaymentInfoInt.getPagoPaForm().getRef().getKey());
-        }
-        return attachments;
     }
     
     public void validateAttachment(NotificationInt notification ) throws PnValidationException {
@@ -134,7 +114,7 @@ public class AttachmentUtils {
             fd = safeStorageService.getFile(ref.getKey(),true).block();
         } catch ( PnNotFoundException ex ) {
             throw new PnValidationFileNotFoundException(
-                    ERROR_CODE_DELIVERYPUSH_NOTFOUND,
+                    NotificationValidation.FILE_NOTFOUND,
                     ex.getProblem().getDetail(),
                     ex 
             );
@@ -144,12 +124,12 @@ public class AttachmentUtils {
             String attachmentKey = fd.getKey();
             log.debug( "Check preload digest for attachment with key={}", attachmentKey);
             if ( !attachment.getDigests().getSha256().equals( fd.getChecksum() )) {
-                throw new PnValidationNotMatchingShaException( ERROR_CODE_DELIVERYPUSH_SHAFILEERROR,
+                throw new PnValidationNotMatchingShaException( NotificationValidation.FILE_SHA_ERROR,
                         "Validation failed, different sha256 expected="+ attachment.getDigests().getSha256()
                                 + " actual="+ fd.getChecksum() );
             }
         } else{
-            throw new PnValidationNotMatchingShaException( ERROR_CODE_DELIVERYPUSH_SHAFILEERROR,
+            throw new PnValidationNotMatchingShaException( NotificationValidation.FILE_SHA_ERROR,
                     "Validation failed, different sha256 expected="+ attachment.getDigests().getSha256()
                             + " actual="+ null );
         }

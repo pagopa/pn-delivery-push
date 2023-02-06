@@ -27,8 +27,8 @@ public class StartWorkflowHandler {
     private final NotificationService notificationService;
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
-    private final AttachmentUtils attachmentUtils;
     private final DocumentCreationRequestService documentCreationRequestService;
+    private final NotificationValidation notificationValidation;
     
     /**
      * Start new Notification Workflow. For all notification recipient send courtesy message and start choose delivery type
@@ -40,7 +40,7 @@ public class StartWorkflowHandler {
         NotificationInt notification = notificationService.getNotificationByIun(iun);
         try {
             //Validazione degli allegati della notifica
-            attachmentUtils.validateAttachment(notification);
+            notificationValidation.validateNotification(notification);
 
             saveNotificationReceivedLegalFacts(notification);
 

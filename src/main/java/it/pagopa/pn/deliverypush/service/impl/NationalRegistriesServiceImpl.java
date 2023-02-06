@@ -31,6 +31,7 @@ public class NationalRegistriesServiceImpl implements NationalRegistriesService 
     /**
      * Send get request to public registry for get digital address
      **/
+    @Override
     public void sendRequestForGetDigitalGeneralAddress(NotificationInt notification, Integer recIndex, ContactPhaseInt contactPhase, int sentAttemptMade) {
 
         String correlationId = publicRegistryUtils.generateCorrelationId(notification.getIun(), recIndex, contactPhase, sentAttemptMade, DeliveryModeInt.DIGITAL);
@@ -44,15 +45,16 @@ public class NationalRegistriesServiceImpl implements NationalRegistriesService 
         log.debug("End sendRequestForGetAddress correlationId={} - iun={} id={}", correlationId, notification.getIun(), recIndex);
     }
 
-
+    @Override
     public CheckTaxIdOKInt checkTaxId(String taxId) {
         log.debug("Start checkTaxId");
 
         CheckTaxIdOK response = nationalRegistriesClient.checkTaxId(taxId);
 
-        CheckTaxIdOKInt checkTaxIdOKInt = CheckTaxIdOKInt.builder()
-                .errorCode(CheckTaxIdOKInt.ErrorCodeEnumInt.valueOf(response))
+        return CheckTaxIdOKInt.builder()
+                .taxId(taxId)
                 .isValid(response.getIsValid())
+                .errorCode(response.getErrorCode() != null ? CheckTaxIdOKInt.ErrorCodeEnumInt.valueOf(response.getErrorCode().getValue()) : null )
                 .build();
     }
 
