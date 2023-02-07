@@ -22,6 +22,7 @@ import it.pagopa.pn.deliverypush.service.PaperChannelService;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -156,6 +157,11 @@ public class PaperChannelServiceImpl implements PaperChannelService {
 
                 TimelineElementInternal previousResult = paperChannelUtils.getPaperChannelNotificationTimelineElement(notification.getIun(), relatedAnalogFeedbackEventId);
                 discoveredAddress = ((SendAnalogFeedbackDetailsInt)previousResult.getDetails()).getNewAddress();
+                if (!StringUtils.hasText(discoveredAddress.getFullname()))
+                {
+                    // se il discovered address non contiene il full name, lo imposto alla denominazione del recipient
+                    discoveredAddress.setFullname(notification.getRecipients().get(recIndex).getDenomination());
+                }
 
                 //PaperChannel NON ha bisogno per il secondo tentativo dell'indirizzo del primo tentativo
             }
