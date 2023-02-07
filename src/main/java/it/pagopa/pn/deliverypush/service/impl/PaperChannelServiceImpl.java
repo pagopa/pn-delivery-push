@@ -157,7 +157,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
 
                 TimelineElementInternal previousResult = paperChannelUtils.getPaperChannelNotificationTimelineElement(notification.getIun(), relatedAnalogFeedbackEventId);
                 discoveredAddress = ((SendAnalogFeedbackDetailsInt)previousResult.getDetails()).getNewAddress();
-                if (!StringUtils.hasText(discoveredAddress.getFullname()))
+                if (discoveredAddress != null && !StringUtils.hasText(discoveredAddress.getFullname()))
                 {
                     // se il discovered address non contiene il full name, lo imposto alla denominazione del recipient
                     discoveredAddress.setFullname(notification.getRecipients().get(recIndex).getDenomination());
