@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.publicregistry;
 
+import it.pagopa.pn.commons.pnclients.CommonBaseClient;
 import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.ApiClient;
@@ -14,7 +15,9 @@ import java.time.LocalDate;
 
 @Component
 @Slf4j
-public class NationalRegistriesClientImpl extends NationalRegistriesBaseClient implements NationalRegistriesClient {
+public class NationalRegistriesClientImpl extends CommonBaseClient implements NationalRegistriesClient {
+
+    protected static final String PN_NATIONAL_REGISTRIES_CX_ID_VALUE = "pn-delivery-push";
 
     private final PnDeliveryPushConfigs cfg;
 
@@ -43,7 +46,7 @@ public class NationalRegistriesClientImpl extends NationalRegistriesBaseClient i
                 .domicileType(AddressRequestBodyFilter.DomicileTypeEnum.DIGITAL);
 
 
-        addressApi.getAddresses(recipientType, new AddressRequestBody().filter(addressRequestBodyFilter))
+        addressApi.getAddresses(recipientType, new AddressRequestBody().filter(addressRequestBodyFilter), PN_NATIONAL_REGISTRIES_CX_ID_VALUE)
                 .doOnSuccess(addressOK -> log.info("Response of getAddresses with taxId: {}, correlationId: {}: {}", LogUtils.maskTaxId(taxId), correlationId, addressOK))
                 .doOnError(throwable -> log.error(String.format("Error calling getAddresses with taxId: %s, correlationId: %s", LogUtils.maskTaxId(taxId), correlationId), throwable))
                 .block();
