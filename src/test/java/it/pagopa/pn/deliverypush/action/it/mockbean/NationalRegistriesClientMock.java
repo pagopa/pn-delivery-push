@@ -5,6 +5,7 @@ import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.middleware.externalclient.publicregistry.NationalRegistriesClient;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.model.CheckTaxIdOK;
 import org.junit.jupiter.api.Assertions;
 
 import java.time.Duration;
@@ -13,14 +14,14 @@ import java.util.concurrent.ConcurrentMap;
 
 import static org.awaitility.Awaitility.await;
 
-public class PublicRegistryMock implements NationalRegistriesClient {
+public class NationalRegistriesClientMock implements NationalRegistriesClient {
 
     private final PublicRegistryResponseHandler publicRegistryResponseHandler;
     private ConcurrentMap<String, LegalDigitalAddressInt> digitalAddressResponse;
     private final TimelineService timelineService;
 
 
-    public PublicRegistryMock(
+    public NationalRegistriesClientMock(
             PublicRegistryResponseHandler publicRegistryResponseHandler,
             TimelineService timelineService
     ) {
@@ -49,6 +50,11 @@ public class PublicRegistryMock implements NationalRegistriesClient {
                 simulateDigitalAddressResponse(taxId, correlationId);
             });
         }).start();
+    }
+
+    @Override
+    public CheckTaxIdOK checkTaxId(String taxId) {
+        throw new UnsupportedOperationException("checkTaxId NOT Implemented yet");
     }
 
     private void simulateDigitalAddressResponse(String taxId, String correlationId) {

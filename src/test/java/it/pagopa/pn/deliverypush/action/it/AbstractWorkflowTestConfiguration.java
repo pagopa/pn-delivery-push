@@ -102,9 +102,9 @@ public class AbstractWorkflowTestConfiguration {
     }
 
     @Bean
-    public PublicRegistryMock publicRegistriesMapMock(@Lazy PublicRegistryResponseHandler publicRegistryResponseHandler,
-                                                      @Lazy TimelineService timelineService) {
-        return new PublicRegistryMock(
+    public NationalRegistriesClientMock publicRegistriesMapMock(@Lazy PublicRegistryResponseHandler publicRegistryResponseHandler,
+                                                                @Lazy TimelineService timelineService) {
+        return new NationalRegistriesClientMock(
                 publicRegistryResponseHandler,
                 timelineService
             );

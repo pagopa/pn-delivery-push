@@ -22,11 +22,11 @@ public class NotificationValidation {
         
         try {
             attachmentUtils.validateAttachment(notification);
-            taxIdValidation.validateTaxId(notification);
+            //taxIdValidation.validateTaxId(notification);
         } catch (PnValidationException ex){
             //Errore di validazione della notifica, va portata in rifiutata
             throw ex;
-        } catch (Exception ex){
+        } catch (RuntimeException ex){
             //Exception generica, viene schedulato un ritentativo
             throw ex;
             //TODO Da implementare, a valle dell'implementazione eliminare il throw dell'exception

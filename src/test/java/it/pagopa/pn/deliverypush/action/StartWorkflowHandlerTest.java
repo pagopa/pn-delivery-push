@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.action;
 
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.deliverypush.action.startworkflow.AttachmentUtils;
+import it.pagopa.pn.deliverypush.action.startworkflow.NotificationValidation;
 import it.pagopa.pn.deliverypush.action.startworkflow.StartWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
@@ -38,10 +39,10 @@ class StartWorkflowHandlerTest {
     @Mock
     private AttachmentUtils checkAttachmentUtils;
     @Mock
-    private SchedulerService schedulerService;
-    @Mock
     private DocumentCreationRequestService documentCreationRequestService;
-    
+    @Mock
+    private NotificationValidation notificationValidation;
+
     private StartWorkflowHandler handler;
     
     @BeforeEach
@@ -49,10 +50,10 @@ class StartWorkflowHandlerTest {
         NotificationUtils notificationUtils = new NotificationUtils();
         
         handler = new StartWorkflowHandler(saveLegalFactsService, notificationService,
-                timelineService, timelineUtils, checkAttachmentUtils,
-                documentCreationRequestService);
+                timelineService, timelineUtils, documentCreationRequestService,
+                notificationValidation);
     }
-
+    
     @ExtendWith(MockitoExtension.class)
     @Test
     void startWorkflowOk() {
@@ -82,7 +83,7 @@ class StartWorkflowHandlerTest {
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(getNotification());
 
-        doThrow(new PnValidationException("ex", Collections.emptySet())).when(checkAttachmentUtils).validateAttachment(Mockito.any(NotificationInt.class));
+        doThrow(new PnValidationException("ex", Collections.emptySet())).when(notificationValidation).validateNotification(Mockito.any(NotificationInt.class));
         
         //WHEN
         handler.startWorkflow("IUN_01");
@@ -100,7 +101,7 @@ class StartWorkflowHandlerTest {
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(getNotification());
 
-        doThrow(new PnValidationFileNotFoundException("ex", "exception detail", new PnNotFoundException("message", "description", "erroeCode"))).when(checkAttachmentUtils).validateAttachment(Mockito.any(NotificationInt.class));
+        doThrow(new PnValidationFileNotFoundException("ex", "exception detail", new PnNotFoundException("message", "description", "erroeCode"))).when(notificationValidation).validateNotification(Mockito.any(NotificationInt.class));
 
         //WHEN
         handler.startWorkflow("IUN_01");
@@ -117,7 +118,7 @@ class StartWorkflowHandlerTest {
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(getNotification());
 
-        doThrow(new PnValidationNotMatchingShaException("ex", "exception detail")).when(checkAttachmentUtils).validateAttachment(Mockito.any(NotificationInt.class));
+        doThrow(new PnValidationNotMatchingShaException("ex", "exception detail")).when(notificationValidation).validateNotification(Mockito.any(NotificationInt.class));
 
         //WHEN
         handler.startWorkflow("IUN_01");

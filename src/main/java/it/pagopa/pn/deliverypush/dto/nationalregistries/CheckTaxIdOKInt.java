@@ -1,8 +1,6 @@
 package it.pagopa.pn.deliverypush.dto.nationalregistries;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.model.CheckTaxIdOK;
 import lombok.*;
 
 @Getter
@@ -39,15 +37,6 @@ public class CheckTaxIdOKInt {
         public String toString() {
             return String.valueOf(value);
         }
-
-        @JsonCreator
-        public static CheckTaxIdOK.ErrorCodeEnum fromValue(String value) {
-            for (CheckTaxIdOK.ErrorCodeEnum b : CheckTaxIdOK.ErrorCodeEnum.values()) {
-                if (b.value.equals(value)) {
-                    return b;
-                }
-            }
-            throw new IllegalArgumentException("Unexpected value '" + value + "'");
-        }
+        
     }
 }

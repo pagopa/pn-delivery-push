@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
-import static it.pagopa.pn.deliverypush.middleware.externalclient.publicregistry.PublicRegistryImpl.PN_NATIONAL_REGISTRIES_CX_ID_VALUE;
+import static it.pagopa.pn.deliverypush.middleware.externalclient.publicregistry.NationalRegistriesClientImpl.PN_NATIONAL_REGISTRIES_CX_ID_VALUE;
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
