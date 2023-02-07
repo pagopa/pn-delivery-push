@@ -35,12 +35,12 @@ class PublicRegistryImplTest {
                 .correlationId("002")
                 .referenceRequestDate(LocalDate.now().toString())
                 .domicileType(AddressRequestBodyFilter.DomicileTypeEnum.DIGITAL);
-        Mockito.when(addressApi.getAddresses("PF", new AddressRequestBody().filter(addressRequestBodyFilter)))
+        Mockito.when(addressApi.getAddresses("PF", new AddressRequestBody().filter(addressRequestBodyFilter), "pn-delivery-push"))
                         .thenReturn(Mono.just(new AddressOK().correlationId("002")));
         publicRegistry.setAddressApi(addressApi);
         publicRegistry.sendRequestForGetDigitalAddress("001", "PF", "002");
 
-        Mockito.verify(addressApi, Mockito.times(1)).getAddresses("PF", new AddressRequestBody().filter(addressRequestBodyFilter));
+        Mockito.verify(addressApi, Mockito.times(1)).getAddresses("PF", new AddressRequestBody().filter(addressRequestBodyFilter), "pn-delivery-push");
     }
 
     @Test
@@ -52,13 +52,13 @@ class PublicRegistryImplTest {
                 .correlationId("002")
                 .referenceRequestDate(LocalDate.now().toString())
                 .domicileType(AddressRequestBodyFilter.DomicileTypeEnum.DIGITAL);
-        Mockito.when(addressApi.getAddresses("PF", new AddressRequestBody().filter(addressRequestBodyFilter)))
+        Mockito.when(addressApi.getAddresses("PF", new AddressRequestBody().filter(addressRequestBodyFilter), "pn-delivery-push"))
                 .thenReturn(Mono.error(WebClientResponseException.create(502, "bad Gateway", null, null, Charset.defaultCharset())));
         publicRegistry.setAddressApi(addressApi);
 
         Assertions.assertThrows(WebClientResponseException.BadGateway.class,
                 () -> publicRegistry.sendRequestForGetDigitalAddress("001", "PF", "002"));
-        Mockito.verify(addressApi, Mockito.times(1)).getAddresses("PF", new AddressRequestBody().filter(addressRequestBodyFilter));
+        Mockito.verify(addressApi, Mockito.times(1)).getAddresses("PF", new AddressRequestBody().filter(addressRequestBodyFilter), "pn-delivery-push");
     }
 
 }
