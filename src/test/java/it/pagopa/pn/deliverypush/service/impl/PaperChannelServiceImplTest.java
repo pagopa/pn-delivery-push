@@ -128,6 +128,41 @@ class PaperChannelServiceImplTest {
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
     }
 
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void prepareAnalogNotification_nodiscovered() {
+        //GIVEN
+        NotificationInt notificationInt = newNotification("taxid");
+        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
+                .generatedAarUrl("http").build();
+
+        Mockito.when(timelineUtils.checkNotificationIsAlreadyViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(aarUtils.getAarGenerationDetails(Mockito.any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
+
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .details(SendAnalogFeedbackDetailsInt.builder()
+                        .build())
+                .build();
+
+        Mockito.when(paperChannelUtils.buildPrepareAnalogDomicileEventId(Mockito.any(), Mockito.anyInt(), Mockito.anyInt())).thenReturn("timeline_id_1");
+        Mockito.when(paperChannelUtils.buildSendAnalogFeedbackEventId(Mockito.any(), Mockito.anyInt(), Mockito.anyInt())).thenReturn("timeline_id_related");
+        Mockito.when(paperChannelUtils.getPaperChannelNotificationTimelineElement(Mockito.any(), Mockito.eq("timeline_id_related"))).thenReturn(timelineElementInternal);
+
+
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_PREPARE), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
+
+        // WHEN
+        paperChannelService.prepareAnalogNotification(notificationInt, 0, 1);
+
+        // THEN
+        Mockito.verify(paperChannelSendClient).prepare(Mockito.any());
+        Mockito.verify( auditLogEvent).generateSuccess(Mockito.anyString(), Mockito.any());
+        Mockito.verify( auditLogEvent).log();
+        Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
+    }
+
 
     @ExtendWith(MockitoExtension.class)
     @Test
