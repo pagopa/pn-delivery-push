@@ -222,7 +222,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
     }
 
     private void handleStatusIgnored(SendEventInt event, String iun, Integer recIndex) {
-        log.error("Specified response={} is not final  - iun={} id={}", event.getStatusCode(), iun, recIndex);
+        log.info("Specified response statusCode={} is not managed  - iun={} id={}", event.getStatusCode(), iun, recIndex);
     }
 
 
