@@ -207,11 +207,41 @@
             </p>
           </div>
         </div>
-      
       </div>
 
+      <#if delegate>
+        <div class="margin-y-small">
+          <div class="row">
+            <div class="left-col col-5-10">
+              <p><strong>Delegato</strong></p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="left-col col-5-10">
+              <p>Nome e Cognome / Ragione Sociale</p>
+            </div>
+            <div class="left-col col-5-10">
+              <p><strong>${delegate.denomination}</strong></p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="left-col col-5-10">
+              <p>C. F.</p>
+            </div>
+            <div class="left-col col-5-10">
+              <p><strong>${recipient.taxId}</strong></p>
+            </div>
+          </div>
+        </div>
+      </#if>
+
       <p class="paragraph">
-        in data <strong>${when}</strong> il destinatario ha avuto accesso ai documenti informatici oggetto di notifica e associati allo IUN già indicato.
+        in data <strong>${when}</strong> il
+        <#if delegate>
+        delegato
+        <#else>
+        destinatario
+        </#if> ha avuto accesso ai documenti informatici oggetto di notifica e associati allo IUN già indicato.
       </p>
 
       <p class="paragraph">
