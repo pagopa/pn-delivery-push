@@ -510,6 +510,7 @@ public class TimelineUtils {
                 .serviceLevel(sendPaperDetails.getServiceLevel())
                 .newAddress(newAddress)
                 .errors(errors)
+                .responseStatus(ResponseStatusInt.OK)
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
@@ -539,6 +540,7 @@ public class TimelineUtils {
                 .newAddress(newAddress)
                 .errors(errors)
                 .requestTimelineId(elementId)
+                .responseStatus(ResponseStatusInt.KO)
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
