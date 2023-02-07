@@ -138,8 +138,9 @@ import static org.awaitility.Awaitility.with;
         DigitalDeliveryCreationResponseHandler.class,
         FailureWorkflowHandler.class,
         SuccessWorkflowHandler.class,
-        NotificationValidation.class,
+        NotificationValidationActionHandler.class,
         TaxIdValidation.class,
+        ReceivedLegalFactCreationRequest.class,
         NotHandledTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource( 

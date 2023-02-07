@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool;
 
 import it.pagopa.pn.deliverypush.action.details.NotHandledDetails;
+import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
 import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 import lombok.Getter;
@@ -8,6 +9,14 @@ import lombok.Getter;
 @Getter
 public enum ActionType {
 
+  NOTIFICATION_VALIDATION(NotificationValidationActionDetails.class) {
+    @Override
+    public String buildActionId(Action action) {
+      return String.format("notification_validation_iun_%s", 
+              action.getIun());
+    }
+  },
+  
   START_RECIPIENT_WORKFLOW(RecipientsWorkflowDetails.class) {
     @Override
     public String buildActionId(Action action) {

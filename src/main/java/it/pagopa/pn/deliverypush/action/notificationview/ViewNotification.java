@@ -42,7 +42,7 @@ public class ViewNotification {
         return attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement()).collectList()
             .then(
                 legalFactStore.sendCreationRequestForNotificationViewedLegalFact(notification, recipient, instantNowSupplier.get())
-                        .doOnSuccess( legalFactId -> log.info("Completed saveNotificationViewedLegalFact legalFactId={} - iun={} id={}", legalFactId, notification.getIun(), recIndex))
+                        .doOnSuccess( legalFactId -> log.info("Completed sendCreationRequestForNotificationViewedLegalFact legalFactId={} - iun={} id={}", legalFactId, notification.getIun(), recIndex))
                         .flatMap(legalFactId ->
                                 Mono.fromRunnable( () -> {
                                     TimelineElementInternal timelineElementInternal = timelineUtils.buildNotificationViewedLegalFactCreationRequestTimelineElement(notification, recIndex, legalFactId, raddInfo, delegateInfo, eventTimestamp);

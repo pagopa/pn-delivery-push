@@ -54,6 +54,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.time.Instant;
 import java.util.Collections;
 
+import static org.awaitility.Awaitility.await;
+
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
         StartWorkflowHandler.class,
@@ -117,8 +119,9 @@ import java.util.Collections;
         DigitalDeliveryCreationResponseHandler.class,
         FailureWorkflowHandler.class,
         SuccessWorkflowHandler.class,
-        NotificationValidation.class,
+        NotificationValidationActionHandler.class,
         TaxIdValidation.class,
+        ReceivedLegalFactCreationRequest.class,
         ValidationDocumentErrorTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource(
@@ -252,15 +255,17 @@ class ValidationDocumentErrorTestIT {
         startWorkflowHandler.startWorkflow(iun);
         
         //THEN
-        
-        //Check worfklow is failed
-        Assertions.assertTrue(timelineService.getTimelineElement(
-                iun,
-                TimelineEventId.REQUEST_REFUSED.buildEventId(
-                        EventId.builder()
-                                .iun(iun)
-                                .recIndex(recIndex)
-                                .build())).isPresent()
+
+        await().untilAsserted(() ->
+                //Check worfklow is failed
+                Assertions.assertTrue(timelineService.getTimelineElement(
+                        iun,
+                        TimelineEventId.REQUEST_REFUSED.buildEventId(
+                                EventId.builder()
+                                        .iun(iun)
+                                        .recIndex(recIndex)
+                                        .build())).isPresent()
+                )
         );
 
         Mockito.verify(externalChannelMock, Mockito.times(0)).sendLegalNotification(

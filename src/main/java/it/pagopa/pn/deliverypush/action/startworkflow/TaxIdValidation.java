@@ -9,7 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import static it.pagopa.pn.deliverypush.action.startworkflow.NotificationValidation.TAXID_NOT_VALID;
+import static it.pagopa.pn.deliverypush.action.startworkflow.NotificationValidationActionHandler.TAXID_NOT_VALID;
 
 @Component
 @AllArgsConstructor
@@ -26,7 +26,7 @@ public class TaxIdValidation {
             log.info("Start taxIdValidation - iun={} id={}", notification.getIun(), recIndex);
             
             CheckTaxIdOKInt response = nationalRegistriesService.checkTaxId(recipient.getTaxId());
-            if ( !response.getIsValid() ){
+            if (Boolean.FALSE.equals(response.getIsValid()) ){
                 log.info("TaxId is not valid - iun={} id={}", notification.getIun(), recIndex);
 
                 CheckTaxIdOKInt.ErrorCodeEnumInt errorCode = response.getErrorCode();

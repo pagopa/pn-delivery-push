@@ -81,6 +81,8 @@ public class PnDeliveryPushConfigs {
 
     private String nationalRegistriesBaseUrl;
 
+    private Duration[] validationRetryWaitingTime;
+    
     @Data
     public static class Topics {
 

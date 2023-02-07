@@ -114,7 +114,7 @@ public class AttachmentUtils {
             fd = safeStorageService.getFile(ref.getKey(),true).block();
         } catch ( PnNotFoundException ex ) {
             throw new PnValidationFileNotFoundException(
-                    NotificationValidation.FILE_NOTFOUND,
+                    NotificationValidationActionHandler.FILE_NOTFOUND,
                     ex.getProblem().getDetail(),
                     ex 
             );
@@ -124,12 +124,12 @@ public class AttachmentUtils {
             String attachmentKey = fd.getKey();
             log.debug( "Check preload digest for attachment with key={}", attachmentKey);
             if ( !attachment.getDigests().getSha256().equals( fd.getChecksum() )) {
-                throw new PnValidationNotMatchingShaException( NotificationValidation.FILE_SHA_ERROR,
+                throw new PnValidationNotMatchingShaException( NotificationValidationActionHandler.FILE_SHA_ERROR,
                         "Validation failed, different sha256 expected="+ attachment.getDigests().getSha256()
                                 + " actual="+ fd.getChecksum() );
             }
         } else{
-            throw new PnValidationNotMatchingShaException( NotificationValidation.FILE_SHA_ERROR,
+            throw new PnValidationNotMatchingShaException( NotificationValidationActionHandler.FILE_SHA_ERROR,
                     "Validation failed, different sha256 expected="+ attachment.getDigests().getSha256()
                             + " actual="+ null );
         }
