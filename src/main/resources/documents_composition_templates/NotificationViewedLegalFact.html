@@ -209,7 +209,7 @@
         </div>
       </div>
 
-      <#if delegate>
+      <#if delegate??>
         <div class="margin-y-small">
           <div class="row">
             <div class="left-col col-5-10">
@@ -229,7 +229,7 @@
               <p>C. F.</p>
             </div>
             <div class="left-col col-5-10">
-              <p><strong>${recipient.taxId}</strong></p>
+              <p><strong>${delegate.taxId}</strong></p>
             </div>
           </div>
         </div>
@@ -237,7 +237,7 @@
 
       <p class="paragraph">
         in data <strong>${when}</strong> il
-        <#if delegate>
+        <#if delegate??>
         delegato
         <#else>
         destinatario
