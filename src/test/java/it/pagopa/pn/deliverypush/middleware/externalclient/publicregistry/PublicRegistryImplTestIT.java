@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
-import static it.pagopa.pn.deliverypush.middleware.externalclient.publicregistry.NationalRegistriesBaseClient.PN_NATIONAL_REGISTRIES_CX_ID;
+import static it.pagopa.pn.deliverypush.middleware.externalclient.publicregistry.PublicRegistryImpl.PN_NATIONAL_REGISTRIES_CX_ID_VALUE;
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
@@ -26,6 +26,8 @@ import static org.mockserver.model.HttpResponse.response;
 })
 @Import(LocalStackTestConfig.class)
 class PublicRegistryImplTestIT {
+
+    private static final String PN_NATIONAL_REGISTRIES_CX_ID = "pn-national-registries-cx-id";
 
     private static ClientAndServer mockServer;
 
@@ -50,7 +52,7 @@ class PublicRegistryImplTestIT {
                 .when(request()
                         .withMethod("POST")
                         .withPath("/national-registries-private/{recipient-type}/addresses".replace("{recipient-type}", "PF"))
-                        .withHeader(PN_NATIONAL_REGISTRIES_CX_ID, "pn-delivery-push"))
+                        .withHeader(PN_NATIONAL_REGISTRIES_CX_ID, PN_NATIONAL_REGISTRIES_CX_ID_VALUE))
                 .respond(response()
                         .withContentType(MediaType.APPLICATION_JSON)
                         .withStatusCode(200));
