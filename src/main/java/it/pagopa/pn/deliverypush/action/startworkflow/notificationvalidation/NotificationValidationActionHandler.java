@@ -1,22 +1,18 @@
-package it.pagopa.pn.deliverypush.action.startworkflow;
+package it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation;
 
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
+import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,23 +32,24 @@ public class NotificationValidationActionHandler {
     private final TimelineUtils timelineUtils;
     private final NotificationService notificationService;
     private final ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest;
-    private final SchedulerService schedulerService;
-    private final PnDeliveryPushConfigs configs;
-
+    private final NotificationValidationScheduler notificationValidationScheduler;
+    
     public void validateNotification(String iun, NotificationValidationActionDetails details){
+        log.info("Start validateNotification - iun={}", iun);
         NotificationInt notification = notificationService.getNotificationByIun(iun);
 
         try {
             attachmentUtils.validateAttachment(notification);
             //taxIdValidation.validateTaxId(notification);
-
+            
+            log.info("Notification validated successfully - iun={}", iun);
+            receivedLegalFactCreationRequest.saveNotificationReceivedLegalFacts(notification);
         } catch (PnValidationException ex){
             handleValidationError(notification, ex);
         } catch (RuntimeException ex){
-            scheduleNotificationValidation(iun, details.getRetryAttempt());
+            log.info("Notification validation need to be rescheduled for ex={} - iun={}", ex, iun);
+            notificationValidationScheduler.scheduleNotificationValidation(iun, details.getRetryAttempt());
         }
-        
-        receivedLegalFactCreationRequest.saveNotificationReceivedLegalFacts(notification);
     }
 
     private void handleValidationError(NotificationInt notification, PnValidationException ex) {
@@ -66,26 +63,5 @@ public class NotificationValidationActionHandler {
     
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
         timelineService.addTimelineElement(element, notification);
-    }
-
-    private void scheduleNotificationValidation(String iun, int retryAttempt) {
-        Duration[] waitingTimeArray = configs.getValidationRetryWaitingTime();
-
-        int waitingTimeIndex = Math.min(waitingTimeArray.length, retryAttempt);
-        Duration waitingTime = waitingTimeArray[waitingTimeIndex];
-
-        if(Duration.ZERO.equals(waitingTime)){
-            //Retry infinito, viene preso il penultimo tempo d'attesa presente nell'array
-            waitingTime = waitingTimeArray[waitingTimeIndex - 1];
-        }
-        
-        Instant schedulingDate = Instant.now().plus(waitingTime);
-
-        NotificationValidationActionDetails details = NotificationValidationActionDetails.builder()
-                .retryAttempt(retryAttempt + 1)
-                .build();
-
-        log.info("Scheduling notification validation - iun={} schedulingDate={}", iun, schedulingDate);
-        schedulerService.scheduleEvent(iun, schedulingDate, ActionType.NOTIFICATION_VALIDATION, details);
     }
 }

@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.action.startworkflow;
+package it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.*;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ATTACHMENTCHANGESTATUSFAILED;
 
 @Component
 @Slf4j
@@ -53,7 +53,6 @@ public class AttachmentUtils {
             throw ex;
         }
     }
-
 
     public void changeAttachmentsStatusToAttached(NotificationInt notification ) {
         log.info( "changeAttachmentsStatusToAttached iun={}", notification.getIun());

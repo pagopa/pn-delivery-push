@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.action.startworkflow;
+package it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation;
 
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -9,7 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import static it.pagopa.pn.deliverypush.action.startworkflow.NotificationValidationActionHandler.TAXID_NOT_VALID;
+import static it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler.TAXID_NOT_VALID;
 
 @Component
 @AllArgsConstructor
