@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
-import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -28,15 +27,11 @@ public class NationalRegistriesEventHandler {
         return message -> {
             try {
                 log.info("National registries event received, message {}", message);
-
                 List<AddressSQSMessageDigitalAddress> digitalAddresses = message.getPayload().getDigitalAddress();
                 String correlationId = message.getPayload().getCorrelationId();
-                if(! CollectionUtils.isEmpty(digitalAddresses)) {
+                PublicRegistryResponse response = NationalRegistriesMessageUtil.buildPublicRegistryResponse(correlationId, digitalAddresses);
+                publicRegistryResponseHandler.handleResponse(response);
 
-                    PublicRegistryResponse response = NationalRegistriesMessageUtil.buildPublicRegistryResponse(correlationId, digitalAddresses.get(0));
-                    publicRegistryResponseHandler.handleResponse(response);
-
-                }
             } catch (Exception ex) {
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;

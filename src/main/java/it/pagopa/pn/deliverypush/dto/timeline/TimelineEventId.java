@@ -22,15 +22,28 @@ public enum TimelineEventId {
     },
     
     SEND_COURTESY_MESSAGE() {
+        private static final String EVENT_COMMON_PREFIX = "%s_send_courtesy_message_%d_type_";
+
         @Override
         public String buildEventId(EventId eventId) {
+            String eventCommonId = EVENT_COMMON_PREFIX + "%s";
             return String.format(
-                    "%s_send_courtesy_message_%d_index_%d",
+                    eventCommonId,
                     eventId.getIun(),
                     eventId.getRecIndex(),
-                    eventId.getIndex()
+                    eventId.getCourtesyAddressType()==null?"":eventId.getCourtesyAddressType().getValue()   // se passo un courtesy null, è perchè non voglio che venga inserito nell'eventid. Usato per cercare con l'inizia per
             );
         }
+
+        @Override
+        public String buildSearchEventIdByIunAndRecipientIndex(String iun, Integer recipientIndex){
+            return String.format(
+                    EVENT_COMMON_PREFIX,
+                    iun,
+                    recipientIndex
+            );
+        }
+
     },
     
     GET_ADDRESS() {

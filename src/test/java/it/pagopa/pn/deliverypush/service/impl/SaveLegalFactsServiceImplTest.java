@@ -12,6 +12,7 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.dto.legalfacts.PdfInfo;
+import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
@@ -180,10 +181,32 @@ class SaveLegalFactsServiceImplTest {
         FileCreationResponseInt file = buildFileCreationResponseInt();
 
         Mockito.when(legalFactBuilder.generateNotificationViewedLegalFact(
-                notification.getIun(), recipient, timeStamp)).thenReturn(denomination.getBytes());
+                notification.getIun(), recipient, null, timeStamp)).thenReturn(denomination.getBytes());
         Mockito.when(safeStorageService.createAndUploadContent(fileCreation)).thenReturn(Mono.just(file));
 
-        Mono<String> actualMono = saveLegalFactsService.sendCreationRequestForNotificationViewedLegalFact(notification, recipient, timeStamp);
+        Mono<String> actualMono = saveLegalFactsService.sendCreationRequestForNotificationViewedLegalFact(notification, recipient, null, timeStamp);
+
+        Assertions.assertEquals("safestorage://001", actualMono.block());
+    }
+
+    @Test
+    void saveNotificationDelegateViewedLegalFact() throws IOException {
+        String denomination = "<h1>SSRF WITH IMAGE POC</h1> <img src='https://prova.it'></img>";
+        NotificationInt notification = buildNotification(denomination);
+        NotificationRecipientInt recipient = buildRecipient(denomination);
+        DelegateInfoInt delegateInfo = DelegateInfoInt.builder()
+                .denomination("Mario Rossi")
+                .taxId("RSSMRA80A01H501U")
+                .build();
+        Instant timeStamp = Instant.parse("2021-09-16T15:24:00.00Z");
+        FileCreationWithContentRequest fileCreation = buildFileCreationWithContentRequest(PN_LEGAL_FACTS);
+        FileCreationResponseInt file = buildFileCreationResponseInt();
+
+        Mockito.when(legalFactBuilder.generateNotificationViewedLegalFact(
+                notification.getIun(), recipient, delegateInfo, timeStamp)).thenReturn(denomination.getBytes());
+        Mockito.when(safeStorageService.createAndUploadContent(fileCreation)).thenReturn(Mono.just(file));
+
+        Mono<String> actualMono = saveLegalFactsService.sendCreationRequestForNotificationViewedLegalFact(notification, recipient, delegateInfo, timeStamp);
 
         Assertions.assertEquals("safestorage://001", actualMono.block());
     }
