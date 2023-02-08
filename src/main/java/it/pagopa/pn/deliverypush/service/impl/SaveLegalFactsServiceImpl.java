@@ -6,6 +6,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.dto.legalfacts.PdfInfo;
+import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
@@ -128,11 +129,12 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
     public Mono<String> sendCreationRequestForNotificationViewedLegalFact(
             NotificationInt notification,
             NotificationRecipientInt recipient,
+            DelegateInfoInt delegateInfo,
             Instant timeStamp
     ) {
         log.info("sendCreationRequestForNotificationViewedLegalFact - iun={}", notification.getIun());
 
-        return Mono.fromCallable(() -> legalFactBuilder.generateNotificationViewedLegalFact(notification.getIun(), recipient, timeStamp))
+        return Mono.fromCallable(() -> legalFactBuilder.generateNotificationViewedLegalFact(notification.getIun(), recipient, delegateInfo, timeStamp))
                 .flatMap( res -> {
                         log.info("sendCreationRequestForNotificationViewedLegalFact completed - iun={} are not nulls={}", notification.getIun(), res != null);
                         return this.saveLegalFact(res)
