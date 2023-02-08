@@ -284,7 +284,7 @@ class DigitalTestIT {
         String taxId = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.SEND_COURTESY_MESSAGE.buildEventId(EventId.builder()
                 .iun(iun)
                 .recIndex(0)
-                .index(0)
+                .courtesyAddressType(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL)
                 .build()
         );
 
@@ -419,7 +419,7 @@ class DigitalTestIT {
                 EventId.builder()
                 .iun(iun)
                 .recIndex(0)
-                .index(0)
+                .courtesyAddressType(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.APPIO)
                 .build()
         );
 
