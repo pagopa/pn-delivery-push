@@ -11,6 +11,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
+import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.utils.QrCodeUtils;
 import lombok.AllArgsConstructor;
@@ -53,6 +54,7 @@ public class LegalFactGenerator {
     public static final String FIELD_QRCODE_QUICK_ACCESS_LINK = "qrCodeQuickAccessLink";
     public static final String FIELD_QUICK_ACCESS_LINK = "quickAccessLink";
     public static final String FIELD_RECIPIENT_TYPE = "recipientType";
+    public static final String FIELD_DELEGATE = "delegate";
 
     private final DocumentComposition documentComposition;
     private final CustomInstantWriter instantWriter;
@@ -137,11 +139,12 @@ public class LegalFactGenerator {
         return digests;
     }
     
-    public byte[] generateNotificationViewedLegalFact(String iun, NotificationRecipientInt recipient, Instant timeStamp) throws IOException {
+    public byte[] generateNotificationViewedLegalFact(String iun, NotificationRecipientInt recipient, DelegateInfoInt delegateInfo, Instant timeStamp) throws IOException {
 
         Map<String, Object> templateModel = new HashMap<>();
         templateModel.put(FIELD_IUN, iun);
         templateModel.put(FIELD_RECIPIENT, recipient);
+        templateModel.put(FIELD_DELEGATE, delegateInfo);
         templateModel.put(FIELD_WHEN, instantWriter.instantToDate( timeStamp) );
         templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
         templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( timeStamp, true));
