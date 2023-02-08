@@ -14,6 +14,7 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
 import java.util.Optional;
 
 @Component
@@ -48,7 +49,7 @@ public class ChooseDeliveryModeUtils {
     }
 
     public Optional<SendCourtesyMessageDetailsInt> getFirstSentCourtesyMessage(String iun, Integer recIndex) {
-        return courtesyMessageUtils.getFirstSentCourtesyMessage(iun, recIndex);
+        return courtesyMessageUtils.getSentCourtesyMessagesDetails(iun, recIndex).stream().min(Comparator.comparing(SendCourtesyMessageDetailsInt::getSendDate));
     }
 
     public Optional<LegalDigitalAddressInt> getPlatformAddress(NotificationInt notification, Integer recIndex) {

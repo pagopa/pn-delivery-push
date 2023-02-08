@@ -16,7 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.util.Optional;
+import java.util.List;
+
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ERRORCOURTESY;
 
 @Component
@@ -70,11 +71,11 @@ public class CourtesyMessageUtils {
                                     Integer recIndex,
                                     int courtesyAddrIndex,
                                     CourtesyDigitalAddressInt courtesyAddress) {
-        log.debug("Send courtesy message address index {} - iun={} id={} ", courtesyAddrIndex, notification.getIun(), recIndex);
+        log.debug("Send courtesy message address index {} - iun={} id={} type={}", courtesyAddrIndex, notification.getIun(), recIndex, courtesyAddress.getType());
 
         try {
             //... Per ogni indirizzo di cortesia ottenuto viene inviata la notifica del messaggio di cortesia
-            String eventId = getTimelineElementId(recIndex, notification.getIun(), courtesyAddrIndex);
+            String eventId = getTimelineElementId(recIndex, notification.getIun(), courtesyAddress.getType());
             boolean timelineShouldBeSaved = true;
 
             switch (courtesyAddress.getType()) {
@@ -94,7 +95,7 @@ public class CourtesyMessageUtils {
 
             if (timelineShouldBeSaved)
             {
-                addSendCourtesyMessageToTimeline(notification, recIndex, courtesyAddress, eventId);
+                addSendCourtesyMessageToTimeline(notification, recIndex, courtesyAddress, Instant.now(), eventId);
             }
             else
             {
@@ -117,26 +118,34 @@ public class CourtesyMessageUtils {
                 " is not defined - iun="+ notification.getIun()+" id="+ recIndex, ERROR_CODE_DELIVERYPUSH_ERRORCOURTESY);
     }
 
-    private void addSendCourtesyMessageToTimeline(NotificationInt notification, Integer recIndex, CourtesyDigitalAddressInt courtesyAddress, String eventId) {
+    public void addSendCourtesyMessageToTimeline(NotificationInt notification, Integer recIndex, CourtesyDigitalAddressInt courtesyAddress, Instant sentDate) {
+        this.addSendCourtesyMessageToTimeline(notification, recIndex, courtesyAddress, sentDate, getTimelineElementId(recIndex, notification.getIun(), courtesyAddress.getType()));
+    }
+
+    private void addSendCourtesyMessageToTimeline(NotificationInt notification, Integer recIndex, CourtesyDigitalAddressInt courtesyAddress, Instant sentDate, String eventId) {
         addTimelineElement(
-                timelineUtils.buildSendCourtesyMessageTimelineElement(recIndex, notification, courtesyAddress, Instant.now(), eventId),
+                timelineUtils.buildSendCourtesyMessageTimelineElement(recIndex, notification, courtesyAddress, sentDate, eventId),
                 notification
         );
     }
 
-    private String getTimelineElementId(Integer recIndex, String iun, int index) {
+    private String getTimelineElementId(Integer recIndex, String iun, CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT courtesyAddressType) {
         return TimelineEventId.SEND_COURTESY_MESSAGE.buildEventId(EventId.builder()
                 .iun(iun)
                 .recIndex(recIndex)
-                .index(index)
+                .courtesyAddressType(courtesyAddressType)
                 .build()
         );
     }
 
-    public Optional<SendCourtesyMessageDetailsInt> getFirstSentCourtesyMessage(String iun, Integer recIndex) {
-        String timeLineCourtesyId = getTimelineElementId(recIndex, iun, FIRST_COURTESY_ELEMENT);
-        log.debug("Get courtesy message for timelineCourtesyId={} - IUN={} id={}", timeLineCourtesyId, iun, recIndex);
-        return timelineService.getTimelineElementDetails(iun, timeLineCourtesyId, SendCourtesyMessageDetailsInt.class);
+
+    public List<SendCourtesyMessageDetailsInt> getSentCourtesyMessagesDetails(String iun, int recIndex){
+        // cerco dal DB tutte le timeline relative a iun/recindex che sono di tipo courtesy
+        String elementIdForSearch = TimelineEventId.SEND_COURTESY_MESSAGE
+                .buildSearchEventIdByIunAndRecipientIndex(iun, recIndex);
+
+        return this.timelineService.getTimelineByIunTimelineId(iun, elementIdForSearch, false)
+                .stream().map(x -> (SendCourtesyMessageDetailsInt)x.getDetails()).toList();
     }
 
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {

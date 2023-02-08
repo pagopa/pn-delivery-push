@@ -77,7 +77,7 @@ public class TestUtils {
                     EventId.builder()
                             .iun(iun)
                             .recIndex(recIndex)
-                            .index(index)
+                            .courtesyAddressType(digitalAddress.getType())
                             .build());
             Optional<SendCourtesyMessageDetailsInt> sendCourtesyMessageDetailsOpt = timelineService.getTimelineElementDetails(iun, eventId, SendCourtesyMessageDetailsInt.class);
 
