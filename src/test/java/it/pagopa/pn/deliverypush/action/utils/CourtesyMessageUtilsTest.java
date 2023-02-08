@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
+import io.swagger.models.auth.In;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
@@ -307,6 +308,40 @@ class CourtesyMessageUtilsTest {
         Mockito.verify(addressBookService, Mockito.times(1)).getCourtesyAddress("ANON_TaxId", "TEST_PA_ID");
     }
 
+
+    @Test
+    void addSendCourtesyMessageToTimeline() {
+        // GIVEN
+        NotificationRecipientInt recipient = getNotificationRecipientInt();
+        NotificationInt notification = getNotificationInt(recipient);
+        CourtesyDigitalAddressInt courtesyDigitalAddressInt = CourtesyDigitalAddressInt.builder()
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.APPIO)
+                .build();
+        Instant instant = Instant.now();
+
+        ArgumentCaptor<String> eventIdArgumentCaptor = ArgumentCaptor.forClass(String.class);
+
+        // WHEN
+        courtesyMessageUtils.addSendCourtesyMessageToTimeline(notification, 0, courtesyDigitalAddressInt, instant);
+
+        // THEN
+        Mockito.verify(timelineUtils, Mockito.times(1)).buildSendCourtesyMessageTimelineElement(
+                Mockito.anyInt(), Mockito.any(NotificationInt.class), Mockito.any(CourtesyDigitalAddressInt.class), Mockito.any(), eventIdArgumentCaptor.capture());
+
+
+        List<String> eventIdAllValues = eventIdArgumentCaptor.getAllValues();
+        String firstEventIdInTimeline = eventIdAllValues.get(0);
+
+        String firstEventIdExpected = TimelineEventId.SEND_COURTESY_MESSAGE.buildEventId(EventId.builder()
+                .iun(notification.getIun())
+                .recIndex(0)
+                .courtesyAddressType(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.APPIO)
+                .build()
+        );
+
+        Assertions.assertEquals(firstEventIdExpected, firstEventIdInTimeline);
+    }
+
     @Test
     void getFirstSentCourtesyMessage() {
 
@@ -380,4 +415,5 @@ class CourtesyMessageUtilsTest {
                 .paDenomination("TEST_PA_DENOMINATION")
                 .build();
     }
+
 }
