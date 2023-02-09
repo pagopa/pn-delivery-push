@@ -20,7 +20,7 @@ public class EventId {
     private DigitalAddressSourceInt source;
     private int index;
     private ContactPhaseInt contactPhase;
-    private int sentAttemptMade;
+    private Integer sentAttemptMade;
     private DeliveryModeInt deliveryMode;
     private int progressIndex;
     private DocumentCreationTypeInt documentCreationType;

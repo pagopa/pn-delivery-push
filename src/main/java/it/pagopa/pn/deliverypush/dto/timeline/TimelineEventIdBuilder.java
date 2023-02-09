@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.dto.timeline;
 
+import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
@@ -35,6 +36,8 @@ public class TimelineEventIdBuilder {
 
     private String correlationId = ""; // for national registries
 
+    private String courtesyAddressType = "";
+
     public TimelineEventIdBuilder withIun(@Nullable String iun) {
         if(iun != null)
             this.iun = "IUN_".concat(iun).concat("-");
@@ -58,8 +61,8 @@ public class TimelineEventIdBuilder {
         return this;
     }
 
-    public TimelineEventIdBuilder withSentAttemptMade(@Nullable int sentAttemptMade) {
-        if(sentAttemptMade > 0)
+    public TimelineEventIdBuilder withSentAttemptMade(@Nullable Integer sentAttemptMade) {
+        if(sentAttemptMade != null && sentAttemptMade >= 0)
             this.sentAttemptMade = "SENTATTEMPTMADE_".concat(sentAttemptMade + "").concat("-");
         return this;
     }
@@ -89,11 +92,18 @@ public class TimelineEventIdBuilder {
         return this;
     }
 
+    public TimelineEventIdBuilder withCourtesyAddressType(@Nullable CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT courtesyAddressType) {
+        if(courtesyAddressType != null)
+            this.courtesyAddressType = "COURTESYADDRESSTYPE_".concat(courtesyAddressType.getValue()).concat("-");
+        return this;
+    }
+
     public String build() {
         return new StringBuilder()
                 .append(category)
                 .append(iun)
                 .append(recIndex)
+                .append(courtesyAddressType)
                 .append(source)
                 .append(deliveryMode)
                 .append(contactPhase)
@@ -113,6 +123,7 @@ public class TimelineEventIdBuilder {
                 .withProgressIndex(eventId.getProgressIndex())
                 .withDeliveryMode(eventId.getDeliveryMode())
                 .withContactPhase(eventId.getContactPhase())
+                .withCourtesyAddressType(eventId.getCourtesyAddressType())
                 .build();
     }
 

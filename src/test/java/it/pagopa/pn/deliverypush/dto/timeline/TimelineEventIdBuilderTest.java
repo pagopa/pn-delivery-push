@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.dto.timeline;
 
+import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
@@ -49,6 +50,36 @@ class TimelineEventIdBuilderTest {
 
 
         assertThat(timeLineEventIdActualFromBuildEvent).isEqualTo(timeLineEventIdExpected);
+
+    }
+
+    @Test
+    void buildSEND_COURTESY_MESSAGETest() {
+        //vecchia versione 123456789_send_courtesy_message_0_type_SMS
+        String timeLineEventIdExpected = "send_courtesy_message-IUN_123456789-RECINDEX_0-COURTESYADDRESSTYPE_SMS-";
+        String timeLineEventIdActual = new TimelineEventIdBuilder()
+                .withCategory(TimelineEventId.SEND_COURTESY_MESSAGE.getValue())
+                .withIun(IUN)
+                .withRecIndex(0)
+                .withCourtesyAddressType(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.SMS)
+                .build();
+
+        assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
+
+        String timeLineEventIdActualFromBuildEvent = TimelineEventId.SEND_COURTESY_MESSAGE.buildEventId(EventId
+                .builder()
+                .iun(IUN)
+                .recIndex(0)
+                .courtesyAddressType(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.SMS)
+                .build());
+
+
+        assertThat(timeLineEventIdActualFromBuildEvent).isEqualTo(timeLineEventIdExpected);
+
+        String elementIdFromIunAndRecIndex = TimelineEventId.SEND_COURTESY_MESSAGE.buildSearchEventIdByIunAndRecipientIndex(IUN, 0);
+
+        //vecchia versione 123456789_send_courtesy_message_0_type_
+        assertThat(elementIdFromIunAndRecIndex).isEqualTo("send_courtesy_message-IUN_123456789-RECINDEX_0-");
 
     }
 
