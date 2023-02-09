@@ -1,27 +1,12 @@
 package it.pagopa.pn.deliverypush.dto.timeline;
 
 public enum TimelineEventId {
-    SENDERACK_CREATION_REQUEST() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return String.format(
-                    "senderack_legalfact_creation_request_iun_%s",
-                    eventId.getIun()
-            );
-        }
-    },
+    SENDERACK_CREATION_REQUEST("senderack_legalfact_creation_request"),
     
-    REQUEST_ACCEPTED() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return String.format(
-                    "%s_request_accepted",
-                    eventId.getIun()
-            );
-        }
-    },
-    
-    SEND_COURTESY_MESSAGE() {
+    REQUEST_ACCEPTED("request_accepted"),
+
+    //TODO capire meglio questo caso
+    SEND_COURTESY_MESSAGE("send_courtesy_message") {
         private static final String EVENT_COMMON_PREFIX = "%s_send_courtesy_message_%d_type_";
 
         @Override
@@ -46,365 +31,95 @@ public enum TimelineEventId {
 
     },
     
-    GET_ADDRESS() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return String.format(
-                    "%s_get_address_%d_source_%s_attempt_%d",
-                    eventId.getIun(),
-                    eventId.getRecIndex(),
-                    eventId.getSource(),
-                    eventId.getSentAttemptMade()
-            );
-        }
-    },
+    GET_ADDRESS("get_address"),
 
-    SEND_DIGITAL_FEEDBACK() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return String.format(
-                    "%s_send_digital_feedback_%d_source_%s_attempt_%d",
-                    eventId.getIun(),
-                    eventId.getRecIndex(),
-                    eventId.getSource(),
-                    eventId.getSentAttemptMade()
-            );
-        }
-    },
+    SEND_DIGITAL_FEEDBACK("send_digital_feedback"),
 
-    SEND_DIGITAL_PROGRESS() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return String.format(
-                    "%s_digital_delivering_progress_%d_source_%s_attempt_%d_progidx_%s",
-                    eventId.getIun(),
-                    eventId.getRecIndex(),
-                    eventId.getSource(),
-                    eventId.getSentAttemptMade(),
-                    eventId.getProgressIndex()<0?"":eventId.getProgressIndex()  // se passo un progressindex negativo, è perchè non voglio che venga inserito nell'eventid. Usato per cercare con l'inizia per
-                    );
-        }
+    SEND_DIGITAL_PROGRESS("digital_delivering_progress") {
 
         @Override
         public String buildSearchEventIdByIunAndRecipientIndex(String iun, Integer recipientIndex){
-            return String.format(
-                    "%s_digital_delivering_progress_%d_",
-                    iun,
-                    recipientIndex
-            );
+            return new TimelineEventIdBuilder()
+                    .withCategory(this.getValue())
+                    .withIun(iun)
+                    .withRecIndex(recipientIndex)
+                    .build();
         }
     },
     
-    SEND_ANALOG_FEEDBACK() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return String.format(
-                    "%s_send_analog_feedback_%d_attempt_%d",
-                    eventId.getIun(),
-                    eventId.getRecIndex(),
-                    eventId.getSentAttemptMade()
-            );
-        }
-    },
+    SEND_ANALOG_FEEDBACK("send_analog_feedback"),
 
-    SEND_ANALOG_PROGRESS() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return String.format(
-                    "%s_send_analog_progress_%d_attempt_%d_progidx_%s",
-                    eventId.getIun(),
-                    eventId.getRecIndex(),
-                    eventId.getSentAttemptMade(),
-                    eventId.getProgressIndex()<0?"":eventId.getProgressIndex()  // se passo un progressindex negativo, è perchè non voglio che venga inserito nell'eventid. Usato per cercare con l'inizia per
-            );
-        }
-    },
+    SEND_ANALOG_PROGRESS("send_analog_progress"),
 
-    SEND_DIGITAL_DOMICILE() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            int sendAttempt = eventId.getSentAttemptMade();
-            return String.format(
-                    "%s_send_digital_domicile_%d_source_%s_attempt_%d",
-                    eventId.getIun(),
-                    eventId.getRecIndex(),
-                    eventId.getSource(),
-                    sendAttempt
-            );
-        }
-    },
+    SEND_DIGITAL_DOMICILE("send_digital_domicile"),
 
-    PREPARE_SIMPLE_REGISTERED_LETTER() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return String.format(
-                    "%s_prepare_simple_registered_letter_%d",
-                    eventId.getIun(),
-                    eventId.getRecIndex()
-            );
-        }
-    },
+    PREPARE_SIMPLE_REGISTERED_LETTER("prepare_simple_registered_letter"),
 
-    SEND_SIMPLE_REGISTERED_LETTER() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return String.format(
-                    "%s_send_simple_registered_letter_%d",
-                    eventId.getIun(),
-                    eventId.getRecIndex()
-            );
-        }
-    },
+    SEND_SIMPLE_REGISTERED_LETTER("send_simple_registered_letter"),
 
-    PREPARE_ANALOG_DOMICILE() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            int sendAttempt = eventId.getSentAttemptMade();
-            return String.format(
-                    "%s_prepare_analog_domicile_%d_attempt_%d",
-                    eventId.getIun(),
-                    eventId.getRecIndex(),
-                    sendAttempt
-            );
-        }
-    },
+    PREPARE_ANALOG_DOMICILE("prepare_analog_domicile"),
 
-    SEND_ANALOG_DOMICILE() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            int sendAttempt = eventId.getSentAttemptMade();
-            return String.format(
-                    "%s_send_analog_domicile_%d_attempt_%d",
-                    eventId.getIun(),
-                    eventId.getRecIndex(),
-                    sendAttempt
-            );
-        }
-    },
+    SEND_ANALOG_DOMICILE("send_analog_domicile"),
 
-    DIGITAL_DELIVERY_CREATION_REQUEST() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return String.format(
-                    "digital_delivery_creation_request_iun_%s_recindex_%d",
-                    eventId.getIun(),
-                    eventId.getRecIndex()
-            );
-        }
-    },
+    DIGITAL_DELIVERY_CREATION_REQUEST("digital_delivery_creation_request"),
     
-    DIGITAL_SUCCESS_WORKFLOW() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return String.format(
-                    "%s_digital_success_workflow_%d",
-                    eventId.getIun(),
-                    eventId.getRecIndex()
-            );
-        }
-    },
+    DIGITAL_SUCCESS_WORKFLOW("digital_success_workflow"),
 
-    DIGITAL_FAILURE_WORKFLOW() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return String.format(
-                    "%s_digital_failure_workflow_%d",
-                    eventId.getIun(),
-                    eventId.getRecIndex()
-            );
-        }
-    },
+    DIGITAL_FAILURE_WORKFLOW("digital_failure_workflow"),
 
-    ANALOG_SUCCESS_WORKFLOW() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return String.format(
-                    "%s_analog_success_workflow_%d",
-                    eventId.getIun(),
-                    eventId.getRecIndex()
-            );
-        }
-    },
+    ANALOG_SUCCESS_WORKFLOW("analog_success_workflow"),
 
-    ANALOG_FAILURE_WORKFLOW() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return String.format(
-                    "%s_analog_failure_workflow_%d",
-                    eventId.getIun(),
-                    eventId.getRecIndex()
-            );
-        }
-    },
+    ANALOG_FAILURE_WORKFLOW("analog_failure_workflow"),
 
-    NOTIFICATION_VIEWED_CREATION_REQUEST() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return String.format(
-                    "notification_viewed_creation_request_iun_%s_recIndex_%d",
-                    eventId.getIun(),
-                    eventId.getRecIndex()
-            );
-        }
-    },
+    NOTIFICATION_VIEWED_CREATION_REQUEST("notification_viewed_creation_request"),
     
-    NOTIFICATION_VIEWED() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return String.format(
-                    "%s_notification_viewed_%d",
-                    eventId.getIun(),
-                    eventId.getRecIndex()
-            );
-        }
-    },
+    NOTIFICATION_VIEWED("notification_viewed"),
 
-    COMPLETELY_UNREACHABLE() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return String.format(
-                    "%s_completely_unreachable_%d",
-                    eventId.getIun(),
-                    eventId.getRecIndex()
-            );
-        }
-    },
+    COMPLETELY_UNREACHABLE("completely_unreachable"),
 
-    REFINEMENT() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return String.format(
-                    "%s_refinement_%d",
-                    eventId.getIun(),
-                    eventId.getRecIndex()
-            );
-        }
-    },
+    REFINEMENT("refinement"),
 
-    SCHEDULE_DIGITAL_WORKFLOW() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return String.format(
-                    "%s_schedule_digital_workflow_%d_source_%s_retry_%d",
-                    eventId.getIun(),
-                    eventId.getRecIndex(),
-                    eventId.getSource().getValue(),
-                    eventId.getSentAttemptMade()
-            );
-        }
-    },
+    SCHEDULE_DIGITAL_WORKFLOW("schedule_digital_workflow"),
 
-    SCHEDULE_ANALOG_WORKFLOW() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return String.format(
-                    "%s_schedule_analog_workflow_%d_retry_%d",
-                    eventId.getIun(),
-                    eventId.getRecIndex(),
-                    eventId.getSentAttemptMade()
-            );
-        }
-    },
+    SCHEDULE_ANALOG_WORKFLOW("schedule_analog_workflow"),
 
-    SCHEDULE_REFINEMENT_WORKFLOW() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return String.format(
-                    "%s_schedule_refinement_workflow_%d",
-                    eventId.getIun(),
-                    eventId.getRecIndex()
-            );
-        }
-    },
+    SCHEDULE_REFINEMENT_WORKFLOW("schedule_refinement_workflow"),
 
-    REQUEST_REFUSED() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return String.format(
-                    "%s_request_refused",
-                    eventId.getIun()
-            );
-        }
-    },
+    REQUEST_REFUSED("request_refused"),
 
-    PUBLIC_REGISTRY_CALL() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return String.format(
-                    "%s_%d_%s_%s_%d_%s",
-                    eventId.getIun(),
-                    eventId.getRecIndex(),
-                    eventId.getDeliveryMode(),
-                    eventId.getContactPhase(),
-                    eventId.getSentAttemptMade(),
-                    "public_registry_call"
-            );
-        }
-    },
+    PUBLIC_REGISTRY_CALL("public_registry_call"),
 
-    PUBLIC_REGISTRY_RESPONSE() {
-        @Override
-        public String buildEventId(String eventId) {
-            return String.format(
-                    "public_registry_response_%s",
-                    eventId
-            );
-        }
-    },
+    PUBLIC_REGISTRY_RESPONSE("public_registry_response"),
 
-    AAR_CREATION_REQUEST() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return String.format(
-                    "aar_creation_request_iun_%s_recIndex_%d",
-                    eventId.getIun(),
-                    eventId.getRecIndex()
-            );
-        }
-    },
+    AAR_CREATION_REQUEST("aar_creation_request"),
     
-    AAR_GENERATION() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return String.format(
-                    "%s_aar_gen_%d",
-                    eventId.getIun(),
-                    eventId.getRecIndex()
-            );
-        }
-    },
+    AAR_GENERATION("aar_gen"),
     
-    NOT_HANDLED() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return String.format(
-                    "%s_not_handled_%d",
-                    eventId.getIun(),
-                    eventId.getRecIndex()
-            );
-        }
-    },
+    NOT_HANDLED("not_handled"),
 
-    NOTIFICATION_PAID() {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return String.format(
-                    "%s_notification_paid",
-                    eventId.getIun()
-            );
-        }
-    }
+    NOTIFICATION_PAID("notification_paid")
     ;
 
     public String buildEventId(EventId eventId) {
-        throw new UnsupportedOperationException("Must be implemented for each action type event ID");
+        return new TimelineEventIdBuilder().buildFromEventId(this, eventId);
     }
 
     public String buildEventId(String eventId) {
-        throw new UnsupportedOperationException("Must be implemented for each action type");
+        return new TimelineEventIdBuilder().buildFromCorrelationId(this, eventId);
     }
 
     public String buildSearchEventIdByIunAndRecipientIndex(String iun, Integer recipientIndex) {
         throw new UnsupportedOperationException("Must be implemented for each action type");
     }
+
+    private String value;
+
+    TimelineEventId(String value ) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
 }
