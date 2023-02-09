@@ -1,5 +1,6 @@
 echo "### CREATE DELIVERY-PUSH COMPONENT ###"
-bash <(curl -s https://raw.githubusercontent.com/pagopa/pn-delivery-push/aa15c57523cc9732a3728f1b581c3e620a0ba17a/src/test/resources/testcontainers/init.sh)
+
+bash <(curl -s https://raw.githubusercontent.com/pagopa/pn-delivery-push/89a676dc5948d65508c626dfdd687ecac55aade1/src/test/resources/testcontainers/init.sh)
 
 ## La creazione delle queue local-delivery-push-inputs.fifo è già presente nel file init.sh di delivery. Viene duplicata su deliveryPush per solo per test-container
 
@@ -16,17 +17,5 @@ for qn in  $( echo $queues_fifo | tr " " "\n" ) ; do
         --queue-name $qn
 
 
-
-done
-
-echo "### CREATE QUEUES ###"
-queues="local-national-registries-gateway"
-for qn in  $( echo $queues | tr " " "\n" ) ; do
-    echo creating queue $qn ...
-
-    aws --profile default --region us-east-1 --endpoint-url http://localstack:4566 \
-        sqs create-queue \
-        --attributes '{"DelaySeconds":"2"}' \
-        --queue-name $qn
 
 done

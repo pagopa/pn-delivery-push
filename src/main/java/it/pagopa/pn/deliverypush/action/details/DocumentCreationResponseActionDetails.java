@@ -14,4 +14,5 @@ import lombok.NoArgsConstructor;
 public class DocumentCreationResponseActionDetails implements ActionDetails {
     private String key;
     private DocumentCreationTypeInt documentCreationType;
+    private String timelineId;
 }

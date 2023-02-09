@@ -17,6 +17,8 @@ import java.time.LocalDate;
 @Slf4j
 public class PublicRegistryImpl extends CommonBaseClient implements PublicRegistry {
 
+    protected static final String PN_NATIONAL_REGISTRIES_CX_ID_VALUE = "pn-delivery-push";
+
     private final PnDeliveryPushConfigs cfg;
 
     private AddressApi addressApi;
@@ -42,7 +44,7 @@ public class PublicRegistryImpl extends CommonBaseClient implements PublicRegist
                 .domicileType(AddressRequestBodyFilter.DomicileTypeEnum.DIGITAL);
 
 
-        addressApi.getAddresses(recipientType, new AddressRequestBody().filter(addressRequestBodyFilter))
+        addressApi.getAddresses(recipientType, new AddressRequestBody().filter(addressRequestBodyFilter), PN_NATIONAL_REGISTRIES_CX_ID_VALUE)
                 .doOnSuccess(addressOK -> log.info("Response of getAddresses with taxId: {}, correlationId: {}: {}", LogUtils.maskTaxId(taxId), correlationId, addressOK))
                 .doOnError(throwable -> log.error(String.format("Error calling getAddresses with taxId: %s, correlationId: %s", LogUtils.maskTaxId(taxId), correlationId), throwable))
                 .block();

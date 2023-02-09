@@ -80,7 +80,7 @@ class PecDeliveryWorkflowLegalFactsGeneratorTest {
         Instant completionWorkflowDate = Instant.now();
 
         //WHEN
-        pecDeliveryWorkflowLegalFactsGenerator.generatePecDeliveryWorkflowLegalFact(notification, recIndex, status, completionWorkflowDate);
+        pecDeliveryWorkflowLegalFactsGenerator.generateAndSendCreationRequestForPecDeliveryWorkflowLegalFact(notification, recIndex, status, completionWorkflowDate);
 
         TimelineElementInternal timelineElementInternal = timeline.get(0);
         SendDigitalFeedbackDetailsInt details = (SendDigitalFeedbackDetailsInt) timelineElementInternal.getDetails();
@@ -126,7 +126,7 @@ class PecDeliveryWorkflowLegalFactsGeneratorTest {
         //WHEN
         EndWorkflowStatus status = EndWorkflowStatus.SUCCESS;
         Instant completionWorkflowDate = Instant.now();
-        pecDeliveryWorkflowLegalFactsGenerator.generatePecDeliveryWorkflowLegalFact(notification, recIndex, status, completionWorkflowDate);
+        pecDeliveryWorkflowLegalFactsGenerator.generateAndSendCreationRequestForPecDeliveryWorkflowLegalFact(notification, recIndex, status, completionWorkflowDate);
 
         TimelineElementInternal timelineElementInternal = timeline.get(0);
         SendDigitalFeedbackDetailsInt sendDigitalFeedbackDetailsInt = (SendDigitalFeedbackDetailsInt) timelineElementInternal.getDetails();

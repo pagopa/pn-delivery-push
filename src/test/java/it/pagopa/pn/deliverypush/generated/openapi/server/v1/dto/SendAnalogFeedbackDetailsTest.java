@@ -19,6 +19,7 @@ class SendAnalogFeedbackDetailsTest {
         details.setNewAddress(PhysicalAddress.builder().address("add").build());
         details.setPhysicalAddress(PhysicalAddress.builder().address("add").build());
         details.setRecIndex(1);
+        details.setResponseStatus(ResponseStatus.KO);
         details.setServiceLevel(ServiceLevel.REGISTERED_LETTER_890);
     }
 
@@ -120,6 +121,22 @@ class SendAnalogFeedbackDetailsTest {
         Assertions.assertEquals(Collections.singletonList("error"), details.getErrors());
     }
 
+
+    @Test
+    void responseStatus() {
+        SendAnalogFeedbackDetails expected = buildSendAnalogFeedbackDetails();
+
+        SendAnalogFeedbackDetails actual = details.responseStatus(ResponseStatus.KO);
+
+        Assertions.assertEquals(expected, actual);
+    }
+
+    @Test
+    void getResponseStatus() {
+        Assertions.assertEquals(ResponseStatus.KO, details.getResponseStatus());
+    }
+
+
     @Test
     void testEquals() {
         SendAnalogFeedbackDetails data = buildSendAnalogFeedbackDetails();
@@ -153,6 +170,7 @@ class SendAnalogFeedbackDetailsTest {
                 "        province: null\n" +
                 "        foreignState: null\n" +
                 "    }\n" +
+                "    responseStatus: KO\n" +
                 "    errors: [error]\n" +
                 "}";
 
@@ -167,6 +185,7 @@ class SendAnalogFeedbackDetailsTest {
                 .newAddress(PhysicalAddress.builder().address("add").build())
                 .physicalAddress(PhysicalAddress.builder().address("add").build())
                 .serviceLevel(ServiceLevel.REGISTERED_LETTER_890)
+                .responseStatus(ResponseStatus.KO)
                 .sentAttemptMade(1)
                 .build();
     }

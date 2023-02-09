@@ -19,6 +19,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
+import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.utils.HtmlSanitizer;
 import org.junit.jupiter.api.Assertions;
@@ -91,7 +92,22 @@ class LegalFactPdfGeneratorTest {
 		NotificationRecipientInt recipient = buildRecipients().get(0);
 		Instant notificationViewedDate = Instant.now().minus(Duration.ofMinutes(3));
 		
-		Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationViewedLegalFact(iun, recipient, notificationViewedDate)));
+		Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationViewedLegalFact(iun, recipient, null, notificationViewedDate)));
+		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+	}
+
+	@Test
+	void generateNotificationDelegateViewedLegalFactTest() throws IOException {
+		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_DelegateViewedLegalFact.pdf");
+		String iun = "iun1234Test_Viewed";
+		NotificationRecipientInt recipient = buildRecipients().get(0);
+		DelegateInfoInt delegateInfo = DelegateInfoInt.builder()
+				.denomination("Mario Rossi")
+				.taxId("RSSMRA80A01H501U")
+				.build();
+		Instant notificationViewedDate = Instant.now().minus(Duration.ofMinutes(3));
+
+		Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationViewedLegalFact(iun, recipient, delegateInfo, notificationViewedDate)));
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
 	

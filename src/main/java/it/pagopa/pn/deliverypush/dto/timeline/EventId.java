@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.dto.timeline;
 
+import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
@@ -23,4 +24,5 @@ public class EventId {
     private DeliveryModeInt deliveryMode;
     private int progressIndex;
     private DocumentCreationTypeInt documentCreationType;
+    private CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT courtesyAddressType;
 }

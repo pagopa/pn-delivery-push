@@ -22,15 +22,27 @@ public enum TimelineEventId {
     },
     
     SEND_COURTESY_MESSAGE("") {
+        private static final String EVENT_COMMON_PREFIX = "%s_send_courtesy_message_%d_type_";
         @Override
         public String buildEventId(EventId eventId) {
+            String eventCommonId = EVENT_COMMON_PREFIX + "%s";
             return String.format(
-                    "%s_send_courtesy_message_%d_index_%d",
+                    eventCommonId,
                     eventId.getIun(),
                     eventId.getRecIndex(),
-                    eventId.getIndex()
+                    eventId.getCourtesyAddressType()==null?"":eventId.getCourtesyAddressType().getValue()   // se passo un courtesy null, è perchè non voglio che venga inserito nell'eventid. Usato per cercare con l'inizia per
             );
         }
+
+        @Override
+        public String buildSearchEventIdByIunAndRecipientIndex(String iun, Integer recipientIndex){
+            return String.format(
+                    EVENT_COMMON_PREFIX,
+                    iun,
+                    recipientIndex
+            );
+        }
+
     },
     
     GET_ADDRESS("") {
@@ -169,6 +181,17 @@ public enum TimelineEventId {
         }
     },
 
+    DIGITAL_DELIVERY_CREATION_REQUEST("") {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return String.format(
+                    "digital_delivery_creation_request_iun_%s_recindex_%d",
+                    eventId.getIun(),
+                    eventId.getRecIndex()
+            );
+        }
+    },
+
     DIGITAL_SUCCESS_WORKFLOW("") {
         @Override
         public String buildEventId(EventId eventId) {
@@ -207,6 +230,17 @@ public enum TimelineEventId {
         public String buildEventId(EventId eventId) {
             return String.format(
                     "%s_analog_failure_workflow_%d",
+                    eventId.getIun(),
+                    eventId.getRecIndex()
+            );
+        }
+    },
+
+    NOTIFICATION_VIEWED_CREATION_REQUEST() {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return String.format(
+                    "notification_viewed_creation_request_iun_%s_recIndex_%d",
                     eventId.getIun(),
                     eventId.getRecIndex()
             );
@@ -316,7 +350,18 @@ public enum TimelineEventId {
             );
         }
     },
-    
+
+    AAR_CREATION_REQUEST() {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return String.format(
+                    "aar_creation_request_iun_%s_recIndex_%d",
+                    eventId.getIun(),
+                    eventId.getRecIndex()
+            );
+        }
+    },
+
     AAR_GENERATION("") {
         @Override
         public String buildEventId(EventId eventId) {

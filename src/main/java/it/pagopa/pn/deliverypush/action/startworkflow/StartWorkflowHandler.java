@@ -35,7 +35,7 @@ public class StartWorkflowHandler {
      *
      * @param iun Notification unique identifier
      */
-    public void startWorkflow(String iun) {
+    public void startWorkflow(String iun) { 
         log.info("Start notification process - iun={}", iun);
         NotificationInt notification = notificationService.getNotificationByIun(iun);
         try {
@@ -50,7 +50,7 @@ public class StartWorkflowHandler {
     }
     
     private void saveNotificationReceivedLegalFacts(NotificationInt notification) {
-        // salvo il legalfactid di avvenuta ricezione da parte di PN
+        // Invio richiesta di creazione di atto opponibile a terzi di avvenuta ricezione da parte di PN a SafeStorage
         String legalFactId = saveLegalFactsService.sendCreationRequestForNotificationReceivedLegalFact(notification);
         
         TimelineElementInternal timelineElementInternal = timelineUtils.buildSenderAckLegalFactCreationRequest(notification, legalFactId);

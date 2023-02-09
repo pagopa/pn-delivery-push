@@ -2,12 +2,14 @@ package it.pagopa.pn.deliverypush.action.utils;
 
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.PdfInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
+import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.AllArgsConstructor;
@@ -27,10 +29,11 @@ public class AarUtils {
     private final TimelineUtils timelineUtils;
     private final TimelineService timelineService;
     private final NotificationUtils notificationUtils;
+    private final DocumentCreationRequestService documentCreationRequestService;
 
-    public void generateAARAndSaveInSafeStorageAndAddTimelineevent(NotificationInt notification, Integer recIndex, String quickAccessToken) {
+    public void generateAARAndSaveInSafeStorageAndAddTimelineEvent(NotificationInt notification, Integer recIndex, String quickAccessToken) {
         try {
-            // check se già esiste
+            // check se già è stato creato l'AAR, dunque se siamo in questo metodo a valle di un reinserimento in coda del messaggio
             String elementId = TimelineEventId.AAR_GENERATION.buildEventId(
                     EventId.builder()
                             .iun(notification.getIun())
@@ -40,19 +43,28 @@ public class AarUtils {
             Optional<TimelineElementInternal> timeline = timelineService.getTimelineElement(notification.getIun(), elementId);
             if (timeline.isEmpty()) {
                 PdfInfo pdfInfo = saveLegalFactsService.sendCreationRequestForAAR(notification, notificationUtils.getRecipientFromIndex(notification, recIndex), quickAccessToken);
+                
+                //Viene salvata in timeline la request document creation request
+                TimelineElementInternal timelineElementInternal = timelineUtils.buildAarCreationRequest(notification, recIndex, pdfInfo);
+                timelineService.addTimelineElement( timelineElementInternal , notification);
 
-                timelineService.addTimelineElement(
-                        timelineUtils.buildAarGenerationTimelineElement(notification, recIndex, pdfInfo.getKey(), pdfInfo.getNumberOfPages()),
-                        notification
-                );
+                //Vengono inserite le informazioni della richiesta di creazione del legalFacts a safeStorage
+                documentCreationRequestService.addDocumentCreationRequest(pdfInfo.getKey(), notification.getIun(), recIndex, DocumentCreationTypeInt.AAR, timelineElementInternal.getElementId());
             } else
-                log.debug("no need to recreate AAR iun={} timelineId={}", notification.getIun(), elementId);
+                log.debug("No need to recreate AAR iun={} timelineId={}", notification.getIun(), elementId);
         } catch (Exception e) {
-            log.error("cannot generate AAR pdf iun={} ex={}", notification.getIun(), e);
+            log.error("Cannot generate AAR pdf iun={} recIndex={} ex={}", notification.getIun(), recIndex, e);
             throw new PnInternalException("cannot generate AAR pdf", ERROR_CODE_DELIVERYPUSH_GENERATEPDFFAILED, e);
         }
     }
-    
+
+    public void addAarGenerationToTimeline(NotificationInt notification, Integer recIndex, PdfInfo pdfInfo) {
+        timelineService.addTimelineElement(
+                timelineUtils.buildAarGenerationTimelineElement(notification, recIndex, pdfInfo.getKey(), pdfInfo.getNumberOfPages()),
+                notification
+        );
+    }
+
     public AarGenerationDetailsInt getAarGenerationDetails(NotificationInt notification, Integer recIndex) {
         // ricostruisco il timelineid della  genrazione dell'aar
         String aarGenerationEventId = TimelineEventId.AAR_GENERATION.buildEventId(

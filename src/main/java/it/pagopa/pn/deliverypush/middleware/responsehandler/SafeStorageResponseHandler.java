@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.responsehandler;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationRequest;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.Optional;
+
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NO_DOCUMENT_CREATION_REQUEST;
 
 @Component
 @Slf4j
@@ -30,16 +33,15 @@ public class SafeStorageResponseHandler {
         Optional<DocumentCreationRequest> documentCreationRequestOpt = service.getDocumentCreationRequest(keyWithPrefix);
 
         if(documentCreationRequestOpt.isPresent()){
-
             DocumentCreationRequest creationRequest = documentCreationRequestOpt.get();
             log.debug("DocumentCreationTypeInt is {} and Key to search {}", creationRequest.getDocumentCreationType(), keyWithPrefix);
 
+            //Effettuando lo scheduling dell'evento siamo sicuri che l'evento verrà gestito una sola volta, dal momento che lo scheduling è in  putIfAbsent
             scheduleHandleDocumentCreationResponse(creationRequest);
         } else {
-            //TODO Portare log ad error e decommentare exception una volta gestiti tutti i casi di risposta (tutti i legalFacts + aar) in DocumentCreationResponseHandler
             String error = String.format("There isn't saved DocumentCreationRequest for fileKey=%s and documentType=%s", keyWithPrefix, response.getDocumentType());
-            log.warn(error);
-            //throw new PnInternalException(error, ERROR_CODE_DELIVERYPUSH_NO_DOCUMENT_CREATION_REQUEST);
+            log.error(error);
+            throw new PnInternalException(error, ERROR_CODE_DELIVERYPUSH_NO_DOCUMENT_CREATION_REQUEST);
         }
     }
     
@@ -47,9 +49,12 @@ public class SafeStorageResponseHandler {
         DocumentCreationResponseActionDetails details = DocumentCreationResponseActionDetails.builder()
                 .documentCreationType(request.getDocumentCreationType())
                 .key(request.getKey())
+                .timelineId(request.getTimelineId())
                 .build();
 
         Instant schedulingDate = Instant.now();
+        
+        //Effettuando lo scheduling dell'evento siamo sicuri che l'evento verrà gestito una sola volta, dal momento che lo scheduling è in  putIfAbsent
         log.info("Scheduling HandleDocumentCreationResponse schedulingDate={} - iun={} recIndex={} docType={}", schedulingDate, request.getIun(), request.getRecIndex(), request.getDocumentCreationType());
         schedulerService.scheduleEvent(request.getIun(), request.getRecIndex(), schedulingDate, ActionType.DOCUMENT_CREATION_RESPONSE, request.getTimelineId(), details);
     }
