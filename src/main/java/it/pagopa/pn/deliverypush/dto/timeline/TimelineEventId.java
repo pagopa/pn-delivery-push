@@ -236,7 +236,7 @@ public enum TimelineEventId {
         }
     },
 
-    NOTIFICATION_VIEWED_CREATION_REQUEST() {
+    NOTIFICATION_VIEWED_CREATION_REQUEST("") {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
@@ -351,7 +351,7 @@ public enum TimelineEventId {
         }
     },
 
-    AAR_CREATION_REQUEST() {
+    AAR_CREATION_REQUEST("") {
         @Override
         public String buildEventId(EventId eventId) {
             return String.format(
