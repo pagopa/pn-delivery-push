@@ -35,7 +35,7 @@ public class StartWorkflowHandler {
      *
      * @param iun Notification unique identifier
      */
-    public void startWorkflow(String iun) {
+    public void startWorkflow(String iun) { 
         log.info("Start notification process - iun={}", iun);
         NotificationInt notification = notificationService.getNotificationByIun(iun);
         try {
