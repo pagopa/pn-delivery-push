@@ -95,6 +95,11 @@ Resources:
         StreamViewType: NEW_IMAGE
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
+      Tags:
+        - Key: pnInfraFeature
+          Value: pnStorage
+        - Key: pnMicroservice
+          Value: !Sub '${ProjectName}-Timelines'
 
   # Failed Paper Notification
   PaperNotificationFailedTable:
@@ -114,6 +119,11 @@ Resources:
       BillingMode: "PAY_PER_REQUEST"
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
+      Tags:
+        - Key: pnInfraFeature
+          Value: pnStorage
+        - Key: pnMicroservice
+          Value: !Sub '${ProjectName}-PaperNotificationFailed'
         
   # Action Table
   ActionTable:
@@ -129,6 +139,11 @@ Resources:
       BillingMode: "PAY_PER_REQUEST"
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
+      Tags:
+        - Key: pnInfraFeature
+          Value: pnStorage
+        - Key: pnMicroservice
+          Value: !Sub '${ProjectName}-Action'
 
   # Future Action Table
   FutureActionTable:
@@ -148,6 +163,11 @@ Resources:
       BillingMode: "PAY_PER_REQUEST"
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
+      Tags:
+        - Key: pnInfraFeature
+          Value: pnStorage
+        - Key: pnMicroservice
+          Value: !Sub '${ProjectName}-FutureAction'
 
   # Last scheduled poll time
   LastPollForFutureActionTable:
@@ -163,6 +183,11 @@ Resources:
       BillingMode: "PAY_PER_REQUEST"
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
+      Tags:
+        - Key: pnInfraFeature
+          Value: pnStorage
+        - Key: pnMicroservice
+          Value: !Sub '${ProjectName}-LastPollForFutureActionTable'
 
   # Shared lock handling table
   PnDeliveryPushShedLockTable:
@@ -178,6 +203,11 @@ Resources:
       BillingMode: "PAY_PER_REQUEST"
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
+      Tags:
+        - Key: pnInfraFeature
+          Value: pnStorage
+        - Key: pnMicroservice
+          Value: !Sub '${ProjectName}-PnDeliveryPushShedLock'
 
   # WebhookStreams table
   PnDeliveryPushWebhookStreamsTable:
@@ -197,6 +227,11 @@ Resources:
       BillingMode: "PAY_PER_REQUEST"
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
+      Tags:
+        - Key: pnInfraFeature
+          Value: pnStorage
+        - Key: pnMicroservice
+          Value: !Sub '${ProjectName}-WebhookStreams'
 
   # WebhookEvents table
   PnDeliveryPushWebhookEventsTable:
@@ -219,6 +254,11 @@ Resources:
         Enabled: true
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
+      Tags:
+        - Key: pnInfraFeature
+          Value: pnStorage
+        - Key: pnMicroservice
+          Value: !Sub '${ProjectName}-WebhookEvents'
 
   # Safe storage table containing request
   DocumentCreationRequestTable:
@@ -234,6 +274,11 @@ Resources:
       BillingMode: "PAY_PER_REQUEST"
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
+      Tags:
+        - Key: pnInfraFeature
+          Value: pnStorage
+        - Key: pnMicroservice
+          Value: !Sub '${ProjectName}-DocumentCreationRequestTable'
   
 
 Outputs:
@@ -336,4 +381,3 @@ Outputs:
   DocumentCreationRequestTableArn:
     Description: ARN of dynamodb table containing Document creation request to storage
     Value: !Sub '${DocumentCreationRequestTable.Arn}'
-
