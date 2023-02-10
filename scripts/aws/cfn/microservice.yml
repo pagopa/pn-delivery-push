@@ -323,6 +323,9 @@ Parameters:
     Type: String
     Description: 'National Registries to delivery-push queue age alarm'
 
+  ValidationRetryIntervals:
+    Type: String
+    Description: 'time interval between one validation retry and another'
 
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]

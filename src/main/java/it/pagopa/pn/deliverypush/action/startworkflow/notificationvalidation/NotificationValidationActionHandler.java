@@ -5,8 +5,9 @@ import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDeta
 import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedError;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRefusedErrorCode;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.AllArgsConstructor;
@@ -14,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -22,12 +22,9 @@ import java.util.Objects;
 @AllArgsConstructor
 @Slf4j
 public class NotificationValidationActionHandler {
-    public static final String FILE_NOTFOUND = PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTFOUND;
-    public static final String FILE_SHA_ERROR = PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_SHAFILEERROR;
-    public static final String TAXID_NOT_VALID = PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TAXID_NOT_VALID;
 
     private final AttachmentUtils attachmentUtils;
-    private final TaxIdValidation taxIdValidation;
+    private final TaxIdPivaValidator taxIdPivaValidator;
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
     private final NotificationService notificationService;
@@ -40,7 +37,7 @@ public class NotificationValidationActionHandler {
 
         try {
             attachmentUtils.validateAttachment(notification);
-            //taxIdValidation.validateTaxId(notification);
+            taxIdPivaValidator.validateTaxIdPiva(notification);
             
             log.info("Notification validated successfully - iun={}", iun);
             receivedLegalFactCreationRequest.saveNotificationReceivedLegalFacts(notification);
@@ -53,9 +50,16 @@ public class NotificationValidationActionHandler {
     }
 
     private void handleValidationError(NotificationInt notification, PnValidationException ex) {
-        List<String> errors = new ArrayList<>();
+        List<NotificationRefusedError> errors = new ArrayList<>();
         if (Objects.nonNull( ex.getProblem() )) {
-            errors = Collections.singletonList( ex.getProblem().getDetail() );
+            ex.getProblem().getErrors().forEach( elem -> {
+                NotificationRefusedError notificationRefusedError = NotificationRefusedError.builder()
+                        .errorCode(NotificationRefusedErrorCode.valueOf(elem.getCode()))
+                        .detail(elem.getDetail())
+                        .build();
+                
+                errors.add(notificationRefusedError);
+            });
         }
         log.info("Notification refused, errors {} - iun {}", errors, notification.getIun());
         addTimelineElement( timelineUtils.buildRefusedRequestTimelineElement(notification, errors), notification);

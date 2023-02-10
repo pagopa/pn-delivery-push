@@ -168,4 +168,34 @@ class PnSafeStorageClientImplImplTestIT {
         Assertions.assertNotNull(fileDownloadResponse);
         Assertions.assertEquals(fileDownloadInput, fileDownloadResponse);
     }
+
+    @Test
+    void getFileError() throws JsonProcessingException {
+        //Given
+        String fileKey ="fileKey";
+
+        FileDownloadResponse fileDownloadInput = new FileDownloadResponse();
+        fileDownloadInput.setChecksum("checkSum")
+        ;
+        String path = "/safe-storage/v1/files/{fileKey}"
+                .replace("{fileKey}", fileKey);
+
+        ObjectMapper mapper = new ObjectMapper();
+        String respJson = mapper.writeValueAsString(fileDownloadInput);
+
+        new MockServerClient("localhost", 9998)
+                .when(request()
+                        .withMethod("GET")
+                        .withPath(path)
+                        .withQueryStringParameter("metadataOnly", "true")
+                )
+                .respond(response()
+                        .withBody(respJson)
+                        .withContentType(MediaType.APPLICATION_JSON)
+                        .withStatusCode(404)
+                );
+        Mono<FileDownloadResponse> fileDownloadResponseMono = client.getFile(fileKey, true);
+        
+        Assertions.assertThrows(RuntimeException.class, fileDownloadResponseMono::block);
+    }
 }

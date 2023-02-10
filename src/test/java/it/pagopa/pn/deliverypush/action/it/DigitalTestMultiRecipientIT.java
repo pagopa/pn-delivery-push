@@ -28,7 +28,7 @@ import it.pagopa.pn.deliverypush.action.startworkflow.StartWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationScheduler;
-import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.TaxIdValidation;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.TaxIdPivaValidator;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.AarCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.*;
@@ -138,7 +138,7 @@ import static org.awaitility.Awaitility.await;
         FailureWorkflowHandler.class,
         SuccessWorkflowHandler.class,
         NotificationValidationActionHandler.class,
-        TaxIdValidation.class,
+        TaxIdPivaValidator.class,
         ReceivedLegalFactCreationRequest.class,
         NotificationValidationScheduler.class,
         DigitalTestMultiRecipientIT.SpringTestConfiguration.class

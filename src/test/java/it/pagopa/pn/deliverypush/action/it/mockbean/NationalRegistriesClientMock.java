@@ -16,6 +16,8 @@ import static org.awaitility.Awaitility.await;
 
 public class NationalRegistriesClientMock implements NationalRegistriesClient {
 
+    public static final String NOT_VALID = "NOT_VALID";
+    public static final String EXCEPTION = "EXCEPTION";
     private final PublicRegistryResponseHandler publicRegistryResponseHandler;
     private ConcurrentMap<String, LegalDigitalAddressInt> digitalAddressResponse;
     private final TimelineService timelineService;
@@ -54,7 +56,18 @@ public class NationalRegistriesClientMock implements NationalRegistriesClient {
 
     @Override
     public CheckTaxIdOK checkTaxId(String taxId) {
-        throw new UnsupportedOperationException("checkTaxId NOT Implemented yet");
+        if(taxId.contains(NOT_VALID)){
+            return new CheckTaxIdOK()
+                    .taxId(taxId)
+                    .isValid(false)
+                    .errorCode(CheckTaxIdOK.ErrorCodeEnum.ERR01);
+        } else if (taxId.contains(EXCEPTION)){
+            throw new RuntimeException("mock exception from server");
+        }
+
+        return new CheckTaxIdOK()
+                .taxId(taxId)
+                .isValid(true);
     }
 
     private void simulateDigitalAddressResponse(String taxId, String correlationId) {

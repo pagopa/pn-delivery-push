@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.dto.timeline.details;
 
+import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedError;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,8 +14,11 @@ class RequestRefusedDetailsIntTest {
 
     @BeforeEach
     public void setup() {
-        List<String> errors = new ArrayList<>();
-        errors.add("Failed");
+        List<NotificationRefusedError> errors = new ArrayList<>();
+        errors.add(NotificationRefusedError.builder()
+                .errorCode(NotificationRefusedErrorCode.FILE_NOTFOUND)
+                .detail("details")
+                .build());
 
         request = RequestRefusedDetailsInt.builder()
                 .errors(errors)
@@ -29,7 +33,7 @@ class RequestRefusedDetailsIntTest {
 
     @Test
     void getErrors() {
-        List<String> actualErrors = request.getErrors();
+        List<NotificationRefusedError> actualErrors = request.getErrors();
         Assertions.assertEquals(1, actualErrors.size());
     }
 

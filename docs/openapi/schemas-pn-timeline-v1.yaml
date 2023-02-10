@@ -349,8 +349,7 @@ components:
           type: array
           description: Motivazioni che hanno portato al rifiuto della notifica
           items:
-            type: string
-            description: Motivazioni che hanno portato al rifiuto della notifica
+            $ref: '#/components/schemas/NotificationRefusedError'
 
     ScheduleAnalogWorkflowDetails:
       type: object
@@ -735,3 +734,22 @@ components:
           type: string
         delegateType:
           $ref: './schemas-pn-notification-v1.yaml#/components/schemas/RecipientType'
+
+    NotificationRefusedError:
+      type: object
+      properties:
+        detail:
+          type: string
+        errorCode:
+          $ref: '#/components/schemas/NotificationRefusedErrorCode'
+
+    NotificationRefusedErrorCode:
+      type: string
+      description: codice errore notifica rifiutata
+      enum:
+        - FILE_NOTFOUND
+        - FILE_SHA_ERROR
+        - TAXID_NOT_VALID
+
+      
+    
