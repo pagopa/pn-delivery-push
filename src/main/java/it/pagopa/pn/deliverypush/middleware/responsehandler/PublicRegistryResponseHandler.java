@@ -42,7 +42,9 @@ public class PublicRegistryResponseHandler {
     public void handleResponse(PublicRegistryResponse response) {
 
         String correlationId = response.getCorrelationId();
-        String iun = correlationId.substring(0, correlationId.indexOf("_"));
+//        String iun = correlationId.substring(0, correlationId.indexOf("_"));
+        String iunFromElementId = correlationId.split("-")[1];
+        String iun = iunFromElementId.replace("IUN_", "");
         log.info("Handle public registry response -  iun {} correlationId {}", iun, response.getCorrelationId());
 
         NotificationInt notification = notificationService.getNotificationByIun(iun);

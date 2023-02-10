@@ -4,6 +4,9 @@ import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
+import it.pagopa.pn.deliverypush.dto.timeline.EventId;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -53,7 +56,10 @@ class PublicRegistryResponseHandlerTest {
         
         PublicRegistryResponse response =
                 PublicRegistryResponse.builder()
-                        .correlationId(iun + "_" + taxId + "1121")
+                        .correlationId(new TimelineEventIdBuilder().buildFromCorrelationId(
+                                TimelineEventId.PUBLIC_REGISTRY_RESPONSE,
+                                iun
+                        ))
                         .digitalAddress(LegalDigitalAddressInt.builder()
                                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                                 .address("account@dominio.it")
@@ -97,7 +103,10 @@ class PublicRegistryResponseHandlerTest {
 
         PublicRegistryResponse response =
                 PublicRegistryResponse.builder()
-                        .correlationId(iun + "_" + taxId + "1121")
+                        .correlationId(new TimelineEventIdBuilder().buildFromCorrelationId(
+                                TimelineEventId.PUBLIC_REGISTRY_RESPONSE,
+                                iun
+                        ))
                         .digitalAddress(LegalDigitalAddressInt.builder()
                                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                                 .address("account@dominio.it")

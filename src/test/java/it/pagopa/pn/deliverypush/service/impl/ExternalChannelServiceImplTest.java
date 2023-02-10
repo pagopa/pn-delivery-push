@@ -251,8 +251,8 @@ class ExternalChannelServiceImplTest {
                         .iun(notification.getIun())
                         .recIndex(recIndex)
                         .source(addressSource)
-                        .index(sentAttemptMade)
                         .progressIndex(1)
+                        .sentAttemptMade(0)
                         .build()
         );
 

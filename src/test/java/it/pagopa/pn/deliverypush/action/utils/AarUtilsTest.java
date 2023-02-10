@@ -77,7 +77,7 @@ class AarUtilsTest {
 
         NotificationInt notificationInt = newNotification();
         Optional<TimelineElementInternal> timeline = Optional.of(newTimelineElementInternal());
-        String elementId = "aar_gen-IUN_IUN_01-RECINDEX_0-";
+        String elementId = "aar_gen-IUN_IUN_01-RECINDEX_0";
         String quickAccessToken = "test";
 
         Mockito.when(timelineService.getTimelineElement(notificationInt.getIun(), elementId)).thenReturn(timeline);
@@ -94,7 +94,7 @@ class AarUtilsTest {
         AarGenerationDetailsInt aarInt = AarGenerationDetailsInt.builder().recIndex(0).generatedAarUrl("http://test").numberOfPages(2).build();
         Optional<AarGenerationDetailsInt> aarGenerationDetailsInt = Optional.of(aarInt);
 
-        Mockito.when(timelineService.getTimelineElementDetails(notificationInt.getIun(), "aar_gen-IUN_IUN_01-RECINDEX_0-", AarGenerationDetailsInt.class)).thenReturn(aarGenerationDetailsInt);
+        Mockito.when(timelineService.getTimelineElementDetails(notificationInt.getIun(), "aar_gen-IUN_IUN_01-RECINDEX_0", AarGenerationDetailsInt.class)).thenReturn(aarGenerationDetailsInt);
 
         AarGenerationDetailsInt tmp = aarUtils.getAarGenerationDetails(notificationInt, recIndex);
 

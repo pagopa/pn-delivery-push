@@ -84,7 +84,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("request_accepted-IUN_Example_IUN_1234_Test-", actual.getElementId()),
+                () -> Assertions.assertEquals("request_accepted-IUN_Example_IUN_1234_Test", actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -96,7 +96,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("get_address-IUN_Example_IUN_1234_Test-RECINDEX_1-SOURCE_PLATFORM-SENTATTEMPTMADE_1-", actual.getElementId()),
+                () -> Assertions.assertEquals("get_address-IUN_Example_IUN_1234_Test-RECINDEX_1-SOURCE_PLATFORM-SENTATTEMPTMADE_1", actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -129,7 +129,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("send_digital_feedback-IUN_Example_IUN_1234_Test-RECINDEX_1-SOURCE_GENERAL-SENTATTEMPTMADE_1-", actual.getElementId()),
+                () -> Assertions.assertEquals("send_digital_feedback-IUN_Example_IUN_1234_Test-RECINDEX_1-SOURCE_GENERAL-SENTATTEMPTMADE_1", actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -169,7 +169,7 @@ class TimelineUtilsTest {
         
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("digital_delivering_progress-IUN_Example_IUN_1234_Test-RECINDEX_1-SOURCE_GENERAL-SENTATTEMPTMADE_1-PROGRESSINDEX_1-", actual.getElementId()),
+                () -> Assertions.assertEquals("digital_delivering_progress-IUN_Example_IUN_1234_Test-RECINDEX_1-SOURCE_GENERAL-SENTATTEMPTMADE_1-PROGRESSINDEX_1", actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -208,7 +208,7 @@ class TimelineUtilsTest {
         TimelineElementInternal actual = timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification, address, numberOfPages, productType);
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("send_simple_registered_letter-IUN_Example_IUN_1234_Test-RECINDEX_1-", actual.getElementId()),
+                () -> Assertions.assertEquals("send_simple_registered_letter-IUN_Example_IUN_1234_Test-RECINDEX_1", actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -249,7 +249,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("send_analog_domicile-IUN_Example_IUN_1234_Test-RECINDEX_1-SENTATTEMPTMADE_1-", actual.getElementId()),
+                () -> Assertions.assertEquals("send_analog_domicile-IUN_Example_IUN_1234_Test-RECINDEX_1-SENTATTEMPTMADE_1", actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -270,7 +270,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("digital_success_workflow-IUN_Example_IUN_1234_Test-RECINDEX_1-", actual.getElementId()),
+                () -> Assertions.assertEquals("digital_success_workflow-IUN_Example_IUN_1234_Test-RECINDEX_1", actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -287,7 +287,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("digital_failure_workflow-IUN_Example_IUN_1234_Test-RECINDEX_1-", actual.getElementId()),
+                () -> Assertions.assertEquals("digital_failure_workflow-IUN_Example_IUN_1234_Test-RECINDEX_1", actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -308,7 +308,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("analog_success_workflow-IUN_Example_IUN_1234_Test-RECINDEX_1-", actual.getElementId()),
+                () -> Assertions.assertEquals("analog_success_workflow-IUN_Example_IUN_1234_Test-RECINDEX_1", actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -328,7 +328,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("analog_failure_workflow-IUN_Example_IUN_1234_Test-RECINDEX_1-", actual.getElementId()),
+                () -> Assertions.assertEquals("analog_failure_workflow-IUN_Example_IUN_1234_Test-RECINDEX_1", actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -354,7 +354,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("public_registry_response-CORRELATIONID_001-", actual.getElementId()),
+                () -> Assertions.assertEquals("public_registry_response-CORRELATIONID_001", actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -397,7 +397,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("send_analog_feedback-IUN_Example_IUN_1234_Test-RECINDEX_0-SENTATTEMPTMADE_1-", actual.getElementId()),
+                () -> Assertions.assertEquals("send_analog_feedback-IUN_Example_IUN_1234_Test-RECINDEX_0-SENTATTEMPTMADE_1", actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -427,7 +427,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("notification_viewed-IUN_Example_IUN_1234_Test-RECINDEX_1-", actual.getElementId()),
+                () -> Assertions.assertEquals("notification_viewed-IUN_Example_IUN_1234_Test-RECINDEX_1", actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -441,7 +441,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("completely_unreachable-IUN_Example_IUN_1234_Test-RECINDEX_1-", actual.getElementId()),
+                () -> Assertions.assertEquals("completely_unreachable-IUN_Example_IUN_1234_Test-RECINDEX_1", actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -466,7 +466,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("schedule_digital_workflow-IUN_Example_IUN_1234_Test-RECINDEX_1-SOURCE_GENERAL-SENTATTEMPTMADE_1-", actual.getElementId()),
+                () -> Assertions.assertEquals("schedule_digital_workflow-IUN_Example_IUN_1234_Test-RECINDEX_1-SOURCE_GENERAL-SENTATTEMPTMADE_1", actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -480,7 +480,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("schedule_analog_workflow-IUN_Example_IUN_1234_Test-RECINDEX_1-", actual.getElementId()),
+                () -> Assertions.assertEquals("schedule_analog_workflow-IUN_Example_IUN_1234_Test-RECINDEX_1", actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -497,7 +497,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("refinement-IUN_Example_IUN_1234_Test-RECINDEX_1-", actual.getElementId()),
+                () -> Assertions.assertEquals("refinement-IUN_Example_IUN_1234_Test-RECINDEX_1", actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -511,7 +511,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("schedule_refinement_workflow-IUN_Example_IUN_1234_Test-RECINDEX_100-", actual.getElementId()),
+                () -> Assertions.assertEquals("schedule_refinement_workflow-IUN_Example_IUN_1234_Test-RECINDEX_100", actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
