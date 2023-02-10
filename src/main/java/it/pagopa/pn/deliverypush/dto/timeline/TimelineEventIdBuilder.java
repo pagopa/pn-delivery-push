@@ -18,6 +18,8 @@ import javax.validation.constraints.NotNull;
  */
 public class TimelineEventIdBuilder {
 
+    private static final String DELIMITER = "#";
+
     private String iun = "";
 
     private String recIndex = "";
@@ -40,13 +42,13 @@ public class TimelineEventIdBuilder {
 
     public TimelineEventIdBuilder withIun(@Nullable String iun) {
         if(iun != null)
-            this.iun = "-IUN_".concat(iun);
+            this.iun = DELIMITER.concat("IUN_").concat(iun);
         return this;
     }
 
     public TimelineEventIdBuilder withRecIndex(@Nullable Integer recIndex) {
         if(recIndex != null)
-            this.recIndex = "-RECINDEX_".concat(recIndex + "");
+            this.recIndex = DELIMITER.concat("RECINDEX_").concat(recIndex + "");
         return this;
     }
 
@@ -57,44 +59,44 @@ public class TimelineEventIdBuilder {
 
     public TimelineEventIdBuilder withSource(@Nullable DigitalAddressSourceInt source) {
         if(source != null)
-            this.source = "-SOURCE_".concat(source.getValue());
+            this.source = DELIMITER.concat("SOURCE_").concat(source.getValue());
         return this;
     }
 
     public TimelineEventIdBuilder withSentAttemptMade(@Nullable Integer sentAttemptMade) {
         if(sentAttemptMade != null && sentAttemptMade >= 0)
-            this.sentAttemptMade = "-SENTATTEMPTMADE_".concat(sentAttemptMade + "");
+            this.sentAttemptMade = DELIMITER.concat("SENTATTEMPTMADE_").concat(sentAttemptMade + "");
         return this;
     }
 
     public TimelineEventIdBuilder withProgressIndex(@Nullable Integer progressIndex) {
         // se passo un progressindex negativo, è perchè non voglio che venga inserito nell'eventid. Usato per cercare con l'inizia per
         if(progressIndex != null && progressIndex >= 0)
-            this.progressIndex = "-PROGRESSINDEX_".concat(progressIndex + "");
+            this.progressIndex = DELIMITER.concat("PROGRESSINDEX_").concat(progressIndex + "");
         return this;
     }
 
     public TimelineEventIdBuilder withDeliveryMode(@Nullable DeliveryModeInt deliveryMode) {
         if(deliveryMode != null)
-            this.deliveryMode = "-DELIVERYMODE_".concat(deliveryMode.getValue());
+            this.deliveryMode = DELIMITER.concat("DELIVERYMODE_").concat(deliveryMode.getValue());
         return this;
     }
 
     public TimelineEventIdBuilder withContactPhase(@Nullable ContactPhaseInt contactPhase) {
         if(contactPhase != null)
-            this.contactPhase = "-CONTACTPHASE_".concat(contactPhase.getValue());
+            this.contactPhase = DELIMITER.concat("CONTACTPHASE_").concat(contactPhase.getValue());
         return this;
     }
 
     public TimelineEventIdBuilder withCorrelationId(@Nullable String correlationId) {
         if(correlationId != null)
-            this.correlationId = "-CORRELATIONID_".concat(correlationId);
+            this.correlationId = DELIMITER.concat("CORRELATIONID_").concat(correlationId);
         return this;
     }
 
     public TimelineEventIdBuilder withCourtesyAddressType(@Nullable CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT courtesyAddressType) {
         if(courtesyAddressType != null)
-            this.courtesyAddressType = "-COURTESYADDRESSTYPE_".concat(courtesyAddressType.getValue());
+            this.courtesyAddressType = DELIMITER.concat("COURTESYADDRESSTYPE_").concat(courtesyAddressType.getValue());
         return this;
     }
 

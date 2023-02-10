@@ -887,7 +887,7 @@ public class TimelineUtils {
     public String getIunFromTimelineId(String timelineId)
     {
 //        return timelineId.split("_")[0];
-        return timelineId.split("-")[1].replace("IUN_", "");
+        return timelineId.split("#")[1].replace("IUN_", "");
     }
 
 

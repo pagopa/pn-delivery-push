@@ -303,7 +303,7 @@ class DigitalWorkFlowUtilsTest {
 
         Set<TimelineElementInternal> timelineElementInternalSet = new HashSet<>();
         timelineElementInternalSet.add(timelineElementInternal);
-        Mockito.when(timelineService.getTimelineByIunTimelineId("IUN_01", "digital_delivering_progress-IUN_IUN_01-RECINDEX_1-SOURCE_SPECIAL-SENTATTEMPTMADE_1", Boolean.FALSE)).thenReturn(timelineElementInternalSet);
+        Mockito.when(timelineService.getTimelineByIunTimelineId("IUN_01", "digital_delivering_progress#IUN_IUN_01#RECINDEX_1#SOURCE_SPECIAL#SENTATTEMPTMADE_1", Boolean.FALSE)).thenReturn(timelineElementInternalSet);
 
         DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
                 .retryNumber(sentAttemptMade)

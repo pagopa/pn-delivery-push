@@ -40,8 +40,7 @@ public class PublicRegistryMock implements PublicRegistry {
     public void sendRequestForGetDigitalAddress(String taxId, String recipientType, String correlationId) {
         new Thread(() -> {
             // Viene atteso fino a che l'elemento di timeline relativo all'invio verso extChannel sia stato inserito
-            //public_registry_call-IUN_123456789-RECINDEX_1-DELIVERYMODE_DIGITAL-CONTACTPHASE_CHOOSE_DELIVERY-SENTATTEMPTMADE_1-
-            String iunFromElementId = correlationId.split("-")[1];
+            String iunFromElementId = correlationId.split("#")[1];
             String iun = iunFromElementId.replace("IUN_", "");
             await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
                     Assertions.assertTrue(timelineService.getTimelineElement(iun, correlationId).isPresent())
