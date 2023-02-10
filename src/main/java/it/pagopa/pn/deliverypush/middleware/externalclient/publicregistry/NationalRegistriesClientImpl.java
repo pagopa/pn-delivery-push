@@ -56,7 +56,7 @@ public class NationalRegistriesClientImpl extends CommonBaseClient implements Na
 
     @Override
     public CheckTaxIdOK checkTaxId(String taxId) {
-        log.info("Start checkTaxId ");
+        log.info("Start checkTaxId for taxId={}", LogUtils.maskTaxId(taxId));
         
         CheckTaxIdRequestBody checkTaxIdRequestBody = new CheckTaxIdRequestBody()
                 .filter(
@@ -65,7 +65,8 @@ public class NationalRegistriesClientImpl extends CommonBaseClient implements Na
                 );
         
         return agenziaEntrateApi.checkTaxId(checkTaxIdRequestBody)
-                .doOnSuccess( res -> log.info("CheckTaxId completed successful"))
+                .doOnSuccess( res -> log.info("CheckTaxId completed successful for taxId={}", LogUtils.maskTaxId(taxId)))
+                .doOnError( err -> log.error("CheckTaxId completed with error ",err))
                 .block();
     }
 
