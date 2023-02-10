@@ -472,7 +472,7 @@ public enum TimelineEventId {
         }
     },
 
-    PUBLIC_REGISTRY_CALL("public_registry_call") {
+    NATIONAL_REGISTRY_CALL("national_registry_call") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -495,7 +495,7 @@ public enum TimelineEventId {
         }
     },
 
-    PUBLIC_REGISTRY_RESPONSE("public_registry_response") {
+    NATIONAL_REGISTRY_RESPONSE("national_registry_response") {
         @Override
         public String buildEventId(String eventId) {
             return new TimelineEventIdBuilder()

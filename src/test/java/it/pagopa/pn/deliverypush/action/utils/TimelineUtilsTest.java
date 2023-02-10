@@ -354,7 +354,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("public_registry_response#CORRELATIONID_001", actual.getElementId()),
+                () -> Assertions.assertEquals("national_registry_response#CORRELATIONID_001", actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }

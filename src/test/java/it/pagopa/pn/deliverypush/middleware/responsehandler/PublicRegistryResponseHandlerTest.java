@@ -43,7 +43,7 @@ class PublicRegistryResponseHandlerTest {
     @Test
     void handleResponseChooseDelivery() {
         String iun = "iun01";
-        String correlationId = "public_registry_call#IUN_iun01#RECINDEX_1#DELIVERYMODE_DIGITAL#CONTACTPHASE_CHOOSE_DELIVERY#SENTATTEMPTMADE_1";
+        String correlationId = "national_registry_call#IUN_iun01#RECINDEX_1#DELIVERYMODE_DIGITAL#CONTACTPHASE_CHOOSE_DELIVERY#SENTATTEMPTMADE_1";
         int recIndex = 1;
         NotificationInt notificationInt = buildNotificationInt(iun);
         PublicRegistryResponse response = buildPublicRegistryResponse(correlationId);
@@ -61,7 +61,7 @@ class PublicRegistryResponseHandlerTest {
     @Test
     void handleResponseSendAttemptDigital() {
         String iun = "iun01";
-        String correlationId = "public_registry_call#IUN_iun01#RECINDEX_1#DELIVERYMODE_DIGITAL#CONTACTPHASE_CHOOSE_DELIVERY#SENTATTEMPTMADE_1";
+        String correlationId = "national_registry_call#IUN_iun01#RECINDEX_1#DELIVERYMODE_DIGITAL#CONTACTPHASE_CHOOSE_DELIVERY#SENTATTEMPTMADE_1";
         int recIndex = 1;
         NotificationInt notificationInt = buildNotificationInt(iun);
         PublicRegistryResponse response = buildPublicRegistryResponse(correlationId);
