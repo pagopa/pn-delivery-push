@@ -806,6 +806,21 @@ components:
           $ref: './schemas-pn-status-v1.yaml#/components/schemas/NotificationStatus'
         timelineEventCategory:
           $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/TimelineElementCategory'
+        recipientIndex:
+          type: integer
+          description: Indice del destinatario al quale si riferisce l'evento
+        channel:
+          type: string
+          description: >-
+            Canale a cui si riferisce l'evento. I valori previsti sono:
+            - Per eventi legati a messaggi di cortesia: APPIO, SMS, EMAIL
+            - Per eventi legati all'invio digitale: PEC
+            - Per eventi legati all'invio analogico: AR_REGISTERED_LETTER, REGISTERED_LETTER_890
+            - Per eventi legati all'invio di raccomandate semplici: SIMPLE_REGISTERED_LETTER
+
+        legalfactId:
+          type: string
+          description: chiave dell'eventuale allegato associato all'evento
     
     ###  - EVENTI GENERATI DALLA P.A.
     ###################################

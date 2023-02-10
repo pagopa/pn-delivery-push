@@ -27,6 +27,10 @@ public class EventEntity {
     private static final String COL_TIMESTAMP = "timestamp";
     private static final String COL_TTL = "ttl";
 
+    private static final String COL_RECINDEX = "recipientIndex";
+    private static final String COL_CHANNEL = "channel";
+    private static final String COL_LEGALFACT_ID = "legalfactId";
+
     public EventEntity(){}
 
     public EventEntity(Long eventId, String streamId){
@@ -45,4 +49,9 @@ public class EventEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(COL_NEW_STATUS)})) private String newStatus;
     @Getter(onMethod=@__({@DynamoDbAttribute(COL_TIMELINE_EVENT_CATEGORY)})) private String timelineEventCategory;
     @Getter(onMethod=@__({@DynamoDbAttribute(COL_TTL)})) private Long ttl;
+
+    @Getter(onMethod=@__({@DynamoDbAttribute(COL_RECINDEX)})) private int recipientIndex;
+    @Getter(onMethod=@__({@DynamoDbAttribute(COL_CHANNEL)})) private String channel;
+    @Getter(onMethod=@__({@DynamoDbAttribute(COL_LEGALFACT_ID)})) private String legalfactId;
+
 }

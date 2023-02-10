@@ -17,6 +17,7 @@ import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.EventEntityBatch;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.EventEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
 import it.pagopa.pn.deliverypush.service.*;
+import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -26,7 +27,6 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -42,6 +42,7 @@ class WebhookServiceImplTest {
     private TimelineService timelineService;
     private StatusService statusService;
     private NotificationService notificationService;
+    private WebhookUtils webhookUtils;
 
     private final int MAX_STREAMS = 5;
 
@@ -54,6 +55,7 @@ class WebhookServiceImplTest {
         timelineService = Mockito.mock(TimelineService.class);
         statusService = Mockito.mock(StatusService.class);
         notificationService = Mockito.mock(NotificationService.class);
+        webhookUtils = Mockito.mock(WebhookUtils.class);
 
         PnDeliveryPushConfigs.Webhook webhook = new PnDeliveryPushConfigs.Webhook();
         webhook.setScheduleInterval(1000L);
@@ -64,7 +66,7 @@ class WebhookServiceImplTest {
         webhook.setTtl(Duration.ofDays(30));
         Mockito.when(pnDeliveryPushConfigs.getWebhook()).thenReturn(webhook);
 
-        webhookService = new WebhookServiceImpl(streamEntityDao, eventEntityDao, pnDeliveryPushConfigs, schedulerService, timelineService, statusService, notificationService);
+        webhookService = new WebhookServiceImpl(streamEntityDao, eventEntityDao, pnDeliveryPushConfigs, schedulerService, webhookUtils);
     }
 
     @Test
