@@ -8,10 +8,6 @@ public enum TimelineEventId {
                     .withCategory(this.getValue())
                     .withIun(eventId.getIun())
                     .build();
-//            return String.format(
-//                    "senderack_legalfact_creation_request_iun_%s",
-//                    eventId.getIun()
-//            );
         }
     },
     
@@ -22,15 +18,10 @@ public enum TimelineEventId {
                     .withCategory(this.getValue())
                     .withIun(eventId.getIun())
                     .build();
-//            return String.format(
-//                    "%s_request_accepted",
-//                    eventId.getIun()
-//            );
         }
     },
 
     SEND_COURTESY_MESSAGE("send_courtesy_message") {
-//        private static final String EVENT_COMMON_PREFIX = "%s_send_courtesy_message_%d_type_";
 
         @Override
         public String buildEventId(EventId eventId) {
@@ -40,13 +31,6 @@ public enum TimelineEventId {
                     .withRecIndex(eventId.getRecIndex())
                     .withCourtesyAddressType(eventId.getCourtesyAddressType())
                     .build();
-//            String eventCommonId = EVENT_COMMON_PREFIX + "%s";
-//            return String.format(
-//                    eventCommonId,
-//                    eventId.getIun(),
-//                    eventId.getRecIndex(),
-//                    eventId.getCourtesyAddressType()==null?"":eventId.getCourtesyAddressType().getValue()   // se passo un courtesy null, è perchè non voglio che venga inserito nell'eventid. Usato per cercare con l'inizia per
-//            );
         }
 
         @Override
@@ -70,13 +54,6 @@ public enum TimelineEventId {
                     .withSource(eventId.getSource())
                     .withSentAttemptMade(eventId.getSentAttemptMade())
                     .build();
-//            return String.format(
-//                    "%s_get_address_%d_source_%s_attempt_%d",
-//                    eventId.getIun(),
-//                    eventId.getRecIndex(),
-//                    eventId.getSource(),
-//                    eventId.getSentAttemptMade()
-//            );
         }
     },
 
@@ -90,14 +67,6 @@ public enum TimelineEventId {
                     .withSource(eventId.getSource())
                     .withSentAttemptMade(eventId.getSentAttemptMade())
                     .build();
-//            return String.format(
-//                    "%s_digital_delivering_progress_%d_source_%s_attempt_%d_progidx_%s",
-//                    eventId.getIun(),
-//                    eventId.getRecIndex(),
-//                    eventId.getSource(),
-//                    eventId.getSentAttemptMade(),
-//                    eventId.getProgressIndex()<0?"":eventId.getProgressIndex()  // se passo un progressindex negativo, è perchè non voglio che venga inserito nell'eventid. Usato per cercare con l'inizia per
-//            );
         }
     },
 
@@ -112,15 +81,8 @@ public enum TimelineEventId {
                     .withSentAttemptMade(eventId.getSentAttemptMade())
                     .withProgressIndex(eventId.getProgressIndex())
                     .build();
-//            return String.format(
-//                    "%s_digital_delivering_progress_%d_source_%s_attempt_%d_progidx_%s",
-//                    eventId.getIun(),
-//                    eventId.getRecIndex(),
-//                    eventId.getSource(),
-//                    eventId.getSentAttemptMade(),
-//                    eventId.getProgressIndex()<0?"":eventId.getProgressIndex()  // se passo un progressindex negativo, è perchè non voglio che venga inserito nell'eventid. Usato per cercare con l'inizia per
-//            );
         }
+
         @Override
         public String buildSearchEventIdByIunAndRecipientIndex(String iun, Integer recipientIndex){
             return new TimelineEventIdBuilder()
@@ -140,12 +102,6 @@ public enum TimelineEventId {
                     .withRecIndex(eventId.getRecIndex())
                     .withSentAttemptMade(eventId.getSentAttemptMade())
                     .build();
-//            return String.format(
-//                    "%s_send_analog_feedback_%d_attempt_%d",
-//                    eventId.getIun(),
-//                    eventId.getRecIndex(),
-//                    eventId.getSentAttemptMade()
-//            );
         }
     },
 
@@ -159,13 +115,6 @@ public enum TimelineEventId {
                     .withSentAttemptMade(eventId.getSentAttemptMade())
                     .withProgressIndex(eventId.getProgressIndex())
                     .build();
-//            return String.format(
-//                    "%s_send_analog_progress_%d_attempt_%d_progidx_%s",
-//                    eventId.getIun(),
-//                    eventId.getRecIndex(),
-//                    eventId.getSentAttemptMade(),
-//                    eventId.getProgressIndex()<0?"":eventId.getProgressIndex()  // se passo un progressindex negativo, è perchè non voglio che venga inserito nell'eventid. Usato per cercare con l'inizia per
-//            );
         }
     },
 
@@ -179,14 +128,6 @@ public enum TimelineEventId {
                     .withSource(eventId.getSource())
                     .withSentAttemptMade(eventId.getSentAttemptMade())
                     .build();
-//            int sendAttempt = eventId.getSentAttemptMade();
-//            return String.format(
-//                    "%s_send_digital_domicile_%d_source_%s_attempt_%d",
-//                    eventId.getIun(),
-//                    eventId.getRecIndex(),
-//                    eventId.getSource(),
-//                    sendAttempt
-//            );
         }
     },
 
@@ -198,11 +139,6 @@ public enum TimelineEventId {
                     .withIun(eventId.getIun())
                     .withRecIndex(eventId.getRecIndex())
                     .build();
-//            return String.format(
-//                    "%s_prepare_simple_registered_letter_%d",
-//                    eventId.getIun(),
-//                    eventId.getRecIndex()
-//            );
         }
     },
 
@@ -214,11 +150,6 @@ public enum TimelineEventId {
                     .withIun(eventId.getIun())
                     .withRecIndex(eventId.getRecIndex())
                     .build();
-//            return String.format(
-//                    "%s_send_simple_registered_letter_%d",
-//                    eventId.getIun(),
-//                    eventId.getRecIndex()
-//            );
         }
     },
 
@@ -231,13 +162,6 @@ public enum TimelineEventId {
                     .withRecIndex(eventId.getRecIndex())
                     .withSentAttemptMade(eventId.getSentAttemptMade())
                     .build();
-//            int sendAttempt = eventId.getSentAttemptMade();
-//            return String.format(
-//                    "%s_prepare_analog_domicile_%d_attempt_%d",
-//                    eventId.getIun(),
-//                    eventId.getRecIndex(),
-//                    sendAttempt
-//            );
         }
     },
 
@@ -250,13 +174,6 @@ public enum TimelineEventId {
                     .withRecIndex(eventId.getRecIndex())
                     .withSentAttemptMade(eventId.getSentAttemptMade())
                     .build();
-//            int sendAttempt = eventId.getSentAttemptMade();
-//            return String.format(
-//                    "%s_send_analog_domicile_%d_attempt_%d",
-//                    eventId.getIun(),
-//                    eventId.getRecIndex(),
-//                    sendAttempt
-//            );
         }
     },
 
@@ -268,11 +185,6 @@ public enum TimelineEventId {
                     .withIun(eventId.getIun())
                     .withRecIndex(eventId.getRecIndex())
                     .build();
-//            return String.format(
-//                    "digital_delivery_creation_request_iun_%s_recindex_%d",
-//                    eventId.getIun(),
-//                    eventId.getRecIndex()
-//            );
         }
     },
     
@@ -284,11 +196,6 @@ public enum TimelineEventId {
                     .withIun(eventId.getIun())
                     .withRecIndex(eventId.getRecIndex())
                     .build();
-//            return String.format(
-//                    "%s_digital_success_workflow_%d",
-//                    eventId.getIun(),
-//                    eventId.getRecIndex()
-//            );
         }
     },
 
@@ -300,11 +207,6 @@ public enum TimelineEventId {
                     .withIun(eventId.getIun())
                     .withRecIndex(eventId.getRecIndex())
                     .build();
-//            return String.format(
-//                    "%s_digital_failure_workflow_%d",
-//                    eventId.getIun(),
-//                    eventId.getRecIndex()
-//            );
         }
     },
 
@@ -316,11 +218,6 @@ public enum TimelineEventId {
                     .withIun(eventId.getIun())
                     .withRecIndex(eventId.getRecIndex())
                     .build();
-//            return String.format(
-//                    "%s_analog_success_workflow_%d",
-//                    eventId.getIun(),
-//                    eventId.getRecIndex()
-//            );
         }
     },
 
@@ -332,11 +229,6 @@ public enum TimelineEventId {
                     .withIun(eventId.getIun())
                     .withRecIndex(eventId.getRecIndex())
                     .build();
-//            return String.format(
-//                    "%s_analog_failure_workflow_%d",
-//                    eventId.getIun(),
-//                    eventId.getRecIndex()
-//            );
         }
     },
 
@@ -348,11 +240,6 @@ public enum TimelineEventId {
                     .withIun(eventId.getIun())
                     .withRecIndex(eventId.getRecIndex())
                     .build();
-//            return String.format(
-//                    "notification_viewed_creation_request_iun_%s_recIndex_%d",
-//                    eventId.getIun(),
-//                    eventId.getRecIndex()
-//            );
         }
     },
     
@@ -364,11 +251,6 @@ public enum TimelineEventId {
                     .withIun(eventId.getIun())
                     .withRecIndex(eventId.getRecIndex())
                     .build();
-//            return String.format(
-//                    "%s_notification_viewed_%d",
-//                    eventId.getIun(),
-//                    eventId.getRecIndex()
-//            );
         }
     },
 
@@ -380,11 +262,6 @@ public enum TimelineEventId {
                     .withIun(eventId.getIun())
                     .withRecIndex(eventId.getRecIndex())
                     .build();
-//            return String.format(
-//                    "%s_completely_unreachable_%d",
-//                    eventId.getIun(),
-//                    eventId.getRecIndex()
-//            );
         }
     },
 
@@ -396,11 +273,6 @@ public enum TimelineEventId {
                     .withIun(eventId.getIun())
                     .withRecIndex(eventId.getRecIndex())
                     .build();
-//            return String.format(
-//                    "%s_refinement_%d",
-//                    eventId.getIun(),
-//                    eventId.getRecIndex()
-//            );
         }
     },
 
@@ -414,13 +286,6 @@ public enum TimelineEventId {
                     .withSource(eventId.getSource())
                     .withSentAttemptMade(eventId.getSentAttemptMade())
                     .build();
-//            return String.format(
-//                    "%s_schedule_digital_workflow_%d_source_%s_retry_%d",
-//                    eventId.getIun(),
-//                    eventId.getRecIndex(),
-//                    eventId.getSource().getValue(),
-//                    eventId.getSentAttemptMade()
-//            );
         }
     },
 
@@ -433,12 +298,6 @@ public enum TimelineEventId {
                     .withRecIndex(eventId.getRecIndex())
                     .withSentAttemptMade(eventId.getSentAttemptMade())
                     .build();
-//            return String.format(
-//                    "%s_schedule_analog_workflow_%d_retry_%d",
-//                    eventId.getIun(),
-//                    eventId.getRecIndex(),
-//                    eventId.getSentAttemptMade()
-//            );
         }
     },
 
@@ -450,11 +309,6 @@ public enum TimelineEventId {
                     .withIun(eventId.getIun())
                     .withRecIndex(eventId.getRecIndex())
                     .build();
-//            return String.format(
-//                    "%s_schedule_refinement_workflow_%d",
-//                    eventId.getIun(),
-//                    eventId.getRecIndex()
-//            );
         }
     },
 
@@ -465,10 +319,6 @@ public enum TimelineEventId {
                     .withCategory(this.getValue())
                     .withIun(eventId.getIun())
                     .build();
-//            return String.format(
-//                    "%s_request_refused",
-//                    eventId.getIun()
-//            );
         }
     },
 
@@ -483,15 +333,6 @@ public enum TimelineEventId {
                     .withContactPhase(eventId.getContactPhase())
                     .withSentAttemptMade(eventId.getSentAttemptMade())
                     .build();
-//            return String.format(
-//                    "%s_%d_%s_%s_%d_%s",
-//                    eventId.getIun(),
-//                    eventId.getRecIndex(),
-//                    eventId.getDeliveryMode(),
-//                    eventId.getContactPhase(),
-//                    eventId.getSentAttemptMade(),
-//                    "public_registry_call"
-//            );
         }
     },
 
@@ -502,10 +343,6 @@ public enum TimelineEventId {
                     .withCategory(this.getValue())
                     .withCorrelationId(eventId)
                     .build();
-//            return String.format(
-//                    "public_registry_response_%s",
-//                    eventId
-//            );
         }
     },
 
@@ -517,11 +354,6 @@ public enum TimelineEventId {
                     .withIun(eventId.getIun())
                     .withRecIndex(eventId.getRecIndex())
                     .build();
-//            return String.format(
-//                    "aar_creation_request_iun_%s_recIndex_%d",
-//                    eventId.getIun(),
-//                    eventId.getRecIndex()
-//            );
         }
     },
     
@@ -533,11 +365,6 @@ public enum TimelineEventId {
                     .withIun(eventId.getIun())
                     .withRecIndex(eventId.getRecIndex())
                     .build();
-//            return String.format(
-//                    "%s_aar_gen_%d",
-//                    eventId.getIun(),
-//                    eventId.getRecIndex()
-//            );
         }
     },
     
@@ -549,11 +376,6 @@ public enum TimelineEventId {
                     .withIun(eventId.getIun())
                     .withRecIndex(eventId.getRecIndex())
                     .build();
-//            return String.format(
-//                    "%s_not_handled_%d",
-//                    eventId.getIun(),
-//                    eventId.getRecIndex()
-//            );
         }
     },
 
@@ -564,10 +386,6 @@ public enum TimelineEventId {
                     .withCategory(this.getValue())
                     .withIun(eventId.getIun())
                     .build();
-//            return String.format(
-//                    "%s_notification_paid",
-//                    eventId.getIun()
-//            );
         }
     }
     ;
