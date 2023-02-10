@@ -113,19 +113,19 @@ public class TimelineEventIdBuilder {
                 .toString();
     }
 
-    public String buildFromEventId(TimelineEventId timelineEventId, EventId eventId) {
-        return new TimelineEventIdBuilder()
-                .withCategory(timelineEventId.getValue())
-                .withIun(eventId.getIun())
-                .withRecIndex(eventId.getRecIndex())
-                .withSource(eventId.getSource())
-                .withSentAttemptMade(eventId.getSentAttemptMade())
-                .withProgressIndex(eventId.getProgressIndex())
-                .withDeliveryMode(eventId.getDeliveryMode())
-                .withContactPhase(eventId.getContactPhase())
-                .withCourtesyAddressType(eventId.getCourtesyAddressType())
-                .build();
-    }
+//    public String buildFromEventId(TimelineEventId timelineEventId, EventId eventId) {
+//        return new TimelineEventIdBuilder()
+//                .withCategory(timelineEventId.getValue())
+//                .withIun(eventId.getIun())
+//                .withRecIndex(eventId.getRecIndex())
+//                .withSource(eventId.getSource())
+//                .withSentAttemptMade(eventId.getSentAttemptMade())
+//                .withProgressIndex(eventId.getProgressIndex())
+//                .withDeliveryMode(eventId.getDeliveryMode())
+//                .withContactPhase(eventId.getContactPhase())
+//                .withCourtesyAddressType(eventId.getCourtesyAddressType())
+//                .build();
+//    }
 
     public String buildFromCorrelationId(TimelineEventId timelineEventId, String correlationId) {
         return new TimelineEventIdBuilder()
