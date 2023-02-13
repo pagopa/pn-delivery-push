@@ -12,8 +12,11 @@ public enum ActionType {
   NOTIFICATION_VALIDATION(NotificationValidationActionDetails.class) {
     @Override
     public String buildActionId(Action action) {
-      return String.format("notification_validation_iun_%s", 
-              action.getIun());
+      NotificationValidationActionDetails details = (NotificationValidationActionDetails) action.getDetails();
+      
+      return String.format("notification_validation_iun_%s_retry=%d", 
+              action.getIun(),
+              details.getRetryAttempt());
     }
   },
   

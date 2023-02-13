@@ -7,12 +7,12 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
 @Setter
 @EqualsAndHashCode
-@ToString
 @DynamoDbBean
 public class NotificationRefusedErrorEntity {
-    @Getter(onMethod=@__({@DynamoDbAttribute("errorCode")})) private String errorCode;
-    @Getter(onMethod=@__({@DynamoDbAttribute("detail")})) private String detail;
+    @Getter(onMethod = @__({@DynamoDbAttribute("errorCode")}))
+    private NotificationRefusedErrorCodeEntity errorCode;
+    @Getter(onMethod = @__({@DynamoDbAttribute("detail")}))
+    private String detail;
 }

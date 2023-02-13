@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto;
 
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRefusedErrorCodeInt;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,62 +15,42 @@ class RequestRefusedDetailsTest {
     void setUp() {
         details = new RequestRefusedDetails();
         details.setErrors(Collections.singletonList(
-                NotificationRefusedError.builder()
-                        .detail("dettaglio")
-                        .errorCode(NotificationRefusedErrorCode.FILE_NOTFOUND)
-                        .build()
+                NotificationRefusedErrorCodeInt.FILE_NOTFOUND.getValue()
         ));
     }
 
     @Test
     void errors() {
         RequestRefusedDetails tmp = RequestRefusedDetails.builder()
-                .errors(Collections.singletonList(NotificationRefusedError.builder()
-                        .detail("dettaglio")
-                        .errorCode(NotificationRefusedErrorCode.FILE_NOTFOUND)
-                        .build()))
+                .errors(Collections.singletonList(
+                        NotificationRefusedErrorCodeInt.FILE_NOTFOUND.getValue()
+                ))
                 .build();
-        Assertions.assertEquals(tmp, details.errors(Collections.singletonList(NotificationRefusedError.builder()
-                .detail("dettaglio")
-                .errorCode(NotificationRefusedErrorCode.FILE_NOTFOUND)
-                .build())));
+        Assertions.assertEquals(tmp, details.errors(Collections.singletonList(
+                NotificationRefusedErrorCodeInt.FILE_NOTFOUND.getValue()
+        )));
     }
 
     @Test
     void addErrorsItem() {
         RequestRefusedDetails tmp = new RequestRefusedDetails();
         tmp.addErrorsItem(
-                NotificationRefusedError.builder()
-                .detail("dettaglio")
-                .errorCode(NotificationRefusedErrorCode.FILE_NOTFOUND)
-                .build());
+                NotificationRefusedErrorCodeInt.FILE_NOTFOUND.getValue()
+        );
         Assertions.assertEquals(details, tmp);
     }
 
     @Test
     void getErrors() {
-        Assertions.assertEquals(Collections.singletonList(NotificationRefusedError.builder()
-                .detail("dettaglio")
-                .errorCode(NotificationRefusedErrorCode.FILE_NOTFOUND)
-                .build()), details.getErrors());
+        Assertions.assertEquals(Collections.singletonList(NotificationRefusedErrorCodeInt.FILE_NOTFOUND.getValue()), details.getErrors());
     }
 
     @Test
     void testEquals() {
         RequestRefusedDetails tmp = RequestRefusedDetails.builder()
-                .errors(Collections.singletonList(NotificationRefusedError.builder()
-                        .detail("dettaglio")
-                        .errorCode(NotificationRefusedErrorCode.FILE_NOTFOUND)
-                        .build()))
+                .errors(Collections.singletonList(NotificationRefusedErrorCodeInt.FILE_NOTFOUND.getValue()))
                 .build();
         Assertions.assertEquals(Boolean.TRUE, tmp.equals(details));
     }
-
-    @Test
-    void testToString() {
-        String tmp = "class RequestRefusedDetails {\n" +
-                "    errors: [one]\n" +
-                "}";
-        Assertions.assertEquals(tmp, details.toString());
-    }
+    
 }

@@ -65,8 +65,7 @@ public class NationalRegistriesClientImpl extends CommonBaseClient implements Na
                 );
         
         return agenziaEntrateApi.checkTaxId(checkTaxIdRequestBody)
-                .doOnSuccess( res -> log.info("CheckTaxId completed successful for taxId={}", LogUtils.maskTaxId(taxId)))
-                .doOnError( err -> log.error("CheckTaxId completed with error ",err))
+                .doOnSuccess( res -> log.info("CheckTaxId completed for taxId={}", LogUtils.maskTaxId(taxId)))
                 .block();
     }
 

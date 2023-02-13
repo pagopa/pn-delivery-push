@@ -6,7 +6,7 @@ import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationR
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRefusedErrorCode;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRefusedErrorCodeInt;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -71,7 +71,7 @@ class NotificationValidationActionHandlerTest {
         NotificationInt notification = TestUtils.getNotification();
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
-        doThrow(new PnValidationFileNotFoundException(NotificationRefusedErrorCode.FILE_NOTFOUND, "detail", new RuntimeException())).when(attachmentUtils).validateAttachment(notification);
+        doThrow(new PnValidationFileNotFoundException(NotificationRefusedErrorCodeInt.FILE_NOTFOUND, "detail", new RuntimeException())).when(attachmentUtils).validateAttachment(notification);
 
         NotificationValidationActionDetails details = NotificationValidationActionDetails.builder()
                 .retryAttempt(1)

@@ -5,9 +5,9 @@ import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDeta
 import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedError;
+import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRefusedErrorCode;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRefusedErrorCodeInt;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.AllArgsConstructor;
@@ -50,15 +50,16 @@ public class NotificationValidationActionHandler {
     }
 
     private void handleValidationError(NotificationInt notification, PnValidationException ex) {
-        List<NotificationRefusedError> errors = new ArrayList<>();
+        List<String> errors = new ArrayList<>();
         if (Objects.nonNull( ex.getProblem() )) {
             ex.getProblem().getErrors().forEach( elem -> {
-                NotificationRefusedError notificationRefusedError = NotificationRefusedError.builder()
-                        .errorCode(NotificationRefusedErrorCode.valueOf(elem.getCode()))
+                //Per sviluppi futuri si può pensare d'inserire questo intero oggetto in timeline
+                NotificationRefusedErrorInt notificationRefusedError = NotificationRefusedErrorInt.builder()
+                        .errorCode(NotificationRefusedErrorCodeInt.valueOf(elem.getCode()))
                         .detail(elem.getDetail())
                         .build();
                 
-                errors.add(notificationRefusedError);
+                errors.add(notificationRefusedError.getErrorCode().getValue());
             });
         }
         log.info("Notification refused, errors {} - iun {}", errors, notification.getIun());

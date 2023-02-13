@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -47,14 +48,14 @@ public class NationalRegistriesServiceImpl implements NationalRegistriesService 
 
     @Override
     public CheckTaxIdOKInt checkTaxId(String taxId) {
-        log.debug("Start checkTaxId");
+        log.info("Start checkTaxId for taxId={}", LogUtils.maskTaxId(taxId));
 
         CheckTaxIdOK response = nationalRegistriesClient.checkTaxId(taxId);
 
         return CheckTaxIdOKInt.builder()
                 .taxId(taxId)
                 .isValid(response.getIsValid())
-                .errorCode(response.getErrorCode() != null ? CheckTaxIdOKInt.ErrorCodeEnumInt.valueOf(response.getErrorCode().getValue()) : null )
+                .errorCode(response.getErrorCode() != null ? response.getErrorCode().getValue() : null )
                 .build();
     }
 

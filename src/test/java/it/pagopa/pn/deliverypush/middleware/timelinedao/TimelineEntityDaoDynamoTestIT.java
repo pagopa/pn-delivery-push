@@ -3,7 +3,6 @@ package it.pagopa.pn.deliverypush.middleware.timelinedao;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.deliverypush.LocalStackTestConfig;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRefusedErrorCode;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineEntityDao;
@@ -606,10 +605,8 @@ class TimelineEntityDaoDynamoTestIT {
                                                         .build()
                                         )
                                 )
-                                .errors(List.of(NotificationRefusedErrorEntity.builder()
-                                                .detail("fax")
-                                                .errorCode(NotificationRefusedErrorCode.FILE_NOTFOUND.toString())
-                                        .build()
+                                .errors(List.of(
+                                        NotificationRefusedErrorCodeEntity.FILE_NOTFOUND.getValue()
                                 ))
                                 .build()
                 )
