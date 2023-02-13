@@ -450,7 +450,7 @@ class NotificationViewedTestIT {
         
         String internalId = recipient.getInternalId();
         
-        await().untilAsserted(() ->
+        await().untilAsserted(() -> 
                 Assertions.assertThrows(PnNotFoundException.class, () -> paperNotificationFailedService.getPaperNotificationByRecipientId(internalId, false))
         );
         
