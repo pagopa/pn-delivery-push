@@ -67,8 +67,6 @@ public class PnSafeStorageClientImpl extends CommonBaseClient implements PnSafeS
                                 Qui dovrebbe essere lanciata una NotFound exception non viene fatto perchè la notifica andrebbe in rifiutata, ma al momento non c'è possibilità di distinguere un 404
                                 dovuto ad un mancato caricamento file da parte della PA (che dovrebbe portare la notifica in rifiutata e un 404 dovuto ad un ritardo nel caricamento del file nel bucket corretto,
                                 dovuto a SafeStorage (in questo caso di deve procedere con i ritentativi). Si sceglie dunque per ore di ritentare in entrambi i casi
-                                String message = String.format("Get file failed for - fileKey=%s isMetadataOnly=%b", fileKey, metadataOnly);
-                                return Mono.error(new PnNotFoundException("Not found", message, ERROR_CODE_DELIVERYPUSH_NOTFOUND, ex));
                              */
                         } else {
                             log.error("Safe Storage client get file fileKey={} error", finalFileKey, error);
