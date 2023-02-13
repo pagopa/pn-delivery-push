@@ -73,4 +73,7 @@ public class NationalRegistriesClientImpl extends CommonBaseClient implements Na
         this.addressApi = addressApi;
     }
 
+    public void setAgenziaEntrateApi(AgenziaEntrateApi agenziaEntrateApi) {
+        this.agenziaEntrateApi = agenziaEntrateApi;
+    }
 }
