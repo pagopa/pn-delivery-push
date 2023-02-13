@@ -113,7 +113,7 @@ class NotificationValidationActionHandlerTest {
 
         //THEN
         Mockito.verify(receivedLegalFactCreationRequest, Mockito.never()).saveNotificationReceivedLegalFacts(notification);
-        Mockito.verify(notificationValidationScheduler).scheduleNotificationValidation(notification.getIun(), details.getRetryAttempt());
+        Mockito.verify(notificationValidationScheduler).scheduleNotificationValidation(notification, details.getRetryAttempt());
     }
 
     

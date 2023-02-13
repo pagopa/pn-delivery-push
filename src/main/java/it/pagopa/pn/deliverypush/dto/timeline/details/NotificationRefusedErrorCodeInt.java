@@ -5,8 +5,10 @@ public enum NotificationRefusedErrorCodeInt {
 
     FILE_SHA_ERROR( "FILE_SHA_ERROR"),
 
-    TAXID_NOT_VALID("TAXID_NOT_VALID");
+    TAXID_NOT_VALID("TAXID_NOT_VALID"),
 
+    SERVICE_UNAVAILABLE("SERVICE_UNAVAILABLE");
+    
     private final String value;
 
     NotificationRefusedErrorCodeInt(String value) {

@@ -45,7 +45,7 @@ public class NotificationValidationActionHandler {
             handleValidationError(notification, ex);
         } catch (RuntimeException ex){
             log.info("Notification validation need to be rescheduled for ex={} - iun={}", ex, iun);
-            notificationValidationScheduler.scheduleNotificationValidation(iun, details.getRetryAttempt());
+            notificationValidationScheduler.scheduleNotificationValidation(notification, details.getRetryAttempt());
         }
     }
 
