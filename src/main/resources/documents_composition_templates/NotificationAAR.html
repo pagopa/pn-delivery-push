@@ -64,12 +64,16 @@
         height: 22mm;
       }
 
-      /* #logo-box__logo {
-      } */
+      #logo-box__logo {
+        position: relative;
+        top: .5mm;
+        left: 2mm;
+        width: 42.3mm;
+      }
 
       #logo-box__subtitle {
         position: relative;
-        top: 15.9mm;
+        top: 0.2mm;
         text-transform: uppercase;
         font-weight: 700;
         color: #616161;
@@ -212,7 +216,6 @@
       }
 
       ul {
-        /* list-style: square; */
         line-height: 18px;
         margin-left: 3mm;
       }
@@ -275,6 +278,7 @@
   </head>
   <body>
     <div id="logo-box">
+      <img id="logo-box__logo" src="./images/aar-logo.png" />
       <div id="logo-box__subtitle" class="eight-px">
         Avviso di avvenuta ricezione
       </div>
@@ -329,7 +333,7 @@
       <div class="container">
         <div class="section-list ten-px">
           <ol>
-            <li>Inquadra il codice QR o vai su ${piattaformaNotificheURLLabel}</li>
+            <li>Inquadra il codice QR o vai su <strong>${piattaformaNotificheURLLabel}</strong></li>
             <li>Accedi con SPID o CIE (Carta d'Identità Elettronica)</li>
             <li>Visualizza i documenti notificati</li>
           </ol>
