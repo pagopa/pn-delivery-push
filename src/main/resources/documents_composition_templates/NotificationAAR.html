@@ -60,20 +60,20 @@
         position: absolute;
         top: 14mm;
         left: 10mm;
-        width: 90mm;
+        width: 48.5mm;
         height: 22mm;
-        /* background-color: coral; */
       }
+
+      /* #logo-box__logo {
+      } */
 
       #logo-box__subtitle {
         position: relative;
-        top: 16mm;
+        top: 15.9mm;
         text-transform: uppercase;
-        /* font-size: 10.7px; */
         font-weight: 700;
         color: #616161;
-        padding: 0.5mm 2mm;
-        /* background-color: coral; */
+        padding: 0.5mm 2.6mm;
       }
 
       #sender-addr-box {
@@ -82,15 +82,15 @@
         top: 14mm;
         width: 42mm;
         height: 22mm;
-        padding: 2.4mm 0mm;
-        line-height: 4mm;
+        padding: 2.5mm 0.6mm;
+        line-height: 3.9mm;
       }
 
       /* QR */
       #qr-iun-code {
         position: absolute;
-        top: 23mm;
-        left: 125.4mm;
+        top: 22.9mm;
+        left: 125.2mm;
         width: 35mm;
         height: 15mm;
         line-height: 8px;
@@ -104,7 +104,7 @@
         top: 6mm;
       }
 
-      #recipient-addr-window {
+      #recipient-addr-box {
         position: absolute;
         top: 63mm;
         left: 100mm;
@@ -114,7 +114,7 @@
         line-height: 14.6px;
       }
 
-      #main-content {
+      #main {
         position: absolute;
         top: 96mm;
         left: 10mm;
@@ -123,18 +123,17 @@
         padding: 0 2.5mm;
       }
 
-      #subject {
+      #main__subject {
         height: 16mm;
         line-height: 28px;
         padding-top: 0mm;
-        /* white-space: pre-line; */
       }
 
-      #disclaimer {
+      #main__disclaimer {
         height: 6mm;
       }
 
-      #content {
+      #main__content {
         height: 25mm;
       }
 
@@ -180,14 +179,14 @@
         border-radius: 5px;
       }
 
-      #io-image {
+      #io-notifications__image {
         position: absolute;
         top: 4mm;
         left: 3mm;
         height: 10mm;
       }
 
-      #io-notification-content {
+      #io-notifications__content {
         position: absolute;
         top: 2mm;
         left: 12mm;
@@ -213,9 +212,24 @@
       }
 
       ul {
+        /* list-style: square; */
         line-height: 18px;
-        list-style: square;
         margin-left: 3mm;
+      }
+
+      ul li {
+        list-style-type: none;
+        position: relative;
+      }
+
+      ul li::before {
+        position: absolute;
+        content: '';
+        background-color: black;
+        width: 3.1px;
+        height: 3.4px;
+        left: -3mm;
+        top: 2.5mm;
       }
 
       #post-office-disclaimer {
@@ -242,11 +256,11 @@
         top: 177.5mm;
         left: 108mm;
         width: 92mm;
-        /* height: 109.5mm; */
       }
 
       #mandate-content {
         padding: 3.2mm;
+        padding-right: 0;
       }
 
       #mandate-content .paragraph {
@@ -261,52 +275,60 @@
   </head>
   <body>
     <div id="logo-box">
-      <!-- <div class="logo-window__logo">Piattaforma Notifiche</div> -->
       <div id="logo-box__subtitle" class="eight-px">
         Avviso di avvenuta ricezione
       </div>
     </div>
 
     <div id="sender-addr-box">
-      1 riga lunga 30 caratterispazi<br />
-      2 riga lunga 30 caratterispazi<br />
-      3 riga lunga 30 caratterispazi<br />
-      4 riga lunga 30 caratterispazi
+      <#if addressWriter.nullSafePhysicalAddressToString( sender.physicalAddress, sender.denomination, '<br/>')??>
+        ${addressWriter.nullSafePhysicalAddressToString( sender.physicalAddress, "<strong>"+sender.denomination+"</strong>", '<br/>')}
+      <#else>
+        <#if sender.denomination??>
+          ${sender.denomination}
+        <#else>
+          indirizzo non presente
+        </#if>
+      </#if>
     </div>
 
     <div id="qr-iun-code" class="eight-px">
       <div class="strong">Codice univoco:</div>
-      <br />[YYYYMM-1-ABCD-EFGHX]
+      <br />${notification.iun}
     </div>
 
     <img id="qr-code" src="${qrCodeQuickAccessLink}" />
 
-    <div id="recipient-addr-window">
-      <div class="strong">1a riga lunga massimo 44 caratteri con spazi</div>
-      <div>2a riga lunga massimo 44 caratteri con spazi</div>
-      <div>3a riga lunga massimo 44 caratteri con spazi</div>
-      <div>4a riga lunga massimo 44 caratteri con spazi</div>
-      <div>5a riga lunga massimo 44 caratteri con spazi</div>
-      <div>6a riga lunga massimo 44 caratteri con spazi</div>
+    <div id="recipient-addr-box">
+      <#if addressWriter.nullSafePhysicalAddressToString( recipient.physicalAddress, recipient.denomination, '<br/>')??>
+        ${addressWriter.nullSafePhysicalAddressToString( recipient.physicalAddress, "<strong>"+recipient.denomination+"</strong>", '<br/>')}
+      <#else>
+        <#if recipient.denomination??>
+          ${recipient.denomination}
+        <#else>
+          indirizzo non presente
+        </#if>
+      </#if>
     </div>
 
-    <div id="main-content">
-      <div id="subject" class="seventeen-px strong">
-        Titolo di 134 caratteri massimi spazi compresi. Aid olotielit, sed
-        eiusmod tempora incidunt ue et et dolore magna aliqua aliqua aliqua
+    <div id="main">
+      <div id="main__subject" class="seventeen-px strong">
+        ${notification.subject}
       </div>
-      <div id="disclaimer" class="nine-px">
-        Ricevi questo avviso di avvenuta ricezione in qualità di [tipo
-        destinatario] con Codice Fiscale [XXXXXX00X00X000X].
+      <div id="main__disclaimer" class="nine-px">
+        Ricevi questo avviso di avvenuta ricezione in qualità di
+        <#if recipient.recipientType == "PF">
+          privato cittadino
+        <#else>
+          persona giuridica
+        </#if>
+        con Codice Fiscale ${recipient.taxId}.
       </div>
-      <div id="content" class="ten-px">
-        Hai ricevuto su Piattaforma Notifiche una notifica da parte di [Nome
-        ente mittente]. Una notifica è una comunicazione a valore legale
-        composta da un avviso di avvenuta ricezione e da uno o più documenti.
-        Hai fino a 120 giorni dalla data di perfezionamento della notifica per
-        visualizzarli online o ritirarli in Ufficio Postale. Per conoscere la
-        data di perfezionamento, vai su
-        notifichedigitali.pagopa.it/perfezionamento.
+      <div id="main__content" class="ten-px">
+        Hai ricevuto su Piattaforma Notifiche una notifica da parte di <strong>${notification.sender.paDenomination}</strong>.
+        Una notifica è una comunicazione a valore legale composta da un avviso di avvenuta ricezione e da uno o più documenti.
+        Hai fino a 120 giorni dalla data di perfezionamento della notifica per visualizzarli online o ritirarli in Ufficio Postale.
+        Per conoscere la data di perfezionamento, vai su <strong>${piattaformaNotificheURL}</strong>.
       </div>
     </div>
 
@@ -315,14 +337,14 @@
       <div class="container">
         <div class="section-list ten-px">
           <ol>
-            <li>Inquadra il codice QR o vai su [url.notifichedigitali.it]</li>
+            <li>Inquadra il codice QR o vai su ${piattaformaNotificheURLLabel}</li>
             <li>Accedi con SPID o CIE (Carta d'Identità Elettronica)</li>
             <li>Visualizza i documenti notificati</li>
           </ol>
         </div>
         <div id="io-notifications" class="rounded-box">
-          <img id="io-image" src="images/io-on-light.png" />
-          <div id="io-notification-content">
+          <img id="io-notifications__image" src="images/io-on-light.png" />
+          <div id="io-notifications__content">
             Ricevi le prossime notifiche in digitale. Scarica l’app IO sul tuo
             dispositivo e attiva il servizio
             <strong>“Notifiche digitali”</strong> di Piattaforma Notifiche.
@@ -350,6 +372,11 @@
                 il tuo <strong>Codice Fiscale</strong> o
                 <strong>Partita IVA</strong>
               </li>
+              <#if recipient.recipientType != "PF">
+                <li>
+                  se hai ricevuto la notifica in qualità di persona giuridica, <strong>un documento che attesti il tuo ruolo di legale rappresentante</strong>
+                </li>
+              </#if>
             </ul>
           </li>
           <li>Paga il corrispettivo e ritira i documenti notificati</li>
@@ -358,8 +385,7 @@
       <div id="post-office-disclaimer">
         Puoi consultare i termini e le condizioni del servizio in Ufficio
         Postale e su
-        <strong>poste.it</strong>
-        .
+        <strong>poste.it</strong>.
       </div>
     </div>
 
@@ -373,7 +399,7 @@
     <div id="mandate-box" class="ten-px">
       <div class="heading">Vuoi delegare qualcuno al ritiro?</div>
       <div id="mandate-content">
-        Io, [Nome cognome destinatario][XXXXXX00X00X000X], delego
+        Io, ${recipient.denomination} ${recipient.taxId}, delego
         <div class="form-element paragraph">Nome</div>
         <div class="form-element paragraph">Cognome</div>
         <div class="form-element paragraph">Codice Fiscale</div>
@@ -398,11 +424,15 @@
               <strong>una copia o l’originale</strong> del tuo Codice Fiscale e
               di un tuo documento di riconoscimento
             </li>
+            <#if recipient.recipientType != "PF">
+              <li>
+                se hai ricevuto la notifica in qualità di persona giuridica, <strong>un documento che attesti il tuo ruolo di legale rappresentante</strong>
+              </li>
+            </#if>
           </ul>
         </div>
       </div>
     </div>
 
-    <!-- <div id="mandate-box"></div> -->
   </body>
 </html>
