@@ -69,6 +69,14 @@ class LegalFactPdfGeneratorTest {
 		pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplatePhysical("https://notifichedigitali.it");
 		pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplateLegal("https://notifichedigitali.legal.it");
 		pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailSuffix("aar");
+		pnDeliveryPushConfigs.setPaperChannel(new PnDeliveryPushConfigs.PaperChannel());
+		pnDeliveryPushConfigs.getPaperChannel().setSenderAddress( new PnDeliveryPushConfigs.SenderAddress());
+		pnDeliveryPushConfigs.getPaperChannel().getSenderAddress().setFullname("PagoPA S.p.A.");
+		pnDeliveryPushConfigs.getPaperChannel().getSenderAddress().setAddress("Via Sardegna n. 38");
+		pnDeliveryPushConfigs.getPaperChannel().getSenderAddress().setZipcode("00187");
+		pnDeliveryPushConfigs.getPaperChannel().getSenderAddress().setCity("Roma");
+		pnDeliveryPushConfigs.getPaperChannel().getSenderAddress().setPr("Roma");
+		pnDeliveryPushConfigs.getPaperChannel().getSenderAddress().setCountry("Italia");
 
 		pdfUtils = new LegalFactGenerator(documentComposition, instantWriter, physicalAddressWriter, pnDeliveryPushConfigs, instantNowSupplier, mvpParameterConsumer);
 

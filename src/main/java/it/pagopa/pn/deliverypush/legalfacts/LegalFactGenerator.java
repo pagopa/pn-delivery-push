@@ -44,6 +44,7 @@ public class LegalFactGenerator {
     public static final String FIELD_IUN = "iun";
     public static final String FIELD_DELIVERIES = "deliveries";
     public static final String FIELD_RECIPIENT = "recipient";
+    public static final String FIELD_SENDER_ADDRESS = "senderAddress";
     public static final String FIELD_WHEN = "when";
     public static final String FIELD_PIATTAFORMA_NOTIFICHE_URL = "piattaformaNotificheURL";
     public static final String FIELD_PIATTAFORMA_NOTIFICHE_URL_LABEL = "piattaformaNotificheURLLabel";
@@ -312,6 +313,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( notification.getSentAt(), true ) );
         templateModel.put(FIELD_NOTIFICATION, notification);
         templateModel.put(FIELD_RECIPIENT, recipient);
+        templateModel.put(FIELD_SENDER_ADDRESS, pnDeliveryPushConfigs.getPaperChannel().getSenderPhysicalAddress());
         templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
         templateModel.put(FIELD_PIATTAFORMA_NOTIFICHE_URL, this.getAccessUrl(recipient) );
         templateModel.put(FIELD_PIATTAFORMA_NOTIFICHE_URL_LABEL, this.getAccessUrlLabel(recipient) );

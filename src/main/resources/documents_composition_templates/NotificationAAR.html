@@ -281,15 +281,7 @@
     </div>
 
     <div id="sender-addr-box">
-      <#if addressWriter.nullSafePhysicalAddressToString( sender.physicalAddress, sender.denomination, '<br/>')??>
-        ${addressWriter.nullSafePhysicalAddressToString( sender.physicalAddress, "<strong>"+sender.denomination+"</strong>", '<br/>')}
-      <#else>
-        <#if sender.denomination??>
-          ${sender.denomination}
-        <#else>
-          indirizzo non presente
-        </#if>
-      </#if>
+      ${addressWriter.nullSafePhysicalAddressToString( senderAddress, "<strong>"+senderAddress.fullname+"</strong>", '<br/>')}
     </div>
 
     <div id="qr-iun-code" class="eight-px">

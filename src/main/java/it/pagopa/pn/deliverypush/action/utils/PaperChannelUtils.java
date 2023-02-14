@@ -32,15 +32,7 @@ public class PaperChannelUtils {
     }
 
     public PhysicalAddressInt getSenderAddress(){
-        PnDeliveryPushConfigs.SenderAddress senderAddress = pnDeliveryPushConfigs.getPaperChannel().getSenderAddress();
-        return PhysicalAddressInt.builder()
-                .fullname(senderAddress.getFullname())
-                .address(senderAddress.getAddress())
-                .zip(senderAddress.getZipcode())
-                .province(senderAddress.getPr())
-                .municipality(senderAddress.getCity())
-                .foreignState(senderAddress.getCountry())
-                .build();
+        return pnDeliveryPushConfigs.getPaperChannel().getSenderPhysicalAddress();
     }
 
     public String buildPrepareSimpleRegisteredLetterEventId(NotificationInt notification, Integer recIndex){
