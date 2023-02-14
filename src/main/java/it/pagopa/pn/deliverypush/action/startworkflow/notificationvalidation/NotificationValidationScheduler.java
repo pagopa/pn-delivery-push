@@ -7,7 +7,7 @@ import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRefusedErrorCodeInt;
+import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -113,7 +113,7 @@ public class NotificationValidationScheduler {
         List<String> errors = new ArrayList<>();
         
         NotificationRefusedErrorInt notificationRefusedError = NotificationRefusedErrorInt.builder()
-                .errorCode(NotificationRefusedErrorCodeInt.SERVICE_UNAVAILABLE)
+                .errorCode(PnDeliveryPushExceptionCodes.NotificationRefusedErrorCodeInt.SERVICE_UNAVAILABLE)
                 .detail("Servizio non disponibile")
                 .build();
 

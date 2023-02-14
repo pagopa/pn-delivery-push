@@ -13,6 +13,7 @@ import it.pagopa.pn.delivery.generated.openapi.clients.safestorage_reactive.api.
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
+import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ByteArrayResource;
@@ -31,6 +32,8 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
+
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_GETFILEERROR;
 
 @Component
 @Slf4j
@@ -60,17 +63,19 @@ public class PnSafeStorageClientImpl extends CommonBaseClient implements PnSafeS
         fileKey = fileKey.replace(SAFE_STORAGE_URL_PREFIX, "");
         String finalFileKey = fileKey;
         return fileDownloadApi.getFile( fileKey, this.cfg.getSafeStorageCxId(), metadataOnly )
-                .doOnError(WebClientResponseException.class, error ->{
-                        if(error.getStatusCode().equals(HttpStatus.NOT_FOUND)){
-                            log.error("File not found from safeStorage fileKey={} error={}", finalFileKey, error);
-                            /*
-                                Qui dovrebbe essere lanciata una NotFound exception non viene fatto perchè la notifica andrebbe in rifiutata, ma al momento non c'è possibilità di distinguere un 404
-                                dovuto ad un mancato caricamento file da parte della PA (che dovrebbe portare la notifica in rifiutata e un 404 dovuto ad un ritardo nel caricamento del file nel bucket corretto,
-                                dovuto a SafeStorage (in questo caso di deve procedere con i ritentativi). Si sceglie dunque per ore di ritentare in entrambi i casi
-                             */
-                        } else {
-                            log.error("Safe Storage client get file fileKey={} error", finalFileKey, error);
-                        }
+                .onErrorResume( WebClientResponseException.class, error ->{
+                    log.error("Exception in call getFile fileKey={} error={}", finalFileKey, error);
+
+                    if(error.getStatusCode().equals(HttpStatus.NOT_FOUND)){
+                        log.error("File not found from safeStorage fileKey={} error={}", finalFileKey, error);
+                        return Mono.error(
+                                new PnValidationFileNotFoundException(
+                                        ERROR_CODE_DELIVERYPUSH_GETFILEERROR,
+                                        error)
+                        );
+                    }
+                    
+                    return Mono.error(error);
                 });
     }
 

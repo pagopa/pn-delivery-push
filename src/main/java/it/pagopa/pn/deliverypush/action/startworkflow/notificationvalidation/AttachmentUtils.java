@@ -10,7 +10,6 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocum
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRefusedErrorCodeInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotMatchingShaException;
@@ -115,7 +114,6 @@ public class AttachmentUtils {
         } catch ( PnNotFoundException ex ) {
             //Al momento questa exception non viene lanciata
             throw new PnValidationFileNotFoundException(
-                    NotificationRefusedErrorCodeInt.FILE_NOTFOUND,
                     ex.getProblem().getDetail(),
                     ex 
             );
@@ -126,14 +124,12 @@ public class AttachmentUtils {
             log.debug( "Check preload digest for attachment with key={}", attachmentKey);
             if ( !attachment.getDigests().getSha256().equals( fd.getChecksum() )) {
                 throw new PnValidationNotMatchingShaException(
-                        NotificationRefusedErrorCodeInt.FILE_SHA_ERROR,
                         "Validation failed, different sha256 expected="+ attachment.getDigests().getSha256()
                                 + " actual="+ fd.getChecksum() 
                 );
             }
         } else{
             throw new PnValidationNotMatchingShaException(
-                    NotificationRefusedErrorCodeInt.FILE_SHA_ERROR,
                     "Validation failed, different sha256 expected="+ attachment.getDigests().getSha256()
                             + " actual="+ null 
             );

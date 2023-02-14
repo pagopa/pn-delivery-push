@@ -7,7 +7,8 @@ import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRefusedErrorCodeInt;
+import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
+import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.AllArgsConstructor;
@@ -41,6 +42,14 @@ public class NotificationValidationActionHandler {
             
             log.info("Notification validated successfully - iun={}", iun);
             receivedLegalFactCreationRequest.saveNotificationReceivedLegalFacts(notification);
+        } catch (PnValidationFileNotFoundException ex){
+            /* Per la PnValidationFileNotFoundException la notifica non viene portata in rifiutata MA è prevista una gestione ad hoc. Questo avviene 
+               perchè al momento non c'è possibilità di distinguere un 404 dovuto ad un mancato caricamento file da parte della PA (che dovrebbe portare
+               regolarmente la notifica in rifiutata) e un 404 dovuto ad un ritardo nel caricamento del file nel bucket corretto da parte di
+               safeStorage (in questo caso si di deve procedere con i ritentativi). Si sceglie dunque per ore di ritentare in entrambi i casi
+            */
+            log.info("File not found exception, notification validation need to be rescheduled  - iun={}", iun);
+            notificationValidationScheduler.scheduleNotificationValidation(notification, details.getRetryAttempt());
         } catch (PnValidationException ex){
             handleValidationError(notification, ex);
         } catch (RuntimeException ex){
@@ -55,7 +64,7 @@ public class NotificationValidationActionHandler {
             ex.getProblem().getErrors().forEach( elem -> {
                 //Per sviluppi futuri si può pensare d'inserire questo intero oggetto in timeline
                 NotificationRefusedErrorInt notificationRefusedError = NotificationRefusedErrorInt.builder()
-                        .errorCode(NotificationRefusedErrorCodeInt.valueOf(elem.getCode()))
+                        .errorCode(PnDeliveryPushExceptionCodes.NotificationRefusedErrorCodeInt.valueOf(elem.getCode()))
                         .detail(elem.getDetail())
                         .build();
                 

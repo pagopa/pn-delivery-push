@@ -6,8 +6,9 @@ import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationR
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRefusedErrorCodeInt;
+import it.pagopa.pn.deliverypush.exceptions.PnValidationTaxIdNotValidException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
+import it.pagopa.pn.deliverypush.exceptions.PnValidationNotMatchingShaException;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,12 +67,12 @@ class NotificationValidationActionHandlerTest {
 
     @ExtendWith(SpringExtension.class)
     @Test
-    void validateNotificationKO() {
+    void validateNotificationKONotFound() {
         //GIVEN
         NotificationInt notification = TestUtils.getNotification();
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
-        doThrow(new PnValidationFileNotFoundException(NotificationRefusedErrorCodeInt.FILE_NOTFOUND, "detail", new RuntimeException())).when(attachmentUtils).validateAttachment(notification);
+        doThrow(new PnValidationFileNotFoundException("detail", new RuntimeException())).when(attachmentUtils).validateAttachment(notification);
 
         NotificationValidationActionDetails details = NotificationValidationActionDetails.builder()
                 .retryAttempt(1)
@@ -86,9 +87,59 @@ class NotificationValidationActionHandlerTest {
 
         //THEN
         Mockito.verify(receivedLegalFactCreationRequest, Mockito.never()).saveNotificationReceivedLegalFacts(notification);
+        Mockito.verify(notificationValidationScheduler).scheduleNotificationValidation(notification, details.getRetryAttempt());
+    }
+
+    @ExtendWith(SpringExtension.class)
+    @Test
+    void validateNotificationKOFileShaError() {
+        //GIVEN
+        NotificationInt notification = TestUtils.getNotification();
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+                .thenReturn(notification);
+        doThrow(new PnValidationNotMatchingShaException("detail")).when(attachmentUtils).validateAttachment(notification);
+        
+        NotificationValidationActionDetails details = NotificationValidationActionDetails.builder()
+                .retryAttempt(1)
+                .build();
+
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().build();
+        Mockito.when( timelineUtils.buildRefusedRequestTimelineElement(Mockito.any(NotificationInt.class), Mockito.any()))
+                .thenReturn(timelineElementInternal);
+
+        //WHEN
+        handler.validateNotification(notification.getIun(), details);
+
+        //THEN
+        Mockito.verify(receivedLegalFactCreationRequest, Mockito.never()).saveNotificationReceivedLegalFacts(notification);
         Mockito.verify(timelineService).addTimelineElement(timelineElementInternal, notification);
     }
 
+    @ExtendWith(SpringExtension.class)
+    @Test
+    void validateNotificationKOTaxIdNotValid() {
+        //GIVEN
+        NotificationInt notification = TestUtils.getNotification();
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+                .thenReturn(notification);
+        doThrow(new PnValidationTaxIdNotValidException("detail")).when(attachmentUtils).validateAttachment(notification);
+
+        NotificationValidationActionDetails details = NotificationValidationActionDetails.builder()
+                .retryAttempt(1)
+                .build();
+
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().build();
+        Mockito.when( timelineUtils.buildRefusedRequestTimelineElement(Mockito.any(NotificationInt.class), Mockito.any()))
+                .thenReturn(timelineElementInternal);
+
+        //WHEN
+        handler.validateNotification(notification.getIun(), details);
+
+        //THEN
+        Mockito.verify(receivedLegalFactCreationRequest, Mockito.never()).saveNotificationReceivedLegalFacts(notification);
+        Mockito.verify(timelineService).addTimelineElement(timelineElementInternal, notification);
+    }
+    
     @ExtendWith(SpringExtension.class)
     @Test
     void validateNotificationErrorCheckRetry() {

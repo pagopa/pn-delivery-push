@@ -3,8 +3,7 @@ package it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.nationalregistries.CheckTaxIdOKInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRefusedErrorCodeInt;
-import it.pagopa.pn.deliverypush.exceptions.PnTaxIdNotValidException;
+import it.pagopa.pn.deliverypush.exceptions.PnValidationTaxIdNotValidException;
 import it.pagopa.pn.deliverypush.service.NationalRegistriesService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +27,7 @@ public class TaxIdPivaValidator {
             if (Boolean.FALSE.equals(response.getIsValid()) ){
                 log.info("TaxId is not valid - iun={} id={}", notification.getIun(), recIndex);
                 
-                throw new PnTaxIdNotValidException(
-                        NotificationRefusedErrorCodeInt.TAXID_NOT_VALID,
+                throw new PnValidationTaxIdNotValidException(
                         response.getErrorCode()
                 );
             }

@@ -325,7 +325,7 @@ Parameters:
 
   ValidationRetryIntervals:
     Type: String
-    Description: 'time interval between one validation retry and another'
+    Description: 'Time interval between validations retry'
 
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]

@@ -4,7 +4,7 @@ import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.nationalregistries.CheckTaxIdOKInt;
-import it.pagopa.pn.deliverypush.exceptions.PnTaxIdNotValidException;
+import it.pagopa.pn.deliverypush.exceptions.PnValidationTaxIdNotValidException;
 import it.pagopa.pn.deliverypush.service.NationalRegistriesService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,6 +61,6 @@ class TaxIdPivaValidatorTest {
         Mockito.when(nationalRegistriesService.checkTaxId(Mockito.anyString())).thenReturn(checkTaxIdOK);
 
         //when
-        assertThrows(PnTaxIdNotValidException.class, () -> taxIdPivaValidator.validateTaxIdPiva(notification));
+        assertThrows(PnValidationTaxIdNotValidException.class, () -> taxIdPivaValidator.validateTaxIdPiva(notification));
     }
 }

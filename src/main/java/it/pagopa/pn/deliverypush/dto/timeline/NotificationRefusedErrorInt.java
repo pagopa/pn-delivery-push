@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.dto.timeline;
 
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRefusedErrorCodeInt;
+import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import lombok.*;
 
 @Getter
@@ -10,6 +10,6 @@ import lombok.*;
 @NoArgsConstructor
 @ToString
 public class NotificationRefusedErrorInt {
-    private NotificationRefusedErrorCodeInt errorCode;
+    private PnDeliveryPushExceptionCodes.NotificationRefusedErrorCodeInt errorCode;
     private String detail;
 }
