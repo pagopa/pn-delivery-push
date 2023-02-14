@@ -436,7 +436,7 @@ public class TimelineUtils {
     public TimelineElementInternal buildPublicRegistryResponseCallTimelineElement(NotificationInt notification, Integer recIndex, PublicRegistryResponse response) {
         log.debug("buildPublicRegistryResponseCallTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
 
-        String eventId = TimelineEventId.PUBLIC_REGISTRY_RESPONSE.buildEventId(response.getCorrelationId());
+        String eventId = TimelineEventId.NATIONAL_REGISTRY_RESPONSE.buildEventId(response.getCorrelationId());
                 
         PublicRegistryResponseDetailsInt details = PublicRegistryResponseDetailsInt.builder()
                 .recIndex(recIndex)
@@ -886,7 +886,8 @@ public class TimelineUtils {
 
     public String getIunFromTimelineId(String timelineId)
     {
-        return timelineId.split("_")[0];
+        //<timelineId = CATEGORY_VALUE>#IUN_<IUN_VALUE>#RECINDEX_<RECINDEX_VALUE>...
+        return timelineId.split("#")[1].replace("IUN_", "");
     }
 
 
