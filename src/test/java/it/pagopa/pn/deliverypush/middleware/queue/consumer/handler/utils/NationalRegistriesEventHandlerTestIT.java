@@ -53,4 +53,5 @@ class NationalRegistriesEventHandlerTestIT {
                 () -> pnNationalRegistriesEventInboundConsumer.accept(message));
     }
 
+
 }
