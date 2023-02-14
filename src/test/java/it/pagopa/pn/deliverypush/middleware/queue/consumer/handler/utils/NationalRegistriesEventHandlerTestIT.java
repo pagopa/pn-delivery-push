@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 
 @FunctionalSpringBootTest
 @Import(LocalStackTestConfig.class)
-class NationalRegistriesEventHandlerTest {
+class NationalRegistriesEventHandlerTestIT {
 
     @Autowired
     private FunctionCatalog functionCatalog;
