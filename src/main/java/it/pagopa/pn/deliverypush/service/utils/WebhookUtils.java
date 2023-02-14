@@ -93,13 +93,11 @@ public class WebhookUtils {
         eventEntity.setTimelineEventCategory(timelineElementInternal.getCategory().getValue());
         // il requestId ci va sempre, ed è il base64 dello iun
         eventEntity.setNotificationRequestId(Base64Utils.encodeToString(timelineElementInternal.getIun().getBytes(StandardCharsets.UTF_8)));
-        return enrichWithAdditionalData(eventEntity, timelineElementInternal, notificationInt);
+        TimelineElementDetailsInt details = timelineElementInternal.getDetails();
+        return enrichWithAdditionalData(eventEntity, timelineElementInternal, details, notificationInt);
     }
 
-    private EventEntity enrichWithAdditionalData(EventEntity eventEntity, TimelineElementInternal timelineElementInternal, NotificationInt notificationInt) {
-
-
-        TimelineElementDetailsInt details = timelineElementInternal.getDetails();
+    private EventEntity enrichWithAdditionalData(EventEntity eventEntity, TimelineElementInternal timelineElementInternal,  TimelineElementDetailsInt details, NotificationInt notificationInt) {
 
         enrichWithRecipientIndex(eventEntity, details);
 
@@ -153,7 +151,7 @@ public class WebhookUtils {
     }
 
     private void enrichWithLegalFacts(EventEntity eventEntity, TimelineElementInternal timelineElementInternal) {
-        // aggiungo l'eventuale legalfact
+        // aggiungo gli eventuali legalfact
         if (!CollectionUtils.isEmpty(timelineElementInternal.getLegalFactsIds()))
         {
             eventEntity.setLegalfactIds(timelineElementInternal.getLegalFactsIds().stream().filter(Objects::nonNull).map(LegalFactsIdInt::getKey).toList());

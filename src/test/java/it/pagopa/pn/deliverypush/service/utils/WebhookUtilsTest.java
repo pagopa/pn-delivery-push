@@ -1,15 +1,13 @@
 package it.pagopa.pn.deliverypush.service.utils;
 
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.EventEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -119,6 +117,7 @@ class WebhookUtilsTest {
         assertNotNull(eventEntity.getTtl());
     }
 
+
     @Test
     void buildEventEntity_3() {
 
@@ -140,6 +139,51 @@ class WebhookUtilsTest {
         assertEquals("KEY1", eventEntity.getLegalfactIds().get(0));
         assertEquals(ServiceLevelTypeInt.REGISTERED_LETTER_890.name(), eventEntity.getChannel());
         assertEquals(500, eventEntity.getAnalogCost());
+        assertNotNull(eventEntity.getTtl());
+    }
+
+
+    @Test
+    void buildEventEntity_4() {
+
+        String iun = "IUN-ABC-123";
+        String xpagopacxid = "PF-123456";
+
+        List<TimelineElementInternal> timeline = generateTimeline(iun, xpagopacxid);
+        TimelineElementInternal timelineElementInternal = timeline.get(4);          //SEND_SIMPLE_REGISTERED_LETTER
+        StreamEntity streamEntity = new StreamEntity("paid", "abc");
+        NotificationInt notificationInt = NotificationInt.builder()
+                .physicalCommunicationType(ServiceLevelTypeInt.REGISTERED_LETTER_890)
+                .build();
+        EventEntity eventEntity = webhookUtils.buildEventEntity(1L, streamEntity, "ACCEPTED", timelineElementInternal, notificationInt);
+
+        assertNotNull(eventEntity);
+        assertEquals(StringUtils.leftPad("1", 38, "0"), eventEntity.getEventId());
+        assertEquals(1, eventEntity.getRecipientIndex());
+        assertEquals("SIMPLE_REGISTERED_LETTER", eventEntity.getChannel());
+        assertEquals(500, eventEntity.getAnalogCost());
+        assertNotNull(eventEntity.getTtl());
+    }
+
+
+    @Test
+    void buildEventEntity_5() {
+
+        String iun = "IUN-ABC-123";
+        String xpagopacxid = "PF-123456";
+
+        List<TimelineElementInternal> timeline = generateTimeline(iun, xpagopacxid);
+        TimelineElementInternal timelineElementInternal = timeline.get(5);          //SEND_SIMPLE_REGISTERED_LETTER
+        StreamEntity streamEntity = new StreamEntity("paid", "abc");
+        NotificationInt notificationInt = NotificationInt.builder()
+                .physicalCommunicationType(ServiceLevelTypeInt.REGISTERED_LETTER_890)
+                .build();
+        EventEntity eventEntity = webhookUtils.buildEventEntity(1L, streamEntity, "ACCEPTED", timelineElementInternal, notificationInt);
+
+        assertNotNull(eventEntity);
+        assertEquals(StringUtils.leftPad("1", 38, "0"), eventEntity.getEventId());
+        assertEquals(1, eventEntity.getRecipientIndex());
+        assertEquals("EMAIL", eventEntity.getChannel());
         assertNotNull(eventEntity.getTtl());
     }
 
@@ -185,6 +229,33 @@ class WebhookUtilsTest {
                 .details(SendAnalogDetailsInt.builder()
                         .recIndex(1)
                         .analogCost(500)
+                        .build())
+                .paId(paId)
+                .build());
+
+        res.add(TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER)
+                .iun(iun)
+                .elementId(iun + "_" + TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER )
+                .timestamp(t0.plusMillis(1000))
+                .details(SimpleRegisteredLetterDetailsInt.builder()
+                        .recIndex(1)
+                        .analogCost(500)
+                        .build())
+                .paId(paId)
+                .build());
+
+        res.add(TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.SEND_COURTESY_MESSAGE)
+                .iun(iun)
+                .elementId(iun + "_" + TimelineElementCategoryInt.SEND_COURTESY_MESSAGE )
+                .timestamp(t0.plusMillis(1000))
+                .details(SendCourtesyMessageDetailsInt.builder()
+                        .recIndex(1)
+                        .digitalAddress(CourtesyDigitalAddressInt.builder()
+                                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL)
+                                .address("secret")
+                                .build() )
                         .build())
                 .paId(paId)
                 .build());
