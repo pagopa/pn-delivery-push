@@ -15,7 +15,8 @@ import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper.DtoToEntit
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper.EntityToDtoStreamMapper;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper.EntityToStreamListDtoStreamMapper;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
-import it.pagopa.pn.deliverypush.service.*;
+import it.pagopa.pn.deliverypush.service.SchedulerService;
+import it.pagopa.pn.deliverypush.service.WebhookService;
 import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -23,9 +24,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuples;
 
-import java.time.Duration;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -39,7 +42,6 @@ public class WebhookServiceImpl implements WebhookService {
     private final int purgeDeletionWaittime;
 
     private final int maxStreams;
-    private final Duration ttl;
 
     public WebhookServiceImpl(StreamEntityDao streamEntityDao, EventEntityDao eventEntityDao,
                               PnDeliveryPushConfigs pnDeliveryPushConfigs, SchedulerService schedulerService,
@@ -52,7 +54,6 @@ public class WebhookServiceImpl implements WebhookService {
         this.purgeDeletionWaittime = webhookConf.getPurgeDeletionWaittime();
         this.schedulerService = schedulerService;
         this.maxStreams= webhookConf.getMaxStreams();
-        this.ttl = webhookConf.getTtl();
     }
 
     @Override
@@ -134,7 +135,8 @@ public class WebhookServiceImpl implements WebhookService {
         progressResponseElement.setTimelineEventCategory(TimelineElementCategory.fromValue(ev.getTimelineEventCategory()));
         progressResponseElement.setChannel(ev.getChannel());
         progressResponseElement.setRecipientIndex(ev.getRecipientIndex());
-        progressResponseElement.setLegalfactId(ev.getLegalfactId());
+        progressResponseElement.setLegalfactIds(ev.getLegalfactIds());
+        progressResponseElement.setAnalogCost(ev.getAnalogCost());
         return progressResponseElement;
     }
 
@@ -149,20 +151,15 @@ public class WebhookServiceImpl implements WebhookService {
                     }
                     else {
                         return Mono.fromSupplier(() -> webhookUtils.retrieveTimeline(iun, timelineId))
-                                .map(timelineData -> new Object() {
-                                    public final List<StreamEntity> streamList = l;
-                                    public final TimelineElementInternal timelineElementInternal = timelineData.getEvent();
-                                    public final NotificationInt notificationInt = timelineData.getNotificationInt();
-                                    public final String oldStatus = timelineData.getNotificationStatusUpdate().getOldStatus().getValue();
-                                    public final String newStatus = timelineData.getNotificationStatusUpdate().getNewStatus().getValue();
-                                });
+                                .map(timelineData -> Tuples.of(l, timelineData.getEvent(), timelineData.getNotificationInt(),
+                                        timelineData.getNotificationStatusUpdate().getOldStatus().getValue(), timelineData.getNotificationStatusUpdate().getNewStatus().getValue()));
                     }
                 })
                 .flatMapMany(res -> {
-                    String oldStatus = res.oldStatus;
-                    String newStatus = res.newStatus;
-                    return Flux.fromIterable(res.streamList)
-                            .flatMap(stream -> processEvent(stream, oldStatus, newStatus, res.timelineElementInternal, res.notificationInt));
+                    String oldStatus = res.getT4();
+                    String newStatus = res.getT5();
+                    return Flux.fromIterable(res.getT1())
+                            .flatMap(stream -> processEvent(stream, oldStatus, newStatus, res.getT2(), res.getT3()));
                 }).collectList().then();
     }
 
@@ -234,7 +231,7 @@ public class WebhookServiceImpl implements WebhookService {
                 }
 
                 return eventEntityDao.save(webhookUtils.buildEventEntity(atomicCounterUpdated, streamEntity,
-                                                                            ttl, newStatus, timelineElementInternal, notificationInt))
+                                                                            newStatus, timelineElementInternal, notificationInt))
                         .doOnSuccess(event -> log.info("saved webhookevent={}", event))
                         .then();
             });

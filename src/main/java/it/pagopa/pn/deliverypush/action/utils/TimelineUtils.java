@@ -233,14 +233,13 @@ public class TimelineUtils {
 
 
     public TimelineElementInternal buildPrepareSimpleRegisteredLetterTimelineElement(Integer recIndex, NotificationInt notification, PhysicalAddressInt address,
-                                                                                  String eventId, Integer analogCost) {
+                                                                                  String eventId) {
         log.debug("buildPrepareSimpleRegisteredLetterTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
 
         SimpleRegisteredLetterDetailsInt details = SimpleRegisteredLetterDetailsInt.builder()
                 .recIndex(recIndex)
                 .physicalAddress(address)
                 .foreignState(address.getForeignState())
-                .analogCost( analogCost )
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()

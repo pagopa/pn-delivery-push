@@ -76,8 +76,8 @@ public class PaperChannelUtils {
     }
 
     public String addPrepareSimpleRegisteredLetterToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex,
-                                                           String eventId, Integer numberOfPages) {
-        TimelineElementInternal timelineElementInternal = timelineUtils.buildPrepareSimpleRegisteredLetterTimelineElement(recIndex, notification, physicalAddress, eventId, numberOfPages);
+                                                           String eventId) {
+        TimelineElementInternal timelineElementInternal = timelineUtils.buildPrepareSimpleRegisteredLetterTimelineElement(recIndex, notification, physicalAddress, eventId);
         addTimelineElement(timelineElementInternal,
                 notification
         );

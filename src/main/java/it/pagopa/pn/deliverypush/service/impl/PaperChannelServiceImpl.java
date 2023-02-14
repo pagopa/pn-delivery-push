@@ -122,7 +122,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
                     receiverAddress, eventId, PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER,
                     attachments, null, null));
 
-            String timelineId = paperChannelUtils.addPrepareSimpleRegisteredLetterToTimeline(notification, receiverAddress, recIndex, eventId, 1);
+            String timelineId = paperChannelUtils.addPrepareSimpleRegisteredLetterToTimeline(notification, receiverAddress, recIndex, eventId);
 
 
             auditLogEvent.generateSuccess("Prepare invoked timelineId={}", timelineId).log();
