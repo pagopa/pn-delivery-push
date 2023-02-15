@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo;
 
-import org.springframework.boot.test.context.SpringBootTest;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbAsyncTable;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
@@ -11,7 +10,6 @@ import software.amazon.awssdk.enhanced.dynamodb.model.GetItemEnhancedRequest;
 import java.util.concurrent.ExecutionException;
 
 
-@SpringBootTest
 class TestDao<T>  {
 
         DynamoDbAsyncTable<T> dbTable;
