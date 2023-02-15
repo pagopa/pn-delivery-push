@@ -3,7 +3,7 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.SentNotification;
-import it.pagopa.pn.deliverypush.LocalStackTestConfig;
+import it.pagopa.pn.deliverypush.MockSQSTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -13,7 +13,6 @@ import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import reactor.core.publisher.Mono;
@@ -27,8 +26,7 @@ import static org.mockserver.model.HttpResponse.response;
 @TestPropertySource(properties = {
         "pn.delivery-push.delivery-base-url=http://localhost:9998",
 })
-@Import(LocalStackTestConfig.class)
-class PnDeliveryClientReactiveImplTestIT {
+class PnDeliveryClientReactiveImplTestIT extends MockSQSTest {
     @Autowired
     private PnDeliveryClientReactive client;
     
