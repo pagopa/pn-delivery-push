@@ -6,7 +6,7 @@ import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCre
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.OperationResultCodeResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.UpdateFileMetadataRequest;
-import it.pagopa.pn.deliverypush.LocalStackTestConfig;
+import it.pagopa.pn.deliverypush.MockAWSObjectsTest;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import org.junit.jupiter.api.*;
 import org.mockito.Mock;
@@ -15,7 +15,6 @@ import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.client.RestTemplate;
@@ -30,8 +29,7 @@ import static org.mockserver.model.HttpResponse.response;
 @TestPropertySource(properties = {
         "pn.delivery-push.safe-storage-base-url=http://localhost:9998",
 })
-@Import(LocalStackTestConfig.class)
-class PnSafeStorageClientImplImplTestIT {
+class PnSafeStorageClientImplImplTestIT extends MockAWSObjectsTest {
     @Autowired
     private PnSafeStorageClient client;
 
