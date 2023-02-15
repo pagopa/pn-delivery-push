@@ -6,7 +6,7 @@ import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCre
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.OperationResultCodeResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.UpdateFileMetadataRequest;
-import it.pagopa.pn.deliverypush.MockSQSTest;
+import it.pagopa.pn.deliverypush.MockAWSObjectsTest;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -32,7 +32,7 @@ import static org.mockserver.model.HttpResponse.response;
 @TestPropertySource(properties = {
         "pn.delivery-push.safe-storage-base-url=http://localhost:9998",
 })
-class PnSafeStorageClientImplImplTestIT extends MockSQSTest {
+class PnSafeStorageClientImplImplTestIT extends MockAWSObjectsTest {
     @Autowired
     private PnSafeStorageClient client;
 

@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils;
 
-import it.pagopa.pn.deliverypush.MockSQSTest;
+import it.pagopa.pn.deliverypush.MockAWSObjectsTest;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
 import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.model.AddressSQSMessage;
 import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.model.AddressSQSMessageDigitalAddress;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @FunctionalSpringBootTest
-class NationalRegistriesEventHandlerTestIT extends MockSQSTest {
+class NationalRegistriesEventHandlerTestIT extends MockAWSObjectsTest {
 
     @Autowired
     private FunctionCatalog functionCatalog;

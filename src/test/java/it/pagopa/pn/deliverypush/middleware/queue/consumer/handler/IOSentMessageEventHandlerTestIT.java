@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
 import it.pagopa.pn.api.dto.events.PnExtRegistryIOSentMessageEvent;
-import it.pagopa.pn.deliverypush.MockSQSTest;
+import it.pagopa.pn.deliverypush.MockAWSObjectsTest;
 import it.pagopa.pn.deliverypush.action.iosentmessage.IOSentMessageHandler;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 
 
 @FunctionalSpringBootTest
-class IOSentMessageEventHandlerTestIT extends MockSQSTest {
+class IOSentMessageEventHandlerTestIT extends MockAWSObjectsTest {
 
     @Autowired
     private FunctionCatalog functionCatalog;
