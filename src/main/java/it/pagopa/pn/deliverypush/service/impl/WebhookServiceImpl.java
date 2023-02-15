@@ -6,10 +6,12 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.webhook.ProgressResponseElementDto;
 import it.pagopa.pn.deliverypush.exceptions.PnWebhookForbiddenException;
 import it.pagopa.pn.deliverypush.exceptions.PnWebhookMaxStreamsCountReachedException;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.*;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequest;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamListElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponse;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.EventEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.StreamEntityDao;
-import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.EventEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper.DtoToEntityStreamMapper;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper.EntityToDtoStreamMapper;
@@ -17,9 +19,9 @@ import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper.EntityToSt
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.WebhookService;
+import it.pagopa.pn.deliverypush.service.mapper.ProgressResponseElementMapper;
 import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -111,7 +113,7 @@ public class WebhookServiceImpl implements WebhookService {
                 .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Pa " + xPagopaPnCxId + " is not allowed to see this streamId " + streamId)))
                 .flatMap(stream -> eventEntityDao.findByStreamId(stream.getStreamId(), lastEventId))
                 .map(res -> {
-                    List<ProgressResponseElement> eventList = res.getEvents().stream().map(this::mapEntityToDto).sorted(Comparator.comparing(ProgressResponseElement::getEventId)).toList();
+                    List<ProgressResponseElement> eventList = res.getEvents().stream().map(ProgressResponseElementMapper::internalToExternal).sorted(Comparator.comparing(ProgressResponseElement::getEventId)).toList();
 
                     log.info("consumeEventStream requestEventId={} streamId={} size={} returnedlastEventId={}", lastEventId, streamId, eventList.size(), (!eventList.isEmpty()?eventList.get(eventList.size()-1).getEventId():"ND"));
                     // schedulo la pulizia per gli eventi precedenti a quello richiesto
@@ -122,22 +124,6 @@ public class WebhookServiceImpl implements WebhookService {
                             .progressResponseElementList(eventList)
                             .build();
                 });
-    }
-
-    @NotNull
-    private ProgressResponseElement mapEntityToDto(EventEntity ev) {
-        ProgressResponseElement progressResponseElement = new ProgressResponseElement();
-        progressResponseElement.setEventId(ev.getEventId());
-        progressResponseElement.setTimestamp(ev.getTimestamp());
-        progressResponseElement.setIun(ev.getIun());
-        progressResponseElement.setNewStatus(ev.getNewStatus() != null ? NotificationStatus.valueOf(ev.getNewStatus()) : null);
-        progressResponseElement.setNotificationRequestId(ev.getNotificationRequestId());
-        progressResponseElement.setTimelineEventCategory(TimelineElementCategory.fromValue(ev.getTimelineEventCategory()));
-        progressResponseElement.setChannel(ev.getChannel());
-        progressResponseElement.setRecipientIndex(ev.getRecipientIndex());
-        progressResponseElement.setLegalfactIds(ev.getLegalfactIds());
-        progressResponseElement.setAnalogCost(ev.getAnalogCost());
-        return progressResponseElement;
     }
 
 

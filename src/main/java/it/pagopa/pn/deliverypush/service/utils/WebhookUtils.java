@@ -120,15 +120,15 @@ public class WebhookUtils {
                 || details instanceof SendAnalogProgressDetailsInt) {
             eventEntity.setChannel(notificationInt.getPhysicalCommunicationType().name());
         }
-        if (details instanceof SimpleRegisteredLetterDetailsInt) {
+        else if (details instanceof SimpleRegisteredLetterDetailsInt) {
             eventEntity.setChannel(PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER.name());
         }
-        if (details instanceof SendDigitalFeedbackDetailsInt
+        else if (details instanceof SendDigitalFeedbackDetailsInt
                 || details instanceof SendDigitalDetailsInt
                 || details instanceof SendDigitalProgressDetailsInt) {
             eventEntity.setChannel(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC.getValue());
         }
-        if (details instanceof CourtesyAddressRelatedTimelineElement courtesyAddressRelatedTimelineElement) {
+        else if (details instanceof CourtesyAddressRelatedTimelineElement courtesyAddressRelatedTimelineElement) {
             eventEntity.setChannel(courtesyAddressRelatedTimelineElement.getDigitalAddress().getType().getValue());
         }
     }
@@ -138,7 +138,7 @@ public class WebhookUtils {
         if (details instanceof SendAnalogDetailsInt sendAnalogDetailsInt) {
             eventEntity.setAnalogCost(sendAnalogDetailsInt.getAnalogCost());
         }
-        if (details instanceof SimpleRegisteredLetterDetailsInt simpleRegisteredLetterDetailsInt) {
+        else if (details instanceof SimpleRegisteredLetterDetailsInt simpleRegisteredLetterDetailsInt) {
             eventEntity.setAnalogCost(simpleRegisteredLetterDetailsInt.getAnalogCost());
         }
     }
