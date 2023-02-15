@@ -125,7 +125,6 @@ public class DocumentComposition {
 
         try {
             Template template = freemarker.getTemplate( templateType.name() );
-            log.debug("For templateType={} use template={}", templateType, template );
             template.process( model, stringWriter );
 
         } catch (IOException | TemplateException exc) {

@@ -22,7 +22,7 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 @Component
 @AllArgsConstructor
 @Slf4j
-public class DigitalDeliveryCreationResponseHandler {
+public class  DigitalDeliveryCreationResponseHandler {
     private final NotificationService notificationService;
     private final TimelineService timelineService;
     private final SuccessWorkflowHandler successWorkflowHandler;

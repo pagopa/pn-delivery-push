@@ -323,6 +323,10 @@ Parameters:
     Type: String
     Description: 'National Registries to delivery-push queue age alarm'
 
+  ValidationRetryIntervals:
+    Type: String
+    Description: 'Time interval between validations retry'
+    
   # Heath Check parameters
   HealthCheckInterval:
     Description: Seconds between two health check

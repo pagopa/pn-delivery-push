@@ -67,5 +67,30 @@ public class PnDeliveryPushExceptionCodes extends PnExceptionsCodes {
     public static final String ERROR_CODE_DELIVERYPUSH_END_WORKFLOW_STATUS_NOT_HANDLED = "PN_DELIVERYPUSH_END_WORKFLOW_STATUS_NOT_HANDLED";
     public static final String ERROR_CODE_DELIVERYPUSH_NO_DOCUMENT_CREATION_REQUEST = "PN_DELIVERYPUSH_NO_DOCUMENT_CREATION_REQUEST";
     public static final String ERROR_CODE_DELIVERYPUSH_DOCUMENT_CREATION_RESPONSE_TYPE_NOT_HANDLED = "PN_DELIVERYPUSH_DOCUMENT_CREATION_RESPONSE_TYPE_NOT_HANDLED";
-    
+    public static final String ERROR_CODE_DELIVERYPUSH_TAXID_NOT_VALID = "PN_DELIVERYPUSH_TAXID_NOT_VALID";
+
+    public enum NotificationRefusedErrorCodeInt {
+        FILE_NOTFOUND("FILE_NOTFOUND"),
+
+        FILE_SHA_ERROR( "FILE_SHA_ERROR"),
+
+        TAXID_NOT_VALID("TAXID_NOT_VALID"),
+
+        SERVICE_UNAVAILABLE("SERVICE_UNAVAILABLE");
+
+        private final String value;
+
+        NotificationRefusedErrorCodeInt(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            return String.valueOf(value);
+        }
+    }
 }
