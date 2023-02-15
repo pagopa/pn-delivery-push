@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 
-class PublicRegistryCallDetailsTest {
+class NationalRegistriesClientCallDetailsTest {
 
     private PublicRegistryCallDetails details;
 

@@ -4,7 +4,6 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.UpdateFileMetadataRequest;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.*;
-import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import lombok.extern.slf4j.Slf4j;
@@ -29,11 +28,6 @@ public class SafeStorageServiceImpl implements SafeStorageService {
     public Mono<FileDownloadResponseInt> getFile(String fileKey, Boolean metadataOnly) {
         return safeStorageClient.getFile(fileKey, metadataOnly)
                 .doOnSuccess(fileDownloadResponse -> log.debug("Response getFile from SafeStorage: {}", fileDownloadResponse))
-                .onErrorResume( ex -> {
-                            String message = String.format("Get file failed for - fileKey=%s isMetadataOnly=%b", fileKey, metadataOnly);
-                            return Mono.error(new PnNotFoundException("Not found", message, ERROR_CODE_DELIVERYPUSH_NOTFOUND, ex));
-                        }
-                )
                 .map(this::getFileDownloadResponseInt);
     }
 

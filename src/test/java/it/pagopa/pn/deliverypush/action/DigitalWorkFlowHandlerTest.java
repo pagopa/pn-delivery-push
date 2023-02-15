@@ -56,7 +56,7 @@ class DigitalWorkFlowHandlerTest {
     @Mock
     private CompletionWorkFlowHandler completionWorkflow;
     @Mock
-    private PublicRegistryService publicRegistryService;
+    private NationalRegistriesService nationalRegistriesService;
     @Mock
     private InstantNowSupplier instantNowSupplier;
     @Mock
@@ -74,7 +74,7 @@ class DigitalWorkFlowHandlerTest {
     @BeforeEach
     public void setup() {
         handler = new DigitalWorkFlowHandler(externalChannelService, notificationService,
-                schedulerService, digitalWorkFlowUtils, completionWorkflow, publicRegistryService, instantNowSupplier,
+                schedulerService, digitalWorkFlowUtils, completionWorkflow, nationalRegistriesService, instantNowSupplier,
                 pnDeliveryPushConfigs);
 
         handlerExtChannel = new DigitalWorkFlowExternalChannelResponseHandler(notificationService, schedulerService, digitalWorkFlowUtils, completionWorkflow, pnDeliveryPushConfigs, handler, auditLogService);
@@ -124,7 +124,7 @@ class DigitalWorkFlowHandlerTest {
         handler.startScheduledNextWorkflow(notification.getIun(), 0, "timeline_id_0");
 
         //THEN
-        Mockito.verify(publicRegistryService).sendRequestForGetDigitalGeneralAddress(Mockito.any(NotificationInt.class), Mockito.anyInt(),
+        Mockito.verify(nationalRegistriesService).sendRequestForGetDigitalGeneralAddress(Mockito.any(NotificationInt.class), Mockito.anyInt(),
                 Mockito.any(ContactPhaseInt.class), Mockito.anyInt());
     }
 
@@ -367,7 +367,7 @@ class DigitalWorkFlowHandlerTest {
         handler.startScheduledNextWorkflow("iun", 0, "timeline_id_0");
 
         //THEN
-        Mockito.verify(publicRegistryService).sendRequestForGetDigitalGeneralAddress(Mockito.any(NotificationInt.class), Mockito.anyInt(),
+        Mockito.verify(nationalRegistriesService).sendRequestForGetDigitalGeneralAddress(Mockito.any(NotificationInt.class), Mockito.anyInt(),
                 Mockito.any(ContactPhaseInt.class), Mockito.anyInt());
     }
 

@@ -4,16 +4,18 @@ package it.pagopa.pn.deliverypush.action.it.mockbean;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
+import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
 import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowRetryHandler;
-import it.pagopa.pn.deliverypush.middleware.responsehandler.DocumentCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionDetails;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
+import it.pagopa.pn.deliverypush.middleware.responsehandler.DocumentCreationResponseHandler;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -36,6 +38,7 @@ public class SchedulerServiceMock implements SchedulerService {
   private final StartWorkflowForRecipientHandler startWorkflowForRecipientHandler;
   private final ChooseDeliveryModeHandler chooseDeliveryModeHandler;
   private final DocumentCreationResponseHandler documentCreationResponseHandler;
+  private final NotificationValidationActionHandler notificationValidationActionHandler;
   
   public SchedulerServiceMock(@Lazy DigitalWorkFlowHandler digitalWorkFlowHandler,
                               @Lazy DigitalWorkFlowRetryHandler digitalWorkFlowRetryHandler,
@@ -44,7 +47,8 @@ public class SchedulerServiceMock implements SchedulerService {
                               @Lazy InstantNowSupplier instantNowSupplier,
                               @Lazy StartWorkflowForRecipientHandler startWorkflowForRecipientHandler,
                               @Lazy ChooseDeliveryModeHandler chooseDeliveryModeHandler,
-                              @Lazy DocumentCreationResponseHandler documentCreationResponseHandler) {
+                              @Lazy DocumentCreationResponseHandler documentCreationResponseHandler,
+                              @Lazy NotificationValidationActionHandler notificationValidationActionHandler) {
     this.digitalWorkFlowHandler = digitalWorkFlowHandler;
     this.digitalWorkFlowRetryHandler = digitalWorkFlowRetryHandler;
     this.analogWorkflowHandler = analogWorkflowHandler;
@@ -53,6 +57,7 @@ public class SchedulerServiceMock implements SchedulerService {
     this.startWorkflowForRecipientHandler = startWorkflowForRecipientHandler;
     this.chooseDeliveryModeHandler = chooseDeliveryModeHandler;
     this.documentCreationResponseHandler = documentCreationResponseHandler;
+    this.notificationValidationActionHandler = notificationValidationActionHandler;
   }
 
   @Override
@@ -83,6 +88,8 @@ public class SchedulerServiceMock implements SchedulerService {
           case DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION ->
                   digitalWorkFlowRetryHandler.elapsedExtChannelTimeout(iun, recIndex,
                   iun + "_retry_action_" + recIndex);
+          case NOTIFICATION_VALIDATION ->
+                  notificationValidationActionHandler.validateNotification(iun, (NotificationValidationActionDetails) actionDetails);
           default ->
                   log.error("[TEST] actionType not found {}", actionType);
         }
@@ -173,10 +180,14 @@ public class SchedulerServiceMock implements SchedulerService {
   }
 
   @Override
+  public void scheduleEvent(String iun, Instant dateToSchedule, ActionType actionType, ActionDetails actionDetails) {
+    this.scheduleEvent(iun, null, dateToSchedule, actionType, actionDetails);
+  }
+
+  @Override
   public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule,
       ActionType actionType) {
     this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, (ActionDetails) null);
-
   }
 
 }
