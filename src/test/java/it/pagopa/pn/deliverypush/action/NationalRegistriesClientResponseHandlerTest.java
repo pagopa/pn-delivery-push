@@ -49,7 +49,7 @@ class NationalRegistriesClientResponseHandlerTest {
         //GIVEN
         String iun = "iun01";
         Integer recIndex = 0;
-        String correlationId = "national_registry_call#IUN_iun01#RECINDEX_0#CONTACTPHASE_CHOOSE_DELIVERY";
+        String correlationId = "national_registry_call;IUN_iun01;RECINDEX_0;CONTACTPHASE_CHOOSE_DELIVERY";
         
         PublicRegistryResponse response =
                 PublicRegistryResponse.builder()
@@ -92,7 +92,7 @@ class NationalRegistriesClientResponseHandlerTest {
     void handleResponse_Sent_digital() {
         //GIVEN
         String iun = "iun01";
-        String correlationId = "national_call#IUN_iun01#RECINDEX_0#DELIVERYMODE_DIGITAL#CONTACTPHASE_SEND_ATTEMPT#SENTATTEMPTMADE_1";
+        String correlationId = "national_call;IUN_iun01;RECINDEX_0;DELIVERYMODE_DIGITAL;CONTACTPHASE_SEND_ATTEMPT;SENTATTEMPTMADE_1";
         Integer recIndex = 0;
 
         PublicRegistryResponse response =

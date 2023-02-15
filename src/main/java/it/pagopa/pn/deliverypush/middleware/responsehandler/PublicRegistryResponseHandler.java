@@ -5,6 +5,7 @@ import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHan
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.PublicRegistryCallDetailsInt;
@@ -42,8 +43,8 @@ public class PublicRegistryResponseHandler {
     public void handleResponse(PublicRegistryResponse response) {
 
         String correlationId = response.getCorrelationId();
-        //timelineEventId = <CATEGORY_VALUE>#IUN_<IUN_VALUE>#RECINDEX_<RECINDEX_VALUE>
-        String iunFromElementId = correlationId.split("#")[1];
+        //timelineEventId = <CATEGORY_VALUE>;IUN_<IUN_VALUE>;RECINDEX_<RECINDEX_VALUE>
+        String iunFromElementId = correlationId.split(TimelineEventIdBuilder.DELIMITER)[1];
         String iun = iunFromElementId.replace("IUN_", "");
         log.info("Handle public registry response -  iun {} correlationId {}", iun, response.getCorrelationId());
 
