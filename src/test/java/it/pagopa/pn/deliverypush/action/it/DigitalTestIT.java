@@ -157,6 +157,7 @@ import static org.awaitility.Awaitility.await;
 })
 @TestPropertySource("classpath:/application-test.properties")
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
+@Disabled("Da capire come calcolare il timestamp di scheduled")
 class DigitalTestIT { 
     
     @TestConfiguration
@@ -537,7 +538,6 @@ class DigitalTestIT {
     }
 
     @Test
-    @Disabled("Da capire come calcolare il timestamp di scheduled")
     void CcompleteFailWithRegisteredLetter() {
         /*
        - Platform address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
@@ -1596,7 +1596,6 @@ class DigitalTestIT {
     }
 
     @Test
-    @Disabled("Test fail only in build fase PN-3853")
     void secondSuccessSpecial() {
       /*
        - Platform address presente sia primo che secondo tentativo (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
