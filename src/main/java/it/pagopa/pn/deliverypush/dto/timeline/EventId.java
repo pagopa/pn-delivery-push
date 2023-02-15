@@ -18,11 +18,10 @@ public class EventId {
     private String iun;
     private Integer recIndex;
     private DigitalAddressSourceInt source;
-    private int index;
     private ContactPhaseInt contactPhase;
-    private int sentAttemptMade;
+    private Integer sentAttemptMade;
     private DeliveryModeInt deliveryMode;
-    private int progressIndex;
+    private Integer progressIndex;
     private DocumentCreationTypeInt documentCreationType;
     private CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT courtesyAddressType;
 }

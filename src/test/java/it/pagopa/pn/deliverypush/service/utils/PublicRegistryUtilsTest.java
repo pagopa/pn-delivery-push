@@ -38,7 +38,7 @@ class PublicRegistryUtilsTest {
     @Test
     void generateCorrelationId() {
 
-        String expected = TimelineEventId.PUBLIC_REGISTRY_CALL.buildEventId(
+        String expected = TimelineEventId.NATIONAL_REGISTRY_CALL.buildEventId(
                 EventId.builder()
                         .iun("001")
                         .recIndex(1)

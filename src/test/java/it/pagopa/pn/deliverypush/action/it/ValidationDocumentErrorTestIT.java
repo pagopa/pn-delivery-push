@@ -260,7 +260,6 @@ class ValidationDocumentErrorTestIT {
                 TimelineEventId.REQUEST_REFUSED.buildEventId(
                         EventId.builder()
                                 .iun(iun)
-                                .recIndex(recIndex)
                                 .build())).isPresent()
         );
 
