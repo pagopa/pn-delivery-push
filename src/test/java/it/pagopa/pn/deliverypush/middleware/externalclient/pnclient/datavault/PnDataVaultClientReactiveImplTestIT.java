@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.RecipientType;
-import it.pagopa.pn.deliverypush.MockSQSTest;
+import it.pagopa.pn.deliverypush.MockAWSObjectsTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockserver.client.MockServerClient;
@@ -27,8 +27,9 @@ import static org.mockserver.model.HttpResponse.response;
 @ActiveProfiles("test")
 @TestPropertySource(properties = {
         "pn.delivery-push.data-vault-base-url=http://localhost:9998",
+//        "spring.cloud.stream.default.consumer.autoStartup=false"
 })
-class PnDataVaultClientReactiveImplTestIT extends MockSQSTest {
+class PnDataVaultClientReactiveImplTestIT extends MockAWSObjectsTest {
     @Autowired
     private PnDataVaultClientReactiveImpl client;
     

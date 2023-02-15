@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.publicregistry;
 
-import it.pagopa.pn.deliverypush.MockSQSTest;
+import it.pagopa.pn.deliverypush.MockAWSObjectsTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -23,7 +23,7 @@ import static org.mockserver.model.HttpResponse.response;
 @TestPropertySource(properties = {
         "pn.delivery-push.national-registries-base-url=http://localhost:9999"
 })
-class PublicRegistryImplTestIT extends MockSQSTest {
+class PublicRegistryImplTestIT extends MockAWSObjectsTest {
 
     private static final String PN_NATIONAL_REGISTRIES_CX_ID = "pn-national-registries-cx-id";
 

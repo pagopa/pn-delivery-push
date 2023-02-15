@@ -3,7 +3,7 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.SentNotification;
-import it.pagopa.pn.deliverypush.MockSQSTest;
+import it.pagopa.pn.deliverypush.MockAWSObjectsTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -26,7 +26,7 @@ import static org.mockserver.model.HttpResponse.response;
 @TestPropertySource(properties = {
         "pn.delivery-push.delivery-base-url=http://localhost:9998",
 })
-class PnDeliveryClientReactiveImplTestIT extends MockSQSTest {
+class PnDeliveryClientReactiveImplTestIT extends MockAWSObjectsTest {
     @Autowired
     private PnDeliveryClientReactive client;
     
