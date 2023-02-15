@@ -4,7 +4,6 @@ import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.middleware.externalclient.publicregistry.NationalRegistriesClient;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
-import it.pagopa.pn.deliverypush.middleware.externalclient.publicregistry.PublicRegistry;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.model.CheckTaxIdOK;
