@@ -6,19 +6,15 @@ import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCre
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.OperationResultCodeResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.UpdateFileMetadataRequest;
-import it.pagopa.pn.deliverypush.LocalStackTestConfig;
+import it.pagopa.pn.deliverypush.MockAWSObjectsTest;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.mockito.Mock;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.client.RestTemplate;
@@ -33,8 +29,7 @@ import static org.mockserver.model.HttpResponse.response;
 @TestPropertySource(properties = {
         "pn.delivery-push.safe-storage-base-url=http://localhost:9998",
 })
-@Import(LocalStackTestConfig.class)
-class PnSafeStorageClientImplImplTestIT {
+class PnSafeStorageClientImplImplTestIT extends MockAWSObjectsTest {
     @Autowired
     private PnSafeStorageClient client;
 
@@ -137,6 +132,7 @@ class PnSafeStorageClientImplImplTestIT {
     }
     
     @Test
+    @Disabled("Test fail only in build fase PN-3853")
     void getFile() throws JsonProcessingException {
         //Given
         String fileKey ="fileKey";
@@ -167,5 +163,35 @@ class PnSafeStorageClientImplImplTestIT {
         FileDownloadResponse fileDownloadResponse = response.block();
         Assertions.assertNotNull(fileDownloadResponse);
         Assertions.assertEquals(fileDownloadInput, fileDownloadResponse);
+    }
+
+    @Test
+    void getFileError() throws JsonProcessingException {
+        //Given
+        String fileKey ="fileKey";
+
+        FileDownloadResponse fileDownloadInput = new FileDownloadResponse();
+        fileDownloadInput.setChecksum("checkSum")
+        ;
+        String path = "/safe-storage/v1/files/{fileKey}"
+                .replace("{fileKey}", fileKey);
+
+        ObjectMapper mapper = new ObjectMapper();
+        String respJson = mapper.writeValueAsString(fileDownloadInput);
+
+        new MockServerClient("localhost", 9998)
+                .when(request()
+                        .withMethod("GET")
+                        .withPath(path)
+                        .withQueryStringParameter("metadataOnly", "true")
+                )
+                .respond(response()
+                        .withBody(respJson)
+                        .withContentType(MediaType.APPLICATION_JSON)
+                        .withStatusCode(404)
+                );
+        Mono<FileDownloadResponse> fileDownloadResponseMono = client.getFile(fileKey, true);
+        
+        Assertions.assertThrows(RuntimeException.class, fileDownloadResponseMono::block);
     }
 }

@@ -14,6 +14,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSende
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
@@ -352,7 +353,9 @@ class CourtesyMessageUtilsTest {
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
                 .details(details)
                 .build();
-        Mockito.when(timelineService.getTimelineByIunTimelineId("IUN-1", "send_courtesy_message#IUN_IUN-1#RECINDEX_1", false)).thenReturn(Set.of(timelineElementInternal));
+
+        String timelineEventId = "send_courtesy_message#IUN_IUN-1#RECINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
+        Mockito.when(timelineService.getTimelineByIunTimelineId("IUN-1", timelineEventId, false)).thenReturn(Set.of(timelineElementInternal));
 
         List<SendCourtesyMessageDetailsInt> res = courtesyMessageUtils.getSentCourtesyMessagesDetails("IUN-1", 1);
 

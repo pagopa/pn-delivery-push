@@ -14,6 +14,7 @@ import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
@@ -436,7 +437,7 @@ public class TimelineUtils {
     public TimelineElementInternal buildPublicRegistryResponseCallTimelineElement(NotificationInt notification, Integer recIndex, PublicRegistryResponse response) {
         log.debug("buildPublicRegistryResponseCallTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
 
-        String eventId = TimelineEventId.PUBLIC_REGISTRY_RESPONSE.buildEventId(response.getCorrelationId());
+        String eventId = TimelineEventId.NATIONAL_REGISTRY_RESPONSE.buildEventId(response.getCorrelationId());
                 
         PublicRegistryResponseDetailsInt details = PublicRegistryResponseDetailsInt.builder()
                 .recIndex(recIndex)
@@ -886,8 +887,8 @@ public class TimelineUtils {
 
     public String getIunFromTimelineId(String timelineId)
     {
-        //<timelineId = CATEGORY_VALUE>#IUN_<IUN_VALUE>#RECINDEX_<RECINDEX_VALUE>...
-        return timelineId.split("#")[1].replace("IUN_", "");
+        //<timelineId = CATEGORY_VALUE>;IUN_<IUN_VALUE>;RECINDEX_<RECINDEX_VALUE>...
+        return timelineId.split(TimelineEventIdBuilder.DELIMITER)[1].replace("IUN_", "");
     }
 
 

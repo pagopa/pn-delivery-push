@@ -10,7 +10,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.service.PublicRegistryService;
+import it.pagopa.pn.deliverypush.service.NationalRegistriesService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -24,7 +24,7 @@ import java.util.Optional;
 public class ChooseDeliveryModeHandler {
     private final DigitalWorkFlowHandler digitalWorkFlowHandler;
     private final SchedulerService schedulerService;
-    private final PublicRegistryService publicRegistryService;
+    private final NationalRegistriesService nationalRegistriesService;
     private final ChooseDeliveryModeUtils chooseDeliveryUtils;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private final NotificationService notificationService;
@@ -32,13 +32,13 @@ public class ChooseDeliveryModeHandler {
     public ChooseDeliveryModeHandler(ChooseDeliveryModeUtils chooseDeliveryUtils,
                                      DigitalWorkFlowHandler digitalWorkFlowHandler,
                                      SchedulerService schedulerService,
-                                     PublicRegistryService publicRegistryService,
+                                     NationalRegistriesService nationalRegistriesService,
                                      PnDeliveryPushConfigs pnDeliveryPushConfigs,
                                      NotificationService notificationService) {
         this.chooseDeliveryUtils = chooseDeliveryUtils;
         this.digitalWorkFlowHandler = digitalWorkFlowHandler;
         this.schedulerService = schedulerService;
-        this.publicRegistryService = publicRegistryService;
+        this.nationalRegistriesService = nationalRegistriesService;
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
         this.notificationService = notificationService;
     }
@@ -81,7 +81,7 @@ public class ChooseDeliveryModeHandler {
                 chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, notification, DigitalAddressSourceInt.SPECIAL, false);
 
                 // ... se non lo trovo, lancio ricerca asincrona dell'indirizzo generale
-                publicRegistryService.sendRequestForGetDigitalGeneralAddress(notification, recIndex, ContactPhaseInt.CHOOSE_DELIVERY, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER);
+                nationalRegistriesService.sendRequestForGetDigitalGeneralAddress(notification, recIndex, ContactPhaseInt.CHOOSE_DELIVERY, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER);
             }
         }
 

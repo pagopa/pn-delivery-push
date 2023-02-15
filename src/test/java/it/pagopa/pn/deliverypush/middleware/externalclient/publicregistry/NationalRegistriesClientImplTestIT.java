@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.publicregistry;
 
-import it.pagopa.pn.deliverypush.LocalStackTestConfig;
+import it.pagopa.pn.deliverypush.MockAWSObjectsTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -10,11 +10,10 @@ import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
-import static it.pagopa.pn.deliverypush.middleware.externalclient.publicregistry.PublicRegistryImpl.PN_NATIONAL_REGISTRIES_CX_ID_VALUE;
+import static it.pagopa.pn.deliverypush.middleware.externalclient.publicregistry.NationalRegistriesClientImpl.PN_NATIONAL_REGISTRIES_CX_ID_VALUE;
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
@@ -24,15 +23,14 @@ import static org.mockserver.model.HttpResponse.response;
 @TestPropertySource(properties = {
         "pn.delivery-push.national-registries-base-url=http://localhost:9999"
 })
-@Import(LocalStackTestConfig.class)
-class PublicRegistryImplTestIT {
+class NationalRegistriesClientImplTestIT extends MockAWSObjectsTest{
 
     private static final String PN_NATIONAL_REGISTRIES_CX_ID = "pn-national-registries-cx-id";
 
     private static ClientAndServer mockServer;
 
     @Autowired
-    private PublicRegistry publicRegistry;
+    private NationalRegistriesClient nationalRegistriesClient;
 
 
     @BeforeAll
@@ -58,7 +56,7 @@ class PublicRegistryImplTestIT {
                         .withStatusCode(200));
 
         Assertions.assertDoesNotThrow(
-                () -> publicRegistry.sendRequestForGetDigitalAddress("001", "PF", "002")
+                () -> nationalRegistriesClient.sendRequestForGetDigitalAddress("001", "PF", "002")
         );
     }
 

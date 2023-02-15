@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 
 @FunctionalSpringBootTest
 @Import(LocalStackTestConfig.class)
-class IOSentMessageEventHandlerTest {
+class IOSentMessageEventHandlerTestIT {
 
     @Autowired
     private FunctionCatalog functionCatalog;

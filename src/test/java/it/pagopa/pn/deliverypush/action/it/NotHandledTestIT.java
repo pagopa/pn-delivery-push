@@ -21,10 +21,14 @@ import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFa
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.deliverypush.action.notificationview.ViewNotification;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
-import it.pagopa.pn.deliverypush.action.startworkflow.AttachmentUtils;
+import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
 import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.ScheduleRecipientWorkflow;
 import it.pagopa.pn.deliverypush.action.startworkflow.StartWorkflowHandler;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationScheduler;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.TaxIdPivaValidator;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.AarCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.*;
@@ -91,7 +95,7 @@ import static org.awaitility.Awaitility.with;
         AuditLogServiceImpl.class,
         CompletionWorkFlowHandler.class,
         PublicRegistryResponseHandler.class,
-        PublicRegistryServiceImpl.class,
+        NationalRegistriesServiceImpl.class,
         ExternalChannelServiceImpl.class,
         IoServiceImpl.class,
         NotificationCostServiceImpl.class,
@@ -141,6 +145,10 @@ import static org.awaitility.Awaitility.with;
         DigitalDeliveryCreationResponseHandler.class,
         FailureWorkflowHandler.class,
         SuccessWorkflowHandler.class,
+        NotificationValidationActionHandler.class,
+        TaxIdPivaValidator.class,
+        ReceivedLegalFactCreationRequest.class,
+        NotificationValidationScheduler.class,
         NotHandledTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource( 
@@ -188,7 +196,7 @@ class NotHandledTestIT {
     private UserAttributesClientMock addressBookMock;
 
     @Autowired
-    private PublicRegistryMock publicRegistryMock;
+    private NationalRegistriesClientMock nationalRegistriesClientMock;
 
     @Autowired
     private TimelineDaoMock timelineDaoMock;
@@ -237,7 +245,7 @@ class NotHandledTestIT {
         safeStorageClientMock.clear();
         pnDeliveryClientMock.clear();
         addressBookMock.clear();
-        publicRegistryMock.clear();
+        nationalRegistriesClientMock.clear();
         timelineDaoMock.clear();
         paperNotificationFailedDaoMock.clear();
         pnDeliveryClientMock.clear();
@@ -288,7 +296,7 @@ class NotHandledTestIT {
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
         pnDeliveryClientMock.addNotification(notification);
-        publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
+        nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
         Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
@@ -401,7 +409,7 @@ class NotHandledTestIT {
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
         pnDeliveryClientMock.addNotification(notification);
-        publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
+        nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 

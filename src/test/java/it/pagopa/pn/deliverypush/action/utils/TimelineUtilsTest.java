@@ -15,6 +15,7 @@ import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementDetailsEntity;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -81,10 +82,10 @@ class TimelineUtilsTest {
     void buildAcceptedRequestTimelineElement() {
         NotificationInt notification = buildNotification();
         TimelineElementInternal actual = timelineUtils.buildAcceptedRequestTimelineElement(notification, "001");
-
+        String timelineEventIdExpected = "request_accepted#IUN_Example_IUN_1234_Test".replace("#", TimelineEventIdBuilder.DELIMITER);
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("request_accepted#IUN_Example_IUN_1234_Test", actual.getElementId()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -93,10 +94,10 @@ class TimelineUtilsTest {
     void buildAvailabilitySourceTimelineElement() {
         NotificationInt notification = buildNotification();
         TimelineElementInternal actual = timelineUtils.buildAvailabilitySourceTimelineElement(1, notification, DigitalAddressSourceInt.PLATFORM, Boolean.FALSE, 1);
-
+        String timelineEventIdExpected = "get_address#IUN_Example_IUN_1234_Test#RECINDEX_1#SOURCE_PLATFORM#SENTATTEMPTMADE_1".replace("#", TimelineEventIdBuilder.DELIMITER);
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("get_address#IUN_Example_IUN_1234_Test#RECINDEX_1#SOURCE_PLATFORM#SENTATTEMPTMADE_1", actual.getElementId()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -105,6 +106,7 @@ class TimelineUtilsTest {
     void buildDigitalFeedbackTimelineElement() {
         NotificationInt notification = buildNotification();
         Instant eventTimestamp = Instant.parse("2021-09-16T15:24:00.00Z");
+        String timelineEventIdExpected = "send_digital_feedback#IUN_Example_IUN_1234_Test#RECINDEX_1#SOURCE_GENERAL#SENTATTEMPTMADE_1".replace("#", TimelineEventIdBuilder.DELIMITER);
         LegalDigitalAddressInt legalDigitalAddressInt = LegalDigitalAddressInt.builder()
                 .address("Via nuova")
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -129,7 +131,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("send_digital_feedback#IUN_Example_IUN_1234_Test#RECINDEX_1#SOURCE_GENERAL#SENTATTEMPTMADE_1", actual.getElementId()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -149,7 +151,8 @@ class TimelineUtilsTest {
         DigitalMessageReferenceInt digitalMessageReference = DigitalMessageReferenceInt.builder().build();
         int progressIndex = 1;
         Instant eventTimestamp = Instant.parse("2021-09-16T15:24:00.00Z");
-        
+        String timelineEventIdExpected = "digital_delivering_progress#IUN_Example_IUN_1234_Test#RECINDEX_1#SOURCE_GENERAL#SENTATTEMPTMADE_1#PROGRESSINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
+
         DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
                 .retryNumber(sentAttemptMade)
                 .eventTimestamp(eventTimestamp)
@@ -169,7 +172,7 @@ class TimelineUtilsTest {
         
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("digital_delivering_progress#IUN_Example_IUN_1234_Test#RECINDEX_1#SOURCE_GENERAL#SENTATTEMPTMADE_1#PROGRESSINDEX_1", actual.getElementId()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -204,11 +207,12 @@ class TimelineUtilsTest {
         String eventId = "001";
         Integer numberOfPages = 1;
         String productType ="RN_AR";
+        String timelineEventIdExpected = "send_simple_registered_letter#IUN_Example_IUN_1234_Test#RECINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
         TimelineElementInternal actual = timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification, address, numberOfPages, productType);
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("send_simple_registered_letter#IUN_Example_IUN_1234_Test#RECINDEX_1", actual.getElementId()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -242,6 +246,7 @@ class TimelineUtilsTest {
         int sentAttemptMade = 1;
         Integer analogCost = 10;
         String productType ="RN_AR";
+        String timelineEventIdExpected = "send_analog_domicile#IUN_Example_IUN_1234_Test#RECINDEX_1#SENTATTEMPTMADE_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
         TimelineElementInternal actual = timelineUtils.buildSendAnalogNotificationTimelineElement(
                 address, recIndex, notification, relatedRequestId, sentAttemptMade, analogCost, productType
@@ -249,7 +254,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("send_analog_domicile#IUN_Example_IUN_1234_Test#RECINDEX_1#SENTATTEMPTMADE_1", actual.getElementId()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -263,6 +268,7 @@ class TimelineUtilsTest {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
         String legalFactId = "001";
+        String timelineEventIdExpected = "digital_success_workflow#IUN_Example_IUN_1234_Test#RECINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
         TimelineElementInternal actual = timelineUtils.buildSuccessDigitalWorkflowTimelineElement(
                 notification, recIndex, address, legalFactId
@@ -270,7 +276,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("digital_success_workflow#IUN_Example_IUN_1234_Test#RECINDEX_1", actual.getElementId()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -280,6 +286,7 @@ class TimelineUtilsTest {
         NotificationInt notification = buildNotification();
         Integer recIndex = 1;
         String legalFactId = "001";
+        String timelineEventIdExpected = "digital_failure_workflow#IUN_Example_IUN_1234_Test#RECINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
         TimelineElementInternal actual = timelineUtils.buildFailureDigitalWorkflowTimelineElement(
                 notification, recIndex, legalFactId, Instant.now()
@@ -287,7 +294,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("digital_failure_workflow#IUN_Example_IUN_1234_Test#RECINDEX_1", actual.getElementId()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -301,6 +308,7 @@ class TimelineUtilsTest {
                 .category(LegalFactCategoryInt.ANALOG_DELIVERY)
                 .key("key")
                 .build());
+        String timelineEventIdExpected = "analog_success_workflow#IUN_Example_IUN_1234_Test#RECINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
         TimelineElementInternal actual = timelineUtils.buildSuccessAnalogWorkflowTimelineElement(
                 notification, recIndex, address, attachments
@@ -308,7 +316,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("analog_success_workflow#IUN_Example_IUN_1234_Test#RECINDEX_1", actual.getElementId()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -321,6 +329,7 @@ class TimelineUtilsTest {
                 .category(LegalFactCategoryInt.ANALOG_DELIVERY)
                 .key("key")
                 .build());
+        String timelineEventIdExpected = "analog_failure_workflow#IUN_Example_IUN_1234_Test#RECINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
         TimelineElementInternal actual = timelineUtils.buildFailureAnalogWorkflowTimelineElement(
                 notification, recIndex, attachments
@@ -328,7 +337,7 @@ class TimelineUtilsTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("analog_failure_workflow#IUN_Example_IUN_1234_Test#RECINDEX_1", actual.getElementId()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -348,13 +357,15 @@ class TimelineUtilsTest {
                 .correlationId("001")
                 .build();
 
+        String timelineEventIdExpected = "national_registry_response#CORRELATIONID_001".replace("#", TimelineEventIdBuilder.DELIMITER);
+
         TimelineElementInternal actual = timelineUtils.buildPublicRegistryResponseCallTimelineElement(
                 notification, recIndex, response
         );
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("public_registry_response#CORRELATIONID_001", actual.getElementId()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -395,9 +406,11 @@ class TimelineUtilsTest {
                 notification, sentAttemptMade, legalFactsListEntryIds, newAddress, errors, sendPaperDetails
         );
 
+        String timelineEventIdExpected = "send_analog_feedback#IUN_Example_IUN_1234_Test#RECINDEX_0#SENTATTEMPTMADE_1".replace("#", TimelineEventIdBuilder.DELIMITER);
+
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("send_analog_feedback#IUN_Example_IUN_1234_Test#RECINDEX_0#SENTATTEMPTMADE_1", actual.getElementId()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -425,9 +438,11 @@ class TimelineUtilsTest {
                 notification, recIndex, legalFactId, notificationCost, raddInfo, delegateInfoInt, eventTimestamp
         );
 
+        String timelineEventIdExpected = "notification_viewed#IUN_Example_IUN_1234_Test#RECINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
+
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("notification_viewed#IUN_Example_IUN_1234_Test#RECINDEX_1", actual.getElementId()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -438,10 +453,11 @@ class TimelineUtilsTest {
         Integer recIndex = 1;
 
         TimelineElementInternal actual = timelineUtils.buildCompletelyUnreachableTimelineElement(notification, recIndex);
+        String timelineEventIdExpected = "completely_unreachable#IUN_Example_IUN_1234_Test#RECINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("completely_unreachable#IUN_Example_IUN_1234_Test#RECINDEX_1", actual.getElementId()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -464,9 +480,11 @@ class TimelineUtilsTest {
                 notification, recIndex, lastAttemptInfo
         );
 
+        String timelineEventIdExpected = "schedule_digital_workflow#IUN_Example_IUN_1234_Test#RECINDEX_1#SOURCE_GENERAL#SENTATTEMPTMADE_1".replace("#", TimelineEventIdBuilder.DELIMITER);
+
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("schedule_digital_workflow#IUN_Example_IUN_1234_Test#RECINDEX_1#SOURCE_GENERAL#SENTATTEMPTMADE_1", actual.getElementId()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -477,10 +495,10 @@ class TimelineUtilsTest {
         Integer recIndex = 1;
 
         TimelineElementInternal actual = timelineUtils.buildScheduleAnalogWorkflowTimeline(notification, recIndex);
-
+        String timelineEventIdExpected = "schedule_analog_workflow#IUN_Example_IUN_1234_Test#RECINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("schedule_analog_workflow#IUN_Example_IUN_1234_Test#RECINDEX_1", actual.getElementId()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -494,10 +512,11 @@ class TimelineUtilsTest {
         TimelineElementInternal actual = timelineUtils.buildRefinementTimelineElement(
                 notification, recIndex, notificationCost
         );
+        String timelineEventIdExpected = "refinement#IUN_Example_IUN_1234_Test#RECINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("refinement#IUN_Example_IUN_1234_Test#RECINDEX_1", actual.getElementId()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -508,10 +527,10 @@ class TimelineUtilsTest {
         Integer recIndex = 100;
 
         TimelineElementInternal actual = timelineUtils.buildScheduleRefinement(notification, recIndex);
-
+        String timelineEventIdExpected = "schedule_refinement_workflow#IUN_Example_IUN_1234_Test#RECINDEX_100".replace("#", TimelineEventIdBuilder.DELIMITER);
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-                () -> Assertions.assertEquals("schedule_refinement_workflow#IUN_Example_IUN_1234_Test#RECINDEX_100", actual.getElementId()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }

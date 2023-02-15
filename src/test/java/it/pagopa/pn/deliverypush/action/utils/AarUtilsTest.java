@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSende
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
@@ -77,7 +78,7 @@ class AarUtilsTest {
 
         NotificationInt notificationInt = newNotification();
         Optional<TimelineElementInternal> timeline = Optional.of(newTimelineElementInternal());
-        String elementId = "aar_gen#IUN_IUN_01#RECINDEX_0";
+        String elementId = "aar_gen#IUN_IUN_01#RECINDEX_0".replace("#", TimelineEventIdBuilder.DELIMITER);
         String quickAccessToken = "test";
 
         Mockito.when(timelineService.getTimelineElement(notificationInt.getIun(), elementId)).thenReturn(timeline);
@@ -93,8 +94,9 @@ class AarUtilsTest {
         NotificationInt notificationInt = newNotification();
         AarGenerationDetailsInt aarInt = AarGenerationDetailsInt.builder().recIndex(0).generatedAarUrl("http://test").numberOfPages(2).build();
         Optional<AarGenerationDetailsInt> aarGenerationDetailsInt = Optional.of(aarInt);
+        String timelineEventId = "aar_gen#IUN_IUN_01#RECINDEX_0".replace("#", TimelineEventIdBuilder.DELIMITER);
 
-        Mockito.when(timelineService.getTimelineElementDetails(notificationInt.getIun(), "aar_gen#IUN_IUN_01#RECINDEX_0", AarGenerationDetailsInt.class)).thenReturn(aarGenerationDetailsInt);
+        Mockito.when(timelineService.getTimelineElementDetails(notificationInt.getIun(), timelineEventId, AarGenerationDetailsInt.class)).thenReturn(aarGenerationDetailsInt);
 
         AarGenerationDetailsInt tmp = aarUtils.getAarGenerationDetails(notificationInt, recIndex);
 

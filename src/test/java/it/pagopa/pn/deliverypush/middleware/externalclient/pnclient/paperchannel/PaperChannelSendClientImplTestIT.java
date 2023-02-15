@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.ProductTypeEnum;
 import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.SendResponse;
-import it.pagopa.pn.deliverypush.LocalStackTestConfig;
+import it.pagopa.pn.deliverypush.MockAWSObjectsTest;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -18,7 +18,6 @@ import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -35,8 +34,7 @@ import static org.mockserver.model.HttpResponse.response;
 @TestPropertySource(properties = {
         "pn.delivery-push.paper-channel-base-url=http://localhost:9998",
 })
-@Import(LocalStackTestConfig.class)
-class PaperChannelSendClientImplTestIT {
+class PaperChannelSendClientImplTestIT extends MockAWSObjectsTest {
     @Autowired
     private PaperChannelSendClient client;
 

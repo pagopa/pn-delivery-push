@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool;
 
 import it.pagopa.pn.deliverypush.action.details.NotHandledDetails;
+import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
 import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 import lombok.Getter;
@@ -8,6 +9,17 @@ import lombok.Getter;
 @Getter
 public enum ActionType {
 
+  NOTIFICATION_VALIDATION(NotificationValidationActionDetails.class) {
+    @Override
+    public String buildActionId(Action action) {
+      NotificationValidationActionDetails details = (NotificationValidationActionDetails) action.getDetails();
+      
+      return String.format("notification_validation_iun_%s_retry=%d", 
+              action.getIun(),
+              details.getRetryAttempt());
+    }
+  },
+  
   START_RECIPIENT_WORKFLOW(RecipientsWorkflowDetails.class) {
     @Override
     public String buildActionId(Action action) {
