@@ -18,7 +18,7 @@ import org.mockito.Mockito;
 
 import java.util.Collections;
 
-class PublicRegistryResponseHandlerTest {
+class NationalRegistriesClientResponseHandlerTest {
 
     private ChooseDeliveryModeHandler chooseDeliveryHandler;
 

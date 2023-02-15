@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils;
 
-import it.pagopa.pn.deliverypush.MockSQSTest;
+import it.pagopa.pn.deliverypush.LocalStackTestConfig;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
 import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.model.AddressSQSMessage;
 import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.model.AddressSQSMessageDigitalAddress;
@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.function.context.FunctionCatalog;
 import org.springframework.cloud.function.context.test.FunctionalSpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 
@@ -18,7 +19,8 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @FunctionalSpringBootTest
-class NationalRegistriesEventHandlerTestIT extends MockSQSTest {
+@Import(LocalStackTestConfig.class)
+class NationalRegistriesEventHandlerTestIT {
 
     @Autowired
     private FunctionCatalog functionCatalog;

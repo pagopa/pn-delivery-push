@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actions
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import it.pagopa.pn.deliverypush.action.details.NotHandledDetails;
+import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
 import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 
@@ -20,7 +21,8 @@ import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDe
         @JsonSubTypes.Type(value = NotHandledDetails.class, name = "DIGITAL_WORKFLOW_RETRY_ACTION"),
         @JsonSubTypes.Type(value = NotHandledDetails.class, name = "REFINEMENT_NOTIFICATION"),
         @JsonSubTypes.Type(value = NotHandledDetails.class, name = "SENDER_ACK"),
-        @JsonSubTypes.Type(value = DocumentCreationResponseActionDetails.class, name = "DOCUMENT_CREATION_RESPONSE")
+        @JsonSubTypes.Type(value = DocumentCreationResponseActionDetails.class, name = "DOCUMENT_CREATION_RESPONSE"),
+        @JsonSubTypes.Type(value = NotificationValidationActionDetails.class, name = "NOTIFICATION_VALIDATION")
 })
 public interface ActionDetails {
 

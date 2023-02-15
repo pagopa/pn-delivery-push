@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.ProductTypeEnum;
 import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.SendResponse;
-import it.pagopa.pn.deliverypush.MockSQSTest;
+import it.pagopa.pn.deliverypush.MockAWSObjectsTest;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -34,7 +34,7 @@ import static org.mockserver.model.HttpResponse.response;
 @TestPropertySource(properties = {
         "pn.delivery-push.paper-channel-base-url=http://localhost:9998",
 })
-class PaperChannelSendClientImplTestIT extends MockSQSTest {
+class PaperChannelSendClientImplTestIT extends MockAWSObjectsTest {
     @Autowired
     private PaperChannelSendClient client;
 

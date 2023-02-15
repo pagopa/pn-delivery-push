@@ -23,7 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.ArgumentMatchers.eq;
 
-class PublicRegistryResponseHandlerTest {
+class NationalRegistriesClientResponseHandlerTest {
     @Mock
     private ChooseDeliveryModeHandler chooseDeliveryHandler;
     @Mock
