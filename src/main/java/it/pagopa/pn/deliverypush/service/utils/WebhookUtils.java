@@ -12,6 +12,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.EventEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.StatusService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -154,7 +155,7 @@ public class WebhookUtils {
         // aggiungo gli eventuali legalfact
         if (!CollectionUtils.isEmpty(timelineElementInternal.getLegalFactsIds()))
         {
-            eventEntity.setLegalfactIds(timelineElementInternal.getLegalFactsIds().stream().filter(Objects::nonNull).map(LegalFactsIdInt::getKey).toList());
+            eventEntity.setLegalfactIds(timelineElementInternal.getLegalFactsIds().stream().filter(Objects::nonNull).map(LegalFactsIdInt::getKey).map(legalFactKey -> legalFactKey.replace(PnSafeStorageClient.SAFE_STORAGE_URL_PREFIX,"")).toList());
         }
     }
 
