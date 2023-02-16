@@ -73,7 +73,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
                                 .numberOfPages(numberOfPages)
                                 .build();
 
-                        log.debug("End sendCreationRequestForAAR - iun={}", notification.getIun());
+                        log.debug("End sendCreationRequestForAAR - iun={} key={}", notification.getIun(), fileCreationResponse);
                         
                         return pdfInfo;
                     }
@@ -117,7 +117,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
             return this.saveLegalFact(legalFactBuilder.generatePecDeliveryWorkflowLegalFact(
                             listFeedbackFromExtChannel, notification, recipient, status, completionWorkflowDate))
                     .map( responseUrl -> {
-                        log.debug("End sendCreationRequestForPecDeliveryWorkflowLegalFact - iun={}", notification.getIun());
+                        log.debug("End sendCreationRequestForPecDeliveryWorkflowLegalFact - iun={} key={}", notification.getIun(), responseUrl);
                         return responseUrl;
                     }).block();
         } catch (Exception exc) {
@@ -139,7 +139,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
                         log.info("sendCreationRequestForNotificationViewedLegalFact completed - iun={} are not nulls={}", notification.getIun(), res != null);
                         return this.saveLegalFact(res)
                         .map( responseUrl -> {
-                            log.debug("End sendCreationRequestForNotificationViewedLegalFact - iun={}", notification.getIun());
+                            log.debug("End sendCreationRequestForNotificationViewedLegalFact - iun={} key={}", notification.getIun(), responseUrl);
                             return responseUrl;
                         });
                 }).doOnError( err -> log.error("Error in sendCreationRequestForNotificationViewedLegalFact - iun={} error=", notification.getIun(), err));

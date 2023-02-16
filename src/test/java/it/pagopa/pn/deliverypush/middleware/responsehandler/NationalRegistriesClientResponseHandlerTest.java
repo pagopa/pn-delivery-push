@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.middleware.responsehandler;
 
-import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -8,6 +7,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.PublicRegistryCallDetailsInt;
@@ -19,7 +19,7 @@ import org.mockito.Mockito;
 
 import java.util.Collections;
 
-class PublicRegistryResponseHandlerTest {
+class NationalRegistriesClientResponseHandlerTest {
 
     private ChooseDeliveryModeHandler chooseDeliveryHandler;
 
@@ -44,11 +44,10 @@ class PublicRegistryResponseHandlerTest {
     @Test
     void handleResponseChooseDelivery() {
         String iun = "iun01";
-        String taxId = "taxId01";
-        String correlationId = "iun01_taxId011121";
+        String correlationId = "national_registry_call#IUN_iun01#RECINDEX_1#DELIVERYMODE_DIGITAL#CONTACTPHASE_CHOOSE_DELIVERY#SENTATTEMPTMADE_1".replace("#", TimelineEventIdBuilder.DELIMITER);
         int recIndex = 1;
         NotificationInt notificationInt = buildNotificationInt(iun);
-        PublicRegistryResponse response = buildPublicRegistryResponse(iun, taxId);
+        PublicRegistryResponse response = buildPublicRegistryResponse(correlationId);
         PublicRegistryCallDetailsInt publicRegistryCallDetails = buildPublicRegistryCallDetailsInt(ContactPhaseInt.CHOOSE_DELIVERY, recIndex, DeliveryModeInt.DIGITAL);
 
         Mockito.when(notificationService.getNotificationByIun(iun)).thenReturn(notificationInt);
@@ -63,11 +62,10 @@ class PublicRegistryResponseHandlerTest {
     @Test
     void handleResponseSendAttemptDigital() {
         String iun = "iun01";
-        String taxId = "taxId01";
-        String correlationId = "iun01_taxId011121";
+        String correlationId = "national_registry_call#IUN_iun01#RECINDEX_1#DELIVERYMODE_DIGITAL#CONTACTPHASE_CHOOSE_DELIVERY#SENTATTEMPTMADE_1".replace("#", TimelineEventIdBuilder.DELIMITER);
         int recIndex = 1;
         NotificationInt notificationInt = buildNotificationInt(iun);
-        PublicRegistryResponse response = buildPublicRegistryResponse(iun, taxId);
+        PublicRegistryResponse response = buildPublicRegistryResponse(correlationId);
         PublicRegistryCallDetailsInt publicRegistryCallDetails = buildPublicRegistryCallDetailsInt(ContactPhaseInt.SEND_ATTEMPT, recIndex, DeliveryModeInt.DIGITAL);
 
         Mockito.when(notificationService.getNotificationByIun(iun)).thenReturn(notificationInt);
@@ -96,13 +94,13 @@ class PublicRegistryResponseHandlerTest {
                 .build();
     }
 
-    private PublicRegistryResponse buildPublicRegistryResponse(String iun, String taxId) {
+    private PublicRegistryResponse buildPublicRegistryResponse(String correlationId) {
         return PublicRegistryResponse.builder()
                 .digitalAddress(LegalDigitalAddressInt.builder()
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                         .address("account@dominio.it")
                         .build())
-                .correlationId(iun + "_" + taxId + "1121")
+                .correlationId(correlationId)
                 .physicalAddress(null)
                 .build();
     }

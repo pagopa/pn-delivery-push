@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush;
 
 import it.pagopa.pn.commons.conf.SharedAutoConfiguration;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -81,6 +82,8 @@ public class PnDeliveryPushConfigs {
 
     private String nationalRegistriesBaseUrl;
 
+    private Duration[] validationRetryIntervals;
+    
     @Data
     public static class Topics {
 
@@ -135,6 +138,16 @@ public class PnDeliveryPushConfigs {
 
         private SenderAddress senderAddress;
 
+        public PhysicalAddressInt getSenderPhysicalAddress(){
+            return PhysicalAddressInt.builder()
+                    .fullname(senderAddress.getFullname())
+                    .address(senderAddress.getAddress())
+                    .zip(senderAddress.getZipcode())
+                    .province(senderAddress.getPr())
+                    .municipality(senderAddress.getCity())
+                    .foreignState(senderAddress.getCountry())
+                    .build();
+        }
     }
 
     @Data

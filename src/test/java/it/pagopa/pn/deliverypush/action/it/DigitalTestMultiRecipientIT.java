@@ -21,10 +21,14 @@ import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFa
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.deliverypush.action.notificationview.ViewNotification;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
-import it.pagopa.pn.deliverypush.action.startworkflow.AttachmentUtils;
+import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
 import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.ScheduleRecipientWorkflow;
 import it.pagopa.pn.deliverypush.action.startworkflow.StartWorkflowHandler;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationScheduler;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.TaxIdPivaValidator;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.AarCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.*;
@@ -57,6 +61,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -83,7 +88,7 @@ import static org.awaitility.Awaitility.await;
         AuditLogServiceImpl.class,
         CompletionWorkFlowHandler.class,
         PublicRegistryResponseHandler.class,
-        PublicRegistryServiceImpl.class,
+        NationalRegistriesServiceImpl.class,
         ExternalChannelServiceImpl.class,
         IoServiceImpl.class,
         NotificationCostServiceImpl.class,
@@ -133,10 +138,15 @@ import static org.awaitility.Awaitility.await;
         DigitalDeliveryCreationResponseHandler.class,
         FailureWorkflowHandler.class,
         SuccessWorkflowHandler.class,
+        NotificationValidationActionHandler.class,
+        TaxIdPivaValidator.class,
+        ReceivedLegalFactCreationRequest.class,
+        NotificationValidationScheduler.class,
         DigitalTestMultiRecipientIT.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
+@DirtiesContext
 class DigitalTestMultiRecipientIT {
 
     @TestConfiguration
@@ -183,7 +193,7 @@ class DigitalTestMultiRecipientIT {
     private UserAttributesClientMock addressBookMock;
 
     @Autowired
-    private PublicRegistryMock publicRegistryMock;
+    private NationalRegistriesClientMock nationalRegistriesClientMock;
 
     @Autowired
     private TimelineDaoMock timelineDaoMock;
@@ -234,7 +244,7 @@ class DigitalTestMultiRecipientIT {
 
         pnDeliveryClientMock.clear();
         addressBookMock.clear();
-        publicRegistryMock.clear();
+        nationalRegistriesClientMock.clear();
         timelineDaoMock.clear();
         paperNotificationFailedDaoMock.clear();
         pnDeliveryClientMock.clear();
@@ -334,7 +344,7 @@ class DigitalTestMultiRecipientIT {
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress1));
         addressBookMock.addLegalDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress2));
-        publicRegistryMock.addDigital(recipient2.getTaxId(), pbDigitalAddress2);
+        nationalRegistriesClientMock.addDigital(recipient2.getTaxId(), pbDigitalAddress2);
 
         String iun = notification.getIun();
         int recIndex1 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
@@ -557,7 +567,7 @@ class DigitalTestMultiRecipientIT {
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress1));
         addressBookMock.addLegalDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress2));
-        publicRegistryMock.addDigital(recipient2.getTaxId(), pbDigitalAddress2);
+        nationalRegistriesClientMock.addDigital(recipient2.getTaxId(), pbDigitalAddress2);
 
         int recIndex1 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
         int recIndex2 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());

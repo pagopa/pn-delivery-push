@@ -15,7 +15,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.service.PublicRegistryService;
+import it.pagopa.pn.deliverypush.service.NationalRegistriesService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,7 +42,7 @@ class ChooseDeliveryModeHandlerTest {
     @Mock
     private SchedulerService schedulerService;
     @Mock
-    private PublicRegistryService publicRegistryService;
+    private NationalRegistriesService nationalRegistriesService;
     @Mock
     private ChooseDeliveryModeUtils chooseDeliveryUtils;
     @Mock
@@ -58,7 +58,7 @@ class ChooseDeliveryModeHandlerTest {
     public void setup() {
         handler = new ChooseDeliveryModeHandler(chooseDeliveryUtils,
                 digitalWorkFlowHandler, schedulerService,
-                publicRegistryService, pnDeliveryPushConfigs, notificationService);
+                nationalRegistriesService, pnDeliveryPushConfigs, notificationService);
         notificationUtils= new NotificationUtils();
     }
 
@@ -175,7 +175,7 @@ class ChooseDeliveryModeHandlerTest {
         Assertions.assertEquals(DigitalAddressSourceInt.SPECIAL, listDigitalAddressSourceCaptorValues.get(1));
         Assertions.assertFalse(listIsAvailableCaptorValues.get(1));
 
-        Mockito.verify(publicRegistryService).sendRequestForGetDigitalGeneralAddress(Mockito.any(NotificationInt.class), Mockito.anyInt(),
+        Mockito.verify(nationalRegistriesService).sendRequestForGetDigitalGeneralAddress(Mockito.any(NotificationInt.class), Mockito.anyInt(),
                 Mockito.any(ContactPhaseInt.class), Mockito.anyInt());
     }
 

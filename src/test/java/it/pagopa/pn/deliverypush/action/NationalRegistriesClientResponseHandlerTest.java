@@ -1,12 +1,9 @@
 package it.pagopa.pn.deliverypush.action;
 
-import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
-import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
@@ -14,6 +11,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.PublicRegistryCallDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
 import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +21,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-class PublicRegistryResponseHandlerTest {
+import static org.mockito.ArgumentMatchers.eq;
+
+class NationalRegistriesClientResponseHandlerTest {
     @Mock
     private ChooseDeliveryModeHandler chooseDeliveryHandler;
     @Mock
@@ -48,12 +48,12 @@ class PublicRegistryResponseHandlerTest {
     void handleResponse_Choose() {
         //GIVEN
         String iun = "iun01";
-        String taxId = "taxId01";
         Integer recIndex = 0;
+        String correlationId = "national_registry_call;IUN_iun01;RECINDEX_0;CONTACTPHASE_CHOOSE_DELIVERY";
         
         PublicRegistryResponse response =
                 PublicRegistryResponse.builder()
-                        .correlationId(iun + "_" + taxId + "1121")
+                        .correlationId(correlationId)
                         .digitalAddress(LegalDigitalAddressInt.builder()
                                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                                 .address("account@dominio.it")
@@ -66,23 +66,23 @@ class PublicRegistryResponseHandlerTest {
                 .recIndex(recIndex)
                 .build();
 
-        Mockito.when(publicRegistryUtils.getPublicRegistryCallDetail(Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(publicRegistryUtils.getPublicRegistryCallDetail(iun, correlationId))
                 .thenReturn(publicRegistryCallDetails);
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun(iun)
                 .build();
-        Mockito.when( notificationService.getNotificationByIun(Mockito.anyString()) ).thenReturn(notification);
+        Mockito.when( notificationService.getNotificationByIun(iun) ).thenReturn(notification);
         
         //WHEN
         handler.handleResponse(response);
         
         //THEN
-        Mockito.verify(publicRegistryUtils).addPublicRegistryResponseToTimeline(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.any(PublicRegistryResponse.class));
+        Mockito.verify(publicRegistryUtils).addPublicRegistryResponseToTimeline(notification, recIndex, response);
 
         ArgumentCaptor<NotificationInt> notificationIntArgumentCaptor = ArgumentCaptor.forClass(NotificationInt.class);
 
-        Mockito.verify(chooseDeliveryHandler).handleGeneralAddressResponse(Mockito.any(PublicRegistryResponse.class), notificationIntArgumentCaptor.capture(), Mockito.anyInt());
+        Mockito.verify(chooseDeliveryHandler).handleGeneralAddressResponse(eq(response), notificationIntArgumentCaptor.capture(), eq(recIndex));
 
         Assertions.assertEquals(iun, notificationIntArgumentCaptor.getValue().getIun());
     }
@@ -92,12 +92,12 @@ class PublicRegistryResponseHandlerTest {
     void handleResponse_Sent_digital() {
         //GIVEN
         String iun = "iun01";
-        String taxId = "taxId01";
+        String correlationId = "national_call;IUN_iun01;RECINDEX_0;DELIVERYMODE_DIGITAL;CONTACTPHASE_SEND_ATTEMPT;SENTATTEMPTMADE_1";
         Integer recIndex = 0;
 
         PublicRegistryResponse response =
                 PublicRegistryResponse.builder()
-                        .correlationId(iun + "_" + taxId + "1121")
+                        .correlationId(correlationId)
                         .digitalAddress(LegalDigitalAddressInt.builder()
                                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                                 .address("account@dominio.it")
@@ -117,17 +117,17 @@ class PublicRegistryResponseHandlerTest {
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun(iun)
                 .build();
-        Mockito.when( notificationService.getNotificationByIun(Mockito.anyString()) ).thenReturn(notification);
+        Mockito.when( notificationService.getNotificationByIun(iun) ).thenReturn(notification);
         
         //WHEN
         handler.handleResponse(response);
         
         //THEN
-        Mockito.verify(publicRegistryUtils).addPublicRegistryResponseToTimeline(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.any(PublicRegistryResponse.class));
+        Mockito.verify(publicRegistryUtils).addPublicRegistryResponseToTimeline(notification, recIndex, response);
 
         ArgumentCaptor<NotificationInt> notificationIntArgumentCaptor = ArgumentCaptor.forClass(NotificationInt.class);
 
-        Mockito.verify(digitalWorkFlowHandler).handleGeneralAddressResponse(Mockito.any(PublicRegistryResponse.class), notificationIntArgumentCaptor.capture(), Mockito.any(PublicRegistryCallDetailsInt.class));
+        Mockito.verify(digitalWorkFlowHandler).handleGeneralAddressResponse(eq(response), notificationIntArgumentCaptor.capture(), eq(publicRegistryCallDetails));
 
         Assertions.assertEquals(iun, notificationIntArgumentCaptor.getValue().getIun());
 

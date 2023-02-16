@@ -4,7 +4,7 @@ import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-class PublicRegistryResponseDetailsIntTest {
+class NationalRegistriesClientResponseDetailsIntTest {
     private PublicRegistryResponseDetailsInt detailsInt;
     @BeforeEach
     void setUp() {

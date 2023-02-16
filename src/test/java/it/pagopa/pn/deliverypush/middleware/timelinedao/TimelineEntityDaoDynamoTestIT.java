@@ -605,7 +605,9 @@ class TimelineEntityDaoDynamoTestIT {
                                                         .build()
                                         )
                                 )
-                                .errors(List.of("errors"))
+                                .errors(List.of(
+                                        NotificationRefusedErrorCodeEntity.FILE_NOTFOUND.getValue()
+                                ))
                                 .build()
                 )
                 .build();

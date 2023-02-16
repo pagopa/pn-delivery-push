@@ -19,10 +19,14 @@ import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationCost;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFactCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
-import it.pagopa.pn.deliverypush.action.startworkflow.AttachmentUtils;
+import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
 import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.ScheduleRecipientWorkflow;
 import it.pagopa.pn.deliverypush.action.startworkflow.StartWorkflowHandler;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationScheduler;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.TaxIdPivaValidator;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.AarCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.*;
@@ -50,12 +54,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
+
+import static org.awaitility.Awaitility.await;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
@@ -72,7 +80,7 @@ import java.util.Collections;
         AuditLogServiceImpl.class,
         CompletionWorkFlowHandler.class,
         PublicRegistryResponseHandler.class,
-        PublicRegistryServiceImpl.class,
+        NationalRegistriesServiceImpl.class,
         ExternalChannelServiceImpl.class,
         IoServiceImpl.class,
         NotificationCostServiceImpl.class,
@@ -120,6 +128,10 @@ import java.util.Collections;
         DigitalDeliveryCreationResponseHandler.class,
         FailureWorkflowHandler.class,
         SuccessWorkflowHandler.class,
+        NotificationValidationActionHandler.class,
+        TaxIdPivaValidator.class,
+        ReceivedLegalFactCreationRequest.class,
+        NotificationValidationScheduler.class,
         ValidationDocumentErrorTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource(
@@ -127,6 +139,7 @@ import java.util.Collections;
         properties = "pn.delivery-push.validation-document-test=true"
 )
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
+@DirtiesContext
 class ValidationDocumentErrorTestIT {
     
     @TestConfiguration
@@ -159,7 +172,7 @@ class ValidationDocumentErrorTestIT {
     private UserAttributesClientMock addressBookMock;
 
     @Autowired
-    private PublicRegistryMock publicRegistryMock;
+    private NationalRegistriesClientMock nationalRegistriesClientMock;
 
     @Autowired
     private TimelineDaoMock timelineDaoMock;
@@ -200,7 +213,7 @@ class ValidationDocumentErrorTestIT {
         safeStorageClientMock.clear();
         pnDeliveryClientMock.clear();
         addressBookMock.clear();
-        publicRegistryMock.clear();
+        nationalRegistriesClientMock.clear();
         timelineDaoMock.clear();
         paperNotificationFailedDaoMock.clear();
         pnDataVaultClientMock.clear();
@@ -208,7 +221,7 @@ class ValidationDocumentErrorTestIT {
     }
 
     @Test
-    void workflowTest() throws PnIdConflictException {
+    void differentShaRefusedTest() throws PnIdConflictException {
         // GIVEN
         
         // Platform address is present and all sending attempts fail
@@ -244,7 +257,7 @@ class ValidationDocumentErrorTestIT {
         TestUtils.firstFileUploadFromNotificationError(notification, safeStorageClientMock, differentFileSha);
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
-        publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
+        nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
         Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
@@ -253,15 +266,16 @@ class ValidationDocumentErrorTestIT {
         startWorkflowHandler.startWorkflow(iun);
         
         //THEN
-        
-        //Check worfklow is failed
-        Assertions.assertTrue(timelineService.getTimelineElement(
-                iun,
-                TimelineEventId.REQUEST_REFUSED.buildEventId(
-                        EventId.builder()
-                                .iun(iun)
-                                .recIndex(recIndex)
-                                .build())).isPresent()
+        await().atMost(Duration.ofSeconds(1000)).untilAsserted(() ->
+                //Check worfklow is failed
+                Assertions.assertTrue(timelineService.getTimelineElement(
+                        iun,
+                        TimelineEventId.REQUEST_REFUSED.buildEventId(
+                                EventId.builder()
+                                        .iun(iun)
+                                        .recIndex(recIndex)
+                                        .build())).isPresent()
+                )
         );
 
         Mockito.verify(externalChannelMock, Mockito.times(0)).sendLegalNotification(
@@ -276,4 +290,76 @@ class ValidationDocumentErrorTestIT {
 
         ConsoleAppenderCustom.checkLogs();
     }
+
+    @Test
+    void taxIdNotValidTest() throws PnIdConflictException {
+        // GIVEN
+
+        // Platform address is present and all sending attempts fail
+        LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
+                .address("platformAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                .build();
+
+        //Special address is present and all sending attempts fail
+        LegalDigitalAddressInt digitalDomicile = LegalDigitalAddressInt.builder()
+                .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                .build();
+
+        //General address is present and all sending attempts fail
+        LegalDigitalAddressInt pbDigitalAddress = LegalDigitalAddressInt.builder()
+                .address("pbDigitalAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                .build();
+
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
+                .withTaxId("TAXID01_" + NationalRegistriesClientMock.NOT_VALID)
+                .withDigitalDomicile(digitalDomicile)
+                .build();
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withIun("IUN01")
+                .withPaId("paId01")
+                .withNotificationRecipient(recipient)
+                .build();
+
+        byte[] differentFileSha = "error".getBytes();
+        TestUtils.firstFileUploadFromNotificationError(notification, safeStorageClientMock, differentFileSha);
+        pnDeliveryClientMock.addNotification(notification);
+        addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
+        nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
+
+        String iun = notification.getIun();
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+
+        //WHEN the workflow start
+        startWorkflowHandler.startWorkflow(iun);
+
+        //THEN
+        await().atMost(Duration.ofSeconds(1000)).untilAsserted(() ->
+                //Check worfklow is failed
+                Assertions.assertTrue(timelineService.getTimelineElement(
+                        iun,
+                        TimelineEventId.REQUEST_REFUSED.buildEventId(
+                                EventId.builder()
+                                        .iun(iun)
+                                        .build())).isPresent()
+                )
+        );
+
+        Mockito.verify(externalChannelMock, Mockito.times(0)).sendLegalNotification(
+                Mockito.any(NotificationInt.class),
+                Mockito.any(NotificationRecipientInt.class),
+                Mockito.any(LegalDigitalAddressInt.class),
+                Mockito.anyString(),
+                Mockito.anyString(),
+                Mockito.anyString()
+        );
+        Mockito.verify(paperChannelMock, Mockito.times(0)).send(Mockito.any(PaperChannelSendRequest.class));
+
+        ConsoleAppenderCustom.checkLogs();
+    }
+    
+    
 }

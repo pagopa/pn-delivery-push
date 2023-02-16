@@ -10,7 +10,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
-import it.pagopa.pn.deliverypush.middleware.externalclient.publicregistry.PublicRegistry;
+import it.pagopa.pn.deliverypush.middleware.externalclient.publicregistry.NationalRegistriesClient;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,26 +23,26 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 
-class PublicRegistryServiceImplTest {
+class NationalRegistriesClientServiceImplTest {
 
     @Mock
     private PublicRegistryUtils publicRegistryUtils;
 
     @Mock
-    private PublicRegistry publicRegistry;
+    private NationalRegistriesClient nationalRegistriesClient;
 
     @Mock
     private NotificationUtils notificationUtils;
 
-    private PublicRegistryServiceImpl service;
+    private NationalRegistriesServiceImpl service;
 
     @BeforeEach
     void setUp() {
         publicRegistryUtils = Mockito.mock(PublicRegistryUtils.class);
-        publicRegistry = Mockito.mock(PublicRegistry.class);
+        nationalRegistriesClient = Mockito.mock(NationalRegistriesClient.class);
         notificationUtils = Mockito.mock(NotificationUtils.class);
 
-        service = new PublicRegistryServiceImpl(publicRegistryUtils, publicRegistry, notificationUtils);
+        service = new NationalRegistriesServiceImpl(publicRegistryUtils, nationalRegistriesClient, notificationUtils);
     }
 
     @Test
@@ -61,7 +61,7 @@ class PublicRegistryServiceImplTest {
         service.sendRequestForGetDigitalGeneralAddress(notification, recIndex, contactPhase, sentAttemptMade);
 
         Mockito.verify(publicRegistryUtils, Mockito.times(1)).addPublicRegistryCallToTimeline(notification, recIndex, contactPhase, sentAttemptMade, correlationId, DeliveryModeInt.DIGITAL);
-        Mockito.verify(publicRegistry, Mockito.times(1)).sendRequestForGetDigitalAddress(recipient.getTaxId(), recipient.getRecipientType().getValue(), correlationId);
+        Mockito.verify(nationalRegistriesClient, Mockito.times(1)).sendRequestForGetDigitalAddress(recipient.getTaxId(), recipient.getRecipientType().getValue(), correlationId);
     }
 
 

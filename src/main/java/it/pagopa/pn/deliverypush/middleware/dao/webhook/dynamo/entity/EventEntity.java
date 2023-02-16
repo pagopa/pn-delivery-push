@@ -9,6 +9,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbParti
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
 
 import java.time.Instant;
+import java.util.List;
 
 /**
  * Entity Stream
@@ -26,6 +27,11 @@ public class EventEntity {
     private static final String COL_TIMELINE_EVENT_CATEGORY = "timelineEventCategory";
     private static final String COL_TIMESTAMP = "timestamp";
     private static final String COL_TTL = "ttl";
+
+    private static final String COL_RECINDEX = "recipientIndex";
+    private static final String COL_CHANNEL = "channel";
+    private static final String COL_LEGALFACT_IDS = "legalfactIds";
+    private static final String COL_ANALOG_COST = "analogCost";
 
     public EventEntity(){}
 
@@ -45,4 +51,10 @@ public class EventEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(COL_NEW_STATUS)})) private String newStatus;
     @Getter(onMethod=@__({@DynamoDbAttribute(COL_TIMELINE_EVENT_CATEGORY)})) private String timelineEventCategory;
     @Getter(onMethod=@__({@DynamoDbAttribute(COL_TTL)})) private Long ttl;
+
+    @Getter(onMethod=@__({@DynamoDbAttribute(COL_RECINDEX)})) private Integer recipientIndex;
+    @Getter(onMethod=@__({@DynamoDbAttribute(COL_CHANNEL)})) private String channel;
+    @Getter(onMethod=@__({@DynamoDbAttribute(COL_LEGALFACT_IDS)})) private List<String> legalfactIds;
+    @Getter(onMethod=@__({@DynamoDbAttribute(COL_ANALOG_COST)})) private Integer analogCost;
+
 }

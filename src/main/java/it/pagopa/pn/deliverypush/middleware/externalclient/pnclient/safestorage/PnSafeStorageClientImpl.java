@@ -13,12 +13,14 @@ import it.pagopa.pn.delivery.generated.openapi.clients.safestorage_reactive.api.
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
+import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -26,6 +28,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
@@ -58,10 +61,21 @@ public class PnSafeStorageClientImpl extends CommonBaseClient implements PnSafeS
     public Mono<FileDownloadResponse> getFile(String fileKey, Boolean metadataOnly) {
         log.debug("Start call getFile - fileKey={} metadataOnly={}", fileKey, metadataOnly);
         fileKey = fileKey.replace(SAFE_STORAGE_URL_PREFIX, "");
+        String finalFileKey = fileKey;
         return fileDownloadApi.getFile( fileKey, this.cfg.getSafeStorageCxId(), metadataOnly )
-                .onErrorResume( error ->{
-                    log.error("Safe Storage client get file error ", error);
-                    return Mono.error(new PnInternalException("Safe Storage client get file error", ERROR_CODE_DELIVERYPUSH_GETFILEERROR, error));
+                .onErrorResume( WebClientResponseException.class, error ->{
+                    log.error("Exception in call getFile fileKey={} error={}", finalFileKey, error);
+
+                    if(error.getStatusCode().equals(HttpStatus.NOT_FOUND)){
+                        log.error("File not found from safeStorage fileKey={} error={}", finalFileKey, error);
+                        return Mono.error(
+                                new PnValidationFileNotFoundException(
+                                        ERROR_CODE_DELIVERYPUSH_GETFILEERROR,
+                                        error)
+                        );
+                    }
+                    
+                    return Mono.error(error);
                 });
     }
 

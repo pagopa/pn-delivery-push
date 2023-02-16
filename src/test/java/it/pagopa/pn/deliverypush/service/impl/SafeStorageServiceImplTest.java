@@ -6,7 +6,6 @@ import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDow
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
-import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -64,7 +63,7 @@ class SafeStorageServiceImplTest {
         Mono<FileDownloadResponseInt> mono = safeStorageService.getFile("test", true);
         
         //WHEN
-        Assertions.assertThrows( PnNotFoundException.class, mono::block);
+        Assertions.assertThrows( PnInternalException.class, mono::block);
     }
 
     @Test
