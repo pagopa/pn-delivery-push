@@ -199,7 +199,7 @@
 							<typeMappings>
 								<typeMapping>OffsetDateTime=java.time.Instant</typeMapping>
 							</typeMappings>
-							<inputSpec>${project.basedir}/docs/openapi/api-private-v2.yaml</inputSpec>
+							<inputSpec>${project.basedir}/docs/openapi/api-private-v1.yaml</inputSpec>
 							<generatorName>spring</generatorName>
 							<library>spring-boot</library>
 							<modelNameSuffix />
