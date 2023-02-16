@@ -48,13 +48,13 @@ public class NotificationValidationActionHandler {
                regolarmente la notifica in rifiutata) e un 404 dovuto ad un ritardo nel caricamento del file nel bucket corretto da parte di
                safeStorage (in questo caso si di deve procedere con i ritentativi). Si sceglie dunque per ore di ritentare in entrambi i casi
             */
-            log.error("File not found exception in validateNotification - iun={} ex=",iun, ex);
+            log.error(String.format("File not found exception in validateNotification - iun=%s", iun),  ex);
             log.info("Notification validation need to be rescheduled  - iun={}", iun);
             notificationValidationScheduler.scheduleNotificationValidation(notification, details.getRetryAttempt());
         } catch (PnValidationException ex){
             handleValidationError(notification, ex);
         } catch (RuntimeException ex){
-            log.error("RuntimeException in validateNotification - iun={} ex=",iun, ex);
+            log.error(String.format("RuntimeException in validateNotification - iun=%s", iun),  ex);
             log.info("Notification validation need to be rescheduled for ex={} - iun={}", ex, iun);
             notificationValidationScheduler.scheduleNotificationValidation(notification, details.getRetryAttempt());
         }
