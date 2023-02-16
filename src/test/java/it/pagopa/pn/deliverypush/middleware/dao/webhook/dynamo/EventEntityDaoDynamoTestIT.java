@@ -139,7 +139,7 @@ class EventEntityDaoDynamoTestIT {
         Instant instant = Instant.now();
         for(int i = 0;i<N;i++)
         {
-            EventEntity ae = newEvent(streamId, instant.plusMillis(i) + "_" + "timelineid");
+            EventEntity ae = newEvent(streamId, instant.plusMillis(i) + "_" + "timelineid", i % 2 == 0);
             addressesEntities.add(ae);
         }
 
@@ -313,6 +313,10 @@ class EventEntityDaoDynamoTestIT {
     }
 
     private EventEntity newEvent(String streamId, String eventId){
+        return newEvent(streamId, eventId, false);
+    }
+
+    private EventEntity newEvent(String streamId, String eventId, boolean withAdditionalInfos){
         EventEntity event = new EventEntity();
         event.setEventId(eventId);
         event.setStreamId(streamId);
@@ -320,6 +324,13 @@ class EventEntityDaoDynamoTestIT {
         event.setIun(UUID.randomUUID().toString());
         event.setNotificationRequestId("");
         event.setTimelineEventCategory(TimelineElementCategoryInt.AAR_GENERATION.getValue());
+        if (withAdditionalInfos)
+        {
+            event.setAnalogCost(500);
+            event.setRecipientIndex(1);
+            event.setChannel("PEC");
+            event.setLegalfactIds(List.of("KEY1"));
+        }
         return event;
     }
 }
