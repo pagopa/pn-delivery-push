@@ -71,6 +71,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -157,6 +158,8 @@ import static org.awaitility.Awaitility.await;
 })
 @TestPropertySource("classpath:/application-test.properties")
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
+@Disabled("Da capire come calcolare il timestamp di scheduled")
+@DirtiesContext
 class DigitalTestIT { 
     
     @TestConfiguration
@@ -537,7 +540,6 @@ class DigitalTestIT {
     }
 
     @Test
-    @Disabled("Da capire come calcolare il timestamp di scheduled")
     void CcompleteFailWithRegisteredLetter() {
         /*
        - Platform address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)

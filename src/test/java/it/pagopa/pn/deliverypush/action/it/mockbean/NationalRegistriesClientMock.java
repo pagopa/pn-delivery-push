@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.action.it.mockbean;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.middleware.externalclient.publicregistry.NationalRegistriesClient;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.model.CheckTaxIdOK;
@@ -43,8 +44,8 @@ public class NationalRegistriesClientMock implements NationalRegistriesClient {
     public void sendRequestForGetDigitalAddress(String taxId, String recipientType, String correlationId) {
         new Thread(() -> {
             // Viene atteso fino a che l'elemento di timeline relativo all'invio verso extChannel sia stato inserito
-            //timelineEventId = <CATEGORY_VALUE>#IUN_<IUN_VALUE>#RECINDEX_<RECINDEX_VALUE>
-            String iunFromElementId = correlationId.split("#")[1];
+            //timelineEventId = <CATEGORY_VALUE>;IUN_<IUN_VALUE>;RECINDEX_<RECINDEX_VALUE>
+            String iunFromElementId = correlationId.split(TimelineEventIdBuilder.DELIMITER)[1];
             String iun = iunFromElementId.replace("IUN_", "");
             await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
                     Assertions.assertTrue(timelineService.getTimelineElement(iun, correlationId).isPresent())
