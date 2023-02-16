@@ -69,7 +69,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "./schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactList"
+                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactList"
         '400':
           description: Invalid input
           content:
@@ -114,7 +114,7 @@ paths:
           content:  
             application/json:
               schema:
-                $ref: "./schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactDownloadMetadataResponse"          
+                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactDownloadMetadataResponse"
         '400':
           description: Invalid input                                               
           content: 
@@ -149,15 +149,15 @@ paths:
         - $ref: '#/components/parameters/cxGroupsAuthFleet'
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/legalFactsSearchMandateId'
-        - $ref: 'api-private-v1.yaml#/components/parameters/pathDocumentType'
-        - $ref: 'api-private-v1.yaml#/components/parameters/queryDocumentId'
+        - $ref: 'api-private.yaml#/components/parameters/pathDocumentType'
+        - $ref: 'api-private.yaml#/components/parameters/queryDocumentId'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "api-private-v1.yaml#/components/schemas/DocumentDownloadMetadataResponse"
+                $ref: "api-private.yaml#/components/schemas/DocumentDownloadMetadataResponse"
         '400':
           description: Invalid input
           content:
@@ -228,7 +228,7 @@ components:
       in: path
       required: true
       schema:
-        $ref: './schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactCategory'
+        $ref: './schemas-pn-legal-facts.yaml#/components/schemas/LegalFactCategory'
     
     pathLegalFactId:
       description: >-

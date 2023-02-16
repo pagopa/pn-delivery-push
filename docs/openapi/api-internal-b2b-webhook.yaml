@@ -803,9 +803,9 @@ components:
           type: string
 
         newStatus:
-          $ref: './schemas-pn-status-v1.yaml#/components/schemas/NotificationStatus'
+          $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'
         timelineEventCategory:
-          $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/TimelineElementCategory'
+          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementCategory'
         recipientIndex:
           type: integer
           description: Indice del destinatario al quale si riferisce l'evento
@@ -879,7 +879,7 @@ components:
         recipientTaxId:                                                                 # NOT YET IMPLEMENTED
           type: string                                                                  # NOT YET IMPLEMENTED
         recipientType:                                                                  # NOT YET IMPLEMENTED
-          $ref: './schemas-pn-notification-v1.yaml#/components/schemas/RecipientType'   # NOT YET IMPLEMENTED
+          $ref: './schemas-pn-notification.yaml#/components/schemas/RecipientType'   # NOT YET IMPLEMENTED
         paymentType:                                                                    # NOT YET IMPLEMENTED
           type: string                                                                  # NOT YET IMPLEMENTED
           enum:                                                                         # NOT YET IMPLEMENTED

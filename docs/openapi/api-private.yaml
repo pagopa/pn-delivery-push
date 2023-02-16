@@ -187,7 +187,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "./schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactList"
+                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactList"
         '400':
           description: Invalid input
           content:
@@ -231,7 +231,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "./schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactDownloadMetadataResponse"
+                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactDownloadMetadataResponse"
         '400':
           description: Invalid input
           content:
@@ -368,7 +368,7 @@ components:
       in: path
       required: true
       schema:
-        $ref: './schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactCategory'
+        $ref: './schemas-pn-legal-facts.yaml#/components/schemas/LegalFactCategory'
 
     pathLegalFactId:
       description: >-
@@ -461,15 +461,15 @@ components:
       type: object
       properties:
         notificationStatus:
-          $ref: './schemas-pn-status-v1.yaml#/components/schemas/NotificationStatus'
+          $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'
         notificationStatusHistory:
-          $ref: './schemas-pn-status-v1.yaml#/components/schemas/NotificationStatusHistory'
+          $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatusHistory'
         timeline:
           description: >-
             elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica
           type: array
           items:
-            $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/TimelineElement'
+            $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElement'
 
 
     ############################################################################################
@@ -486,14 +486,14 @@ components:
         - raddBusinessTransactionClosingDate
       properties:
         recipientType:
-          $ref: './schemas-pn-notification-v1.yaml#/components/schemas/RecipientType'
+          $ref: './schemas-pn-notification.yaml#/components/schemas/RecipientType'
         recipientInternalId:
           type: string
           description: identificativo anonimizzato del destinatario
         raddType:
-          $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/RaddType'
+          $ref: './schemas-pn-timeline.yaml#/components/schemas/RaddType'
         raddBusinessTransactionId:
-          $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/RaddTransactionId'
+          $ref: './schemas-pn-timeline.yaml#/components/schemas/RaddTransactionId'
         raddBusinessTransactionDate:
           type: string
           format: date-time

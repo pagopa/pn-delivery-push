@@ -199,7 +199,7 @@
 							<typeMappings>
 								<typeMapping>OffsetDateTime=java.time.Instant</typeMapping>
 							</typeMappings>
-							<inputSpec>${project.basedir}/docs/openapi/api-private-v1.yaml</inputSpec>
+							<inputSpec>${project.basedir}/docs/openapi/api-private.yaml</inputSpec>
 							<generatorName>spring</generatorName>
 							<library>spring-boot</library>
 							<modelNameSuffix />
@@ -232,7 +232,7 @@
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>${project.basedir}/docs/openapi/api-internal-pn-delivery-push-v1.yaml</inputSpec>
+							<inputSpec>${project.basedir}/docs/openapi/api-internal-pn-delivery-push.yaml</inputSpec>
 							<generatorName>spring</generatorName>
 							<library>spring-boot</library>
 							<modelNameSuffix />
@@ -274,7 +274,7 @@
 								<importMapping>java.util.Date=java.time.Instant</importMapping>
 								<importMapping>Date=java.time.Instant</importMapping>
 							</importMappings>
-							<inputSpec>${project.basedir}/docs/openapi/api-internal-b2b-webhook-v1.yaml</inputSpec>
+							<inputSpec>${project.basedir}/docs/openapi/api-internal-b2b-webhook.yaml</inputSpec>
 							<generatorName>spring</generatorName>
 							<library>spring-boot</library>
 							<modelNameSuffix />
