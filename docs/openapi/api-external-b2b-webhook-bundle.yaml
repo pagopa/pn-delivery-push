@@ -423,6 +423,7 @@ components:
           type: string
           description: |
             stato di avanzamento del processo di notifica:`
+              * `SENDER_ACK_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa in carico per il mittente a safe storage
               * `REQUEST_ACCEPTED` - Richiesta di notifica accettata a seguito dei controlli di validazione
               * `REQUEST_REFUSED` - Richiesta di notifica rifiutata per fallimento di validazione
               * `SEND_COURTESY_MESSAGE` - Invio di un messaggio di cortesia
@@ -432,22 +433,30 @@ components:
               * `SCHEDULE_ANALOG_WORKFLOW` - Inizio del workflow per invio cartaceo
               * `SCHEDULE_DIGITAL_WORKFLOW` - Inizio del workflow per invio digitale (PEC)
               * `SEND_DIGITAL_DOMICILE` - Invio digitale dell’avviso di notifica
+              * `SEND_DIGITAL_PROGRESS` - Ottenuto evento non finale da un invio digitale
               * `SEND_DIGITAL_FEEDBACK` - Ottenuto esito ad un invio digitale
               * `SCHEDULE_REFINEMENT` - Pianificato il perfezionamento per decorrenza termini
               * `REFINEMENT` - Perfezionamento per decorrenza termini
+              * `DIGITAL_DELIVERY_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di chiusura del workflow digitale a safe storage
               * `DIGITAL_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio digitale
               * `DIGITAL_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio digitale
               * `ANALOG_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio cartaceo
               * `ANALOG_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio cartaceo
+              * `PREPARE_SIMPLE_REGISTERED_LETTER` - Preparazione all'invio di raccomandata semplice
               * `SEND_SIMPLE_REGISTERED_LETTER` - Invio di raccomandata semplice
+              * `NOTIFICATION_VIEWED_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa visione a safe storage
               * `NOTIFICATION_VIEWED` - Perfezionamento per presa visione
+              * `PREPARE_ANALOG_DOMICILE` - Preparazione all'invio cartaceo dell’avviso di notifica
               * `SEND_ANALOG_DOMICILE` - Invio cartaceo dell’avviso di notifica
-              * `SEND_PAPER_FEEDBACK` - Ricezione esito dell'invio cartaceo
+              * `SEND_ANALOG_PROGRESS` - Ricezione evento non finale dell'invio cartaceo
+              * `SEND_ANALOG_FEEDBACK` - Ricezione esito dell'invio cartaceo
               * `COMPLETELY_UNREACHABLE` - Tutti i destinatari risultano irraggiungibili
+              * `AAR_CREATION_REQUEST` - Invio della richiesta di creazione dell'AAR (Avviso di Avvenuta Ricezione) a safe storage
               * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
               * `PAYMENT` - Ricezione pagamento della notifica
               * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
           enum:
+            - SENDER_ACK_CREATION_REQUEST
             - REQUEST_ACCEPTED
             - SEND_COURTESY_MESSAGE
             - GET_ADDRESS
@@ -460,19 +469,45 @@ components:
             - SEND_DIGITAL_FEEDBACK
             - REFINEMENT
             - SCHEDULE_REFINEMENT
+            - DIGITAL_DELIVERY_CREATION_REQUEST
             - DIGITAL_SUCCESS_WORKFLOW
             - DIGITAL_FAILURE_WORKFLOW
             - ANALOG_SUCCESS_WORKFLOW
             - ANALOG_FAILURE_WORKFLOW
+            - PREPARE_SIMPLE_REGISTERED_LETTER
             - SEND_SIMPLE_REGISTERED_LETTER
+            - NOTIFICATION_VIEWED_CREATION_REQUEST
             - NOTIFICATION_VIEWED
+            - PREPARE_ANALOG_DOMICILE
             - SEND_ANALOG_DOMICILE
-            - SEND_PAPER_FEEDBACK
+            - SEND_ANALOG_PROGRESS
+            - SEND_ANALOG_FEEDBACK
             - PAYMENT
             - COMPLETELY_UNREACHABLE
             - REQUEST_REFUSED
+            - AAR_CREATION_REQUEST
             - AAR_GENERATION
             - NOT_HANDLED
+      recipientIndex:
+        type: integer
+        description: Indice del destinatario al quale si riferisce l'evento
+      analogCost:
+        type: integer
+        description: Eventuale costo in eurocent associato all'evento
+      channel:
+        type: string
+        description: >-
+          Canale a cui si riferisce l'evento. I valori previsti sono:
+          - Per eventi legati a messaggi di cortesia: APPIO, SMS, EMAIL
+          - Per eventi legati all'invio digitale: PEC
+          - Per eventi legati all'invio analogico: AR_REGISTERED_LETTER, REGISTERED_LETTER_890
+          - Per eventi legati all'invio di raccomandate semplici: SIMPLE_REGISTERED_LETTER
+      legalfactIds:
+        type: array
+        items:
+          type: string
+        example: ["PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q", "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E"]
+        description: chiavi degli eventuali allegati associati all'evento
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
