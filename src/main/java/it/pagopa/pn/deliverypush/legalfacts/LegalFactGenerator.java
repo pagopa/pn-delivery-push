@@ -143,6 +143,17 @@ public class LegalFactGenerator {
     public byte[] generateNotificationViewedLegalFact(String iun, NotificationRecipientInt recipient, DelegateInfoInt delegateInfo, Instant timeStamp) throws IOException {
 
         Map<String, Object> templateModel = new HashMap<>();
+        
+        //TODO WORKAROUND Queste valorizzazioni di Default sono da eliminare
+        if (delegateInfo != null) {
+            if(delegateInfo.getDenomination() ==  null){
+                delegateInfo.setDenomination("DEFAULT_DENOMINATION");
+            }
+            if (delegateInfo.getTaxId() == null){
+                delegateInfo.setTaxId("DEFAULT_TAXID");
+            }
+        }
+
         templateModel.put(FIELD_IUN, iun);
         templateModel.put(FIELD_RECIPIENT, recipient);
         templateModel.put(FIELD_DELEGATE, delegateInfo);
