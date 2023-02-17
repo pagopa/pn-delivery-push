@@ -253,7 +253,7 @@ class NotificationViewedTestIT {
     }
 
     @Test
-    @Disabled("Test fail only in build fase PN-3853")
+    //@Disabled("Test fail only in build fase PN-3853")
     void notificationViewedFromDelegate() {
         //GIVEN
         LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
