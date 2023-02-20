@@ -60,7 +60,7 @@ class AarUtilsTest {
 
         String msg = "PN_DELIVERYPUSH_GENERATEPDFFAILED";
         NotificationInt notificationInt = newNotification();
-        String elementId = "IUN_01_aar_gen_0";
+        String elementId = "IUN_01_AAR_GEN_0";
         String quickAccessToken = "test";
 
         Mockito.when(timelineService.getTimelineElement(notificationInt.getIun(), elementId)).thenThrow(new PnInternalException("cannot generate AAR pdf", "test"));
@@ -78,7 +78,7 @@ class AarUtilsTest {
 
         NotificationInt notificationInt = newNotification();
         Optional<TimelineElementInternal> timeline = Optional.of(newTimelineElementInternal());
-        String elementId = "aar_gen#IUN_IUN_01#RECINDEX_0".replace("#", TimelineEventIdBuilder.DELIMITER);
+        String elementId = "AAR_GEN#IUN_IUN_01#RECINDEX_0".replace("#", TimelineEventIdBuilder.DELIMITER);
         String quickAccessToken = "test";
 
         Mockito.when(timelineService.getTimelineElement(notificationInt.getIun(), elementId)).thenReturn(timeline);
@@ -94,7 +94,7 @@ class AarUtilsTest {
         NotificationInt notificationInt = newNotification();
         AarGenerationDetailsInt aarInt = AarGenerationDetailsInt.builder().recIndex(0).generatedAarUrl("http://test").numberOfPages(2).build();
         Optional<AarGenerationDetailsInt> aarGenerationDetailsInt = Optional.of(aarInt);
-        String timelineEventId = "aar_gen#IUN_IUN_01#RECINDEX_0".replace("#", TimelineEventIdBuilder.DELIMITER);
+        String timelineEventId = "AAR_GEN#IUN_IUN_01#RECINDEX_0".replace("#", TimelineEventIdBuilder.DELIMITER);
 
         Mockito.when(timelineService.getTimelineElementDetails(notificationInt.getIun(), timelineEventId, AarGenerationDetailsInt.class)).thenReturn(aarGenerationDetailsInt);
 

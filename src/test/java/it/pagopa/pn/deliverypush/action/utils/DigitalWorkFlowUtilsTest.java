@@ -304,7 +304,7 @@ class DigitalWorkFlowUtilsTest {
 
         Set<TimelineElementInternal> timelineElementInternalSet = new HashSet<>();
         timelineElementInternalSet.add(timelineElementInternal);
-        String timelineEventId = "digital_delivering_progress#IUN_IUN_01#RECINDEX_1#SOURCE_SPECIAL#SENTATTEMPTMADE_1".replace("#", TimelineEventIdBuilder.DELIMITER);
+        String timelineEventId = "DIGITAL_DELIVERING_PROGRESS#IUN_IUN_01#RECINDEX_1#SOURCE_SPECIAL#SENTATTEMPTMADE_1".replace("#", TimelineEventIdBuilder.DELIMITER);
         Mockito.when(timelineService.getTimelineByIunTimelineId("IUN_01", timelineEventId, Boolean.FALSE)).thenReturn(timelineElementInternalSet);
 
         DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
@@ -362,17 +362,7 @@ class DigitalWorkFlowUtilsTest {
 
         Assertions.assertEquals(expectErrorMsg, pnInternalException.getProblem().getErrors().get(0).getCode());
     }
-    void getPreviousTimelineProgress() {
-        NotificationInt notification = getNotification();
-        Set<TimelineElementInternal> expected = new HashSet<>();
-        expected.add(buildTimelineElementInternal());
 
-        Mockito.when(timelineService.getTimelineByIunTimelineId(notification.getIun(), "IUN_01_digital_delivering_progress_1_source_GENERAL_attempt_1_progidx_", Boolean.FALSE)).thenReturn(expected);
-
-        Set<TimelineElementInternal> actual = digitalWorkFlowUtils.getPreviousTimelineProgress(notification, 1, 1, DigitalAddressSourceInt.GENERAL);
-
-        Assertions.assertEquals(expected, actual);
-    }
 
     private TimelineElementInternal buildTimelineElementInternal() {
         List<LegalFactsIdInt> legalFactsIds = new ArrayList<>();

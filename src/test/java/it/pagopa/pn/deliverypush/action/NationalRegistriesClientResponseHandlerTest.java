@@ -50,7 +50,7 @@ class NationalRegistriesClientResponseHandlerTest {
         //GIVEN
         String iun = "iun01";
         Integer recIndex = 0;
-        String correlationId = "national_registry_call#IUN_iun01#RECINDEX_0#CONTACTPHASE_CHOOSE_DELIVERY".replace("#", TimelineEventIdBuilder.DELIMITER);
+        String correlationId = "NATIONAL_REGISTRY_CALL#IUN_iun01#RECINDEX_0#CONTACTPHASE_CHOOSE_DELIVERY".replace("#", TimelineEventIdBuilder.DELIMITER);
         
         PublicRegistryResponse response =
                 PublicRegistryResponse.builder()
