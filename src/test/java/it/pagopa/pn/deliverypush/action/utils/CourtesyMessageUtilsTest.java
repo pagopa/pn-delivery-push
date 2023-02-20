@@ -354,7 +354,7 @@ class CourtesyMessageUtilsTest {
                 .details(details)
                 .build();
 
-        String timelineEventId = "send_courtesy_message#IUN_IUN-1#RECINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
+        String timelineEventId = "SEND_COURTESY_MESSAGE#IUN_IUN-1#RECINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
         Mockito.when(timelineService.getTimelineByIunTimelineId("IUN-1", timelineEventId, false)).thenReturn(Set.of(timelineElementInternal));
 
         List<SendCourtesyMessageDetailsInt> res = courtesyMessageUtils.getSentCourtesyMessagesDetails("IUN-1", 1);

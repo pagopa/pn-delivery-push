@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.springbootcfg;
 
+import it.pagopa.pn.commons.pnclients.RestTemplateRetryable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,8 @@ class RestTemplateFactoryTest {
 
     @Test
     void restTemplateWithOffsetDateTimeFormatter() {
-        RestTemplate template = factory.restTemplateWithOffsetDateTimeFormatter();
+        Mockito.when(restTemplateFactory.restTemplateWithTracing(3, 10000)).thenReturn(new RestTemplateRetryable(3));
+        RestTemplate template = factory.restTemplateWithOffsetDateTimeFormatter(3, 10000);
         Assertions.assertNotNull(template);
     }
 }

@@ -18,7 +18,7 @@ import javax.validation.constraints.NotNull;
  */
 public class TimelineEventIdBuilder {
 
-    public static final String DELIMITER = ";";
+    public static final String DELIMITER = ".";
 
     private String iun = "";
 
