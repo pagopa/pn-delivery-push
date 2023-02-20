@@ -47,7 +47,6 @@ public class PublicRegistryResponseHandler {
 
         String correlationId = response.getCorrelationId();
         //timelineEventId = <CATEGORY_VALUE>;IUN_<IUN_VALUE>;RECINDEX_<RECINDEX_VALUE>
-        timelineUtils.getIunFromTimelineId(correlationId);
         String iun = timelineUtils.getIunFromTimelineId(correlationId);
         log.info("Handle public registry response -  iun {} correlationId {}", iun, response.getCorrelationId());
 
