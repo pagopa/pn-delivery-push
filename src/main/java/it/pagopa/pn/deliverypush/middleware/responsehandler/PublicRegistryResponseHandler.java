@@ -3,9 +3,9 @@ package it.pagopa.pn.deliverypush.middleware.responsehandler;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
+import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.PublicRegistryCallDetailsInt;
@@ -24,15 +24,18 @@ public class PublicRegistryResponseHandler {
     private final DigitalWorkFlowHandler digitalWorkFlowHandler;
     private final PublicRegistryUtils publicRegistryUtils;
     private final NotificationService notificationService;
+    private final TimelineUtils timelineUtils;
 
     public PublicRegistryResponseHandler(ChooseDeliveryModeHandler chooseDeliveryHandler,
                                          DigitalWorkFlowHandler digitalWorkFlowHandler,
                                          PublicRegistryUtils publicRegistryUtils, 
-                                         NotificationService notificationService) {
+                                         NotificationService notificationService,
+                                         TimelineUtils timelineUtils) {
         this.chooseDeliveryHandler = chooseDeliveryHandler;
         this.digitalWorkFlowHandler = digitalWorkFlowHandler;
         this.publicRegistryUtils = publicRegistryUtils;
         this.notificationService = notificationService;
+        this.timelineUtils = timelineUtils;
     }
 
     /**
@@ -44,8 +47,8 @@ public class PublicRegistryResponseHandler {
 
         String correlationId = response.getCorrelationId();
         //timelineEventId = <CATEGORY_VALUE>;IUN_<IUN_VALUE>;RECINDEX_<RECINDEX_VALUE>
-        String iunFromElementId = correlationId.split("\\" + TimelineEventIdBuilder.DELIMITER)[1];
-        String iun = iunFromElementId.replace("IUN_", "");
+        timelineUtils.getIunFromTimelineId(correlationId);
+        String iun = timelineUtils.getIunFromTimelineId(correlationId);
         log.info("Handle public registry response -  iun {} correlationId {}", iun, response.getCorrelationId());
 
         NotificationInt notification = notificationService.getNotificationByIun(iun);
