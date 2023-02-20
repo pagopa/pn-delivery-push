@@ -80,21 +80,11 @@
         padding: .5mm 2.6mm;
       }
 
-      #sender-addr-box {
-        position: absolute;
-        left: 58mm;
-        top: 14mm;
-        width: 42mm;
-        height: 22mm;
-        padding: 2.5mm .6mm;
-        line-height: 3.9mm;
-      }
-
       /* QR */
       #qr-iun-code {
         position: absolute;
         top: 22.9mm;
-        left: 125.2mm;
+        left: 114.7mm;
         width: 35mm;
         height: 15mm;
         line-height: 8px;
@@ -290,10 +280,6 @@
       <div id="logo-box__subtitle" class="eight-px">
         Avviso di avvenuta ricezione
       </div>
-    </div>
-
-    <div id="sender-addr-box">
-      ${addressWriter.nullSafePhysicalAddressToString( senderAddress, "<strong>"+senderAddress.fullname+"</strong>", '<br/>')}
     </div>
 
     <div id="qr-iun-code" class="eight-px">
