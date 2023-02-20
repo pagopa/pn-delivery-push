@@ -2,6 +2,8 @@ package it.pagopa.pn.deliverypush.middleware.responsehandler;
 
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
+import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
+import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -12,6 +14,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.PublicRegistryCallDetailsInt;
 import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,8 +40,9 @@ class NationalRegistriesClientResponseHandlerTest {
         digitalWorkFlowHandler = Mockito.mock(DigitalWorkFlowHandler.class);
         publicRegistryUtils = Mockito.mock(PublicRegistryUtils.class);
         notificationService = Mockito.mock(NotificationService.class);
+        TimelineUtils timelineUtils = new TimelineUtils(Mockito.mock(InstantNowSupplier.class), Mockito.mock(TimelineService.class));
 
-        handler = new PublicRegistryResponseHandler(chooseDeliveryHandler, digitalWorkFlowHandler, publicRegistryUtils, notificationService);
+        handler = new PublicRegistryResponseHandler(chooseDeliveryHandler, digitalWorkFlowHandler, publicRegistryUtils, notificationService, timelineUtils);
     }
 
     @Test
