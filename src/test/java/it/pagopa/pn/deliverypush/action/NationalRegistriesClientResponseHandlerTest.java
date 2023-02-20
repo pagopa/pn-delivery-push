@@ -6,6 +6,7 @@ import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.PublicRegistryCallDetailsInt;
@@ -49,7 +50,7 @@ class NationalRegistriesClientResponseHandlerTest {
         //GIVEN
         String iun = "iun01";
         Integer recIndex = 0;
-        String correlationId = "national_registry_call;IUN_iun01;RECINDEX_0;CONTACTPHASE_CHOOSE_DELIVERY";
+        String correlationId = "national_registry_call#IUN_iun01#RECINDEX_0#CONTACTPHASE_CHOOSE_DELIVERY".replace("#", TimelineEventIdBuilder.DELIMITER);
         
         PublicRegistryResponse response =
                 PublicRegistryResponse.builder()
@@ -92,7 +93,7 @@ class NationalRegistriesClientResponseHandlerTest {
     void handleResponse_Sent_digital() {
         //GIVEN
         String iun = "iun01";
-        String correlationId = "national_call;IUN_iun01;RECINDEX_0;DELIVERYMODE_DIGITAL;CONTACTPHASE_SEND_ATTEMPT;SENTATTEMPTMADE_1";
+        String correlationId = "national_call#IUN_iun01#RECINDEX_0#DELIVERYMODE_DIGITAL#CONTACTPHASE_SEND_ATTEMPT#SENTATTEMPTMADE_1".replace("#", TimelineEventIdBuilder.DELIMITER);
         Integer recIndex = 0;
 
         PublicRegistryResponse response =
