@@ -1,16 +1,18 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.ConfidentialTimelineElementDto;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.BaseRecipientDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDtoInt;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault.PnDataVaultClient;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault.PnDataVaultClientReactive;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.mapper.ConfidentialTimelineElementDtoMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
@@ -18,35 +20,31 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINECONFIDENTIALFAILED;
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_UPDATENOTIFICATIONFAILED;
-
 @Slf4j
 @Service
 public class ConfidentialInformationServiceImpl implements ConfidentialInformationService {
     private final PnDataVaultClient pnDataVaultClient;
-
-    public ConfidentialInformationServiceImpl(PnDataVaultClient pnDataVaultClient) {
+    private final PnDataVaultClientReactive pnDataVaultClientReactive;
+    
+    public ConfidentialInformationServiceImpl(PnDataVaultClient pnDataVaultClient,
+                                              PnDataVaultClientReactive pnDataVaultClientReactive) {
         this.pnDataVaultClient = pnDataVaultClient;
+        this.pnDataVaultClientReactive = pnDataVaultClientReactive;
     }
 
     @Override
     public void saveTimelineConfidentialInformation(TimelineElementInternal timelineElement) {
         String iun = timelineElement.getIun();
 
-        if (checkPresenceConfidentialInformation(timelineElement)) {
+        if (timelineElement.getDetails() instanceof ConfidentialInformationTimelineElement) {
 
             ConfidentialTimelineElementDtoInt dtoInt = getConfidentialDtoFromTimeline(timelineElement);
 
             ConfidentialTimelineElementDto dtoExt = ConfidentialTimelineElementDtoMapper.internalToExternal(dtoInt);
-            ResponseEntity<Void> resp = pnDataVaultClient.updateNotificationTimelineByIunAndTimelineElementId(iun, dtoExt);
 
-            if (resp.getStatusCode().is2xxSuccessful()) {
-                log.debug("UpdateNotificationTimelineByIunAndTimelineElementId OK for - iun {} timelineElementId {}", iun, dtoInt.getTimelineElementId());
-            } else {
-                log.error("UpdateNotificationTimelineByIunAndTimelineElementId Failed for - iun {} timelineElementId {}", iun, dtoInt.getTimelineElementId());
-                throw new PnInternalException("UpdateNotificationTimelineByIunAndTimelineElementId Failed for - iun " + iun + " timelineElementId " + dtoInt.getTimelineElementId(), ERROR_CODE_DELIVERYPUSH_UPDATENOTIFICATIONFAILED);
-            }
+            pnDataVaultClient.updateNotificationTimelineByIunAndTimelineElementId(iun, dtoExt);
+
+            log.debug("UpdateNotificationTimelineByIunAndTimelineElementId OK for - iun {} timelineElementId {}", iun, dtoInt.getTimelineElementId());
         }
     }
 
@@ -56,31 +54,28 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
         ConfidentialTimelineElementDtoInt.ConfidentialTimelineElementDtoIntBuilder builder = ConfidentialTimelineElementDtoInt.builder()
                 .timelineElementId(timelineElement.getElementId());
 
-        if (details instanceof CourtesyAddressRelatedTimelineElement) {
-            CourtesyAddressRelatedTimelineElement courtesyDetails = (CourtesyAddressRelatedTimelineElement) details;
-            if (courtesyDetails.getDigitalAddress() != null) {
-                builder.digitalAddress(courtesyDetails.getDigitalAddress().getAddress());
-            }
+        if (details instanceof CourtesyAddressRelatedTimelineElement courtesyDetails && courtesyDetails.getDigitalAddress() != null) {
+            builder.digitalAddress(courtesyDetails.getDigitalAddress().getAddress());
         }
 
-        if (details instanceof DigitalAddressRelatedTimelineElement) {
-            DigitalAddressRelatedTimelineElement digitalDetails = (DigitalAddressRelatedTimelineElement) details;
-            if (digitalDetails.getDigitalAddress() != null) {
-                builder.digitalAddress(digitalDetails.getDigitalAddress().getAddress());
-            }
+        if (details instanceof DigitalAddressRelatedTimelineElement digitalDetails && digitalDetails.getDigitalAddress() != null) {
+            builder.digitalAddress(digitalDetails.getDigitalAddress().getAddress());
         }
 
-        if (details instanceof PhysicalAddressRelatedTimelineElement) {
-            PhysicalAddressRelatedTimelineElement physicalDetails = (PhysicalAddressRelatedTimelineElement) details;
-            if (physicalDetails.getPhysicalAddress() != null) {
-                builder.physicalAddress(physicalDetails.getPhysicalAddress());
-            }
+        if (details instanceof PhysicalAddressRelatedTimelineElement physicalDetails && physicalDetails.getPhysicalAddress() != null) {
+            builder.physicalAddress(physicalDetails.getPhysicalAddress());
         }
 
-        if (details instanceof NewAddressRelatedTimelineElement) {
-            NewAddressRelatedTimelineElement newAddressDetails = (NewAddressRelatedTimelineElement) details;
-            if (newAddressDetails.getNewAddress() != null) {
-                builder.newPhysicalAddress(newAddressDetails.getNewAddress());
+        if (details instanceof NewAddressRelatedTimelineElement newAddressDetails && newAddressDetails.getNewAddress() != null) {
+            builder.newPhysicalAddress(newAddressDetails.getNewAddress());
+        }
+        
+        if(details instanceof PersonalInformationRelatedTimelineElement personalInfoDetails){
+            if(personalInfoDetails.getTaxId() != null){
+                builder.taxId(personalInfoDetails.getTaxId());
+            }
+            if(personalInfoDetails.getDenomination() != null){
+                builder.denomination(personalInfoDetails.getDenomination());
             }
         }
 
@@ -89,55 +84,56 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
 
     @Override
     public Optional<ConfidentialTimelineElementDtoInt> getTimelineElementConfidentialInformation(String iun, String timelineElementId) {
-        ResponseEntity<ConfidentialTimelineElementDto> resp = pnDataVaultClient.getNotificationTimelineByIunAndTimelineElementId(iun, timelineElementId);
+      ConfidentialTimelineElementDto dtoExt = pnDataVaultClient.getNotificationTimelineByIunAndTimelineElementId(iun, timelineElementId);
 
-        if (resp.getStatusCode().is2xxSuccessful()) {
-            log.debug("getTimelineElementConfidentialInformation OK for - iun {} timelineElementId {}", iun, timelineElementId);
-            ConfidentialTimelineElementDto dtoExt = resp.getBody();
 
-            if (dtoExt != null) {
-                return Optional.of(ConfidentialTimelineElementDtoMapper.externalToInternal(dtoExt));
-            }
+      log.debug("getTimelineElementConfidentialInformation OK for - iun {} timelineElementId {}", iun, timelineElementId);
+         
 
-            log.debug("getTimelineElementConfidentialInformation haven't confidential information for - iun {} timelineElementId {}", iun, timelineElementId);
-            return Optional.empty();
-        } else {
-            log.error("getTimelineElementConfidentialInformation Failed for - iun {} timelineElementId {}", iun, timelineElementId);
-            throw new PnInternalException("getTimelineElementConfidentialInformation Failed for - iun " + iun + " timelineElementId " + timelineElementId, ERROR_CODE_DELIVERYPUSH_TIMELINECONFIDENTIALFAILED);
-        }
+      if (dtoExt != null) {
+         return Optional.of(ConfidentialTimelineElementDtoMapper.externalToInternal(dtoExt));
+      }
+
+      log.debug("getTimelineElementConfidentialInformation haven't confidential information for - iun {} timelineElementId {}", iun, timelineElementId);
+      return Optional.empty();
+        
     }
 
     @Override
     public Optional<Map<String, ConfidentialTimelineElementDtoInt>> getTimelineConfidentialInformation(String iun) {
-        ResponseEntity<List<ConfidentialTimelineElementDto>> resp = pnDataVaultClient.getNotificationTimelineByIunWithHttpInfo(iun);
+        List<ConfidentialTimelineElementDto> listDtoExt = pnDataVaultClient.getNotificationTimelineByIunWithHttpInfo(iun);
 
-        if (resp.getStatusCode().is2xxSuccessful()) {
-            log.debug("getTimelineConfidentialInformation OK for - iun {} ", iun);
-            List<ConfidentialTimelineElementDto> listDtoExt = resp.getBody();
-
-            if (listDtoExt != null && !listDtoExt.isEmpty()) {
-                return Optional.of(
-                        listDtoExt.stream()
-                                .map(ConfidentialTimelineElementDtoMapper::externalToInternal)
-                                .collect(Collectors.toMap(ConfidentialTimelineElementDtoInt::getTimelineElementId, Function.identity()))
-                );
-            }
-            log.debug("getTimelineConfidentialInformation haven't confidential information for - iun {} ", iun);
-            return Optional.empty();
-        } else {
-            log.error("getTimelineConfidentialInformation Failed - iun {} ", iun);
-            throw new PnInternalException("getTimelineConfidentialInformation Failed - iun " + iun, ERROR_CODE_DELIVERYPUSH_TIMELINECONFIDENTIALFAILED);
+        log.debug("getTimelineConfidentialInformation OK for - iun {} ", iun);
+      
+        if (listDtoExt != null && !listDtoExt.isEmpty()) {
+            return Optional.of(
+                    listDtoExt.stream()
+                            .map(ConfidentialTimelineElementDtoMapper::externalToInternal)
+                            .collect(Collectors.toMap(ConfidentialTimelineElementDtoInt::getTimelineElementId, Function.identity()))
+            );
         }
+        log.debug("getTimelineConfidentialInformation haven't confidential information for - iun {} ", iun);
+        return Optional.empty();
+       
     }
-
-    private boolean checkPresenceConfidentialInformation(TimelineElementInternal timelineElementInternal) {
-        TimelineElementDetailsInt details = timelineElementInternal.getDetails();
-
-        return details instanceof CourtesyAddressRelatedTimelineElement ||
-                details instanceof DigitalAddressRelatedTimelineElement ||
-                details instanceof PhysicalAddressRelatedTimelineElement ||
-                details instanceof NewAddressRelatedTimelineElement;
+    
+    @Override
+    public Mono<BaseRecipientDtoInt> getRecipientInformationByInternalId(String internalId) {
+        return pnDataVaultClientReactive.getRecipientsDenominationByInternalId(List.of(internalId))
+                .filter( el -> internalId.equals(el.getInternalId()))
+                .map( el -> BaseRecipientDtoInt.builder()
+                        .taxId(el.getTaxId())
+                        .denomination(el.getDenomination())
+                        .internalId(el.getInternalId())
+                        .recipientType(el.getRecipientType() != null ? RecipientTypeInt.valueOf(el.getRecipientType().getValue()) : null)
+                        .internalId(el.getInternalId())
+                        .build()
+                ).collectList()
+                .map(list -> {
+                    if(list != null && !list.isEmpty())
+                        return list.get(0);
+                    else 
+                        return null;
+                });
     }
-
-
 }

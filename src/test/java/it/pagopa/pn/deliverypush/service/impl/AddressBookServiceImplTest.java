@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.http.ResponseEntity;
 
 import java.util.Collections;
 import java.util.List;
@@ -41,9 +40,8 @@ class AddressBookServiceImplTest {
         
         List<LegalDigitalAddress> listLegalDigitalAddresses = Collections.singletonList(legalDigitalAddress);
                  
-        Mockito.when(userAttributesClient.getLegalAddressBySender(Mockito.anyString(), Mockito.anyString())).thenReturn(
-                ResponseEntity.ok(listLegalDigitalAddresses)
-        );
+        Mockito.when(userAttributesClient.getLegalAddressBySender(Mockito.anyString(), Mockito.anyString()))
+        .thenReturn(listLegalDigitalAddresses);
         
         //WHEN
         Optional<LegalDigitalAddressInt> platformAddressOpt =  addressBookService.getPlatformAddresses("TAXIDANON", "SENDERID");
@@ -64,9 +62,8 @@ class AddressBookServiceImplTest {
 
         List<CourtesyDigitalAddress> listLegalDigitalAddresses = Collections.singletonList(courtesyDigitalAddress);
 
-        Mockito.when(userAttributesClient.getCourtesyAddressBySender(Mockito.anyString(), Mockito.anyString())).thenReturn(
-                ResponseEntity.ok(listLegalDigitalAddresses)
-        );
+        Mockito.when(userAttributesClient.getCourtesyAddressBySender(Mockito.anyString(), Mockito.anyString()))
+        .thenReturn(listLegalDigitalAddresses);
 
         //WHEN
         Optional<List<CourtesyDigitalAddressInt>> listCourtesyAddressOpt =  addressBookService.getCourtesyAddress("TAXIDANON", "SENDERID");

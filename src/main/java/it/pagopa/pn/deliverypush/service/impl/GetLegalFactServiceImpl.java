@@ -3,7 +3,7 @@ package it.pagopa.pn.deliverypush.service.impl;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
-import it.pagopa.pn.commons.utils.MimeTypesUtils;
+import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -19,18 +19,17 @@ import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.LegalFactIdMapper;
+import it.pagopa.pn.deliverypush.service.utils.FileUtils;
 import it.pagopa.pn.deliverypush.utils.AuditLogUtils;
 import it.pagopa.pn.deliverypush.utils.AuthUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-
-import static it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient.SAFE_STORAGE_URL_PREFIX;
 
 @Service
 @Slf4j
@@ -55,45 +54,69 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
     }
 
     @Override
-    public LegalFactDownloadMetadataResponse getLegalFactMetadata(String iun,
-                                                                  LegalFactCategory legalFactType,
-                                                                  String legalfactId,
-                                                                  String senderReceiverId,
-                                                                  String mandateId) {
+    public Mono<LegalFactDownloadMetadataResponse> getLegalFactMetadata(String iun,
+                                                                        LegalFactCategory legalFactType,
+                                                                        String legalfactId,
+                                                                        String senderReceiverId,
+                                                                        String mandateId) {
 
-        log.debug( "GetLegalFactMetadata iun={} legalfactId={}", iun, legalfactId );
+        log.debug( "GetLegalFactMetadata iun={} legalFactId={} senderReceiverId={}", iun, legalfactId, senderReceiverId );
+        
+        return Mono.fromCallable(() -> notificationService.getNotificationByIun(iun))
+                .flatMap(notification -> {
+                            Mono.fromRunnable(() -> authUtils.checkUserPaAndMandateAuthorization(notification, senderReceiverId, mandateId));
+                            return Mono.just(notification);
+                        }
+                )
+                .map(notification -> {
+                    PnAuditLogEvent logEvent = getAuditLog(iun, legalfactId, senderReceiverId, mandateId, notification);
+                    logEvent.log();
+                    return logEvent;
+                })
+                .flatMap( logEvent ->
+                    // la key è la legalfactid
+                    safeStorageService.getFile(legalfactId, false)
+                            .onErrorResume( exc -> {
+                                    logEvent.generateFailure("Exception in getLegalFactMetadata exc={}", exc).log();
+                                        return Mono.error(exc);
+                                    }
+                            )
+                            .map( fileDownloadResponse -> {
+                                LegalFactDownloadMetadataResponse response = generateResponse(iun, legalFactType, legalfactId, fileDownloadResponse);
+                                generateSuccessAuditLog(iun, legalfactId, senderReceiverId, logEvent, response);
+                                return response;
+                            })
+                );
+    }
 
-        LegalFactDownloadMetadataResponse response = new LegalFactDownloadMetadataResponse();
-       
-        NotificationInt notification = notificationService.getNotificationByIun(iun);
-        authUtils.checkUserAndMandateAuthorization(notification, senderReceiverId, mandateId);
+    private void generateSuccessAuditLog(String iun, String legalfactId, String senderReceiverId, PnAuditLogEvent logEvent, LegalFactDownloadMetadataResponse response) {
+        String fileName = response.getFilename();
+        String url = response.getUrl();
+        String retryAfter = String.valueOf( response.getRetryAfter() );
+        String message = LogUtils.createAuditLogMessageForDownloadDocument( fileName, url, retryAfter );
+        logEvent.generateSuccess("getLegalFactMetadata iun={} legalFactId={} senderReceiverId={} {}",
+                iun, legalfactId, senderReceiverId, message).log();
+    }
 
+    private PnAuditLogEvent getAuditLog(String iun, String legalfactId, String senderReceiverId, String mandateId, NotificationInt notification) {
         PnAuditLogEventType eventType = AuditLogUtils.getAuditLogEventType(notification, senderReceiverId, mandateId);
-
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        PnAuditLogEvent logEvent = auditLogBuilder
+        return auditLogBuilder
                 .before(eventType, "getLegalFactMetadata iun={} legalFactId={} senderReceiverId={}", iun, legalfactId, senderReceiverId)
                 .iun(iun)
                 .build();
-        logEvent.log();
-            
-        try {
-            // la key è la legalfactid
-            FileDownloadResponseInt fileDownloadResponse = safeStorageService.getFile(legalfactId, false);
+    }
 
-            response.setFilename(buildLegalFactFilename(iun, legalFactType, legalfactId, fileDownloadResponse.getContentType()));
-            response.setContentLength(fileDownloadResponse.getContentLength());
-            response.setRetryAfter(fileDownloadResponse.getDownload() != null ? fileDownloadResponse.getDownload().getRetryAfter() : null);
-            response.setUrl(fileDownloadResponse.getDownload().getUrl());
-            logEvent.generateSuccess().log();
-        } catch (Exception exc) {
-            logEvent.generateFailure("Exception in getLegalFactMetadata exc={}", exc).log();
-            throw exc;
-        }
-        
+    @NotNull
+    private LegalFactDownloadMetadataResponse generateResponse(String iun, LegalFactCategory legalFactType, String legalfactId, FileDownloadResponseInt fileDownloadResponse) {
+        LegalFactDownloadMetadataResponse response = new LegalFactDownloadMetadataResponse();
+        response.setFilename( FileUtils.buildFileName(iun, legalFactType.getValue(), legalfactId, fileDownloadResponse.getContentType()));
+        response.setContentLength(fileDownloadResponse.getContentLength());
+        response.setRetryAfter(fileDownloadResponse.getDownload() != null ? fileDownloadResponse.getDownload().getRetryAfter() : null);
+        response.setUrl(fileDownloadResponse.getDownload().getUrl());
         return response;
     }
-    
+
     @Override
     @NotNull
     public List<LegalFactListElement> getLegalFacts(String iun, String senderReceiverId, String mandateId) {
@@ -102,7 +125,7 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
         
         NotificationInt notification = notificationService.getNotificationByIun(iun);
 
-        authUtils.checkUserAndMandateAuthorization(notification, senderReceiverId, mandateId);
+        authUtils.checkUserPaAndMandateAuthorization(notification, senderReceiverId, mandateId);
         PnAuditLogEventType eventType = AuditLogUtils.getAuditLogEventType(notification, senderReceiverId, mandateId);
 
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
@@ -124,9 +147,9 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
                                     .legalFactsId( LegalFactIdMapper.internalToExternal(lfId) )
                                     .build()
                     ))
-                    .collect(Collectors.toList());
+                    .toList();
             
-            log.debug( "legalFacts List={}" ,legalFacts );
+            log.debug("legalFacts List={}" ,legalFacts );
 
             logEvent.generateSuccess().log();
             
@@ -142,9 +165,9 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
 
         if (timelineElement != null) {
             TimelineElementDetailsInt details = timelineElement.getDetails();
-            if ( details instanceof RecipientRelatedTimelineElementDetails) {
+            if ( details instanceof RecipientRelatedTimelineElementDetails recipientRelatedTimelineElementDetails) {
 
-                int recIndex = ((RecipientRelatedTimelineElementDetails) details).getRecIndex();
+                int recIndex = recipientRelatedTimelineElementDetails.getRecIndex();
                 NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
                 recipientId = recipient.getTaxId();
             }
@@ -152,29 +175,4 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
 
         return recipientId;
     }
-
-    /**
-     * il nome, viene generato da iun, type e factid e per ora si suppone essere un pdf
-     * @param iun iun
-     * @param legalFactType fact type
-     * @param legalfactId fact id
-     * @return filename
-     */
-    private String buildLegalFactFilename(String iun, LegalFactCategory legalFactType, String legalfactId, String contentType)
-    {
-        String extension = "pdf";
-        try{
-            extension = MimeTypesUtils.getDefaultExt(contentType);
-        } catch (Exception e)
-        {
-            log.warn("right extension not found, using PDF");
-        }
-
-
-        return iun.replaceAll("[^a-zA-Z0-9]", "")
-                + "_" + legalFactType.getValue()
-                + "_" + legalfactId.replace(SAFE_STORAGE_URL_PREFIX, "").replaceAll("[^a-zA-Z0-9]", "")
-                + "." + extension;
-    }
-
 }

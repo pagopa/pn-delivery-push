@@ -74,19 +74,6 @@ class ExternalChannelSendClientImplTest {
     }
 
 
-    @Test
-    void sendAnalogNotification() {
-        NotificationInt notificationInt = buildNotification();
-        NotificationRecipientInt notificationRecipientInt = buildNotificationRecipientInt();
-        PhysicalAddressInt physicalAddressInt = buildPhysicalAddressInt();
-        String timelineEventId = "001";
-        String aarKey = "001";
-
-        Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
-                .thenReturn(ResponseEntity.ok(""));
-
-        assertDoesNotThrow(() -> client.sendAnalogNotification(notificationInt, notificationRecipientInt, physicalAddressInt, timelineEventId, PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER, aarKey));
-    }
 
     @Test
     void sendLegalNotification() {
@@ -94,11 +81,13 @@ class ExternalChannelSendClientImplTest {
         NotificationRecipientInt notificationRecipientInt = buildNotificationRecipientInt();
         LegalDigitalAddressInt legalDigitalAddressInt = buildLegalDigitalAddressInt();
         String timelineEventId = "001";
+        String aarKey = "testKey";
+        String quickAccessToken = "test";
 
         Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(ResponseEntity.ok(""));
 
-        assertDoesNotThrow(() -> client.sendLegalNotification(notificationInt, notificationRecipientInt, legalDigitalAddressInt, timelineEventId));
+        assertDoesNotThrow(() -> client.sendLegalNotification(notificationInt, notificationRecipientInt, legalDigitalAddressInt, timelineEventId, aarKey, quickAccessToken));
     }
 
     @Test
@@ -111,11 +100,12 @@ class ExternalChannelSendClientImplTest {
                 .build();
 
         String timelineEventId = "001";
+        String aarKey = "testKey";
 
         Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(ResponseEntity.ok(""));
 
-        assertDoesNotThrow(() -> client.sendCourtesyNotification(notificationInt, notificationRecipientInt, courtesyDigitalAddressInt, timelineEventId));
+        assertDoesNotThrow(() -> client.sendCourtesyNotification(notificationInt, notificationRecipientInt, courtesyDigitalAddressInt, timelineEventId, aarKey, ""));
     }
 
     @Test
@@ -128,11 +118,12 @@ class ExternalChannelSendClientImplTest {
                 .build();
 
         String timelineEventId = "001";
+        String aarKey = "testKey";
 
         Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(ResponseEntity.ok(""));
 
-        assertDoesNotThrow(() -> client.sendCourtesyNotification(notificationInt, notificationRecipientInt, courtesyDigitalAddressInt, timelineEventId));
+        assertDoesNotThrow(() -> client.sendCourtesyNotification(notificationInt, notificationRecipientInt, courtesyDigitalAddressInt, timelineEventId, aarKey, ""));
     }
 
     private NotificationRecipientInt buildNotificationRecipientInt() {
@@ -144,6 +135,7 @@ class ExternalChannelSendClientImplTest {
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                         .build())
                 .physicalAddress(new PhysicalAddressInt(
+                        "Galileo Bruno",
                         "Palazzo dell'Inquisizione",
                         "corso Italia 666",
                         "Piano Terra (piatta)",
@@ -200,6 +192,7 @@ class ExternalChannelSendClientImplTest {
 
     private PhysicalAddressInt buildPhysicalAddressInt() {
         return new PhysicalAddressInt(
+                "Galileo Bruno",
                 "Palazzo dell'Inquisizione",
                 "corso Italia 666",
                 "Piano Terra (piatta)",

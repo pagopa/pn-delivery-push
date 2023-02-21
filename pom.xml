@@ -1,35 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>it.pagopa.pn</groupId>
 		<artifactId>pn-parent</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
-		<relativePath/>
+		<version>2.0.0-SNAPSHOT</version>
+		<relativePath />
 	</parent>
 	<groupId>it.pagopa.pn.delivery</groupId>
 	<artifactId>pn-delivery-push</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>2.0.0-SNAPSHOT</version>
 	<name>pn-delivery-push</name>
 	<description>Orchestrate Notification Workflow</description>
-
+	<scm>
+		<connection>${git.conn}</connection>
+		<developerConnection>${git.devConn}</developerConnection>
+		<url>${git.url}</url>
+	  <tag>HEAD</tag>
+  </scm>
 	<properties>
 		<jacoco.min.line.cover.ratio>0.70</jacoco.min.line.cover.ratio>
 	</properties>
-	
+
 	<dependencies>
 		
 		<dependency>
 			<groupId>it.pagopa.pn</groupId>
 			<artifactId>pn-model</artifactId>
-			<version>0.0.2-SNAPSHOT</version>
+			<version>2.0.0-SNAPSHOT</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>it.pagopa.pn</groupId>
 			<artifactId>pn-commons</artifactId>
-			<version>0.0.2-SNAPSHOT</version>
+			<version>2.0.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>dynamodb-enhanced</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
@@ -71,6 +79,16 @@
 			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>3.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId>
+            <version>3.4.0</version>
+        </dependency>		
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -87,21 +105,11 @@
 			<version>5.11.1</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.mock-server</groupId>
-			<artifactId>mockserver-netty</artifactId>
-			<version>5.11.0</version>
-			<scope>test</scope>
-		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-configuration-processor</artifactId>
 			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>software.amazon.awssdk</groupId>
-			<artifactId>dynamodb-enhanced</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>net.javacrumbs.shedlock</groupId>
@@ -145,6 +153,23 @@
 			<artifactId>jsoup</artifactId>
 			<version>1.15.3</version>
 		</dependency>
+
+		<!--LOCALSTACK/TESTCONTAINERS-->
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>localstack</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.awspring.cloud</groupId>
+			<artifactId>spring-cloud-starter-aws-messaging</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -177,9 +202,10 @@
 							<inputSpec>${project.basedir}/docs/openapi/api-private-v1.yaml</inputSpec>
 							<generatorName>spring</generatorName>
 							<library>spring-boot</library>
-							<modelNameSuffix></modelNameSuffix>
+							<modelNameSuffix />
 							<generateApiTests>false</generateApiTests>
 							<generateModelTests>false</generateModelTests>
+							<templateDirectory>${project.basedir}/scripts/openapi/templates</templateDirectory>
 							<configOptions>
 								<basePackage>it.pagopa.pn.deliverypush.generated.openapi.server.v1</basePackage>
 								<modelPackage>it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto</modelPackage>
@@ -209,7 +235,7 @@
 							<inputSpec>${project.basedir}/docs/openapi/api-internal-pn-delivery-push-v1.yaml</inputSpec>
 							<generatorName>spring</generatorName>
 							<library>spring-boot</library>
-							<modelNameSuffix></modelNameSuffix>
+							<modelNameSuffix />
 							<generateApiTests>false</generateApiTests>
 							<generateModelTests>false</generateModelTests>
 							<typeMappings>
@@ -251,7 +277,7 @@
 							<inputSpec>${project.basedir}/docs/openapi/api-internal-b2b-webhook-v1.yaml</inputSpec>
 							<generatorName>spring</generatorName>
 							<library>spring-boot</library>
-							<modelNameSuffix></modelNameSuffix>
+							<modelNameSuffix />
 							<generateApiTests>false</generateApiTests>
 							<generateModelTests>false</generateModelTests>
 							<configOptions>
@@ -281,7 +307,7 @@
 						</goals>
 						<phase>process-resources</phase>
 						<configuration>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/ed61108cc61fb8bb9421d3ba12694c9a20ef2367/docs/openapi/api-private-v1.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/1e3f9000330ef8c7bd174f7cc9d9550f4efe8467/docs/openapi/api-private-v1.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
@@ -304,6 +330,37 @@
 						</configuration>
 					</execution>
 
+					<!-- OPEN API CLIENT PN-DELIVERY REACTIVE-->
+					<execution>
+						<id>generate-client-pn-delivery-reactive</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/1e3f9000330ef8c7bd174f7cc9d9550f4efe8467/docs/openapi/api-private-v1.yaml</inputSpec>
+							<generatorName>java</generatorName>
+							<library>webclient</library>
+							<generateApiTests>false</generateApiTests>
+							<generateModelTests>false</generateModelTests>
+							<typeMappings>
+								<typeMapping>OffsetDateTime=java.time.Instant</typeMapping>
+							</typeMappings>
+							<configOptions>
+								<apiPackage>it.pagopa.pn.delivery.generated.openapi.clients.delivery-reactive.api</apiPackage>
+								<modelPackage>it.pagopa.pn.delivery.generated.openapi.clients.delivery.model</modelPackage>
+								<dateLibrary>java8</dateLibrary>
+								<delegatePattern>true</delegatePattern>
+								<interfaceOnly>true</interfaceOnly>
+								<annotationLibrary>none</annotationLibrary>
+								<documentationProvider>source</documentationProvider>
+								<openApiNullable>false</openApiNullable>
+								<reactive>true</reactive>
+								<skipDefaultInterface>false</skipDefaultInterface>
+								<useTags>true</useTags>
+							</configOptions>
+						</configuration>
+					</execution>
+					
 					<!-- OPEN API CLIENT PN-DATA-VAULT -->
 					<execution>
 						<id>generate-client-pn-data-vault</id>
@@ -312,7 +369,7 @@
 						</goals>
 						<phase>process-resources</phase>
 						<configuration>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-data-vault/647830b82cd7ee9f43dd5b4f6b10a17e50d6da12/docs/openapi/pn-datavault-api-v1.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-data-vault/fd6899d33ff9c719aae872c0a3a4db51a921ace7/docs/openapi/pn-datavault-api-v1.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
@@ -329,6 +386,36 @@
 								<useAbstractionForFiles>true</useAbstractionForFiles>
 								<useBeanValidation>false</useBeanValidation>
 								<additionalModelTypeAnnotations>@lombok.Builder(toBuilder = true); @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
+							</configOptions>
+						</configuration>
+					</execution>
+
+					<!-- OPEN API CLIENT PN-DATA-VAULT REACTIVE-->
+					<execution>
+						<id>generate-client-pn-data-vault-reactive</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-data-vault/647830b82cd7ee9f43dd5b4f6b10a17e50d6da12/docs/openapi/pn-datavault-api-v1.yaml</inputSpec>
+							<generatorName>java</generatorName>
+							<library>webclient</library>
+							<generateApiTests>false</generateApiTests>
+							<generateModelTests>false</generateModelTests>
+							<typeMappings><typeMapping>OffsetDateTime=Instant</typeMapping></typeMappings>
+							<importMappings><importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping></importMappings>
+							<configOptions>
+								<apiPackage>it.pagopa.pn.datavault.generated.openapi.clients.datavault-reactive.api</apiPackage>
+								<modelPackage>it.pagopa.pn.datavault.generated.openapi.clients.datavault.model</modelPackage>
+								<dateLibrary>java8</dateLibrary>
+								<delegatePattern>true</delegatePattern>
+								<interfaceOnly>true</interfaceOnly>
+								<annotationLibrary>none</annotationLibrary>
+								<documentationProvider>source</documentationProvider>
+								<openApiNullable>false</openApiNullable>
+								<reactive>true</reactive>
+								<skipDefaultInterface>false</skipDefaultInterface>
+								<useTags>true</useTags>
 							</configOptions>
 						</configuration>
 					</execution>
@@ -374,8 +461,6 @@
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
 							<generateModelTests>false</generateModelTests>
-							<typeMappings><typeMapping>OffsetDateTime=Instant</typeMapping></typeMappings>
-							<importMappings><importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping></importMappings>
 							<configOptions>
 								<apiPackage>it.pagopa.pn.delivery.generated.openapi.clients.safestorage.api</apiPackage>
 								<modelPackage>it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model</modelPackage>
@@ -388,6 +473,36 @@
 							</configOptions>
 							<modelPackage>${project.groupId}.pn-delivery.microservice.client.safestorage.v1.dto</modelPackage>
 							<apiPackage>${project.groupId}.pn-delivery.microservice.client.safestorage.v1.api</apiPackage>
+						</configuration>
+					</execution>
+
+					<!-- OPEN API CLIENT PN-SAFE-STORAGE REACTIVE-->
+					<execution>
+						<id>generate-client-pn-safe-storage-reactive</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>${project.basedir}/docs/wsclient/pn-safe-storage/pn-safestorage-v1-api.yaml</inputSpec>
+							<generatorName>java</generatorName>
+							<library>webclient</library>
+							<generateApiTests>false</generateApiTests>
+							<generateModelTests>false</generateModelTests>
+							<typeMappings><typeMapping>OffsetDateTime=Instant</typeMapping></typeMappings>
+							<importMappings><importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping></importMappings>
+							<configOptions>
+								<apiPackage>it.pagopa.pn.delivery.generated.openapi.clients.safestorage-reactive.api</apiPackage>
+								<modelPackage>it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model</modelPackage>
+								<dateLibrary>java8</dateLibrary>
+								<delegatePattern>true</delegatePattern>
+								<interfaceOnly>true</interfaceOnly>
+								<annotationLibrary>none</annotationLibrary>
+								<documentationProvider>source</documentationProvider>
+								<openApiNullable>false</openApiNullable>
+								<reactive>true</reactive>
+								<skipDefaultInterface>false</skipDefaultInterface>
+								<useTags>true</useTags>
+							</configOptions>
 						</configuration>
 					</execution>
 
@@ -419,6 +534,35 @@
 							</configOptions>
 							<modelPackage>${project.groupId}.pn-delivery.microservice.client.externalchannel.v1.dto</modelPackage>
 							<apiPackage>${project.groupId}.pn-delivery.microservice.client.externalchannel.v1.api</apiPackage>
+						</configuration>
+					</execution>
+
+					<!-- OPEN API CLIENT PN-PAPER-CHANNEL -->
+					<execution>
+						<id>generate-client-pn-paperchannel</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<phase>process-resources</phase>
+						<configuration>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-paper-channel/95eb4801f71b6b1147d7cc7656a8e68d50d123d0/docs/openapi/api-internal-v1.yaml</inputSpec>
+							<generatorName>java</generatorName>
+							<library>resttemplate</library>
+							<generateApiTests>false</generateApiTests>
+							<generateModelTests>false</generateModelTests>
+							<configOptions>
+								<apiPackage>it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.api</apiPackage>
+								<modelPackage>it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model</modelPackage>
+								<annotationLibrary>none</annotationLibrary>
+								<dateLibrary>java8</dateLibrary>
+								<documentationProvider>source</documentationProvider>
+								<openApiNullable>false</openApiNullable>
+								<useAbstractionForFiles>true</useAbstractionForFiles>
+								<useBeanValidation>false</useBeanValidation>
+								<additionalModelTypeAnnotations>@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)</additionalModelTypeAnnotations>
+							</configOptions>
+							<modelPackage>${project.groupId}.pn-delivery.microservice.client.paperchannel.v1.dto</modelPackage>
+							<apiPackage>${project.groupId}.pn-delivery.microservice.client.paperchannel.v1.api</apiPackage>
 						</configuration>
 					</execution>
 
@@ -473,6 +617,35 @@
 								<openApiNullable>false</openApiNullable>
 								<useAbstractionForFiles>true</useAbstractionForFiles>
 								<useBeanValidation>false</useBeanValidation>
+							</configOptions>
+						</configuration>
+					</execution>
+					<!-- OPEN API CLIENT PN-DATA-VAULT REACTIVE-->
+					<execution>
+						<id>generate-client-pn-national-registries</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-national-registries/develop/docs/openapi/PNT2Y-OpenAPI3_PN-NationalRegistries.yaml</inputSpec>
+							<generatorName>java</generatorName>
+							<library>webclient</library>
+							<generateApiTests>false</generateApiTests>
+							<generateModelTests>false</generateModelTests>
+							<typeMappings><typeMapping>OffsetDateTime=Instant</typeMapping></typeMappings>
+							<importMappings><importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping></importMappings>
+							<configOptions>
+								<apiPackage>it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.api</apiPackage>
+								<modelPackage>it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.model</modelPackage>
+								<dateLibrary>java8</dateLibrary>
+								<delegatePattern>true</delegatePattern>
+								<interfaceOnly>true</interfaceOnly>
+								<annotationLibrary>none</annotationLibrary>
+								<documentationProvider>source</documentationProvider>
+								<openApiNullable>false</openApiNullable>
+								<reactive>true</reactive>
+								<skipDefaultInterface>false</skipDefaultInterface>
+								<useTags>true</useTags>
 							</configOptions>
 						</configuration>
 					</execution>

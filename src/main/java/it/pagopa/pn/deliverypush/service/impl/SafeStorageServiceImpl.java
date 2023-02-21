@@ -1,28 +1,17 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.commons.exceptions.ExceptionHelper;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.commons.exceptions.PnValidationExceptionBuilder;
-import it.pagopa.pn.commons.exceptions.dto.ProblemError;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.UpdateFileMetadataRequest;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.*;
-import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
-import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
+import reactor.core.publisher.Mono;
 
 import java.security.MessageDigest;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Optional;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.*;
 
@@ -36,14 +25,10 @@ public class SafeStorageServiceImpl implements SafeStorageService {
     }
 
     @Override
-    public FileDownloadResponseInt getFile(String fileKey, Boolean metadataOnly) {
-        try {
-            FileDownloadResponse fileDownloadResponse = safeStorageClient.getFile(fileKey, metadataOnly);
-            return getFileDownloadResponseInt( fileDownloadResponse );
-        } catch ( PnInternalException ex ) {
-            String message = String.format("Get file failed for - fileKey=%s isMetadataOnly=%b", fileKey, metadataOnly);
-            throw new PnNotFoundException("Not found", message, ERROR_CODE_DELIVERYPUSH_NOTFOUND, ex);
-        }
+    public Mono<FileDownloadResponseInt> getFile(String fileKey, Boolean metadataOnly) {
+        return safeStorageClient.getFile(fileKey, metadataOnly)
+                .doOnSuccess(fileDownloadResponse -> log.debug("Response getFile from SafeStorage: {}", fileDownloadResponse))
+                .map(this::getFileDownloadResponseInt);
     }
 
     private FileDownloadResponseInt getFileDownloadResponseInt(FileDownloadResponse fileDownloadResponse) {
@@ -61,55 +46,53 @@ public class SafeStorageServiceImpl implements SafeStorageService {
                             .build()
             );
         }
-        
+
         return responseIntBuilder.build();
     }
-
+    
     @Override
-    public FileCreationResponseInt createAndUploadContent(FileCreationWithContentRequest fileCreationRequest) {
-        try {
-            log.debug("Start call createAndUploadFile - documentType={} filesize={}", fileCreationRequest.getDocumentType(), fileCreationRequest.getContent().length);
+    public Mono<FileCreationResponseInt> createAndUploadContent(FileCreationWithContentRequest fileCreationRequest) {
+            log.info("Start createAndUploadFile - documentType={} filesize={}", fileCreationRequest.getDocumentType(), fileCreationRequest.getContent().length);
 
             String sha256 = computeSha256(fileCreationRequest.getContent());
 
-            FileCreationResponse fileCreationResponse = safeStorageClient.createFile(fileCreationRequest, sha256);
+            return safeStorageClient.createFile(fileCreationRequest, sha256)
+                    .onErrorResume( Exception.class, exception ->{
+                        log.error("Cannot create file ", exception);
+                        return Mono.error(new PnInternalException("Cannot create file", ERROR_CODE_DELIVERYPUSH_UPLOADFILEERROR, exception));
+                    })
+                    .flatMap(fileCreationResponse -> 
+                        Mono.fromRunnable(() -> safeStorageClient.uploadContent(fileCreationRequest, fileCreationResponse, sha256))
+                                .thenReturn(fileCreationResponse)
+                                .map(fileCreationResponse2 ->{
+                                    FileCreationResponseInt fileCreationResponseInt = FileCreationResponseInt.builder()
+                                            .key(fileCreationResponse2.getKey())
+                                            .build();
 
-            safeStorageClient.uploadContent(fileCreationRequest, fileCreationResponse, sha256);
+                                    log.info("createAndUploadContent file uploaded successfully key={} sha256={}", fileCreationResponseInt.getKey(), sha256);
 
-            FileCreationResponseInt fileCreationResponseInt = FileCreationResponseInt.builder()
-                    .key(fileCreationResponse.getKey())
-                    .build();
-
-            log.info("createAndUploadContent file uploaded successfully key={} sha256={}", fileCreationResponseInt.getKey(), sha256);
-
-            return fileCreationResponseInt;
-        } catch (Exception e) {
-            throw new PnInternalException("Cannot createfile", ERROR_CODE_DELIVERYPUSH_UPLOADFILEERROR, e);
-        }
+                                    return fileCreationResponseInt;
+                                })
+                    );
     }
-
-
+    
     @Override
-    public UpdateFileMetadataResponseInt updateFileMetadata(String fileKey, UpdateFileMetadataRequest updateFileMetadataRequest) {
-        try {
-            log.debug("Start call updateFileMetadata - fileKey={} updateFileMetadataRequest={}", fileKey, updateFileMetadataRequest);
+    public Mono<UpdateFileMetadataResponseInt> updateFileMetadata(String fileKey, UpdateFileMetadataRequest updateFileMetadataRequest) {
+        log.debug("Start call updateFileMetadata - fileKey={} updateFileMetadataRequest={}", fileKey, updateFileMetadataRequest);
 
-            var res = safeStorageClient.updateFileMetadata(fileKey, updateFileMetadataRequest);
-
-            UpdateFileMetadataResponseInt updateFileMetadataResponseInt = UpdateFileMetadataResponseInt.builder()
-                    .resultCode(res.getResultCode())
-                    .errorList(res.getErrorList())
-                    .resultDescription(res.getResultDescription())
-                    .build();
-
-            log.info("updateFileMetadata file endend key={} updateFileMetadataResponseInt={}", fileKey, updateFileMetadataRequest);
-
-            return updateFileMetadataResponseInt;
-        } catch (Exception e) {
-            throw new PnInternalException("Cannot updatemetadata", ERROR_CODE_DELIVERYPUSH_UPDATEMETAFILEERROR, e);
-        }
+        return safeStorageClient.updateFileMetadata(fileKey, updateFileMetadataRequest)
+                .doOnSuccess( res -> log.info("updateFileMetadata file ok key={} updateFileMetadataResponseInt={}", fileKey, updateFileMetadataRequest))
+                .onErrorResume( err ->{
+                    log.error("Cannot update metadata ", err);
+                    return Mono.error(new PnInternalException("Cannot update metadata", ERROR_CODE_DELIVERYPUSH_UPDATEMETAFILEERROR, err));
+                })
+                .map( res -> UpdateFileMetadataResponseInt.builder()
+                            .resultCode(res.getResultCode())
+                            .errorList(res.getErrorList())
+                            .resultDescription(res.getResultDescription())
+                            .build()
+                );
     }
-
     
     private String computeSha256( byte[] content ) {
 

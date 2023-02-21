@@ -13,7 +13,6 @@ import it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.
 import it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.model.SendMessageResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ERRORCOURTESYIO;
@@ -41,34 +40,27 @@ public class IoServiceImpl implements IoService {
         SendMessageRequest sendMessageRequest = getSendMessageRequest(notification, recipientInt);
 
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_AD_SEND_IO, "sendIOMessage - iun={} id={}", notification.getIun(), recIndex)
+        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_DA_SEND_IO, "sendIOMessage - iun={} id={}", notification.getIun(), recIndex)
                 .iun(sendMessageRequest.getIun())
                 .build();
         logEvent.log();
         
         try {
-            ResponseEntity<SendMessageResponse> resp = pnExternalRegistryClient.sendIOMessage(sendMessageRequest);
+          SendMessageResponse sendIoMessageResponse = pnExternalRegistryClient.sendIOMessage(sendMessageRequest);
 
-            if (resp.getStatusCode().is2xxSuccessful()) {
+          if(sendIoMessageResponse != null){
+              if( isErrorStatus( sendIoMessageResponse.getResult() ) ){
+                  logEvent.generateFailure("Error in sendIoMessage, with errorStatus={} - iun={} id={} ", sendIoMessageResponse.getResult(), notification.getIun(), recIndex).log();
+                  throw new PnInternalException("Error in sendIoMessage, with errorStatus="+ sendIoMessageResponse.getResult() +" - iun="+ notification.getIun() +" id="+ recIndex, ERROR_CODE_DELIVERYPUSH_ERRORCOURTESYIO);
+              } else {
+                  logEvent.generateSuccess("Send io message success, with result={}", sendIoMessageResponse.getResult()).log();
+                  return (isSentStatus(sendIoMessageResponse.getResult()));
+              }
+          }else {
+              logEvent.generateFailure("endIOMessage return not valid response response - iun={} id={} ", notification.getIun(), recIndex).log();
+              throw new PnInternalException("sendIOMessage return not valid response response - iun="+ notification.getIun() +" id="+ recIndex, ERROR_CODE_DELIVERYPUSH_ERRORCOURTESYIO);
+          }
 
-                SendMessageResponse sendIoMessageResponse = resp.getBody();
-                if(sendIoMessageResponse != null){
-                    if( isErrorStatus( sendIoMessageResponse.getResult() ) ){
-                        logEvent.generateFailure("Error in sendIoMessage, with errorStatus={} - iun={} id={} ", sendIoMessageResponse.getResult(), notification.getIun(), recIndex).log();
-                        throw new PnInternalException("Error in sendIoMessage, with errorStatus="+ sendIoMessageResponse.getResult() +" - iun="+ notification.getIun() +" id="+ recIndex, ERROR_CODE_DELIVERYPUSH_ERRORCOURTESYIO);
-                    } else {
-                        logEvent.generateSuccess("Send io message success, with result={}", sendIoMessageResponse.getResult()).log();
-                        return (isSentStatus(sendIoMessageResponse.getResult()));
-                    }
-                }else {
-                    logEvent.generateFailure("endIOMessage return not valid response response - iun={} id={} ", notification.getIun(), recIndex).log();
-                    throw new PnInternalException("sendIOMessage return not valid response response - iun="+ notification.getIun() +" id="+ recIndex, ERROR_CODE_DELIVERYPUSH_ERRORCOURTESYIO);
-                }
-
-            } else {
-                logEvent.generateFailure("Error in sendIoMessage, httpStatus is {}", resp.getStatusCode()).log();
-                throw new PnInternalException("sendIOMessage Failed - iun="+ notification.getIun() +" id="+ recIndex, ERROR_CODE_DELIVERYPUSH_ERRORCOURTESYIO);
-            }
         } catch (Exception ex){
             logEvent.generateFailure("Error in sendIoMessage, exception={}", ex).log();
             throw ex;

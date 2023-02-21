@@ -66,14 +66,14 @@ public class PaperNotificationFailedEntityDaoDynamo extends AbstractDynamoKeyVal
         try {
             table.putItem(request);
         }catch (ConditionalCheckFailedException ex){
-            log.error("Conditional check exception on PaperNotificationFailedEntityDaoDynamo putIfAbsent", ex);
+            log.error("Conditional check exception on DocumentCreationRequestEntityDaoDynamo putIfAbsent", ex);
 
             Map<String, String> keyValues = new HashMap<>();
             keyValues.put("iun", value.getIun());
             keyValues.put("recipient", value.getRecipientId());
 
             throw new PnIdConflictException(
-                    PnDeliveryPushExceptionCodes.ERROR_CODE_DUPLICATED_ITEMD,
+                    PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_DUPLICATED_ITEMD,
                     keyValues,
                     ex
             );

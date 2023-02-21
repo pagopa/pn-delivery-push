@@ -24,13 +24,13 @@ public class PnExternalRegistryClientImpl implements PnExternalRegistryClient{
     }
     
     @Override
-    public ResponseEntity<SendMessageResponse> sendIOMessage(SendMessageRequest sendMessageRequest) {
+    public SendMessageResponse sendIOMessage(SendMessageRequest sendMessageRequest) {
 
         ResponseEntity<SendMessageResponse> resp;
         log.info("Start sendIOMessage - iun={}", sendMessageRequest.getIun());
         resp = sendIoMessageApi.sendIOMessageWithHttpInfo(sendMessageRequest);
         log.info("Response sendIOMessage - iun={}", sendMessageRequest.getIun());
 
-        return resp;
+        return resp.getBody();
     }
 }

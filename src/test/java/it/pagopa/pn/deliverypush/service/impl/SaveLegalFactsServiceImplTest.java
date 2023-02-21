@@ -12,6 +12,7 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.dto.legalfacts.PdfInfo;
+import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
@@ -22,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -61,12 +63,13 @@ class SaveLegalFactsServiceImplTest {
         NotificationRecipientInt recipient = buildRecipient(denomination);
         FileCreationWithContentRequest fileCreation = buildFileCreationWithContentRequest(PN_AAR);
         FileCreationResponseInt file = buildFileCreationResponseInt();
+        String quickAccessToken = "test";
 
-        Mockito.when(legalFactBuilder.generateNotificationAAR(notification, recipient)).thenReturn(denomination.getBytes());
+        Mockito.when(legalFactBuilder.generateNotificationAAR(notification, recipient, quickAccessToken)).thenReturn(denomination.getBytes());
         Mockito.when(legalFactBuilder.getNumberOfPages(denomination.getBytes())).thenReturn(1);
-        Mockito.when(safeStorageService.createAndUploadContent(fileCreation)).thenReturn(file);
+        Mockito.when(safeStorageService.createAndUploadContent(fileCreation)).thenReturn(Mono.just(file));
 
-        PdfInfo actual = saveLegalFactsService.saveAAR(notification, recipient);
+        PdfInfo actual = saveLegalFactsService.sendCreationRequestForAAR(notification, recipient, quickAccessToken);
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("safestorage://001", actual.getKey()),
@@ -81,9 +84,10 @@ class SaveLegalFactsServiceImplTest {
         NotificationRecipientInt recipient = buildRecipient(denomination);
         FileCreationWithContentRequest fileCreation = buildFileCreationWithContentRequest(PN_AAR);
         FileCreationResponseInt file = buildFileCreationResponseInt();
+        String quickAccessToken = "test";
 
         PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
-            saveLegalFactsService.saveAAR(notification, recipient);
+            saveLegalFactsService.sendCreationRequestForAAR(notification, recipient, quickAccessToken);
         });
 
         String expectErrorMsg = "PN_DELIVERYPUSH_SAVELEGALFACTSFAILED";
@@ -100,9 +104,9 @@ class SaveLegalFactsServiceImplTest {
         FileCreationResponseInt file = buildFileCreationResponseInt();
 
         Mockito.when(legalFactBuilder.generateNotificationReceivedLegalFact(notification)).thenReturn(denomination.getBytes());
-        Mockito.when(safeStorageService.createAndUploadContent(fileCreation)).thenReturn(file);
+        Mockito.when(safeStorageService.createAndUploadContent(fileCreation)).thenReturn(Mono.just(file));
 
-        String actual = saveLegalFactsService.saveNotificationReceivedLegalFact(notification);
+        String actual = saveLegalFactsService.sendCreationRequestForNotificationReceivedLegalFact(notification);
 
         Assertions.assertEquals("safestorage://001", actual);
     }
@@ -115,7 +119,7 @@ class SaveLegalFactsServiceImplTest {
         FileCreationResponseInt file = buildFileCreationResponseInt();
 
         PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
-            saveLegalFactsService.saveNotificationReceivedLegalFact(notification);
+            saveLegalFactsService.sendCreationRequestForNotificationReceivedLegalFact(notification);
         });
 
         String expectErrorMsg = "PN_DELIVERYPUSH_SAVELEGALFACTSFAILED";
@@ -137,9 +141,9 @@ class SaveLegalFactsServiceImplTest {
 
         Mockito.when(legalFactBuilder.generatePecDeliveryWorkflowLegalFact(
                 listFeedbackFromExtChannel, notification, recipient, status, completionWorkflowDate)).thenReturn(denomination.getBytes());
-        Mockito.when(safeStorageService.createAndUploadContent(fileCreation)).thenReturn(file);
+        Mockito.when(safeStorageService.createAndUploadContent(fileCreation)).thenReturn(Mono.just(file));
 
-        String actual = saveLegalFactsService.savePecDeliveryWorkflowLegalFact(listFeedbackFromExtChannel,
+        String actual = saveLegalFactsService.sendCreationRequestForPecDeliveryWorkflowLegalFact(listFeedbackFromExtChannel,
                 notification, recipient, status, completionWorkflowDate);
 
         Assertions.assertEquals("safestorage://001", actual);
@@ -158,7 +162,7 @@ class SaveLegalFactsServiceImplTest {
         FileCreationResponseInt file = buildFileCreationResponseInt();
 
         PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
-            saveLegalFactsService.savePecDeliveryWorkflowLegalFact(listFeedbackFromExtChannel,
+            saveLegalFactsService.sendCreationRequestForPecDeliveryWorkflowLegalFact(listFeedbackFromExtChannel,
                     notification, recipient, status, completionWorkflowDate);
         });
 
@@ -177,32 +181,35 @@ class SaveLegalFactsServiceImplTest {
         FileCreationResponseInt file = buildFileCreationResponseInt();
 
         Mockito.when(legalFactBuilder.generateNotificationViewedLegalFact(
-                notification.getIun(), recipient, timeStamp)).thenReturn(denomination.getBytes());
-        Mockito.when(safeStorageService.createAndUploadContent(fileCreation)).thenReturn(file);
+                notification.getIun(), recipient, null, timeStamp)).thenReturn(denomination.getBytes());
+        Mockito.when(safeStorageService.createAndUploadContent(fileCreation)).thenReturn(Mono.just(file));
 
-        String actual = saveLegalFactsService.saveNotificationViewedLegalFact(notification, recipient, timeStamp);
+        Mono<String> actualMono = saveLegalFactsService.sendCreationRequestForNotificationViewedLegalFact(notification, recipient, null, timeStamp);
 
-        Assertions.assertEquals("safestorage://001", actual);
+        Assertions.assertEquals("safestorage://001", actualMono.block());
     }
 
     @Test
-    void saveNotificationViewedLegalFactFailed() {
+    void saveNotificationDelegateViewedLegalFact() throws IOException {
         String denomination = "<h1>SSRF WITH IMAGE POC</h1> <img src='https://prova.it'></img>";
         NotificationInt notification = buildNotification(denomination);
         NotificationRecipientInt recipient = buildRecipient(denomination);
+        DelegateInfoInt delegateInfo = DelegateInfoInt.builder()
+                .denomination("Mario Rossi")
+                .taxId("RSSMRA80A01H501U")
+                .build();
         Instant timeStamp = Instant.parse("2021-09-16T15:24:00.00Z");
         FileCreationWithContentRequest fileCreation = buildFileCreationWithContentRequest(PN_LEGAL_FACTS);
         FileCreationResponseInt file = buildFileCreationResponseInt();
 
-        PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
-            saveLegalFactsService.saveNotificationViewedLegalFact(notification, recipient, timeStamp);
-        });
+        Mockito.when(legalFactBuilder.generateNotificationViewedLegalFact(
+                notification.getIun(), recipient, delegateInfo, timeStamp)).thenReturn(denomination.getBytes());
+        Mockito.when(safeStorageService.createAndUploadContent(fileCreation)).thenReturn(Mono.just(file));
 
-        String expectErrorMsg = "PN_DELIVERYPUSH_SAVENOTIFICATIONFAILED";
+        Mono<String> actualMono = saveLegalFactsService.sendCreationRequestForNotificationViewedLegalFact(notification, recipient, delegateInfo, timeStamp);
 
-        Assertions.assertEquals(expectErrorMsg, pnInternalException.getProblem().getErrors().get(0).getCode());
+        Assertions.assertEquals("safestorage://001", actualMono.block());
     }
-
 
     private SendDigitalFeedbackDetailsInt buildSendDigitalFeedbackDetailsInt() {
         return SendDigitalFeedbackDetailsInt.builder()
@@ -274,6 +281,7 @@ class SaveLegalFactsServiceImplTest {
 
     private PhysicalAddressInt buildPhysicalAddressInt() {
         return new PhysicalAddressInt(
+                "Galileo Bruno",
                 "Palazzo dell'Inquisizione",
                 "corso Italia 666",
                 "Piano Terra (piatta)",

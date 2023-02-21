@@ -93,7 +93,8 @@ Resources:
         StreamArn: !Ref CdcKinesisSourceStreamArn
       StreamSpecification: 
         StreamViewType: NEW_IMAGE
-
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
 
   # Failed Paper Notification
   PaperNotificationFailedTable:
@@ -111,7 +112,9 @@ Resources:
         - AttributeName: "iun"
           KeyType: "RANGE"
       BillingMode: "PAY_PER_REQUEST"
-
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+        
   # Action Table
   ActionTable:
     Type: AWS::DynamoDB::Table
@@ -124,6 +127,8 @@ Resources:
         - AttributeName: "actionId"
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
 
   # Future Action Table
   FutureActionTable:
@@ -141,6 +146,8 @@ Resources:
         - AttributeName: "actionId"
           KeyType: "RANGE"
       BillingMode: "PAY_PER_REQUEST"
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
 
   # Last scheduled poll time
   LastPollForFutureActionTable:
@@ -154,6 +161,8 @@ Resources:
         - AttributeName: "lastPoolKey"
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
 
   # Shared lock handling table
   PnDeliveryPushShedLockTable:
@@ -167,6 +176,8 @@ Resources:
         - AttributeName: "_id"
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
 
   # WebhookStreams table
   PnDeliveryPushWebhookStreamsTable:
@@ -184,6 +195,8 @@ Resources:
         - AttributeName: "sortKey"
           KeyType: "RANGE"
       BillingMode: "PAY_PER_REQUEST"
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
 
   # WebhookEvents table
   PnDeliveryPushWebhookEventsTable:
@@ -204,32 +217,60 @@ Resources:
       TimeToLiveSpecification:
         AttributeName: "ttl"
         Enabled: true
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
 
+  # Safe storage table containing request
+  DocumentCreationRequestTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${ProjectName}-DocumentCreationRequestTable'
+      AttributeDefinitions:
+        - AttributeName: "key"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "key"
+          KeyType: "HASH"
+      BillingMode: "PAY_PER_REQUEST"
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
   
-      
+
 Outputs:
 
   # Scheduled Actions
   ScheduledActionsQueueName:
     Value: !GetAtt ScheduledActionsQueue.Outputs.QueueName
-    Description: pn-delivery-push input queue name
+    Description: pn-delivery-push actions queue name
   ScheduledActionsQueueURL:
     Value: !GetAtt ScheduledActionsQueue.Outputs.QueueURL
-    Description: pn-delivery-push input queue URL
+    Description: pn-delivery-push actions queue URL
   ScheduledActionsQueueARN:
     Value: !GetAtt ScheduledActionsQueue.Outputs.QueueARN
-    Description: pn-delivery-push input queue ARN
+    Description: pn-delivery-push actions queue ARN
+  ScheduledActionsQueueAlarmARN:
+    Value: !GetAtt ScheduledActionsQueue.Outputs.SqsDLQAlarmArn
+    Description: pn-delivery-push actions queue dlq alarm queue 
+  ScheduledActionsQueueAgeAlarmARN:
+    Value: !GetAtt ScheduledActionsQueue.Outputs.SqsAgeAlarmArn
+    Description: pn-delivery-push actions queue age alarm ARN
 
   # Already Done Actions
   DoneActionsQueueName:
     Value: !GetAtt DoneActionsQueue.Outputs.QueueName
-    Description: pn-delivery-push input queue name
+    Description: pn-delivery-push actions done queue name
   DoneActionsQueueURL:
     Value: !GetAtt DoneActionsQueue.Outputs.QueueURL
-    Description: pn-delivery-push input queue URL
+    Description: pn-delivery-push actions done queue URL
   DoneActionsQueueARN:
     Value: !GetAtt DoneActionsQueue.Outputs.QueueARN
-    Description: pn-delivery-push input queue ARN
+    Description: pn-delivery-push actions done queue ARN
+  DoneActionsQueueAlarmARN:
+    Value: !GetAtt DoneActionsQueue.Outputs.SqsDLQAlarmArn
+    Description: pn-delivery-push actions done queue dlq alarm ARN
+  DoneActionsQueueAgeAlarmARN:
+    Value: !GetAtt DoneActionsQueue.Outputs.SqsAgeAlarmArn
+    Description: pn-delivery-push actions done queue age alarm ARN
 
   # Dynamo tables
   TimelinesDynamoTableName:
@@ -288,4 +329,11 @@ Outputs:
   PnDeliveryPushWebhookEventsTableArn:
     Description: ARN of dynamodb table containing
     Value: !Sub '${PnDeliveryPushWebhookEventsTable.Arn}'
+
+  DocumentCreationRequestTableName:
+    Description: Name of dynamodb table containing Document creation request to storage
+    Value: !Ref DocumentCreationRequestTable
+  DocumentCreationRequestTableArn:
+    Description: ARN of dynamodb table containing Document creation request to storage
+    Value: !Sub '${DocumentCreationRequestTable.Arn}'
 

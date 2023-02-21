@@ -189,7 +189,7 @@ class StatusUtilsTest {
         printStatus(actualStatusHistory, new Object(){}.getClass().getEnclosingMethod().getName());
 
         // THEN status histories have same length
-        Assertions.assertEquals(3, actualStatusHistory.size(), "Check length");
+        Assertions.assertEquals(4, actualStatusHistory.size(), "Check length");
 
         //  ... 1st initial status
         Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
@@ -217,12 +217,23 @@ class StatusUtilsTest {
                         .activeFrom(sendDigitalDomicile.getTimestamp())
                         .relatedTimelineElements(Arrays.asList(
                                 sendDigitalDomicile.getElementId(),
-                                sendDigitalFeedback.getElementId(),
-                                digitalFailureWorkflow.getElementId())
-                        )
+                                sendDigitalFeedback.getElementId()
+                        ))
                         .build(),
                 actualStatusHistory.get(2),
                 "3rd status wrong"
+        );
+
+        //  ... 4rd initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.DELIVERED)
+                        .activeFrom(digitalFailureWorkflow.getTimestamp())
+                        .relatedTimelineElements(List.of(
+                                digitalFailureWorkflow.getElementId())
+                        )
+                        .build(),
+                actualStatusHistory.get(3),
+                "4rd status wrong"
         );
     }
 
@@ -253,7 +264,7 @@ class StatusUtilsTest {
         TimelineElementInternal sendSimpleRegisteredLetter = TimelineElementInternal.builder()
                 .elementId("el6")
                 .timestamp((Instant.parse("2021-09-16T15:29:00.00Z")))
-                .category(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER)
+                .category(TimelineElementCategoryInt.PREPARE_SIMPLE_REGISTERED_LETTER)
                 .build();
 
         Set<TimelineElementInternal> timelineElementList = Set.of(requestAccepted, sendDigitalDomicile,
@@ -300,8 +311,8 @@ class StatusUtilsTest {
                         .activeFrom(sendDigitalDomicile.getTimestamp())
                         .relatedTimelineElements(Arrays.asList(
                                 sendDigitalDomicile.getElementId(),
-                                sendDigitalFeedback.getElementId(),
-                                digitalFailureWorkflow.getElementId())
+                                sendDigitalFeedback.getElementId()
+                                )
                         )
                         .build(),
                 actualStatusHistory.get(2),
@@ -311,8 +322,11 @@ class StatusUtilsTest {
         //  ... 4rd initial status
         Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
                         .status(NotificationStatusInt.DELIVERED)
-                        .activeFrom(sendSimpleRegisteredLetter.getTimestamp())
-                        .relatedTimelineElements(List.of(sendSimpleRegisteredLetter.getElementId()))
+                        .activeFrom(digitalFailureWorkflow.getTimestamp())
+                        .relatedTimelineElements(List.of(
+                                digitalFailureWorkflow.getElementId(),
+                                sendSimpleRegisteredLetter.getElementId()
+                        ))
                         .build(),
                 actualStatusHistory.get(3),
                 "4rd status wrong"

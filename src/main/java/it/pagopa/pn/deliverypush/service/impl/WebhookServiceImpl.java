@@ -1,44 +1,36 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
+import it.pagopa.pn.deliverypush.dto.webhook.ProgressResponseElementDto;
 import it.pagopa.pn.deliverypush.exceptions.PnWebhookForbiddenException;
 import it.pagopa.pn.deliverypush.exceptions.PnWebhookMaxStreamsCountReachedException;
-import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
-import it.pagopa.pn.deliverypush.dto.webhook.ProgressResponseElementDto;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.*;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequest;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamListElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponse;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.EventEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.StreamEntityDao;
-import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.EventEntity;
+import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper.DtoToEntityStreamMapper;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper.EntityToDtoStreamMapper;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper.EntityToStreamListDtoStreamMapper;
-import it.pagopa.pn.deliverypush.service.*;
-import lombok.Builder;
-import lombok.Getter;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
+import it.pagopa.pn.deliverypush.service.SchedulerService;
+import it.pagopa.pn.deliverypush.service.WebhookService;
+import it.pagopa.pn.deliverypush.service.mapper.ProgressResponseElementMapper;
+import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Base64Utils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuples;
 
-import javax.swing.text.html.Option;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -47,28 +39,23 @@ public class WebhookServiceImpl implements WebhookService {
     private final StreamEntityDao streamEntityDao;
     private final EventEntityDao eventEntityDao;
     private final SchedulerService schedulerService;
-    private final TimelineService timelineService;
-    private final StatusService statusService;
-    private final NotificationService notificationService;
+    private final WebhookUtils webhookUtils;
     private final int retryAfter;
     private final int purgeDeletionWaittime;
-    private final int readBufferDelay;
-    private final int maxStreams;
-    private final Duration ttl;
 
-    public WebhookServiceImpl(StreamEntityDao streamEntityDao, EventEntityDao eventEntityDao, PnDeliveryPushConfigs pnDeliveryPushConfigs, SchedulerService schedulerService, TimelineService timelineService, StatusService statusService, NotificationService notificationService) {
+    private final int maxStreams;
+
+    public WebhookServiceImpl(StreamEntityDao streamEntityDao, EventEntityDao eventEntityDao,
+                              PnDeliveryPushConfigs pnDeliveryPushConfigs, SchedulerService schedulerService,
+                              WebhookUtils webhookUtils) {
         this.streamEntityDao = streamEntityDao;
         this.eventEntityDao = eventEntityDao;
+        this.webhookUtils = webhookUtils;
         PnDeliveryPushConfigs.Webhook webhookConf = pnDeliveryPushConfigs.getWebhook();
         this.retryAfter = webhookConf.getScheduleInterval().intValue();
-        this.purgeDeletionWaittime = webhookConf.getPurgeDeletionWaittime().intValue();
-        this.readBufferDelay = webhookConf.getReadBufferDelay();
+        this.purgeDeletionWaittime = webhookConf.getPurgeDeletionWaittime();
         this.schedulerService = schedulerService;
-        this.timelineService = timelineService;
-        this.statusService = statusService;
-        this.notificationService = notificationService;
         this.maxStreams= webhookConf.getMaxStreams();
-        this.ttl = webhookConf.getTtl();
     }
 
     @Override
@@ -121,28 +108,16 @@ public class WebhookServiceImpl implements WebhookService {
 
     @Override
     public Mono<ProgressResponseElementDto> consumeEventStream(String xPagopaPnCxId, UUID streamId, String lastEventId) {
-        // per gestire i casi in cui una PA viene a chiedere gli eventi più nuovi di X, glieli ritorno e 1ms DOPO viene scritto un nuovo evento con timestamp più "vecchio" (X -1ms tipo, causa ritardo nella creazione/elaborazione)
-        // quell'evento  verrebbe perso, perchè alla richiesta successiva ritornerei solo quelli più NUOVI di X. Sfruttando la struttura del lastEventId, vado a ricalcolare un istante temporale antecedente
-        // che permette di ritornare anche il record con (X-1ms) se presente. NB: vado a filtrare il record con lastEventId perchè quello SICURAMENTE glielo avevo già tornato.
-        String lastEventIdWithBuffer = computeLastEventIdWithBufferForSearch(lastEventId);
+        // grazie al contatore atomico usato in scrittura per generare l'eventId, non serve più gestire la finestra.
         return streamEntityDao.get(xPagopaPnCxId, streamId.toString())
                 .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Pa " + xPagopaPnCxId + " is not allowed to see this streamId " + streamId)))
-                .flatMap(stream -> eventEntityDao.findByStreamId(stream.getStreamId(), lastEventIdWithBuffer))
+                .flatMap(stream -> eventEntityDao.findByStreamId(stream.getStreamId(), lastEventId))
                 .map(res -> {
-                    List<ProgressResponseElement> eventList = res.getEvents().stream().filter(ev -> !ev.getEventId().equals(lastEventId)).map(ev -> {
-                        ProgressResponseElement progressResponseElement = new ProgressResponseElement();
-                        progressResponseElement.setEventId(ev.getEventId());
-                        progressResponseElement.setTimestamp(ev.getTimestamp());
-                        progressResponseElement.setIun(ev.getIun());
-                        progressResponseElement.setNewStatus(ev.getNewStatus() != null ? NotificationStatus.valueOf(ev.getNewStatus()) : null);
-                        progressResponseElement.setNotificationRequestId(ev.getNotificationRequestId());
-                        progressResponseElement.setTimelineEventCategory(TimelineElementCategory.fromValue(ev.getTimelineEventCategory()));
-                        return progressResponseElement;
-                    }).collect(Collectors.toList());
+                    List<ProgressResponseElement> eventList = res.getEvents().stream().map(ProgressResponseElementMapper::internalToExternal).sorted(Comparator.comparing(ProgressResponseElement::getEventId)).toList();
 
+                    log.info("consumeEventStream requestEventId={} streamId={} size={} returnedlastEventId={}", lastEventId, streamId, eventList.size(), (!eventList.isEmpty()?eventList.get(eventList.size()-1).getEventId():"ND"));
                     // schedulo la pulizia per gli eventi precedenti a quello richiesto
-                    String lastEventIdWithBufferForPurge = computeLastEventIdWithBufferForPurge(lastEventId, !eventList.isEmpty()?eventList.get(0).getEventId():null);
-                    schedulerService.scheduleWebhookEvent(res.getStreamId(), lastEventIdWithBufferForPurge, purgeDeletionWaittime, WebhookEventType.PURGE_STREAM_OLDER_THAN);
+                    schedulerService.scheduleWebhookEvent(res.getStreamId(), lastEventId, purgeDeletionWaittime, WebhookEventType.PURGE_STREAM_OLDER_THAN);
                     // ritorno gli eventi successivi all'evento di buffer, FILTRANDO quello con lastEventId visto che l'ho sicuramente già ritornato
                     return ProgressResponseElementDto.builder()
                             .retryAfter(res.getLastEventIdRead() == null ? retryAfter : 0)
@@ -150,6 +125,7 @@ public class WebhookServiceImpl implements WebhookService {
                             .build();
                 });
     }
+
 
     @Override
     public Mono<Void> saveEvent(String paId, String timelineId, String iun) {
@@ -160,36 +136,37 @@ public class WebhookServiceImpl implements WebhookService {
                         return Mono.empty();    // se non ho stream in ascolto, non c'è motivo di fare le query in dynamo
                     }
                     else {
-                        return Mono.fromSupplier(() -> retrieveTimeline(iun, timelineId))
-                                .map(timelineData -> new Object() {
-                                    public final List<StreamEntity> streamList = l;
-                                    public final TimelineElementInternal timelineElementInternal = timelineData.getEvent();
-                                    public final String oldStatus = timelineData.getNotificationStatusUpdate().getOldStatus().getValue();
-                                    public final String newStatus = timelineData.getNotificationStatusUpdate().getNewStatus().getValue();
-                                });
+                        return Mono.fromSupplier(() -> webhookUtils.retrieveTimeline(iun, timelineId))
+                                .map(timelineData -> Tuples.of(l, timelineData.getEvent(), timelineData.getNotificationInt(),
+                                        timelineData.getNotificationStatusUpdate().getOldStatus().getValue(), timelineData.getNotificationStatusUpdate().getNewStatus().getValue()));
                     }
                 })
                 .flatMapMany(res -> {
-                    Instant timestamp = res.timelineElementInternal.getTimestamp();
-                    String oldStatus = res.oldStatus;
-                    String newStatus = res.newStatus;
-                    String timelineEventCategory = res.timelineElementInternal.getCategory().getValue();
-                    return Flux.fromIterable(res.streamList)
-                            .flatMap(stream -> processEvent(stream, timestamp, oldStatus, newStatus, timelineEventCategory, timelineId, iun));
+                    String oldStatus = res.getT4();
+                    String newStatus = res.getT5();
+                    return Flux.fromIterable(res.getT1())
+                            .flatMap(stream -> processEvent(stream, oldStatus, newStatus, res.getT2(), res.getT3()));
                 }).collectList().then();
     }
 
-    private Mono<Void> processEvent(StreamEntity stream, Instant timestamp, String oldStatus, String newStatus, String timelineEventCategory, String timelineId, String iun) {
+    private Mono<Void> processEvent(StreamEntity stream,  String oldStatus, String newStatus, TimelineElementInternal timelineElementInternal, NotificationInt notificationInt) {
         // per ogni stream configurato, devo andare a controllare se lo stato devo salvarlo o meno
         // c'è il caso in cui lo stato non cambia (e se lo stream vuolo solo i cambi di stato, lo ignoro)
+        if (!StringUtils.hasText(stream.getEventType()))
+        {
+            log.warn("skipping saving because webhook stream configuration is not correct stream={}", stream);
+            return Mono.empty();
+        }
+
         StreamCreationRequest.EventTypeEnum eventType = StreamCreationRequest.EventTypeEnum.fromValue(stream.getEventType());
         if (eventType == StreamCreationRequest.EventTypeEnum.STATUS
                 && newStatus.equals(oldStatus))
         {
-            log.info("skipping saving webhook event for stream={} because old and new status are same status={} iun={}", stream.getStreamId(), newStatus, iun);
+            log.info("skipping saving webhook event for stream={} because old and new status are same status={} iun={}", stream.getStreamId(), newStatus, timelineElementInternal.getIun());
             return Mono.empty();
         }
 
+        String timelineEventCategory = timelineElementInternal.getCategory().getValue();
         // e poi c'è il caso in cui lo stream ha un filtro sugli eventi interessati
         // se è nullo/vuoto o contiene lo stato, vuol dire che devo salvarlo
         if ((stream.getFilterValues() == null
@@ -197,55 +174,15 @@ public class WebhookServiceImpl implements WebhookService {
                 || (eventType == StreamCreationRequest.EventTypeEnum.STATUS && stream.getFilterValues().contains(newStatus))
                 || (eventType == StreamCreationRequest.EventTypeEnum.TIMELINE && stream.getFilterValues().contains(timelineEventCategory))))
         {
-            EventEntity eventEntity = new EventEntity();
-            if (!ttl.isZero())
-                eventEntity.setTtl(LocalDateTime.now().plus(ttl).atZone(ZoneId.systemDefault()).toEpochSecond());
-
-            eventEntity.setEventId(timestamp.toString() + "_" + timelineId);
-            eventEntity.setTimestamp(timestamp);
-            // Lo iun ci va solo se è stata accettata, quindi escludo gli stati invalidation e refused
-            if (StringUtils.hasText(newStatus)
-                    && NotificationStatusInt.valueOf(newStatus) != NotificationStatusInt.IN_VALIDATION
-                    && NotificationStatusInt.valueOf(newStatus) != NotificationStatusInt.REFUSED)
-                eventEntity.setIun(iun);
-            eventEntity.setNewStatus(newStatus);
-            eventEntity.setTimelineEventCategory(timelineEventCategory);
-            eventEntity.setStreamId(stream.getStreamId());
-            // il requestId ci va sempre, ed è il base64 dello iun
-            eventEntity.setNotificationRequestId(Base64Utils.encodeToString(iun.getBytes(StandardCharsets.UTF_8)));
-            return eventEntityDao.save(eventEntity).then();
+            return saveEventWithAtomicIncrement(stream, newStatus, timelineElementInternal, notificationInt);
         }
         else {
-            log.info("skipping saving webhook event for stream={} because timelineeventcategory is not in list timelineeventcategory={} iun={}", stream.getStreamId(), timelineEventCategory, iun);
+            log.info("skipping saving webhook event for stream={} because timelineeventcategory is not in list timelineeventcategory={} iun={}", stream.getStreamId(), timelineEventCategory, timelineElementInternal.getIun());
         }
 
         return Mono.empty();
     }
 
-    private RetrieveTimelineResult retrieveTimeline(String iun, String timelineId) {
-        NotificationInt notificationInt = notificationService.getNotificationByIun(iun);
-        Set<TimelineElementInternal> timelineElementInternalSet = timelineService.getTimeline(iun, false);
-        Optional<TimelineElementInternal> event = timelineElementInternalSet.stream().filter(x -> x.getElementId().equals(timelineId)).findFirst();
-
-        if (event.isEmpty())
-            throw new PnInternalException("Timeline event not found in timeline history", PnDeliveryPushExceptionCodes.ERROR_CODE_WEBHOOK_SAVEEVENT);
-
-        // considero gli elementi di timeline più vecchi di quello passato
-        Set<TimelineElementInternal> filteredPreviousTimelineElementInternalSet = timelineElementInternalSet.stream().filter(x -> x.getTimestamp().isBefore(event.get().getTimestamp())).collect(Collectors.toSet());
-        // calcolo vecchio e nuovo stato in base allo storico "di quel momento"
-        StatusService.NotificationStatusUpdate notificationStatusUpdate = statusService.computeStatusChange(event.get(), filteredPreviousTimelineElementInternalSet, notificationInt);
-        return RetrieveTimelineResult.builder()
-                .event(event.get())
-                .notificationStatusUpdate(notificationStatusUpdate)
-                .build();
-    }
-
-    @Builder
-    @Getter
-    private static class RetrieveTimelineResult{
-        private StatusService.NotificationStatusUpdate notificationStatusUpdate;
-        private TimelineElementInternal event;
-    }
 
 
     @Override
@@ -267,56 +204,22 @@ public class WebhookServiceImpl implements WebhookService {
                 .then();
     }
 
-    /**
-     * Modificata la logica. Questo metodo viene invocato quando devo chiedere gli eventi più nuovi del timestamp tornato. In questo caso riceverò probabilmente un eventId nel passato
-     *
-     * @param lastEventId ultimo evento su cui basarsi per ricavare il timestamp
-     * @return un timestamp sotto forma di stringa
-     */
-    private String computeLastEventIdWithBufferForSearch(String lastEventId){
-        // se readBuffedDelay  è minore di 0, di fatto è disabilitato
-        if (readBufferDelay <= 0)
-            return lastEventId;
 
-        if (StringUtils.hasText(lastEventId))
-        {
-            // ritorno gli eventi più nuovi dell'eventId meno una piccola finestra temporale, per recuperare eventuali eventi ricevuti precedentemente ma non tornati per eventuali corse critiche.
-            String timestamp = lastEventId.split("_")[0];
-            return Instant.parse(timestamp).minusMillis(readBufferDelay).toString();
-        }
-        return null;
-    }
-
-    /**
-     * Questo metodo viene invocato  per dover cancellare gli eventi più vecchi del timestamp tornato. Anche in questo caso riceverò l'eventId relativo alla data confermata dall'utente, ma anche la data dell'evento più vecchio letto da DB.
-     * Se l'evento più vecchio letto da DB è ANTECEDENTE a quello confermato, vuol dire che non glielo avevo dato la volta precedente, e quindi lo ritorno.
-     * Se invece l'evento più vecchio non c'è o è POSTERIORE a quello confermato, posso tranquillamente cancellare FINO a quello confermato INCLUSO.
-     *
-     * @param lastEventIdCONFIRMED ultimo evento CONFERMATO su cui basarsi per ricavare il timestamp
-     * @param lastEventIdOLDEST ultimo evento LETTO DA DB su cui basarsi per ricavare il timestamp
-     * @return un timestamp sotto forma di stringa
-     */
-    private String computeLastEventIdWithBufferForPurge(String lastEventIdCONFIRMED, String lastEventIdOLDEST){
-        // se readBuffedDelay  è minore di 0, di fatto è disabilitato
-        if (readBufferDelay <= 0)
-            return lastEventIdCONFIRMED;
-
-        if (StringUtils.hasText(lastEventIdCONFIRMED))
-        {
-            if (StringUtils.hasText(lastEventIdOLDEST))
-            {
-                String timestampCONFIRMED = lastEventIdCONFIRMED.split("_")[0];
-                String timestampOLDEST = lastEventIdOLDEST.split("_")[0];
-                Instant instantCONFIRMED = Instant.parse(timestampCONFIRMED);
-                Instant instantOLDEST = Instant.parse(timestampOLDEST);
-                if (instantOLDEST.isBefore(instantCONFIRMED))
+    private Mono<Void> saveEventWithAtomicIncrement(StreamEntity streamEntity, String newStatus,
+                                                    TimelineElementInternal timelineElementInternal, NotificationInt notificationInt){
+        // recupero un contatore aggiornato
+        return streamEntityDao.updateAndGetAtomicCounter(streamEntity)
+            .flatMap(atomicCounterUpdated -> {
+                if (atomicCounterUpdated < 0)
                 {
-                    return instantOLDEST.minusMillis(readBufferDelay).toString();
+                    log.warn("updateAndGetAtomicCounter counter is -1, skipping saving stream");
+                    return Mono.empty();
                 }
-            }
 
-            return lastEventIdCONFIRMED;
-        }
-        return null;
+                return eventEntityDao.save(webhookUtils.buildEventEntity(atomicCounterUpdated, streamEntity,
+                                                                            newStatus, timelineElementInternal, notificationInt))
+                        .doOnSuccess(event -> log.info("saved webhookevent={}", event))
+                        .then();
+            });
     }
 }

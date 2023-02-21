@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
+import it.pagopa.pn.deliverypush.action.completionworkflow.CompletelyUnreachableUtils;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
@@ -96,6 +97,7 @@ class CompletelyUnreachableUtilsTest {
 
     private PhysicalAddressInt buildPhysicalAddressInt() {
         return new PhysicalAddressInt(
+                "Galileo Bruno",
                 "Palazzo dell'Inquisizione",
                 "corso Italia 666",
                 "Piano Terra (piatta)",
@@ -164,6 +166,7 @@ class CompletelyUnreachableUtilsTest {
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                         .build())
                 .physicalAddress(new PhysicalAddressInt(
+                        "Galileo Bruno",
                         "Palazzo dell'Inquisizione",
                         "corso Italia 666",
                         "Piano Terra (piatta)",

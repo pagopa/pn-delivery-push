@@ -9,7 +9,11 @@ Parameters:
 
   PhysicalPersonPortalUrl:
     Type: String
-    Description: 'Url del portale della Persona Fisica/Giuridica?? da inserire degli AAR'
+    Description: 'Url del portale della Persona Fisica da inserire degli AAR'
+    
+  LegalPersonPortalUrl:
+    Type: String
+    Description: 'Url del portale della Persona Giuridica da inserire degli AAR'    
 
   AddressBookUrl:
     Type: String
@@ -75,7 +79,7 @@ Parameters:
   TemplateBucketBaseUrl:
     Type: String
     Description: 'The S3 bucket from which to fetch the templates used by this stack.'
-
+  
   DeliveryPushInputsQueueName:
     Type: String
     Description: 'Queue to pull for inputs event'
@@ -84,13 +88,13 @@ Parameters:
     Type: String
     Description: 'Queue to pull for inputs event'
 
-  ExternalChannelsInputsQueueName:
+  DeliveryPushInputsQueueAlarmARN:
     Type: String
-    Description: 'Send external-channel messages to this Queue'
-    
-  ExternalChannelsInputsQueueARN:
+    Description: 'pn-delivery-push input queue alarm ARN'
+
+  DeliveryPushInputsQueueAgeAlarmARN:
     Type: String
-    Description: 'Send external-channel messages to this Queue'
+    Description: pn-delivery-push input queue age alarm ARN
 
   ExternalChannelsOutputsQueueName:
     Type: String
@@ -208,6 +212,14 @@ Parameters:
     Type: String
     Description: 'ARN of dynamodb table containing'
 
+  DocumentCreationRequestTableName:
+    Type: String
+    Description: 'Name of dynamodb table containing unreacheble notifications recipients'
+
+  DocumentCreationRequestTableArn:
+    Type: String
+    Description: 'ARN of dynamodb table containing unreacheble notifications recipients'
+      
   AlarmSNSTopicArn:
     Type: String
     Description: 'ARN of alarm topic'
@@ -254,7 +266,143 @@ Parameters:
     Type: String
     Description: 'default value to return if paTaxId not present in parameter store'
     AllowedValues: [ true, false ]
+
+  RetentionAttachmentDaysAfterRefinement:
+    Type: String
+    Description: 'Number of days after which an attachment can be deleted from the effective date (viewing or expiration of time)'
+
+  SafeStorageToDeliveryPushQueueName:
+    Type: String
+    Description: 'SafeStorage-to-delivery-push queue Name'
     
+  SafeStorageToDeliveryPushQueueARN:
+    Type: String
+    Description: 'SafeStorage-to-delivery-push queue ARN'
+
+  SafeStorageToDeliveryPushQueueAlarmARN:
+    Type: String
+    Description: SafeStorage-to-delivery-push queue alarm ARN
+
+  SafeStorageToDeliveryPushQueueAgeAlarmARN:
+    Type: String
+    Description: SafeStorage-to-delivery-push queue age alarm ARN
+
+  DoneActionsQueueAlarmARN:
+    Type: String
+    Description: delivery push actions queue dlq alarm ARN
+
+  DoneActionsQueueAgeAlarmARN:
+    Type: String
+    Description: delivery push actions queue age alarm ARN
+
+  ScheduledActionsQueueAlarmARN:
+    Type: String
+    Description: delivery push actions done queue dlq alarm ARN
+
+  ScheduledActionsQueueAgeAlarmARN:
+    Type: String
+    Description: delivery push actions done queue age alarm ARN
+
+  AlbSecurityGroup:
+    Type: String
+    Description: 'Application load balancer security group'
+
+  NationalRegistries2DeliveryPushQueueName:
+    Type: String
+    Description: 'National Registries to delivery-push queue name'
+
+  NationalRegistries2DeliveryPushQueueARN:
+    Type: String
+    Description: 'National Registries to delivery-push queue ARN'
+
+  NationalRegistries2DeliveryPushQueueAlarmARN:
+    Type: String
+    Description: 'National Registries to delivery-push queue dlq alarm'
+
+  NationalRegistries2DeliveryPushQueueAgeAlarmARN:
+    Type: String
+    Description: 'National Registries to delivery-push queue age alarm'
+
+  ValidationRetryIntervals:
+    Type: String
+    Description: 'Time interval between validations retry'
+    
+  # Heath Check parameters
+  HealthCheckInterval:
+    Description: Seconds between two health check
+    Type: Number
+    Default: 60
+
+  HealthCheckTimeout:
+    Description: health check timeout seconds
+    Type: Number
+    Default: 5
+  
+  HealthyThresholdCount:
+    Description: |
+      The number of consecutive health checks successes required before considering 
+      an unhealthy target healthy. 
+    Type: Number
+    Default: 5
+  
+  UnhealthyThresholdCount:
+    Description: |
+      The number of consecutive health check failures required before considering a target unhealthy. 
+    Type: Number
+    Default: 2
+
+  # Instance parameters
+  # 256 (.25 vCPU) - Available memory values: 0.5GB, 1GB, 2GB
+  # 512 (.5 vCPU) - Available memory values: 1GB, 2GB, 3GB, 4GB
+  # 1024 (1 vCPU) - Available memory values: 2GB, 3GB, 4GB, 5GB, 6GB, 7GB, 8GB
+  # 2048 (2 vCPU) - Available memory values: Between 4GB and 16GB in 1GB increments
+  # 4096 (4 vCPU) - Available memory values: Between 8GB and 30GB in 1GB increments
+  CpuValue:
+    Type: Number
+    Default: 1024
+    Description: Fargate virtual CPU quantity 1024 equals one vCPU
+
+  # 0.5GB, 1GB, 2GB - Available cpu values: 256 (.25 vCPU)
+  # 1GB, 2GB, 3GB, 4GB - Available cpu values: 512 (.5 vCPU)
+  # 2GB, 3GB, 4GB, 5GB, 6GB, 7GB, 8GB - Available cpu values: 1024 (1 vCPU)
+  # Between 4GB and 16GB in 1GB increments - Available cpu values: 2048 (2 vCPU)
+  # Between 8GB and 30GB in 1GB increments - Available cpu values: 4096 (4 vCPU)
+  MemoryAmount:
+    Type: String
+    Default: 2GB
+    Description: memory amount reserved to the task pod.
+    AllowedValues: [ 2GB, 4GB, 6GB, 8GB ]
+
+  # Autoscaling parameters
+  AutoscalingCheckPeriod:
+    Default: 60
+    Type: Number
+    Description: minimum autoscaling number of tasks\
+
+  AutoscalingDataPointN:
+    Default: 1
+    Type: Number
+    Description: activate when N datapoint on M
+
+  AutoscalingDataPointM:
+    Default: 1
+    Type: Number
+    Description: activate when N datapoint on M
+
+  AutoscalingThreshold:
+    Default: 70
+    Type: String
+  
+  MinTasksNumber:
+    Default: 1
+    Type: Number
+    Description: minimum autoscaling number of tasks
+
+  MaxTasksNumber:
+    Default: 6
+    Type: Number
+    Description: maximum autoscaling number of tasks
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   
@@ -267,22 +415,32 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/ecs-service.yaml"
       Parameters:
         MicroServiceUniqueName: !Sub '${ProjectName}-delivery-push'
-        CpuValue: 1024
-        MemoryAmount: 2GB
+        CpuValue: !Ref CpuValue
+        MemoryAmount: !Ref MemoryAmount
+        HealthCheckTimeout: !Ref HealthCheckTimeout
+        HealthCheckInterval: !Ref HealthCheckInterval
+        HealthyThresholdCount: !Ref HealthyThresholdCount
+        UnhealthyThresholdCount: !Ref UnhealthyThresholdCount
+        AutoscalingStrategy: REST-API
+        AutoscalingThreshold: !Ref AutoscalingThreshold
+        AutoscalingCheckPeriod: !Ref AutoscalingCheckPeriod
+        MinTasksNumber: !Ref MinTasksNumber
+        MaxTasksNumber: !Ref MaxTasksNumber
+        AutoscalingDataPointN: !Ref AutoscalingDataPointN
+        AutoscalingDataPointM: !Ref AutoscalingDataPointM
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
         ContainerImageURI: !Sub '${ContainerImageUri}'
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
         ContainerEnvEntry2: !Sub 'PN_DELIVERYPUSH_TOPICS_NEWNOTIFICATIONS=${DeliveryPushInputsQueueName}'
-        ContainerEnvEntry3: !Sub 'PN_DELIVERYPUSH_TOPICS_TOEXTERNALCHANNELPEC=${ExternalChannelsInputsQueueName}'
-        ContainerEnvEntry4: !Sub 'PN_DELIVERYPUSH_TOPICS_TOEXTERNALCHANNELEMAIL=${ExternalChannelsInputsQueueName}'
-        ContainerEnvEntry5: !Sub 'PN_DELIVERYPUSH_TOPICS_TOEXTERNALCHANNELPAPER=${ExternalChannelsInputsQueueName}'
+        ContainerEnvEntry3: !Sub 'PN_DELIVERYPUSH_WEBAPP_DIRECTACCESSURLTEMPLATEPHYSICAL=${PhysicalPersonPortalUrl}'
+        ContainerEnvEntry4: !Sub 'PN_DELIVERYPUSH_WEBAPP_DIRECTACCESSURLTEMPLATELEGAL=${LegalPersonPortalUrl}'
+        ContainerEnvEntry5: !Sub 'PN_DELIVERYPUSH_PAPERCHANNELBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry6: !Sub 'PN_DELIVERYPUSH_TOPICS_FROMEXTERNALCHANNEL=${ExternalChannelsOutputsQueueName}'
         ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}'
         ContainerEnvEntry8: !Sub 'PN_DELIVERYPUSH_TOPICS_EXECUTEDACTIONS=${DoneActionsQueueName}'
         ContainerEnvEntry9: !Sub 'PN_DELIVERYPUSH_WEBHOOK_SCHEDULEINTERVAL=${WebhookScanInterval}'
         ContainerEnvEntry10: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXLENGTH=${WebhookMaxLength}'
-        # ContainerEnvEntry11: !Sub 'PN_DELIVERYPUSH_WEBAPP_DIRECTACCESSURLTEMPLATE=${PhysicalPersonPortalUrl}/direct_access.html?token=%s'
-        ContainerEnvEntry11: !Sub 'PN_DELIVERYPUSH_WEBAPP_DIRECTACCESSURLTEMPLATE=${PhysicalPersonPortalUrl}'
+        ContainerEnvEntry11: 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILSUFFIX=?aar'
         ContainerEnvEntry12: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_EVENTSTABLENAME=${PnDeliveryPushWebhookEventsTableName}'
         ContainerEnvEntry13: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_STREAMSTABLENAME=${PnDeliveryPushWebhookStreamsTableName}'
         ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_WAITINGFORREADCOURTESYMESSAGE=${WaitingForReadCourtesyMessage}'
@@ -304,7 +462,7 @@ Resources:
         ContainerEnvEntry26: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry27: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName}'
+        ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName},${SafeStorageToDeliveryPushQueueName},${NationalRegistries2DeliveryPushQueueName}'
         ContainerEnvEntry30: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
         ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
         ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
@@ -313,10 +471,14 @@ Resources:
         ContainerEnvEntry35: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_TABLENAME=${LastPollForFutureActionDynamoTableName}'
         ContainerEnvEntry36: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_LOCKTABLENAME=${PnDeliveryPushShedLockDynamoTableName}'
         ContainerEnvEntry37: !Sub 'PN_COMMONS_FEATURES_ISMVPDEFAULTVALUE=${IsMvpDefaultValue}'
-        ContainerEnvEntry38: !Sub 'PN_DELIVERYPUSH_WEBAPP_FAQURLTEMPLATE=${PhysicalPersonPortalUrl}/faq.html'
+        ContainerEnvEntry38: 'PN_DELIVERYPUSH_WEBAPP_FAQURLTEMPLATESUFFIX=faq'
         ContainerEnvEntry39: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_NOTIFICATIONNONVISIBILITYTIME=${NotificationNonVisibilityTime}'
         ContainerEnvEntry40: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_TIMETOADDINNONVISIBILITYTIME=${TimeToAddInNonVisibilityTimeCase}'
-
+        ContainerEnvEntry41: !Sub 'PN_DELIVERYPUSH_RETENTION_ATTACHMENT_DAYS_AFTER_REFINEMENT=${RetentionAttachmentDaysAfterRefinement}'
+        ContainerEnvEntry42: !Sub 'PN_DELIVERYPUSH_TOPICS_SAFESTORAGEEVENTS=${SafeStorageToDeliveryPushQueueName}'
+        ContainerEnvEntry43: !Sub 'PN_DELIVERYPUSH_NATIONALREGISTRIESBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry44: !Sub 'PN_DELIVERYPUSH_DOCUMENTCREATIONREQUESTDAO_TABLENAME=${DocumentCreationRequestTableName}'
+        ContainerEnvEntry45: !Sub 'PN_DELIVERYPUSH_VALIDATIONRETRYINTERVALS=${ValidationRetryIntervals}'
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*,/delivery-progresses/*'
         ECSClusterName: !Ref ECSClusterName
@@ -326,14 +488,13 @@ Resources:
         LoadBalancerListenerArn: !Ref ApplicationLoadBalancerListenerArn
         LoadbalancerRulePriority: !Ref MicroserviceNumber
         CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
+        TaskRoleManagedPolicyArn: !Ref DeliveryPushMicroserviceTaskManagedPolicy
+        AlbSecurityGroup: !Ref AlbSecurityGroup
 
   # Grant operational rights to PN-Delivery-push microservice microservice
-  DeliveryPushMicroserviceTaskPolicy:
-    Type: AWS::IAM::Policy
+  DeliveryPushMicroserviceTaskManagedPolicy:
+    Type: AWS::IAM::ManagedPolicy
     Properties:
-      PolicyName: !Sub '${ProjectName}-delivery-push-CustomTaskPolicy'
-      Roles:
-        - !GetAtt DeliveryPushMicroservice.Outputs.TaskRoleName
       PolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -350,10 +511,11 @@ Resources:
               - sqs:SendMessageBatch
             Resource:
               - !Ref DeliveryPushInputsQueueARN
-              - !Ref ExternalChannelsInputsQueueARN
               - !Ref ExternalChannelsOutputsQueueARN
               - !Ref ScheduledActionsQueueARN
               - !Ref DoneActionsQueueARN
+              - !Ref SafeStorageToDeliveryPushQueueARN
+              - !Ref NationalRegistries2DeliveryPushQueueARN
           - Effect: Allow
             Action:
               - 'dynamodb:GetItem'
@@ -382,13 +544,14 @@ Resources:
               - !Sub "${PnDeliveryPushShedLockDynamoTableArn}"
               - !Sub "${PnDeliveryPushWebhookStreamsTableArn}"
               - !Sub "${PnDeliveryPushWebhookEventsTableArn}"
+              - !Sub "${DocumentCreationRequestTableArn}"
           - Effect: Allow
             Action:
               - ssm:GetParameter
               - ssm:GetParameters
             Resource:
               - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapPaMVP'
-
+  
   # Expose PN-Delivery-push microservice public API with API-GW for B2B usage
   DeliveryPushMicroservicePublicAPI:
     Type: AWS::CloudFormation::Stack
@@ -403,12 +566,14 @@ Resources:
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
   DeliveryPushMicroservicePublicApiWaf:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
       Parameters:
         WAFName: !Sub '${ProjectName}-delivery-push-b2b'
+        IntendedUsage: B2B 
         APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicAPI.Outputs.APIGatewayARN
 
   # Expose PN-Delivery-progress microservice public API with API-GW for B2B usage
@@ -425,12 +590,14 @@ Resources:
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
   DeliveryProgressMicroservicePublicApiWaf:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
       Parameters:
         WAFName: !Sub '${ProjectName}-delivery-progress-b2b'
+        IntendedUsage: B2B 
         APIGatewayARNs: !GetAtt DeliveryProgressMicroservicePublicAPI.Outputs.APIGatewayARN
 
   # Expose PN-Delivery-push microservice public API with API-GW for WEB usage
@@ -447,12 +614,14 @@ Resources:
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn        
   DeliveryPushMicroservicePublicWebApiWaf:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
       Parameters:
         WAFName: !Sub '${ProjectName}-delivery--push-web'
+        IntendedUsage: WEB 
         APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicWebAPI.Outputs.APIGatewayARN
         Limit: 6000
 
@@ -471,14 +640,16 @@ Resources:
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn        
   DeliveryPushMicroservicePublicIoApiWaf:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
       Parameters:
         WAFName: !Sub '${ProjectName}-delivery-push-io'
+        IntendedUsage: IO 
         APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicIoAPI.Outputs.APIGatewayARN
-
+  
   ## Dashboard
   DeliveryPushMicroserviceCloudWatchDashboard:
     Type: AWS::CloudFormation::Stack
@@ -496,6 +667,7 @@ Resources:
             - !Ref PnDeliveryPushShedLockDynamoTableName
             - !Ref PnDeliveryPushWebhookStreamsTableName
             - !Ref PnDeliveryPushWebhookEventsTableName
+            - !Ref DocumentCreationRequestTableName 
         RestApiStageArns: !Join
           - ','
           - - !GetAtt DeliveryPushMicroservicePublicAPI.Outputs.RestApiStageArn
@@ -510,12 +682,22 @@ Resources:
             - !GetAtt DeliveryPushMicroservicePublicIoAPI.Outputs.RestApiName
         AlarmArns: !Join
           - ','
-          - - !GetAtt DeliveryPushMicroservice.Outputs.AutoScalingAlarmArn
-            - !GetAtt DeliveryPushMicroservice.Outputs.FatalLogsMetricAlarmArn
+          - - !GetAtt DeliveryPushMicroservice.Outputs.FatalLogsMetricAlarmArn
+            - !Ref DeliveryPushInputsQueueAlarmARN
+            - !Ref DeliveryPushInputsQueueAgeAlarmARN
+            - !Ref SafeStorageToDeliveryPushQueueAlarmARN
+            - !Ref SafeStorageToDeliveryPushQueueAgeAlarmARN
+            - !Ref DoneActionsQueueAlarmARN
+            - !Ref DoneActionsQueueAgeAlarmARN
+            - !Ref ScheduledActionsQueueAlarmARN
+            - !Ref ScheduledActionsQueueAgeAlarmARN
+            - !Ref NationalRegistries2DeliveryPushQueueAlarmARN
+            - !Ref NationalRegistries2DeliveryPushQueueAgeAlarmARN
         QueueArns: !Join
           - ','
           - - !Ref DeliveryPushInputsQueueARN
-            - !Ref ExternalChannelsInputsQueueARN
             - !Ref ExternalChannelsOutputsQueueARN
             - !Ref ScheduledActionsQueueARN
             - !Ref DoneActionsQueueARN
+            - !Ref SafeStorageToDeliveryPushQueueARN
+            - !Ref NationalRegistries2DeliveryPushQueueARN

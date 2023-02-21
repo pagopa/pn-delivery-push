@@ -12,8 +12,6 @@ import java.time.Instant;
 
 class EntityToDtoTimelineMapperTest {
     private EntityToDtoTimelineMapper mapper;
-
-    @BeforeEach
     
     @Test
     void entityToDtoSendAnalogDomicile() {
@@ -23,6 +21,7 @@ class EntityToDtoTimelineMapperTest {
                 .paId("PaId")
                 .iun("iun")
                 .category(TimelineElementCategoryEntity.SEND_ANALOG_DOMICILE)
+                .notificationSentAt(Instant.now())
                 .details(
                         TimelineElementDetailsEntity.builder()
                                 .recIndex(0)
@@ -35,18 +34,31 @@ class EntityToDtoTimelineMapperTest {
                                 )
                                 .serviceLevel(ServiceLevelEntity.REGISTERED_LETTER_890)
                                 .sentAttemptMade(0)
-                                .investigation(true)
+                                .relatedRequestId("abc")
+                                .productType("NR_AR")
+                                .analogCost(100)
                                 .build()  
                 )
                 .build();
 
-        TimelineElementInternal internal = mapper.entityToDto(entity);
-        SendAnalogDetailsInt details = (SendAnalogDetailsInt) internal.getDetails();
+        TimelineElementInternal actual = mapper.entityToDto(entity);
+
+        Assertions.assertEquals(entity.getIun(), actual.getIun());
+        Assertions.assertEquals(entity.getTimelineElementId(), actual.getElementId());
+        Assertions.assertEquals(entity.getNotificationSentAt(), actual.getNotificationSentAt());
+        Assertions.assertEquals(entity.getTimestamp(), actual.getTimestamp());
+        Assertions.assertEquals(entity.getPaId(), actual.getPaId());
+        Assertions.assertEquals(entity.getCategory().name(), actual.getCategory().name());
+
+        SendAnalogDetailsInt details = (SendAnalogDetailsInt) actual.getDetails();
         
         Assertions.assertEquals(entity.getDetails().getRecIndex(), details.getRecIndex());
         Assertions.assertEquals(entity.getDetails().getSentAttemptMade(), details.getSentAttemptMade());
-        Assertions.assertEquals(entity.getDetails().getInvestigation(), details.getInvestigation());
+        Assertions.assertEquals(entity.getDetails().getRelatedRequestId(), details.getRelatedRequestId());
         Assertions.assertEquals(entity.getDetails().getServiceLevel().getValue(), details.getServiceLevel().getValue());
+        Assertions.assertEquals(entity.getDetails().getAnalogCost(), details.getAnalogCost());
+        Assertions.assertEquals(entity.getDetails().getProductType(), details.getProductType());
+        Assertions.assertEquals(entity.getDetails().getAnalogCost(), details.getAnalogCost());
         Assertions.assertEquals(entity.getDetails().getPhysicalAddress().getAddress(), details.getPhysicalAddress().getAddress());
         Assertions.assertEquals(entity.getDetails().getPhysicalAddress().getForeignState(), details.getPhysicalAddress().getForeignState());
     }

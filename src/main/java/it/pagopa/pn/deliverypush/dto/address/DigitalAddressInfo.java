@@ -1,19 +1,16 @@
 package it.pagopa.pn.deliverypush.dto.address;
 
 import lombok.*;
-
-import java.time.Instant;
+import lombok.experimental.SuperBuilder;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
 @Getter
-@Builder(toBuilder = true)
+@SuperBuilder( toBuilder = true )
 @EqualsAndHashCode
 @ToString
 public class DigitalAddressInfo {
     private LegalDigitalAddressInt digitalAddress;
     private DigitalAddressSourceInt digitalAddressSource;
-    private int sentAttemptMade;
-    private Instant lastAttemptDate;
 }

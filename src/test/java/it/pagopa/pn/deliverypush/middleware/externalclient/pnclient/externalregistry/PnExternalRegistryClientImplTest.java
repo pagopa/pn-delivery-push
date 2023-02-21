@@ -56,9 +56,9 @@ class PnExternalRegistryClientImplTest {
 
         Mockito.when(sendIoMessageApi.sendIOMessageWithHttpInfo(request)).thenReturn(ResponseEntity.ok(response));
 
-        ResponseEntity<SendMessageResponse> resp = client.sendIOMessage(request);
+        SendMessageResponse resp = client.sendIOMessage(request);
 
-        Assertions.assertEquals("001", resp.getBody().getId());
+        Assertions.assertEquals("001", resp.getId());
     }
 
 }

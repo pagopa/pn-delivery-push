@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
-import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.TransactPutItemEnhancedRequest;
 
 @Component
 @Slf4j
@@ -23,7 +23,7 @@ public class ActionEntityDaoDynamo extends AbstractDynamoKeyValueStore<ActionEnt
         return cfg.getActionDao().getTableName();
     }
 
-    public PutItemEnhancedRequest<ActionEntity> preparePutIfAbsent(ActionEntity value){
+    public TransactPutItemEnhancedRequest<ActionEntity> preparePutIfAbsent(ActionEntity value){
         String expression = String.format(
                 "%s(%s)",
                 ATTRIBUTE_NOT_EXISTS,
@@ -34,7 +34,7 @@ public class ActionEntityDaoDynamo extends AbstractDynamoKeyValueStore<ActionEnt
                 .expression(expression)
                 .build();
 
-        return PutItemEnhancedRequest.builder( ActionEntity.class )
+        return TransactPutItemEnhancedRequest.builder( ActionEntity.class )
                 .item( value )
                 .conditionExpression( conditionExpressionPut )
                 .build();

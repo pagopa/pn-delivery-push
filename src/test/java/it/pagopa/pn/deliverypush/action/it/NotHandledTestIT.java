@@ -1,14 +1,36 @@
 package it.pagopa.pn.deliverypush.action.it;
 
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
-import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.action.*;
+import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
+import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowPaperChannelResponseHandler;
+import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
+import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
+import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
+import it.pagopa.pn.deliverypush.action.completionworkflow.*;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowExternalChannelResponseHandler;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowUtils;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
+import it.pagopa.pn.deliverypush.action.notificationview.NotificationCost;
+import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFactCreationResponseHandler;
+import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
+import it.pagopa.pn.deliverypush.action.notificationview.ViewNotification;
+import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
+import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
+import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationResponseHandler;
+import it.pagopa.pn.deliverypush.action.startworkflow.ScheduleRecipientWorkflow;
+import it.pagopa.pn.deliverypush.action.startworkflow.StartWorkflowHandler;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationScheduler;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.TaxIdPivaValidator;
+import it.pagopa.pn.deliverypush.action.startworkflowrecipient.AarCreationResponseHandler;
+import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -25,8 +47,12 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.NotHandledDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
-import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
-import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
+import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClientReactiveImpl;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
+import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
+import it.pagopa.pn.deliverypush.service.AuditLogService;
+import it.pagopa.pn.deliverypush.service.PaperChannelService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
@@ -40,6 +66,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -58,21 +85,25 @@ import static org.awaitility.Awaitility.with;
 @ContextConfiguration(classes = {
         StartWorkflowHandler.class,
         StartWorkflowForRecipientHandler.class,
-        PnAuditLogBuilder.class,
         AnalogWorkflowHandler.class,
         ChooseDeliveryModeHandler.class,
         DigitalWorkFlowHandler.class,
         DigitalWorkFlowExternalChannelResponseHandler.class,
+        PaperChannelServiceImpl.class,
+        PaperChannelUtils.class,
+        PaperChannelResponseHandler.class,
+        AnalogWorkflowPaperChannelResponseHandler.class,
+        AuditLogServiceImpl.class,
         CompletionWorkFlowHandler.class,
         PublicRegistryResponseHandler.class,
-        PublicRegistryServiceImpl.class,
+        NationalRegistriesServiceImpl.class,
         ExternalChannelServiceImpl.class,
         IoServiceImpl.class,
         NotificationCostServiceImpl.class,
         SafeStorageServiceImpl.class,
         ExternalChannelResponseHandler.class,
         RefinementHandler.class,
-        NotificationViewedHandler.class,
+        NotificationViewedRequestHandler.class,
         DigitalWorkFlowUtils.class,
         CourtesyMessageUtils.class,
         AarUtils.class,
@@ -91,21 +122,42 @@ import static org.awaitility.Awaitility.with;
         ConfidentialInformationServiceImpl.class,
         AttachmentUtils.class,
         NotificationUtils.class,
-        CompletionWorkflowUtils.class,
+        PecDeliveryWorkflowLegalFactsGenerator.class,
+        RefinementScheduler.class,
+        RegisteredLetterSender.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
         ExternalChannelMock.class,
         PaperNotificationFailedDaoMock.class,
         PnDataVaultClientMock.class,
-        PnDeliveryPushConfigs.class,
         MVPParameterConsumer.class,
-        DigitalTestIT.SpringTestConfiguration.class
+        NotificationCost.class,
+        ViewNotification.class,
+        PnDeliveryClientReactiveImpl.class,
+        PnDataVaultClientReactiveMock.class,
+        DocumentCreationRequestServiceImpl.class,
+        DocumentCreationRequestDaoMock.class,
+        SafeStorageResponseHandler.class,
+        DocumentCreationResponseHandler.class,
+        ReceivedLegalFactCreationResponseHandler.class,
+        ScheduleRecipientWorkflow.class,
+        AarCreationResponseHandler.class,
+        NotificationViewLegalFactCreationResponseHandler.class,
+        DigitalDeliveryCreationResponseHandler.class,
+        FailureWorkflowHandler.class,
+        SuccessWorkflowHandler.class,
+        NotificationValidationActionHandler.class,
+        TaxIdPivaValidator.class,
+        ReceivedLegalFactCreationRequest.class,
+        NotificationValidationScheduler.class,
+        NotHandledTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource( 
         locations ="classpath:/application-test.properties",
         properties = "pn.commons.features.is-mvp-default-value=true"
 )
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
+@DirtiesContext
 class NotHandledTestIT {
     
     @TestConfiguration
@@ -117,6 +169,9 @@ class NotHandledTestIT {
 
     @SpyBean
     private LegalFactGenerator legalFactGenerator;
+
+    @SpyBean
+    private PaperChannelMock paperChannelMock;
 
     @SpyBean
     private ExternalChannelMock externalChannelMock;
@@ -143,7 +198,7 @@ class NotHandledTestIT {
     private UserAttributesClientMock addressBookMock;
 
     @Autowired
-    private PublicRegistryMock publicRegistryMock;
+    private NationalRegistriesClientMock nationalRegistriesClientMock;
 
     @Autowired
     private TimelineDaoMock timelineDaoMock;
@@ -158,14 +213,32 @@ class NotHandledTestIT {
     private PnDataVaultClientMock pnDataVaultClientMock;
 
     @Autowired
-    private NotificationViewedHandler notificationViewedHandler;
+    private NotificationViewedRequestHandler notificationViewedRequestHandler;
 
     @Autowired
     private ChooseDeliveryModeHandler chooseDeliveryType;
 
     @Autowired
     private StatusUtils statusUtils;
-    
+
+    @Autowired
+    private PaperChannelResponseHandler paperChannelResponseHandler;
+
+    @Autowired
+    private AnalogWorkflowPaperChannelResponseHandler analogWorkflowPaperChannelResponseHandler;
+
+    @Autowired
+    private PaperChannelService paperChannelService;
+
+    @Autowired
+    private PaperChannelUtils paperChannelUtils;
+
+    @Autowired
+    private AuditLogService auditLogService;
+
+    @Autowired
+    private DocumentCreationRequestDaoMock documentCreationRequestDaoMock;
+
     @BeforeEach
     public void setup() {
         
@@ -174,11 +247,12 @@ class NotHandledTestIT {
         safeStorageClientMock.clear();
         pnDeliveryClientMock.clear();
         addressBookMock.clear();
-        publicRegistryMock.clear();
+        nationalRegistriesClientMock.clear();
         timelineDaoMock.clear();
         paperNotificationFailedDaoMock.clear();
         pnDeliveryClientMock.clear();
         pnDataVaultClientMock.clear();
+        documentCreationRequestDaoMock.clear();
     }
 
     @Test
@@ -224,7 +298,7 @@ class NotHandledTestIT {
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
         pnDeliveryClientMock.addNotification(notification);
-        publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
+        nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
         Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
@@ -240,11 +314,10 @@ class NotHandledTestIT {
         //Viene verificato il numero di send PEC verso external channel
         int sentPecAttemptNumber = 6;
         Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(
-                Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString());
+                Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
 
         //Viene verificato che la registered letter non sia stata inviata
-        Mockito.verify(externalChannelMock, Mockito.times(0)).sendAnalogNotification(Mockito.any(NotificationInt.class), 
-                Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+        Mockito.verify(paperChannelMock, Mockito.times(0)).send(Mockito.any(PaperChannelSendRequest.class));
         
         //Viene verificato che l'elemento di timeline relativo all'invio della registered letter non sia presente
         String eventIdRegisteredLetter = TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER.buildEventId(
@@ -284,6 +357,8 @@ class NotHandledTestIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     @Test
@@ -336,7 +411,7 @@ class NotHandledTestIT {
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
         pnDeliveryClientMock.addNotification(notification);
-        publicRegistryMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
+        nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
@@ -358,11 +433,10 @@ class NotHandledTestIT {
         //Viene verificato il numero di send PEC verso external channel
         int sentPecAttemptNumber = 6;
         Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(
-                Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString());
+                Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
 
         //Viene verificato che la registered letter non sia stata inviata
-        Mockito.verify(externalChannelMock, Mockito.times(0)).sendAnalogNotification(Mockito.any(NotificationInt.class),
-                Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+        Mockito.verify(paperChannelMock, Mockito.times(0)).send(Mockito.any(PaperChannelSendRequest.class));
 
         //Viene verificato che l'elemento di timeline relativo all'invio della registered letter non sia presente
         String eventIdRegisteredLetter = TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER.buildEventId(
@@ -403,6 +477,8 @@ class NotHandledTestIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     @Test
@@ -464,13 +540,13 @@ class NotHandledTestIT {
         //Viene verificato il numero di send PEC verso external channel
         int sentPecAttemptNumber = 0;
         Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(
-                Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString());
+                Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
 
         //Viene verificato che sia stato inviato un messaggio ad ogni indirizzo presente nei courtesyaddress
         TestUtils.checkSendCourtesyAddresses(iun, recIndex, listCourtesyAddress, timelineService, externalChannelMock);
         
         //Viene verificato che non ci sia stato nessun invio verso externalChannel
-        Mockito.verify(externalChannelMock, Mockito.times(0)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+        Mockito.verify(paperChannelMock, Mockito.times(0)).send(Mockito.any(PaperChannelSendRequest.class));
 
         checkNotSendAnalogNotification(iun, recIndex);
 
@@ -499,6 +575,8 @@ class NotHandledTestIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     @Test
@@ -576,10 +654,10 @@ class NotHandledTestIT {
         //Viene verificato il numero di send PEC verso external channel
         int sentPecAttemptNumber = 0;
         Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(
-                Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString());
+                Mockito.eq(notification), Mockito.eq(recipient), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
 
         //Viene verificato che non ci sia stato nessun invio verso externalChannel
-        Mockito.verify(externalChannelMock, Mockito.times(0)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+        Mockito.verify(paperChannelMock, Mockito.times(0)).send(Mockito.any(PaperChannelSendRequest.class));
 
         checkNotSendAnalogNotification(iun, recIndex);
 
@@ -608,6 +686,8 @@ class NotHandledTestIT {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
     
     private void isPresentNotHandled(String iun, Integer recIndex) {
@@ -666,5 +746,6 @@ class NotHandledTestIT {
         Optional<SendAnalogDetailsInt> sendPaperDetailsOpt = timelineService.getTimelineElementDetails(iun, eventIdSendAnalog, SendAnalogDetailsInt.class);
         Assertions.assertFalse(sendPaperDetailsOpt.isPresent());
     }
+
 
 }

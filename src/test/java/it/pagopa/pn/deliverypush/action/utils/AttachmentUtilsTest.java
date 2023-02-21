@@ -2,11 +2,10 @@ package it.pagopa.pn.deliverypush.action.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.commons.log.PnAuditLogBuilder;
-import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -14,13 +13,17 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPayme
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.UpdateFileMetadataResponseInt;
+import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.util.Base64Utils;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import static it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTFOUND;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
@@ -29,13 +32,11 @@ class AttachmentUtilsTest {
     private AttachmentUtils attachmentUtils;
 
     private SafeStorageService safeStorageService;
-    private PnAuditLogBuilder auditLogBuilder;
 
     @BeforeEach
     public void setup() {
-        auditLogBuilder = Mockito.mock(PnAuditLogBuilder.class);
         safeStorageService = Mockito.mock(SafeStorageService.class);
-        attachmentUtils = new AttachmentUtils(safeStorageService, auditLogBuilder);
+        attachmentUtils = new AttachmentUtils(safeStorageService);
     }
 
     @Test
@@ -43,14 +44,6 @@ class AttachmentUtilsTest {
         //GIVEN
         NotificationRecipientInt recipient = getNotificationRecipientInt();
         NotificationInt notification = getNotificationInt(recipient);
-
-        PnAuditLogEvent logEvent = Mockito.mock(PnAuditLogEvent.class);
-
-        Mockito.when(auditLogBuilder.build()).thenReturn(logEvent);
-        Mockito.when(auditLogBuilder.iun(Mockito.anyString())).thenReturn(auditLogBuilder);
-        Mockito.when(auditLogBuilder.before(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(auditLogBuilder);
-        Mockito.when(logEvent.generateSuccess()).thenReturn(logEvent);
-        Mockito.when(logEvent.generateFailure(Mockito.any(), Mockito.any())).thenReturn(logEvent);
 
         FileDownloadResponseInt resp1 = new FileDownloadResponseInt();
         resp1.setKey("abcd");
@@ -65,46 +58,49 @@ class AttachmentUtilsTest {
         resp3.setChecksum( "a2V5ZjI0ZmxhdHJhdGU=" );
 
         //Mockito.doNothing().when(validator).checkPreloadedDigests(Mockito.anyString(), Mockito.any( NotificationDocumentInt.Digests.class), Mockito.any( NotificationDocumentInt.Digests.class));
-        Mockito.when(safeStorageService.getFile( "c2hhMjU2X2RvYzAw", true)).thenReturn(resp1);
-        Mockito.when(safeStorageService.getFile( "c2hhMjU2X2RvYzAx", true)).thenReturn(resp2);
-        Mockito.when(safeStorageService.getFile( "keyf24flatrate", true)).thenReturn(resp3);
+        Mockito.when(safeStorageService.getFile( "c2hhMjU2X2RvYzAw", true)).thenReturn(Mono.just(resp1));
+        Mockito.when(safeStorageService.getFile( "c2hhMjU2X2RvYzAx", true)).thenReturn(Mono.just(resp2));
+        Mockito.when(safeStorageService.getFile( "keyf24flatrate", true)).thenReturn(Mono.just(resp3));
 
         //WHEN
         attachmentUtils.validateAttachment(notification);
 
         //THEN
         Mockito.verify(safeStorageService, Mockito.times(2)).getFile(Mockito.any(), Mockito.anyBoolean());
-        Mockito.verify(logEvent, Mockito.times(1)).generateSuccess();
-        Mockito.verify(logEvent, Mockito.times(0)).generateFailure(Mockito.any(), Mockito.any());
     }
 
     @Test
-    void validateAttachmentFail() {
+    void validateAttachmentFailDifferentKey() {
         //GIVEN
         NotificationRecipientInt recipient = getNotificationRecipientInt();
         NotificationInt notification = getNotificationInt(recipient);
 
-        PnAuditLogEvent logEvent = Mockito.mock(PnAuditLogEvent.class);
+        FileDownloadResponseInt resp = new FileDownloadResponseInt();
+        resp.setKey("abcd");
 
-        Mockito.when(auditLogBuilder.build()).thenReturn(logEvent);
-        Mockito.when(auditLogBuilder.iun(Mockito.anyString())).thenReturn(auditLogBuilder);
-        Mockito.when(auditLogBuilder.before(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(auditLogBuilder);
-        Mockito.when(logEvent.generateSuccess()).thenReturn(logEvent);
-        Mockito.when(logEvent.generateFailure(Mockito.any(), Mockito.any())).thenReturn(logEvent);
+        Mockito.when(safeStorageService.getFile(Mockito.any(), Mockito.anyBoolean())).thenReturn(Mono.just(resp));
+
+        //THEN
+        assertThrows(PnValidationException.class, () -> attachmentUtils.validateAttachment(notification));
+    }
+
+    @Test
+    void validateAttachmentFailErrorSafeStorage() {
+        //GIVEN
+        NotificationRecipientInt recipient = getNotificationRecipientInt();
+        NotificationInt notification = getNotificationInt(recipient);
 
         FileDownloadResponseInt resp = new FileDownloadResponseInt();
         resp.setKey("abcd");
 
-        Mockito.when(safeStorageService.getFile(Mockito.any(), Mockito.anyBoolean())).thenReturn(resp);
+        String message = String.format("Get file failed for - fileKey=%s isMetadataOnly=%b", resp.getKey(), false);
 
-        //WHEN
-        assertThrows(PnValidationException.class, () -> attachmentUtils.validateAttachment(notification));
+        Mockito.when(safeStorageService.getFile(Mockito.any(), Mockito.anyBoolean())).thenReturn(Mono.error(new PnNotFoundException("Not found", message, ERROR_CODE_DELIVERYPUSH_NOTFOUND)));
 
         //THEN
-        Mockito.verify(logEvent, Mockito.times(0)).generateSuccess();
-        Mockito.verify(logEvent, Mockito.times(1)).generateFailure(Mockito.any(), Mockito.any());
+        assertThrows(PnValidationException.class, () -> attachmentUtils.validateAttachment(notification));
     }
-
+    
     @Test
     void changeAttachmentsStatusToAttached() {
         //GIVEN
@@ -114,7 +110,7 @@ class AttachmentUtilsTest {
         UpdateFileMetadataResponseInt resp = new UpdateFileMetadataResponseInt();
         resp.setResultCode("200.00");
 
-        Mockito.when(safeStorageService.updateFileMetadata(Mockito.any(), Mockito.any())).thenReturn(resp);
+        Mockito.when(safeStorageService.updateFileMetadata(Mockito.any(), Mockito.any())).thenReturn(Mono.just(resp));
 
         //WHEN
         attachmentUtils.changeAttachmentsStatusToAttached(notification);
@@ -140,6 +136,40 @@ class AttachmentUtilsTest {
     }
 
     @Test
+    void changeAttachmentsRetention() {
+        //GIVEN
+        NotificationRecipientInt recipient = getNotificationRecipientInt();
+        NotificationInt notification = getNotificationInt(recipient);
+
+        UpdateFileMetadataResponseInt resp = new UpdateFileMetadataResponseInt();
+        resp.setResultCode("200.00");
+
+        Mockito.when(safeStorageService.updateFileMetadata(Mockito.any(), Mockito.any())).thenReturn(Mono.just(resp));
+
+        //WHEN
+        attachmentUtils.changeAttachmentsRetention(notification, 20).blockFirst();
+
+        //THEN
+        Mockito.verify(safeStorageService, Mockito.times(2)).updateFileMetadata(Mockito.any(), Mockito.any());
+    }
+    
+    @Test
+    void changeAttachmentsRetentionKO() {
+        //GIVEN
+        NotificationRecipientInt recipient = getNotificationRecipientInt();
+        NotificationInt notification = getNotificationInt(recipient);
+
+        Mockito.when(safeStorageService.updateFileMetadata(Mockito.any(), Mockito.any())).thenThrow(new PnInternalException("test", "test"));
+
+        Flux<Void> flux = attachmentUtils.changeAttachmentsRetention(notification, 20);
+        //WHEN
+        assertThrows(PnInternalException.class, flux::blockFirst);
+
+        //THEN
+        Mockito.verify(safeStorageService, Mockito.times(1)).updateFileMetadata(Mockito.any(), Mockito.any());
+    }
+
+    @Test
     void changeAttachmentsStatusToAttachedFail400() {
         //GIVEN
         NotificationRecipientInt recipient = getNotificationRecipientInt();
@@ -148,7 +178,7 @@ class AttachmentUtilsTest {
         UpdateFileMetadataResponseInt resp = new UpdateFileMetadataResponseInt();
         resp.setResultCode("400.00");
 
-        Mockito.when(safeStorageService.updateFileMetadata(Mockito.any(), Mockito.any())).thenReturn(resp);
+        Mockito.when(safeStorageService.updateFileMetadata(Mockito.any(), Mockito.any())).thenReturn(Mono.just(resp));
 
         //WHEN
         assertThrows(PnInternalException.class, () -> attachmentUtils.changeAttachmentsStatusToAttached(notification));

@@ -63,6 +63,14 @@ public class NotificationTestBuilder {
     }
     
     public NotificationInt build() {
+        if(iun == null){
+            iun = "generatedIun";
+        }
+        
+        if(paId == null){
+            paId = "generatedPaId";
+        }
+        
         if( notificationDocument.isEmpty() ){
             String fileDoc = "sha256_doc00";
 
@@ -88,7 +96,7 @@ public class NotificationTestBuilder {
                 .sentAt(Instant.now())
                 .amount(18)
                 .paymentExpirationDate(DateFormatUtils.parseDate("2002-08-12").toInstant())
-                .physicalCommunicationType(ServiceLevelTypeInt.SIMPLE_REGISTERED_LETTER)
+                .physicalCommunicationType(ServiceLevelTypeInt.AR_REGISTERED_LETTER)
                 .sender(NotificationSenderInt.builder()
                         .paId(paId)
                         .paDenomination("Denominazione pa con id " + paId)

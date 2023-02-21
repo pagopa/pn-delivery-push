@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -97,7 +98,7 @@ class AnalogWorkflowUtilsTest {
                         .elementId("1")
                         .timestamp(Instant.now())
                         .paId("1")
-                        .category(TimelineElementCategoryInt.SEND_PAPER_FEEDBACK)
+                        .category(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK)
                         .legalFactsIds(legalFactsIds)
                         .details(timelineElementDetailsInt.getDetails())
                         .build()
@@ -138,10 +139,11 @@ class AnalogWorkflowUtilsTest {
                                 .at("at")
                                 .build()
                 )
-                .investigation(true)
                 .recIndex(0)
                 .sentAttemptMade(0)
                 .build();
+
+        Mockito.when(timelineUtils.buildAnalogFailureAttemptTimelineElement(Mockito.any(), Mockito.anyInt(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mockito.mock(TimelineElementInternal.class));
 
 
         analogWorkflowUtils.addAnalogFailureAttemptToTimeline(notificationInt, 1, attachmentKeys, newAddress, errors, sendPaperDetails);

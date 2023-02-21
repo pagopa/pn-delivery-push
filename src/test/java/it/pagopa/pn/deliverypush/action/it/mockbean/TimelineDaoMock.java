@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.action.NotificationViewedHandler;
+import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -28,15 +28,15 @@ public class TimelineDaoMock implements TimelineDao {
     public static final String SIMULATE_RECIPIENT_WAIT = "simulate-recipient-wait";
     public static final String WAIT_SEPARATOR = "@@";
 
+    private final NotificationViewedRequestHandler notificationViewedRequestHandler;
     private CopyOnWriteArrayList<TimelineElementInternal> timelineList;
-    private final NotificationViewedHandler notificationViewedHandler;
     private final NotificationService notificationService;
     private final NotificationUtils notificationUtils;
 
-    public TimelineDaoMock(@Lazy NotificationViewedHandler notificationViewedHandler, @Lazy NotificationService notificationService,
+    public TimelineDaoMock(@Lazy NotificationViewedRequestHandler notificationViewedRequestHandler, @Lazy NotificationService notificationService,
                            @Lazy NotificationUtils notificationUtils) {
+        this.notificationViewedRequestHandler = notificationViewedRequestHandler;
         timelineList = new CopyOnWriteArrayList<>();
-        this.notificationViewedHandler = notificationViewedHandler;
         this.notificationService = notificationService;
         this.notificationUtils = notificationUtils;
     }
@@ -46,25 +46,25 @@ public class TimelineDaoMock implements TimelineDao {
     }
 
     private void checkAndAddTimelineElement(TimelineElementInternal dto) {
-        log.info("Start checkAndAddTimelineElement {}", dto);
+        log.debug("[TEST] Start checkAndAddTimelineElement {}", dto);
 
         if( dto.getDetails() != null && dto.getDetails() instanceof RecipientRelatedTimelineElementDetails){
 
-            log.info("Ok details is present {}", dto);
+            log.debug("[TEST] Ok details is present {}", dto);
 
             NotificationRecipientInt notificationRecipientInt = getRecipientInt(dto);
             String simulateViewNotificationString = SIMULATE_VIEW_NOTIFICATION + dto.getElementId();
             String simulateRecipientWaitString = SIMULATE_RECIPIENT_WAIT + dto.getElementId();
 
             if(notificationRecipientInt.getTaxId().startsWith(simulateViewNotificationString)){
-                log.info("Simulate view notification {}", dto);
+                log.debug("[TEST] Simulate view notification {}", dto);
                 //Viene simulata la visualizzazione della notifica prima di uno specifico inserimento in timeline
-                notificationViewedHandler.handleViewNotification( dto.getIun(), ((RecipientRelatedTimelineElementDetails) dto.getDetails()).getRecIndex(), Instant.now());
+                notificationViewedRequestHandler.handleViewNotificationDelivery( dto.getIun(), ((RecipientRelatedTimelineElementDetails) dto.getDetails()).getRecIndex(), null, Instant.now());
             }else if(notificationRecipientInt.getTaxId().startsWith(simulateRecipientWaitString)){
                 //Viene simulata l'attesa in un determinato stato (elemento di timeline) per uno specifico recipient. 
                 // L'attesa dura fino all'inserimento in timeline di un determinato elemento per un altro recipient
                 String waitForElementId = notificationRecipientInt.getTaxId().replaceFirst(".*" + WAIT_SEPARATOR, "");
-                log.info("Wait for elementId {}", waitForElementId);
+                log.debug("[TEST] Wait for elementId {}", waitForElementId);
 
                 await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
                         Assertions.assertTrue(getTimelineElement(dto.getIun(), waitForElementId).isPresent())
@@ -72,7 +72,7 @@ public class TimelineDaoMock implements TimelineDao {
             }
         }
 
-        log.info("Add timeline element {}", dto);
+        log.debug("[TEST] Add timeline element {}", dto);
 
         timelineList.add(dto);
     }

@@ -1,8 +1,10 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.*;
+import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationRecipient.RecipientTypeEnum;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -37,10 +39,12 @@ class RecipientMapperTest {
     }
 
     private NotificationRecipientInt buildNotificationRecipientInt() {
+        String denomination = "003";
         return NotificationRecipientInt.builder()
+                .recipientType(RecipientTypeInt.PF)
                 .taxId("001")
                 .internalId("002")
-                .denomination("003")
+                .denomination(denomination)
                 .digitalDomicile(
                         LegalDigitalAddressInt.builder()
                                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -48,6 +52,7 @@ class RecipientMapperTest {
                                 .build()
                 )
                 .physicalAddress(PhysicalAddressInt.builder()
+                        .fullname(denomination)
                         .at("003")
                         .address("001")
                         .addressDetails("002")
@@ -129,6 +134,7 @@ class RecipientMapperTest {
         paymentInfo.setF24standard(f24Standard);
         
         NotificationRecipient recipient = new NotificationRecipient();
+        recipient.setRecipientType(RecipientTypeEnum.PF);
         recipient.setTaxId("001");
         recipient.setInternalId("002");
         recipient.setDenomination("003");

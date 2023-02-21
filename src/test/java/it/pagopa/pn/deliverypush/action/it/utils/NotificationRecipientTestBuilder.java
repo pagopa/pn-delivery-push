@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.action.it.utils;
 
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 
@@ -12,6 +13,8 @@ public class NotificationRecipientTestBuilder {
     private String internalId;
     private LegalDigitalAddressInt digitalDomicile;
     private NotificationPaymentInfoInt payment;
+    private RecipientTypeInt recipientType;
+    private String denomination;
     
     public static NotificationRecipientTestBuilder builder() {
         return new NotificationRecipientTestBuilder();
@@ -43,11 +46,35 @@ public class NotificationRecipientTestBuilder {
         return this;
     }
     
+    public NotificationRecipientTestBuilder withRecipientType(RecipientTypeInt recipientType) {
+      this.recipientType = recipientType;
+      return this;
+    }
+
+    public NotificationRecipientTestBuilder withDenomination(String denomination) {
+        this.denomination = denomination;
+        return this;
+    }
+    
     public NotificationRecipientInt build() {
+        if(taxId == null){
+            taxId = "generatedTestTaxId";
+        }
+        
+        if(internalId == null){
+            internalId = "ANON_"+taxId;
+        }
+
+        String denomination = "Name_and_surname_of_" + taxId;
+        if(physicalAddress != null){
+            physicalAddress.setFullname(denomination);
+        }
+        
         return NotificationRecipientInt.builder()
+                .recipientType(RecipientTypeInt.PF)
                 .taxId(taxId)
                 .internalId(internalId)
-                .denomination("Name_and_surname_of_" + taxId)
+                .denomination(denomination)
                 .physicalAddress(physicalAddress)
                 .digitalDomicile(digitalDomicile)
                 .payment(payment)

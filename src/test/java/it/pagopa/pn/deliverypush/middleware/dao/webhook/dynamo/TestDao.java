@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo;
 
-import org.springframework.boot.test.context.SpringBootTest;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbAsyncTable;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
@@ -11,7 +10,6 @@ import software.amazon.awssdk.enhanced.dynamodb.model.GetItemEnhancedRequest;
 import java.util.concurrent.ExecutionException;
 
 
-@SpringBootTest
 class TestDao<T>  {
 
         DynamoDbAsyncTable<T> dbTable;
@@ -37,7 +35,6 @@ class TestDao<T>  {
         }
 
         public T get(String pk, String sk) throws ExecutionException, InterruptedException {
-            Thread.sleep(500);
             GetItemEnhancedRequest req = GetItemEnhancedRequest.builder()
                     .key(getKeyBuild(pk, sk))
                     .build();

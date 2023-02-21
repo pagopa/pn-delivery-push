@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo;
 
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
+import it.pagopa.pn.deliverypush.LocalStackTestConfig;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient;
@@ -22,19 +24,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = {
         TimelineDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
         PaperNotificationFailedDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
-        StreamEntityDaoDynamo.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
-        "aws.region-code=us-east-1",
-        "aws.profile-name=${PN_AWS_PROFILE_NAME:default}",
-        "aws.endpoint-url=http://localhost:4566",
+        StreamEntityDaoDynamo.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO
 })
 @SpringBootTest
+@Import(LocalStackTestConfig.class)
 class StreamEntityDaoDynamoTestIT {
 
 
@@ -53,7 +56,7 @@ class StreamEntityDaoDynamoTestIT {
 
     @BeforeEach
     void setup( @Value("${pn.delivery-push.webhook-dao.streams-table-name}") String table) {
-        testDao = new TestDao<StreamEntity>( dynamoDbEnhancedAsyncClient, table, StreamEntity.class);
+        testDao = new TestDao<>(dynamoDbEnhancedAsyncClient, table, StreamEntity.class);
 
     }
 
@@ -96,7 +99,9 @@ class StreamEntityDaoDynamoTestIT {
             Assertions.assertEquals(N, results.size());
             for(int i = 0;i<N;i++)
             {
-                Assertions.assertTrue(results.contains(addressesEntities.get(i)));
+
+                int finalI = i;
+                assertEquals(1, results.stream().filter(x -> x.getStreamId().equals(addressesEntities.get(finalI).getStreamId())).count());
             }
         } catch (Exception e) {
             throw new RuntimeException();
@@ -201,7 +206,15 @@ class StreamEntityDaoDynamoTestIT {
         try {
             StreamEntity elementFromDb = testDao.get(ae.getPaId(), ae.getStreamId());
 
-            Assertions.assertEquals( elementFromDb, res);
+            Assertions.assertEquals( elementFromDb.getPaId(), res.getPaId());
+            Assertions.assertEquals( elementFromDb.getStreamId(), res.getStreamId());
+            Assertions.assertEquals( elementFromDb.getFilterValues(), res.getFilterValues());
+            Assertions.assertEquals( elementFromDb.getEventType(), res.getEventType());
+            Assertions.assertEquals( elementFromDb.getTitle(), res.getTitle());
+            Assertions.assertEquals( elementFromDb.getActivationDate(), res.getActivationDate());
+            Assertions.assertEquals( 0, elementFromDb.getEventAtomicCounter());
+
+
         } catch (Exception e) {
             fail(e);
         } finally {
@@ -213,11 +226,63 @@ class StreamEntityDaoDynamoTestIT {
         }
     }
 
+
+    @Test
+    void updateAndGetAtomicCounterIfNotExists() {
+        //GIVEN
+        StreamEntity streamEntity = newStream(UUID.randomUUID().toString());
+        long previousvalue = streamEntity.getEventAtomicCounter();
+
+        Long res = daoDynamo.updateAndGetAtomicCounter(streamEntity).block(d);
+
+        assert res != null;
+        assertEquals(-1L, res.longValue());
+    }
+
+    @Test
+    void updateAndGetAtomicCounter() {
+        //GIVEN
+        StreamEntity streamEntity = newStream(UUID.randomUUID().toString());
+        long previousvalue = streamEntity.getEventAtomicCounter();
+        daoDynamo.save(streamEntity).block(d);
+
+        //WHEN
+        Long res = daoDynamo.updateAndGetAtomicCounter(streamEntity).block(d);
+
+        assert res != null;
+        assertEquals(previousvalue+1, res.longValue());
+    }
+
+    @Test
+    void updateAndGetAtomicCounterThousands() {
+        //GIVEN
+        StreamEntity streamEntity = newStream(UUID.randomUUID().toString());
+        long previousvalue = streamEntity.getEventAtomicCounter();
+        int elements = 100;
+
+        List<Integer> range = IntStream.rangeClosed(0, elements)
+                .boxed().collect(Collectors.toList());
+
+        int[] results = new int[elements+2];
+        results[0] = 0; // il primo lo salto
+        daoDynamo.save(streamEntity).block(d);
+
+        //WHEN
+        range.stream().parallel().map((v) -> {
+            Long res = daoDynamo.updateAndGetAtomicCounter(streamEntity).block(Duration.ofMillis(20000));
+            results[res.intValue()] = res.intValue();
+            return res;
+        }).collect(Collectors.toSet());
+
+        for(int i = 1;i< elements+2;i++)
+        {
+            assertEquals(i, results[i]);
+        }
+    }
+
     private StreamEntity newStream(String uuid){
-        StreamEntity entity = new StreamEntity();
-        entity.setStreamId(uuid);
+        StreamEntity entity = new StreamEntity("paid", uuid);
         entity.setTitle("title");
-        entity.setPaId("paid");
         entity.setEventType("STATUS");
         entity.setFilterValues(null);
         return entity;

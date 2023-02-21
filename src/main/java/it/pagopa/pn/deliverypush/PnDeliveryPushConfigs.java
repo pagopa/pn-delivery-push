@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush;
 
 import it.pagopa.pn.commons.conf.SharedAutoConfiguration;
-import it.pagopa.pn.commons.log.PnAuditLogBuilder;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -17,10 +17,12 @@ import static it.pagopa.pn.deliverypush.utils.HtmlSanitizer.SanitizeMode;
 @Configuration
 @ConfigurationProperties( prefix = "pn.delivery-push")
 @Data
-@Import({SharedAutoConfiguration.class, PnAuditLogBuilder.class})
+@Import({SharedAutoConfiguration.class})
 public class PnDeliveryPushConfigs {
 
     private String deliveryBaseUrl;
+
+    private String paperChannelBaseUrl;
 
     private String externalChannelBaseUrl;
 
@@ -37,6 +39,7 @@ public class PnDeliveryPushConfigs {
     private String safeStorageBaseUrl;
 
     private String safeStorageCxId;
+    
     private String safeStorageCxIdUpdatemetadata;
 
     private String userAttributesBaseUrl;
@@ -67,10 +70,20 @@ public class PnDeliveryPushConfigs {
     
     private LastPollForFutureActionDao lastPollForFutureActionDao;
 
+    private DocumentCreationRequestDao documentCreationRequestDao;
+
     private ExternalChannel externalChannel;
+
+    private PaperChannel paperChannel;
     
     private LegalFacts legalfacts;
 
+    private Integer retentionAttachmentDaysAfterRefinement;
+
+    private String nationalRegistriesBaseUrl;
+
+    private Duration[] validationRetryIntervals;
+    
     @Data
     public static class Topics {
 
@@ -88,6 +101,7 @@ public class PnDeliveryPushConfigs {
 
         private String fromExternalChannel;
 
+        private String safeStorageEvents;
     }
 
     @Data
@@ -102,10 +116,6 @@ public class PnDeliveryPushConfigs {
 
     @Data
     public static class ExternalChannel {
-        private List<String> analogCodesProgress;
-        private List<String> analogCodesSuccess;
-        private List<String> analogCodesFail;
-
 
         private List<String> digitalCodesProgress;
         private List<String> digitalCodesSuccess;
@@ -117,12 +127,46 @@ public class PnDeliveryPushConfigs {
         private int digitalRetryCount;
         private Duration digitalRetryDelay;
         private Duration digitalSendNoresponseTimeout;
+
+    }
+
+    @Data
+    public static class PaperChannel {
+        private List<String> analogCodesProgress;
+        private List<String> analogCodesSuccess;
+        private List<String> analogCodesFail;
+
+        private SenderAddress senderAddress;
+
+        public PhysicalAddressInt getSenderPhysicalAddress(){
+            return PhysicalAddressInt.builder()
+                    .fullname(senderAddress.getFullname())
+                    .address(senderAddress.getAddress())
+                    .zip(senderAddress.getZipcode())
+                    .province(senderAddress.getPr())
+                    .municipality(senderAddress.getCity())
+                    .foreignState(senderAddress.getCountry())
+                    .build();
+        }
+    }
+
+    @Data
+    public static class SenderAddress {
+        private String fullname;
+        private String address;
+        private String zipcode;
+        private String city;
+        private String pr;
+        private String country;
     }
 
    @Data
    public static class Webapp {
-        private String directAccessUrlTemplate;
-        private String faqUrlTemplate;
+        private String directAccessUrlTemplatePhysical;
+        private String directAccessUrlTemplateLegal;
+        private String faqUrlTemplateSuffix;
+        private String quickAccessUrlAarDetailSuffix;
+        private String landingUrl;
    }
 
     @Data
@@ -145,7 +189,6 @@ public class PnDeliveryPushConfigs {
         private String tableName;
     }
 
-
     @Data
     public static class WebhookDao {
         private String streamsTableName;
@@ -159,8 +202,14 @@ public class PnDeliveryPushConfigs {
     }
 
     @Data
+    public static class DocumentCreationRequestDao {
+        private String tableName;
+    }
+
+    @Data
     public static class LegalFacts {
         private SanitizeMode sanitizeMode;
     }
+
 
 }

@@ -18,7 +18,6 @@ import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.http.ResponseEntity;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -63,7 +62,7 @@ class StatusServiceImplTest {
                 .thenReturn(firstListReturn)
                 .thenReturn(secondListReturn);
 
-        Mockito.when(pnDeliveryClient.updateStatus(Mockito.any(RequestUpdateStatusDto.class))).thenReturn(ResponseEntity.ok().body(null));
+        //Mockito.when(pnDeliveryClient.updateStatus(Mockito.any(RequestUpdateStatusDto.class))).thenReturn(ResponseEntity.ok().body(null));
                 
         NotificationInt notification = getNotification(iun);
         
@@ -110,7 +109,7 @@ class StatusServiceImplTest {
                 .thenReturn(firstListReturn)
                 .thenReturn(secondListReturn);
 
-        Mockito.when(pnDeliveryClient.updateStatus(Mockito.any(RequestUpdateStatusDto.class))).thenReturn(ResponseEntity.ok().body(null));
+       // Mockito.when(pnDeliveryClient.updateStatus(Mockito.any(RequestUpdateStatusDto.class))).thenReturn(ResponseEntity.ok().body(null));
 
         NotificationInt notification = getNotification(iun);
 
@@ -144,7 +143,8 @@ class StatusServiceImplTest {
                                 .at("at")
                                 .build()
                 )
-                .investigation(true)
+                .relatedRequestId("abc")
+                 .analogCost(100)
                 .recIndex(0)
                 .sentAttemptMade(0)
                 .build();

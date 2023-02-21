@@ -49,15 +49,15 @@ class TimeLineServiceImplTest {
         statusService = Mockito.mock( StatusService.class );
         confidentialInformationService = Mockito.mock( ConfidentialInformationService.class );
         schedulerService = Mockito.mock(SchedulerService.class);
-        
+
         timeLineService = new TimeLineServiceImpl(timelineDao , statusUtils, statusService, confidentialInformationService, schedulerService);
     }
 
     @Test
     void addTimelineElement(){
         //GIVEN
-        String iun = "iun";
-        String elementId = "elementId";
+        String iun = "iun_12345";
+        String elementId = "elementId_12345";
 
         NotificationInt notification = getNotification(iun);
         StatusService.NotificationStatusUpdate notificationStatuses = new StatusService.NotificationStatusUpdate(NotificationStatusInt.ACCEPTED, NotificationStatusInt.ACCEPTED);
@@ -478,7 +478,8 @@ class TimeLineServiceImplTest {
                                 .at("at")
                                 .build()
                 )
-                .investigation(true)
+                .relatedRequestId("abc")
+                 .analogCost(100)
                 .recIndex(0)
                 .sentAttemptMade(0)
                 .build();

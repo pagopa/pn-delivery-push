@@ -9,7 +9,6 @@ import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class DtoToEntityTimelineMapper {
@@ -24,6 +23,7 @@ public class DtoToEntityTimelineMapper {
                 .details( dtoToDetailsEntity( dto.getDetails() ) )
                 .legalFactIds( convertLegalFactsToEntity( dto.getLegalFactsIds() ) )
                 .statusInfo(dtoToStatusInfoEntity(dto.getStatusInfo()))
+                .notificationSentAt(dto.getNotificationSentAt())
                 .build();
     }
 
@@ -31,7 +31,7 @@ public class DtoToEntityTimelineMapper {
         List<LegalFactsIdEntity> legalFactsIds = null;
 
         if (dto != null){
-            legalFactsIds = dto.stream().map( this::mapOneLegalFact ).collect(Collectors.toList());
+            legalFactsIds = dto.stream().map( this::mapOneLegalFact ).toList();
         }
 
         return legalFactsIds;

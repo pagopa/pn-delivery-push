@@ -17,6 +17,7 @@ import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,6 +63,16 @@ class HtmlSanitizerTest {
     }
 
     @Test
+    void sanitizeEmptyMapTest() {
+        Map<Integer, String> emptyMap = Map.of();
+        Object sanitized = htmlSanitizer.sanitize(emptyMap);
+
+        assertThat(sanitized)
+                .isInstanceOf(Map.class)
+                .isEqualTo(emptyMap);
+    }
+
+    @Test
     void sanitizeStringWithSpecialCharacterTest() {
         String aString = "via dell'Aquila";
         Object sanitized = htmlSanitizer.sanitize(aString);
@@ -102,6 +113,72 @@ class HtmlSanitizerTest {
                 .isEqualTo(list);
 
     }
+
+    @Test
+    void sanitizeTreeSetTest() {
+        TreeSet<String> list = new TreeSet<>(Set.of("Prova", "test", "l'aquila"));
+        Object sanitized = htmlSanitizer.sanitize(list);
+
+        assertThat(sanitized)
+                .isInstanceOf(TreeSet.class)
+                .isEqualTo(list);
+
+    }
+
+    @Test
+    void sanitizeLinkedSetTest() {
+        NotificationRecipientInt notificationRecipientIntOne = buildRecipient("provaLinked");
+        NotificationRecipientInt notificationRecipientIntTwo = buildRecipient("provaTwoLinked");
+        LinkedHashSet<NotificationRecipientInt> list = new LinkedHashSet<>(Set.of(notificationRecipientIntOne, notificationRecipientIntTwo));
+        Object sanitized = htmlSanitizer.sanitize(list);
+
+        assertThat(sanitized)
+                .isInstanceOf(LinkedHashSet.class)
+                .isEqualTo(list);
+
+    }
+
+    @Test
+    void sanitizeTreeMapTest() {
+        Map<Integer, Integer> map = Map.of(1, 1, 2, 2);
+        TreeMap<Integer, Integer> treeMapInput = new TreeMap<>(map);
+
+        Object sanitized = htmlSanitizer.sanitize(treeMapInput);
+
+        assertThat(sanitized)
+                .isInstanceOf(TreeMap.class)
+                .isEqualTo(treeMapInput);
+
+    }
+
+    @Test
+    void sanitizeConcurrentHashMapTest() {
+        Map<String, Integer> map = Map.of("key1", 1, "key2", 2);
+        ConcurrentHashMap<String, Integer> concHashMapInput = new ConcurrentHashMap<>(map);
+
+        Object sanitized = htmlSanitizer.sanitize(concHashMapInput);
+
+        assertThat(sanitized)
+                .isInstanceOf(ConcurrentHashMap.class)
+                .isEqualTo(concHashMapInput);
+
+    }
+
+    @Test
+    void sanitizeLinkedinHashMapTest() {
+        NotificationRecipientInt notificationRecipientIntOne = buildRecipient("prova");
+        NotificationRecipientInt notificationRecipientIntTwo = buildRecipient("provaTwo");
+        Map<String, NotificationRecipientInt> map = Map.of("key1", notificationRecipientIntOne, "key2", notificationRecipientIntTwo);
+        LinkedHashMap<String, NotificationRecipientInt> linkHashMapInput = new LinkedHashMap<>(map);
+
+        Object sanitized = htmlSanitizer.sanitize(linkHashMapInput);
+
+        assertThat(sanitized)
+                .isInstanceOf(LinkedHashMap.class)
+                .isEqualTo(linkHashMapInput);
+
+    }
+
 
     @Test
     void sanitizeStringWithoutHTMLElementTest() {
@@ -380,6 +457,7 @@ class HtmlSanitizerTest {
 
     private PhysicalAddressInt buildPhysicalAddressInt() {
         return new PhysicalAddressInt(
+                "Galileo Bruno",
                 "Palazzo dell'Inquisizione",
                 "corso Italia 666",
                 "Piano Terra (piatta)",

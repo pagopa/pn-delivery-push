@@ -2,6 +2,7 @@
   "Parameters" : {
     "AddressBookUrl": "https://zkkwwk0v41.execute-api.eu-central-1.amazonaws.com/mock/demo/addresses/",
     "PhysicalPersonPortalUrl": "https://portale-demo.fe.dev.pn.pagopa.it/",
+    "LegalPersonPortalUrl": "https://portale-demo.fe.dev.pn.pagopa.it/",
     "WaitingForReadCourtesyMessage": "5m",
     "SecondNotificationWorkflowWaitingTime": "4m",
     "SchedulingDaysSuccessDigitalRefinement": "9m",
@@ -17,6 +18,8 @@
     "ExternalChannelDigitalSendNoResponseTimeout": "26h",
     "NotificationNonVisibilityTime": "21:00",
     "TimeToAddInNonVisibilityTimeCase": "1d",
-    "IsMvpDefaultValue": "true"
+    "IsMvpDefaultValue": "true",
+    "RetentionAttachmentDaysAfterRefinement": "120",
+    "ValidationRetryIntervals": "10s, 1m, 1m, 5m, 1h, -1s"
   }
 }

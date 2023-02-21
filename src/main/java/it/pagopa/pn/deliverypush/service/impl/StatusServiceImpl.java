@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.RequestUpdateStatusDto;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusHistoryElementInt;
@@ -10,14 +9,12 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnD
 import it.pagopa.pn.deliverypush.service.StatusService;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_STATUSUPDATEFAILED;
 
 @Slf4j
 @Service
@@ -71,14 +68,9 @@ public class StatusServiceImpl implements StatusService {
     private void updateStatus(String iun, NotificationStatusInt nextState, Instant timeStamp) {
         RequestUpdateStatusDto dto = getRequestUpdateStatusDto(iun, nextState, timeStamp);
 
-        ResponseEntity<Void> resp = pnDeliveryClient.updateStatus(dto);
-
-        if (resp.getStatusCode().is2xxSuccessful()) {
-            log.info("Status changed to {} for iun {}", dto.getNextStatus(), dto.getIun());
-        } else {
-            log.error("Status not updated correctly - iun {}", dto.getIun());
-            throw new PnInternalException("Status not updated correctly - iun " + dto.getIun(), ERROR_CODE_DELIVERYPUSH_STATUSUPDATEFAILED);
-        }
+        pnDeliveryClient.updateStatus(dto);
+        log.info("Status changed to {} for iun {}", dto.getNextStatus(), dto.getIun());
+        
     }
 
     private RequestUpdateStatusDto getRequestUpdateStatusDto(String iun, NotificationStatusInt nextState, Instant timeStamp) {
@@ -91,7 +83,6 @@ public class StatusServiceImpl implements StatusService {
     private NotificationStatusHistoryElementInt computeLastStatusHistoryElement(NotificationInt notification, Set<TimelineElementInternal> currentTimeline) {
         int numberOfRecipient = notification.getRecipients().size();
         Instant notificationCreatedAt = notification.getSentAt();
-
         List<NotificationStatusHistoryElementInt> historyElementList = statusUtils.getStatusHistory(
                 currentTimeline,
                 numberOfRecipient,

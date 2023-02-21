@@ -9,6 +9,7 @@ import java.util.List;
 @Setter
 @Builder(toBuilder = true)
 @EqualsAndHashCode
+@ToString
 public class UpdateFileMetadataResponseInt {
     private String resultCode;
 

@@ -1,9 +1,9 @@
 package it.pagopa.pn.deliverypush.action;
 
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
-import it.pagopa.pn.deliverypush.action.utils.ChooseDeliveryModeUtils;
-import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
+import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
+import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -13,9 +13,9 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSende
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
-import it.pagopa.pn.deliverypush.service.ExternalChannelService;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.service.PublicRegistryService;
+import it.pagopa.pn.deliverypush.service.NationalRegistriesService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,11 +42,9 @@ class ChooseDeliveryModeHandlerTest {
     @Mock
     private SchedulerService schedulerService;
     @Mock
-    private PublicRegistryService publicRegistryService;
+    private NationalRegistriesService nationalRegistriesService;
     @Mock
     private ChooseDeliveryModeUtils chooseDeliveryUtils;
-    @Mock
-    private InstantNowSupplier instantNowSupplier;
     @Mock
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
     @Mock
@@ -60,7 +58,7 @@ class ChooseDeliveryModeHandlerTest {
     public void setup() {
         handler = new ChooseDeliveryModeHandler(chooseDeliveryUtils,
                 digitalWorkFlowHandler, schedulerService,
-                publicRegistryService, instantNowSupplier, pnDeliveryPushConfigs, notificationService);
+                nationalRegistriesService, pnDeliveryPushConfigs, notificationService);
         notificationUtils= new NotificationUtils();
     }
 
@@ -177,7 +175,7 @@ class ChooseDeliveryModeHandlerTest {
         Assertions.assertEquals(DigitalAddressSourceInt.SPECIAL, listDigitalAddressSourceCaptorValues.get(1));
         Assertions.assertFalse(listIsAvailableCaptorValues.get(1));
 
-        Mockito.verify(publicRegistryService).sendRequestForGetDigitalGeneralAddress(Mockito.any(NotificationInt.class), Mockito.anyInt(),
+        Mockito.verify(nationalRegistriesService).sendRequestForGetDigitalGeneralAddress(Mockito.any(NotificationInt.class), Mockito.anyInt(),
                 Mockito.any(ContactPhaseInt.class), Mockito.anyInt());
     }
 
@@ -262,9 +260,7 @@ class ChooseDeliveryModeHandlerTest {
         NotificationInt notification = getNotification();
         NotificationRecipientInt recipient =notification.getRecipients().get(0);
         Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
-
-        Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
-
+        
         PublicRegistryResponse response = PublicRegistryResponse.builder()
                 .digitalAddress(null).build();
         

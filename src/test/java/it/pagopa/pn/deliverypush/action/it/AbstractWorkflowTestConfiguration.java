@@ -9,9 +9,16 @@ import freemarker.template.Configuration;
 import freemarker.template.Version;
 import freemarker.template._TemplateAPI;
 import it.pagopa.pn.commons.abstractions.ParameterConsumer;
+import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.action.*;
+import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
+import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowRetryHandler;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
+import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
+import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.legalfacts.CustomInstantWriter;
 import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
@@ -22,8 +29,12 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregi
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClientImpl;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.userattributes.UserAttributesClient;
+import it.pagopa.pn.deliverypush.middleware.responsehandler.DocumentCreationResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
+import it.pagopa.pn.deliverypush.middleware.responsehandler.SafeStorageResponseHandler;
+import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.SaveLegalFactsServiceImpl;
 import it.pagopa.pn.deliverypush.utils.HtmlSanitizer;
 import org.mockito.Mockito;
@@ -45,8 +56,9 @@ public class AbstractWorkflowTestConfiguration {
     }
     
     @Bean
-    public PnSafeStorageClient safeStorageTest() {
-        return new SafeStorageClientMock();
+    public PnSafeStorageClient safeStorageTest(DocumentCreationRequestService creationRequestService,
+                                               SafeStorageResponseHandler safeStorageResponseHandler) {
+        return new SafeStorageClientMock(creationRequestService, safeStorageResponseHandler);
     }
 
     @Bean
@@ -72,11 +84,16 @@ public class AbstractWorkflowTestConfiguration {
     }
     
     @Bean
-    public LegalFactGenerator legalFactPdfGeneratorTest( DocumentComposition dc ) {
+    public LegalFactGenerator legalFactPdfGeneratorTest(DocumentComposition dc , @Lazy MVPParameterConsumer mvpParameterConsumer, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         CustomInstantWriter instantWriter = new CustomInstantWriter();
         PhysicalAddressWriter physicalAddressWriter = new PhysicalAddressWriter();
-
-        return new LegalFactGenerator( dc, instantWriter, physicalAddressWriter,  Mockito.mock(PnDeliveryPushConfigs.class), new InstantNowSupplier());
+//        PnDeliveryPushConfigs pnDeliveryPushConfigs =  Mockito.mock(PnDeliveryPushConfigs.class);
+//        Mockito.when(pnDeliveryPushConfigs.getWebapp()).thenReturn(new PnDeliveryPushConfigs.Webapp());
+//        pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailSuffix("aar=%s");
+//        pnDeliveryPushConfigs.getWebapp().setFaqUrlTemplateSuffix("faq.html");
+//        pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplatePhysical("https://notifichedigitali.it");
+//        pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplateLegal("https://notifichedigitali.legal.it");
+        return new LegalFactGenerator( dc, instantWriter, physicalAddressWriter,  pnDeliveryPushConfigs, new InstantNowSupplier(), mvpParameterConsumer);
     }
     
     @Bean
@@ -86,9 +103,11 @@ public class AbstractWorkflowTestConfiguration {
     }
 
     @Bean
-    public PublicRegistryMock publicRegistriesMapMock(@Lazy PublicRegistryResponseHandler publicRegistryResponseHandler) {
-        return new PublicRegistryMock(
-                publicRegistryResponseHandler
+    public NationalRegistriesClientMock publicRegistriesMapMock(@Lazy PublicRegistryResponseHandler publicRegistryResponseHandler,
+                                                                @Lazy TimelineService timelineService) {
+        return new NationalRegistriesClientMock(
+                publicRegistryResponseHandler,
+                timelineService
             );
     }
     
@@ -99,7 +118,9 @@ public class AbstractWorkflowTestConfiguration {
                                                          @Lazy RefinementHandler refinementHandler, 
                                                          @Lazy InstantNowSupplier instantNowSupplier,
                                                          @Lazy StartWorkflowForRecipientHandler startWorkflowForRecipientHandler,
-                                                         @Lazy ChooseDeliveryModeHandler chooseDeliveryModeHandler) {
+                                                         @Lazy ChooseDeliveryModeHandler chooseDeliveryModeHandler,
+                                                         @Lazy DocumentCreationResponseHandler documentCreationResponseHandler,
+                                                         @Lazy NotificationValidationActionHandler notificationValidationActionHandler) {
         return new SchedulerServiceMock(
                 digitalWorkFlowHandler,
                 digitalWorkFlowRetryHandler,
@@ -107,7 +128,9 @@ public class AbstractWorkflowTestConfiguration {
                 refinementHandler,
                 instantNowSupplier,
                 startWorkflowForRecipientHandler, 
-                chooseDeliveryModeHandler);
+                chooseDeliveryModeHandler, 
+                documentCreationResponseHandler,
+                notificationValidationActionHandler);
     }
 
     

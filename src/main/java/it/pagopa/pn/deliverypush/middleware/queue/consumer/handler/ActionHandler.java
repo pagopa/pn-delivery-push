@@ -1,10 +1,21 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
+import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
+import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
+import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
+import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
+import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowRetryHandler;
+import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
+import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
+import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookAction;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.impl.WebhookActionsEventHandler;
-import it.pagopa.pn.deliverypush.action.*;
-import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
+import it.pagopa.pn.deliverypush.middleware.responsehandler.DocumentCreationResponseHandler;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +24,7 @@ import org.springframework.messaging.Message;
 import java.util.function.Consumer;
 
 @Configuration
+@AllArgsConstructor
 @Slf4j
 public class ActionHandler {
     private final DigitalWorkFlowHandler digitalWorkFlowHandler;
@@ -22,29 +34,16 @@ public class ActionHandler {
     private final WebhookActionsEventHandler webhookActionsEventHandler;
     private final StartWorkflowForRecipientHandler startWorkflowForRecipientHandler;
     private final ChooseDeliveryModeHandler chooseDeliveryModeHandler;
+    private final DocumentCreationResponseHandler documentCreationResponseHandler;
+    private final NotificationValidationActionHandler notificationValidationActionHandler;
     
-    public ActionHandler(DigitalWorkFlowHandler digitalWorkFlowHandler,
-                         DigitalWorkFlowRetryHandler digitalWorkFlowRetryHandler, AnalogWorkflowHandler analogWorkflowHandler,
-                         RefinementHandler refinementHandler,
-                         WebhookActionsEventHandler webhookActionsEventHandler,
-                         StartWorkflowForRecipientHandler startWorkflowForRecipientHandler,
-                         ChooseDeliveryModeHandler chooseDeliveryModeHandler) {
-        this.digitalWorkFlowHandler = digitalWorkFlowHandler;
-        this.digitalWorkFlowRetryHandler = digitalWorkFlowRetryHandler;
-        this.analogWorkflowHandler = analogWorkflowHandler;
-        this.refinementHandler = refinementHandler;
-        this.webhookActionsEventHandler = webhookActionsEventHandler;
-        this.startWorkflowForRecipientHandler = startWorkflowForRecipientHandler;
-        this.chooseDeliveryModeHandler = chooseDeliveryModeHandler;
-    }
-
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushStartRecipientWorkflow() {
         return message -> {
             try {
                 log.debug("pnDeliveryPushStartRecipientWorkflow, message {}", message);
                 Action action = message.getPayload();
-                startWorkflowForRecipientHandler.startNotificationWorkflowForRecipient(action.getIun(), action.getRecipientIndex());
+                startWorkflowForRecipientHandler.startNotificationWorkflowForRecipient(action.getIun(), action.getRecipientIndex(), (RecipientsWorkflowDetails) action.getDetails());
             } catch (Exception ex) {
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
@@ -100,7 +99,7 @@ public class ActionHandler {
             try {
                 log.debug("pnDeliveryPushDigitalNextActionConsumer, message {}", message);
                 Action action = message.getPayload();
-                digitalWorkFlowHandler.startScheduledNextWorkflow(action.getIun(), action.getRecipientIndex());
+                digitalWorkFlowHandler.startScheduledNextWorkflow(action.getIun(), action.getRecipientIndex(), action.getTimelineId());
             } catch (Exception ex) {
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
@@ -136,9 +135,7 @@ public class ActionHandler {
             }
         };
     }
-
-
-
+    
     @Bean
     public Consumer<Message<WebhookAction>> pnDeliveryPushWebhookActionConsumer() {
         return message -> {
@@ -146,6 +143,36 @@ public class ActionHandler {
                 log.debug("pnDeliveryPushWebhookActionConsumer, message={}", message);
                 WebhookAction action = message.getPayload();
                 webhookActionsEventHandler.handleEvent(action);
+            } catch (Exception ex) {
+                HandleEventUtils.handleException(message.getHeaders(), ex);
+                throw ex;
+            }
+        };
+    }
+
+    @Bean
+    public Consumer<Message<Action>> pnDeliveryPushDocumentCreationResponseConsumer() {
+        return message -> {
+            try {
+                log.debug("pnDeliveryPushDocumentCreationResponseConsumer, message {}", message);
+                Action action = message.getPayload();
+                DocumentCreationResponseActionDetails details = (DocumentCreationResponseActionDetails) action.getDetails();
+                documentCreationResponseHandler.handleResponseReceived(action.getIun(), action.getRecipientIndex(), details );
+            } catch (Exception ex) {
+                HandleEventUtils.handleException(message.getHeaders(), ex);
+                throw ex;
+            }
+        };
+    }
+
+    @Bean
+    public Consumer<Message<Action>> pnDeliveryPushNotificationValidation() {
+        return message -> {
+            try {
+                log.debug("pnDeliveryPushNotificationValidation, message {}", message);
+                Action action = message.getPayload();
+                NotificationValidationActionDetails details = (NotificationValidationActionDetails) action.getDetails();
+                notificationValidationActionHandler.validateNotification(action.getIun(), details );
             } catch (Exception ex) {
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
