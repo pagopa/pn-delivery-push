@@ -15,12 +15,14 @@ public class SendAnalogProgressDetailsInt implements RecipientRelatedTimelineEle
     private int recIndex;
     private Instant notificationDate;
     private String eventCode;
+    private String eventDetail;
 
     public String toLog() {
         return String.format(
-                "recIndex=%d eventCode=%s",
+                "recIndex=%d eventCode=%s eventDetail=%s",
                 recIndex,
-                eventCode
+                eventCode,
+                eventDetail
         );
     }
 }

@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.action.analogworkflow;
 
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.SendEvent;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.utils.PaperChannelUtils;
@@ -39,8 +40,7 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
     private CompletionWorkFlowHandler completionWorkFlow;
     @Mock
     private AnalogWorkflowUtils analogWorkflowUtils;
-    @Mock
-    private PnDeliveryPushConfigs pnDeliveryPushConfigs;
+
     @Mock
     private AnalogWorkflowHandler analogWorkflowHandler;
     @Mock
@@ -54,7 +54,6 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
                 paperChannelService,
                 completionWorkFlow,
                 analogWorkflowUtils,
-                pnDeliveryPushConfigs,
                 analogWorkflowHandler,
                 paperChannelUtils, auditLogService);
     }
@@ -65,7 +64,8 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
         // GIVEN
         PrepareEventInt prepareEventInt = PrepareEventInt.builder()
                 .iun("IUN-01")
-                .statusCode("OK")
+                .statusCode(SendEvent.StatusCodeEnum.OK.getValue())
+                .statusDateTime(Instant.now())
                 .receiverAddress(PhysicalAddressInt.builder().address("via casa").build())
                 .requestId("IUN-01_abcd")
                 .build();
@@ -100,7 +100,8 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
         SendEventInt sendEventInt = SendEventInt.builder()
                 .iun("IUN_01")
                 .statusDetail("001")
-                .statusCode("001")
+                .statusCode(SendEvent.StatusCodeEnum.PROGRESS.getValue())
+                .statusDateTime(Instant.now())
                 .discoveredAddress(PhysicalAddressInt.builder().address("via casa").build())
                 .requestId("IUN-01_abcd")
                 .build();
@@ -111,12 +112,6 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
                 .build();
 
 
-        PnDeliveryPushConfigs.PaperChannel externalChannel = new PnDeliveryPushConfigs.PaperChannel();
-        externalChannel.setAnalogCodesSuccess(List.of("004"));
-        externalChannel.setAnalogCodesFail(List.of("005"));
-        externalChannel.setAnalogCodesProgress(List.of("001"));
-
-        Mockito.when(pnDeliveryPushConfigs.getPaperChannel()).thenReturn(externalChannel);
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notificationInt);
         Mockito.when(paperChannelUtils.getPaperChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString())).thenReturn(timelineElementInternal);
 
@@ -132,7 +127,8 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
         SendEventInt sendEventInt = SendEventInt.builder()
                 .iun("IUN_01")
                 .statusDetail("004")
-                .statusCode("004")
+                .statusCode(SendEvent.StatusCodeEnum.OK.getValue())
+                .statusDateTime(Instant.now())
                 .discoveredAddress(PhysicalAddressInt.builder().address("via casa").build())
                 .requestId("IUN-01_abcd")
                 .build();
@@ -144,11 +140,6 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
 
 
         PnDeliveryPushConfigs.PaperChannel externalChannel = new PnDeliveryPushConfigs.PaperChannel();
-        externalChannel.setAnalogCodesSuccess(List.of("004"));
-        externalChannel.setAnalogCodesFail(List.of("005"));
-        externalChannel.setAnalogCodesProgress(List.of("001"));
-
-        Mockito.when(pnDeliveryPushConfigs.getPaperChannel()).thenReturn(externalChannel);
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notificationInt);
         Mockito.when(paperChannelUtils.getPaperChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString())).thenReturn(timelineElementInternal);
 
@@ -173,7 +164,8 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
         SendEventInt sendEventInt = SendEventInt.builder()
                 .iun("IUN_01")
                 .statusDetail("005")
-                .statusCode("005")
+                .statusCode(SendEvent.StatusCodeEnum.KO.getValue())
+                .statusDateTime(Instant.now())
                 .discoveredAddress(PhysicalAddressInt.builder().address("via casa").build())
                 .requestId("IUN-01_abcd")
                 .build();
@@ -185,11 +177,6 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
 
 
         PnDeliveryPushConfigs.PaperChannel externalChannel = new PnDeliveryPushConfigs.PaperChannel();
-        externalChannel.setAnalogCodesSuccess(List.of("004"));
-        externalChannel.setAnalogCodesFail(List.of("005"));
-        externalChannel.setAnalogCodesProgress(List.of("001"));
-
-        Mockito.when(pnDeliveryPushConfigs.getPaperChannel()).thenReturn(externalChannel);
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notificationInt);
         Mockito.when(paperChannelUtils.getPaperChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString())).thenReturn(timelineElementInternal);
 
@@ -214,7 +201,8 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
         SendEventInt sendEventInt = SendEventInt.builder()
                 .iun("IUN_01")
                 .statusDetail("001")
-                .statusCode("001")
+                .statusCode(SendEvent.StatusCodeEnum.PROGRESS.getValue())
+                .statusDateTime(Instant.now())
                 .discoveredAddress(PhysicalAddressInt.builder().address("via casa").build())
                 .requestId("IUN-01_abcd")
                 .attachments(List.of(AttachmentDetailsInt.builder().documentType("A").date(Instant.EPOCH).id("abc").url("http").build()))
@@ -227,11 +215,6 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
 
 
         PnDeliveryPushConfigs.PaperChannel externalChannel = new PnDeliveryPushConfigs.PaperChannel();
-        externalChannel.setAnalogCodesSuccess(List.of("004"));
-        externalChannel.setAnalogCodesFail(List.of("005"));
-        externalChannel.setAnalogCodesProgress(List.of("001"));
-
-        Mockito.when(pnDeliveryPushConfigs.getPaperChannel()).thenReturn(externalChannel);
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notificationInt);
         Mockito.when(paperChannelUtils.getPaperChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString())).thenReturn(timelineElementInternal);
 
