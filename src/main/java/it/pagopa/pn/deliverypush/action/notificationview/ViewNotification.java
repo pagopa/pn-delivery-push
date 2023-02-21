@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.notificationview;
 
+import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
@@ -10,6 +11,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -31,6 +33,7 @@ public class ViewNotification {
     private final TimelineService timelineService;
     private final AttachmentUtils attachmentUtils;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
+    private final ConfidentialInformationService confidentialInformationService;
 
     public Mono<Void> startVewNotificationProcess(NotificationInt notification,
                                             NotificationRecipientInt recipient,
@@ -41,16 +44,28 @@ public class ViewNotification {
         log.info("Start view notification process - iun={} id={}", notification.getIun(), recIndex);
         return attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement()).collectList()
             .then(
-                legalFactStore.sendCreationRequestForNotificationViewedLegalFact(notification, recipient, delegateInfo, instantNowSupplier.get())
-                        .doOnSuccess( legalFactId -> log.info("Completed sendCreationRequestForNotificationViewedLegalFact legalFactId={} - iun={} id={}", legalFactId, notification.getIun(), recIndex))
-                        .flatMap(legalFactId ->
-                                Mono.fromRunnable( () -> {
-                                    TimelineElementInternal timelineElementInternal = timelineUtils.buildNotificationViewedLegalFactCreationRequestTimelineElement(notification, recIndex, legalFactId, raddInfo, delegateInfo, eventTimestamp);
-                                    addTimelineElement( timelineElementInternal , notification);
-        
-                                    //Vengono inserite le informazioni della richiesta di creazione del legalFacts a safeStorage
-                                    documentCreationRequestService.addDocumentCreationRequest(legalFactId, notification.getIun(), recIndex, DocumentCreationTypeInt.RECIPIENT_ACCESS, timelineElementInternal.getElementId());
-                                })
+                confidentialInformationService.getRecipientInformationByInternalId(delegateInfo.getInternalId())
+                        .doOnSuccess( baseRecipientDto -> log.info("Completed getBaseRecipientDtoIntMono - iun={} id={} taxId={}" , notification.getIun(), recIndex, LogUtils.maskTaxId(baseRecipientDto.getTaxId())))
+                        .map(baseRecipientDto ->
+                                delegateInfo.toBuilder()
+                                        .denomination(baseRecipientDto.getDenomination())
+                                        .taxId(baseRecipientDto.getTaxId())
+                                        .build()
+                        )
+                        .flatMap(delegateInfoEnriched ->
+                            Mono.fromRunnable( () ->
+                                legalFactStore.sendCreationRequestForNotificationViewedLegalFact(notification, recipient, delegateInfoEnriched, instantNowSupplier.get())
+                                        .doOnSuccess( legalFactId -> log.info("Completed sendCreationRequestForNotificationViewedLegalFact legalFactId={} - iun={} id={}", legalFactId, notification.getIun(), recIndex))
+                                        .flatMap(legalFactId ->
+                                                Mono.fromRunnable( () -> {
+                                                    TimelineElementInternal timelineElementInternal = timelineUtils.buildNotificationViewedLegalFactCreationRequestTimelineElement(notification, recIndex, legalFactId, raddInfo, delegateInfoEnriched, eventTimestamp);
+                                                    addTimelineElement( timelineElementInternal , notification);
+
+                                                    //Vengono inserite le informazioni della richiesta di creazione del legalFacts a safeStorage
+                                                    documentCreationRequestService.addDocumentCreationRequest(legalFactId, notification.getIun(), recIndex, DocumentCreationTypeInt.RECIPIENT_ACCESS, timelineElementInternal.getElementId());
+                                                })
+                                        )
+                            )
                         )
             );
     }
