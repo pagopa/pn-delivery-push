@@ -56,7 +56,6 @@ public class NotificationValidationActionHandler {
             logEvent.generateFailure("Validation need to be rescheduled - iun={} ex={}", notification.getIun(), ex);
             handlePnValidationFileNotFoundException(iun, details, notification, ex);
         } catch (PnValidationException ex){
-            logEvent.generateFailure("Notification validation failure - ex={}", ex);
             handleValidationError(notification, ex);
         } catch (RuntimeException ex){
             logEvent.generateFailure("Validation need to be rescheduled - iun={} ex={}", notification.getIun(), ex);
