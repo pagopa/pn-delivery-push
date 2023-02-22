@@ -1,31 +1,28 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.api.PaperMessagesApi;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(SpringExtension.class)
-@ActiveProfiles("test")
+@ExtendWith(MockitoExtension.class)
 class ExternalChannelSendClientImplTestIT {
 
     @Mock
@@ -33,9 +30,6 @@ class ExternalChannelSendClientImplTestIT {
 
     @Mock
     private PnDeliveryPushConfigs cfg;
-
-    @Mock
-    private PaperMessagesApi paperMessagesApi;
 
     @Mock
     private LegalFactGenerator legalFactGenerator;
@@ -47,7 +41,7 @@ class ExternalChannelSendClientImplTestIT {
         this.cfg = mock(PnDeliveryPushConfigs.class);
         Mockito.when(cfg.getExternalChannelBaseUrl()).thenReturn("http://localhost:8080");
         Mockito.when(cfg.getExternalchannelCxId()).thenReturn("pn-delivery-002");
-
+        Mockito.when((restTemplate.getUriTemplateHandler())).thenReturn(new DefaultUriBuilderFactory());
         this.externalChannelSendClient = new ExternalChannelSendClientImpl(restTemplate, cfg, legalFactGenerator);
         this.externalChannelSendClient.init();
     }
@@ -66,7 +60,6 @@ class ExternalChannelSendClientImplTestIT {
 
         Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(ResponseEntity.ok(""));
-        when(notificationInt.getSender()).thenReturn(new NotificationSenderInt());
         when(addressInt.getType()).thenReturn(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC);
         when(addressInt.getAddress()).thenReturn("email@email.it");
 
@@ -87,7 +80,6 @@ class ExternalChannelSendClientImplTestIT {
         
         Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(ResponseEntity.ok(""));
-        when(notificationInt.getSender()).thenReturn(new NotificationSenderInt());
         when(addressInt.getType()).thenReturn(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL);
         when(addressInt.getAddress()).thenReturn("email@email.it");
 
@@ -108,7 +100,6 @@ class ExternalChannelSendClientImplTestIT {
         
         Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(ResponseEntity.ok(""));
-        when(notificationInt.getSender()).thenReturn(new NotificationSenderInt());
         when(addressInt.getType()).thenReturn(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.SMS);
 
         //When

@@ -22,6 +22,7 @@ import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Base64Utils;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -61,6 +62,7 @@ class ExternalChannelSendClientImplTest {
         Mockito.when(cfg.getExternalchannelCxId()).thenReturn("pn-delivery-002");
 
         restTemplate = Mockito.mock(RestTemplate.class);
+        Mockito.when((restTemplate.getUriTemplateHandler())).thenReturn(new DefaultUriBuilderFactory());
         ApiClient apiClient = new ApiClient(restTemplate);
         apiClient.setBasePath(cfg.getExternalChannelBaseUrl());
 
