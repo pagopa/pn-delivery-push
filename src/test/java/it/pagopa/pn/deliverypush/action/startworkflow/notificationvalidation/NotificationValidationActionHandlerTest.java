@@ -1,14 +1,17 @@
 package it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation;
 
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.exceptions.PnValidationTaxIdNotValidException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotMatchingShaException;
+import it.pagopa.pn.deliverypush.exceptions.PnValidationTaxIdNotValidException;
+import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +38,8 @@ class NotificationValidationActionHandlerTest {
     private ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest;
     @Mock
     private NotificationValidationScheduler notificationValidationScheduler;
+    @Mock
+    private AuditLogService auditLogService;
 
     private NotificationValidationActionHandler handler;
 
@@ -42,7 +47,7 @@ class NotificationValidationActionHandlerTest {
     public void setup() {
         handler = new NotificationValidationActionHandler(attachmentUtils, taxIdPivaValidator,
                 timelineService, timelineUtils, notificationService, receivedLegalFactCreationRequest,
-                notificationValidationScheduler);
+                notificationValidationScheduler, auditLogService);
     }
 
     @ExtendWith(SpringExtension.class)
@@ -56,15 +61,21 @@ class NotificationValidationActionHandlerTest {
         NotificationValidationActionDetails details = NotificationValidationActionDetails.builder()
                 .retryAttempt(1)
                 .build();
-        
+
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when(auditLogService.buildAuditLogEvent(Mockito.eq(notification.getIun()), Mockito.eq(PnAuditLogEventType.AUD_NT_VALID), Mockito.anyString(), Mockito.any()))
+                .thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateSuccess()).thenReturn(auditLogEvent);
+
         //WHEN
         handler.validateNotification(notification.getIun(), details);
         
         //THEN
         Mockito.verify(attachmentUtils).validateAttachment(notification);
         Mockito.verify(receivedLegalFactCreationRequest).saveNotificationReceivedLegalFacts(notification);
+        Mockito.verify(auditLogEvent).generateSuccess();
     }
-
+    
     @ExtendWith(SpringExtension.class)
     @Test
     void validateNotificationKONotFound() {
@@ -81,13 +92,19 @@ class NotificationValidationActionHandlerTest {
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().build();
         Mockito.when( timelineUtils.buildRefusedRequestTimelineElement(Mockito.any(NotificationInt.class), Mockito.any()))
                 .thenReturn(timelineElementInternal);
-        
+
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when(auditLogService.buildAuditLogEvent(Mockito.eq(notification.getIun()), Mockito.eq(PnAuditLogEventType.AUD_NT_VALID), Mockito.anyString(), Mockito.any()))
+                .thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateWarning(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
+
         //WHEN
         handler.validateNotification(notification.getIun(), details);
 
         //THEN
         Mockito.verify(receivedLegalFactCreationRequest, Mockito.never()).saveNotificationReceivedLegalFacts(notification);
         Mockito.verify(notificationValidationScheduler).scheduleNotificationValidation(notification, details.getRetryAttempt());
+        Mockito.verify(auditLogEvent).generateWarning(Mockito.any(), Mockito.any());
     }
 
     @ExtendWith(SpringExtension.class)
@@ -107,12 +124,18 @@ class NotificationValidationActionHandlerTest {
         Mockito.when( timelineUtils.buildRefusedRequestTimelineElement(Mockito.any(NotificationInt.class), Mockito.any()))
                 .thenReturn(timelineElementInternal);
 
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when(auditLogService.buildAuditLogEvent(Mockito.eq(notification.getIun()), Mockito.eq(PnAuditLogEventType.AUD_NT_VALID), Mockito.anyString(), Mockito.any()))
+                .thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateWarning(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
+
         //WHEN
         handler.validateNotification(notification.getIun(), details);
 
         //THEN
         Mockito.verify(receivedLegalFactCreationRequest, Mockito.never()).saveNotificationReceivedLegalFacts(notification);
         Mockito.verify(timelineService).addTimelineElement(timelineElementInternal, notification);
+        Mockito.verify(auditLogEvent).generateWarning(Mockito.any(), Mockito.any());
     }
 
     @ExtendWith(SpringExtension.class)
@@ -132,12 +155,18 @@ class NotificationValidationActionHandlerTest {
         Mockito.when( timelineUtils.buildRefusedRequestTimelineElement(Mockito.any(NotificationInt.class), Mockito.any()))
                 .thenReturn(timelineElementInternal);
 
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when(auditLogService.buildAuditLogEvent(Mockito.eq(notification.getIun()), Mockito.eq(PnAuditLogEventType.AUD_NT_VALID), Mockito.anyString(), Mockito.any()))
+                .thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateWarning(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
+
         //WHEN
         handler.validateNotification(notification.getIun(), details);
 
         //THEN
         Mockito.verify(receivedLegalFactCreationRequest, Mockito.never()).saveNotificationReceivedLegalFacts(notification);
         Mockito.verify(timelineService).addTimelineElement(timelineElementInternal, notification);
+        Mockito.verify(auditLogEvent).generateWarning(Mockito.any(), Mockito.any());
     }
     
     @ExtendWith(SpringExtension.class)
@@ -159,14 +188,18 @@ class NotificationValidationActionHandlerTest {
         Mockito.when( timelineUtils.buildRefusedRequestTimelineElement(Mockito.any(NotificationInt.class), Mockito.any()))
                 .thenReturn(timelineElementInternal);
 
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when(auditLogService.buildAuditLogEvent(Mockito.eq(notification.getIun()), Mockito.eq(PnAuditLogEventType.AUD_NT_VALID), Mockito.anyString(), Mockito.any()))
+                .thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateWarning(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
+
         //WHEN
         handler.validateNotification(notification.getIun(), details);
 
         //THEN
         Mockito.verify(receivedLegalFactCreationRequest, Mockito.never()).saveNotificationReceivedLegalFacts(notification);
         Mockito.verify(notificationValidationScheduler).scheduleNotificationValidation(notification, details.getRetryAttempt());
+        Mockito.verify(auditLogEvent).generateWarning(Mockito.any(), Mockito.any());
     }
-
-    
 
 }
