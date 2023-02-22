@@ -52,13 +52,13 @@ public class NotificationValidationActionHandler {
 
             logEvent.generateSuccess().log();
         } catch (PnValidationFileNotFoundException ex){
-
-            logEvent.generateFailure("Validation need to be rescheduled - iun={} ex={}", notification.getIun(), ex);
+            logEvent.generateWarning("Validation need to be rescheduled - iun={} ex={}", notification.getIun(), ex).log();
             handlePnValidationFileNotFoundException(iun, details, notification, ex);
         } catch (PnValidationException ex){
+            logEvent.generateWarning("Notification is not valid - iun={} ex={}", notification.getIun(), ex).log();
             handleValidationError(notification, ex);
         } catch (RuntimeException ex){
-            logEvent.generateFailure("Validation need to be rescheduled - iun={} ex={}", notification.getIun(), ex);
+            logEvent.generateWarning("Validation need to be rescheduled - iun={} ex={}", notification.getIun(), ex).log();
             handleRuntimeException(iun, details, notification, ex);
         }
     }
