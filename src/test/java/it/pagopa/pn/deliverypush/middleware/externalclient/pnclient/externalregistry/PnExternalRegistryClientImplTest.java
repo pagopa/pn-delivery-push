@@ -37,7 +37,7 @@ class PnExternalRegistryClientImplTest {
         Mockito.when(cfg.getExternalRegistryBaseUrl()).thenReturn("http://localhost:8080");
 
         restTemplate = Mockito.mock(RestTemplate.class);
-        Mockito.when((restTemplate.getUriTemplateHandler())).thenReturn(new DefaultUriBuilderFactory());
+//        Mockito.when((restTemplate.getUriTemplateHandler())).thenReturn(new DefaultUriBuilderFactory());
         ApiClient apiClient = new ApiClient(restTemplate);
         apiClient.setBasePath(cfg.getExternalRegistryBaseUrl());
         client = new PnExternalRegistryClientImpl(restTemplate, cfg);
