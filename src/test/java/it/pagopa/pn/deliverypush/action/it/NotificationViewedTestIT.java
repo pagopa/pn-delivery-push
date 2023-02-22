@@ -253,7 +253,6 @@ class NotificationViewedTestIT {
     }
 
     @Test
-    @Disabled("Test fail only in build fase PN-3853")
     void notificationViewedFromDelegate() {
         //GIVEN
         LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
@@ -323,9 +322,7 @@ class NotificationViewedTestIT {
         await().untilAsserted(() ->
                 Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
-
-        System.out.println("END test notificationViewedFromDelegate");
-
+        
         //Simulazione visualizzazione della notifica
         Instant notificationViewDate = Instant.now();
 
@@ -373,7 +370,8 @@ class NotificationViewedTestIT {
                 generatedLegalFactsInfo,
                 EndWorkflowStatus.FAILURE,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                delegateInfoInt
         );
 
         //Vengono stampati tutti i legalFacts generati
@@ -487,7 +485,8 @@ class NotificationViewedTestIT {
                 generatedLegalFactsInfo,
                 EndWorkflowStatus.FAILURE,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
         
         //Vengono stampati tutti i legalFacts generati

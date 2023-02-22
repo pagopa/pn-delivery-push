@@ -464,7 +464,8 @@ class DigitalTestMultiRecipientIT {
                 generatedLegalFactsInfo,
                 endWorkflowStatus,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
     }
 
