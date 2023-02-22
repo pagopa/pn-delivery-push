@@ -33,7 +33,6 @@ public class RestTemplateFactory {
                         .configOverride(OffsetDateTime.class)
                         .setFormat(JsonFormat.Value.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX"))
                 );
-        templateFactory.enrichWithTracing(template);
         return template;
     }
 

@@ -22,6 +22,7 @@ import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Base64Utils;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -30,6 +31,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class ExternalChannelSendClientImplTest {
     
@@ -61,6 +63,7 @@ class ExternalChannelSendClientImplTest {
         Mockito.when(cfg.getExternalchannelCxId()).thenReturn("pn-delivery-002");
 
         restTemplate = Mockito.mock(RestTemplate.class);
+        Mockito.when((restTemplate.getUriTemplateHandler())).thenReturn(new DefaultUriBuilderFactory());
         ApiClient apiClient = new ApiClient(restTemplate);
         apiClient.setBasePath(cfg.getExternalChannelBaseUrl());
 
@@ -124,6 +127,28 @@ class ExternalChannelSendClientImplTest {
                 .thenReturn(ResponseEntity.ok(""));
 
         assertDoesNotThrow(() -> client.sendCourtesyNotification(notificationInt, notificationRecipientInt, courtesyDigitalAddressInt, timelineEventId, aarKey, ""));
+    }
+
+    @Test
+    void sendLegalNotificationPEC() {
+
+        //Given
+        NotificationInt notificationInt = mock(NotificationInt.class);
+        NotificationRecipientInt recipientInt = mock(NotificationRecipientInt.class);
+        LegalDigitalAddressInt addressInt = mock(LegalDigitalAddressInt.class);
+        String eventId = "rtyuiokjhgvcbnjmk4567890";
+        String aarKey = "testKey";
+        String quickAccessToken = "test";
+
+        Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
+                .thenReturn(ResponseEntity.ok(""));
+        when(addressInt.getType()).thenReturn(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC);
+        when(addressInt.getAddress()).thenReturn("email@email.it");
+
+        //When
+
+        assertDoesNotThrow(() -> client.sendLegalNotification(notificationInt, recipientInt, addressInt, eventId, aarKey, quickAccessToken));
+
     }
 
     private NotificationRecipientInt buildNotificationRecipientInt() {

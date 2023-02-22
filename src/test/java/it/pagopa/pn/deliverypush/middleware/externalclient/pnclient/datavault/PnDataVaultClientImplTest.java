@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +45,7 @@ class PnDataVaultClientImplTest {
         cfg = mock(PnDeliveryPushConfigs.class);
         Mockito.when(cfg.getDataVaultBaseUrl()).thenReturn("http://localhost:8080");
         Mockito.when(cfg.getExternalchannelCxId()).thenReturn("pn-delivery-002");
+        Mockito.when((restTemplate.getUriTemplateHandler())).thenReturn(new DefaultUriBuilderFactory());
 
         ApiClient apiClient = new ApiClient(restTemplate);
         apiClient.setBasePath(cfg.getDataVaultBaseUrl());
