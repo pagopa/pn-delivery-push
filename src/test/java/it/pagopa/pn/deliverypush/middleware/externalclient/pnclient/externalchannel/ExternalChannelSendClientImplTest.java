@@ -31,6 +31,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class ExternalChannelSendClientImplTest {
     
@@ -126,6 +127,28 @@ class ExternalChannelSendClientImplTest {
                 .thenReturn(ResponseEntity.ok(""));
 
         assertDoesNotThrow(() -> client.sendCourtesyNotification(notificationInt, notificationRecipientInt, courtesyDigitalAddressInt, timelineEventId, aarKey, ""));
+    }
+
+    @Test
+    void sendLegalNotificationPEC() {
+
+        //Given
+        NotificationInt notificationInt = mock(NotificationInt.class);
+        NotificationRecipientInt recipientInt = mock(NotificationRecipientInt.class);
+        LegalDigitalAddressInt addressInt = mock(LegalDigitalAddressInt.class);
+        String eventId = "rtyuiokjhgvcbnjmk4567890";
+        String aarKey = "testKey";
+        String quickAccessToken = "test";
+
+        Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
+                .thenReturn(ResponseEntity.ok(""));
+        when(addressInt.getType()).thenReturn(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC);
+        when(addressInt.getAddress()).thenReturn("email@email.it");
+
+        //When
+
+        assertDoesNotThrow(() -> client.sendLegalNotification(notificationInt, recipientInt, addressInt, eventId, aarKey, quickAccessToken));
+
     }
 
     private NotificationRecipientInt buildNotificationRecipientInt() {
