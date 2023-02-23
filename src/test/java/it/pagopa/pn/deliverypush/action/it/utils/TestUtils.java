@@ -21,6 +21,7 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
+import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
@@ -493,7 +494,8 @@ public class TestUtils {
                                                 TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo,
                                                 EndWorkflowStatus endWorkflowStatus,
                                                 LegalFactGenerator legalFactGenerator,
-                                                TimelineService timelineService
+                                                TimelineService timelineService,
+                                                DelegateInfoInt delegateInfo
     ) {
         TestUtils.checkNotificationReceivedLegalFactGeneration(
                 notification,
@@ -512,6 +514,7 @@ public class TestUtils {
                 notification.getIun(),
                 recipient,
                 legalFactGenerator,
+                delegateInfo,
                 generatedLegalFactsInfo.isNotificationViewedLegalFactGenerated()
         );
 
@@ -543,14 +546,15 @@ public class TestUtils {
         }
     }
 
-    private static void checkNotificationViewedLegalFact(String iun,
-                                                        NotificationRecipientInt recipient,
-                                                        LegalFactGenerator legalFactGenerator,
-                                                        boolean itWasGenerated){
+    private static void checkNotificationViewedLegalFact(String iun, 
+                                                         NotificationRecipientInt recipient, 
+                                                         LegalFactGenerator legalFactGenerator,
+                                                         DelegateInfoInt delegateInfo, 
+                                                         boolean itWasGenerated){
         int times = getTimes(itWasGenerated);
 
         try {
-            Mockito.verify(legalFactGenerator, Mockito.times(times)).generateNotificationViewedLegalFact(Mockito.eq(iun), Mockito.eq(recipient), Mockito.eq(null), Mockito.any(Instant.class));
+            Mockito.verify(legalFactGenerator, Mockito.times(times)).generateNotificationViewedLegalFact(Mockito.eq(iun), Mockito.eq(recipient), Mockito.eq(delegateInfo), Mockito.any(Instant.class));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
