@@ -41,7 +41,7 @@ class PnDeliveryClientImplTest {
         Mockito.when(cfg.getDeliveryBaseUrl()).thenReturn("http://localhost:8080");
 
         restTemplate = Mockito.mock(RestTemplate.class);
-        Mockito.when((restTemplate.getUriTemplateHandler())).thenReturn(new DefaultUriBuilderFactory());
+//        Mockito.when((restTemplate.getUriTemplateHandler())).thenReturn(new DefaultUriBuilderFactory());
         ApiClient apiClient = new ApiClient(restTemplate);
         apiClient.setBasePath(cfg.getDeliveryBaseUrl());
         client = new PnDeliveryClientImpl(restTemplate, cfg);
