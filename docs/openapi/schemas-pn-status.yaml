@@ -63,7 +63,7 @@ components:
           type: array
           description: Eventi avvenuti nello stato
           items:
-            $ref: "./schemas-pn-timeline-v1.yaml#/components/schemas/TimelineElementId"
+            $ref: "./schemas-pn-timeline.yaml#/components/schemas/TimelineElementId"
       
         
 

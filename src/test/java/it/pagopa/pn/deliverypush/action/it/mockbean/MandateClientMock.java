@@ -1,13 +1,14 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.mandate.PnMandateClient;
+import it.pagopa.pn.mandate.generated.openapi.clients.mandate.model.CxTypeAuthFleet;
 import it.pagopa.pn.mandate.generated.openapi.clients.mandate.model.InternalMandateDto;
 
 import java.util.List;
 
 public class MandateClientMock implements PnMandateClient {
     @Override
-    public List<InternalMandateDto> listMandatesByDelegate(String delegated, String mandateId) {
+    public List<InternalMandateDto> listMandatesByDelegate(String delegated, String mandateId, CxTypeAuthFleet cxType, List<String> cxGroups) {
         throw new RuntimeException();
     }
 }
