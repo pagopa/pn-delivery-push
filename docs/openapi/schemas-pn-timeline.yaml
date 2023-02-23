@@ -91,7 +91,7 @@ components:
         legalFactsIds:
           type: array
           items:
-            $ref: "./schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactsId"
+            $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactsId"
           description: >-
             Chiavi dei documenti che provano l'effettivo accadimento dell'evento descritto in timeline.
             Questo elemento
@@ -162,7 +162,7 @@ components:
           description: Index destinatario notifica digitale
           format: int32
         physicalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
 
     DigitalFailureWorkflowDetails:
       type: object
@@ -185,7 +185,7 @@ components:
           description: Index destinatario notifica digitale
           format: int32
         digitalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+          $ref: "./schemas-addresses.yaml#/components/schemas/DigitalAddress"
         endWorkflowStatus:
           $ref: "#/components/schemas/EndWorkflowStatus"
         completionWorkflowDate:
@@ -207,7 +207,7 @@ components:
           description: Index destinatario notifica digitale
           format: int32
         digitalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+          $ref: "./schemas-addresses.yaml#/components/schemas/DigitalAddress"
 
     CompletelyUnreachableDetails:
       type: object
@@ -321,9 +321,9 @@ components:
           description: Index destinatario notifica digitale
           format: int32
         digitalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+          $ref: "./schemas-addresses.yaml#/components/schemas/DigitalAddress"
         physicalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
 
     RefinementDetails:
       type: object
@@ -376,7 +376,7 @@ components:
           description: Index destinatario notifica digitale
           format: int32
         digitalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+          $ref: "./schemas-addresses.yaml#/components/schemas/DigitalAddress"
         digitalAddressSource:
           $ref: '#/components/schemas/DigitalAddressSource'
         sentAttemptMade:
@@ -408,7 +408,7 @@ components:
           description: Index destinatario notifica digitale
           format: int32
         digitalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+          $ref: "./schemas-addresses.yaml#/components/schemas/DigitalAddress"
         sendDate:
           type: string
           description: data invio messaggio di cortesia
@@ -427,7 +427,7 @@ components:
           description: Index destinatario notifica digitale
           format: int32
         digitalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+          $ref: "./schemas-addresses.yaml#/components/schemas/DigitalAddress"
         digitalAddressSource:
           $ref: '#/components/schemas/DigitalAddressSource'
         retryNumber:
@@ -449,7 +449,7 @@ components:
           type: boolean
           description: indica se il progress ha dato luogo ad un ritentativo
         digitalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+          $ref: "./schemas-addresses.yaml#/components/schemas/DigitalAddress"
         digitalAddressSource:
           $ref: '#/components/schemas/DigitalAddressSource'
         notificationDate:
@@ -478,7 +478,7 @@ components:
           description: Index destinatario notifica digitale
           format: int32
         digitalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+          $ref: "./schemas-addresses.yaml#/components/schemas/DigitalAddress"
         responseStatus:
           $ref: '#/components/schemas/ResponseStatus'
         notificationDate:
@@ -510,7 +510,7 @@ components:
           description: Index destinatario notifica digitale
           format: int32
         physicalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
         serviceLevel:
           "$ref": "#/components/schemas/ServiceLevel"
         sentAttemptMade:
@@ -543,7 +543,7 @@ components:
           description: Index destinatario notifica digitale
           format: int32
         physicalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
         serviceLevel:
           "$ref": "#/components/schemas/ServiceLevel"
         sentAttemptMade:
@@ -554,7 +554,7 @@ components:
           type: boolean
           description: E' richiesta investigazione indirizzo fisico alternativo
         newAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
         responseStatus:
           $ref: '#/components/schemas/ResponseStatus'
         errors:
@@ -576,7 +576,7 @@ components:
           description: Index destinatario notifica digitale
           format: int32
         physicalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
         productType:
           type: string
           description: Tipo di invio cartaceo effettivamente inviato
@@ -734,4 +734,4 @@ components:
         denomination:
           type: string
         delegateType:
-          $ref: './schemas-pn-notification-v1.yaml#/components/schemas/RecipientType'
+          $ref: './schemas-pn-notification.yaml#/components/schemas/RecipientType'
