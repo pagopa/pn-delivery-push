@@ -702,3 +702,12 @@ Resources:
             - !Ref DoneActionsQueueARN
             - !Ref SafeStorageToDeliveryPushQueueARN
             - !Ref NationalRegistries2DeliveryPushQueueARN
+        LogGroupsNames: !Join
+          - ','
+          - - !GetAtt DeliveryPushMicroservice.Outputs.MicroserviceLogGroup
+        APIGWLogGroupsNames: !Join
+          - ','
+          - - !GetAtt DeliveryPushMicroservicePublicAPI.Outputs.RestApiLogGroup
+            - !GetAtt DeliveryProgressMicroservicePublicAPI.Outputs.RestApiLogGroup
+            - !GetAtt DeliveryPushMicroservicePublicWebAPI.Outputs.RestApiLogGroup
+            - !GetAtt DeliveryPushMicroservicePublicIoAPI.Outputs.RestApiLogGroup
