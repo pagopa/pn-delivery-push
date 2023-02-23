@@ -5,31 +5,45 @@ info:
   x-summary: API B2B avanzamento notifiche
   version: 1.0.0
   x-api-id: api-external-b2b-webhook
-  description: |-
-    I mittenti di notifica possono seguire il flusso di avanzamento delle notifiche in modo  automatico. E' possibile definire fino ad un <font color="red"><strong>massimo di <span id="webhookMaxStreams">5</span> configurazioni di flussi per singola PA</strong></font> su  informazioni relative a: <br/>
+  description: >-
+    I mittenti di notifica possono seguire il flusso di avanzamento delle
+    notifiche in modo  automatico. E' possibile definire fino ad un <font
+    color="red"><strong>massimo di <span id="webhookMaxStreams">5</span>
+    configurazioni di flussi per singola PA</strong></font> su  informazioni
+    relative a: <br/>
       - cambiamento di stato della notifica;  <br/>
       - inserimento di elementi nella timeline. <br/>
 
-    Per ognuno di questi elementi è possibile definire un filtro per ricevere solo alcuni  cambiamenti di stato o determinati eventi di timeline di maggiore interesse. Si consiglia  di creare gli stream prima dell'invio delle notifiche perchè gli stati o gli eventi di  timeline vengono registrati solo successivamente alla creazione dello stream.</br> </br> __Esempio:__ - Stream contenente tutte le notifiche in stato Cancellato: </br></br> `` {
+    Per ognuno di questi elementi è possibile definire un filtro per ricevere
+    solo alcuni  cambiamenti di stato o determinati eventi di timeline di
+    maggiore interesse. Si consiglia  di creare gli stream prima dell'invio
+    delle notifiche perchè gli stati o gli eventi di  timeline vengono
+    registrati solo successivamente alla creazione dello stream.</br> </br>
+    __Esempio:__ - Stream contenente tutte le notifiche in stato Cancellato:
+    </br></br> `` {
       "title": "NotificationCancelled",
       "eventType": "STATUS",
       "filterValues": [
         "CANCELLED"
       ]
-    } `` </br></br> __Esempio:__ - Stream contenente tutte le notifiche in stato Accettato o Consegnato: </br></br> `` {
+    } `` </br></br> __Esempio:__ - Stream contenente tutte le notifiche in stato
+    Accettato o Consegnato: </br></br> `` {
       "title": "NotificationAcceptedOrDelivered",
       "eventType": "STATUS",
       "filterValues": [
         "ACCEPTED","DELIVERED"
       ]
-    } `` </br></br> __Esempio:__ - Stream contenente tutti gli eventi di timeline NOTIFICATION_VIEWED: </br></br> `` {
+    } `` </br></br> __Esempio:__ - Stream contenente tutti gli eventi di
+    timeline NOTIFICATION_VIEWED: </br></br> `` {
       "title": "TimelineNotificationViewed",
       "eventType": "TIMELINE",
       "filterValues": [
         "NOTIFICATION_VIEWED"
       ]
     } `` </br></br>
-    Gli stati della notifica che possono essere inseriti come __filterValues__ sono i seguenti: 
+
+    Gli stati della notifica che possono essere inseriti come __filterValues__
+    sono i seguenti: 
       <details>
         <summary>Stati</summary>
         <ul>
@@ -45,7 +59,9 @@ info:
         </ul>
       </details>
     </br>
-    Le categorie degli eventi di timeline che possono essere inseriti come __filterValues__ sono i seguenti: 
+
+    Le categorie degli eventi di timeline che possono essere inseriti come
+    __filterValues__ sono i seguenti: 
 
       <details>
         <summary>Eventi di timeline</summary>
@@ -77,7 +93,8 @@ info:
           <li><strong>NOT_HANDLED </strong><em>Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline</em></li>
         </ul>
       </details>
-    </br> Di seguito un esempio di creazione e successiva interrogazione dello stream: 
+    </br> Di seguito un esempio di creazione e successiva interrogazione dello
+    stream: 
 
       <details>
         <summary>Esempio dello stream</summary>
@@ -214,9 +231,37 @@ info:
       - [Modifica](#/Streams/updateEventStream) <br/>
       - [Cancellazione](#/Streams/deleteEventStream) <br/>
 
-    Le operazioni con il tag __Events__ sono quelle utilizzate per la [lettura degli eventi](#/Events/consumeEventStream)  filtrati in base alla configurazione impostata negli streams.
-    La api restituisce un massimo di <span id="webhookMaxLength">10</span> elementi. Se <u>esistono</u> ulteriori eventi nello stream, allora la response del servizio  restituice l'elemento `retryAfter = 0`; ed è quindi possibile richiamare immediatamente il servizio per ottenere gli eventi successivi, utilizzando  il parametro _lastEventId_ valorizzato con l'ultimo _eventId_ della richiesta precedente. Si evidenzia che ogni nuova chiamata al servizio con _lastEventId_ implica la cancellazione degli eventi precedenti. Tuttavia, in fase di implementazione del client che consumerà i servizi, bisogna considerare il fattore della __non univocità degli eventi__: è possibile che se in un dato secondo avvengano più eventi contemporaneamente, nella chiamata successiva allo stream dove si inserisce l'_eventId_, non vengano cancellati gli altri eventi contemporanei avvenuti nello stesso secondo dell'_eventId_ indicato; ottenendo quindi una riproposizione di eventi già ottenuti dalla chiamata precedente.</br> Se <u>non esistono</u> ulteriori eventi nello stream, allora la response del servizio restituisce il valore di `retryAfter ≠ 0` ed è quindi necessario attendere il tempo indicato dalla retryAfter per consumare eventualmente nuovi eventi nello stream.</br> <font color="red">__Gli eventi sono mantenuti per un massimo di <span id="webhookTtl">7</span> giorni dopo i quali sono automaticamente cancellati anche se non sono stati prelevati dallo stream, e sarà possibile ottenere lo stato della notifica solo attraverso il servizio [getNotificationRequestStatus](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-external-b2b-pa-v1.yaml#/SenderReadB2B/retrieveNotificationRequestStatus)__ </font> 
+    Le operazioni con il tag __Events__ sono quelle utilizzate per la [lettura
+    degli eventi](#/Events/consumeEventStream)  filtrati in base alla
+    configurazione impostata negli streams.
+
+    La api restituisce un massimo di <span id="webhookMaxLength">10</span>
+    elementi. Se <u>esistono</u> ulteriori eventi nello stream, allora la
+    response del servizio  restituice l'elemento `retryAfter = 0`; ed è quindi
+    possibile richiamare immediatamente il servizio per ottenere gli eventi
+    successivi, utilizzando  il parametro _lastEventId_ valorizzato con l'ultimo
+    _eventId_ della richiesta precedente. Si evidenzia che ogni nuova chiamata
+    al servizio con _lastEventId_ implica la cancellazione degli eventi
+    precedenti. Tuttavia, in fase di implementazione del client che consumerà i
+    servizi, bisogna considerare il fattore della __non univocità degli
+    eventi__: è possibile che se in un dato secondo avvengano più eventi
+    contemporaneamente, nella chiamata successiva allo stream dove si inserisce
+    l'_eventId_, non vengano cancellati gli altri eventi contemporanei avvenuti
+    nello stesso secondo dell'_eventId_ indicato; ottenendo quindi una
+    riproposizione di eventi già ottenuti dalla chiamata precedente.</br> Se
+    <u>non esistono</u> ulteriori eventi nello stream, allora la response del
+    servizio restituisce il valore di `retryAfter ≠ 0` ed è quindi necessario
+    attendere il tempo indicato dalla retryAfter per consumare eventualmente
+    nuovi eventi nello stream.</br> <font color="red">__Gli eventi sono
+    mantenuti per un massimo di <span id="webhookTtl">7</span> giorni dopo i
+    quali sono automaticamente cancellati anche se non sono stati prelevati
+    dallo stream, e sarà possibile ottenere lo stato della notifica solo
+    attraverso il servizio
+    [getNotificationRequestStatus](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-external-b2b-pa-v1.yaml#/SenderReadB2B/retrieveNotificationRequestStatus)__
+    </font> 
+
     </br> </br> </br>
+
     <details>
       <summary><strong><big><big><big><big>FAQ</big></big></big></big></strong></summary>
 
@@ -293,9 +338,18 @@ info:
       </details>
 
     </details></br>
+
     <details>
       <summary><strong><big><big><big><big>AMBIENTI</big></big></big></big></strong></summary>
-    <ul>   <li><strong>https://api.pn.pagopa.it:</strong></br>Ambiente di produzione</li> <li><strong>https://api.coll.pagopa.it:</strong></br>Ambiente di collaudo</li> <li><strong>https://api.svil.pn.pagopa.it:</strong></br>Ambiente di test. Potrebbe subire modifiche/integrazioni in futuro, rimanendo comunque non-bloccante e rispettando il principio di retro-attività</li> <li><strong>https://api.dev.pn.pagopa.it:</strong></br>Ambiente di sviluppo</li> </ul>   </details></br>
+    <ul>   <li><strong>https://api.pn.pagopa.it:</strong></br>Ambiente di
+    produzione</li>
+    <li><strong>https://api.coll.pagopa.it:</strong></br>Ambiente di
+    collaudo</li>
+    <li><strong>https://api.svil.pn.pagopa.it:</strong></br>Ambiente di test.
+    Potrebbe subire modifiche/integrazioni in futuro, rimanendo comunque
+    non-bloccante e rispettando il principio di retro-attività</li>
+    <li><strong>https://api.dev.pn.pagopa.it:</strong></br>Ambiente di
+    sviluppo</li> </ul>   </details></br>
   contact:
     email: pn-supporto-enti@pagopa.it
   license:
@@ -312,7 +366,9 @@ servers:
     description: Ambiente di sviluppo
 tags:
   - name: HealthCheck
-    description: 'Invocazioni per sapere lo stato del microservizio # il servizio è ancora in fase di sviluppo'
+    description: >-
+      Invocazioni per sapere lo stato del microservizio # il servizio è ancora
+      in fase di sviluppo
   - name: Streams
     description: Gestione degli stream di eventi che PN mette a disposizione
   - name: Events
@@ -333,7 +389,12 @@ paths:
   /delivery-progresses/streams:
     post:
       summary: Crea nuovo stream di eventi
-      description: Viene richiesta la creazione di un flusso di eventi specificando se gli eventi saranno  relativi ai cambi di stato o agli eventi di timeline. <br/> In risposta, Piattaforma Notifiche, comunicherà un identificativo dello stream e il  timestamp di effettiva attivazione del flusso, tipicamente pochi secondi dopo che è stata  invocata l'operazione.
+      description: >-
+        Viene richiesta la creazione di un flusso di eventi specificando se gli
+        eventi saranno  relativi ai cambi di stato o agli eventi di timeline.
+        <br/> In risposta, Piattaforma Notifiche, comunicherà un identificativo
+        dello stream e il  timestamp di effettiva attivazione del flusso,
+        tipicamente pochi secondi dopo che è stata  invocata l'operazione.
       tags:
         - Streams
       operationId: createEventStream
@@ -417,7 +478,9 @@ paths:
                 $ref: '#/components/schemas/Problem'
     put:
       summary: Update Stream metadata
-      description: Permette di cambiare le configurazioni dei filtri associati a uno stream di eventi
+      description: >-
+        Permette di cambiare le configurazioni dei filtri associati a uno stream
+        di eventi
       tags:
         - Streams
       operationId: updateEventStream
@@ -448,7 +511,9 @@ paths:
                 $ref: '#/components/schemas/Problem'
     delete:
       summary: Remove Event Stream
-      description: 'Elimina uno steam di eventi: elimina sia le configurazioni sia tutti gli eventi  associati allo stream e non ancora consumati.'
+      description: >-
+        Elimina uno steam di eventi: elimina sia le configurazioni sia tutti gli
+        eventi  associati allo stream e non ancora consumati.
       tags:
         - Streams
       operationId: removeEventStream
@@ -470,7 +535,11 @@ paths:
   /delivery-progresses/streams/{streamId}/events:
     get:
       summary: Leggi progressi notifiche
-      description: Permette di leggere gli eventi presenti nello stream di aggiornamenti e indica che  la P.A. ha ricevuto e memorizzato l'evento identificato dal parametro _lastEventId_ e tutti gli eventi precedenti. Tali eventi potranno essere cancellati dallo stream.
+      description: >-
+        Permette di leggere gli eventi presenti nello stream di aggiornamenti e
+        indica che  la P.A. ha ricevuto e memorizzato l'evento identificato dal
+        parametro _lastEventId_ e tutti gli eventi precedenti. Tali eventi
+        potranno essere cancellati dallo stream.
       tags:
         - Events
       operationId: consumeEventStream
@@ -485,7 +554,12 @@ paths:
               schema:
                 type: integer
                 format: int32
-              description: Numero di millisecondi di attesa prima di effettuare una nuova lettura di eventi. <br/> Sarà valorizzato a zero se ci sono eventi in coda che non sono stati forniti per  raggiunta dimensione massima della risposta. <br/> Sarà maggiore di zero se gli eventi in coda sono stati tutti inviati.
+              description: >-
+                Numero di millisecondi di attesa prima di effettuare una nuova
+                lettura di eventi. <br/> Sarà valorizzato a zero se ci sono
+                eventi in coda che non sono stati forniti per  raggiunta
+                dimensione massima della risposta. <br/> Sarà maggiore di zero
+                se gli eventi in coda sono stati tutti inviati.
           content:
             application/json:
               schema:
@@ -496,14 +570,16 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        '419':
+        '429':
           description: Too Many Requests
           headers:
             retry-after:
               schema:
                 type: integer
                 format: int32
-              description: Numero di millisecondi di attesa prima di effettuare una nuova lettura di eventi.
+              description: >-
+                Numero di millisecondi di attesa prima di effettuare una nuova
+                lettura di eventi.
         '500':
           description: Internal Server Error
           content:
@@ -513,7 +589,9 @@ paths:
 components:
   parameters:
     queryLastEventId:
-      description: Identificativo dell'ultimo evento memorizzato dal chiamante, se non passato si intende dal primo evento presente nello stream
+      description: >-
+        Identificativo dell'ultimo evento memorizzato dal chiamante, se non
+        passato si intende dal primo evento presente nello stream
       name: lastEventId
       in: query
       required: false
@@ -529,7 +607,9 @@ components:
         format: uuid
   schemas:
     StreamCreationRequest:
-      description: Richiesta di creazione di uno stream di eventi di avanzamento delle notifiche.
+      description: >-
+        Richiesta di creazione di uno stream di eventi di avanzamento delle
+        notifiche.
       type: object
       required:
         - title
@@ -548,7 +628,9 @@ components:
             - STATUS
             - TIMELINE
         filterValues:
-          description: Se non _null_ indica l'elenco degli stati o elementi di timeline che  si vogliono ricevere.
+          description: >-
+            Se non _null_ indica l'elenco degli stati o elementi di timeline
+            che  si vogliono ricevere.
           type: array
           items:
             type: string
@@ -596,7 +678,9 @@ components:
         - timestamp
       properties:
         eventId:
-          description: Elemento che garantisce univocità e ordinamento temporale all'interno dello stream
+          description: >-
+            Elemento che garantisce univocità e ordinamento temporale
+            all'interno dello stream
           type: string
         timestamp:
           description: Istante a cui è avvenuto l'evento
@@ -606,7 +690,9 @@ components:
           description: Identificativo della richiesta di notifica
           type: string
         iun:
-          description: Identificativo della notifica, presente solo se la richiesta di notifica è  stata accettata.
+          description: >-
+            Identificativo della notifica, presente solo se la richiesta di
+            notifica è  stata accettata.
           type: string
         newStatus:
           $ref: '#/components/schemas/NotificationStatus'
@@ -623,7 +709,12 @@ components:
           description: Eventuale costo in eurocent associato all'evento
         channel:
           type: string
-          description: 'Canale a cui si riferisce l''evento. I valori previsti sono: - Per eventi legati a messaggi di cortesia: APPIO, SMS, EMAIL - Per eventi legati all''invio digitale: PEC - Per eventi legati all''invio analogico: AR_REGISTERED_LETTER, REGISTERED_LETTER_890 - Per eventi legati all''invio di raccomandate semplici: SIMPLE_REGISTERED_LETTER'
+          description: >-
+            Canale a cui si riferisce l'evento. I valori previsti sono: - Per
+            eventi legati a messaggi di cortesia: APPIO, SMS, EMAIL - Per eventi
+            legati all'invio digitale: PEC - Per eventi legati all'invio
+            analogico: AR_REGISTERED_LETTER, REGISTERED_LETTER_890 - Per eventi
+            legati all'invio di raccomandate semplici: SIMPLE_REGISTERED_LETTER
         legalfactIds:
           type: array
           items:
@@ -636,14 +727,18 @@ components:
       properties:
         code:
           description: Internal code of the error, in human-readable format
-          example: PN_PARAMETER_TOO_LONG | PN_PARAMETER_TOO_SHORT | PN_DUPLICATE_ENTRY | etc...
+          example: >-
+            PN_PARAMETER_TOO_LONG | PN_PARAMETER_TOO_SHORT | PN_DUPLICATE_ENTRY
+            | etc...
           type: string
         element:
           description: Parameter or request body field name for validation error
           example: body.order.item[2].quantity
           type: string
         detail:
-          description: A human readable explanation specific to this occurrence of the problem.
+          description: >-
+            A human readable explanation specific to this occurrence of the
+            problem.
           example: Parameter not valid
           maxLength: 1024
           type: string
@@ -655,7 +750,9 @@ components:
           description: URI reference of type definition
           type: string
         status:
-          description: The HTTP status code generated by the origin server for this occurrence of the problem.
+          description: >-
+            The HTTP status code generated by the origin server for this
+            occurrence of the problem.
           type: integer
           format: int32
           example: 503
@@ -663,7 +760,9 @@ components:
           minimum: 100
           exclusiveMaximum: true
         title:
-          description: A short, summary of the problem type. Written in english and readable
+          description: >-
+            A short, summary of the problem type. Written in english and
+            readable
           example: Service Unavailable
           maxLength: 64
           pattern: ^[ -~]{0,64}$
