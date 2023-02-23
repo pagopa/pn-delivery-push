@@ -578,7 +578,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ProgressResponse"
-        '419':
+        '429':
           description: Too Many Requests
           headers:
             retry-after:
@@ -744,9 +744,9 @@ components:
           type: string
 
         newStatus:
-          $ref: './schemas-pn-status-v1.yaml#/components/schemas/NotificationStatus'
+          $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'
         timelineEventCategory:
-          $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/TimelineElementCategory'
+          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementCategory'
         recipientIndex:
           type: integer
           format: int32

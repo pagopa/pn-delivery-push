@@ -479,6 +479,7 @@ Resources:
         ContainerEnvEntry43: !Sub 'PN_DELIVERYPUSH_NATIONALREGISTRIESBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry44: !Sub 'PN_DELIVERYPUSH_DOCUMENTCREATIONREQUESTDAO_TABLENAME=${DocumentCreationRequestTableName}'
         ContainerEnvEntry45: !Sub 'PN_DELIVERYPUSH_VALIDATIONRETRYINTERVALS=${ValidationRetryIntervals}'
+        ContainerEnvEntry46: !Sub 'PN_DELIVERYPUSH_TOPICS_NATIONALREGISTRIESEVENTS=${NationalRegistries2DeliveryPushQueueName}'
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*,/delivery-progresses/*'
         ECSClusterName: !Ref ECSClusterName

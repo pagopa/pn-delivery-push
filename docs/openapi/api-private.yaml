@@ -4,7 +4,7 @@ info:
   title: OpenAPI servizi ad uso solo interno
   x-summary: OpenAPI servizi ad uso solo interno
   x-api-id: api-private
-  description: >- 
+  description: >-
     API accessibili solo da microservizi interni
   version: '1.0.0'
   contact:
@@ -13,9 +13,9 @@ info:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 servers:
-- url: http://internal-pn-in-appli-em20o634urpg-965454854.eu-central-1.elb.amazonaws.com:8080 #TODO Valorizzare correttamente url api private\
-  description: Generated server url
-  x-sandbox: true
+  - url: http://internal-pn-in-appli-em20o634urpg-965454854.eu-central-1.elb.amazonaws.com:8080 #TODO Valorizzare correttamente url api private\
+    description: Generated server url
+    x-sandbox: true
 tags:
   - name: HealthCheck
     description: >-
@@ -77,7 +77,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
-    
+
   '/delivery-push-private/{iun}/viewed':
     post:
       summary: Notifica che un destinatario ha preso visione di una notifica
@@ -123,7 +123,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
-      
+
 
   '/delivery-push-private/{recipientInternalId}/paper-notification-failed':
     get:
@@ -163,7 +163,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
-  
+
   '/delivery-push-private/{iun}/legal-facts':
     get:
       summary: Elenco atti opponibili a terzi
@@ -179,13 +179,15 @@ paths:
         - $ref: '#/components/parameters/recipientInternalId'
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/legalFactsSearchMandateId'
+        - $ref: '#/components/parameters/xPagoPaPnCxType'
+        - $ref: '#/components/parameters/xPagoPaPnCxGroups'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "./schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactList"
+                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactList"
         '400':
           description: Invalid input
           content:
@@ -204,7 +206,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
-  
+
   '/delivery-push-private/{iun}/legal-facts/{legalFactType}/{legalFactId}':
     get:
       summary: Singolo atto opponibile a terzi
@@ -221,13 +223,15 @@ paths:
         - $ref: '#/components/parameters/pathLegalFactType'
         - $ref: '#/components/parameters/pathLegalFactId'
         - $ref: '#/components/parameters/legalFactsSearchMandateId'
+        - $ref: '#/components/parameters/xPagoPaPnCxType'
+        - $ref: '#/components/parameters/xPagoPaPnCxGroups'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "./schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactDownloadMetadataResponse"
+                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactDownloadMetadataResponse"
         '400':
           description: Invalid input
           content:
@@ -289,6 +293,21 @@ paths:
 components:
   parameters:
 
+    xPagoPaPnCxType:
+      name: x-pagopa-pn-cx-type
+      in: query
+      description: cx-type (PF, PG, PA)
+      schema:
+        $ref: '#/components/schemas/cxTypeAuthFleet'
+
+    xPagoPaPnCxGroups:
+      name: x-pagopa-pn-cx-groups
+      in: query
+      schema:
+        type: array
+        items:
+          type: string
+
     ############################################################################################
     ###                        PARAMETRI RICERCA NOTIFICA ACCETTATA                         ###
     ############################################################################################
@@ -300,7 +319,7 @@ components:
       required: true
       schema:
         type: string
-        
+
     pathNumberOfRecipients:
       description: >-
         Numero recipient notifica
@@ -329,7 +348,7 @@ components:
       required: true
       schema:
         type: string
-      
+
     getAAR:
       description: >-
         Tale parametro definisce se si richiede in risposta l'avviso avvenuta ricezione generato per la notifica o meno
@@ -338,7 +357,7 @@ components:
       required: true
       schema:
         type: boolean
-        
+
     ############################################################################################
     ###                      PARAMETRI RICERCA ATTI OPPONIBILI A TERZI                       ###
     ############################################################################################
@@ -349,7 +368,7 @@ components:
       in: path
       required: true
       schema:
-        $ref: './schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactCategory'
+        $ref: './schemas-pn-legal-facts.yaml#/components/schemas/LegalFactCategory'
 
     pathLegalFactId:
       description: >-
@@ -367,7 +386,7 @@ components:
       description: identificativo della delega
       schema:
         type: string
-        
+
     recipientInternalId:
       description: >-
         Identificativo anonimizzato del destinatario
@@ -400,6 +419,13 @@ components:
 
   schemas:
 
+    cxTypeAuthFleet:
+      type: string
+      enum:
+        - PG
+        - PF
+        - PA
+
     ############################################################################################
     ###           COMUNICAZIONE DELLA NOTIFICHE DI DESTINATARI NON RAGGIUNGIBILI            ###
     ############################################################################################
@@ -410,7 +436,7 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/ResponsePaperNotificationFailedDto'
-        
+
     ResponsePaperNotificationFailedDto:
       type: object
       required:
@@ -426,25 +452,25 @@ components:
         aarUrl:
           type: string
           description: Url dell' avviso avvenuta ricezione
-          
-    ############################################################################################
-    ###                        INFORMAZIONI STORICHE DI UNA NOTIFICA                         ###
-    ############################################################################################
-        
+
+        ############################################################################################
+        ###                        INFORMAZIONI STORICHE DI UNA NOTIFICA                         ###
+        ############################################################################################
+
     NotificationHistoryResponse:
       type: object
       properties:
         notificationStatus:
-          $ref: './schemas-pn-status-v1.yaml#/components/schemas/NotificationStatus'
+          $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'
         notificationStatusHistory:
-          $ref: './schemas-pn-status-v1.yaml#/components/schemas/NotificationStatusHistory'
+          $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatusHistory'
         timeline:
           description: >-
             elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica
           type: array
           items:
-            $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/TimelineElement'
-    
+            $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElement'
+
 
     ############################################################################################
     ###                 COMUNICAZIONE DELLA VISUALIZZAZIONE DI UNA NOTIFICA                  ###
@@ -460,14 +486,14 @@ components:
         - raddBusinessTransactionClosingDate
       properties:
         recipientType:
-          $ref: './schemas-pn-notification-v1.yaml#/components/schemas/RecipientType'
+          $ref: './schemas-pn-notification.yaml#/components/schemas/RecipientType'
         recipientInternalId:
           type: string
           description: identificativo anonimizzato del destinatario
         raddType:
-          $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/RaddType'
+          $ref: './schemas-pn-timeline.yaml#/components/schemas/RaddType'
         raddBusinessTransactionId:
-          $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/RaddTransactionId'
+          $ref: './schemas-pn-timeline.yaml#/components/schemas/RaddTransactionId'
         raddBusinessTransactionDate:
           type: string
           format: date-time
