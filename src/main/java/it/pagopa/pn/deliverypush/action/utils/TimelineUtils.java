@@ -887,7 +887,7 @@ public class TimelineUtils {
     public String getIunFromTimelineId(String timelineId)
     {
         //<timelineId = CATEGORY_VALUE>;IUN_<IUN_VALUE>;RECINDEX_<RECINDEX_VALUE>...
-        return timelineId.split(TimelineEventIdBuilder.DELIMITER)[1].replace("IUN_", "");
+        return timelineId.split("\\" + TimelineEventIdBuilder.DELIMITER)[1].replace("IUN_", "");
     }
 
 

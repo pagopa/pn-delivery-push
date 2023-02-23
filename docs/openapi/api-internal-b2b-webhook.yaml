@@ -808,9 +808,12 @@ components:
           $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementCategory'
         recipientIndex:
           type: integer
+          format: int32
+          minimum: 0
           description: Indice del destinatario al quale si riferisce l'evento
         analogCost:
           type: integer
+          format: int32
           description: Eventuale costo in eurocent associato all'evento
         channel:
           type: string
