@@ -578,7 +578,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ProgressResponse"
-        '419':
+        '429':
           description: Too Many Requests
           headers:
             retry-after:
