@@ -35,7 +35,7 @@ public class RefinementHandler {
             log.info("Handle refinement - iun {} id {}", iun, recIndex);
             NotificationInt notification = notificationService.getNotificationByIun(iun);
             
-            notificationCostService.getNotificationCost(notification, recIndex)
+            notificationCostService.getPagoPaNotificationBaseCost(notification, recIndex)
                     .doOnSuccess( notificationCost -> log.debug("Notification cost is {} - iun {} id {}",notificationCost, iun, recIndex))
                     .flatMap( res ->
                             attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement()).collectList()

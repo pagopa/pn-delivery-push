@@ -64,7 +64,7 @@ class RefinementHandlerTest {
         when(pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement()).thenReturn(120);
         when(timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex)).thenReturn(Boolean.FALSE);
         when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
-        when(notificationCostService.getNotificationCost(notification, recIndex)).thenReturn(Mono.just(100));
+        when(notificationCostService.getPagoPaNotificationBaseCost(notification, recIndex)).thenReturn(Mono.just(100));
         when(timelineUtils.buildRefinementTimelineElement(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(TimelineElementInternal.builder().build());
         when(attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement())).thenReturn(Flux.empty());
         
@@ -84,7 +84,7 @@ class RefinementHandlerTest {
 
         when(timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex)).thenReturn(Boolean.FALSE);
         when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
-        when(notificationCostService.getNotificationCost(notification, recIndex)).thenReturn(Mono.error(new RuntimeException("questa è l'eccezione")));
+        when(notificationCostService.getPagoPaNotificationBaseCost(notification, recIndex)).thenReturn(Mono.error(new RuntimeException("questa è l'eccezione")));
 
         assertThrows(RuntimeException.class, () -> {
             refinementHandler.handleRefinement(iun, recIndex);
