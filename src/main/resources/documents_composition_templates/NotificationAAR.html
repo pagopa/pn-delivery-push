@@ -205,15 +205,6 @@
         width: 80mm;
       }
 
-      /* #post-office-box ol {
-        line-height: 4.6mm;
-      }
-
-      #post-office-box ol li {
-        margin-top: 2.3mm;
-      } */
-
-
       ul {
         line-height: 18px;
         margin-left: 3mm;
@@ -310,13 +301,11 @@
 
     <div id="main">
       <div id="main__subject" class="eleven-px strong">
-        WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
-        WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
-        WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+        ${notification.subject}
       </div>
       <div id="main__disclaimer">
         Ricevi questo avviso di avvenuta ricezione in qualità di
-        <#if recipient.recipientType != "PF">
+        <#if recipient.recipientType == "PF">
           privato cittadino
         <#else>
           persona giuridica
@@ -324,7 +313,10 @@
         con Codice Fiscale ${recipient.taxId}.
       </div>
       <div id="main__content">
-        Hai ricevuto su Piattaforma Notifiche una notifica da parte di [Istituto di Istruzione Superiore Ipsaa e Ipssar Don Deodato Meloni Settore Servizi per Agricoltura e Lo Sviluppo Rurale e Servizi per Enogastronomia e Ospitalita Alberghiera e I Servizi Commerciali Servizi Sociali e Odontotecnico]. Una notifica è una comunicazione a valore legale composta da un avviso di avvenuta ricezione e da uno o più documenti. Hai fino a 120 giorni dalla data di perfezionamento della notifica per visualizzarli online o ritirarli in Ufficio Postale. Per conoscere la data di perfezionamento, vai su notifichedigitali.pagopa.it/perfezionamento.  <strong>${piattaformaNotificheURL}</strong>.
+        Hai ricevuto su Piattaforma Notifiche una notifica da parte di <strong>${notification.sender.paDenomination}</strong>.
+        Una notifica è una comunicazione a valore legale composta da un avviso di avvenuta ricezione e da uno o più documenti.
+        Hai fino a 120 giorni dalla data di perfezionamento della notifica per visualizzarli online o ritirarli in Ufficio Postale.
+        Per conoscere la data di perfezionamento, vai su <strong>${piattaformaNotificheURL}</strong>.
       </div>
     </div>
 
@@ -370,7 +362,7 @@
                   il tuo <strong>Codice Fiscale</strong> o
                   <strong>Partita IVA</strong>
                 </li>
-                <#if recipient.recipientType == "PF">
+                <#if recipient.recipientType != "PF">
                   <li>
                     se hai ricevuto la notifica in qualità di persona giuridica, <strong>un documento che attesti il tuo ruolo di legale rappresentante</strong>
                   </li>
@@ -397,7 +389,7 @@
       <div id="mandate-box">
         <div class="heading ten-px">Vuoi delegare qualcuno al ritiro?</div>
         <div id="mandate-content">
-          Io, [Antonio Griffo Focas Flavio Angelo Ducas Comneno Porfirogenito Gagliardi De Curtis di Bisanzio][XXXXXX00X00X000X], delego
+          Io, ${recipient.denomination} ${recipient.taxId}, delego
           <div class="form-element paragraph">Nome</div>
           <div class="form-element paragraph">Cognome</div>
           <div class="form-element paragraph">Codice Fiscale</div>
@@ -422,7 +414,7 @@
                 <strong>una copia o l’originale</strong> del tuo Codice Fiscale e
                 di un tuo documento di riconoscimento
               </li>
-              <#if recipient.recipientType == "PF">
+              <#if recipient.recipientType != "PF">
                 <li>
                   se hai ricevuto la notifica in qualità di persona giuridica, <strong>un documento che attesti il tuo ruolo di legale rappresentante</strong>
                 </li>
