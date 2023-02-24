@@ -102,6 +102,8 @@ public class PnDeliveryPushConfigs {
         private String fromExternalChannel;
 
         private String safeStorageEvents;
+
+        private String nationalRegistriesEvents;
     }
 
     @Data

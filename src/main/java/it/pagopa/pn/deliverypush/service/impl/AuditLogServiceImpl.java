@@ -13,11 +13,23 @@ import org.springframework.stereotype.Component;
 public class AuditLogServiceImpl implements AuditLogService {
 
     @Override
-    public PnAuditLogEvent buildAuditLogEvent(String iun, Integer recIndex, PnAuditLogEventType pnAuditLogEventType, String message, Object ... arguments) {
-        String logmessage = MessageFormatter.arrayFormat(message, arguments).getMessage();
+    public PnAuditLogEvent buildAuditLogEvent(String iun, PnAuditLogEventType pnAuditLogEventType, String message, Object ... arguments) {
+        String logMessage = MessageFormatter.arrayFormat(message, arguments).getMessage();
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent;
-        logEvent = auditLogBuilder.before(pnAuditLogEventType, "{} - iun={} id={}", logmessage, iun, recIndex)
+        logEvent = auditLogBuilder.before(pnAuditLogEventType, "{} - iun={}", logMessage, iun)
+                .iun(iun)
+                .build();
+        logEvent.log();
+        return logEvent;
+    }
+    
+    @Override
+    public PnAuditLogEvent buildAuditLogEvent(String iun, Integer recIndex, PnAuditLogEventType pnAuditLogEventType, String message, Object ... arguments) {
+        String logMessage = MessageFormatter.arrayFormat(message, arguments).getMessage();
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent;
+        logEvent = auditLogBuilder.before(pnAuditLogEventType, "{} - iun={} id={}", logMessage, iun, recIndex)
                 .iun(iun)
                 .build();
         logEvent.log();

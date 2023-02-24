@@ -13,7 +13,6 @@ import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedCreationRequestDetailsInt;
-import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -36,7 +35,6 @@ public class NotificationViewLegalFactCreationResponseHandler {
     private final TimelineService timelineService;
     private final NotificationCost notificationCost;
     private final PaperNotificationFailedService paperNotificationFailedService;
-    private final ConfidentialInformationService confidentialInformationService;
     private final NotificationUtils notificationUtils;
     private final TimelineUtils timelineUtils;
     
@@ -60,7 +58,8 @@ public class NotificationViewLegalFactCreationResponseHandler {
                         .doOnSuccess( cost -> log.info("Completed getNotificationCost cost={}- iun={} id={}", cost, notification.getIun(), recIndex))
                         .flatMap(responseCost -> {
                             Integer cost = responseCost.orElse(null);
-                            return getDenominationAndSaveInTimeline(notification, recIndex, raddInfo, timelineDetails.getEventTimestamp(), timelineDetails.getLegalFactId(), cost, timelineDetails.getDelegateInfo());
+                            return addTimelineAndDeletePaperNotificationFailed(notification, recIndex, raddInfo, timelineDetails.getEventTimestamp(),
+                                    timelineDetails.getLegalFactId(), cost, timelineDetails.getDelegateInfo());
                         }).block();
                 
                 recipientAccessLegalFactAuditLog.generateSuccess().log();
@@ -93,37 +92,6 @@ public class NotificationViewLegalFactCreationResponseHandler {
                     .build();
         }
         return raddInfo;
-    }
-
-    private Mono<Void> getDenominationAndSaveInTimeline(
-            NotificationInt notification,
-            Integer recIndex,
-            RaddInfo raddInfo,
-            Instant eventTimestamp,
-            String legalFactId,
-            Integer cost,
-            DelegateInfoInt delegateInfo
-    ){
-
-        if ( delegateInfo != null){
-            log.debug("View is from delegate - iun={} id={}" , notification.getIun(), recIndex);
-
-            return confidentialInformationService.getRecipientInformationByInternalId(delegateInfo.getInternalId())
-                    .doOnSuccess( baseRecipientDto -> log.info("Completed getBaseRecipientDtoIntMono - iun={} id={}" , notification.getIun(), recIndex))
-                    .map(baseRecipientDto ->
-                            delegateInfo.toBuilder()
-                                    .denomination(baseRecipientDto.getDenomination())
-                                    .taxId(baseRecipientDto.getTaxId())
-                                    .build()
-                    )
-                    .flatMap(delegateInfoInt ->{
-                        log.info("Completed flatMap - iun={} id={}" , notification.getIun(), recIndex);
-                        return addTimelineAndDeletePaperNotificationFailed(notification, recIndex, raddInfo, eventTimestamp, legalFactId, cost, delegateInfoInt);
-                    });
-        } else {
-            log.debug("View is not from delegate - iun={} id={}" , notification.getIun(), recIndex);
-            return addTimelineAndDeletePaperNotificationFailed(notification, recIndex, raddInfo, eventTimestamp, legalFactId, cost, null);
-        }
     }
 
     @NotNull

@@ -8,12 +8,16 @@ import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.BaseRecipientDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.service.*;
+import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
+import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
+import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,7 +46,9 @@ class ViewNotificationTest {
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
     @Mock
     private DocumentCreationRequestService documentCreationRequestService;
-    
+    @Mock
+    private ConfidentialInformationService confidentialInformationService;
+
     private ViewNotification viewNotification;
     
     private NotificationUtils notificationUtils;
@@ -59,7 +65,8 @@ class ViewNotificationTest {
                 timelineUtils, 
                 timelineService, 
                 attachmentUtils, 
-                pnDeliveryPushConfigs
+                pnDeliveryPushConfigs,
+                confidentialInformationService
         );
     }
 
@@ -83,7 +90,9 @@ class ViewNotificationTest {
         when(timelineUtils.buildNotificationViewedLegalFactCreationRequestTimelineElement(Mockito.eq(notification), Mockito.eq(recIndex),
                         Mockito.eq(legalFactsId), Mockito.isNull(), Mockito.isNull(), Mockito.any()))
                 .thenReturn(timelineElementInternal);
-        
+
+
+                
         Instant viewDate = Instant.now();
 
         //WHEN
@@ -122,21 +131,33 @@ class ViewNotificationTest {
         
         when(attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement())).thenReturn(Flux.empty());
 
-        //WHEN
         String internalId = "internalId";
-
         DelegateInfoInt delegateInfo = DelegateInfoInt.builder()
                 .internalId(internalId)
                 .delegateType(RecipientTypeInt.PF)
                 .mandateId("mandate")
                 .build();
+
+        BaseRecipientDtoInt baseRecipientDtoInt = BaseRecipientDtoInt.builder()
+                .taxId("testTaxId")
+                .denomination("testDenomination")
+                .internalId("internalId")
+                .build();
         
+        when(confidentialInformationService.getRecipientInformationByInternalId(internalId)).thenReturn(Mono.just(baseRecipientDtoInt));
+        
+        //WHEN
         viewNotification.startVewNotificationProcess(notification, recipient, recIndex, null, delegateInfo, viewDate).block();
 
         //THEN
-        
+
+        DelegateInfoInt delegateInfoEnriched = delegateInfo.toBuilder()
+                .taxId(baseRecipientDtoInt.getTaxId())
+                .denomination(baseRecipientDtoInt.getDenomination())
+                .build();
+
         Mockito.verify(timelineUtils).buildNotificationViewedLegalFactCreationRequestTimelineElement(Mockito.eq(notification), Mockito.eq(recIndex),
-                Mockito.eq(legalFactsId), Mockito.isNull(), Mockito.eq(delegateInfo), Mockito.eq(viewDate));
+                Mockito.eq(legalFactsId), Mockito.isNull(), Mockito.eq(delegateInfoEnriched), Mockito.eq(viewDate));
 
         Mockito.verify(timelineService).addTimelineElement(timelineElementInternal, notification);
 

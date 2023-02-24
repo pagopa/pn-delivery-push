@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.deliverypush.dto.ext.mandate.MandateDtoInt;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.mandate.PnMandateClient;
 import it.pagopa.pn.deliverypush.service.MandateService;
 import it.pagopa.pn.deliverypush.service.mapper.MandateDtoMapper;
@@ -13,6 +14,7 @@ import java.util.List;
 @Slf4j
 @Service
 public class MandateServiceImpl implements MandateService {
+
     private final PnMandateClient mandateClient;
 
     public MandateServiceImpl(PnMandateClient mandateClient) {
@@ -20,11 +22,19 @@ public class MandateServiceImpl implements MandateService {
     }
 
     @Override
-    public List<MandateDtoInt> listMandatesByDelegate(String delegated, String mandateId) {
-        List<InternalMandateDto> listMandateDto = mandateClient.listMandatesByDelegate(delegated, mandateId);
+    public List<MandateDtoInt> listMandatesByDelegate(String delegated,
+                                                      String mandateId,
+                                                      CxTypeAuthFleet cxType,
+                                                      List<String> cxGroups) {
+
+        List<InternalMandateDto> listMandateDto = mandateClient.listMandatesByDelegate(delegated, mandateId, convertToMandateCxType(cxType), cxGroups);
         
-        return listMandateDto.stream().map(
-                MandateDtoMapper::externalToInternal
-        ).toList();
+        return listMandateDto.stream()
+                .map(MandateDtoMapper::externalToInternal)
+                .toList();
+    }
+
+    private it.pagopa.pn.mandate.generated.openapi.clients.mandate.model.CxTypeAuthFleet convertToMandateCxType(CxTypeAuthFleet cxType) {
+        return it.pagopa.pn.mandate.generated.openapi.clients.mandate.model.CxTypeAuthFleet.valueOf(cxType.getValue());
     }
 }

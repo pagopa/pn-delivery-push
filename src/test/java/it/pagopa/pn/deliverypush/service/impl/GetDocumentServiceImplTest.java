@@ -6,6 +6,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DocumentCategory;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DocumentDownloadMetadataResponse;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -99,7 +100,7 @@ class GetDocumentServiceImplTest {
 
 
         //THEN
-        Mono<DocumentDownloadMetadataResponse> responseMono = getDocumentService.getDocumentWebMetadata(iun, documentType, documentId, recipientInt.getInternalId(), null);
+        Mono<DocumentDownloadMetadataResponse> responseMono = getDocumentService.getDocumentWebMetadata(iun, documentType, documentId, recipientInt.getInternalId(), null, CxTypeAuthFleet.PF, null);
         DocumentDownloadMetadataResponse downloadMetadataResponse = responseMono.block();
 
         assertNotNull( downloadMetadataResponse );
@@ -127,10 +128,12 @@ class GetDocumentServiceImplTest {
         Mockito.when(notificationService.getNotificationByIunReactive(iun))
                 .thenReturn(Mono.just(notification));
 
-        Mockito.doThrow(new PnNotFoundException("Not found", message, ERROR_CODE_DELIVERYPUSH_NOTFOUND)).when(authUtils).checkUserPaAndMandateAuthorization(notification, recipientInt.getInternalId(), null);
+        Mockito.doThrow(new PnNotFoundException("Not found", message, ERROR_CODE_DELIVERYPUSH_NOTFOUND))
+                .when(authUtils)
+                .checkUserPaAndMandateAuthorization(notification, recipientInt.getInternalId(), null, CxTypeAuthFleet.PF, null);
 
         //THEN
-        StepVerifier.create(getDocumentService.getDocumentWebMetadata(iun, documentType, documentId, recipientId, null))
+        StepVerifier.create(getDocumentService.getDocumentWebMetadata(iun, documentType, documentId, recipientId, null, CxTypeAuthFleet.PF, null))
                 .expectError(PnNotFoundException.class)
                 .verify();
     }
