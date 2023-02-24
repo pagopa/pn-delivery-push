@@ -704,4 +704,4 @@ Resources:
             - !Ref NationalRegistries2DeliveryPushQueueARN
         LogGroupsNames: !Join
           - ','
-          - - !Sub '/ecs/${MicroServiceUniqueName}'
+          - - !Sub '/ecs/${DeliveryPushMicroservice.MicroServiceUniqueName}'
