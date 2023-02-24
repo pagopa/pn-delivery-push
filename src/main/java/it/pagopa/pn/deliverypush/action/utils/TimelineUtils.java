@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
+import it.pagopa.pn.api.dto.events.PnDeliveryPaymentEvent;
 import it.pagopa.pn.deliverypush.dto.address.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
@@ -759,16 +760,17 @@ public class TimelineUtils {
         );
     }
 
-    public TimelineElementInternal buildNotificationPaidTimelineElement(NotificationInt notification, int recIndex, Instant paymentDate) {
-        log.debug("buildNotificationPaidTimelineElement - iun={} id={}", notification.getIun(), recIndex);
-
-        String elementId = TimelineEventId.NOTIFICATION_PAID.buildEventId(
-                EventId.builder()
-                        .iun(notification.getIun())
-                        .build());
+    public TimelineElementInternal buildNotificationPaidTimelineElement(NotificationInt notification, PnDeliveryPaymentEvent.Payload paymentEventPayload, String elementId, String idF24) {
+        log.debug("buildNotificationPaidTimelineElement: {}", paymentEventPayload);
 
         NotificationPaidDetails details = NotificationPaidDetails.builder()
-                .recIndex(recIndex)
+                .recIndex(paymentEventPayload.getRecipientIdx())
+                .paymentDate(paymentEventPayload.getPaymentDate())
+                .amount(paymentEventPayload.getAmount())
+                .creditorTaxId(paymentEventPayload.getCreditorTaxId())
+                .noticeCode(paymentEventPayload.getNoticeCode())
+                .idF24(idF24)
+                .paymentSourceChannel(paymentEventPayload.getPaymentSourceChannel())
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
@@ -778,7 +780,7 @@ public class TimelineUtils {
                 notification,
                 TimelineElementCategoryInt.PAYMENT,
                 elementId,
-                paymentDate,
+                Instant.now(), //salvo il timestamp dell'evento in timeline che è diverso dal paymentDate
                 details, 
                 timelineBuilder
         );
