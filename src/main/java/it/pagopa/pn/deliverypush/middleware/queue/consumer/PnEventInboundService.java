@@ -35,11 +35,13 @@ public class PnEventInboundService {
     private final EventHandler eventHandler;
     private final String externalChannelEventQueueName;
     private final String safeStorageEventQueueName;
+    private final String nationalRegistriesEventQueueName;
 
     public PnEventInboundService(EventHandler eventHandler, PnDeliveryPushConfigs cfg) {
         this.eventHandler = eventHandler;
         this.externalChannelEventQueueName = cfg.getTopics().getFromExternalChannel();
         this.safeStorageEventQueueName = cfg.getTopics().getSafeStorageEvents();
+        this.nationalRegistriesEventQueueName = cfg.getTopics().getNationalRegistriesEvents();
     }
 
     @Bean
@@ -116,6 +118,9 @@ public class PnEventInboundService {
             eventType = "SEND_PEC_RESPONSE";
         } else if (Objects.equals(queueName, safeStorageEventQueueName)) {
             eventType = "SAFE_STORAGE_EVENTS";
+        }
+        else if(Objects.equals(queueName, nationalRegistriesEventQueueName)) {
+            eventType = "NR_GATEWAY_RESPONSE";
         }
         else {
             log.error("eventType not present, cannot start scheduled action headers={} payload={}", message.getHeaders(), message.getPayload());

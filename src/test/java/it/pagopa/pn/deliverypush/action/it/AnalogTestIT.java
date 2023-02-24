@@ -365,7 +365,8 @@ class AnalogTestIT {
                 generatedLegalFactsInfo,
                 EndWorkflowStatus.SUCCESS,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
         
         //Vengono stampati tutti i legalFacts generati
@@ -482,7 +483,8 @@ class AnalogTestIT {
                 generatedLegalFactsInfo,
                 EndWorkflowStatus.SUCCESS,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
         
         //Vengono stampati tutti i legalFacts generati
@@ -622,7 +624,8 @@ class AnalogTestIT {
                 generatedLegalFactsInfo,
                 EndWorkflowStatus.SUCCESS,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
         //Vengono stampati tutti i legalFacts generati
@@ -722,7 +725,8 @@ class AnalogTestIT {
                 generatedLegalFactsInfo,
                 EndWorkflowStatus.SUCCESS,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
         //Vengono stampati tutti i legalFacts generati
@@ -901,7 +905,8 @@ class AnalogTestIT {
                 generatedLegalFactsInfo,
                 EndWorkflowStatus.SUCCESS,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
         //Viene effettuato il check dei legalFacts generati per il secondo recipient
@@ -920,7 +925,8 @@ class AnalogTestIT {
                 generatedLegalFactsInfo2,
                 EndWorkflowStatus.SUCCESS,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
         //Vengono stampati tutti i legalFacts generati
@@ -1111,7 +1117,8 @@ class AnalogTestIT {
                 generatedLegalFactsInfo,
                 EndWorkflowStatus.SUCCESS,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
         //Viene effettuato il check dei legalFacts generati per il secondo recipient
@@ -1130,7 +1137,8 @@ class AnalogTestIT {
                 generatedLegalFactsInfo2,
                 EndWorkflowStatus.SUCCESS,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
         
         //Vengono stampati tutti i legalFacts generati
@@ -1310,7 +1318,8 @@ class AnalogTestIT {
                 generatedLegalFactsInfo,
                 EndWorkflowStatus.SUCCESS,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
         //Viene effettuato il check dei legalFacts generati per il secondo recipient
@@ -1329,7 +1338,8 @@ class AnalogTestIT {
                 generatedLegalFactsInfo2,
                 EndWorkflowStatus.SUCCESS,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
         
         //Vengono stampati tutti i legalFacts generati
@@ -1508,7 +1518,8 @@ class AnalogTestIT {
                 generatedLegalFactsInfo,
                 EndWorkflowStatus.SUCCESS,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
         //Viene effettuato il check dei legalFacts generati per il secondo recipient
@@ -1527,7 +1538,8 @@ class AnalogTestIT {
                 generatedLegalFactsInfo2,
                 EndWorkflowStatus.SUCCESS,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
         
         //Vengono stampati tutti i legalFacts generati

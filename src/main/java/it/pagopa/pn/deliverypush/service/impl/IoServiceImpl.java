@@ -37,7 +37,7 @@ public class IoServiceImpl implements IoService {
 
         NotificationRecipientInt recipientInt = notificationUtils.getRecipientFromIndex(notification, recIndex);
 
-        SendMessageRequest sendMessageRequest = getSendMessageRequest(notification, recipientInt);
+        SendMessageRequest sendMessageRequest = getSendMessageRequest(notification, recipientInt, recIndex);
 
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_DA_SEND_IO, "sendIOMessage - iun={} id={}", notification.getIun(), recIndex)
@@ -76,7 +76,7 @@ public class IoServiceImpl implements IoService {
     }
 
     @NotNull
-    private SendMessageRequest getSendMessageRequest(NotificationInt notification, NotificationRecipientInt recipientInt) {
+    private SendMessageRequest getSendMessageRequest(NotificationInt notification, NotificationRecipientInt recipientInt, int recIndex) {
         SendMessageRequest sendMessageRequest = new SendMessageRequest();
         sendMessageRequest.setAmount(notification.getAmount());
         sendMessageRequest.setDueDate(notification.getPaymentExpirationDate());
@@ -84,6 +84,8 @@ public class IoServiceImpl implements IoService {
         sendMessageRequest.setRequestAcceptedDate(notification.getSentAt());
         sendMessageRequest.setSenderDenomination(notification.getSender().getPaDenomination());
         sendMessageRequest.setIun(notification.getIun());
+        sendMessageRequest.setRecipientIndex(recIndex);
+        sendMessageRequest.setRecipientInternalID(recipientInt.getInternalId());
         
         String subject = notification.getSender().getPaDenomination() +"-"+ notification.getSubject();
         sendMessageRequest.setSubject(subject);

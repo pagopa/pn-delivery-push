@@ -389,7 +389,8 @@ class DigitalTestIT {
                 generatedLegalFactsInfo,
                 endWorkflowStatus,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
         //Vengono stampati tutti i legalFacts generati
@@ -529,7 +530,8 @@ class DigitalTestIT {
                 generatedLegalFactsInfo,
                 endWorkflowStatus,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
         //Vengono stampati tutti i legalFacts generati
@@ -646,7 +648,8 @@ class DigitalTestIT {
                 generatedLegalFactsInfo,
                 endWorkflowStatus,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
         //Vengono stampati tutti i legalFacts generati
@@ -755,7 +758,8 @@ class DigitalTestIT {
                 generatedLegalFactsInfo,
                 endWorkflowStatus,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
         //Vengono stampati tutti i legalFacts generati
@@ -909,7 +913,8 @@ class DigitalTestIT {
                 generatedLegalFactsInfo,
                 endWorkflowStatus,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
         //Vengono stampati tutti i legalFacts generati
@@ -1002,7 +1007,8 @@ class DigitalTestIT {
                 generatedLegalFactsInfo,
                 endWorkflowStatus,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
         
         //Vengono stampati tutti i legalFacts generati
@@ -1119,7 +1125,8 @@ class DigitalTestIT {
                 generatedLegalFactsInfo,
                 endWorkflowStatus,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
         //Vengono stampati tutti i legalFacts generati
@@ -1208,7 +1215,8 @@ class DigitalTestIT {
                 generatedLegalFactsInfo,
                 endWorkflowStatus,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
         //Vengono stampati tutti i legalFacts generati
@@ -1314,7 +1322,8 @@ class DigitalTestIT {
                 generatedLegalFactsInfo,
                 endWorkflowStatus,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
         //Vengono stampati tutti i legalFacts generati
@@ -1425,7 +1434,8 @@ class DigitalTestIT {
                 generatedLegalFactsInfo,
                 endWorkflowStatus,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
 
@@ -1565,7 +1575,8 @@ class DigitalTestIT {
                 generatedLegalFactsInfo,
                 endWorkflowStatus,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
 
@@ -1717,7 +1728,8 @@ class DigitalTestIT {
                 generatedLegalFactsInfo,
                 endWorkflowStatus,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
 

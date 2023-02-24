@@ -351,7 +351,8 @@ class NotHandledTestIT {
                 generatedLegalFactsInfo,
                 EndWorkflowStatus.FAILURE,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
         //Vengono stampati tutti i legalFacts generati
@@ -470,7 +471,8 @@ class NotHandledTestIT {
                 generatedLegalFactsInfo,
                 EndWorkflowStatus.FAILURE,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
 
@@ -569,7 +571,8 @@ class NotHandledTestIT {
                 generatedLegalFactsInfo,
                 EndWorkflowStatus.FAILURE,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
         //Vengono stampati tutti i legalFacts generati
@@ -680,7 +683,8 @@ class NotHandledTestIT {
                 generatedLegalFactsInfo,
                 EndWorkflowStatus.FAILURE,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
         
         //Vengono stampati tutti i legalFacts generati

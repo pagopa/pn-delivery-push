@@ -57,7 +57,7 @@ public class PnDocumentsController implements DocumentsApi, DocumentsWebApi {
 
         log.info("[enter] getDocuments iun={} xPagopaPnCxId={} documentType={} documentId={} mandateId={}", iun, xPagopaPnCxId, documentType, documentId, mandateId);
 
-        return getDocumentService.getDocumentWebMetadata(iun, documentType, documentId, xPagopaPnCxId, mandateId)
+        return getDocumentService.getDocumentWebMetadata(iun, documentType, documentId, xPagopaPnCxId, mandateId, xPagopaPnCxType, xPagopaPnCxGroups)
                 .map(response -> ResponseEntity.ok()
                         .header(HEADER_RETRY_AFTER, "" + response.getRetryAfter())
                         .body(response));
