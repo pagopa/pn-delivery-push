@@ -7,7 +7,6 @@ import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
-import it.pagopa.pn.deliverypush.dto.ext.datavault.BaseRecipientDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -15,7 +14,6 @@ import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedCreationRequestDetailsInt;
-import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -43,8 +41,6 @@ class NotificationViewLegalFactCreationResponseHandlerTest {
     @Mock
     private PaperNotificationFailedService paperNotificationFailedService;
     @Mock
-    private ConfidentialInformationService confidentialInformationService;
-    @Mock
     private NotificationUtils notificationUtils;
     @Mock
     private TimelineUtils timelineUtils;
@@ -59,7 +55,6 @@ class NotificationViewLegalFactCreationResponseHandlerTest {
                 timelineService,
                 notificationCost,
                 paperNotificationFailedService,
-                confidentialInformationService,
                 new NotificationUtils(),
                 timelineUtils
         );
@@ -90,6 +85,8 @@ class NotificationViewLegalFactCreationResponseHandlerTest {
                 .internalId(internalId)
                 .mandateId("mandate")
                 .operatorUuid("operatorUU")
+                .denomination("denomination")
+                .taxId("taxId")
                 .delegateType(RecipientTypeInt.PF)
                 .build();
         
@@ -108,26 +105,13 @@ class NotificationViewLegalFactCreationResponseHandlerTest {
         Mockito.when(timelineUtils.buildNotificationViewedTimelineElement(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(timelineElement);
         
-        BaseRecipientDtoInt baseRecipientDto = BaseRecipientDtoInt.builder()
-                .internalId(internalId)
-                .denomination("denomination")
-                .taxId("taxId")
-                .build();
-
-        Mockito.when(confidentialInformationService.getRecipientInformationByInternalId(Mockito.anyString())).thenReturn(Mono.just(baseRecipientDto));
-        
         //WHEN
         handler.handleLegalFactCreationResponse(notification.getIun(), recIndex, actionDetails);
 
         //THEN
-
-        DelegateInfoInt delegateInfoWithPersonalInformation = delegateInfo.toBuilder()
-                .denomination(baseRecipientDto.getDenomination())
-                .taxId(baseRecipientDto.getTaxId())
-                .build();
         
         Mockito.verify(timelineUtils).buildNotificationViewedTimelineElement(notification, recIndex, legalFactId, notificationCost,
-                        null, delegateInfoWithPersonalInformation, timelineDetails.getEventTimestamp());
+                        null, delegateInfo, timelineDetails.getEventTimestamp());
 
         Mockito.verify(paperNotificationFailedService).deleteNotificationFailed(recipient.getInternalId(), notification.getIun());
         Mockito.verify(timelineService).addTimelineElement(timelineElement, notification);
