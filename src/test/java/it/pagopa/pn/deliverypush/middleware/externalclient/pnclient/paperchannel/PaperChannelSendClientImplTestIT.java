@@ -213,7 +213,7 @@ class PaperChannelSendClientImplTestIT extends MockAWSObjectsTest {
         
         PaperChannelSendRequest paperChannelSendRequest = PaperChannelSendRequest.builder()
                 .requestId(requestId)
-                .productType(ProductTypeEnum.RN_890.getValue())
+                .productType(ProductTypeEnum._890.getValue())
                 .arAddress(PhysicalAddressInt.builder()
                         .address("test")
                         .build())
