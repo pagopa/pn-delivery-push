@@ -95,7 +95,7 @@ public class PaperChannelResponseHandler {
     private SendEventInt mapExternalToInternal(String iun, SendEvent event) {
         var builder = SendEventInt.builder()
                 .iun(iun)
-                .statusCode(event.getStatusCode())
+                .statusCode(event.getStatusCode()==null?null:event.getStatusCode().getValue())
                 .statusDetail(event.getStatusDetail())
                 .deliveryFailureCause(event.getDeliveryFailureCause())
                 .requestId(event.getRequestId())
