@@ -305,14 +305,10 @@ class TimelineUtilsTest {
         NotificationInt notification = buildNotification();
         Integer recIndex = 1;
         PhysicalAddressInt address = buildPhysicalAddressInt();
-        List<LegalFactsIdInt> attachments = Collections.singletonList(LegalFactsIdInt.builder()
-                .category(LegalFactCategoryInt.ANALOG_DELIVERY)
-                .key("key")
-                .build());
         String timelineEventIdExpected = "ANALOG_SUCCESS_WORKFLOW#IUN_Example_IUN_1234_Test#RECINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
         TimelineElementInternal actual = timelineUtils.buildSuccessAnalogWorkflowTimelineElement(
-                notification, recIndex, address, attachments
+                notification, recIndex, address
         );
 
         Assertions.assertAll(
@@ -333,7 +329,7 @@ class TimelineUtilsTest {
         String timelineEventIdExpected = "ANALOG_FAILURE_WORKFLOW#IUN_Example_IUN_1234_Test#RECINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
         TimelineElementInternal actual = timelineUtils.buildFailureAnalogWorkflowTimelineElement(
-                notification, recIndex, attachments
+                notification, recIndex
         );
 
         Assertions.assertAll(

@@ -192,7 +192,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
         // La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
         try {
             String timelineId = analogWorkflowUtils.addAnalogSuccessAttemptToTimeline(notification, sendPaperDetails.getSentAttemptMade(), legalFactsListEntryIds,  sendPaperDetails, response);
-            completionWorkFlow.completionAnalogWorkflow(notification, recIndex, legalFactsListEntryIds, response.getStatusDateTime(), sendPaperDetails.getPhysicalAddress(), EndWorkflowStatus.SUCCESS);
+            completionWorkFlow.completionAnalogWorkflow(notification, recIndex, response.getStatusDateTime(), sendPaperDetails.getPhysicalAddress(), EndWorkflowStatus.SUCCESS);
 
             logEvent.generateSuccess("generated success timelineid={}", timelineId).log();
         } catch (Exception e) {
