@@ -42,6 +42,9 @@
       }
 
       /* font equivalence */
+      .seven-px {
+        font-size: 9.3px;
+      }
       .eight-px {
         font-size: 10.7px;
       }
@@ -57,27 +60,25 @@
 
       /* logo-box style */
       #logo-box {
-        position: absolute;
+        position: relative;
         top: 14mm;
-        left: 10mm;
-        width: 48.5mm;
-        height: 22mm;
+        left: 8mm;
+        width: 65mm;
+        height: 23mm;
       }
 
       #logo-box__logo {
-        position: relative;
-        top: .5mm;
-        left: 2.7mm;
-        width: 42.3mm;
+        position: absolute;
+        width: 23mm;
       }
 
       #logo-box__subtitle {
-        position: relative;
-        top: .2mm;
+        position: absolute;
+        left: 24.2mm;
+        top: -.1mm;
         text-transform: uppercase;
         font-weight: 700;
         color: #616161;
-        padding: .5mm 2.6mm;
       }
 
       /* QR */
@@ -274,7 +275,7 @@
   <body>
     <div id="logo-box">
       <img id="logo-box__logo" src="./images/aar-logo.png" />
-      <div id="logo-box__subtitle" class="eight-px">
+      <div id="logo-box__subtitle" class="seven-px">
         Avviso di avvenuta ricezione
       </div>
     </div>
@@ -372,9 +373,7 @@
           </ol>
         </div>
         <div id="post-office-disclaimer">
-          Puoi consultare i termini e le condizioni del servizio in Ufficio
-          Postale e su
-          <strong>poste.it</strong>.
+          Puoi consultare i termini e le condizioni del servizio “Stampa Notifica” su <strong>poste.it</strong> e in Ufficio Postale.
         </div>
     
         <div id="description-box" class="rounded-box">
