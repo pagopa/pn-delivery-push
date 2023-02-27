@@ -1,19 +1,17 @@
 package it.pagopa.pn.deliverypush.action.notificationpaid;
 
 import it.pagopa.pn.api.dto.events.PnDeliveryPaymentEvent;
-import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationPaidDetails;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
-import it.pagopa.pn.deliverypush.service.NotificationCostService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.utils.UUIDCreatorUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.time.Instant;
@@ -36,7 +34,7 @@ class NotificationPaidHandlerTest {
         timelineUtils = Mockito.mock(TimelineUtils.class);
         notificationService = Mockito.mock(NotificationService.class);
 
-        handler = new NotificationPaidHandler(timelineService, timelineUtils, notificationService);
+        handler = new NotificationPaidHandler(timelineService, timelineUtils, notificationService, Mockito.mock(UUIDCreatorUtils.class));
 
     }
 

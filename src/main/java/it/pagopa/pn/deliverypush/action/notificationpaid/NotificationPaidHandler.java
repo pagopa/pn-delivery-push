@@ -8,11 +8,11 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.utils.UUIDCreatorUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Slf4j
 @Component
@@ -21,12 +21,16 @@ public class NotificationPaidHandler {
     private final TimelineUtils timelineUtils;
     private final NotificationService notificationService;
 
+    private final UUIDCreatorUtils uuidCreatorUtils;
+
     public NotificationPaidHandler(TimelineService timelineService,
                                    TimelineUtils timelineUtils,
-                                   NotificationService notificationService) {
+                                   NotificationService notificationService,
+                                   UUIDCreatorUtils uuidCreatorUtils) {
         this.timelineService = timelineService;
         this.timelineUtils = timelineUtils;
         this.notificationService = notificationService;
+        this.uuidCreatorUtils = uuidCreatorUtils;
     }
 
     public void handleNotificationPaid(PnDeliveryPaymentEvent.Payload paymentEventPayload) {
@@ -34,7 +38,7 @@ public class NotificationPaidHandler {
         String idF24 = null;
 
         if(paymentEventPayload.getPaymentType().equals(PnDeliveryPaymentEvent.PaymentType.F24)) {
-            idF24 = UUID.randomUUID().toString(); //attualmente inseriamo noi un UUID perché non abbiamo questa informazione
+            idF24 = uuidCreatorUtils.createUUID(); //attualmente inseriamo noi un UUID perché non abbiamo questa informazione
         }
 
         // attualmente controllo inutile per i pagamenti f24, in quanto inserendo un UUID, non verrà mai trovata la timeline,
