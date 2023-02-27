@@ -5,6 +5,7 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.utils.AuditLogUtils;
 import lombok.*;
 
+import java.time.Instant;
 import java.util.List;
 
 @NoArgsConstructor
@@ -25,16 +26,21 @@ public class SendAnalogFeedbackDetailsInt implements RecipientRelatedTimelineEle
     private ResponseStatusInt responseStatus;
     private List<SendingReceipt> sendingReceipts;
     private String requestTimelineId;
+    private String eventCode;
+    private String eventDetail;
+    private Instant notificationDate;
 
     public String toLog() {
         return String.format(
-                "recIndex=%d sentAttemptMade=%d responseStatus=%s errors=%s physicalAddress=%s requestTimelineId=%s",
+                "recIndex=%d sentAttemptMade=%d responseStatus=%s errors=%s physicalAddress=%s requestTimelineId=%s eventCode=%s eventDetail=%s ",
                 recIndex,
                 sentAttemptMade,
                 responseStatus,
                 errors,
                 AuditLogUtils.SENSITIVE,
-                requestTimelineId
+                requestTimelineId,
+                eventCode,
+                eventDetail
         );
     }
 }

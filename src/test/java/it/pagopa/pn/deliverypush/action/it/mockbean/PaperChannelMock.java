@@ -139,17 +139,17 @@ public class PaperChannelMock implements PaperChannelSendClient {
         sendEvent.setRequestId(timelineEventId);
 
         String newAddress;
-        String status = null;
+        SendEvent.StatusCodeEnum status = null;
         Matcher matcher = NEW_ADDRESS_INPUT_PATTERN.matcher(address);
         if (matcher.find()) {
-            status = "005";
+            status = SendEvent.StatusCodeEnum.KO;
             newAddress = matcher.group(1).trim();
         } else if (address.startsWith(EXTCHANNEL_SEND_FAIL)) {
-            status = "005";
+            status = SendEvent.StatusCodeEnum.KO;
             sendEvent.setStatusDetail("errore fail mock!");
             newAddress = null;
         } else if (address.startsWith(EXTCHANNEL_SEND_SUCCESS)) {
-            status = "004";
+            status = SendEvent.StatusCodeEnum.OK;
             newAddress = null;
         } else {
             throw new IllegalArgumentException("Address " + address + " do not match test rule for mocks");
