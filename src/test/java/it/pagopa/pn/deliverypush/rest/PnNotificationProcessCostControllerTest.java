@@ -45,7 +45,7 @@ class PnNotificationProcessCostControllerTest {
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
-                                .path("/delivery-push-private/"+iun+"/"+recIndex+"/notification-process-cost" )
+                                .path("/delivery-push-private/"+iun+"/notification-process-cost/"+recIndex )
                                 .queryParam("notificationFeePolicy", notificationFeePolicy.getValue())
                                 .build())
                 .accept(MediaType.ALL)
