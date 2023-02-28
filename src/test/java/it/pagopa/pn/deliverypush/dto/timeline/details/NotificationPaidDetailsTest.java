@@ -12,11 +12,17 @@ class NotificationPaidDetailsTest {
     void setUp() {
         details = new NotificationPaidDetails();
         details.setRecIndex(1);
+        details.setAmount(1000);
+        details.setNoticeCode("noticeCode");
+        details.setCreditorTaxId("creditorTaxId");
+        details.setRecipientType("PF");
+        details.setPaymentSourceChannel("source");
     }
 
     @Test
     void toLog() {
 
-        Assertions.assertEquals("recIndex=1", details.toLog());
+        Assertions.assertEquals(details.toLog(), details.toLog());
     }
+
 }

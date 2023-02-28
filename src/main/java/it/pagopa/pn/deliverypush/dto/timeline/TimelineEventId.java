@@ -385,7 +385,21 @@ public enum TimelineEventId {
             return new TimelineEventIdBuilder()
                     .withCategory(this.getValue())
                     .withIun(eventId.getIun())
+                    .withPaymentCode(buildPaymentCode(eventId))
                     .build();
+        }
+
+        private String buildPaymentCode(EventId eventId) {
+            String paymentCode;
+            if(eventId.getIdF24() != null) {
+                //per pagamenti f24
+                paymentCode = "F24" + eventId.getIdF24();
+            }
+            else {
+                //per pagamenti PagoPa
+                paymentCode = "PPA" + eventId.getNoticeCode() + eventId.getCreditorTaxId();
+            }
+            return paymentCode;
         }
     }
     ;
@@ -402,7 +416,7 @@ public enum TimelineEventId {
         throw new UnsupportedOperationException("Must be implemented for each action type");
     }
 
-    private String value;
+    private final String value;
 
     TimelineEventId(String value ) {
         this.value = value;

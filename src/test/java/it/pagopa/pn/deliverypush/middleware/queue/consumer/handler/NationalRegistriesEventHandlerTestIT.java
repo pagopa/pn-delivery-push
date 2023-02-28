@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils;
+package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
 import it.pagopa.pn.deliverypush.LocalStackTestConfig;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
