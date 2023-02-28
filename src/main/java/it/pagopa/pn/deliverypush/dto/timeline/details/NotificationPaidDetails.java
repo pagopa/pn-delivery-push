@@ -2,8 +2,6 @@ package it.pagopa.pn.deliverypush.dto.timeline.details;
 
 import lombok.*;
 
-import java.time.Instant;
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -13,8 +11,8 @@ import java.time.Instant;
 @ToString
 public class NotificationPaidDetails implements RecipientRelatedTimelineElementDetails {
     private int recIndex;
+    private String recipientType;
     private long amount;
-    private Instant paymentDate;
     private String creditorTaxId;
     private String noticeCode;
     private String idF24;

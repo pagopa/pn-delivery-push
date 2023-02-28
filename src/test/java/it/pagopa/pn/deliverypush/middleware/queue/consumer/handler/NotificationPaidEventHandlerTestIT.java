@@ -10,9 +10,11 @@ import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationpaid.NotificationPaidInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.mapper.NotificationPaidMapper;
 import it.pagopa.pn.deliverypush.utils.UUIDCreatorUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,14 +66,15 @@ class NotificationPaidEventHandlerTestIT {
         final String CREDITOR_TAX_ID = "77777777777"; //stringa di 11 caratteri
         final String NOTICE_CODE = "123456789123456789"; //stringa di 18 caratteri
         final PnDeliveryPaymentEvent.PaymentType PAYMENT_TYPE = PnDeliveryPaymentEvent.PaymentType.PAGOPA;
-        final String idF24 = null;
+        final String ID_F24 = null;
         final String ELEMENT_ID_EXPECTED = "NOTIFICATION_PAID.IUN_" + IUN + ".CODE_PPA" + NOTICE_CODE + CREDITOR_TAX_ID;
 
         NotificationInt notificationIntMock = buildNotification(IUN);
         Message<PnDeliveryPaymentEvent.Payload> payloadMessage = buildMessage(IUN, CREDITOR_TAX_ID, NOTICE_CODE, PAYMENT_TYPE);
-        TimelineElementInternal timelineElementInternalExpected = new TimelineUtils(null, null).buildNotificationPaidTimelineElement(notificationIntMock, payloadMessage.getPayload(), ELEMENT_ID_EXPECTED, idF24);
+        NotificationPaidInt notificationPaidInt = NotificationPaidMapper.messageToInternal(payloadMessage.getPayload(), ID_F24);
+        TimelineElementInternal timelineElementInternalExpected = new TimelineUtils(null, null).buildNotificationPaidTimelineElement(notificationIntMock, notificationPaidInt, ELEMENT_ID_EXPECTED);
 
-        when(timelineUtils.buildNotificationPaidTimelineElement(notificationIntMock, payloadMessage.getPayload(), ELEMENT_ID_EXPECTED, idF24)).thenReturn(timelineElementInternalExpected);
+        when(timelineUtils.buildNotificationPaidTimelineElement(notificationIntMock, notificationPaidInt, ELEMENT_ID_EXPECTED)).thenReturn(timelineElementInternalExpected);
         when(timelineService.getTimelineElement(anyString(), anyString())).thenReturn(Optional.empty());
         when(notificationService.getNotificationByIun(IUN)).thenReturn(notificationIntMock);
         Function<Object, Object> function = functionCatalog.lookup(RoutingFunction.FUNCTION_NAME);
@@ -90,14 +93,15 @@ class NotificationPaidEventHandlerTestIT {
         final String CREDITOR_TAX_ID = "77777777777"; //stringa di 11 caratteri
         final String NOTICE_CODE = "123456789123456789"; //stringa di 18 caratteri
         final PnDeliveryPaymentEvent.PaymentType PAYMENT_TYPE = PnDeliveryPaymentEvent.PaymentType.PAGOPA;
-        final String idF24 = null;
+        final String ID_F24 = null;
         final String ELEMENT_ID_EXPECTED = "NOTIFICATION_PAID.IUN_" + IUN + ".CODE_PPA" + NOTICE_CODE + CREDITOR_TAX_ID;
 
         NotificationInt notificationIntMock = buildNotification(IUN);
         Message<PnDeliveryPaymentEvent.Payload> payloadMessage = buildMessage(IUN, CREDITOR_TAX_ID, NOTICE_CODE, PAYMENT_TYPE);
-        TimelineElementInternal timelineElementInternalExpected = new TimelineUtils(null, null).buildNotificationPaidTimelineElement(notificationIntMock, payloadMessage.getPayload(), ELEMENT_ID_EXPECTED, idF24);
+        NotificationPaidInt notificationPaidInt = NotificationPaidMapper.messageToInternal(payloadMessage.getPayload(), ID_F24);
+        TimelineElementInternal timelineElementInternalExpected = new TimelineUtils(null, null).buildNotificationPaidTimelineElement(notificationIntMock, notificationPaidInt, ELEMENT_ID_EXPECTED);
 
-        when(timelineUtils.buildNotificationPaidTimelineElement(notificationIntMock, payloadMessage.getPayload(), ELEMENT_ID_EXPECTED, idF24)).thenReturn(timelineElementInternalExpected);
+        when(timelineUtils.buildNotificationPaidTimelineElement(notificationIntMock, notificationPaidInt, ELEMENT_ID_EXPECTED)).thenReturn(timelineElementInternalExpected);
         when(timelineService.getTimelineElement(anyString(), anyString())).thenReturn(Optional.of(TimelineElementInternal.builder().build()));
         when(notificationService.getNotificationByIun(IUN)).thenReturn(notificationIntMock);
         Function<Object, Object> function = functionCatalog.lookup(RoutingFunction.FUNCTION_NAME);
@@ -121,10 +125,11 @@ class NotificationPaidEventHandlerTestIT {
 
         NotificationInt notificationIntMock = buildNotification(IUN);
         Message<PnDeliveryPaymentEvent.Payload> payloadMessage = buildMessage(IUN, CREDITOR_TAX_ID, NOTICE_CODE, PAYMENT_TYPE);
-        TimelineElementInternal timelineElementInternalExpected = new TimelineUtils(null, null).buildNotificationPaidTimelineElement(notificationIntMock, payloadMessage.getPayload(), ELEMENT_ID_EXPECTED, ID_F24);
+        NotificationPaidInt notificationPaidInt = NotificationPaidMapper.messageToInternal(payloadMessage.getPayload(), ID_F24);
+        TimelineElementInternal timelineElementInternalExpected = new TimelineUtils(null, null).buildNotificationPaidTimelineElement(notificationIntMock, notificationPaidInt, ELEMENT_ID_EXPECTED);
 
         when(uuidCreatorUtils.createUUID()).thenReturn(ID_F24);
-        when(timelineUtils.buildNotificationPaidTimelineElement(notificationIntMock, payloadMessage.getPayload(), ELEMENT_ID_EXPECTED, ID_F24)).thenReturn(timelineElementInternalExpected);
+        when(timelineUtils.buildNotificationPaidTimelineElement(notificationIntMock, notificationPaidInt, ELEMENT_ID_EXPECTED)).thenReturn(timelineElementInternalExpected);
         when(timelineService.getTimelineElement(anyString(), anyString())).thenReturn(Optional.empty());
         when(notificationService.getNotificationByIun(IUN)).thenReturn(notificationIntMock);
         Function<Object, Object> function = functionCatalog.lookup(RoutingFunction.FUNCTION_NAME);
@@ -184,6 +189,5 @@ class NotificationPaidEventHandlerTestIT {
                 .sentAt(Instant.now())
                 .build();
     }
-
 
 }

@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
-import it.pagopa.pn.api.dto.events.PnDeliveryPaymentEvent;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationpaid.NotificationPaidInt;
 import it.pagopa.pn.deliverypush.dto.address.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
@@ -767,17 +767,17 @@ public class TimelineUtils {
         );
     }
 
-    public TimelineElementInternal buildNotificationPaidTimelineElement(NotificationInt notification, PnDeliveryPaymentEvent.Payload paymentEventPayload, String elementId, String idF24) {
-        log.debug("buildNotificationPaidTimelineElement: {}", paymentEventPayload);
+    public TimelineElementInternal buildNotificationPaidTimelineElement(NotificationInt notification, NotificationPaidInt notificationPaidInt, String elementId) {
+        log.debug("buildNotificationPaidTimelineElement: {}", notificationPaidInt);
 
         NotificationPaidDetails details = NotificationPaidDetails.builder()
-                .recIndex(paymentEventPayload.getRecipientIdx())
-                .paymentDate(paymentEventPayload.getPaymentDate())
-                .amount(paymentEventPayload.getAmount())
-                .creditorTaxId(paymentEventPayload.getCreditorTaxId())
-                .noticeCode(paymentEventPayload.getNoticeCode())
-                .idF24(idF24)
-                .paymentSourceChannel(paymentEventPayload.getPaymentSourceChannel())
+                .recIndex(notificationPaidInt.getRecipientIdx())
+                .recipientType(notificationPaidInt.getRecipientType().getValue())
+                .amount(notificationPaidInt.getAmount())
+                .creditorTaxId(notificationPaidInt.getCreditorTaxId())
+                .noticeCode(notificationPaidInt.getNoticeCode())
+                .idF24(notificationPaidInt.getIdF24())
+                .paymentSourceChannel(notificationPaidInt.getPaymentSourceChannel())
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
@@ -787,7 +787,7 @@ public class TimelineUtils {
                 notification,
                 TimelineElementCategoryInt.PAYMENT,
                 elementId,
-                Instant.now(), //salvo il timestamp dell'evento in timeline che è diverso dal paymentDate
+                notificationPaidInt.getPaymentDate(),
                 details, 
                 timelineBuilder
         );

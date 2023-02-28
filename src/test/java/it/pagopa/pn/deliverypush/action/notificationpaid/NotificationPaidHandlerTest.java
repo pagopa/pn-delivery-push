@@ -4,11 +4,13 @@ import it.pagopa.pn.api.dto.events.PnDeliveryPaymentEvent;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationpaid.NotificationPaidInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationPaidDetails;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.mapper.NotificationPaidMapper;
 import it.pagopa.pn.deliverypush.utils.UUIDCreatorUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -59,12 +61,13 @@ class NotificationPaidHandlerTest {
                         .build())
                 .build();
 
-        String elementId = buildElementId(paymentEvent);
-        TimelineElementInternal timelineElementInternal = buildTimelineElementInternal(paymentEvent);
+        NotificationPaidInt notificationPaidInt = NotificationPaidMapper.messageToInternal(paymentEvent, null);
+        String elementId = buildElementId(notificationPaidInt);
+        TimelineElementInternal timelineElementInternal = buildTimelineElementInternal(notificationPaidInt);
 
-        Mockito.when(timelineService.getTimelineElement("001", buildElementId(paymentEvent))).thenReturn(Optional.empty());
+        Mockito.when(timelineService.getTimelineElement("001", buildElementId(notificationPaidInt))).thenReturn(Optional.empty());
         Mockito.when(notificationService.getNotificationByIun("001")).thenReturn(notification);
-        Mockito.when(timelineUtils.buildNotificationPaidTimelineElement(notification, paymentEvent, elementId, null)).thenReturn(timelineElementInternal);
+        Mockito.when(timelineUtils.buildNotificationPaidTimelineElement(notification, notificationPaidInt, elementId)).thenReturn(timelineElementInternal);
 
         handler.handleNotificationPaid(paymentEvent);
 
@@ -72,26 +75,27 @@ class NotificationPaidHandlerTest {
     }
 
 
-    private TimelineElementInternal buildTimelineElementInternal(PnDeliveryPaymentEvent.Payload pnDeliveryPaymentEvent) {
+    private TimelineElementInternal buildTimelineElementInternal(NotificationPaidInt notificationPaidInt) {
         return TimelineElementInternal.builder()
                 .iun("001")
-                .elementId(buildElementId(pnDeliveryPaymentEvent))
+                .elementId(buildElementId(notificationPaidInt))
                 .timestamp(Instant.now())
                 .paId("77777777777")
                 .category(TimelineElementCategoryInt.PAYMENT)
                 .legalFactsIds(new ArrayList<>())
                 .details(NotificationPaidDetails.builder()
-                        .recIndex(pnDeliveryPaymentEvent.getRecipientIdx())
-                        .amount(pnDeliveryPaymentEvent.getAmount())
-                        .paymentSourceChannel(pnDeliveryPaymentEvent.getPaymentSourceChannel())
-                        .creditorTaxId(pnDeliveryPaymentEvent.getCreditorTaxId())
-                        .noticeCode(pnDeliveryPaymentEvent.getNoticeCode())
-                        .paymentDate(pnDeliveryPaymentEvent.getPaymentDate())
+                        .recIndex(notificationPaidInt.getRecipientIdx())
+                        .recipientType(notificationPaidInt.getRecipientType().getValue())
+                        .amount(notificationPaidInt.getAmount())
+                        .paymentSourceChannel(notificationPaidInt.getPaymentSourceChannel())
+                        .creditorTaxId(notificationPaidInt.getCreditorTaxId())
+                        .noticeCode(notificationPaidInt.getNoticeCode())
                         .build())
                 .build();
     }
 
-    private String buildElementId(PnDeliveryPaymentEvent.Payload pnDeliveryPaymentEvent) {
-        return handler.buildTimelineEventIdForPayment(pnDeliveryPaymentEvent, null);
+    private String buildElementId(NotificationPaidInt notificationPaidInt) {
+        return handler.buildTimelineEventIdForPayment(notificationPaidInt);
     }
+
 }

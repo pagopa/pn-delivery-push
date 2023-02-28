@@ -4,8 +4,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Instant;
-
 class NotificationPaidDetailsTest {
 
     private NotificationPaidDetails details;
@@ -17,7 +15,7 @@ class NotificationPaidDetailsTest {
         details.setAmount(1000);
         details.setNoticeCode("noticeCode");
         details.setCreditorTaxId("creditorTaxId");
-        details.setPaymentDate(Instant.now());
+        details.setRecipientType("PF");
         details.setPaymentSourceChannel("source");
     }
 
@@ -26,4 +24,5 @@ class NotificationPaidDetailsTest {
 
         Assertions.assertEquals(details.toLog(), details.toLog());
     }
+
 }
