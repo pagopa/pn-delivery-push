@@ -461,7 +461,7 @@ components:
     pathRecipientIndex:
       description: >-
         Indice destinatario all'interno della notifica
-      name: recIndex
+      name: recipientIndex
       in: path
       required: true
       schema:

@@ -4,6 +4,7 @@ import it.pagopa.pn.deliverypush.dto.cost.NotificationProcessCost;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationProcessCostResponse;
 import it.pagopa.pn.deliverypush.service.NotificationCostService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,12 +33,14 @@ class PnNotificationProcessCostControllerTest {
         int recIndex = 0;
         NotificationFeePolicy notificationFeePolicy = NotificationFeePolicy.DELIVERY_MODE;
 
+        final NotificationProcessCost notificationCost = NotificationProcessCost.builder()
+                .refinementDate(Instant.now())
+                .notificationViewDate(Instant.now().plus(Duration.ofDays(1)))
+                .cost(100)
+                .build();
+        
         Mockito.when(service.notificationProcessCost(iun, recIndex, notificationFeePolicy))
-                .thenReturn(Mono.just(NotificationProcessCost.builder()
-                                .refinementDate(Instant.now())
-                                .notificationViewDate(Instant.now().plus(Duration.ofDays(1)))
-                                .cost(100)
-                        .build()));
+                .thenReturn(Mono.just(notificationCost));
         
         webTestClient.get()
                 .uri(uriBuilder ->
@@ -50,8 +53,14 @@ class PnNotificationProcessCostControllerTest {
                 .exchange()
                 .expectStatus()
                 .isOk()
-                .expectBody(NotificationProcessCostResponse.class);
-
-        Mockito.verify(service).notificationProcessCost(iun, recIndex, notificationFeePolicy);
+                .expectBody(NotificationProcessCostResponse.class).consumeWith(
+                elem -> {
+                    NotificationProcessCostResponse response = elem.getResponseBody();
+                    assert response != null;
+                    Assertions.assertEquals(notificationCost.getCost(),response.getAmount());
+                    Assertions.assertEquals(notificationCost.getNotificationViewDate(),response.getNotificationViewDate());
+                    Assertions.assertEquals(notificationCost.getRefinementDate(),response.getRefinementDate());
+                }
+        );
     }
 }
