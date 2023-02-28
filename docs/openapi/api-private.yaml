@@ -301,7 +301,6 @@ paths:
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathRecipientIndex'
-        - $ref: '#/components/parameters/queryNotificationFeePolicy'
       responses:
         '200':
           description: OK
@@ -461,21 +460,12 @@ components:
     pathRecipientIndex:
       description: >-
         Indice destinatario all'interno della notifica
-      name: pathRecipientIndex
+      name: recIndex
       in: path
       required: true
       schema:
-        type: string
-        
-    queryNotificationFeePolicy:
-      description: >-
-        Politica di addebitamento costi
-      name: notificationFeePolicy
-      in: query
-      required: true
-      schema:
-        $ref: 'remote-refs.yaml#/components/schemas/NotificationFeePolicy'
-            
+        type: integer
+        format: int32            
                 
   schemas:
 
@@ -616,17 +606,6 @@ components:
     ###                              COSTO NOTIFICAZIONE                                     ###
     ############################################################################################
 
-    NotificationFeePolicy:
-      title: Politica di addebitamento costi
-      description: >-
-        Politica di addebitamento dei costi di notifica. <br/>
-        - _FLAT_RATE_: costo forfettario fisso. <br/>
-        - _DELIVERY_MODE_: costo calcolato in base all'effettivo percorso di notifica. <br/>
-      type: string
-      enum:
-        - FLAT_RATE
-        - DELIVERY_MODE
-
     NotificationProcessCostResponse:
       title: costo del processo di notificazione
       description: >-
@@ -634,7 +613,6 @@ components:
       type: object
       required:
         - amount
-        - refinementDate
       properties:
         amount:
           description: costo notificazione in euro cents
@@ -642,6 +620,10 @@ components:
           type: integer
           format: int32
         refinementDate:
-          description: data perfezionamento notifica (decorrenza termini o presa visione)
+          description: data perfezionamento notifica per decorrenza termini se presente
+          type: string
+          format: date-time
+        notificationViewDate:
+          description: data perfezionamento notifica per per presa visione se presente
           type: string
           format: date-time

@@ -1,36 +1,36 @@
 package it.pagopa.pn.deliverypush.rest;
 
+import it.pagopa.pn.deliverypush.dto.cost.NotificationProcessCost;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.NotificationProcessCostApi;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponsePaperNotificationFailedDto;
-import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationProcessCostResponse;
+import it.pagopa.pn.deliverypush.service.NotificationCostService;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
 @RestController
+@AllArgsConstructor
 public class PnNotificationProcessCostController implements NotificationProcessCostApi {
 
-    private final PaperNotificationFailedService service;
-
-    public PnNotificationProcessCostController(PaperNotificationFailedService service) {
-        this.service = service;
+    private final NotificationCostService service;
+    
+    @Override
+    public Mono<ResponseEntity<NotificationProcessCostResponse>> notificationProcessCost(
+            String iun,
+            Integer recIndex, 
+            final ServerWebExchange exchange) {
+        return service.notificationProcessCost(iun, recIndex)
+                .map(response -> ResponseEntity.ok().body(mapResponse(response)));
     }
 
-    @Override
-    public Mono<ResponseEntity<Flux<ResponsePaperNotificationFailedDto>>> paperNotificationFailed(
-            String recipientInternalId,
-            Boolean getAAR,
-            final ServerWebExchange exchange
-    ) {
-        return Mono.fromSupplier(() -> {
-            List<ResponsePaperNotificationFailedDto> responses = service.getPaperNotificationByRecipientId(recipientInternalId, getAAR);
-            Flux<ResponsePaperNotificationFailedDto> fluxFacts = Flux.fromIterable(responses);
-            return ResponseEntity.ok(fluxFacts);
-        });
+    private NotificationProcessCostResponse mapResponse(NotificationProcessCost response) {
+        return NotificationProcessCostResponse.builder()
+        .amount(response.getCost())
+        .refinementDate(response.getRefinementDate())
+        .notificationViewDate(response.getNotificationViewDate())
+        .build();
     }
 
 }

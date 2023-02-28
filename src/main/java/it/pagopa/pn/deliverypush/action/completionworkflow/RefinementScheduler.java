@@ -96,7 +96,7 @@ public class RefinementScheduler {
         //Se la notifica è già stata visualizzata, non viene schedulato il perfezionamento per decorrenza termini dal momento che la notifica è già stata perfezionata per visione
         if( !isNotificationAlreadyViewed ){
             log.info("Schedule refinement in date={} - iun={} id={}", schedulingDate, notification.getIun(), recIndex);
-            addTimelineElement( timelineUtils.buildScheduleRefinement(notification, recIndex), notification );
+            addTimelineElement( timelineUtils.buildScheduleRefinement(notification, recIndex, schedulingDate), notification );
             scheduler.scheduleEvent(notification.getIun(), recIndex, schedulingDate, ActionType.REFINEMENT_NOTIFICATION);
         }else {
             log.info("Notification is already viewed, refinement will not be scheduled - iun={} id={}", notification.getIun(), recIndex);
