@@ -12,7 +12,7 @@ import lombok.*;
 public class NotificationPaidDetails implements RecipientRelatedTimelineElementDetails {
     private int recIndex;
     private String recipientType;
-    private long amount;
+    private Integer amount;
     private String creditorTaxId;
     private String noticeCode;
     private String idF24;

@@ -20,7 +20,7 @@ public class NotificationPaidInt {
     private String creditorTaxId;
     private String noticeCode;
     private String paymentSourceChannel;
-    private int amount;
+    private Integer amount;
     private String idF24;
 
     @RequiredArgsConstructor
