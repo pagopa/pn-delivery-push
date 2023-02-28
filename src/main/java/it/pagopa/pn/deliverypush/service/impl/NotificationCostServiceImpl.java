@@ -6,6 +6,7 @@ import it.pagopa.pn.deliverypush.dto.cost.NotificationProcessCost;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.NotificationCostResponseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.service.NotificationCostService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -35,12 +36,12 @@ public class NotificationCostServiceImpl implements NotificationCostService {
     }
 
     @Override
-    public Mono<NotificationProcessCost> notificationProcessCost(String iun, int recIndex) {
-        return Mono.fromCallable(() -> getNotificationProcessCost(iun, recIndex));
+    public Mono<NotificationProcessCost> notificationProcessCost(String iun, int recIndex, NotificationFeePolicy notificationFeePolicy) {
+        return Mono.fromCallable(() -> getNotificationProcessCost(iun, recIndex, notificationFeePolicy));
     }
 
-    private NotificationProcessCost getNotificationProcessCost(String iun, int recIndex) {
-        log.info("Start getNotificationProcessCost - iun={} id={}", iun, recIndex);
+    private NotificationProcessCost getNotificationProcessCost(String iun, int recIndex, NotificationFeePolicy notificationFeePolicy) {
+        log.info("Start getNotificationProcessCost notificationFeePolicy={}- iun={} id={}", notificationFeePolicy, iun, recIndex);
         
         Instant notificationViewDate = null;
         Instant refinementDate = null;
@@ -59,15 +60,20 @@ public class NotificationCostServiceImpl implements NotificationCostService {
                 } else {
                     refinementDate = getRefinementDate(recIndex, refinementDate, timelineElement);
                 }
-
+                
                 analogCost = getAnalogCost(recIndex, analogCost, timelineElement);
             }
         }
 
-        int notificationProcessCost = PAGOPA_NOTIFICATION_BASE_COST + analogCost;
+        
+        int notificationProcessCost = 0; //In caso di FLAT_RATE viene restituito sempre zero
+        
+        if(NotificationFeePolicy.DELIVERY_MODE.equals(notificationFeePolicy)){
+            notificationProcessCost = PAGOPA_NOTIFICATION_BASE_COST + analogCost;
+        }
 
-        log.info("End getNotificationProcessCost: analogCost={} notificationBaseCost={} notificationProcessCost={} notificationViewDate={}, refinementDate={} - iun={} id={}", 
-                analogCost, PAGOPA_NOTIFICATION_BASE_COST, notificationProcessCost, notificationViewDate, refinementDate, iun, recIndex);
+        log.info("End getNotificationProcessCost: notificationFeePolicy={} analogCost={} notificationBaseCost={} notificationProcessCost={} notificationViewDate={}, refinementDate={} - iun={} id={}", 
+                notificationFeePolicy, analogCost, PAGOPA_NOTIFICATION_BASE_COST, notificationProcessCost, notificationViewDate, refinementDate, iun, recIndex);
 
         return NotificationProcessCost.builder()
                 .cost(notificationProcessCost)

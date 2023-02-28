@@ -22,7 +22,7 @@ public class PnNotificationProcessCostController implements NotificationProcessC
                                                                                           Integer recIndex, 
                                                                                           NotificationFeePolicy notificationFeePolicy, 
                                                                                           final ServerWebExchange exchange) {
-        return service.notificationProcessCost(iun, recIndex)
+        return service.notificationProcessCost(iun, recIndex, notificationFeePolicy)
                 .map(response -> ResponseEntity.ok().body(mapResponse(response)));
     }
 
