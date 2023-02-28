@@ -64,7 +64,7 @@ public class AnalogWorkflowHandler {
             case 2:
                 // All sent attempts have been made. The user is not reachable
                 log.info("User with iun={} and id={} is unreachable, all attempt was failed or no adress is available", iun, recIndex);
-                completionWorkFlow.completionAnalogWorkflow(notification, recIndex, null, lastAttemptTimestamp!=null?lastAttemptTimestamp:instantNowSupplier.get(), null, EndWorkflowStatus.FAILURE);
+                completionWorkFlow.completionAnalogWorkflow(notification, recIndex, lastAttemptTimestamp!=null?lastAttemptTimestamp:instantNowSupplier.get(), null, EndWorkflowStatus.FAILURE);
                 break;
             default:
                 handleAttemptError(iun, recIndex, sentAttemptMade);

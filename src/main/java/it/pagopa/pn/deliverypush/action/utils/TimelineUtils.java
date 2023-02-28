@@ -384,7 +384,7 @@ public class TimelineUtils {
     }
 
 
-    public TimelineElementInternal buildSuccessAnalogWorkflowTimelineElement(NotificationInt notification, Integer recIndex, PhysicalAddressInt address, List<LegalFactsIdInt> attachments) {
+    public TimelineElementInternal buildSuccessAnalogWorkflowTimelineElement(NotificationInt notification, Integer recIndex, PhysicalAddressInt address) {
         log.debug("buildSuccessAnalogWorkflowTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
 
         String elementId = TimelineEventId.ANALOG_SUCCESS_WORKFLOW.buildEventId(
@@ -397,20 +397,16 @@ public class TimelineUtils {
                 .recIndex(recIndex)
                 .physicalAddress(address)
                 .build();
-
-        if(attachments == null){
-            attachments = Collections.emptyList();
-        }
         
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
-                .legalFactsIds( attachments );
+                .legalFactsIds( Collections.emptyList() );
 
         return buildTimeline(notification, TimelineElementCategoryInt.ANALOG_SUCCESS_WORKFLOW, elementId,
                 details, timelineBuilder);
     }
 
 
-    public TimelineElementInternal buildFailureAnalogWorkflowTimelineElement(NotificationInt notification, Integer recIndex, List<LegalFactsIdInt> attachments) {
+    public TimelineElementInternal buildFailureAnalogWorkflowTimelineElement(NotificationInt notification, Integer recIndex) {
         log.debug("buildFailureAnalogWorkflowTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
 
         String elementId = TimelineEventId.ANALOG_FAILURE_WORKFLOW.buildEventId(
@@ -422,12 +418,8 @@ public class TimelineUtils {
                 .recIndex(recIndex)
                 .build();
         
-        if(attachments == null){
-            attachments = Collections.emptyList();
-        }
-        
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
-                .legalFactsIds( attachments );
+                .legalFactsIds( Collections.emptyList() );
 
         return buildTimeline(notification, TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW, elementId,
                 details, timelineBuilder);

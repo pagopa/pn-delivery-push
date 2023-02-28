@@ -7,7 +7,6 @@ import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -16,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.util.List;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND;
 
@@ -50,18 +48,18 @@ public class CompletionWorkFlowHandler {
     /**
      * Handle necessary steps to complete analog workflow.
      */
-    public void completionAnalogWorkflow(NotificationInt notification, Integer recIndex, List<LegalFactsIdInt> attachments, Instant completionWorkflowDate, PhysicalAddressInt usedAddress, EndWorkflowStatus status) {
+    public void completionAnalogWorkflow(NotificationInt notification, Integer recIndex, Instant completionWorkflowDate, PhysicalAddressInt usedAddress, EndWorkflowStatus status) {
         log.info("Analog workflow completed with status {} IUN {} id {}", status, notification.getIun(), recIndex);
         String iun = notification.getIun();
         
         if (status != null) {
             switch (status) {
                 case SUCCESS -> {
-                    timelineService.addTimelineElement(timelineUtils.buildSuccessAnalogWorkflowTimelineElement(notification, recIndex, usedAddress, attachments), notification);
+                    timelineService.addTimelineElement(timelineUtils.buildSuccessAnalogWorkflowTimelineElement(notification, recIndex, usedAddress), notification);
                     refinementScheduler.scheduleAnalogRefinement(notification, recIndex, completionWorkflowDate, status);
                 }
                 case FAILURE -> {
-                    timelineService.addTimelineElement(timelineUtils.buildFailureAnalogWorkflowTimelineElement(notification, recIndex, attachments), notification);
+                    timelineService.addTimelineElement(timelineUtils.buildFailureAnalogWorkflowTimelineElement(notification, recIndex), notification);
                     completelyUnreachableUtils.handleCompletelyUnreachable(notification, recIndex);
                     refinementScheduler.scheduleAnalogRefinement(notification, recIndex, completionWorkflowDate, status);
                 }
