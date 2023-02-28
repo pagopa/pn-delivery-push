@@ -702,3 +702,6 @@ Resources:
             - !Ref DoneActionsQueueARN
             - !Ref SafeStorageToDeliveryPushQueueARN
             - !Ref NationalRegistries2DeliveryPushQueueARN
+        LogGroupsNames: !Join
+          - ','
+          - - !Sub '/ecs/${ProjectName}-delivery-push'
