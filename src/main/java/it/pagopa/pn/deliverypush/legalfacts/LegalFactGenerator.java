@@ -324,7 +324,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_RECIPIENT_TYPE, this.getRecipientTypeForHTMLTemplate(recipient));
 
         StringBuilder sb = new StringBuilder();
-        sb.append(this.getAccessUrl(recipient));
+        sb.append(this.getAccessUrlLabel(recipient));
         sb.append("/");
         sb.append("perfezionamento");
         templateModel.put(FIELD_PERFEZIONAMENTO, sb.toString());
