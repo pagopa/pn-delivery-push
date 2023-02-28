@@ -301,6 +301,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathRecipientIndex'
+        - $ref: '#/components/parameters/queryNotificationFeePolicy'
       responses:
         '200':
           description: OK
@@ -466,7 +467,16 @@ components:
       schema:
         type: integer
         format: int32            
-                
+
+    queryNotificationFeePolicy:
+      description: >-
+        Politica di addebitamento costi
+      name: notificationFeePolicy
+      in: query
+      required: true
+      schema:
+        $ref: 'remote-refs.yaml#/components/schemas/NotificationFeePolicy'
+        
   schemas:
 
     cxTypeAuthFleet:

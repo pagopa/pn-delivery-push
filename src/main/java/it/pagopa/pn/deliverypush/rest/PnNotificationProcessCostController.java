@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.rest;
 
 import it.pagopa.pn.deliverypush.dto.cost.NotificationProcessCost;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.NotificationProcessCostApi;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationProcessCostResponse;
 import it.pagopa.pn.deliverypush.service.NotificationCostService;
 import lombok.AllArgsConstructor;
@@ -17,10 +18,10 @@ public class PnNotificationProcessCostController implements NotificationProcessC
     private final NotificationCostService service;
     
     @Override
-    public Mono<ResponseEntity<NotificationProcessCostResponse>> notificationProcessCost(
-            String iun,
-            Integer recIndex, 
-            final ServerWebExchange exchange) {
+    public  Mono<ResponseEntity<NotificationProcessCostResponse>> notificationProcessCost(String iun, 
+                                                                                          Integer recIndex, 
+                                                                                          NotificationFeePolicy notificationFeePolicy, 
+                                                                                          final ServerWebExchange exchange) {
         return service.notificationProcessCost(iun, recIndex)
                 .map(response -> ResponseEntity.ok().body(mapResponse(response)));
     }
