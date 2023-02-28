@@ -765,12 +765,15 @@ class TimelineEventIdBuilderTest {
     }
 
     @Test
-    void buildNOTIFICATION_PAIDTest() {
+    void buildNOTIFICATION_PAIDForPagoPaPaymentTest() {
         //vecchia versione 123456789_notification_paid
-        String timeLineEventIdExpected = "NOTIFICATION_PAID.IUN_123-456-789";
+        String timeLineEventIdExpected = "NOTIFICATION_PAID.IUN_123-456-789.CODE_PPA30200010000001942177777777777";
+        String noticeCode = "302000100000019421"; //stringa di 18 caratteri
+        String creditorTaxId = "77777777777"; //stringa di 11 caratteri
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.NOTIFICATION_PAID.getValue())
                 .withIun(IUN)
+                .withPaymentCode("PPA" + noticeCode + creditorTaxId)
                 .build();
 
         assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
@@ -778,6 +781,32 @@ class TimelineEventIdBuilderTest {
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.NOTIFICATION_PAID.buildEventId(EventId
                 .builder()
                 .iun(IUN)
+                .noticeCode(noticeCode)
+                .creditorTaxId(creditorTaxId)
+                .build());
+
+
+        assertThat(timeLineEventIdActualFromBuildEvent).isEqualTo(timeLineEventIdExpected);
+
+    }
+
+    @Test
+    void buildNOTIFICATION_PAIDForF24Test() {
+        //vecchia versione 123456789_notification_paid
+        String timeLineEventIdExpected = "NOTIFICATION_PAID.IUN_123-456-789.CODE_F2401125571-d77f-423e-82c6-7f251b6c6b2c";
+        String idF24 = "01125571-d77f-423e-82c6-7f251b6c6b2c";
+        String timeLineEventIdActual = new TimelineEventIdBuilder()
+                .withCategory(TimelineEventId.NOTIFICATION_PAID.getValue())
+                .withIun(IUN)
+                .withPaymentCode("F24" + idF24)
+                .build();
+
+        assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
+
+        String timeLineEventIdActualFromBuildEvent = TimelineEventId.NOTIFICATION_PAID.buildEventId(EventId
+                .builder()
+                .iun(IUN)
+                .idF24(idF24)
                 .build());
 
 

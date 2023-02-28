@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationpaid.NotificationPaidInt;
 import it.pagopa.pn.deliverypush.dto.address.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
@@ -481,7 +482,7 @@ public class TimelineUtils {
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds( legalFactsListEntryIds );
 
-        return buildTimeline( notification, TimelineElementCategoryInt.SEND_ANALOG_PROGRESS, elementId,
+        return buildTimeline( notification, TimelineElementCategoryInt.SEND_ANALOG_PROGRESS, elementId, sendEventInt.getStatusDateTime(),
                 details, timelineBuilder );
     }
 
@@ -512,7 +513,7 @@ public class TimelineUtils {
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds( legalFactsListEntryIds );
 
-        return buildTimeline( notification, TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK, elementId,
+        return buildTimeline( notification, TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK, elementId, sendEventInt.getStatusDateTime(),
                 details, timelineBuilder );
     }
 
@@ -545,7 +546,7 @@ public class TimelineUtils {
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds( legalFactsListEntryIds );
 
-        return buildTimeline( notification, TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK, elementId,
+        return buildTimeline( notification, TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK, elementId, sendEventInt.getStatusDateTime(),
                 details, timelineBuilder );
     }
 
@@ -759,16 +760,17 @@ public class TimelineUtils {
         );
     }
 
-    public TimelineElementInternal buildNotificationPaidTimelineElement(NotificationInt notification, int recIndex, Instant paymentDate) {
-        log.debug("buildNotificationPaidTimelineElement - iun={} id={}", notification.getIun(), recIndex);
-
-        String elementId = TimelineEventId.NOTIFICATION_PAID.buildEventId(
-                EventId.builder()
-                        .iun(notification.getIun())
-                        .build());
+    public TimelineElementInternal buildNotificationPaidTimelineElement(NotificationInt notification, NotificationPaidInt notificationPaidInt, String elementId) {
+        log.debug("buildNotificationPaidTimelineElement: {}", notificationPaidInt);
 
         NotificationPaidDetails details = NotificationPaidDetails.builder()
-                .recIndex(recIndex)
+                .recIndex(notificationPaidInt.getRecipientIdx())
+                .recipientType(notificationPaidInt.getRecipientType().getValue())
+                .amount(notificationPaidInt.getAmount())
+                .creditorTaxId(notificationPaidInt.getCreditorTaxId())
+                .noticeCode(notificationPaidInt.getNoticeCode())
+                .idF24(notificationPaidInt.getIdF24())
+                .paymentSourceChannel(notificationPaidInt.getPaymentSourceChannel())
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
@@ -778,7 +780,7 @@ public class TimelineUtils {
                 notification,
                 TimelineElementCategoryInt.PAYMENT,
                 elementId,
-                paymentDate,
+                notificationPaidInt.getPaymentDate(),
                 details, 
                 timelineBuilder
         );

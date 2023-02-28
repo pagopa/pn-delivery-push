@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
-import it.pagopa.pn.api.dto.events.PnExtRegistryNotificationPaidEvent;
+import it.pagopa.pn.api.dto.events.PnDeliveryPaymentEvent;
 import it.pagopa.pn.deliverypush.action.notificationpaid.NotificationPaidHandler;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 
-import java.time.Instant;
 import java.util.function.Consumer;
 
 @Configuration
@@ -21,23 +20,13 @@ public class NotificationPaidEventHandler {
     }
 
     @Bean
-    public Consumer<Message<PnExtRegistryNotificationPaidEvent.Payload>> pnExtRegistryNotificationPaidEventConsumer() {
+    public Consumer<Message<PnDeliveryPaymentEvent.Payload>> pnDeliveryNotificationPaidEventConsumer() {
         return message -> {
             try {
                 log.debug("Notification paid event received, message {}", message);
-
-                PnExtRegistryNotificationPaidEvent notificationPaidEvent = PnExtRegistryNotificationPaidEvent.builder()
-                        .payload(message.getPayload())
-                        .header(HandleEventUtils.mapStandardEventHeader(message.getHeaders()))
-                        .build();
-                
-                Instant eventDate = notificationPaidEvent.getPayload().getEventDate();
-                String noticeCode = notificationPaidEvent.getPayload().getNoticeCode();
-                String paTaxId =notificationPaidEvent.getPayload().getPaTaxId();
-                
-                log.info("pnExtRegistryNotificationPaidEventConsumer - eventDate={} noticeCode={} paTaxId={}", eventDate, noticeCode, paTaxId);
-
-                notificationPaidHandler.handleNotificationPaid(paTaxId, noticeCode, eventDate);
+                log.info("pnDeliveryNotificationPaidEventConsumer begin: {}", message.getPayload());
+                notificationPaidHandler.handleNotificationPaid(message.getPayload());
+                log.info("pnDeliveryNotificationPaidEventConsumer exit: {}", message.getPayload());
             } catch (Exception ex) {
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
