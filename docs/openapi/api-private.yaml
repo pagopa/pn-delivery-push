@@ -29,6 +29,9 @@ tags:
   - name: Documents
     description: >-
       Recupero dei documenti correlati ad una notificazione
+  - name: NotificationProcessCost
+    description: >-
+      Restituisce il costo dell'interno processo di notificazione per un singolo destinatario
 
 paths:
   '/status':
@@ -290,7 +293,7 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
-  '/delivery-push-private/{iun}/{recipientIndex}/notification-process-cost':
+  '/delivery-push-private/{iun}/notification-process-cost/{recipientIndex}':
     get:
       summary: Restituisce il costo di notificazione per destinatario 
       description: >-
