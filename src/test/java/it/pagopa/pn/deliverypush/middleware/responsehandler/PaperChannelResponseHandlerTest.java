@@ -129,7 +129,7 @@ class PaperChannelResponseHandlerTest {
         Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
 
         SendEvent sendEvent = new SendEvent();
-        sendEvent.setStatusCode("OK");
+        sendEvent.setStatusCode(SendEvent.StatusCodeEnum.OK);
         sendEvent.setStatusDateTime(instant.atOffset(ZoneOffset.UTC));
         sendEvent.setRequestId("iun_event_idx_0");
         sendEvent.setStatusDetail("ok");
@@ -159,7 +159,7 @@ class PaperChannelResponseHandlerTest {
         Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
 
         SendEvent sendEvent = new SendEvent();
-        sendEvent.setStatusCode("OK");
+        sendEvent.setStatusCode(SendEvent.StatusCodeEnum.OK);
         sendEvent.setStatusDateTime(instant.atOffset(ZoneOffset.UTC));
         sendEvent.setRequestId("iun_event_idx_0");
         sendEvent.setStatusDetail("ok");
@@ -232,7 +232,7 @@ class PaperChannelResponseHandlerTest {
         Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
 
         SendEvent sendEvent = new SendEvent();
-        sendEvent.setStatusCode("OK");
+        sendEvent.setStatusCode(SendEvent.StatusCodeEnum.OK);
         sendEvent.setStatusDateTime(instant.atOffset(ZoneOffset.UTC));
         sendEvent.setRequestId("iun_event_idx_0");
         sendEvent.setStatusDetail("ok");
@@ -257,7 +257,7 @@ class PaperChannelResponseHandlerTest {
         Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
 
         SendEvent sendEvent = new SendEvent();
-        sendEvent.setStatusCode("OK");
+        sendEvent.setStatusCode(SendEvent.StatusCodeEnum.OK);
         sendEvent.setStatusDateTime(instant.atOffset(ZoneOffset.UTC));
         sendEvent.setRequestId("iun_event_idx_0");
         sendEvent.setStatusDetail("ok");

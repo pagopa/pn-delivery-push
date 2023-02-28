@@ -56,5 +56,6 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("eventTimestamp")})) private Instant eventTimestamp;
     @Getter(onMethod=@__({@DynamoDbAttribute("completionWorkflowDate")})) private Instant completionWorkflowDate;
     @Getter(onMethod=@__({@DynamoDbAttribute("status")})) private String endWorkflowStatus;
+    @Getter(onMethod=@__({@DynamoDbAttribute("eventDetail")})) private String eventDetail;
     @Getter(onMethod=@__({@DynamoDbAttribute("schedulingDate")})) private Instant schedulingDate;
 }

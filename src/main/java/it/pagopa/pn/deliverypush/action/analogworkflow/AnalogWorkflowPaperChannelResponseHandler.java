@@ -3,7 +3,6 @@ package it.pagopa.pn.deliverypush.action.analogworkflow;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.PaperChannelUtils;
@@ -39,7 +38,6 @@ public class AnalogWorkflowPaperChannelResponseHandler {
     private final PaperChannelService paperChannelService;
     private final CompletionWorkFlowHandler completionWorkFlow;
     private final AnalogWorkflowUtils analogWorkflowUtils;
-    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private final AnalogWorkflowHandler analogWorkflowHandler;
     private final PaperChannelUtils paperChannelUtils;
     private final AuditLogService auditLogService;
@@ -49,14 +47,12 @@ public class AnalogWorkflowPaperChannelResponseHandler {
                                                      PaperChannelService paperChannelService,
                                                      CompletionWorkFlowHandler completionWorkFlow,
                                                      AnalogWorkflowUtils analogWorkflowUtils,
-                                                     PnDeliveryPushConfigs pnDeliveryPushConfigs,
                                                      AnalogWorkflowHandler analogWorkflowHandler,
                                                      PaperChannelUtils paperChannelUtils, AuditLogService auditLogService) {
         this.notificationService = notificationService;
         this.paperChannelService = paperChannelService;
         this.completionWorkFlow = completionWorkFlow;
         this.analogWorkflowUtils = analogWorkflowUtils;
-        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
         this.analogWorkflowHandler = analogWorkflowHandler;
         this.paperChannelUtils = paperChannelUtils;
         this.auditLogService = auditLogService;
@@ -187,7 +183,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
     }
 
     private void handleStatusProgress(SendEventInt response, SendAnalogDetailsInt sendPaperDetails, NotificationInt notification, Integer recIndex, List<LegalFactsIdInt> legalFactsListEntryIds) {
-        analogWorkflowUtils.addAnalogProgressAttemptToTimeline(notification, recIndex, sendPaperDetails.getSentAttemptMade(), legalFactsListEntryIds,  response.getStatusCode(), sendPaperDetails);
+        analogWorkflowUtils.addAnalogProgressAttemptToTimeline(notification, recIndex, sendPaperDetails.getSentAttemptMade(), legalFactsListEntryIds,  sendPaperDetails, response);
     }
 
     private void handleStatusOK(SendEventInt response, SendAnalogDetailsInt sendPaperDetails, NotificationInt notification, Integer recIndex, List<LegalFactsIdInt> legalFactsListEntryIds) {
@@ -195,8 +191,8 @@ public class AnalogWorkflowPaperChannelResponseHandler {
 
         // La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
         try {
-            String timelineId = analogWorkflowUtils.addAnalogSuccessAttemptToTimeline(notification, sendPaperDetails.getSentAttemptMade(), legalFactsListEntryIds, response.getDiscoveredAddress(), null, sendPaperDetails);
-            completionWorkFlow.completionAnalogWorkflow(notification, recIndex, legalFactsListEntryIds, response.getStatusDateTime(), sendPaperDetails.getPhysicalAddress(), EndWorkflowStatus.SUCCESS);
+            String timelineId = analogWorkflowUtils.addAnalogSuccessAttemptToTimeline(notification, sendPaperDetails.getSentAttemptMade(), legalFactsListEntryIds,  sendPaperDetails, response);
+            completionWorkFlow.completionAnalogWorkflow(notification, recIndex, response.getStatusDateTime(), sendPaperDetails.getPhysicalAddress(), EndWorkflowStatus.SUCCESS);
 
             logEvent.generateSuccess("generated success timelineid={}", timelineId).log();
         } catch (Exception e) {
@@ -210,7 +206,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
 
         try {
             // External channel non è riuscito a effettuare la notificazione, si passa al prossimo step del workflow
-            String timelineId = analogWorkflowUtils.addAnalogFailureAttemptToTimeline(notification, sendPaperDetails.getSentAttemptMade(), legalFactsListEntryIds, response.getDiscoveredAddress(), response.getDeliveryFailureCause() == null ? null : List.of(response.getDeliveryFailureCause()), sendPaperDetails);
+            String timelineId = analogWorkflowUtils.addAnalogFailureAttemptToTimeline(notification, sendPaperDetails.getSentAttemptMade(), legalFactsListEntryIds, sendPaperDetails, response);
             int sentAttemptMade = sendPaperDetails.getSentAttemptMade() + 1;
             analogWorkflowHandler.nextWorkflowStep(notification, recIndex, sentAttemptMade, response.getStatusDateTime());
             logEvent.generateSuccess("WARNING Analog notification failed with failure cause {} generated failure timelineid={}", response.getDeliveryFailureCause(), timelineId).log();
@@ -239,32 +235,19 @@ public class AnalogWorkflowPaperChannelResponseHandler {
 
     private ResponseStatusInt mapPaperStatusInResponseStatus(String paperStatus) {
         /* Codifica sintetica dello stato dell'esito._  <br/>
-                - __001__ Stampato  <br/>
-                - __002__ Disponibile al recapitista  <br/>
-                - __003__ Preso in carico dal recapitista  <br/>
-                - __004__ Consegnata  <br/>
-                - __005__ Mancata consegna  <br/>
-                - __006__ Furto/Smarrimanto/deterioramento  <br/>
-                - __007__ Consegnato Ufficio Postale  <br/>
-                - __008__ Mancata consegna Ufficio Postale  <br/>
-                - __009__ Compiuta giacenza  <br/>
-                - __PC001__ Retry invio  <br/>
+                - PROGRESS  <br/>
+                - OK  <br/>
+                - KO  <br/>
         */
         if (paperStatus == null)
             throw new PnInternalException("Invalid received paper status:" + paperStatus, ERROR_CODE_DELIVERYPUSH_INVALIDRECEIVEDPAPERSTATUS);
 
-        if (this.pnDeliveryPushConfigs.getPaperChannel().getAnalogCodesProgress().contains(paperStatus)) {
-            return ResponseStatusInt.PROGRESS;
+        try {
+            return ResponseStatusInt.valueOf(paperStatus);
+        } catch (IllegalArgumentException e) {
+            log.info("received paperStatus={} from paper-channel, will be simply skipped because not PROGRESS/OK/KO", paperStatus);
+            return null;
         }
-        if (this.pnDeliveryPushConfigs.getPaperChannel().getAnalogCodesSuccess().contains(paperStatus)) {
-            return ResponseStatusInt.OK;
-        }
-        if (this.pnDeliveryPushConfigs.getPaperChannel().getAnalogCodesFail().contains(paperStatus)) {
-            return ResponseStatusInt.KO;
-        }
-
-        log.info("received eventcode {} from paper-channel, will be simply skipped because not PROGRESS/OK/KO", paperStatus);
-        return null;
     }
 
 }
