@@ -695,6 +695,7 @@ components:
       schema:
         type: string
         format: uuid
+        maxLength: 36
 
   schemas:
     
@@ -741,6 +742,7 @@ components:
               description: Identificativo del flusso di eventi
               type: string
               format: uuid
+              maxLength: 36
             activationDate:
               description: Timestamp in cui il flusso di eventi è stato attivato
               type: string
@@ -761,6 +763,7 @@ components:
         streamId:
           type: string
           format: uuid
+          maxLength: 36
         title: 
           type: string
         
