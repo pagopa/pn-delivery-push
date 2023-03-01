@@ -29,6 +29,9 @@ tags:
   - name: Documents
     description: >-
       Recupero dei documenti correlati ad una notificazione
+  - name: NotificationProcessCost
+    description: >-
+      Restituisce il costo dell'intero processo di notificazione per un singolo destinatario
 
 paths:
   '/status':
@@ -290,6 +293,44 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
+  '/delivery-push-private/{iun}/notification-process-cost/{recipientIndex}':
+    get:
+      summary: Restituisce il costo di notificazione per destinatario 
+      description: >-
+        Restituisce il costo dell'intero processo di notificazione per un singolo destinatario
+      tags:
+        - NotificationProcessCost
+      operationId: NotificationProcessCost
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathRecipientIndex'
+        - $ref: '#/components/parameters/queryNotificationFeePolicy'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationProcessCostResponse"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+                
 components:
   parameters:
 
@@ -417,6 +458,28 @@ components:
       schema:
         type: string
 
+    ############################################################################################
+    ###            PARAMETRI DI RICERCA PER IL COSTO PROCESSO NOTIFICAZIONE                  ###
+    ############################################################################################
+    pathRecipientIndex:
+      description: >-
+        Indice destinatario all'interno della notifica
+      name: recipientIndex
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32            
+
+    queryNotificationFeePolicy:
+      description: >-
+        Politica di addebitamento costi
+      name: notificationFeePolicy
+      in: query
+      required: true
+      schema:
+        $ref: 'remote-refs.yaml#/components/schemas/NotificationFeePolicy'
+        
   schemas:
 
     cxTypeAuthFleet:
@@ -550,3 +613,30 @@ components:
       type: string
       enum:
         - AAR
+          
+          
+    ############################################################################################
+    ###                              COSTO NOTIFICAZIONE                                     ###
+    ############################################################################################
+
+    NotificationProcessCostResponse:
+      title: costo del processo di notificazione
+      description: >-
+        Contiene il costo del processo di notificazione e l'eventuale data di perfezionamento della notifica
+      type: object
+      required:
+        - amount
+      properties:
+        amount:
+          description: costo notificazione in euro cents
+          example: '200'
+          type: integer
+          format: int32
+        refinementDate:
+          description: data perfezionamento notifica per decorrenza termini se presente
+          type: string
+          format: date-time
+        notificationViewDate:
+          description: data perfezionamento notifica per presa visione se presente
+          type: string
+          format: date-time

@@ -74,7 +74,7 @@ class RefinementSchedulerTest {
         refinementScheduler.scheduleDigitalRefinement(notification, recIndex, notificationDate, EndWorkflowStatus.SUCCESS);
         
         //THEN
-        Mockito.verify(timelineUtils).buildScheduleRefinement(notification, recIndex);
+        Mockito.verify(timelineUtils).buildScheduleRefinement(notification, recIndex, schedulingDateOk);
         
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
         Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyInt(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
@@ -113,7 +113,7 @@ class RefinementSchedulerTest {
         refinementScheduler.scheduleDigitalRefinement(notification, recIndex, notificationDate, EndWorkflowStatus.SUCCESS);
 
         //THEN
-        Mockito.verify(timelineUtils).buildScheduleRefinement(notification, recIndex);
+        Mockito.verify(timelineUtils).buildScheduleRefinement(notification, recIndex, schedulingDateOk);
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
         Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyInt(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
@@ -145,7 +145,7 @@ class RefinementSchedulerTest {
         refinementScheduler.scheduleDigitalRefinement(notification, recIndex, notificationDate, EndWorkflowStatus.SUCCESS);
 
         //THEN
-        Mockito.verify(timelineUtils, Mockito.never()).buildScheduleRefinement(notification, recIndex);
+        Mockito.verify(timelineUtils, Mockito.never()).buildScheduleRefinement(notification, recIndex, schedulingDateOk);
         Mockito.verify(scheduler, Mockito.never()).scheduleEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.any(Instant.class), Mockito.any(ActionType.class));
     }
 
@@ -174,7 +174,7 @@ class RefinementSchedulerTest {
         refinementScheduler.scheduleDigitalRefinement(notification, recIndex, notificationDate, EndWorkflowStatus.FAILURE);
 
         //THEN
-        Mockito.verify(timelineUtils).buildScheduleRefinement(notification, recIndex);
+        Mockito.verify(timelineUtils).buildScheduleRefinement(notification, recIndex, schedulingDateOk);
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
         Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyInt(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
@@ -207,7 +207,7 @@ class RefinementSchedulerTest {
         refinementScheduler.scheduleAnalogRefinement(notification, recIndex, notificationDate, EndWorkflowStatus.SUCCESS);
 
         //THEN
-        Mockito.verify(timelineUtils).buildScheduleRefinement(notification, recIndex);
+        Mockito.verify(timelineUtils).buildScheduleRefinement(notification, recIndex, schedulingDateOk);
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
         Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyInt(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
@@ -239,7 +239,7 @@ class RefinementSchedulerTest {
         refinementScheduler.scheduleAnalogRefinement(notification, recIndex, notificationDate, EndWorkflowStatus.FAILURE);
 
         //THEN
-        Mockito.verify(timelineUtils).buildScheduleRefinement(notification, recIndex);
+        Mockito.verify(timelineUtils).buildScheduleRefinement(notification, recIndex, schedulingDateOk);
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
         Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyInt(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));

@@ -531,7 +531,7 @@ class TimelineUtilsTest {
         NotificationInt notification = buildNotification();
         Integer recIndex = 100;
 
-        TimelineElementInternal actual = timelineUtils.buildScheduleRefinement(notification, recIndex);
+        TimelineElementInternal actual = timelineUtils.buildScheduleRefinement(notification, recIndex, Instant.now());
         String timelineEventIdExpected = "SCHEDULE_REFINEMENT_WORKFLOW#IUN_Example_IUN_1234_Test#RECINDEX_100".replace("#", TimelineEventIdBuilder.DELIMITER);
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
