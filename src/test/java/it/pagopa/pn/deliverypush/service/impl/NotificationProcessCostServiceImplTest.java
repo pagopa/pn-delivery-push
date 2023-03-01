@@ -5,7 +5,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
-import it.pagopa.pn.deliverypush.service.NotificationCostService;
+import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,19 +22,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static it.pagopa.pn.deliverypush.service.impl.NotificationCostServiceImpl.PAGOPA_NOTIFICATION_BASE_COST;
+import static it.pagopa.pn.deliverypush.service.impl.NotificationProcessProcessCostServiceImpl.PAGOPA_NOTIFICATION_BASE_COST;
 
-class NotificationCostServiceImplTest {
+class NotificationProcessCostServiceImplTest {
     @Mock
     private PnDeliveryClient pnDeliveryClient;
     @Mock
     private TimelineService timelineService;
 
-    private NotificationCostService service;
+    private NotificationProcessCostService service;
     
     @BeforeEach
     void setUp() {
-        service = new NotificationCostServiceImpl(pnDeliveryClient, timelineService);
+        service = new NotificationProcessProcessCostServiceImpl(pnDeliveryClient, timelineService);
     }
     
     @Test

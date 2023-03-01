@@ -4,7 +4,7 @@ import it.pagopa.pn.deliverypush.dto.cost.NotificationProcessCost;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.NotificationProcessCostApi;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationProcessCostResponse;
-import it.pagopa.pn.deliverypush.service.NotificationCostService;
+import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 public class PnNotificationProcessCostController implements NotificationProcessCostApi {
 
-    private final NotificationCostService service;
+    private final NotificationProcessCostService service;
     
     @Override
     public  Mono<ResponseEntity<NotificationProcessCostResponse>> notificationProcessCost(String iun, 

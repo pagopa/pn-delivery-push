@@ -9,7 +9,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.service.NotificationCostService;
+import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,7 +38,7 @@ class RefinementHandlerTest {
     private NotificationService notificationService;
     
     @Mock
-    private NotificationCostService notificationCostService;
+    private NotificationProcessCostService notificationProcessCostService;
 
     @Mock
     private AttachmentUtils attachmentUtils;
@@ -51,7 +51,7 @@ class RefinementHandlerTest {
     @BeforeEach
     public void setup() {
         refinementHandler = new RefinementHandler(timelineService,
-                timelineUtils, notificationService, notificationCostService, attachmentUtils, pnDeliveryPushConfigs);
+                timelineUtils, notificationService, notificationProcessCostService, attachmentUtils, pnDeliveryPushConfigs);
     }
     
     @ExtendWith(MockitoExtension.class)
@@ -64,7 +64,7 @@ class RefinementHandlerTest {
         when(pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement()).thenReturn(120);
         when(timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex)).thenReturn(Boolean.FALSE);
         when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
-        when(notificationCostService.getPagoPaNotificationBaseCost()).thenReturn(Mono.just(100));
+        when(notificationProcessCostService.getPagoPaNotificationBaseCost()).thenReturn(Mono.just(100));
         when(timelineUtils.buildRefinementTimelineElement(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(TimelineElementInternal.builder().build());
         when(attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement())).thenReturn(Flux.empty());
         
@@ -84,7 +84,7 @@ class RefinementHandlerTest {
 
         when(timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex)).thenReturn(Boolean.FALSE);
         when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
-        when(notificationCostService.getPagoPaNotificationBaseCost()).thenReturn(Mono.error(new RuntimeException("questa è l'eccezione")));
+        when(notificationProcessCostService.getPagoPaNotificationBaseCost()).thenReturn(Mono.error(new RuntimeException("questa è l'eccezione")));
 
         assertThrows(RuntimeException.class, () -> {
             refinementHandler.handleRefinement(iun, recIndex);

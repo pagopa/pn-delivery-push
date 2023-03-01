@@ -100,7 +100,7 @@ import static org.mockito.ArgumentMatchers.eq;
         RefinementHandler.class,
         NotificationViewedRequestHandler.class,
         IoServiceImpl.class,
-        NotificationCostServiceImpl.class,
+        NotificationProcessProcessCostServiceImpl.class,
         DigitalWorkFlowUtils.class,
         CourtesyMessageUtils.class,
         CompletelyUnreachableUtils.class,

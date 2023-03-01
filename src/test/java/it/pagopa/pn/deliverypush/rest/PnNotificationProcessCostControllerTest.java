@@ -3,7 +3,7 @@ package it.pagopa.pn.deliverypush.rest;
 import it.pagopa.pn.deliverypush.dto.cost.NotificationProcessCost;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationProcessCostResponse;
-import it.pagopa.pn.deliverypush.service.NotificationCostService;
+import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -25,7 +25,7 @@ class PnNotificationProcessCostControllerTest {
     WebTestClient webTestClient;
 
     @MockBean
-    private NotificationCostService service;
+    private NotificationProcessCostService service;
 
     @Test
     void notificationProcessCost() {

@@ -101,7 +101,7 @@ import static org.awaitility.Awaitility.with;
         AuditLogServiceImpl.class,
         ExternalChannelServiceImpl.class,
         IoServiceImpl.class,
-        NotificationCostServiceImpl.class,
+        NotificationProcessProcessCostServiceImpl.class,
         SafeStorageServiceImpl.class,
         RefinementHandler.class,
         NotificationViewedRequestHandler.class,
