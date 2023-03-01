@@ -4,16 +4,12 @@ import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.LegalFactCategoryEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.LegalFactsIdEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementDetailsEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementEntity;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -51,9 +47,49 @@ class DtoToEntityTimelineMapperTest {
         assertThat(actual.getLegalFactIds().get(0).getCategory().name()).isEqualTo(timelineElementInternal.getLegalFactsIds().get(0).getCategory().name());
     }
 
+    @Test
+    void dtoToEntityPaid() {
+        DtoToEntityTimelineMapper dto = new DtoToEntityTimelineMapper();
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .elementId("NOTIFICATION_PAID.IUN_MPKG-MHLY-GXHE-202301-P-1.CODE_PPA30229167420586447277777777777")
+                .category(TimelineElementCategoryInt.PAYMENT)
+                .notificationSentAt(Instant.now())
+                .paId("aa6e8c72-7944-4dcd-8668-f596447fec6d")
+                .timestamp(Instant.now())
+                .details(NotificationPaidDetails.builder()
+                        .creditorTaxId("creditorTaxId")
+                        .noticeCode("noticeId")
+                        .recipientType("PF")
+                        .amount(1200)
+                        .recIndex(0)
+                        .paymentSourceChannel("PA")
+                        .build())
+                .build();
+
+        TimelineElementEntity actual = dto.dtoToEntity(timelineElementInternal);
+
+        assertThat(actual).isNotNull();
+        assertThat(actual.getIun()).isEqualTo(timelineElementInternal.getIun());
+        assertThat(actual.getTimelineElementId()).isEqualTo(timelineElementInternal.getElementId());
+        assertThat(actual.getPaId()).isEqualTo(timelineElementInternal.getPaId());
+        assertThat(actual.getNotificationSentAt()).isEqualTo(timelineElementInternal.getNotificationSentAt());
+        assertThat(actual.getCategory().name()).isEqualTo(timelineElementInternal.getCategory().name());
+        assertThat(actual.getTimestamp()).isEqualTo(timelineElementInternal.getTimestamp());
+
+        // verifica details
+        NotificationPaidDetails details = (NotificationPaidDetails) timelineElementInternal.getDetails();
+        assertThat(actual.getDetails()).isNotNull();
+        assertThat(actual.getDetails().getRecIndex()).isEqualTo(details.getRecIndex());
+        assertThat(actual.getDetails().getCreditorTaxId()).isEqualTo(details.getCreditorTaxId());
+        assertThat(actual.getDetails().getNoticeCode()).isEqualTo(details.getNoticeCode());
+        assertThat(actual.getDetails().getRecipientType()).isEqualTo(details.getRecipientType());
+        assertThat(actual.getDetails().getPaymentSourceChannel()).isEqualTo(details.getPaymentSourceChannel());
+        assertThat(actual.getDetails().getAmount()).isEqualTo(details.getAmount());
+
+    }
+
     private TimelineElementInternal buildTimelineElementInternal() {
         Instant instant = Instant.parse("2021-09-16T15:23:00.00Z");
-        TimelineElementInternal timelineElementDetailsInt = getSendPaperFeedbackTimelineElement("1", "1");
         TimelineElementDetailsInt elementDetailsInt = parseDetailsFromEntity(TimelineElementDetailsEntity.builder()
                 .recIndex(0)
                 .notificationCost(100)
