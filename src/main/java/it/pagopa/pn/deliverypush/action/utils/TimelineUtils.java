@@ -875,7 +875,7 @@ public class TimelineUtils {
     public boolean checkNotificationIsAlreadyViewed(String iun, Integer recIndex){
         //Se la notifica è stata pagata è stata sicuramente anche visualizzata dunque non serve il doppio check
         
-        String elementId = TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
+        String elementId = TimelineEventId.NOTIFICATION_VIEWED_CREATION_REQUEST.buildEventId(
                 EventId.builder()
                         .iun(iun)
                         .recIndex(recIndex)
