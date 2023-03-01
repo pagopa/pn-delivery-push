@@ -57,5 +57,11 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("completionWorkflowDate")})) private Instant completionWorkflowDate;
     @Getter(onMethod=@__({@DynamoDbAttribute("status")})) private String endWorkflowStatus;
     @Getter(onMethod=@__({@DynamoDbAttribute("eventDetail")})) private String eventDetail;
+    @Getter(onMethod=@__({@DynamoDbAttribute("recipientType")})) private String recipientType;
+    @Getter(onMethod=@__({@DynamoDbAttribute("amount")})) private Integer amount;
+    @Getter(onMethod=@__({@DynamoDbAttribute("creditorTaxId")})) private String creditorTaxId;
+    @Getter(onMethod=@__({@DynamoDbAttribute("noticeCode")})) private String noticeCode;
+    @Getter(onMethod=@__({@DynamoDbAttribute("idF24")})) private String idF24;
+    @Getter(onMethod=@__({@DynamoDbAttribute("paymentSourceChannel")})) private String paymentSourceChannel;
     @Getter(onMethod=@__({@DynamoDbAttribute("schedulingDate")})) private Instant schedulingDate;
 }
