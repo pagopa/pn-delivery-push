@@ -104,10 +104,10 @@ class CompletionWorkFlowHandlerTest {
 
         EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.SUCCESS;
         //WHEN
-        handler.completionAnalogWorkflow(notification, recIndex, null, notificationDate, recipient.getPhysicalAddress(), endWorkflowStatus);
+        handler.completionAnalogWorkflow(notification, recIndex, notificationDate, recipient.getPhysicalAddress(), endWorkflowStatus);
         
         //THEN
-        Mockito.verify(timelineUtils).buildSuccessAnalogWorkflowTimelineElement(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.any(PhysicalAddressInt.class), Mockito.any());
+        Mockito.verify(timelineUtils).buildSuccessAnalogWorkflowTimelineElement(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.any(PhysicalAddressInt.class));
         Mockito.verify(refinementScheduler).scheduleAnalogRefinement(notification, recIndex, notificationDate, endWorkflowStatus);
     }
 
@@ -130,10 +130,10 @@ class CompletionWorkFlowHandlerTest {
         EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.FAILURE;
         
         //WHEN
-        handler.completionAnalogWorkflow(notification, recIndex, null, notificationDate, recipient.getPhysicalAddress(), endWorkflowStatus);
+        handler.completionAnalogWorkflow(notification, recIndex, notificationDate, recipient.getPhysicalAddress(), endWorkflowStatus);
     
         //THEN
-        Mockito.verify(timelineUtils).buildFailureAnalogWorkflowTimelineElement(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.any());
+        Mockito.verify(timelineUtils).buildFailureAnalogWorkflowTimelineElement(Mockito.any(NotificationInt.class), Mockito.anyInt());
         Mockito.verify(refinementScheduler).scheduleAnalogRefinement(notification, recIndex, notificationDate, endWorkflowStatus);
     }
     

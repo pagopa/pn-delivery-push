@@ -60,8 +60,6 @@ public class PaperChannelSendClientImpl implements PaperChannelSendClient {
         prepareRequest.setRelatedRequestId(paperChannelPrepareRequest.getRelatedRequestId());
         prepareRequest.setDiscoveredAddress(mapInternalToExternal(paperChannelPrepareRequest.getDiscoveredAddress()));
 
-        // FIXME togliere log una volta terminata integrazione con paper channel (contiene info sensibili)
-        log.info("iun={} the request for prepare is {}", paperChannelPrepareRequest.getNotificationInt().getIun() , prepareRequest);
         paperMessagesApi.sendPaperPrepareRequest(paperChannelPrepareRequest.getRequestId(), prepareRequest);
 
         log.info("[exit] prepare iun={}  address={} recipient={} requestId={} attachments={} relatedRequestId={}", paperChannelPrepareRequest.getNotificationInt().getIun(), LogUtils.maskGeneric(paperChannelPrepareRequest.getPaAddress()==null?"null":paperChannelPrepareRequest.getPaAddress().getAddress()), LogUtils.maskGeneric(paperChannelPrepareRequest.getRecipientInt().getDenomination()), paperChannelPrepareRequest.getRequestId(), paperChannelPrepareRequest.getAttachments(), paperChannelPrepareRequest.getRelatedRequestId());
@@ -86,8 +84,6 @@ public class PaperChannelSendClientImpl implements PaperChannelSendClient {
         sendRequest.setRequestPaId(paperChannelSendRequest.getNotificationInt().getSender().getPaTaxId());
         sendRequest.setClientRequestTimeStamp(OffsetDateTime.now());
 
-        // FIXME togliere log una volta terminata integrazione con paper channel (contiene info sensibili)
-        log.info("iun={} the request for send is {}", paperChannelSendRequest.getNotificationInt().getIun() , sendRequest);
 
         SendResponse response = paperMessagesApi.sendPaperSendRequest(paperChannelSendRequest.getRequestId(), sendRequest);
     
@@ -122,16 +118,12 @@ public class PaperChannelSendClientImpl implements PaperChannelSendClient {
          */
 
 
-        switch (serviceLevelType){
-            case REGISTERED_LETTER_890:
-                return ProposalTypeEnum._890;
-            case AR_REGISTERED_LETTER:
-                return ProposalTypeEnum.AR;
-            case SIMPLE_REGISTERED_LETTER:
-                return ProposalTypeEnum.RS;
-        }
+        return switch (serviceLevelType) {
+            case REGISTERED_LETTER_890 -> ProposalTypeEnum._890;
+            case AR_REGISTERED_LETTER -> ProposalTypeEnum.AR;
+            case SIMPLE_REGISTERED_LETTER -> ProposalTypeEnum.RS;
+        };
 
-        return  null;
     }
 
 }

@@ -103,7 +103,7 @@ class AnalogWorkflowHandlerTest {
         handler.nextWorkflowStep(notification, recIndex, 2, null);
 
         //THEN
-        Mockito.verify(completionWorkFlow).completionAnalogWorkflow(eq(notification), eq(recIndex), Mockito.any(), Mockito.any(Instant.class), eq(null), eq(EndWorkflowStatus.FAILURE));
+        Mockito.verify(completionWorkFlow).completionAnalogWorkflow(eq(notification), eq(recIndex),Mockito.any(Instant.class), eq(null), eq(EndWorkflowStatus.FAILURE));
     }
 
 
@@ -204,7 +204,7 @@ class AnalogWorkflowHandlerTest {
         handler.nextWorkflowStep(notification, recIndex, 2, null);
 
         //THEN
-        Mockito.verify(completionWorkFlow).completionAnalogWorkflow(notification, recIndex, null, instantNowSupplier.get(), null, EndWorkflowStatus.FAILURE);
+        Mockito.verify(completionWorkFlow).completionAnalogWorkflow(notification, recIndex,  instantNowSupplier.get(), null, EndWorkflowStatus.FAILURE);
     }
 
 }
