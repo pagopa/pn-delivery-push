@@ -682,7 +682,7 @@ public class TimelineUtils {
         return buildTimeline(notification, TimelineElementCategoryInt.REFINEMENT, elementId, details);
     }
     
-    public TimelineElementInternal buildScheduleRefinement(NotificationInt notification, Integer recIndex) {
+    public TimelineElementInternal buildScheduleRefinement(NotificationInt notification, Integer recIndex, Instant schedulingDate) {
         log.debug("buildScheduleRefinement - iun={} and id={}", notification.getIun(), recIndex);
         
         String elementId = TimelineEventId.SCHEDULE_REFINEMENT_WORKFLOW.buildEventId(
@@ -693,6 +693,7 @@ public class TimelineUtils {
         
         ScheduleRefinementDetailsInt details = ScheduleRefinementDetailsInt.builder()
                 .recIndex(recIndex)
+                .schedulingDate(schedulingDate)
                 .build();
 
         return buildTimeline(notification, TimelineElementCategoryInt.SCHEDULE_REFINEMENT, elementId, details);

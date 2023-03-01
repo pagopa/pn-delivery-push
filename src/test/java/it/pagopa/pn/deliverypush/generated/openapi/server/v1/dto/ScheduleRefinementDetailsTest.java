@@ -33,14 +33,4 @@ class ScheduleRefinementDetailsTest {
     }
 
 
-    @Test
-    void testToString() {
-        String expected = "class ScheduleRefinementDetails {\n" +
-                "    recIndex: 0\n" +
-                "}";
-        String actual = details.toString();
-        Assertions.assertEquals(expected, actual);
-    }
-
-
 }

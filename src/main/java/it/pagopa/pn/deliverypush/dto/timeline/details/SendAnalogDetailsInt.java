@@ -11,7 +11,7 @@ import lombok.*;
 @Builder(toBuilder = true)
 @EqualsAndHashCode
 @ToString
-public class SendAnalogDetailsInt implements RecipientRelatedTimelineElementDetails, PhysicalAddressRelatedTimelineElement {
+public class SendAnalogDetailsInt implements RecipientRelatedTimelineElementDetails, PhysicalAddressRelatedTimelineElement, AnalogSendTimelineElement {
     private int recIndex;
     private PhysicalAddressInt physicalAddress;
     private ServiceLevelInt serviceLevel;
