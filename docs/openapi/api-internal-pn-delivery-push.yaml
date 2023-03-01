@@ -217,6 +217,8 @@ components:
       required: true
       schema:
         type: string
+        maxLength: 25
+        pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
         
     ############################################################################################
     ###                      PARAMETRI RICERCA ATTI OPPONIBILI A TERZI                       ###

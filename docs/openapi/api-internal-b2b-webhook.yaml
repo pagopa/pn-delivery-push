@@ -804,6 +804,8 @@ components:
             Identificativo della notifica, presente solo se la richiesta di notifica è 
             stata accettata.
           type: string
+          maxLength: 25
+          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
 
         newStatus:
           $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'
@@ -881,7 +883,9 @@ components:
         - timestamp                                                                     # NOT YET IMPLEMENTED
       properties:                                                                       # NOT YET IMPLEMENTED
         iun:                                                                            # NOT YET IMPLEMENTED
-          type: string                                                                  # NOT YET IMPLEMENTED
+          type: string
+          maxLength: 25
+          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$              # NOT YET IMPLEMENTED
         recipientTaxId:                                                                 # NOT YET IMPLEMENTED
           type: string                                                                  # NOT YET IMPLEMENTED
         recipientType:                                                                  # NOT YET IMPLEMENTED
