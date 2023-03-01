@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: '2023-03-01T10:17:11.365Z'
+  version: ZYXRVPWMsD2X02Pg0i360Tj/WHxkyejqzbu+46/9x1I=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -49,8 +49,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_ApiKeyAuthorizerV2: []
-        - api_key: []
+        - pn-auth-fleet_ApiKeyAuthorizerV2_openapi: []
+        - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/streams
@@ -95,8 +95,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_ApiKeyAuthorizerV2: []
-        - api_key: []
+        - pn-auth-fleet_ApiKeyAuthorizerV2_openapi: []
+        - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/streams
@@ -156,8 +156,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_ApiKeyAuthorizerV2: []
-        - api_key: []
+        - pn-auth-fleet_ApiKeyAuthorizerV2_openapi: []
+        - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/streams/{streamId}
@@ -211,8 +211,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_ApiKeyAuthorizerV2: []
-        - api_key: []
+        - pn-auth-fleet_ApiKeyAuthorizerV2_openapi: []
+        - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/streams/{streamId}
@@ -256,8 +256,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_ApiKeyAuthorizerV2: []
-        - api_key: []
+        - pn-auth-fleet_ApiKeyAuthorizerV2_openapi: []
+        - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/streams/{streamId}
@@ -345,8 +345,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_ApiKeyAuthorizerV2: []
-        - api_key: []
+        - pn-auth-fleet_ApiKeyAuthorizerV2_openapi: []
+        - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/streams/{streamId}/events
@@ -690,11 +690,11 @@ components:
         - NOT_HANDLED
   responses: {}
   securitySchemes:
-    api_key:
+    api_key_openapi:
       type: apiKey
       name: x-api-key
       in: header
-    pn-auth-fleet_ApiKeyAuthorizerV2:
+    pn-auth-fleet_ApiKeyAuthorizerV2_openapi:
       type: apiKey
       name: x-api-key
       in: header

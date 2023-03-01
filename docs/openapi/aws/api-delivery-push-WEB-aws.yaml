@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: '2023-03-01T10:17:12.753Z'
+  version: D2xJ1MNseKl0c7N8PU+PXni/myYG88GWUJWXBKSM310=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -54,7 +54,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_jwtAuthorizer: []
+        - pn-auth-fleet_jwtAuthorizer_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/{iun}/legal-facts
@@ -130,7 +130,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_jwtAuthorizer: []
+        - pn-auth-fleet_jwtAuthorizer_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/{iun}/legal-facts/{legalFactType}/{legalFactId}
@@ -208,7 +208,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_jwtAuthorizer: []
+        - pn-auth-fleet_jwtAuthorizer_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/{iun}/document/{documentType}
@@ -521,7 +521,7 @@ components:
             documento sia scaricabile.
   responses: {}
   securitySchemes:
-    pn-auth-fleet_jwtAuthorizer:
+    pn-auth-fleet_jwtAuthorizer_openapi:
       type: apiKey
       name: Authorization
       in: header

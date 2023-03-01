@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: '2023-03-01T14:10:24.580Z'
+  version: lkpJYAbQ9y9CfkNa/wfRGZ49j1DG3vxDNVO0BbuVnoc=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -54,8 +54,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_IoAuthorizer: []
-        - api_key: []
+        - pn-auth-fleet_IoAuthorizer_openapi: []
+        - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/{iun}/legal-facts
@@ -131,8 +131,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_IoAuthorizer: []
-        - api_key: []
+        - pn-auth-fleet_IoAuthorizer_openapi: []
+        - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/{iun}/legal-facts/{legalFactType}/{legalFactId}
@@ -210,8 +210,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_IoAuthorizer: []
-        - api_key: []
+        - pn-auth-fleet_IoAuthorizer_openapi: []
+        - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/{iun}/document/{documentType}
@@ -524,11 +524,11 @@ components:
             documento sia scaricabile.
   responses: {}
   securitySchemes:
-    api_key:
+    api_key_openapi:
       type: apiKey
       name: x-api-key
       in: header
-    pn-auth-fleet_IoAuthorizer:
+    pn-auth-fleet_IoAuthorizer_openapi:
       type: apiKey
       name: Unused
       in: header
