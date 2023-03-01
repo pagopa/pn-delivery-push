@@ -883,16 +883,16 @@ components:
         - timestamp                                                                     # NOT YET IMPLEMENTED
       properties:                                                                       # NOT YET IMPLEMENTED
         iun:                                                                            # NOT YET IMPLEMENTED
-          type: string
-          maxLength: 25
+          type: string                                                                  # NOT YET IMPLEMENTED
+          maxLength: 25                                                                 # NOT YET IMPLEMENTED
           pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$              # NOT YET IMPLEMENTED
         recipientTaxId:                                                                 # NOT YET IMPLEMENTED
           type: string                                                                  # NOT YET IMPLEMENTED
-          minLength: 11
-          maxLength: 16
-          pattern: ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
+          minLength: 11                                                                 # NOT YET IMPLEMENTED
+          maxLength: 16                                                                 # NOT YET IMPLEMENTED
+          pattern: ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$ # NOT YET IMPLEMENTED
         recipientType:                                                                  # NOT YET IMPLEMENTED
-          $ref: './schemas-pn-notification.yaml#/components/schemas/RecipientType'   # NOT YET IMPLEMENTED
+          $ref: './schemas-pn-notification.yaml#/components/schemas/RecipientType'      # NOT YET IMPLEMENTED
         paymentType:                                                                    # NOT YET IMPLEMENTED
           type: string                                                                  # NOT YET IMPLEMENTED
           enum:                                                                         # NOT YET IMPLEMENTED
