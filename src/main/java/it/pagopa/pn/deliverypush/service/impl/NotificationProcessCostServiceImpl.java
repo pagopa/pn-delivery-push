@@ -18,7 +18,7 @@ import java.util.Set;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class NotificationProcessProcessCostServiceImpl implements NotificationProcessCostService {
+public class NotificationProcessCostServiceImpl implements NotificationProcessCostService {
     public static final int PAGOPA_NOTIFICATION_BASE_COST = 100;
     private final PnDeliveryClient pnDeliveryClient;
     private final TimelineService timelineService;
@@ -35,7 +35,7 @@ public class NotificationProcessProcessCostServiceImpl implements NotificationPr
     }
 
     private NotificationProcessCost getNotificationProcessCost(String iun, int recIndex, NotificationFeePolicy notificationFeePolicy) {
-        log.info("Start getNotificationProcessCost notificationFeePolicy={}- iun={} id={}", notificationFeePolicy, iun, recIndex);
+        log.info("Start getNotificationProcessCost notificationFeePolicy={} - iun={} id={}", notificationFeePolicy, iun, recIndex);
         
         Instant notificationViewDate = null;
         Instant refinementDate = null;

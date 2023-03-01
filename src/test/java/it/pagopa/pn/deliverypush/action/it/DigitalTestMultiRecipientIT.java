@@ -91,7 +91,7 @@ import static org.awaitility.Awaitility.await;
         NationalRegistriesServiceImpl.class,
         ExternalChannelServiceImpl.class,
         IoServiceImpl.class,
-        NotificationProcessProcessCostServiceImpl.class,
+        NotificationProcessCostServiceImpl.class,
         SafeStorageServiceImpl.class,
         ExternalChannelResponseHandler.class,
         RefinementHandler.class,

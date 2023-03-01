@@ -31,7 +31,7 @@ tags:
       Recupero dei documenti correlati ad una notificazione
   - name: NotificationProcessCost
     description: >-
-      Restituisce il costo dell'interno processo di notificazione per un singolo destinatario
+      Restituisce il costo dell'intero processo di notificazione per un singolo destinatario
 
 paths:
   '/status':
@@ -297,7 +297,7 @@ paths:
     get:
       summary: Restituisce il costo di notificazione per destinatario 
       description: >-
-        Restituisce il costo dell'interno processo di notificazione per un singolo destinatario
+        Restituisce il costo dell'intero processo di notificazione per un singolo destinatario
       tags:
         - NotificationProcessCost
       operationId: NotificationProcessCost
@@ -637,6 +637,6 @@ components:
           type: string
           format: date-time
         notificationViewDate:
-          description: data perfezionamento notifica per per presa visione se presente
+          description: data perfezionamento notifica per presa visione se presente
           type: string
           format: date-time

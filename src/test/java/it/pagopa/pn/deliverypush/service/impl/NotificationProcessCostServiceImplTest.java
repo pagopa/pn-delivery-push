@@ -22,7 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static it.pagopa.pn.deliverypush.service.impl.NotificationProcessProcessCostServiceImpl.PAGOPA_NOTIFICATION_BASE_COST;
+import static it.pagopa.pn.deliverypush.service.impl.NotificationProcessCostServiceImpl.PAGOPA_NOTIFICATION_BASE_COST;
 
 class NotificationProcessCostServiceImplTest {
     @Mock
@@ -34,7 +34,7 @@ class NotificationProcessCostServiceImplTest {
     
     @BeforeEach
     void setUp() {
-        service = new NotificationProcessProcessCostServiceImpl(pnDeliveryClient, timelineService);
+        service = new NotificationProcessCostServiceImpl(pnDeliveryClient, timelineService);
     }
     
     @Test
