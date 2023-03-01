@@ -6,7 +6,7 @@ import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.service.NotificationCostService;
+import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +21,7 @@ import java.util.Optional;
 
 class NotificationCostTest {
     @Mock
-    private NotificationCostService notificationCostService;
+    private NotificationProcessCostService notificationProcessCostService;
     @Mock
     private TimelineService timelineService;
 
@@ -31,7 +31,7 @@ class NotificationCostTest {
     public void setup() {
         notificationUtils = new NotificationUtils();
 
-        notificationCost = new NotificationCost(notificationCostService, timelineService);
+        notificationCost = new NotificationCost(notificationProcessCostService, timelineService);
     }
 
 
@@ -51,7 +51,7 @@ class NotificationCostTest {
         //WHEN
         Mono<Optional<Integer>> monoCostOpt = notificationCost.getNotificationCost(notification, recIndex);
         //THEN
-        Mockito.verify(notificationCostService, Mockito.never()).getNotificationCost(notification, recIndex);
+        Mockito.verify(notificationProcessCostService, Mockito.never()).getPagoPaNotificationBaseCost();
         Assertions.assertNotNull(monoCostOpt);
         Optional<Integer> costOpt = monoCostOpt.block();
         Assertions.assertTrue(costOpt.isEmpty());
@@ -69,7 +69,7 @@ class NotificationCostTest {
 
         Mockito.when(timelineService.getTimelineElement(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.empty());
         int expectedCost = 10;
-        Mockito.when(notificationCostService.getNotificationCost(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(Mono.just(expectedCost));
+        Mockito.when(notificationProcessCostService.getPagoPaNotificationBaseCost()).thenReturn(Mono.just(expectedCost));
 
         //WHEN
         Mono<Optional<Integer>> monoCostOpt = notificationCost.getNotificationCost(notification, recIndex);
@@ -82,6 +82,6 @@ class NotificationCostTest {
         Assertions.assertNotNull(costOpt.get());
         Assertions.assertEquals(expectedCost, costOpt.get());
 
-        Mockito.verify(notificationCostService).getNotificationCost(notification, recIndex);
+        Mockito.verify(notificationProcessCostService).getPagoPaNotificationBaseCost();
     }
 }

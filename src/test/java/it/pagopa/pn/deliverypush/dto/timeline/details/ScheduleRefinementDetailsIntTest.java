@@ -26,10 +26,5 @@ class ScheduleRefinementDetailsIntTest {
         int rec = detailsInt.getRecIndex();
         Assertions.assertEquals(1, rec);
     }
-
-    @Test
-    void testToString() {
-        String rec = detailsInt.toString();
-        Assertions.assertEquals("ScheduleRefinementDetailsInt(recIndex=1)", rec);
-    }
+    
 }

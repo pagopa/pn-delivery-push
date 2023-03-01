@@ -395,6 +395,9 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
+        schedulingDate:
+          type: string
+          format: date-time
 
     SendCourtesyMessageDetails:
       type: object
