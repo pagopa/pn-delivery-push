@@ -7,3 +7,19 @@ components:
       enum:
         - PF
         - PG
+
+    paTaxId:
+      description: Payment PA fiscal code
+      example: '77777777777'
+      type: string
+      maxLength: 11
+      minLength: 11
+      pattern: '^\d+$'
+
+    noticeCode:
+      description: Payment notice number  numero avviso
+      example: '302000100000019421'
+      type: string
+      maxLength: 18
+      minLength: 18
+      pattern: '^\d+$'

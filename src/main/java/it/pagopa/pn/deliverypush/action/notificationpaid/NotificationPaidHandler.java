@@ -55,12 +55,12 @@ public class NotificationPaidHandler {
             handleInsertNotificationPaidTimelineElement(notificationPaidInt, elementId);
         } else {
             //Pagamento già avvenuto
-            log.info("Notification has already been paid: {}", paymentEventPayload);
+            log.info("Event PAYMENT already received: {}", paymentEventPayload);
         }
     }
 
     private void handleInsertNotificationPaidTimelineElement(NotificationPaidInt notificationPaidInt, String elementId) {
-        log.info("Notification has not already been paid, start process to insert payment: {} ",notificationPaidInt);
+        log.info("New event PAYMENT, start process to insert: {} ",notificationPaidInt);
 
         NotificationInt notification = notificationService.getNotificationByIun(notificationPaidInt.getIun());
 

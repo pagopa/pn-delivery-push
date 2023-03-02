@@ -648,11 +648,30 @@ components:
       type: object
       required:
         - recIndex
+        - recipientType
       properties:
         recIndex:
           type: integer
           description: Index destinatario che ha effettuato il pagamento della notifica
           format: int32
+        recipientType:
+          $ref: './schemas-pn-notification.yaml#/components/schemas/RecipientType'
+        amount:
+          type: integer
+          description: Importo di pagamento in eurocent
+          format: int32
+        creditorTaxId:
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxId'
+        noticeCode:
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'
+        idF24:
+          type: string
+          description: un UUID che identifica un pagamento f24
+        paymentSourceChannel:
+          type: string
+          description: Canale sorgente della richiesta di pagamento
+
+
 
     SenderAckCreationRequestDetails:
       type: object
