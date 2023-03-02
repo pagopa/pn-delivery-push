@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 42P/gfzR7n6jtKZ5XpR6ZKfgDiF6rtmw+amx3LwfF9U=
+  version: Rs5abo2b1d6y4gSiGhzs3CmfbwIkMKqAPQjOaIVvKTg=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -22,10 +22,6 @@ paths:
         - LegalFacts
       operationId: getNotificationLegalFacts
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'
-        - $ref: '#/components/parameters/cxTypeAuthFleet'
-        - $ref: '#/components/parameters/cxIdAuthFleet'
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/legalFactsSearchMandateId'
       responses:
@@ -96,10 +92,6 @@ paths:
         - LegalFacts
       operationId: getLegalFact
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'
-        - $ref: '#/components/parameters/cxTypeAuthFleet'
-        - $ref: '#/components/parameters/cxIdAuthFleet'
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactType'
         - $ref: '#/components/parameters/pathLegalFactId'
@@ -174,10 +166,6 @@ paths:
         - DocumentsWeb
       operationId: getDocumentsWeb
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'
-        - $ref: '#/components/parameters/cxTypeAuthFleet'
-        - $ref: '#/components/parameters/cxIdAuthFleet'
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/legalFactsSearchMandateId'
         - $ref: '#/components/parameters/pathDocumentType'
@@ -244,36 +232,6 @@ paths:
         type: http_proxy
 components:
   parameters:
-    cxTypeAuthFleet:
-      name: x-pagopa-pn-cx-type
-      in: header
-      description: Customer/Receiver Type
-      required: true
-      schema:
-        $ref: '#/components/schemas/CxTypeAuthFleet'
-    cxIdAuthFleet:
-      name: x-pagopa-pn-cx-id
-      in: header
-      description: Customer/Receiver Identifier
-      required: true
-      schema:
-        type: string
-    cxGroupsAuthFleet:
-      name: x-pagopa-pn-cx-groups
-      in: header
-      description: Customer Groups
-      required: false
-      schema:
-        type: array
-        items:
-          type: string
-    uidAuthFleet:
-      name: x-pagopa-pn-uid
-      in: header
-      description: User Identifier
-      required: true
-      schema:
-        type: string
     legalFactsSearchMandateId:
       name: mandateId
       in: query
@@ -317,12 +275,6 @@ components:
       schema:
         type: string
   schemas:
-    CxTypeAuthFleet:
-      type: string
-      enum:
-        - PA
-        - PF
-        - PG
     LegalFactCategory:
       title: Tipi di atti opponibili a terzi
       description: >-
