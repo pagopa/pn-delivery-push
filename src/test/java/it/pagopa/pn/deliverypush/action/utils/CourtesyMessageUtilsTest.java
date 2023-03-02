@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
-import io.swagger.models.auth.In;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
@@ -16,6 +15,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.WaitFromCourtesyDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
 import it.pagopa.pn.deliverypush.service.ExternalChannelService;
@@ -59,7 +59,7 @@ class CourtesyMessageUtilsTest {
         iOservice = Mockito.mock(IoService.class);
 
         courtesyMessageUtils = new CourtesyMessageUtils(addressBookService, externalChannelService,
-                timelineService, timelineUtils, notificationUtils, iOservice);
+                timelineService, timelineUtils, notificationUtils, iOservice, pnDeliveryPushConfigs);
     }
 
 
@@ -346,7 +346,7 @@ class CourtesyMessageUtilsTest {
     @Test
     void getFirstSentCourtesyMessage() {
 
-        SendCourtesyMessageDetailsInt details = SendCourtesyMessageDetailsInt.builder()
+        WaitFromCourtesyDetailsInt details = WaitFromCourtesyDetailsInt.builder()
                 .recIndex(1)
                 .build();
 
@@ -357,9 +357,10 @@ class CourtesyMessageUtilsTest {
         String timelineEventId = "SEND_COURTESY_MESSAGE#IUN_IUN-1#RECINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
         Mockito.when(timelineService.getTimelineByIunTimelineId("IUN-1", timelineEventId, false)).thenReturn(Set.of(timelineElementInternal));
 
-        List<SendCourtesyMessageDetailsInt> res = courtesyMessageUtils.getSentCourtesyMessagesDetails("IUN-1", 1);
-
-        Assertions.assertEquals(res.get(0), details);
+        Optional<WaitFromCourtesyDetailsInt> resOpt = courtesyMessageUtils.getSentCourtesyMessagesDetails("IUN-1", 1);
+        
+        Assertions.assertTrue(resOpt.isPresent());
+        Assertions.assertEquals(resOpt.get(), details);
     }
 
     private NotificationInt buildNotification() {

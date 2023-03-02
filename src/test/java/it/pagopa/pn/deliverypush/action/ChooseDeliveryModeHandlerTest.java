@@ -12,10 +12,10 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.WaitFromCourtesyDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
-import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.NationalRegistriesService;
+import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -223,12 +223,12 @@ class ChooseDeliveryModeHandlerTest {
                 .digitalAddress(null).build();
 
         Instant courtesyMessageDate = Instant.now();
-        SendCourtesyMessageDetailsInt sendCourtesyMessageDetails = SendCourtesyMessageDetailsInt.builder()
-                .sendDate(courtesyMessageDate)
+        WaitFromCourtesyDetailsInt waitForCourtesy = WaitFromCourtesyDetailsInt.builder()
+                .analogWorkflowWaitingTime(courtesyMessageDate)
                 .build();
 
         Mockito.when(chooseDeliveryUtils.getFirstSentCourtesyMessage(Mockito.anyString(), Mockito.anyInt()))
-                .thenReturn(Optional.of(sendCourtesyMessageDetails));
+                .thenReturn(Optional.of(waitForCourtesy));
 
         TimeParams times = new TimeParams();
         times.setWaitingForReadCourtesyMessage(Duration.ofSeconds(1));

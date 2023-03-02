@@ -21,6 +21,17 @@ public enum TimelineEventId {
         }
     },
 
+    WAIT_FROM_COURTESY("WAIT_FROM_COURTESY") {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return new TimelineEventIdBuilder()
+                    .withCategory(this.getValue())
+                    .withIun(eventId.getIun())
+                    .withRecIndex(eventId.getRecIndex())
+                    .build();
+        }
+    },
+    
     SEND_COURTESY_MESSAGE("SEND_COURTESY_MESSAGE") {
 
         @Override

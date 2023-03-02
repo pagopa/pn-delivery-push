@@ -8,13 +8,12 @@ import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.WaitFromCourtesyDetailsInt;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.Comparator;
 import java.util.Optional;
 
 @Component
@@ -48,8 +47,8 @@ public class ChooseDeliveryModeUtils {
         timelineService.addTimelineElement(element, notification);
     }
 
-    public Optional<SendCourtesyMessageDetailsInt> getFirstSentCourtesyMessage(String iun, Integer recIndex) {
-        return courtesyMessageUtils.getSentCourtesyMessagesDetails(iun, recIndex).stream().min(Comparator.comparing(SendCourtesyMessageDetailsInt::getSendDate));
+    public Optional<WaitFromCourtesyDetailsInt> getFirstSentCourtesyMessage(String iun, Integer recIndex) {
+        return courtesyMessageUtils.getSentCourtesyMessagesDetails(iun, recIndex);
     }
 
     public Optional<LegalDigitalAddressInt> getPlatformAddress(NotificationInt notification, Integer recIndex) {

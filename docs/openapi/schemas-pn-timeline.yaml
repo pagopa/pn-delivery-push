@@ -11,6 +11,7 @@ components:
           * `SENDER_ACK_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa in carico per il mittente a safe storage
           * `REQUEST_ACCEPTED` - Richiesta di notifica accettata a seguito dei controlli di validazione
           * `REQUEST_REFUSED` - Richiesta di notifica rifiutata per fallimento di validazione
+          * 'WAIT_FROM_COURTESY' - Presente se inviato almeno un messaggio di cortesia o OPTIN, contiene la data dell'eventuale scheduling del workflow analogico 
           * `SEND_COURTESY_MESSAGE` - Invio di un messaggio di cortesia
           * `GET_ADDRESS` - Informazioni sulla disponibilità dello specifico indirizzo
           * `PUBLIC_REGISTRY_CALL` - Effettuata la richiesta ai registri pubblici per ottenere l'indirizzo generale
@@ -43,6 +44,7 @@ components:
       enum:
         - SENDER_ACK_CREATION_REQUEST
         - REQUEST_ACCEPTED
+        - WAIT_FROM_COURTESY
         - SEND_COURTESY_MESSAGE
         - GET_ADDRESS
         - PUBLIC_REGISTRY_CALL
@@ -122,6 +124,7 @@ components:
         - "$ref": "#/components/schemas/ScheduleDigitalWorkflowDetails"
         - "$ref": "#/components/schemas/ScheduleRefinementDetails"
         - "$ref": "#/components/schemas/SendCourtesyMessageDetails"
+        - "$ref": "#/components/schemas/WaitFromCourtesyDetails"
         - "$ref": "#/components/schemas/SendDigitalDetails"
         - "$ref": "#/components/schemas/SendDigitalFeedbackDetails"
         - "$ref": "#/components/schemas/SendDigitalProgressDetails"
@@ -415,6 +418,21 @@ components:
         sendDate:
           type: string
           description: data invio messaggio di cortesia
+          format: date-time
+
+    WaitFromCourtesyDetails:
+      type: object
+      required:
+        - recIndex
+        - analogWorkflowWaitingTime
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        analogWorkflowWaitingTime:
+          type: string
+          description: data in cui deve essere eventualmente schedulato il workflow analogico
           format: date-time
 
     SendDigitalDetails:

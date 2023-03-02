@@ -234,6 +234,23 @@ public class TimelineUtils {
         return buildTimeline(notification, TimelineElementCategoryInt.SEND_COURTESY_MESSAGE, eventId, details);
     }
 
+    public TimelineElementInternal buildWaitFromCourtesy(Integer recIndex, NotificationInt notification, Instant analogWorkflowWaitingTime) {
+        log.debug("buildWaitFromCourtesy - iun={} id={}", notification.getIun(), recIndex);
+
+        String elementId = TimelineEventId.WAIT_FROM_COURTESY.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build()
+        );
+        
+        WaitFromCourtesyDetailsInt details = WaitFromCourtesyDetailsInt.builder()
+                .recIndex(recIndex)
+                .analogWorkflowWaitingTime(analogWorkflowWaitingTime)
+                .build();
+
+        return buildTimeline(notification, TimelineElementCategoryInt.WAIT_FROM_COURTESY, elementId, details);
+    }
 
     public TimelineElementInternal buildPrepareSimpleRegisteredLetterTimelineElement(Integer recIndex, NotificationInt notification, PhysicalAddressInt address,
                                                                                   String eventId) {

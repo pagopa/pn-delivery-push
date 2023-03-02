@@ -7,10 +7,10 @@ import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.WaitFromCourtesyDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.NationalRegistriesService;
+import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -121,15 +121,13 @@ public class ChooseDeliveryModeHandler {
         String iun = notification.getIun();
         log.debug("Scheduling analog workflow for iun={} id={} ", iun, recIndex);
 
-        Optional<SendCourtesyMessageDetailsInt> sendCourtesyMessageDetailsOpt = chooseDeliveryUtils.getFirstSentCourtesyMessage(iun, recIndex);
+        Optional<WaitFromCourtesyDetailsInt> waitFromCourtesyOpt = chooseDeliveryUtils.getFirstSentCourtesyMessage(iun, recIndex);
         Instant schedulingDate;
 
-        if (sendCourtesyMessageDetailsOpt.isPresent()) {
-            SendCourtesyMessageDetailsInt sendCourtesyMessageDetails = sendCourtesyMessageDetailsOpt.get();
-            Instant sendDate = sendCourtesyMessageDetails.getSendDate();
-            
-            schedulingDate = sendDate.plus(pnDeliveryPushConfigs.getTimeParams().getWaitingForReadCourtesyMessage());//5 Days
-            log.info("Courtesy message is present, need to schedule analog workflow at={} courtesySendDate is {}- iun={} id={} ", schedulingDate, sendDate, iun, recIndex);
+        if (waitFromCourtesyOpt.isPresent()) {
+            WaitFromCourtesyDetailsInt waitFromCourtesy = waitFromCourtesyOpt.get();
+            schedulingDate = waitFromCourtesy.getAnalogWorkflowWaitingTime();
+            log.info("Courtesy message is present, need to schedule analog workflow at={} - iun={} id={} ", schedulingDate, iun, recIndex);
         } else {
             schedulingDate = Instant.now();
             log.info("Courtesy message is not present, analog workflow can be started now  - iun={} id={} ", iun, recIndex);

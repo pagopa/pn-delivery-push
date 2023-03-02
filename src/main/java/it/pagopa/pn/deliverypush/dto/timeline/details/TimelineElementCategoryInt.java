@@ -7,6 +7,7 @@ import lombok.Getter;
 public enum TimelineElementCategoryInt {
     SENDER_ACK_CREATION_REQUEST(SenderAckCreationRequestDetailsInt.class, TimelineElementCategory.SENDER_ACK_CREATION_REQUEST.getValue()),
     REQUEST_ACCEPTED(NotificationRequestAcceptedDetailsInt.class, TimelineElementCategory.REQUEST_ACCEPTED.getValue()),
+    WAIT_FROM_COURTESY(WaitFromCourtesyDetailsInt.class, TimelineElementCategory.WAIT_FROM_COURTESY.getValue()),
     SEND_COURTESY_MESSAGE(SendCourtesyMessageDetailsInt.class, TimelineElementCategory.SEND_COURTESY_MESSAGE.getValue()),
     GET_ADDRESS(GetAddressInfoDetailsInt.class, TimelineElementCategory.GET_ADDRESS.getValue()),
     PUBLIC_REGISTRY_CALL(PublicRegistryCallDetailsInt.class, TimelineElementCategory.PUBLIC_REGISTRY_CALL.getValue()),
