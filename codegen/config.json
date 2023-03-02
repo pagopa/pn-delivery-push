@@ -20,7 +20,8 @@
             "openapiFiles": [
                 "api-internal-pn-delivery-push.yaml"
             ],
-            "servicePath": "delivery-push"
+            "servicePath": "delivery-push",
+            "generateBundle": true
         },
         {
             "intendedUsage": "WEB",
