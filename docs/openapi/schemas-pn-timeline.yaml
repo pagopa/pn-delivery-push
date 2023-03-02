@@ -649,6 +649,7 @@ components:
       required:
         - recIndex
         - recipientType
+        - paymentSourceChannel
       properties:
         recIndex:
           type: integer
@@ -661,9 +662,9 @@ components:
           description: Importo di pagamento in eurocent
           format: int32
         creditorTaxId:
-          $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxId'
+          $ref: 'remote-refs.yaml#/components/schemas/PaTaxId'
         noticeCode:
-          $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'
+          $ref: 'remote-refs.yaml#/components/schemas/NoticeCode'
         idF24:
           type: string
           description: un UUID che identifica un pagamento f24
