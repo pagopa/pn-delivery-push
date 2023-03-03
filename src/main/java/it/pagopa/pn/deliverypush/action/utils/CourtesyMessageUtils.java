@@ -99,7 +99,6 @@ public class CourtesyMessageUtils {
                     }else {
                         timelineShouldBeSaved = false;
                     }
-                    
                 }
                 default -> handleCourtesyTypeError(notification, recIndex, courtesyAddress);
             }

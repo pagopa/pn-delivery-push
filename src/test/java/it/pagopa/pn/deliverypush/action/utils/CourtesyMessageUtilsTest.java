@@ -62,8 +62,7 @@ class CourtesyMessageUtilsTest {
         courtesyMessageUtils = new CourtesyMessageUtils(addressBookService, externalChannelService,
                 timelineService, timelineUtils, notificationUtils, iOservice);
     }
-
-
+    
     @Test
     void checkAddressesForSendCourtesyMessage() {
         //GIVEN
@@ -72,7 +71,8 @@ class CourtesyMessageUtilsTest {
 
         Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
 
-        Mockito.when(iOservice.sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(SendMessageResponse.ResultEnum.SENT_COURTESY);
+        final SendMessageResponse.ResultEnum sentCourtesy = SendMessageResponse.ResultEnum.SENT_COURTESY;
+        Mockito.when(iOservice.sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(sentCourtesy);
 
         CourtesyDigitalAddressInt courtesyDigitalAddressInt = CourtesyDigitalAddressInt.builder()
                 .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.APPIO)
@@ -86,6 +86,11 @@ class CourtesyMessageUtilsTest {
         courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, 0);
 
         //THEN
+        IoSendMessageResultInt sendMessageResultInt = IoSendMessageResultInt.valueOf(sentCourtesy.getValue());
+        Mockito.verify(timelineUtils).buildSendCourtesyMessageTimelineElement(
+                Mockito.eq(0), Mockito.eq(notification), Mockito.eq(courtesyDigitalAddressInt) , Mockito.any(Instant.class),
+                Mockito.anyString(), Mockito.eq(sendMessageResultInt));
+
         Mockito.verify(timelineService).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
     }
 
@@ -121,7 +126,8 @@ class CourtesyMessageUtilsTest {
         NotificationInt notification = getNotificationInt(recipient);
 
         Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
-        Mockito.when(iOservice.sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(SendMessageResponse.ResultEnum.SENT_COURTESY);
+        final SendMessageResponse.ResultEnum sentCourtesy = SendMessageResponse.ResultEnum.SENT_COURTESY;
+        Mockito.when(iOservice.sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(sentCourtesy);
 
         CourtesyDigitalAddressInt courtesyDigitalAddressAppIo = CourtesyDigitalAddressInt.builder()
                 .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.APPIO)
@@ -141,16 +147,24 @@ class CourtesyMessageUtilsTest {
 
         //THEN
         ArgumentCaptor<String> eventIdArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<IoSendMessageResultInt> ioSendMessageResultArgumentCaptor = ArgumentCaptor.forClass(IoSendMessageResultInt.class);
 
         Mockito.verify(timelineUtils, Mockito.times(2)).buildSendCourtesyMessageTimelineElement(
                 Mockito.anyInt(), Mockito.any(NotificationInt.class), Mockito.any(CourtesyDigitalAddressInt.class), Mockito.any(),
-                eventIdArgumentCaptor.capture(), Mockito.any());
+                eventIdArgumentCaptor.capture(), ioSendMessageResultArgumentCaptor.capture());
 
         //Viene verificato che l'eventId generato (in particolare per l'index) sia quello aspettato
         List<String> eventIdAllValues = eventIdArgumentCaptor.getAllValues();
         String firstEventIdInTimeline = eventIdAllValues.get(0);
         String secondEventIdInTimeline = eventIdAllValues.get(1);
 
+        List<IoSendMessageResultInt> ioMessageResultAllValues = ioSendMessageResultArgumentCaptor.getAllValues();
+        IoSendMessageResultInt firstIoMessageResult = ioMessageResultAllValues.get(0);
+        IoSendMessageResultInt secondIoMessageResult = ioMessageResultAllValues.get(1);
+
+        Assertions.assertEquals(firstIoMessageResult, IoSendMessageResultInt.valueOf(sentCourtesy.getValue()));
+        Assertions.assertNull(secondIoMessageResult);
+        
         String firstEventIdExpected = TimelineEventId.SEND_COURTESY_MESSAGE.buildEventId(EventId.builder()
                 .iun(notification.getIun())
                 .recIndex(0)
