@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: LDGqu4RLDliut04rLAvRn+kHKiQakI8GuvXhgphNKXw=
+  version: xuidrDZWJWC7bqB6LrbL/X6W+ptQJwX6ehhNkmDJHd4=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -405,7 +405,7 @@ components:
       type: object
       required:
         - title
-        - eventTYpe
+        - eventType
       properties:
         title:
           description: Nome sintetico dello stream

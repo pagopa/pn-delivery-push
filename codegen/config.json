@@ -30,6 +30,10 @@
             ],
             "servicePath": "delivery-push"
         }
+    ],
+    "openapiBundlePresenceCheck": [
+        "api-external-b2b-webhook-bundle.yaml",
+        "api-external-pn-delivery-push-bundle.yaml"
     ]
 }
     
