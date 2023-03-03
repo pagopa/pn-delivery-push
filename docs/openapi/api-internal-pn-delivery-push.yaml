@@ -234,7 +234,7 @@ components:
     
     pathLegalFactId:
       description: >-
-        Identificativo dell'atto opponbile a terzi
+        Identificativo dell'atto opponibile a terzi
       name: legalFactId
       in: path
       required: true

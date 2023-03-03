@@ -621,12 +621,16 @@ components:
     ############################################################################################
     queryLastEventId:
       description: >-
-        Identificativo dell'ultimo evento memorizzato dal chiamante, se non passato si intende dal primo evento presente nello stream
+        Identificativo dell'ultimo evento memorizzato dal chiamante, se non passato si intende dal primo evento presente nello stream.
+        Numero in una stringa di 38 caratteri con padding iniziale composto da '0'.
       name: lastEventId
       in: query
       required: false
       schema:
         type: string
+        minLength: 38
+        maxLength: 38
+        pattern: ^0\d{37}$
     pathStreamId:
       description: >-
         Identificativo dello stream di eventi
@@ -669,6 +673,9 @@ components:
           type: array
           items:
             type: string
+            minLength: 5
+            maxLength: 256
+            pattern: ^[A-Z_]+$
     
     StreamMetadataResponse:
       description: Configurazioni di un flusso di eventi
