@@ -11,6 +11,7 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendEventInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.dto.io.IoSendMessageResultInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
@@ -188,9 +189,10 @@ class TimelineUtilsTest {
                 .build();
         Instant sendDate = Instant.parse("2021-09-16T15:24:00.00Z");
         String eventId = "eventID001";
-
+        IoSendMessageResultInt ioSendMessageResultInt = IoSendMessageResultInt.SENT_OPTIN;
+        
         TimelineElementInternal actual = timelineUtils.buildSendCourtesyMessageTimelineElement(
-                recIndex, notification, address, sendDate, eventId
+                recIndex, notification, address, sendDate, eventId, ioSendMessageResultInt
         );
 
         Assertions.assertAll(

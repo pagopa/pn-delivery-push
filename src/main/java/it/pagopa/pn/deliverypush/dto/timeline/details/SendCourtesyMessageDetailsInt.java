@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.dto.timeline.details;
 
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.io.IoSendMessageResultInt;
 import it.pagopa.pn.deliverypush.utils.AuditLogUtils;
 import lombok.*;
 
@@ -17,7 +18,8 @@ public class SendCourtesyMessageDetailsInt implements RecipientRelatedTimelineEl
     private int recIndex;
     private CourtesyDigitalAddressInt digitalAddress;
     private Instant sendDate;
-
+    private IoSendMessageResultInt ioSendMessageResult;
+    
     public String toLog() {
         return String.format(
                 "recIndex=%d addressType=%s digitalAddress=%s",
