@@ -106,7 +106,7 @@ info:
       
       ### 2) Prima interrogazione degli stream appena creati
       
-      Col passare del tempo, potremo interrogare gli stream appena creati per leggere</br> gli eventi registrati, a partire già dall'evento di accettazione della notifica.</br> Si possono interrogare gli eventi registrati all'interno di uno stream con il servizio</br> di [lettura degli eventi](#/Events/consumeEventStream) passando il valore desiderato nello <code>{streamId}</code> ed otterremo</br> la response <big><strong>c)</strong></big> che contiene un array con un numero massimo di <span id="webhookMaxLength">10</span> eventi corrispondenti</br> a quelli che impattano tutte le notifiche inserite dalla creazione dello stream in poi</br> e che potranno essere salvati sul database del client chiamante.</br> Da notare che ogni evento contiene l'<code>eventId</code> ad esso associato.</br>
+      Col passare del tempo, potremo interrogare gli stream appena creati per leggere</br> gli eventi registrati, a partire già dall'evento di accettazione della notifica.</br> Si possono interrogare gli eventi registrati all'interno di uno stream con il servizio</br> di [lettura degli eventi](#/Events/consumeEventStream) passando il valore desiderato nello <code>{streamId}</code> ed otterremo</br> la response <big><strong>c)</strong></big> che contiene un array con un numero massimo di <span id="webhookMaxLength">50</span> eventi corrispondenti</br> a quelli che impattano tutte le notifiche inserite dalla creazione dello stream in poi</br> e che potranno essere salvati sul database del client chiamante.</br> Da notare che ogni evento contiene l'<code>eventId</code> ad esso associato.</br>
       
       A questo punto bisogna controllare il parametro <code>retry-after</code> contenuto nell'header</br> della response per capire quanto tempo attendere prima di richiamare lo stream</br> ed ottenere nuovi risultati: 
       <ul>
@@ -167,7 +167,14 @@ info:
                 "notificationRequestId": "QUJDRC1BQkNELUFCQ0QtMjAyMjEyLVYtMQ==",
                 "iun": "ABCD-ABCD-ABCD-202212-V-1",
                 "newStatus": "ACCEPTED",
-                "timelineEventCategory": "REQUEST_ACCEPTED"
+                "timelineEventCategory": "REQUEST_ACCEPTED",
+                "recipientIndex": "0",
+                "analogCost": "0",
+                "channel": "PEC",
+                "legalfactIds": [
+                  "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q",
+                  "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E"
+                ]
             }, 
             ... // altri eventi nell'array
         ]
@@ -191,7 +198,14 @@ info:
                 "notificationRequestId": "QUJDRC1BQkNELUFCQ0QtMjAyMjEyLVYtMQ==",
                 "iun": "ABCD-ABCD-ABCD-202212-V-1",
                 "newStatus": "DELIVERED",
-                "timelineEventCategory": "DIGITAL_SUCCESS_WORKFLOW"
+                "timelineEventCategory": "DIGITAL_SUCCESS_WORKFLOW",
+                "recipientIndex": "0",
+                "analogCost": "0",
+                "channel": "PEC",
+                "legalfactIds": [
+                  "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q",
+                  "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E"
+                ]
             }, 
             ... // altri eventi nell'array
         ]
@@ -215,84 +229,9 @@ info:
       - [Cancellazione](#/Streams/deleteEventStream) <br/>
 
     Le operazioni con il tag __Events__ sono quelle utilizzate per la [lettura degli eventi](#/Events/consumeEventStream)  filtrati in base alla configurazione impostata negli streams.
-    La api restituisce un massimo di <span id="webhookMaxLength">10</span> elementi. Se <u>esistono</u> ulteriori eventi nello stream, allora la response del servizio  restituice l'elemento `retryAfter = 0`; ed è quindi possibile richiamare immediatamente il servizio per ottenere gli eventi successivi, utilizzando  il parametro _lastEventId_ valorizzato con l'ultimo _eventId_ della richiesta precedente. Si evidenzia che ogni nuova chiamata al servizio con _lastEventId_ implica la cancellazione degli eventi precedenti. Tuttavia, in fase di implementazione del client che consumerà i servizi, bisogna considerare il fattore della __non univocità degli eventi__: è possibile che se in un dato secondo avvengano più eventi contemporaneamente, nella chiamata successiva allo stream dove si inserisce l'_eventId_, non vengano cancellati gli altri eventi contemporanei avvenuti nello stesso secondo dell'_eventId_ indicato; ottenendo quindi una riproposizione di eventi già ottenuti dalla chiamata precedente.</br> Se <u>non esistono</u> ulteriori eventi nello stream, allora la response del servizio restituisce il valore di `retryAfter ≠ 0` ed è quindi necessario attendere il tempo indicato dalla retryAfter per consumare eventualmente nuovi eventi nello stream.</br> <font color="red">__Gli eventi sono mantenuti per un massimo di <span id="webhookTtl">7</span> giorni dopo i quali sono automaticamente cancellati anche se non sono stati prelevati dallo stream, e sarà possibile ottenere lo stato della notifica solo attraverso il servizio [getNotificationRequestStatus](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-external-b2b-pa-v1.yaml#/SenderReadB2B/retrieveNotificationRequestStatus)__ </font> 
-    </br> </br> </br>
-    <details>
-      <summary><strong><big><big><big><big>FAQ</big></big></big></big></strong></summary>
-
-      ><details>
-      <summary><strong>Cosa devo fare se ricevo</strong> `{"message": "Unauthorized"}`<strong>?</strong></summary>
-      <em>Il messaggio indica che non sono disponibili le credenziali per utilizzare i servizi di PN. Per intraprendere il processo di accreditamento, occorre contattare il personale preposto su [account@pagopa.it](mailto:account@pagopa.it)</em>
-      </details>
-
-      ><details>
-      <summary><strong>Se creo uno stream senza filtri ad esempio</strong></br>`{ "title": "NoFilteredStream", "eventType": "STATUS", "filterValues": [] }`</br><strong> questo raccoglierà tutti i cambi di stato avvenuti nel tempo?</strong></summary>
-      <em>SI. Questo concetto è valido anche per gli eventi di TIMELINE.</em>
-      </details>
-
-      ><details>
-      <summary><strong>E' meglio avere più stream filtrati, per inquadrare specifici eventi di interesse?</strong></summary>
-      <em>SI, è consigliato generare uno o più stream applicando i filtri sugli eventi di status / timeline di maggior interesse, 
-      <font color="red"><strong>restando nel limite massimo di <span id="webhookMaxStreams">5</span> 
-      stream per PA.</font></strong></em>
-      </details>      
-
-      ><details>
-      <summary><strong>Dopo aver creato uno stream ed inserite alcune notifiche, come posso vedere gli eventi da esse generati?</strong></summary>
-      <em>Per ottenere gli eventi bisogna chiamare il servizio per la [lettura degli eventi](#/Events/consumeEventStream) inserendo nel path variabile lo _streamId_ dello stream che si vuole interrogare. A questo punto:</br>
-      >><strong>1) </strong>Se nell'header della response ottengo <strong>retry-after = 0</strong> significa che è possibile consumare ulteriori eventi presenti nello stream;</br> quindi, per ottenere gli eventi successivi dovrò richiamare nuovamente lo stesso servizio, aggiungendo come query param l'<strong>eventId</strong> dell'ultimo evento.</br></br>
-      <strong>2) </strong>Se nell'header della response ottengo <strong>retryAfter ≠ 0</strong> ed ho eventi nel body della response, significa che lo stream non contiene altri eventi e sarà necessario</br> attendere che ne siano generati di nuovi, prima di poter richiamare di nuovamente il servizio sullo stesso stream.</em></br></br>
-      </details>      
-
-      ><details>
-      <summary><strong>Posso ottenere più di <span id="webhookMaxLength">10</span> eventi da una singola chiamata?</strong></summary>
-      <em>NO, questo valore è configurato pari a <span id="webhookMaxLength">10</span> a livello applicativo e non può essere modificato dal consumer.</em>
-      </details> 
-
-      ><details>
-      <summary><strong>Ho interrogato uno stream inserendo come path variabile lo _streamId_ di mio interesse ed ho ottenuto <span id="webhookMaxLength">10</span> eventi, ognuno con il proprio _eventId_. Ho richiamato di nuovo lo stesso servizio aggiungendo come query param l'_eventId_ dell'ultimo evento ottenuto nella prima chiamata ed ottengo gli eventi successivi a quelli ottenuti nella prima chiamata. Posso vedere di nuovo gli eventi ottenuti dalla prima chiamata?</strong></summary>
-      <em>NO, una volta passato il query param __eventId__ alla chiamata del servizio, tutti gli eventi precedenti sono cancellati dallo stream e non possono più essere recuperati. E' quindi fondamentale salvare gli eventi ottenuti da ogni chiamata, prima di richiedere i successivi.</em></br></br>
-      </details> 
-
-      ><details><summary><strong>Per quanto tempo gli eventi restano registrati su uno stream?</strong></summary><em>Gli eventi restano registrati su uno stream per <strong><span id="webhookTtl">7</span> 
-      giorni</strong>, trascorsi i quali non potranno più essere recuperati. A questo punto sarà possibile ottenere lo stato della notifica solo attraverso il servizio puntuale [getNotificationRequestStatus](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-external-b2b-pa-v1.yaml#/SenderReadB2B/retrieveNotificationRequestStatus), mentre se si conosce lo IUN si può utilizzare il servizio [getSentNotification](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-external-b2b-pa-v1.yaml#/SenderReadB2B/retrieveSentNotification) per leggere tutti i dettagli di una notifica accettata</em></details>
-      
-      ><details>
-      <summary><strong>Come si possono testare i diversi stati ed eventi appartenenti al processo di notifica?</strong></summary>
-      <em>Si possono creare 2 stream con <code>"eventType": "STATUS"</code> e con <code>"eventType": "TIMELINE"</code>, inserire una notifica ed attendere alcuni minuti per permettere alla Piattaforma di elaborare la notifica appena inserita; infatti il workflow della notifica inizia subito dopo l'inserimento con la generarazione dei vari eventi legati ai passaggi che si susseguono.</br>Gli eventi che si generano potranno essere consumati dallo stream ed essere utili ai fini dei test.</em>
-      </details>
-
-      ><details>
-      <summary><strong>Come faccio a capire il canale di spedizione seguito da una notifica?</strong></summary>
-      <em>Gli eventi di workflow sono differenti a seconda che il canale di spedizione sia digitale o analogico, ad esempio <strong>SCHEDULE_ANALOG_WORKFLOW</strong> determina l'inizio del workflow per invio cartaceo mentre <strong>SCHEDULE_DIGITAL_WORKFLOW</strong> per l'invio digitale.</br> In base all'evento presente nello stream sarà quindi possibile dedurre il canale di spedizione utilizzato.</em>
-      </details>
-      
-      ><details>
-      <summary><strong>In caso di destinatario multiplo, che significato ha lo stato della notifica?</strong></summary>
-      <em>Lo stato della notifica è unico per la notifica stessa ed i destinatari multipli si intedono come co-obbigati; questo significa che:</em>
-      ><ul>
-      <li><small><em>lo stato è <strong>Depositata</strong> quando viene depositata dalla PA.</em></small></li>
-      <li><small><em>lo stato è <strong>Invio in corso</strong> quando la notifica inizia il processo di spedizione per almeno un destinatario.</em></small></li>
-      <li><small><em>lo stato è <strong>Consegnata</strong> quando il processo di spedizione è terminato per tutti ed almeno uno dei destinatari è stato raggiunto.</em></small></li>
-      <li><small><em>lo stato è <strong>Irreperibile</strong> quando non è stato possibile raggiungere nessuno dei destinatari.</em></small></li>
-      <li><small><em>lo stato è <strong>Visualizzata</strong> quando almeno un destinatario ha acceduto agli atti della notifica. </em></small></li>
-      <li><small><em>lo stato è <strong>Perfezionata per decorrenza termini</strong> quando si perfeziona per decorrenza termini (a norma di legge) per almeno un destinatario e se nessuno dei destinatari ha preso visione della notifica stessa.</em></small></li>
-      <li><small><em>lo stato è <strong>Pagata</strong> quando uno dei destinatari ha completato con successo il pagamento.</em></small></li>
-      <li><small><em>lo stato è <strong>Annullata</strong> quando la notifica viene annullata da una PA creandone una nuova.</em></small></li>
-      </ul>
-      </details>
-      
-      ><details>
-      <summary><strong>In caso di destinatario multiplo, che significato ha un evento di timeline?</strong></summary>
-      <em>Quando sono presenti destinatari multipli, ogni evento di timeline sarà specifico per ogni destinatario ed appariranno tutti nella timeline con l'indicazione del destinatario impattato dall'evento.</em>
-      </details>
-      
-      ><details>
-      <summary><strong>In caso di destinatario multiplo, ricevo un'attestazione opponibile per ogni destinatario?</strong></summary>
-      <em>NO, le attestazione opponibile ai terzi vengono generate al verificarsi di alcuni eventi rilevanti per la notificazione e di conseguenza avrò un'unca attestazione dello stesso tipo, per notifica.</em>
-      </details>
-
-    </details></br>
+    La api restituisce un massimo di <span id="webhookMaxLength">50</span> elementi. Se <u>esistono</u> ulteriori eventi nello stream, allora la response del servizio  restituice l'elemento `retryAfter = 0`; ed è quindi possibile richiamare immediatamente il servizio per ottenere gli eventi successivi, utilizzando  il parametro _lastEventId_ valorizzato con l'ultimo _eventId_ della richiesta precedente. Si evidenzia che ogni nuova chiamata al servizio con _lastEventId_ implica la cancellazione degli eventi precedenti. Tuttavia, in fase di implementazione del client che consumerà i servizi, bisogna considerare il fattore della __non univocità degli eventi__: è possibile che se in un dato secondo avvengano più eventi contemporaneamente, nella chiamata successiva allo stream dove si inserisce l'_eventId_, non vengano cancellati gli altri eventi contemporanei avvenuti nello stesso secondo dell'_eventId_ indicato; ottenendo quindi una riproposizione di eventi già ottenuti dalla chiamata precedente.</br> Se <u>non esistono</u> ulteriori eventi nello stream, allora la response del servizio restituisce il valore di `retryAfter ≠ 0` ed è quindi necessario attendere il tempo indicato dalla retryAfter per consumare eventualmente nuovi eventi nello stream.</br> <font color="red">__Gli eventi sono mantenuti per un massimo di <span id="webhookTtl">7</span> giorni dopo i quali sono automaticamente cancellati anche se non sono stati prelevati dallo stream, e sarà possibile ottenere lo stato della notifica solo attraverso il servizio [getNotificationRequestStatus](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-external-b2b-pa-v1.yaml#/SenderReadB2B/retrieveNotificationRequestStatus)__ </font> 
+    </br> </br>
+    <h3>Le <strong>FAQ</strong> possono essere consultate al seguente link:<a href="https://docs.pagopa.it/v1.0-1/">https://docs.pagopa.it/v1.0-1/</a></h3>
     <details>
       <summary><strong><big><big><big><big>AMBIENTI</big></big></big></big></strong></summary>
     <ul>   <li><strong>https://api.pn.pagopa.it:</strong></br>Ambiente di produzione</li> <li><strong>https://api.coll.pagopa.it:</strong></br>Ambiente di collaudo</li> <li><strong>https://api.svil.pn.pagopa.it:</strong></br>Ambiente di test. Potrebbe subire modifiche/integrazioni in futuro, rimanendo comunque non-bloccante e rispettando il principio di retro-attività</li> <li><strong>https://api.dev.pn.pagopa.it:</strong></br>Ambiente di sviluppo</li> </ul>   </details></br>
