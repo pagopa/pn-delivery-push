@@ -106,7 +106,7 @@ info:
       
       ### 2) Prima interrogazione degli stream appena creati
       
-      Col passare del tempo, potremo interrogare gli stream appena creati per leggere</br> gli eventi registrati, a partire già dall'evento di accettazione della notifica.</br> Si possono interrogare gli eventi registrati all'interno di uno stream con il servizio</br> di [lettura degli eventi](#/Events/consumeEventStream) passando il valore desiderato nello <code>{streamId}</code> ed otterremo</br> la response <big><strong>c)</strong></big> che contiene un array con un numero massimo di <span id="webhookMaxLength">10</span> eventi corrispondenti</br> a quelli che impattano tutte le notifiche inserite dalla creazione dello stream in poi</br> e che potranno essere salvati sul database del client chiamante.</br> Da notare che ogni evento contiene l'<code>eventId</code> ad esso associato.</br>
+      Col passare del tempo, potremo interrogare gli stream appena creati per leggere</br> gli eventi registrati, a partire già dall'evento di accettazione della notifica.</br> Si possono interrogare gli eventi registrati all'interno di uno stream con il servizio</br> di [lettura degli eventi](#/Events/consumeEventStream) passando il valore desiderato nello <code>{streamId}</code> ed otterremo</br> la response <big><strong>c)</strong></big> che contiene un array con un numero massimo di <span id="webhookMaxLength">50</span> eventi corrispondenti</br> a quelli che impattano tutte le notifiche inserite dalla creazione dello stream in poi</br> e che potranno essere salvati sul database del client chiamante.</br> Da notare che ogni evento contiene l'<code>eventId</code> ad esso associato.</br>
       
       A questo punto bisogna controllare il parametro <code>retry-after</code> contenuto nell'header</br> della response per capire quanto tempo attendere prima di richiamare lo stream</br> ed ottenere nuovi risultati: 
       <ul>
@@ -167,7 +167,14 @@ info:
                 "notificationRequestId": "QUJDRC1BQkNELUFCQ0QtMjAyMjEyLVYtMQ==",
                 "iun": "ABCD-ABCD-ABCD-202212-V-1",
                 "newStatus": "ACCEPTED",
-                "timelineEventCategory": "REQUEST_ACCEPTED"
+                "timelineEventCategory": "REQUEST_ACCEPTED",
+                "recipientIndex": "0",
+                "analogCost": "0",
+                "channel": "PEC",
+                "legalfactIds": [
+                  "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q",
+                  "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E"
+                ]
             }, 
             ... // altri eventi nell'array
         ]
@@ -191,7 +198,14 @@ info:
                 "notificationRequestId": "QUJDRC1BQkNELUFCQ0QtMjAyMjEyLVYtMQ==",
                 "iun": "ABCD-ABCD-ABCD-202212-V-1",
                 "newStatus": "DELIVERED",
-                "timelineEventCategory": "DIGITAL_SUCCESS_WORKFLOW"
+                "timelineEventCategory": "DIGITAL_SUCCESS_WORKFLOW",
+                "recipientIndex": "0",
+                "analogCost": "0",
+                "channel": "PEC",
+                "legalfactIds": [
+                  "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q",
+                  "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E"
+                ]
             }, 
             ... // altri eventi nell'array
         ]
@@ -215,7 +229,7 @@ info:
       - [Cancellazione](#/Streams/deleteEventStream) <br/>
 
     Le operazioni con il tag __Events__ sono quelle utilizzate per la [lettura degli eventi](#/Events/consumeEventStream)  filtrati in base alla configurazione impostata negli streams.
-    La api restituisce un massimo di <span id="webhookMaxLength">10</span> elementi. Se <u>esistono</u> ulteriori eventi nello stream, allora la response del servizio  restituice l'elemento `retryAfter = 0`; ed è quindi possibile richiamare immediatamente il servizio per ottenere gli eventi successivi, utilizzando  il parametro _lastEventId_ valorizzato con l'ultimo _eventId_ della richiesta precedente. Si evidenzia che ogni nuova chiamata al servizio con _lastEventId_ implica la cancellazione degli eventi precedenti. Tuttavia, in fase di implementazione del client che consumerà i servizi, bisogna considerare il fattore della __non univocità degli eventi__: è possibile che se in un dato secondo avvengano più eventi contemporaneamente, nella chiamata successiva allo stream dove si inserisce l'_eventId_, non vengano cancellati gli altri eventi contemporanei avvenuti nello stesso secondo dell'_eventId_ indicato; ottenendo quindi una riproposizione di eventi già ottenuti dalla chiamata precedente.</br> Se <u>non esistono</u> ulteriori eventi nello stream, allora la response del servizio restituisce il valore di `retryAfter ≠ 0` ed è quindi necessario attendere il tempo indicato dalla retryAfter per consumare eventualmente nuovi eventi nello stream.</br> <font color="red">__Gli eventi sono mantenuti per un massimo di <span id="webhookTtl">7</span> giorni dopo i quali sono automaticamente cancellati anche se non sono stati prelevati dallo stream, e sarà possibile ottenere lo stato della notifica solo attraverso il servizio [getNotificationRequestStatus](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-external-b2b-pa-v1.yaml#/SenderReadB2B/retrieveNotificationRequestStatus)__ </font> 
+    La api restituisce un massimo di <span id="webhookMaxLength">50</span> elementi. Se <u>esistono</u> ulteriori eventi nello stream, allora la response del servizio  restituice l'elemento `retryAfter = 0`; ed è quindi possibile richiamare immediatamente il servizio per ottenere gli eventi successivi, utilizzando  il parametro _lastEventId_ valorizzato con l'ultimo _eventId_ della richiesta precedente. Si evidenzia che ogni nuova chiamata al servizio con _lastEventId_ implica la cancellazione degli eventi precedenti. Tuttavia, in fase di implementazione del client che consumerà i servizi, bisogna considerare il fattore della __non univocità degli eventi__: è possibile che se in un dato secondo avvengano più eventi contemporaneamente, nella chiamata successiva allo stream dove si inserisce l'_eventId_, non vengano cancellati gli altri eventi contemporanei avvenuti nello stesso secondo dell'_eventId_ indicato; ottenendo quindi una riproposizione di eventi già ottenuti dalla chiamata precedente.</br> Se <u>non esistono</u> ulteriori eventi nello stream, allora la response del servizio restituisce il valore di `retryAfter ≠ 0` ed è quindi necessario attendere il tempo indicato dalla retryAfter per consumare eventualmente nuovi eventi nello stream.</br> <font color="red">__Gli eventi sono mantenuti per un massimo di <span id="webhookTtl">7</span> giorni dopo i quali sono automaticamente cancellati anche se non sono stati prelevati dallo stream, e sarà possibile ottenere lo stato della notifica solo attraverso il servizio [getNotificationRequestStatus](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-external-b2b-pa-v1.yaml#/SenderReadB2B/retrieveNotificationRequestStatus)__ </font> 
     </br> </br> </br>
     <details>
       <summary><strong><big><big><big><big>FAQ</big></big></big></big></strong></summary>
@@ -245,12 +259,12 @@ info:
       </details>      
 
       ><details>
-      <summary><strong>Posso ottenere più di <span id="webhookMaxLength">10</span> eventi da una singola chiamata?</strong></summary>
-      <em>NO, questo valore è configurato pari a <span id="webhookMaxLength">10</span> a livello applicativo e non può essere modificato dal consumer.</em>
+      <summary><strong>Posso ottenere più di <span id="webhookMaxLength">50</span> eventi da una singola chiamata?</strong></summary>
+      <em>NO, questo valore è configurato pari a <span id="webhookMaxLength">50</span> a livello applicativo e non può essere modificato dal consumer.</em>
       </details> 
 
       ><details>
-      <summary><strong>Ho interrogato uno stream inserendo come path variabile lo _streamId_ di mio interesse ed ho ottenuto <span id="webhookMaxLength">10</span> eventi, ognuno con il proprio _eventId_. Ho richiamato di nuovo lo stesso servizio aggiungendo come query param l'_eventId_ dell'ultimo evento ottenuto nella prima chiamata ed ottengo gli eventi successivi a quelli ottenuti nella prima chiamata. Posso vedere di nuovo gli eventi ottenuti dalla prima chiamata?</strong></summary>
+      <summary><strong>Ho interrogato uno stream inserendo come path variabile lo _streamId_ di mio interesse ed ho ottenuto <span id="webhookMaxLength">50</span> eventi, ognuno con il proprio _eventId_. Ho richiamato di nuovo lo stesso servizio aggiungendo come query param l'_eventId_ dell'ultimo evento ottenuto nella prima chiamata ed ottengo gli eventi successivi a quelli ottenuti nella prima chiamata. Posso vedere di nuovo gli eventi ottenuti dalla prima chiamata?</strong></summary>
       <em>NO, una volta passato il query param __eventId__ alla chiamata del servizio, tutti gli eventi precedenti sono cancellati dallo stream e non possono più essere recuperati. E' quindi fondamentale salvare gli eventi ottenuti da ogni chiamata, prima di richiedere i successivi.</em></br></br>
       </details> 
 
