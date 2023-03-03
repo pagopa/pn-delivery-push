@@ -117,11 +117,11 @@ public class WebhookUtils {
         // per gli eventi di raccomandata semplice: è sempre simple registered letter
         // per gli eventi di courtesy: dipende dal tipo di messaggio di cortesia
         if (details instanceof SendAnalogFeedbackDetailsInt
-                || details instanceof SendAnalogDetailsInt
+                || details instanceof BaseAnalogDetailsInt
                 || details instanceof SendAnalogProgressDetailsInt) {
             eventEntity.setChannel(notificationInt.getPhysicalCommunicationType().name());
         }
-        else if (details instanceof SimpleRegisteredLetterDetailsInt) {
+        else if (details instanceof BaseRegisteredLetterDetailsInt) {
             eventEntity.setChannel(PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER.name());
         }
         else if (details instanceof SendDigitalFeedbackDetailsInt
