@@ -225,7 +225,7 @@ components:
     ############################################################################################
     pathLegalFactType:
       description: >-
-        Categoria dell'atto opponbile a terzi
+        Categoria dell'atto opponibile a terzi
       name: legalFactType
       in: path
       required: true
