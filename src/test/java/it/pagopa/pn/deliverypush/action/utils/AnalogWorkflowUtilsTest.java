@@ -44,33 +44,6 @@ class AnalogWorkflowUtilsTest {
     }
 
     @Test
-    void getSendAnalogNotificationDetails() {
-
-        SendAnalogDetailsInt sendAnalogDetailsInt = SendAnalogDetailsInt.builder().recIndex(0).build();
-        Optional<SendAnalogDetailsInt> optionalSendAnalogDetailsInt = Optional.of(sendAnalogDetailsInt);
-
-        Mockito.when(timelineService.getTimelineElementDetails("1", "1", SendAnalogDetailsInt.class)).thenReturn(optionalSendAnalogDetailsInt);
-
-        SendAnalogDetailsInt sendAnalogDetailsInt1 = analogWorkflowUtils.getSendAnalogNotificationDetails("1", "1");
-
-        Assertions.assertNotNull(sendAnalogDetailsInt1);
-    }
-
-    @Test
-    void getSendAnalogNotificationDetailsFailed() {
-
-        String expectErrorMsg = "PN_DELIVERYPUSH_TIMELINENOTFOUND";
-
-        Mockito.when(timelineService.getTimelineElementDetails("1", "1", SendAnalogDetailsInt.class)).thenReturn(Optional.empty());
-
-        PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
-            analogWorkflowUtils.getSendAnalogNotificationDetails("1", "1");
-        });
-
-        Assertions.assertEquals(expectErrorMsg, pnInternalException.getProblem().getErrors().get(0).getCode());
-    }
-
-    @Test
     void getLastTimelineSentFeedbackFailed() {
 
         String expectErrorMsg = "PN_DELIVERYPUSH_FEEDBACKNOTFOUND";
