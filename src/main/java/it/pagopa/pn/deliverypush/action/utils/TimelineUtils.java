@@ -299,7 +299,7 @@ public class TimelineUtils {
         log.debug("buildPrepareAnalogNotificationTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
         ServiceLevelInt serviceLevel = notification.getPhysicalCommunicationType() != null ? ServiceLevelInt.valueOf(notification.getPhysicalCommunicationType().name()) : null;
 
-        SendAnalogDetailsInt details = SendAnalogDetailsInt.builder()
+        BaseAnalogDetailsInt details = BaseAnalogDetailsInt.builder()
                 .recIndex(recIndex)
                 .physicalAddress(relatedRequestId==null?paAddress:addressDiscovered)
                 .serviceLevel(serviceLevel)
@@ -463,7 +463,7 @@ public class TimelineUtils {
 
 
     public TimelineElementInternal buildAnalogProgressTimelineElement(NotificationInt notification, int sentAttemptMade, List<LegalFactsIdInt> legalFactsListEntryIds,
-                                                                           int progressIndex, SendAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt) {
+                                                                           int progressIndex, BaseAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt) {
         log.debug("buildAnalogProgressTimelineElement - iun={} and id={} progressIndex={}", notification.getIun(), sendPaperDetails.getRecIndex(), progressIndex);
 
         String elementId = TimelineEventId.SEND_ANALOG_PROGRESS.buildEventId(
@@ -490,7 +490,7 @@ public class TimelineUtils {
     }
 
     public TimelineElementInternal buildAnalogSuccessAttemptTimelineElement(NotificationInt notification, int sentAttemptMade, List<LegalFactsIdInt> legalFactsListEntryIds,
-                                                                            SendAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt) {
+                                                                            BaseAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt) {
         log.debug("buildAnalogSuccessAttemptTimelineElement - iun={} and id={}", notification.getIun(), sendPaperDetails.getRecIndex());
 
         String elementId = TimelineEventId.SEND_ANALOG_FEEDBACK.buildEventId(
@@ -521,7 +521,7 @@ public class TimelineUtils {
     }
 
     public TimelineElementInternal buildAnalogFailureAttemptTimelineElement(NotificationInt notification, int sentAttemptMade, List<LegalFactsIdInt> legalFactsListEntryIds,
-                                                                            SendAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt) {
+                                                                            BaseAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt) {
         log.debug("buildAnalogFailureAttemptTimelineElement - iun={} and id={}", notification.getIun(), sendPaperDetails.getRecIndex());
 
         String elementId = TimelineEventId.SEND_ANALOG_FEEDBACK.buildEventId(
@@ -879,7 +879,7 @@ public class TimelineUtils {
     public boolean checkNotificationIsAlreadyViewed(String iun, Integer recIndex){
         //Se la notifica è stata pagata è stata sicuramente anche visualizzata dunque non serve il doppio check
         
-        String elementId = TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
+        String elementId = TimelineEventId.NOTIFICATION_VIEWED_CREATION_REQUEST.buildEventId(
                 EventId.builder()
                         .iun(iun)
                         .recIndex(recIndex)
