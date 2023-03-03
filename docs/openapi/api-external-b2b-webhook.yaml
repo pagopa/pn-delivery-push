@@ -661,7 +661,7 @@ components:
       type: object
       required:
         - title
-        - eventTYpe
+        - eventType
       properties:
         title: 
           description: Nome sintetico dello stream
