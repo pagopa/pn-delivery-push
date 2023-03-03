@@ -64,4 +64,5 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("idF24")})) private String idF24;
     @Getter(onMethod=@__({@DynamoDbAttribute("paymentSourceChannel")})) private String paymentSourceChannel;
     @Getter(onMethod=@__({@DynamoDbAttribute("schedulingDate")})) private Instant schedulingDate;
+    @Getter(onMethod=@__({@DynamoDbAttribute("ioSendMessageResult")})) private String ioSendMessageResult;
 }

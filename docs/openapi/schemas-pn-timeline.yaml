@@ -419,6 +419,9 @@ components:
           type: string
           description: data invio messaggio di cortesia
           format: date-time
+        ioSendMessageResult:
+          $ref: '#/components/schemas/IoSendMessageResult'
+        
 
     SendDigitalDetails:
       type: object
@@ -815,3 +818,11 @@ components:
           type: string
         delegateType:
           $ref: './schemas-pn-notification.yaml#/components/schemas/RecipientType'
+
+    IoSendMessageResult:
+      type: string
+      description: Risultato invio messaggio su IO
+      enum:
+        - NOT_SENT_OPTIN_ALREADY_SENT
+        - SENT_COURTESY
+        - SENT_OPTIN

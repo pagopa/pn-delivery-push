@@ -15,9 +15,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class IoServiceImplTest {
     private IoService ioService;
@@ -58,20 +57,20 @@ class IoServiceImplTest {
         Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(
                 notificationInt.getRecipients().get(0)
         );
-        
+
+        final SendMessageResponse.ResultEnum sentCourtesy = SendMessageResponse.ResultEnum.SENT_COURTESY;
         Mockito.when( pnExternalRegistryClient.sendIOMessage(Mockito.any(SendMessageRequest.class))).thenReturn(
                         new SendMessageResponse()
                                 .id("1871")
-                                .result(SendMessageResponse.ResultEnum.SENT_COURTESY)
+                                .result(sentCourtesy)
         );
 
         //WHEN
-        AtomicBoolean res = new AtomicBoolean(false);
-        assertDoesNotThrow(() -> {
-                    res.set(ioService.sendIOMessage(notificationInt, 0));
-                });
+        SendMessageResponse.ResultEnum res = null;
+        
+        res = ioService.sendIOMessage(notificationInt, 0);
 
-        assertTrue(res.get());
+        assertEquals(sentCourtesy, res);
     }
 
     @Test
@@ -97,19 +96,17 @@ class IoServiceImplTest {
                 notificationInt.getRecipients().get(0)
         );
 
+        final SendMessageResponse.ResultEnum notSentAppioUnavailable = SendMessageResponse.ResultEnum.NOT_SENT_APPIO_UNAVAILABLE;
         Mockito.when( pnExternalRegistryClient.sendIOMessage(Mockito.any(SendMessageRequest.class))).thenReturn(
                         new SendMessageResponse()
                                 .id("1871")
-                                .result(SendMessageResponse.ResultEnum.NOT_SENT_APPIO_UNAVAILABLE)
+                                .result(notSentAppioUnavailable)
         );
 
         //WHEN
-        AtomicBoolean res = new AtomicBoolean(false);
-        assertDoesNotThrow(() -> {
-            res.set(ioService.sendIOMessage(notificationInt, 0));
-        });
-
-        assertFalse(res.get());
+        SendMessageResponse.ResultEnum res = null;
+        res = ioService.sendIOMessage(notificationInt, 0);
+        assertEquals(notSentAppioUnavailable, res);
     }
 
     @Test
@@ -135,19 +132,17 @@ class IoServiceImplTest {
                 notificationInt.getRecipients().get(0)
         );
 
+        final SendMessageResponse.ResultEnum sentOptin = SendMessageResponse.ResultEnum.SENT_OPTIN;
         Mockito.when( pnExternalRegistryClient.sendIOMessage(Mockito.any(SendMessageRequest.class))).thenReturn(
                         new SendMessageResponse()
                                 .id("1871")
-                                .result(SendMessageResponse.ResultEnum.SENT_OPTIN)
+                                .result(sentOptin)
         );
 
         //WHEN
-        AtomicBoolean res = new AtomicBoolean(false);
-        assertDoesNotThrow(() -> {
-            res.set(ioService.sendIOMessage(notificationInt, 0));
-        });
-
-        assertFalse(res.get());
+        SendMessageResponse.ResultEnum res = null;
+        res = ioService.sendIOMessage(notificationInt, 0);
+        assertEquals(sentOptin, res);
     }
 
     @Test

@@ -39,7 +39,7 @@ class SendCourtesyMessageDetailsIntTest {
     }
     @Test
     void testToString() {
-        String expected = "SendCourtesyMessageDetailsInt(recIndex=1, digitalAddress=CourtesyDigitalAddressInt(type=null), sendDate=2021-09-16T15:24:00Z)";
+        String expected = "SendCourtesyMessageDetailsInt(recIndex=1, digitalAddress=CourtesyDigitalAddressInt(type=null), sendDate=2021-09-16T15:24:00Z, ioSendMessageResult=null)";
         Assertions.assertEquals(expected, detailsInt.toString());
     }
     private SendCourtesyMessageDetailsInt buildSendCourtesyMessageDetailsInt() {
