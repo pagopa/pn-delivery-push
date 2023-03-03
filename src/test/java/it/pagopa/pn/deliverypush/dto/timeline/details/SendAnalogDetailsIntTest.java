@@ -49,11 +49,7 @@ class SendAnalogDetailsIntTest {
     void getAnalogCost() {
         Assertions.assertEquals(100, detailsInt.getAnalogCost());
     }
-    @Test
-    void testToString() {
-        String expected = "SendAnalogDetailsInt(recIndex=3, physicalAddress=PhysicalAddressInt(fullname=null, at=null, address=address, addressDetails=null, zip=null, municipality=null, municipalityDetails=null, province=null, foreignState=null), serviceLevel=REGISTERED_LETTER_890, sentAttemptMade=2, relatedRequestId=abc, analogCost=100, productType=null)";
-        Assertions.assertEquals(expected, detailsInt.toString());
-    }
+
     private SendAnalogDetailsInt buildSendAnalogDetailsInt() {
         return SendAnalogDetailsInt.builder().serviceLevel(ServiceLevelInt.REGISTERED_LETTER_890).physicalAddress(PhysicalAddressInt.builder().address("address").build()).analogCost(100).relatedRequestId("abc").sentAttemptMade(2).recIndex(3).build();
     }

@@ -12,7 +12,7 @@ import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.BaseAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -24,7 +24,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_FEEDBACKNOTFOUND;
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND;
 
 @Component
 @Slf4j
@@ -39,19 +38,6 @@ public class AnalogWorkflowUtils {
         this.timelineService = timelineService;
         this.timelineUtils = timelineUtils;
         this.notificationUtils = notificationUtils;
-    }
-
-    public SendAnalogDetailsInt getSendAnalogNotificationDetails(String iun, String eventId) {
-
-        Optional<SendAnalogDetailsInt> sendPaperDetailsOpt = timelineService.getTimelineElementDetails(iun, eventId, SendAnalogDetailsInt.class);
-
-        if (sendPaperDetailsOpt.isPresent()) {
-            return sendPaperDetailsOpt.get();
-        } else {
-            String error = String.format("There isn't timeline element -iun=%s requestId=%s", iun, eventId);
-            log.error(error);
-            throw new PnInternalException(error, ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND);
-        }
     }
 
     /**
@@ -84,7 +70,7 @@ public class AnalogWorkflowUtils {
     }
 
     public String addAnalogFailureAttemptToTimeline(NotificationInt notification, int sentAttemptMade, List<LegalFactsIdInt> attachmentKeys,
-                                                  SendAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt) {
+                                                  BaseAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt) {
         TimelineElementInternal timelineElementInternal = timelineUtils.buildAnalogFailureAttemptTimelineElement(notification, sentAttemptMade, attachmentKeys, sendPaperDetails, sendEventInt);
 
         addTimelineElement(timelineElementInternal,
@@ -95,7 +81,7 @@ public class AnalogWorkflowUtils {
 
 
     public void addAnalogProgressAttemptToTimeline(NotificationInt notification, int recIndex, int sentAttemptMade, List<LegalFactsIdInt> attachmentKeys,
-                                                   SendAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt) {
+                                                   BaseAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt) {
         int progressIndex = getPreviousTimelineProgress(notification, recIndex, sentAttemptMade).size() + 1;
 
         addTimelineElement(
@@ -104,7 +90,7 @@ public class AnalogWorkflowUtils {
     }
 
     public String addAnalogSuccessAttemptToTimeline(NotificationInt notification, int sentAttemptMade, List<LegalFactsIdInt> attachmentKeys,
-                                                    SendAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt) {
+                                                    BaseAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt) {
         TimelineElementInternal timelineElementInternal = timelineUtils.buildAnalogSuccessAttemptTimelineElement(notification, sentAttemptMade, attachmentKeys, sendPaperDetails, sendEventInt);
 
         addTimelineElement(timelineElementInternal,

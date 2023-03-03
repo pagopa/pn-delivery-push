@@ -79,7 +79,7 @@ public class NotificationProcessCostServiceImpl implements NotificationProcessCo
     private Integer getAnalogCost(int recIndex, Integer analogCost, TimelineElementInternal timelineElement) {
         if(timelineElement.getDetails() instanceof AnalogSendTimelineElement analogSend){
             log.debug("Add analogCost={} from timelineCategory={} - iun={} id={}", analogSend.getAnalogCost(), timelineElement.getCategory(), timelineElement.getIun(), recIndex);
-            analogCost += analogSend.getAnalogCost();
+            analogCost += analogSend.getAnalogCost() != null ? analogSend.getAnalogCost() : 0;
         }
         return analogCost;
     }
