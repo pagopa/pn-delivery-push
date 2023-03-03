@@ -125,13 +125,16 @@ components:
         - "$ref": "#/components/schemas/SendDigitalDetails"
         - "$ref": "#/components/schemas/SendDigitalFeedbackDetails"
         - "$ref": "#/components/schemas/SendDigitalProgressDetails"
+        - "$ref": "#/components/schemas/BaseAnalogDetails"
         - "$ref": "#/components/schemas/SendAnalogDetails"
         - "$ref": "#/components/schemas/SendAnalogFeedbackDetails"
+        - "$ref": "#/components/schemas/BaseRegisteredLetterDetails"
         - "$ref": "#/components/schemas/SimpleRegisteredLetterDetails"
         - "$ref": "#/components/schemas/AarCreationRequestDetails"
         - "$ref": "#/components/schemas/AarGenerationDetails"
         - "$ref": "#/components/schemas/NotHandledDetails"
         - "$ref": "#/components/schemas/NotificationPaidDetails"
+        - "$ref": "#/components/schemas/SendAnalogProgressDetails"
 
     NotificationRequestAcceptedDetails:
       type: object
@@ -500,6 +503,30 @@ components:
           items:
             $ref: '#/components/schemas/SendingReceipt'
 
+    BaseAnalogDetails:
+      type: object
+      required:
+        - recIndex
+        - physicalAddress
+        - serviceLevel
+        - sentAttemptMade
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        physicalAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
+        serviceLevel:
+          "$ref": "#/components/schemas/ServiceLevel"
+        sentAttemptMade:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+        relatedRequestId:
+          type: string
+          description: Id relativo alla eventuale precedente richiesta di invio cartaceo
+
     SendAnalogDetails:
       type: object
       required:
@@ -567,6 +594,20 @@ components:
           items:
             type: string
             description: Lista errori, vuota in caso di successo
+
+    BaseRegisteredLetterDetails:
+      type: object
+      required:
+        - recIndex
+        - physicalAddress
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        physicalAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
+
 
     SimpleRegisteredLetterDetails:
       type: object
@@ -672,6 +713,22 @@ components:
           type: string
           description: Canale sorgente della richiesta di pagamento
 
+    SendAnalogProgressDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario che ha effettuato il pagamento della notifica
+          format: int32
+        notificationDate:
+          type: string
+          format: date-time
+        eventCode:
+          type: string
+        eventDetail:
+          type: string
 
 
     SenderAckCreationRequestDetails:
