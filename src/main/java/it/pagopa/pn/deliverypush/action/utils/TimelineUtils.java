@@ -1,13 +1,14 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationpaid.NotificationPaidInt;
 import it.pagopa.pn.deliverypush.dto.address.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationpaid.NotificationPaidInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendEventInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.dto.io.IoSendMessageResultInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.PdfInfo;
@@ -222,13 +223,15 @@ public class TimelineUtils {
         return buildTimeline(notification, TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS, elementId, digitalAddressFeedback.getEventTimestamp(), details, timelineBuilder);
     }
     
-    public TimelineElementInternal buildSendCourtesyMessageTimelineElement(Integer recIndex, NotificationInt notification, CourtesyDigitalAddressInt address, Instant sendDate, String eventId) {
+    public TimelineElementInternal buildSendCourtesyMessageTimelineElement(Integer recIndex, NotificationInt notification, CourtesyDigitalAddressInt address, 
+                                                                           Instant sendDate, String eventId, IoSendMessageResultInt ioSendMessageResult) {
         log.debug("buildSendCourtesyMessageTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
 
         SendCourtesyMessageDetailsInt details = SendCourtesyMessageDetailsInt.builder()
                 .recIndex(recIndex)
                 .digitalAddress(address)
                 .sendDate(sendDate)
+                .ioSendMessageResult(ioSendMessageResult)
                 .build();
 
         return buildTimeline(notification, TimelineElementCategoryInt.SEND_COURTESY_MESSAGE, eventId, details);

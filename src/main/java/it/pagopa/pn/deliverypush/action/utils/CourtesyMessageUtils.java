@@ -4,6 +4,7 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.io.IoSendMessageResultInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
@@ -12,6 +13,7 @@ import it.pagopa.pn.deliverypush.service.AddressBookService;
 import it.pagopa.pn.deliverypush.service.ExternalChannelService;
 import it.pagopa.pn.deliverypush.service.IoService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.model.SendMessageResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +21,7 @@ import java.time.Instant;
 import java.util.List;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ERRORCOURTESY;
+import static it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.model.SendMessageResponse.ResultEnum.*;
 
 @Component
 @Slf4j
@@ -77,7 +80,8 @@ public class CourtesyMessageUtils {
             //... Per ogni indirizzo di cortesia ottenuto viene inviata la notifica del messaggio di cortesia
             String eventId = getTimelineElementId(recIndex, notification.getIun(), courtesyAddress.getType());
             boolean timelineShouldBeSaved = true;
-
+            IoSendMessageResultInt ioSendMessageResult = null;
+            
             switch (courtesyAddress.getType()) {
                 case EMAIL, SMS -> {
                     log.info("Send courtesy message to externalChannel courtesyType={} - iun={} id={} ", courtesyAddress.getType(), notification.getIun(), recIndex);
@@ -88,14 +92,21 @@ public class CourtesyMessageUtils {
                     // ci sono casi in cui non viene inviato perchè l'utente non ha abilitato IO. Quindi in questi casi non viene salvato l'evento di timeline
                     // NB: anche nel caso di invio di Opt-in, non salvo l'evento in timeline.
                     log.info("Send courtesy message to App IO - iun={} id={} ", notification.getIun(), recIndex);
-                    timelineShouldBeSaved = iOservice.sendIOMessage(notification, recIndex);
+                    SendMessageResponse.ResultEnum result =  iOservice.sendIOMessage(notification, recIndex);
+                    
+                    if(SENT_COURTESY.equals(result) || SENT_OPTIN.equals(result) || NOT_SENT_OPTIN_ALREADY_SENT.equals(result)){
+                        ioSendMessageResult = IoSendMessageResultInt.valueOf(result.getValue());
+                    }else {
+                        timelineShouldBeSaved = false;
+                    }
+                    
                 }
                 default -> handleCourtesyTypeError(notification, recIndex, courtesyAddress);
             }
 
             if (timelineShouldBeSaved)
             {
-                addSendCourtesyMessageToTimeline(notification, recIndex, courtesyAddress, Instant.now(), eventId);
+                addSendCourtesyMessageToTimeline(notification, recIndex, courtesyAddress, Instant.now(), eventId, ioSendMessageResult);
             }
             else
             {
@@ -119,12 +130,14 @@ public class CourtesyMessageUtils {
     }
 
     public void addSendCourtesyMessageToTimeline(NotificationInt notification, Integer recIndex, CourtesyDigitalAddressInt courtesyAddress, Instant sentDate) {
-        this.addSendCourtesyMessageToTimeline(notification, recIndex, courtesyAddress, sentDate, getTimelineElementId(recIndex, notification.getIun(), courtesyAddress.getType()));
+        this.addSendCourtesyMessageToTimeline(notification, recIndex, courtesyAddress, sentDate, getTimelineElementId(recIndex, notification.getIun(), courtesyAddress.getType()),
+                IoSendMessageResultInt.SENT_COURTESY);
     }
 
-    private void addSendCourtesyMessageToTimeline(NotificationInt notification, Integer recIndex, CourtesyDigitalAddressInt courtesyAddress, Instant sentDate, String eventId) {
+    private void addSendCourtesyMessageToTimeline(NotificationInt notification, Integer recIndex, CourtesyDigitalAddressInt courtesyAddress, Instant sentDate, String eventId,
+                                                  IoSendMessageResultInt ioSendMessageResult) {
         addTimelineElement(
-                timelineUtils.buildSendCourtesyMessageTimelineElement(recIndex, notification, courtesyAddress, sentDate, eventId),
+                timelineUtils.buildSendCourtesyMessageTimelineElement(recIndex, notification, courtesyAddress, sentDate, eventId, ioSendMessageResult),
                 notification
         );
     }
