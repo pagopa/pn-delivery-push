@@ -38,7 +38,7 @@ class PnLegalFactsControllerTestIT {
         }
     }
 
-    private static final String IUN = "fake_iun";
+    private static final String IUN = "AAAA-AAAA-AAAA-202301-C-1";
     
     @Autowired
     private WebTestClient webTestClient;

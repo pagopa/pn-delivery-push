@@ -33,7 +33,7 @@ public class PnLegalFactsController implements LegalFactsApi {
             List<String> xPagopaPnCxGroups,
             UUID mandateId,
             ServerWebExchange exchange) {
-        return getLegalFactService.getLegalFactMetadata(iun, legalFactType, legalFactId, xPagopaPnCxId, mandateId.toString(), xPagopaPnCxType, xPagopaPnCxGroups)
+        return getLegalFactService.getLegalFactMetadata(iun, legalFactType, legalFactId, xPagopaPnCxId, (mandateId != null ? mandateId.toString() : null), xPagopaPnCxType, xPagopaPnCxGroups)
                 .map(response -> ResponseEntity.ok().body(response));
     }
     
@@ -47,7 +47,7 @@ public class PnLegalFactsController implements LegalFactsApi {
             UUID mandateId,
             ServerWebExchange exchange) {
         return Mono.fromSupplier(() -> {
-            List<LegalFactListElement> legalFacts = getLegalFactService.getLegalFacts(iun, xPagopaPnCxId, mandateId.toString(), xPagopaPnCxType, xPagopaPnCxGroups);
+            List<LegalFactListElement> legalFacts = getLegalFactService.getLegalFacts(iun, xPagopaPnCxId, (mandateId != null ? mandateId.toString() : null), xPagopaPnCxType, xPagopaPnCxGroups);
             Flux<LegalFactListElement> fluxFacts = Flux.fromStream(legalFacts.stream().map(LegalFactUtils::convert));
             return ResponseEntity.ok(fluxFacts);
         });
