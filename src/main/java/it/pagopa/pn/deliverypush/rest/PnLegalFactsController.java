@@ -11,6 +11,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 public class PnLegalFactsController implements LegalFactsApi {
@@ -30,9 +31,9 @@ public class PnLegalFactsController implements LegalFactsApi {
             LegalFactCategory legalFactType,
             String legalFactId,
             List<String> xPagopaPnCxGroups,
-            String mandateId,
+            UUID mandateId,
             ServerWebExchange exchange) {
-        return getLegalFactService.getLegalFactMetadata(iun, legalFactType, legalFactId, xPagopaPnCxId, mandateId, xPagopaPnCxType, xPagopaPnCxGroups)
+        return getLegalFactService.getLegalFactMetadata(iun, legalFactType, legalFactId, xPagopaPnCxId, mandateId.toString(), xPagopaPnCxType, xPagopaPnCxGroups)
                 .map(response -> ResponseEntity.ok().body(response));
     }
     
@@ -43,10 +44,10 @@ public class PnLegalFactsController implements LegalFactsApi {
             String xPagopaPnCxId,
             String iun,
             List<String> xPagopaPnCxGroups,
-            String mandateId,
+            UUID mandateId,
             ServerWebExchange exchange) {
         return Mono.fromSupplier(() -> {
-            List<LegalFactListElement> legalFacts = getLegalFactService.getLegalFacts(iun, xPagopaPnCxId, mandateId, xPagopaPnCxType, xPagopaPnCxGroups);
+            List<LegalFactListElement> legalFacts = getLegalFactService.getLegalFacts(iun, xPagopaPnCxId, mandateId.toString(), xPagopaPnCxType, xPagopaPnCxGroups);
             Flux<LegalFactListElement> fluxFacts = Flux.fromStream(legalFacts.stream().map(LegalFactUtils::convert));
             return ResponseEntity.ok(fluxFacts);
         });

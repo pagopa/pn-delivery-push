@@ -205,6 +205,9 @@ components:
       description: identificativo della delega
       schema:
         type: string
+        format: uuid
+        minLength: 36
+        maxLength: 36
 
     ############################################################################################
     ###                        PARAMETRI RICERCA NOTIFICA ACCETTATA                         ###
@@ -240,3 +243,6 @@ components:
       required: true
       schema:
         type: string
+        # ASCII printable characters
+        pattern: ^[ -~]*$
+        maxLength: 1024
