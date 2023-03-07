@@ -226,7 +226,8 @@ class NotificationViewLegalFactCreationResponseHandlerTest {
         Mockito.when( notificationService.getNotificationByIun(Mockito.anyString())).thenThrow(  new PnInternalException("Prova", ERROR_CODE_DELIVERYPUSH_NO_RECIPIENT_IN_NOTIFICATION));
 
         //WHEN
-        Assertions.assertThrows(PnInternalException.class, () -> handler.handleLegalFactCreationResponse(notification.getIun(), recIndex, actionDetails));
+        String iun = notification.getIun();
+        Assertions.assertThrows(PnInternalException.class, () -> handler.handleLegalFactCreationResponse(iun, recIndex, actionDetails));
         
         //THEN
         Mockito.verify(paperNotificationFailedService, Mockito.never()).deleteNotificationFailed(Mockito.any(), Mockito.any());
