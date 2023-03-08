@@ -39,6 +39,7 @@ class PnLegalFactsControllerTestIT {
     }
 
     private static final String IUN = "AAAA-AAAA-AAAA-202301-C-1";
+    private static final String MANDATE_ID = "1eb3cac7-ba73-49b9-9e5d-ec0c0389a49a";
     
     @Autowired
     private WebTestClient webTestClient;
@@ -67,7 +68,7 @@ class PnLegalFactsControllerTestIT {
                 .uri(uriBuilder ->
                         uriBuilder
                                 .path("/delivery-push/" + IUN + "/legal-facts/"+legalFactType+"/"+legalFactsId )
-                                .queryParam("mandateId", "mandateId")
+                                .queryParam("mandateId", MANDATE_ID)
                                 .build())
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
@@ -99,7 +100,7 @@ class PnLegalFactsControllerTestIT {
                 .uri(uriBuilder ->
                         uriBuilder
                                 .path("/delivery-push/" + IUN + "/legal-facts" )
-                                .queryParam("mandateId", "mandateId")
+                                .queryParam("mandateId", MANDATE_ID)
                                 .build())
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
