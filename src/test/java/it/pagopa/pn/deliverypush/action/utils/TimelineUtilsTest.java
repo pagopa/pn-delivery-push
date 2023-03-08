@@ -16,7 +16,9 @@ import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
+import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementDetailsEntity;
@@ -34,6 +36,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 class TimelineUtilsTest {
 
@@ -542,6 +545,76 @@ class TimelineUtilsTest {
         );
     }
 
+    @Test
+    void checkNotificationIsAlreadyViewedWithCreationRequest() {
+        String iun = "testIun";
+        Integer recIndex = 0;
+
+        String creationRequestTimelineId = TimelineEventId.NOTIFICATION_VIEWED_CREATION_REQUEST.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .build());
+        
+        Mockito.when(timelineService.getTimelineElement(iun, creationRequestTimelineId)).thenReturn(Optional.of(TimelineElementInternal.builder().build()));
+        
+        boolean notificationIsAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex);
+        
+        Assertions.assertTrue(notificationIsAlreadyViewed);
+    }
+
+    @Test
+    void checkNotificationIsAlreadyViewedWithNotificationView() {
+        String iun = "testIun";
+        Integer recIndex = 0;
+
+        String creationRequestTimelineId = TimelineEventId.NOTIFICATION_VIEWED_CREATION_REQUEST.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .build());
+
+        Mockito.when(timelineService.getTimelineElement(iun, creationRequestTimelineId)).thenReturn(Optional.empty());
+
+        String notificationViewedTimelineId = TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .build());
+
+        Mockito.when(timelineService.getTimelineElement(iun, notificationViewedTimelineId)).thenReturn(Optional.of(TimelineElementInternal.builder().build()));
+
+        boolean notificationIsAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex);
+
+        Assertions.assertTrue(notificationIsAlreadyViewed);
+    }
+
+    @Test
+    void checkNotificationIsNotViewed() {
+        String iun = "testIun";
+        Integer recIndex = 0;
+
+        String creationRequestTimelineId = TimelineEventId.NOTIFICATION_VIEWED_CREATION_REQUEST.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .build());
+
+        Mockito.when(timelineService.getTimelineElement(iun, creationRequestTimelineId)).thenReturn(Optional.empty());
+
+        String notificationViewedTimelineId = TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .build());
+
+        Mockito.when(timelineService.getTimelineElement(iun, notificationViewedTimelineId)).thenReturn(Optional.empty());
+
+        boolean notificationIsAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex);
+
+        Assertions.assertFalse(notificationIsAlreadyViewed);
+    }
+    
     private NotificationSenderInt createSender() {
         return NotificationSenderInt.builder()
                 .paId("TEST_PA_ID")

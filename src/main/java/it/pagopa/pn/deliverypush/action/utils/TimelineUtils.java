@@ -877,16 +877,40 @@ public class TimelineUtils {
     }
 
     public boolean checkNotificationIsAlreadyViewed(String iun, Integer recIndex){
-        //Se la notifica è stata pagata è stata sicuramente anche visualizzata dunque non serve il doppio check
+        log.debug("checkNotificationIsAlreadyViewed - iun={} recIndex={}", iun, recIndex);
         
+        Optional<TimelineElementInternal> notificationViewCreationRequestOpt = getNotificationViewCreationRequest(iun, recIndex);
+
+        if(notificationViewCreationRequestOpt.isEmpty()){
+            log.debug("notificationViewCreationRequest is not present - iun={} recIndex={}", iun, recIndex);
+
+            Optional<TimelineElementInternal> notificationViewOpt = getNotificationView(iun, recIndex);
+            log.debug("notificationViewOpt is={} - iun={} recIndex={}", notificationViewOpt.isPresent(), iun, recIndex);
+
+            return notificationViewOpt.isPresent();
+        }
+        
+        return true;
+    }
+
+    private Optional<TimelineElementInternal> getNotificationView(String iun, Integer recIndex) {
+        String elementId = TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .build());
+
+        return timelineService.getTimelineElement(iun, elementId);
+    }
+
+    private Optional<TimelineElementInternal> getNotificationViewCreationRequest(String iun, Integer recIndex) {
         String elementId = TimelineEventId.NOTIFICATION_VIEWED_CREATION_REQUEST.buildEventId(
                 EventId.builder()
                         .iun(iun)
                         .recIndex(recIndex)
                         .build());
 
-        Optional<TimelineElementInternal> timelineOpt = timelineService.getTimelineElement(iun, elementId);
-        return timelineOpt.isPresent();
+        return timelineService.getTimelineElement(iun, elementId);
     }
 
     public String getIunFromTimelineId(String timelineId)
