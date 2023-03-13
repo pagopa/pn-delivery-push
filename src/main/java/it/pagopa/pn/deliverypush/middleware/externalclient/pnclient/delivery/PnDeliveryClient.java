@@ -8,6 +8,5 @@ import java.util.Map;
 public interface PnDeliveryClient {
     void updateStatus(RequestUpdateStatusDto dto);
     SentNotification getSentNotification(String iun);
-    NotificationCostResponse getNotificationCostPrivate(String paTaxId, String noticeCode);
     Map<String, String> getQuickAccessLinkTokensPrivate(String iun);
 }

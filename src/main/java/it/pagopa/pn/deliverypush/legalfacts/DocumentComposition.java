@@ -6,6 +6,8 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.PnDeliveryPushApplication;
+import it.pagopa.pn.deliverypush.utils.FontUtils;
 import it.pagopa.pn.deliverypush.utils.HtmlSanitizer;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -17,14 +19,12 @@ import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
+import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_DOCUMENTCOMPOSITIONFAILED;
 
@@ -159,8 +159,16 @@ public class DocumentComposition {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         PdfRendererBuilder builder = new PdfRendererBuilder();
-
         builder.withW3cDocument( w3cDoc, baseUri);
+        
+        builder.useFont(new File(Objects.requireNonNull(PnDeliveryPushApplication.class.getClassLoader().getResource("documents_composition_templates/fonts/Titillium_Web/TitilliumWeb-Regular.ttf")).getFile()), "Titillium Web");
+        FontUtils.getFontList().forEach( fontElem ->
+                builder.useFont(
+                    new File(Objects.requireNonNull(PnDeliveryPushApplication.class.getClassLoader().getResource(fontElem.getPath())).getFile()),
+                    fontElem.getFontFamily()
+                )
+        );
+        
         builder.toStream(baos);
         builder.run();
         baos.close();
