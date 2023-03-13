@@ -23,6 +23,10 @@ Parameters:
     Type: String
     Description: 'Where to send CDC'
 
+  AlarmSNSTopicName:
+    Type: String
+    Description: 'Topic alarm'
+    
 Resources:
 
   # Legal Facts S3 Storage
@@ -63,6 +67,7 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
       Parameters:
         QueueName: !Sub '${ProjectName}-delivery_push_actions'
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName        
         DelaySeconds: 1
 
   DoneActionsQueue:
@@ -71,6 +76,7 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
       Parameters:
         QueueName: !Sub '${ProjectName}-delivery_push_actions_done'
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName
         DelaySeconds: 1
 
   # Notification Timeline DynamoDB Table
