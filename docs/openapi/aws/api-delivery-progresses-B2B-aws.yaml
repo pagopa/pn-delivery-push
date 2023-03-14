@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: hQT+pxDYKrH1zYEA98+n7w4Lwcn/mZFZAnjzZsXgo64=
+  version: sqlfRxOhW2Xhj3cFZK5ONdhi1SEJvYcIYXnAM4wiN6Y=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -708,12 +708,12 @@ x-amazon-apigateway-gateway-responses:
     responseParameters:
       gatewayresponse.header.Access-Control-Allow-Origin: '''*'''
     responseTemplates:
-      application/json: '{"message": "$context.error.validationErrorString"}'
+      application/json: '{"message": "Validation errors: $context.error.validationErrorString"}'
   BAD_REQUEST_BODY:
     responseParameters:
       gatewayresponse.header.Access-Control-Allow-Origin: '''*'''
     responseTemplates:
-      application/json: '{"message": "$context.error.validationErrorString"}'
+      application/json: '{"message": "Validation errors: $context.error.validationErrorString"}'
 x-amazon-apigateway-request-validators:
   basic:
     validateRequestBody: true
