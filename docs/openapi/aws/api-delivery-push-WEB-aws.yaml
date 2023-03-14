@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: Rs5abo2b1d6y4gSiGhzs3CmfbwIkMKqAPQjOaIVvKTg=
+  version: zY21q2PmMRiq6ZYibCeA8nN2ief1Zz4BUNzrAy4PIPM=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -239,6 +239,7 @@ components:
       description: identificativo della delega
       schema:
         type: string
+        format: uuid
     pathIun:
       description: Identificativo Univoco Notifica
       name: iun
@@ -246,20 +247,24 @@ components:
       required: true
       schema:
         type: string
+        maxLength: 25
+        pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
     pathLegalFactType:
-      description: Categoria dell'atto opponbile a terzi
+      description: Categoria dell'atto opponibile a terzi
       name: legalFactType
       in: path
       required: true
       schema:
         $ref: '#/components/schemas/LegalFactCategory'
     pathLegalFactId:
-      description: Identificativo dell'atto opponbile a terzi
+      description: Identificativo dell'atto opponibile a terzi
       name: legalFactId
       in: path
       required: true
       schema:
         type: string
+        pattern: ^[ -~]*$
+        maxLength: 1024
     pathDocumentType:
       description: Categoria documento
       name: documentType
