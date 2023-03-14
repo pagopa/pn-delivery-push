@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class FontUtils {
+    private FontUtils(){}
+    
     private static final String FONT_BASE_PATH = "documents_composition_templates/fonts/";
     private static final String TITILIUM_BASE_PATH = FONT_BASE_PATH + "Titillium_Web/";
     private static final String MONTSERRAT_BASE_PATH = FONT_BASE_PATH + "Montserrat/";
@@ -13,7 +15,7 @@ public class FontUtils {
     private static final String TITILIUM_FAMILY = "Titillium Web";
     private static final String MONTSERRAT_FAMILY = "Montserrat";
 
-    private static ArrayList<FontType> fontList = new ArrayList<>(Arrays.asList(
+    private static final ArrayList<FontType> fontList = new ArrayList<>(Arrays.asList(
             new FontType(TITILIUM_BASE_PATH + "TitilliumWeb-Black.ttf", TITILIUM_FAMILY),
             new FontType(TITILIUM_BASE_PATH + "TitilliumWeb-Bold.ttf", TITILIUM_FAMILY),
             new FontType(TITILIUM_BASE_PATH + "TitilliumWeb-BoldItalic.ttf", TITILIUM_FAMILY),
