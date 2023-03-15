@@ -14,15 +14,16 @@ import java.time.Instant;
 public class SendAnalogProgressDetailsInt implements RecipientRelatedTimelineElementDetails {
     private int recIndex;
     private Instant notificationDate;
-    private String eventCode;
-    private String eventDetail;
+    private String deliveryFailureCause;
+    private String deliveryDetailCode;
 
     public String toLog() {
         return String.format(
-                "recIndex=%d eventCode=%s eventDetail=%s",
+                "recIndex=%d notificationDate=%s deliveryFailureCause=%s deliveryDetailCode=%s",
                 recIndex,
-                eventCode,
-                eventDetail
+                notificationDate,
+                deliveryFailureCause,
+                deliveryDetailCode
         );
     }
 }

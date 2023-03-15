@@ -22,25 +22,23 @@ public class SendAnalogFeedbackDetailsInt implements RecipientRelatedTimelineEle
     private ServiceLevelInt serviceLevel;
     private Integer sentAttemptMade;
     private PhysicalAddressInt newAddress;
-    private List<String> errors = null;
+    private String deliveryFailureCause;
     private ResponseStatusInt responseStatus;
     private List<SendingReceipt> sendingReceipts;
     private String requestTimelineId;
-    private String eventCode;
-    private String eventDetail;
+    private String deliveryDetailCode;
     private Instant notificationDate;
 
     public String toLog() {
         return String.format(
-                "recIndex=%d sentAttemptMade=%d responseStatus=%s errors=%s physicalAddress=%s requestTimelineId=%s eventCode=%s eventDetail=%s ",
+                "recIndex=%d sentAttemptMade=%d responseStatus=%s deliveryFailureCause=%s physicalAddress=%s requestTimelineId=%s deliveryDetailCode=%s ",
                 recIndex,
                 sentAttemptMade,
                 responseStatus,
-                errors,
+                deliveryFailureCause,
                 AuditLogUtils.SENSITIVE,
                 requestTimelineId,
-                eventCode,
-                eventDetail
+                deliveryDetailCode
         );
     }
 }

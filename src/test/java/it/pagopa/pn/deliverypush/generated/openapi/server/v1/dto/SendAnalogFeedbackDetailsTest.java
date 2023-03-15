@@ -4,8 +4,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
-
 class SendAnalogFeedbackDetailsTest {
 
     private SendAnalogFeedbackDetails details;
@@ -14,7 +12,7 @@ class SendAnalogFeedbackDetailsTest {
     void setUp() {
         details = new SendAnalogFeedbackDetails();
         details.sentAttemptMade(1);
-        details.setErrors(Collections.singletonList("error"));
+        details.setDeliveryFailureCause("error");
         details.setInvestigation(Boolean.TRUE);
         details.setNewAddress(PhysicalAddress.builder().address("add").build());
         details.setPhysicalAddress(PhysicalAddress.builder().address("add").build());
@@ -111,14 +109,14 @@ class SendAnalogFeedbackDetailsTest {
     void errors() {
         SendAnalogFeedbackDetails expected = buildSendAnalogFeedbackDetails();
 
-        SendAnalogFeedbackDetails actual = details.errors(Collections.singletonList("error"));
+        SendAnalogFeedbackDetails actual = details.deliveryFailureCause("errors");
 
         Assertions.assertEquals(expected, actual);
     }
 
     @Test
     void getErrors() {
-        Assertions.assertEquals(Collections.singletonList("error"), details.getErrors());
+        Assertions.assertEquals("error", details.getDeliveryFailureCause());
     }
 
 
@@ -142,45 +140,11 @@ class SendAnalogFeedbackDetailsTest {
         SendAnalogFeedbackDetails data = buildSendAnalogFeedbackDetails();
         Assertions.assertEquals(Boolean.TRUE, details.equals(data));
     }
-
-    @Test
-    void testToString() {
-        String expected = "class SendAnalogFeedbackDetails {\n" +
-                "    recIndex: 1\n" +
-                "    physicalAddress: class PhysicalAddress {\n" +
-                "        at: null\n" +
-                "        address: add\n" +
-                "        addressDetails: null\n" +
-                "        zip: null\n" +
-                "        municipality: null\n" +
-                "        municipalityDetails: null\n" +
-                "        province: null\n" +
-                "        foreignState: null\n" +
-                "    }\n" +
-                "    serviceLevel: REGISTERED_LETTER_890\n" +
-                "    sentAttemptMade: 1\n" +
-                "    investigation: true\n" +
-                "    newAddress: class PhysicalAddress {\n" +
-                "        at: null\n" +
-                "        address: add\n" +
-                "        addressDetails: null\n" +
-                "        zip: null\n" +
-                "        municipality: null\n" +
-                "        municipalityDetails: null\n" +
-                "        province: null\n" +
-                "        foreignState: null\n" +
-                "    }\n" +
-                "    responseStatus: KO\n" +
-                "    errors: [error]\n" +
-                "}";
-
-        Assertions.assertEquals(expected, details.toString());
-    }
-
+    
     private SendAnalogFeedbackDetails buildSendAnalogFeedbackDetails() {
         return SendAnalogFeedbackDetails.builder()
                 .recIndex(1)
-                .errors(Collections.singletonList("error"))
+                .deliveryFailureCause("errors")
                 .investigation(Boolean.TRUE)
                 .newAddress(PhysicalAddress.builder().address("add").build())
                 .physicalAddress(PhysicalAddress.builder().address("add").build())

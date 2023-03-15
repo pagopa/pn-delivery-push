@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
+import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.dto.address.*;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
@@ -211,11 +212,14 @@ class TimelineUtilsTest {
         NotificationInt notification = buildNotification();
         PhysicalAddressInt address = buildPhysicalAddressInt();
         String eventId = "001";
-        Integer numberOfPages = 1;
+        SendResponse sendResponse = new SendResponse()
+                .amount(10)
+                .foreignState("FR");
+
         String productType ="RN_AR";
         String timelineEventIdExpected = "SEND_SIMPLE_REGISTERED_LETTER#IUN_Example_IUN_1234_Test#RECINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
-        TimelineElementInternal actual = timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification, address, numberOfPages, productType);
+        TimelineElementInternal actual = timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification, address, sendResponse, productType);
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
                 () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
@@ -250,12 +254,15 @@ class TimelineUtilsTest {
         NotificationInt notification = buildNotification();
         String relatedRequestId = null;
         int sentAttemptMade = 1;
-        Integer analogCost = 10;
+        SendResponse sendResponse = new SendResponse()
+                .amount(10)
+                .foreignState("FR");
+
         String productType ="RN_AR";
         String timelineEventIdExpected = "SEND_ANALOG_DOMICILE#IUN_Example_IUN_1234_Test#RECINDEX_1#SENTATTEMPTMADE_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
         TimelineElementInternal actual = timelineUtils.buildSendAnalogNotificationTimelineElement(
-                address, recIndex, notification, relatedRequestId, sentAttemptMade, analogCost, productType
+                address, recIndex, notification, relatedRequestId, sentAttemptMade, sendResponse, productType
         );
 
         Assertions.assertAll(
