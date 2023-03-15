@@ -109,7 +109,7 @@ class SendAnalogFeedbackDetailsTest {
     void errors() {
         SendAnalogFeedbackDetails expected = buildSendAnalogFeedbackDetails();
 
-        SendAnalogFeedbackDetails actual = details.deliveryFailureCause("errors");
+        SendAnalogFeedbackDetails actual = details.deliveryFailureCause("errorzc");
 
         Assertions.assertEquals(expected, actual);
     }
@@ -144,7 +144,7 @@ class SendAnalogFeedbackDetailsTest {
     private SendAnalogFeedbackDetails buildSendAnalogFeedbackDetails() {
         return SendAnalogFeedbackDetails.builder()
                 .recIndex(1)
-                .deliveryFailureCause("errors")
+                .deliveryFailureCause("error")
                 .investigation(Boolean.TRUE)
                 .newAddress(PhysicalAddress.builder().address("add").build())
                 .physicalAddress(PhysicalAddress.builder().address("add").build())
