@@ -109,7 +109,7 @@ class SendAnalogFeedbackDetailsTest {
     void errors() {
         SendAnalogFeedbackDetails expected = buildSendAnalogFeedbackDetails();
 
-        SendAnalogFeedbackDetails actual = details.deliveryFailureCause("errorzc");
+        SendAnalogFeedbackDetails actual = details.deliveryFailureCause("error");
 
         Assertions.assertEquals(expected, actual);
     }

@@ -602,6 +602,8 @@ components:
           type: string
         deliveryDetailCode:
           type: string
+        attachmentDetails:
+          $ref: '#/components/schemas/AttachmentDetails'
 
     BaseRegisteredLetterDetails:
       type: object
@@ -745,6 +747,8 @@ components:
           type: string
         deliveryDetailCode:
           type: string
+        attachmentDetails:
+          $ref: '#/components/schemas/AttachmentDetails'
 
 
     SenderAckCreationRequestDetails:
@@ -839,3 +843,16 @@ components:
         - NOT_SENT_OPTIN_ALREADY_SENT
         - SENT_COURTESY
         - SENT_OPTIN
+
+    AttachmentDetails:
+      type: object
+      properties:
+        id:
+          type: string
+        documentType:
+          type: string
+        url:
+          type: string
+        date:
+          type: string
+          format: date-time

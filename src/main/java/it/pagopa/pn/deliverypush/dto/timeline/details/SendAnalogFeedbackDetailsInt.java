@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.dto.timeline.details;
 
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.AttachmentDetailsInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.utils.AuditLogUtils;
 import lombok.*;
@@ -28,17 +29,20 @@ public class SendAnalogFeedbackDetailsInt implements RecipientRelatedTimelineEle
     private String requestTimelineId;
     private String deliveryDetailCode;
     private Instant notificationDate;
+    private List<AttachmentDetailsInt> attachments;
 
     public String toLog() {
         return String.format(
-                "recIndex=%d sentAttemptMade=%d responseStatus=%s deliveryFailureCause=%s physicalAddress=%s requestTimelineId=%s deliveryDetailCode=%s ",
+                "recIndex=%d sentAttemptMade=%d responseStatus=%s deliveryFailureCause=%s " +
+                        "physicalAddress=%s requestTimelineId=%s deliveryDetailCode=%s attachments=%s",
                 recIndex,
                 sentAttemptMade,
                 responseStatus,
                 deliveryFailureCause,
                 AuditLogUtils.SENSITIVE,
                 requestTimelineId,
-                deliveryDetailCode
+                deliveryDetailCode,
+                attachments
         );
     }
 }

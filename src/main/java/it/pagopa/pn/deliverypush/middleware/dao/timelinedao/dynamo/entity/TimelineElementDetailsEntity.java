@@ -16,7 +16,6 @@ import java.util.List;
 @ToString
 @DynamoDbBean
 public class TimelineElementDetailsEntity {
-
     @Getter(onMethod=@__({@DynamoDbAttribute("recIndex")}))  private Integer recIndex;
     @Getter(onMethod=@__({@DynamoDbAttribute("physicalAddress")}))  private PhysicalAddressEntity physicalAddress;
     @Getter(onMethod=@__({@DynamoDbAttribute("digitalAddress")}))  private DigitalAddressEntity digitalAddress;
@@ -67,4 +66,5 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("envelopeWeight")})) private Integer envelopeWeight;
     @Getter(onMethod=@__({@DynamoDbAttribute("deliveryDetailCode")})) private String deliveryDetailCode;
     @Getter(onMethod=@__({@DynamoDbAttribute("deliveryFailureCause")})) private String deliveryFailureCause;
+    @Getter(onMethod=@__({@DynamoDbAttribute("attachments")})) private AttachmentDetailsEntity attachments;
 }

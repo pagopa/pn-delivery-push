@@ -1,8 +1,10 @@
 package it.pagopa.pn.deliverypush.dto.timeline.details;
 
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.AttachmentDetailsInt;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,14 +18,16 @@ public class SendAnalogProgressDetailsInt implements RecipientRelatedTimelineEle
     private Instant notificationDate;
     private String deliveryFailureCause;
     private String deliveryDetailCode;
+    private List<AttachmentDetailsInt> attachments;
 
     public String toLog() {
         return String.format(
-                "recIndex=%d notificationDate=%s deliveryFailureCause=%s deliveryDetailCode=%s",
+                "recIndex=%d notificationDate=%s deliveryFailureCause=%s deliveryDetailCode=%s attachments=%s",
                 recIndex,
                 notificationDate,
                 deliveryFailureCause,
-                deliveryDetailCode
+                deliveryDetailCode,
+                attachments
         );
     }
 }

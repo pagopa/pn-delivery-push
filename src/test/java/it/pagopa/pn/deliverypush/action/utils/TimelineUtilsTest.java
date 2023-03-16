@@ -7,6 +7,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocum
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.AttachmentDetailsInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
@@ -34,10 +35,7 @@ import org.springframework.util.Base64Utils;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 class TimelineUtilsTest {
 
@@ -403,10 +401,9 @@ class TimelineUtilsTest {
     void buildAnalogFailureAttemptTimelineElement() {
         NotificationInt notification = buildNotification();
         int sentAttemptMade = 1;
-        List<LegalFactsIdInt> legalFactsListEntryIds = Collections.singletonList(LegalFactsIdInt.builder()
-                .category(LegalFactCategoryInt.ANALOG_DELIVERY)
-                .key("key")
-                .build());
+        List<AttachmentDetailsInt> attachments = new ArrayList<>();
+        attachments.add(AttachmentDetailsInt.builder().url("key").build());
+        
         PhysicalAddressInt newAddress = buildPhysicalAddressInt();
         List<String> errors = Collections.singletonList("error 001");
         SendAnalogDetailsInt sendPaperDetails = SendAnalogDetailsInt.builder().build();
@@ -420,7 +417,7 @@ class TimelineUtilsTest {
                 .build();
 
         TimelineElementInternal actual = timelineUtils.buildAnalogFailureAttemptTimelineElement(
-                notification, sentAttemptMade, legalFactsListEntryIds, sendPaperDetails, sendEventInt
+                notification, sentAttemptMade, attachments, sendPaperDetails, sendEventInt
         );
 
         String timelineEventIdExpected = "SEND_ANALOG_FEEDBACK#IUN_Example_IUN_1234_Test#RECINDEX_0#SENTATTEMPTMADE_1".replace("#", TimelineEventIdBuilder.DELIMITER);
