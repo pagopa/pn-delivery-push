@@ -16,6 +16,7 @@ import java.util.List;
 @ToString
 @DynamoDbBean
 public class TimelineElementDetailsEntity {
+
     @Getter(onMethod=@__({@DynamoDbAttribute("recIndex")}))  private Integer recIndex;
     @Getter(onMethod=@__({@DynamoDbAttribute("physicalAddress")}))  private PhysicalAddressEntity physicalAddress;
     @Getter(onMethod=@__({@DynamoDbAttribute("digitalAddress")}))  private DigitalAddressEntity digitalAddress;
