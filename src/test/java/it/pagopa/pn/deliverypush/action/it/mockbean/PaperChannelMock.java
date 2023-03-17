@@ -65,7 +65,7 @@ public class PaperChannelMock implements PaperChannelSendClient {
     }
 
     @Override
-    public Integer send(PaperChannelSendRequest paperChannelSendRequest) {
+    public SendResponse send(PaperChannelSendRequest paperChannelSendRequest) {
         //TODO Da eliminare questo log
         log.info("[TEST] send paperChannelSendRequest:{}", paperChannelSendRequest);
 
@@ -83,7 +83,11 @@ public class PaperChannelMock implements PaperChannelSendClient {
 
         }).start();
 
-        return 100;
+        return new SendResponse()
+                .amount(100)
+                .numberOfPages(1)
+                .envelopeWeight(100)
+                .zip("80078");
     }
 
 
@@ -139,17 +143,17 @@ public class PaperChannelMock implements PaperChannelSendClient {
         sendEvent.setRequestId(timelineEventId);
 
         String newAddress;
-        SendEvent.StatusCodeEnum status = null;
+        StatusCodeEnum status = null;
         Matcher matcher = NEW_ADDRESS_INPUT_PATTERN.matcher(address);
         if (matcher.find()) {
-            status = SendEvent.StatusCodeEnum.KO;
+            status = StatusCodeEnum.KO;
             newAddress = matcher.group(1).trim();
         } else if (address.startsWith(EXTCHANNEL_SEND_FAIL)) {
-            status = SendEvent.StatusCodeEnum.KO;
+            status = StatusCodeEnum.KO;
             sendEvent.setStatusDetail("errore fail mock!");
             newAddress = null;
         } else if (address.startsWith(EXTCHANNEL_SEND_SUCCESS)) {
-            status = SendEvent.StatusCodeEnum.OK;
+            status = StatusCodeEnum.OK;
             newAddress = null;
         } else {
             throw new IllegalArgumentException("Address " + address + " do not match test rule for mocks");

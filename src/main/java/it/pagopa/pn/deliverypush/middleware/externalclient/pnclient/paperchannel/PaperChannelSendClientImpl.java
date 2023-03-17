@@ -67,7 +67,7 @@ public class PaperChannelSendClientImpl implements PaperChannelSendClient {
 
 
     @Override
-    public Integer send(PaperChannelSendRequest paperChannelSendRequest) {
+    public SendResponse send(PaperChannelSendRequest paperChannelSendRequest) {
         log.info("[enter] send iun={} address={} recipient={} requestId={} attachments={}", paperChannelSendRequest.getNotificationInt().getIun(), LogUtils.maskGeneric(paperChannelSendRequest.getReceiverAddress().getAddress()), LogUtils.maskGeneric(paperChannelSendRequest.getRecipientInt().getDenomination()), paperChannelSendRequest.getRequestId(), paperChannelSendRequest.getAttachments());
 
         SendRequest sendRequest = new SendRequest();
@@ -88,7 +88,7 @@ public class PaperChannelSendClientImpl implements PaperChannelSendClient {
         SendResponse response = paperMessagesApi.sendPaperSendRequest(paperChannelSendRequest.getRequestId(), sendRequest);
     
         log.info("[exit] send iun={} address={} recipient={} requestId={} attachments={} amount={}", paperChannelSendRequest.getNotificationInt().getIun(), LogUtils.maskGeneric(paperChannelSendRequest.getReceiverAddress().getAddress()), LogUtils.maskGeneric(paperChannelSendRequest.getRecipientInt().getDenomination()), paperChannelSendRequest.getRequestId(), paperChannelSendRequest.getAttachments(), response.getAmount());
-        return response.getAmount();
+        return response;
     }
 
     private AnalogAddress mapInternalToExternal(PhysicalAddressInt physicalAddress){

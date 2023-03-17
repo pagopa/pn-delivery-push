@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -77,8 +78,8 @@ public class PaperChannelUtils {
     }
 
     public String addSendSimpleRegisteredLetterToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex,
-                                                        Integer analogCost, String productType) {
-        TimelineElementInternal timelineElementInternal = timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification, physicalAddress, analogCost, productType);
+                                                          SendResponse sendResponse, String productType) {
+        TimelineElementInternal timelineElementInternal = timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification, physicalAddress, sendResponse, productType);
         addTimelineElement(timelineElementInternal,
                 notification
         );
@@ -95,8 +96,8 @@ public class PaperChannelUtils {
         return timelineElementInternal.getElementId();
     }
     public String addSendAnalogNotificationToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex,
-                                                    int sentAttemptMade, Integer analogCost, String relatedRequestId, String productType) {
-        TimelineElementInternal timelineElementInternal = timelineUtils.buildSendAnalogNotificationTimelineElement(physicalAddress, recIndex, notification, relatedRequestId, sentAttemptMade, analogCost, productType);
+                                                      int sentAttemptMade, SendResponse sendResponse, String relatedRequestId, String productType) {
+        TimelineElementInternal timelineElementInternal = timelineUtils.buildSendAnalogNotificationTimelineElement(physicalAddress, recIndex, notification, relatedRequestId, sentAttemptMade, sendResponse, productType);
         addTimelineElement(timelineElementInternal,
                 notification
         );

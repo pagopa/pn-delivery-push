@@ -16,8 +16,6 @@ import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendEventInt;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.stream.Collectors;
-
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED;
 
 
