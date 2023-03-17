@@ -602,8 +602,11 @@ components:
           type: string
         deliveryDetailCode:
           type: string
-        attachmentDetails:
-          $ref: '#/components/schemas/AttachmentDetails'
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttachmentDetails'
+          
 
     BaseRegisteredLetterDetails:
       type: object
@@ -747,8 +750,10 @@ components:
           type: string
         deliveryDetailCode:
           type: string
-        attachmentDetails:
-          $ref: '#/components/schemas/AttachmentDetails'
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttachmentDetails'
 
 
     SenderAckCreationRequestDetails:
