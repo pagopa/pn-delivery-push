@@ -200,7 +200,7 @@ components:
     LegalFactCategory:
       title: Tipi di atti opponibili a terzi
       description: |-
-        Tipi di atti opponibili a terzi che Piattaforam Notiiche mette a disposizione dei suoi utenti.
+        Tipi di atti opponibili a terzi che Piattaforma Notifiche mette a disposizione dei suoi utenti.
           - _SENDER_ACK_: atto di "presa in carico" di una notifica
           - _DIGITAL_DELIVERY_: ...
       type: string

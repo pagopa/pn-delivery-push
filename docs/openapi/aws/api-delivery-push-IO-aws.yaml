@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: gL7VGVdflhqWX2FSLMM1P0z/mjRDgUhssMK1wvz3Y48=
+  version: yIea/bIbjhyeLZe/b9JORLHXUUmisBWsJP9VAJdXDrg=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -286,7 +286,7 @@ components:
     LegalFactCategory:
       title: Tipi di atti opponibili a terzi
       description: >-
-        Tipi di atti opponibili a terzi che Piattaforam Notiiche mette a
+        Tipi di atti opponibili a terzi che Piattaforma Notifiche mette a
         disposizione dei suoi utenti.
           - _SENDER_ACK_: atto di "presa in carico" di una notifica
           - _DIGITAL_DELIVERY_: ...
