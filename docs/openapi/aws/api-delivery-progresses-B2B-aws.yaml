@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: QSQwWYG60bf5mFPz77sTUPD6CigG/jogJMeCCqLD2/0=
+  version: Yxk53TtwzoEgO+NAVNw6IcMb1XiWZh19m26VT+OxTbM=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -466,6 +466,8 @@ components:
           format: uuid
         title:
           type: string
+          maxLength: 256
+          pattern: ^.*$
     ProgressResponse:
       type: array
       items:

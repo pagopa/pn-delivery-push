@@ -532,6 +532,8 @@ components:
           format: uuid
         title:
           type: string
+          maxLength: 256
+          pattern: ^.*$
     ProgressResponse:
       type: array
       items:

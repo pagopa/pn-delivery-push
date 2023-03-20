@@ -716,6 +716,8 @@ components:
           #maxLength: 36
         title: 
           type: string
+          maxLength: 256
+          pattern: ^.*$
         
     
 
