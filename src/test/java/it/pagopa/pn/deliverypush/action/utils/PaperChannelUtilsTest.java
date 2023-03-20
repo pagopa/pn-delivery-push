@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
+import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -76,8 +77,11 @@ class PaperChannelUtilsTest {
         PhysicalAddressInt addressInt = buildPhysicalAddressInt();
         TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
 
-        Mockito.when(timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(1, notification, addressInt,  1, "RN_AR")).thenReturn(timelineElementInternal);
-        channelUtils.addSendSimpleRegisteredLetterToTimeline(notification, addressInt, 1, 1, "RN_AR");
+        SendResponse sendResponse = new SendResponse()
+                .amount(10)
+                .foreignState("FR");
+        Mockito.when(timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(1, notification, addressInt,  sendResponse, "RN_AR")).thenReturn(timelineElementInternal);
+        channelUtils.addSendSimpleRegisteredLetterToTimeline(notification, addressInt, 1, sendResponse, "RN_AR");
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);
     }
 
@@ -88,8 +92,11 @@ class PaperChannelUtilsTest {
         PhysicalAddressInt addressInt = buildPhysicalAddressInt();
         TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
 
-        Mockito.when(timelineUtils.buildSendAnalogNotificationTimelineElement(addressInt, 1, notification, null, 0,  10, "NR_AR")).thenReturn(timelineElementInternal);
-        channelUtils.addSendAnalogNotificationToTimeline(notification, addressInt, 1,   0, 10, null, "NR_AR");
+        SendResponse sendResponse = new SendResponse()
+                .amount(10)
+                .foreignState("FR");
+        Mockito.when(timelineUtils.buildSendAnalogNotificationTimelineElement(addressInt, 1, notification, null, 0,  sendResponse, "NR_AR")).thenReturn(timelineElementInternal);
+        channelUtils.addSendAnalogNotificationToTimeline(notification, addressInt, 1,   0, sendResponse, null, "NR_AR");
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);
     }
 

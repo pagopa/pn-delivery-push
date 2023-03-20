@@ -8,20 +8,22 @@ import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.PaperChannelUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.AttachmentDetailsInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.PrepareEventInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendEventInt;
-import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.dto.timeline.details.BaseAnalogDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.BaseRegisteredLetterDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.RecipientRelatedTimelineElementDetails;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.PaperChannelService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -149,26 +151,16 @@ public class AnalogWorkflowPaperChannelResponseHandler {
 
             Integer recIndex = sendPaperDetails.getRecIndex();
             ResponseStatusInt status = mapPaperStatusInResponseStatus(response.getStatusCode());
-            List<LegalFactsIdInt> legalFactsListEntryIds;
-            if (response.getAttachments() != null) {
-                legalFactsListEntryIds = response.getAttachments().stream()
-                        .map(k -> LegalFactsIdInt.builder()
-                                .key(k.getUrl())
-                                .category(LegalFactCategoryInt.ANALOG_DELIVERY)
-                                .build()
-                    ).toList();
-            } else {
-                legalFactsListEntryIds = Collections.emptyList();
-            }
+
 
             if (status!= null) {
                 switch (status) {
                     case PROGRESS -> 
-                            handleStatusProgress(response, sendPaperDetails, notification, recIndex, legalFactsListEntryIds);
+                            handleStatusProgress(response, sendPaperDetails, notification, recIndex, response.getAttachments());
                     case OK ->
-                            handleStatusOK(response, sendPaperDetails, notification, recIndex, legalFactsListEntryIds);
+                            handleStatusOK(response, sendPaperDetails, notification, recIndex, response.getAttachments());
                     case KO -> 
-                            handleStatusKO(response, sendPaperDetails, notification, recIndex, legalFactsListEntryIds);
+                            handleStatusKO(response, sendPaperDetails, notification, recIndex, response.getAttachments());
                     default -> 
                             throw new PnInternalException("Invalid status from PaperChannel response", ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND);
                 }
@@ -179,16 +171,16 @@ public class AnalogWorkflowPaperChannelResponseHandler {
             throw new PnInternalException("Unexpected details of timelineElement timeline=" + requestId, ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED);
     }
 
-    private void handleStatusProgress(SendEventInt response, BaseAnalogDetailsInt sendPaperDetails, NotificationInt notification, Integer recIndex, List<LegalFactsIdInt> legalFactsListEntryIds) {
-        analogWorkflowUtils.addAnalogProgressAttemptToTimeline(notification, recIndex, sendPaperDetails.getSentAttemptMade(), legalFactsListEntryIds,  sendPaperDetails, response);
+    private void handleStatusProgress(SendEventInt response, BaseAnalogDetailsInt sendPaperDetails, NotificationInt notification, Integer recIndex, List<AttachmentDetailsInt> attachments) {
+        analogWorkflowUtils.addAnalogProgressAttemptToTimeline(notification, recIndex, sendPaperDetails.getSentAttemptMade(), attachments,  sendPaperDetails, response);
     }
 
-    private void handleStatusOK(SendEventInt response, BaseAnalogDetailsInt sendPaperDetails, NotificationInt notification, Integer recIndex, List<LegalFactsIdInt> legalFactsListEntryIds) {
-        PnAuditLogEvent logEvent = buildSendEventAuditLog(notification.getIun(), recIndex, response, sendPaperDetails, legalFactsListEntryIds);
+    private void handleStatusOK(SendEventInt response, BaseAnalogDetailsInt sendPaperDetails, NotificationInt notification, Integer recIndex, List<AttachmentDetailsInt> attachments) {
+        PnAuditLogEvent logEvent = buildSendEventAuditLog(notification.getIun(), recIndex, response, sendPaperDetails, attachments);
 
         // La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
         try {
-            String timelineId = analogWorkflowUtils.addAnalogSuccessAttemptToTimeline(notification, sendPaperDetails.getSentAttemptMade(), legalFactsListEntryIds,  sendPaperDetails, response);
+            String timelineId = analogWorkflowUtils.addAnalogSuccessAttemptToTimeline(notification, sendPaperDetails.getSentAttemptMade(), attachments,  sendPaperDetails, response);
             completionWorkFlow.completionAnalogWorkflow(notification, recIndex, response.getStatusDateTime(), sendPaperDetails.getPhysicalAddress(), EndWorkflowStatus.SUCCESS);
 
             logEvent.generateSuccess("generated success timelineid={}", timelineId).log();
@@ -198,12 +190,12 @@ public class AnalogWorkflowPaperChannelResponseHandler {
         }
     }
 
-    private void handleStatusKO(SendEventInt response, BaseAnalogDetailsInt sendPaperDetails, NotificationInt notification, Integer recIndex, List<LegalFactsIdInt> legalFactsListEntryIds) {
-        PnAuditLogEvent logEvent = buildSendEventAuditLog(notification.getIun(), recIndex, response, sendPaperDetails, legalFactsListEntryIds);
+    private void handleStatusKO(SendEventInt response, BaseAnalogDetailsInt sendPaperDetails, NotificationInt notification, Integer recIndex, List<AttachmentDetailsInt> attachments) {
+        PnAuditLogEvent logEvent = buildSendEventAuditLog(notification.getIun(), recIndex, response, sendPaperDetails, attachments);
 
         try {
             // External channel non è riuscito a effettuare la notificazione, si passa al prossimo step del workflow
-            String timelineId = analogWorkflowUtils.addAnalogFailureAttemptToTimeline(notification, sendPaperDetails.getSentAttemptMade(), legalFactsListEntryIds, sendPaperDetails, response);
+            String timelineId = analogWorkflowUtils.addAnalogFailureAttemptToTimeline(notification, sendPaperDetails.getSentAttemptMade(), attachments, sendPaperDetails, response);
             int sentAttemptMade = sendPaperDetails.getSentAttemptMade() + 1;
             analogWorkflowHandler.nextWorkflowStep(notification, recIndex, sentAttemptMade, response.getStatusDateTime());
             logEvent.generateSuccess("WARNING Analog notification failed with failure cause {} generated failure timelineid={}", response.getDeliveryFailureCause(), timelineId).log();
@@ -219,9 +211,11 @@ public class AnalogWorkflowPaperChannelResponseHandler {
     }
 
 
-    private PnAuditLogEvent buildSendEventAuditLog(  String iun, int recIndex, SendEventInt response, BaseAnalogDetailsInt sendPaperDetails, List<LegalFactsIdInt> legalFactsListEntryIds ){
-        String attachments = legalFactsListEntryIds==null?"":legalFactsListEntryIds.stream().map(LegalFactsIdInt::getKey).collect(Collectors.joining(","));
-        return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_PD_EXECUTE_RECEIVE, "Analog workflow Paper channel execute response requestId={} statusCode={} sentAttemptMade={} attachments={} relatedRequestId={}", response.getRequestId(), response.getStatusCode(), sendPaperDetails.getSentAttemptMade(), attachments, sendPaperDetails.getRelatedRequestId());
+    private PnAuditLogEvent buildSendEventAuditLog(  String iun, int recIndex, SendEventInt response, BaseAnalogDetailsInt sendPaperDetails, List<AttachmentDetailsInt> attachmentsDetails ){
+        String attachments = attachmentsDetails==null?"":attachmentsDetails.stream().map(AttachmentDetailsInt::getUrl).collect(Collectors.joining(","));
+        return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_PD_EXECUTE_RECEIVE,
+                "Analog workflow Paper channel execute response requestId={} statusCode={} sentAttemptMade={} attachments={} relatedRequestId={}",
+                response.getRequestId(), response.getStatusCode(), sendPaperDetails.getSentAttemptMade(), attachments, sendPaperDetails.getRelatedRequestId());
     }
 
     private PnAuditLogEvent buildPrepareEventAuditLog(  String iun, int recIndex, PrepareEventInt response){

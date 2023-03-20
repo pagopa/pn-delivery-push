@@ -225,9 +225,9 @@ class PaperChannelSendClientImplTestIT extends MockAWSObjectsTest {
                 .attachments(List.of("Att"))
                 .build();
 
-        Integer notificationCost = client.send(paperChannelSendRequest);
+        SendResponse sendResponse = client.send(paperChannelSendRequest);
         
-        Assertions.assertEquals(notificationCostExpected, notificationCost);
+        Assertions.assertEquals(notificationCostExpected, sendResponse.getAmount());
 
     }
 }

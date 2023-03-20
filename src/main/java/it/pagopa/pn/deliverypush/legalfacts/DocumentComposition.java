@@ -159,8 +159,8 @@ public class DocumentComposition {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         PdfRendererBuilder builder = new PdfRendererBuilder();
-
         builder.withW3cDocument( w3cDoc, baseUri);
+        
         builder.toStream(baos);
         builder.run();
         baos.close();

@@ -1,6 +1,8 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel;
 
 
+import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.SendResponse;
+
 public interface PaperChannelSendClient {
 
     /**
@@ -17,6 +19,6 @@ public interface PaperChannelSendClient {
      *
      * @param paperChannelSendRequest@return ritorna il costo dell'invio in euro-cent
      */
-    Integer send(PaperChannelSendRequest paperChannelSendRequest);
+    SendResponse send(PaperChannelSendRequest paperChannelSendRequest);
 
 }

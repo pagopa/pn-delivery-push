@@ -545,7 +545,7 @@
 						</goals>
 						<phase>process-resources</phase>
 						<configuration>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-paper-channel/3cebd909c5e15627d0f605c06795f11dbbadd770/docs/openapi/api-internal-v1.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-paper-channel/10740603d416a5009ad7b84eec553b3bc3ac0340/docs/openapi/api-internal-v1.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>

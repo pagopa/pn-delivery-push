@@ -7,8 +7,8 @@ import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.AttachmentDetailsInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendEventInt;
-import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
@@ -69,9 +69,9 @@ public class AnalogWorkflowUtils {
         return false;
     }
 
-    public String addAnalogFailureAttemptToTimeline(NotificationInt notification, int sentAttemptMade, List<LegalFactsIdInt> attachmentKeys,
+    public String addAnalogFailureAttemptToTimeline(NotificationInt notification, int sentAttemptMade, List<AttachmentDetailsInt> attachments,
                                                   BaseAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt) {
-        TimelineElementInternal timelineElementInternal = timelineUtils.buildAnalogFailureAttemptTimelineElement(notification, sentAttemptMade, attachmentKeys, sendPaperDetails, sendEventInt);
+        TimelineElementInternal timelineElementInternal = timelineUtils.buildAnalogFailureAttemptTimelineElement(notification, sentAttemptMade, attachments, sendPaperDetails, sendEventInt);
 
         addTimelineElement(timelineElementInternal,
                 notification);
@@ -80,18 +80,18 @@ public class AnalogWorkflowUtils {
     }
 
 
-    public void addAnalogProgressAttemptToTimeline(NotificationInt notification, int recIndex, int sentAttemptMade, List<LegalFactsIdInt> attachmentKeys,
+    public void addAnalogProgressAttemptToTimeline(NotificationInt notification, int recIndex, int sentAttemptMade, List<AttachmentDetailsInt> attachments,
                                                    BaseAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt) {
         int progressIndex = getPreviousTimelineProgress(notification, recIndex, sentAttemptMade).size() + 1;
 
         addTimelineElement(
-                timelineUtils.buildAnalogProgressTimelineElement(notification, sentAttemptMade, attachmentKeys, progressIndex, sendPaperDetails, sendEventInt),
+                timelineUtils.buildAnalogProgressTimelineElement(notification, sentAttemptMade, attachments, progressIndex, sendPaperDetails, sendEventInt),
                 notification);
     }
 
-    public String addAnalogSuccessAttemptToTimeline(NotificationInt notification, int sentAttemptMade, List<LegalFactsIdInt> attachmentKeys,
+    public String addAnalogSuccessAttemptToTimeline(NotificationInt notification, int sentAttemptMade, List<AttachmentDetailsInt> attachments,
                                                     BaseAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt) {
-        TimelineElementInternal timelineElementInternal = timelineUtils.buildAnalogSuccessAttemptTimelineElement(notification, sentAttemptMade, attachmentKeys, sendPaperDetails, sendEventInt);
+        TimelineElementInternal timelineElementInternal = timelineUtils.buildAnalogSuccessAttemptTimelineElement(notification, sentAttemptMade, attachments, sendPaperDetails, sendEventInt);
 
         addTimelineElement(timelineElementInternal,
                 notification);

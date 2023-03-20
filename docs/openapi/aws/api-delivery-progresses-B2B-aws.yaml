@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: rFrfuPCrLIXBpJH9k8uk3Fn44KLLETKiDEYs8XL3eSg=
+  version: ptVuZovkvNsYr/+OvNlUnmHau0SFNcQtm8XMj7Ychx4=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -381,16 +381,12 @@ components:
     queryLastEventId:
       description: >-
         Identificativo dell'ultimo evento memorizzato dal chiamante, se non
-        passato si intende dal primo evento presente nello stream. Numero in una
-        stringa di 38 caratteri con padding iniziale composto da '0'.
+        passato si intende dal primo evento presente nello stream
       name: lastEventId
       in: query
       required: false
       schema:
         type: string
-        minLength: 38
-        maxLength: 38
-        pattern: ^0\d{37}$
     pathStreamId:
       description: Identificativo dello stream di eventi
       name: streamId
@@ -412,8 +408,6 @@ components:
         title:
           description: Nome sintetico dello stream
           type: string
-          maxLength: 256
-          pattern: ^.*$
         eventType:
           description: |-
             Tipo di eventi presenti nel flusso:
@@ -430,9 +424,6 @@ components:
           type: array
           items:
             type: string
-            minLength: 5
-            maxLength: 256
-            pattern: ^[A-Z_]+$
     StreamMetadataResponse:
       description: Configurazioni di un flusso di eventi
       allOf:
@@ -493,8 +484,6 @@ components:
             Identificativo della notifica, presente solo se la richiesta di
             notifica è  stata accettata.
           type: string
-          maxLength: 25
-          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
         newStatus:
           $ref: '#/components/schemas/NotificationStatus'
         timelineEventCategory:
@@ -715,6 +704,22 @@ x-amazon-apigateway-gateway-responses:
   DEFAULT_4XX:
     responseParameters:
       gatewayresponse.header.Access-Control-Allow-Origin: '''*'''
+  BAD_REQUEST_PARAMETERS:
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: '''*'''
+    responseTemplates:
+      application/json: >-
+        {"status": 400, "title": "VALIDATION ERROR", "traceId":
+        "$context.xrayTraceId", "errors": [ { "code": "PN_INVALID_PARAMETERS",
+        "detail": "Validation errors: $context.error.validationErrorString" } ]}
+  BAD_REQUEST_BODY:
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: '''*'''
+    responseTemplates:
+      application/json: >-
+        {"status": 400, "title": "VALIDATION ERROR", "traceId":
+        "$context.xrayTraceId", "errors": [ { "code": "PN_INVALID_BODY",
+        "detail": "Validation errors: $context.error.validationErrorString" } ]}
 x-amazon-apigateway-request-validators:
   basic:
     validateRequestBody: true

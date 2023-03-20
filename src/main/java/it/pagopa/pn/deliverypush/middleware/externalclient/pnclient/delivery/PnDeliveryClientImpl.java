@@ -2,16 +2,16 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery;
 
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.ApiClient;
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.api.InternalOnlyApi;
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationCostResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.RequestUpdateStatusDto;
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.SentNotification;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import lombok.extern.slf4j.Slf4j;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -29,6 +29,7 @@ public class PnDeliveryClientImpl implements PnDeliveryClient{
         log.debug("Start updateState for iun={}", dto.getIun());
 
         pnDeliveryApi.updateStatusWithHttpInfo(dto);
+        
         log.debug("Response update state OK for iun {}", dto.getIun());
 
     }
@@ -38,19 +39,9 @@ public class PnDeliveryClientImpl implements PnDeliveryClient{
         log.debug("Start getNotificationInfo for iun={}", iun);
         
         ResponseEntity<SentNotification> res = pnDeliveryApi.getSentNotificationPrivateWithHttpInfo(iun);
+        
         log.debug("Response getNotificationInfo OK for iun {}", iun);
         
-        return res.getBody();
-    }
-
-    @Override
-    public NotificationCostResponse getNotificationCostPrivate(String paTaxId, String noticeCode) {
-        log.debug("Start getNotificationCostPrivate for paTaxId={} noticeCode={}", paTaxId, noticeCode);
-
-        ResponseEntity<NotificationCostResponse> res = pnDeliveryApi.getNotificationCostPrivateWithHttpInfo(paTaxId, noticeCode);
-
-        log.debug("Response getNotificationCostPrivate res={} for paTaxId={} noticeCode={}", res, paTaxId, noticeCode);
-
         return res.getBody();
     }
     
