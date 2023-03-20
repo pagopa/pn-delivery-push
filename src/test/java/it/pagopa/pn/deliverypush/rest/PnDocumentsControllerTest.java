@@ -44,7 +44,7 @@ class PnDocumentsControllerTest {
 
         String iun = IUN;
         DocumentCategory documentType = DocumentCategory.AAR;
-        String documentId = "legal_fact_id";
+        String documentId = "PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG"; // or "safestorage://PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG"
         String recipientInternalId = "testRecipientInternalId";
         
         webTestClient.get()
@@ -76,7 +76,7 @@ class PnDocumentsControllerTest {
 
         String iun = IUN;
         DocumentCategory documentType = DocumentCategory.AAR;
-        String documentId = "legal_fact_id";
+        String documentId = "PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG"; // or "safestorage://PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG"
         String senderReceiverId = "senderReceiverId";
 
         webTestClient.get()
@@ -110,7 +110,7 @@ class PnDocumentsControllerTest {
 
         String iun = IUN;
         DocumentCategory documentType = DocumentCategory.AAR;
-        String documentId = "legal_fact_id";
+        String documentId = "safestorage://PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG"; // or "PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG"
         String senderReceiverId = "senderReceiverId";
 
         webTestClient.get()

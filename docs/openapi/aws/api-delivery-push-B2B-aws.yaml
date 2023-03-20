@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: NU6xz4livNYaOkxi8sW8GFVc+rKthHNcqlbNvAPZnlU=
+  version: zfuYJCcWcFyNXLzF+gFx1wAnqpmeNe6PFBLzgFsLVww=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -282,6 +282,8 @@ components:
       required: true
       schema:
         type: string
+        pattern: ^(safestorage:\/\/)?[A-Z0-9_-]+$
+        maxLength: 512
   schemas:
     LegalFactCategory:
       title: Tipi di atti opponibili a terzi
@@ -309,6 +311,8 @@ components:
             Chiave dell'atto opponibile a terzi generato durante il processo di
             consegna
           type: string
+          pattern: ^(safestorage:\/\/)?[A-Z0-9_-]+$
+          maxLength: 512
         category:
           $ref: '#/components/schemas/LegalFactCategory'
     LegalFactListElement:

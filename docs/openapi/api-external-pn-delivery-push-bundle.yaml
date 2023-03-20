@@ -196,6 +196,8 @@ components:
       required: true
       schema:
         type: string
+        pattern: ^(safestorage:\/\/)?[A-Z0-9_-]+$
+        maxLength: 512
   schemas:
     LegalFactCategory:
       title: Tipi di atti opponibili a terzi
@@ -220,6 +222,8 @@ components:
         key:
           description: Chiave dell'atto opponibile a terzi generato durante il processo di consegna
           type: string
+          pattern: ^(safestorage:\/\/)?[A-Z0-9_-]+$
+          maxLength: 512
         category:
           $ref: '#/components/schemas/LegalFactCategory'
     LegalFactListElement:
