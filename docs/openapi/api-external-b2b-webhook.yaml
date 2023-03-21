@@ -559,12 +559,16 @@ components:
     ############################################################################################
     queryLastEventId:
       description: >-
-        Identificativo dell'ultimo evento memorizzato dal chiamante, se non passato si intende dal primo evento presente nello stream
+        Identificativo dell'ultimo evento memorizzato dal chiamante, se non passato si intende dal primo evento presente nello stream.
+        Numero in una stringa di 38 caratteri con padding iniziale composto da '0'.
       name: lastEventId
       in: query
       required: false
       schema:
         type: string
+        minLength: 38
+        maxLength: 38
+        pattern: ^0\d{37}$
     pathStreamId:
       description: >-
         Identificativo dello stream di eventi
@@ -574,6 +578,8 @@ components:
       schema:
         type: string
         format: uuid
+        #minLength: 36
+        #maxLength: 36
 
   schemas:
     
@@ -590,6 +596,8 @@ components:
         title: 
           description: Nome sintetico dello stream
           type: string
+          maxLength: 256
+          pattern: ^.*$
         eventType:
           description: >-
             Tipo di eventi presenti nel flusso:
@@ -606,6 +614,9 @@ components:
           type: array
           items:
             type: string
+            minLength: 5
+            maxLength: 256
+            pattern: ^[A-Z_]+$
     
     StreamMetadataResponse:
       description: Configurazioni di un flusso di eventi
@@ -620,6 +631,8 @@ components:
               description: Identificativo del flusso di eventi
               type: string
               format: uuid
+              #minLength: 36
+              #maxLength: 36
             activationDate:
               description: Timestamp in cui il flusso di eventi è stato attivato
               type: string
@@ -640,8 +653,12 @@ components:
         streamId:
           type: string
           format: uuid
+          #minLength: 36
+          #maxLength: 36
         title: 
           type: string
+          maxLength: 256
+          pattern: ^.*$
         
     
 
@@ -680,6 +697,8 @@ components:
             Identificativo della notifica, presente solo se la richiesta di notifica è 
             stata accettata.
           type: string
+          maxLength: 25
+          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
 
         newStatus:
           $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'

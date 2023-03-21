@@ -457,6 +457,8 @@ components:
       required: true
       schema:
         type: string
+        pattern: ^(safestorage:\/\/)?[A-Z0-9_-]+$
+        maxLength: 512
 
     ############################################################################################
     ###            PARAMETRI DI RICERCA PER IL COSTO PROCESSO NOTIFICAZIONE                  ###

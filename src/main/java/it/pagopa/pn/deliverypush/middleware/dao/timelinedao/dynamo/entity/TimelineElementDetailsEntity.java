@@ -56,7 +56,6 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("eventTimestamp")})) private Instant eventTimestamp;
     @Getter(onMethod=@__({@DynamoDbAttribute("completionWorkflowDate")})) private Instant completionWorkflowDate;
     @Getter(onMethod=@__({@DynamoDbAttribute("status")})) private String endWorkflowStatus;
-    @Getter(onMethod=@__({@DynamoDbAttribute("eventDetail")})) private String eventDetail;
     @Getter(onMethod=@__({@DynamoDbAttribute("recipientType")})) private String recipientType;
     @Getter(onMethod=@__({@DynamoDbAttribute("amount")})) private Integer amount;
     @Getter(onMethod=@__({@DynamoDbAttribute("creditorTaxId")})) private String creditorTaxId;
@@ -65,4 +64,8 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("paymentSourceChannel")})) private String paymentSourceChannel;
     @Getter(onMethod=@__({@DynamoDbAttribute("schedulingDate")})) private Instant schedulingDate;
     @Getter(onMethod=@__({@DynamoDbAttribute("ioSendMessageResult")})) private String ioSendMessageResult;
+    @Getter(onMethod=@__({@DynamoDbAttribute("envelopeWeight")})) private Integer envelopeWeight;
+    @Getter(onMethod=@__({@DynamoDbAttribute("deliveryDetailCode")})) private String deliveryDetailCode;
+    @Getter(onMethod=@__({@DynamoDbAttribute("deliveryFailureCause")})) private String deliveryFailureCause;
+    @Getter(onMethod=@__({@DynamoDbAttribute("attachments")})) private List<AttachmentDetailsEntity> attachments;
 }

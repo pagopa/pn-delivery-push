@@ -15,6 +15,8 @@ public class SimpleRegisteredLetterDetailsInt extends BaseRegisteredLetterDetail
 
     private Integer analogCost;
     private String productType;
+    private Integer numberOfPages;
+    private Integer envelopeWeight;
 
     @Override
     public String toLog() {

@@ -24,6 +24,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 @WebFluxTest(PnDocumentsController.class)
 class PnDocumentsControllerTest {
 
+    private static final String IUN = "AAAA-AAAA-AAAA-202301-C-1";
+
     @Autowired
     WebTestClient webTestClient;
 
@@ -40,9 +42,9 @@ class PnDocumentsControllerTest {
                         , anyString(), anyString() ))
                 .thenReturn( monoDownloadMetadataResponse );
 
-        String iun = "fake_iun";
+        String iun = IUN;
         DocumentCategory documentType = DocumentCategory.AAR;
-        String documentId = "legal_fact_id";
+        String documentId = "PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG"; // or "safestorage://PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG"
         String recipientInternalId = "testRecipientInternalId";
         
         webTestClient.get()
@@ -72,9 +74,9 @@ class PnDocumentsControllerTest {
                         anyString(), anyString(), Mockito.isNull(), any(), any()))
                 .thenReturn(monoDownloadMetadataResponse);
 
-        String iun = "fake_iun";
+        String iun = IUN;
         DocumentCategory documentType = DocumentCategory.AAR;
-        String documentId = "legal_fact_id";
+        String documentId = "PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG"; // or "safestorage://PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG"
         String senderReceiverId = "senderReceiverId";
 
         webTestClient.get()
@@ -106,9 +108,9 @@ class PnDocumentsControllerTest {
                         anyString(), anyString(), Mockito.isNull(), any(), any()))
                 .thenThrow(new PnNotFoundException("", "", ""));
 
-        String iun = "fake_iun";
+        String iun = IUN;
         DocumentCategory documentType = DocumentCategory.AAR;
-        String documentId = "legal_fact_id";
+        String documentId = "safestorage://PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG"; // or "PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG"
         String senderReceiverId = "senderReceiverId";
 
         webTestClient.get()

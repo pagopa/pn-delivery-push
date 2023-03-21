@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: H4p1UN5a1ihuVVTKfxRZSWHNOcjhiQ4UBRFNoXgkFKE=
+  version: zfuYJCcWcFyNXLzF+gFx1wAnqpmeNe6PFBLzgFsLVww=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -242,6 +242,7 @@ components:
       description: identificativo della delega
       schema:
         type: string
+        format: uuid
     pathIun:
       description: Identificativo Univoco Notifica
       name: iun
@@ -249,20 +250,24 @@ components:
       required: true
       schema:
         type: string
+        maxLength: 25
+        pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
     pathLegalFactType:
-      description: Categoria dell'atto opponbile a terzi
+      description: Categoria dell'atto opponibile a terzi
       name: legalFactType
       in: path
       required: true
       schema:
         $ref: '#/components/schemas/LegalFactCategory'
     pathLegalFactId:
-      description: Identificativo dell'atto opponbile a terzi
+      description: Identificativo dell'atto opponibile a terzi
       name: legalFactId
       in: path
       required: true
       schema:
         type: string
+        pattern: ^[ -~]*$
+        maxLength: 1024
     pathDocumentType:
       description: Categoria documento
       name: documentType
@@ -277,11 +282,13 @@ components:
       required: true
       schema:
         type: string
+        pattern: ^(safestorage:\/\/)?[A-Z0-9_-]+$
+        maxLength: 512
   schemas:
     LegalFactCategory:
       title: Tipi di atti opponibili a terzi
       description: >-
-        Tipi di atti opponibili a terzi che Piattaforam Notiiche mette a
+        Tipi di atti opponibili a terzi che Piattaforma Notifiche mette a
         disposizione dei suoi utenti.
           - _SENDER_ACK_: atto di "presa in carico" di una notifica
           - _DIGITAL_DELIVERY_: ...
@@ -304,6 +311,8 @@ components:
             Chiave dell'atto opponibile a terzi generato durante il processo di
             consegna
           type: string
+          pattern: ^(safestorage:\/\/)?[A-Z0-9_-]+$
+          maxLength: 512
         category:
           $ref: '#/components/schemas/LegalFactCategory'
     LegalFactListElement:
@@ -316,9 +325,15 @@ components:
         taxId:
           description: Valorizzato se l'atto si riferisce a uno specifico destinatario
           type: string
+          minLength: 11
+          maxLength: 16
+          pattern: >-
+            ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
         iun:
           description: Identificativo Univoco Notifica a cui l'atto è associato
           type: string
+          maxLength: 25
+          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
         legalFactsId:
           $ref: '#/components/schemas/LegalFactsId'
     LegalFactList:
@@ -411,7 +426,7 @@ components:
           type: number
           format: decimal32
           example: 54092
-          description: dmensione, in byte, del contenuto.
+          description: dimensione, in byte, del contenuto.
         url:
           type: string
           description: >-

@@ -58,7 +58,6 @@ public class NotificationProcessCostServiceImpl implements NotificationProcessCo
                 analogCost = getAnalogCost(recIndex, analogCost, timelineElement);
             }
         }
-
         
         int notificationProcessCost = 0; //In caso di FLAT_RATE viene restituito sempre zero
         

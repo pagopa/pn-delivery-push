@@ -2,7 +2,7 @@ package it.pagopa.pn.deliverypush.action.analogworkflow;
 
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.SendEvent;
+import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.StatusCodeEnum;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.utils.PaperChannelUtils;
@@ -64,7 +64,7 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
         // GIVEN
         PrepareEventInt prepareEventInt = PrepareEventInt.builder()
                 .iun("IUN-01")
-                .statusCode(SendEvent.StatusCodeEnum.OK.getValue())
+                .statusCode(StatusCodeEnum.OK.getValue())
                 .statusDateTime(Instant.now())
                 .receiverAddress(PhysicalAddressInt.builder().address("via casa").build())
                 .requestId("IUN-01_abcd")
@@ -100,7 +100,7 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
         SendEventInt sendEventInt = SendEventInt.builder()
                 .iun("IUN_01")
                 .statusDetail("001")
-                .statusCode(SendEvent.StatusCodeEnum.PROGRESS.getValue())
+                .statusCode(StatusCodeEnum.PROGRESS.getValue())
                 .statusDateTime(Instant.now())
                 .discoveredAddress(PhysicalAddressInt.builder().address("via casa").build())
                 .requestId("IUN-01_abcd")
@@ -127,7 +127,7 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
         SendEventInt sendEventInt = SendEventInt.builder()
                 .iun("IUN_01")
                 .statusDetail("004")
-                .statusCode(SendEvent.StatusCodeEnum.OK.getValue())
+                .statusCode(StatusCodeEnum.OK.getValue())
                 .statusDateTime(Instant.now())
                 .discoveredAddress(PhysicalAddressInt.builder().address("via casa").build())
                 .requestId("IUN-01_abcd")
@@ -164,7 +164,7 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
         SendEventInt sendEventInt = SendEventInt.builder()
                 .iun("IUN_01")
                 .statusDetail("005")
-                .statusCode(SendEvent.StatusCodeEnum.KO.getValue())
+                .statusCode(StatusCodeEnum.KO.getValue())
                 .statusDateTime(Instant.now())
                 .discoveredAddress(PhysicalAddressInt.builder().address("via casa").build())
                 .requestId("IUN-01_abcd")
@@ -201,7 +201,7 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
         SendEventInt sendEventInt = SendEventInt.builder()
                 .iun("IUN_01")
                 .statusDetail("001")
-                .statusCode(SendEvent.StatusCodeEnum.PROGRESS.getValue())
+                .statusCode(StatusCodeEnum.PROGRESS.getValue())
                 .statusDateTime(Instant.now())
                 .discoveredAddress(PhysicalAddressInt.builder().address("via casa").build())
                 .requestId("IUN-01_abcd")

@@ -1,11 +1,13 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
+import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.dto.address.*;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.AttachmentDetailsInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
@@ -33,10 +35,7 @@ import org.springframework.util.Base64Utils;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 class TimelineUtilsTest {
 
@@ -211,11 +210,14 @@ class TimelineUtilsTest {
         NotificationInt notification = buildNotification();
         PhysicalAddressInt address = buildPhysicalAddressInt();
         String eventId = "001";
-        Integer numberOfPages = 1;
+        SendResponse sendResponse = new SendResponse()
+                .amount(10)
+                .foreignState("FR");
+
         String productType ="RN_AR";
         String timelineEventIdExpected = "SEND_SIMPLE_REGISTERED_LETTER#IUN_Example_IUN_1234_Test#RECINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
-        TimelineElementInternal actual = timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification, address, numberOfPages, productType);
+        TimelineElementInternal actual = timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification, address, sendResponse, productType);
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
                 () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
@@ -250,12 +252,15 @@ class TimelineUtilsTest {
         NotificationInt notification = buildNotification();
         String relatedRequestId = null;
         int sentAttemptMade = 1;
-        Integer analogCost = 10;
+        SendResponse sendResponse = new SendResponse()
+                .amount(10)
+                .foreignState("FR");
+
         String productType ="RN_AR";
         String timelineEventIdExpected = "SEND_ANALOG_DOMICILE#IUN_Example_IUN_1234_Test#RECINDEX_1#SENTATTEMPTMADE_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
         TimelineElementInternal actual = timelineUtils.buildSendAnalogNotificationTimelineElement(
-                address, recIndex, notification, relatedRequestId, sentAttemptMade, analogCost, productType
+                address, recIndex, notification, relatedRequestId, sentAttemptMade, sendResponse, productType
         );
 
         Assertions.assertAll(
@@ -396,10 +401,9 @@ class TimelineUtilsTest {
     void buildAnalogFailureAttemptTimelineElement() {
         NotificationInt notification = buildNotification();
         int sentAttemptMade = 1;
-        List<LegalFactsIdInt> legalFactsListEntryIds = Collections.singletonList(LegalFactsIdInt.builder()
-                .category(LegalFactCategoryInt.ANALOG_DELIVERY)
-                .key("key")
-                .build());
+        List<AttachmentDetailsInt> attachments = new ArrayList<>();
+        attachments.add(AttachmentDetailsInt.builder().url("key").build());
+        
         PhysicalAddressInt newAddress = buildPhysicalAddressInt();
         List<String> errors = Collections.singletonList("error 001");
         SendAnalogDetailsInt sendPaperDetails = SendAnalogDetailsInt.builder().build();
@@ -413,7 +417,7 @@ class TimelineUtilsTest {
                 .build();
 
         TimelineElementInternal actual = timelineUtils.buildAnalogFailureAttemptTimelineElement(
-                notification, sentAttemptMade, legalFactsListEntryIds, sendPaperDetails, sendEventInt
+                notification, sentAttemptMade, attachments, sendPaperDetails, sendEventInt
         );
 
         String timelineEventIdExpected = "SEND_ANALOG_FEEDBACK#IUN_Example_IUN_1234_Test#RECINDEX_0#SENTATTEMPTMADE_1".replace("#", TimelineEventIdBuilder.DELIMITER);

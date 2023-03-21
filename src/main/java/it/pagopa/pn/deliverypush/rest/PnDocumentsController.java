@@ -14,6 +14,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -52,12 +53,12 @@ public class PnDocumentsController implements DocumentsApi, DocumentsWebApi {
     public Mono<ResponseEntity<DocumentDownloadMetadataResponse>> getDocumentsWeb(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType,
                                                                                String xPagopaPnCxId, String iun,
                                                                                DocumentCategory documentType, String documentId,
-                                                                               List<String> xPagopaPnCxGroups, String mandateId,
+                                                                               List<String> xPagopaPnCxGroups, UUID mandateId,
                                                                                   final ServerWebExchange exchange) {
 
         log.info("[enter] getDocuments iun={} xPagopaPnCxId={} documentType={} documentId={} mandateId={}", iun, xPagopaPnCxId, documentType, documentId, mandateId);
 
-        return getDocumentService.getDocumentWebMetadata(iun, documentType, documentId, xPagopaPnCxId, mandateId, xPagopaPnCxType, xPagopaPnCxGroups)
+        return getDocumentService.getDocumentWebMetadata(iun, documentType, documentId, xPagopaPnCxId, (mandateId != null ? mandateId.toString() : null), xPagopaPnCxType, xPagopaPnCxGroups)
                 .map(response -> ResponseEntity.ok()
                         .header(HEADER_RETRY_AFTER, "" + response.getRetryAfter())
                         .body(response));

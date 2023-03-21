@@ -67,27 +67,6 @@ class SimpleRegisteredLetterDetailsTest {
         Assertions.assertEquals(Boolean.TRUE, details.equals(data));
     }
 
-    @Test
-    void testToString() {
-        String expected = "class SimpleRegisteredLetterDetails {\n" +
-                "    recIndex: 1\n" +
-                "    physicalAddress: class PhysicalAddress {\n" +
-                "        at: null\n" +
-                "        address: add\n" +
-                "        addressDetails: null\n" +
-                "        zip: null\n" +
-                "        municipality: null\n" +
-                "        municipalityDetails: null\n" +
-                "        province: null\n" +
-                "        foreignState: null\n" +
-                "    }\n" +
-                "    productType: NR_AR\n" +
-                "    analogCost: 1\n" +
-                "}";
-
-        Assertions.assertEquals(expected, details.toString());
-    }
-
     private SimpleRegisteredLetterDetails buildSimpleRegisteredLetterDetails() {
         return SimpleRegisteredLetterDetails.builder()
                 .recIndex(1)

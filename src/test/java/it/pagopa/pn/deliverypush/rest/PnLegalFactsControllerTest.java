@@ -25,7 +25,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 @WebFluxTest(PnLegalFactsController.class)
 class PnLegalFactsControllerTest {
 
-    private static final String IUN = "fake_iun";
+    private static final String IUN = "AAAA-AAAA-AAAA-202301-C-1";
+    private static final String MANDATE_ID = "4fd712cd-8751-48ba-9f8c-471815146896";
     private static final String LEGAL_FACT_ID = "legal_fact_id";
 
     @Autowired
@@ -52,7 +53,7 @@ class PnLegalFactsControllerTest {
                 .uri(uriBuilder ->
                         uriBuilder
                                 .path("/delivery-push/" + IUN + "/legal-facts")
-                                .queryParam("mandateId", "mandateId")
+                                .queryParam("mandateId", MANDATE_ID)
                                 .build())
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
@@ -78,7 +79,7 @@ class PnLegalFactsControllerTest {
                 .uri(uriBuilder ->
                         uriBuilder
                                 .path("/delivery-push/" + IUN + "/legal-facts")
-                                .queryParam("mandateId", "mandateId")
+                                .queryParam("mandateId", MANDATE_ID)
                                 .build())
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
@@ -112,7 +113,7 @@ class PnLegalFactsControllerTest {
                 .uri(uriBuilder ->
                         uriBuilder
                                 .path("/delivery-push/" + IUN + "/legal-facts/" + legalFactType + "/" + legalFactsId)
-                                .queryParam("mandateId", "mandateId")
+                                .queryParam("mandateId", MANDATE_ID)
                                 .build())
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
@@ -142,7 +143,7 @@ class PnLegalFactsControllerTest {
                 .uri(uriBuilder ->
                         uriBuilder
                                 .path("/delivery-push/" + IUN + "/legal-facts/" + legalFactType + "/" + legalFactsId)
-                                .queryParam("mandateId", "mandateId")
+                                .queryParam("mandateId", MANDATE_ID)
                                 .build())
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
@@ -180,7 +181,7 @@ class PnLegalFactsControllerTest {
                 .uri(uriBuilder ->
                         uriBuilder
                                 .path("/delivery-push/" + IUN + "/legal-facts/" + legalFactType + "/" + legalFactsId)
-                                .queryParam("mandateId", "mandateId")
+                                .queryParam("mandateId", MANDATE_ID)
                                 .build())
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
