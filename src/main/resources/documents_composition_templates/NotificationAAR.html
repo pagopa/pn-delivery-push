@@ -293,15 +293,12 @@
     <img id="qr-code" src="${qrCodeQuickAccessLink}" />
 
     <div id="recipient-addr-box">
-      <#if addressWriter.nullSafePhysicalAddressToString( recipient.physicalAddress, recipient.denomination, '<br/>')??>
-        ${addressWriter.nullSafePhysicalAddressToString( recipient.physicalAddress, "<strong>"+recipient.denomination+"</strong>", '<br/>')}
-      <#else>
-        <#if recipient.denomination??>
-          ${recipient.denomination}
-        <#else>
-          indirizzo non presente
-        </#if>
-      </#if>
+      <!-- Si lascia lo spazio per l'indirizzo che verra' inserito dal consolidatore -->
+      <br/>
+      <br/>
+      <br/>
+      <br/>
+      <br/>
     </div>
 
     <div id="main">
